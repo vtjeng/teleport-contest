@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first timer callback witness using the source-supported Slow_digestion variation. The C run of the longer setup showed start_melt_ice_timeout succeeds at when=459 (rn2(1591)=0), installed at move 11; this frozen 459-turn wait ends at the C-observed due move 470 and avoids extending into later monster turns. SLOW_DIGESTION is set for 2500 turns through #wizintrinsic page 3 item m, preventing the earlier turn-751 hunger transition. Confirm callback execution and full parity before treating this as evidence.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceWallRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n2500a>>2500k2500m\n  #wizintrinsic\n>2500f\n k\u0017nonpasswall wall\nju\u0017nonpasswall wall\nbl\u0017nonpasswall wall\nhn\u0017nonpasswall wall\nyj\u0017nonpasswall wall\nk\u0017food ration\ni eo \u0017melting ice\n459."
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 // Movement-adjacent world effects owned by hack.c.
+// C refs: hack.c pooleffects() and spoteffects(), plus the selected return
+// helpers named at their definitions below.
 
 import {
     A_CON,
@@ -175,6 +177,7 @@ import { adjalign, acurrstr, acurr, exercise } from './attrib.js';
 import {
     bot,
     classify_terrain,
+    docrt,
     feel_location,
     flush_screen,
     glyph_at,
@@ -246,7 +249,7 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import { game } from './gstate.js';
-import { carrying, delobj } from './invent.js';
+import { carrying, delobj, sobj_at } from './invent.js';
 import { doopen_indir } from './lock.js';
 import {
     amorphous,
@@ -268,7 +271,6 @@ import {
     breathless,
     ceiling_hider,
     is_swimmer,
-    likes_lava,
     metallivorous,
     Resists_Elem,
     dmgtype,
@@ -290,7 +292,6 @@ import {
     objectType,
     place_object,
     remove_object,
-    sobj_at,
 } from './obj.js';
 import {
     an,
@@ -338,6 +339,7 @@ import {
 } from './monsters.js';
 import {
     curr_mon_load,
+    m_in_air,
     minliquid,
     maybe_unhide_at,
     seemimic,
@@ -352,7 +354,6 @@ import {
     can_ooze,
     can_fog,
     closed_door,
-    m_in_air,
     onscary,
     set_apparxy,
     wormCross,
@@ -376,6 +377,9 @@ import { maybe_adjust_hero_bubble, water_friction } from './mkmaze.js';
 import {
     is_db_wall,
     is_pool,
+    is_ice,
+    is_lava,
+    is_pool_or_lava,
 } from './dbridge.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
@@ -384,7 +388,7 @@ import { inside_room } from './room_coordinates.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import { hard_helmet } from './do_wear.js';
 import { helm_simple_name } from './objnam.js';
-import { is_ice } from './terrain.js';
+
 import {
     addtobill,
     block_door,
@@ -413,8 +417,6 @@ import {
     stop_timer,
 } from './timeout.js';
 import {
-    is_lava,
-    is_pool_or_lava,
     back_on_ground,
     climb_pit,
     drown,
@@ -2742,39 +2744,6 @@ export async function crawl_destination(x, y, state = game) {
     const good = goodpos(x, y, hero, 0, {
         state,
         random: { rn2 },
-        heroCanOccupyPool: (candidateX, candidateY, env) => {
-            const candidateState = env.state;
-            const candidate = candidateState.level?.at(candidateX, candidateY);
-            const swimming = propertyPresent(candidateState, SWIMMING)
-                || Boolean(candidateState.u?.usteed
-                    && is_swimmer(candidateState.u.usteed.data));
-            const amphibiousHero = propertyPresent(
-                candidateState,
-                MAGICAL_BREATHING,
-            ) || amphibious(candidateState.youmonst?.data);
-            const waterWalking = propertyPresent(candidateState, WWALKING)
-                && !Is_waterlevel(candidateState.u?.uz);
-            const canRemainAboveWater = !Is_waterlevel(candidateState.u?.uz)
-                && !IS_WATERWALL(candidate?.typ)
-                && (propertyActiveUnblocked(candidateState, LEVITATION)
-                    || heroIsFlying(candidateState)
-                    || waterWalking);
-            return swimming || amphibiousHero || canRemainAboveWater;
-        },
-        heroCanOccupyLava: (_candidateX, _candidateY, env) => {
-            const candidateState = env.state;
-            const waterWalking = propertyPresent(candidateState, WWALKING)
-                && !Is_waterlevel(candidateState.u?.uz);
-            const waterWalkingBoots = candidateState.u?.uarmf;
-            return propertyActiveUnblocked(candidateState, LEVITATION)
-                || heroIsFlying(candidateState)
-                || (propertyPresent(candidateState, FIRE_RES)
-                    && waterWalking
-                    && waterWalkingBoots
-                    && waterWalkingBoots.oerodeproof)
-                || (Upolyd(candidateState.u)
-                    && likes_lava(candidateState.youmonst?.data));
-        },
     });
     if (!good) return false;
 
@@ -4954,13 +4923,23 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
             );
             await set_uinwater(false, state, rawEnv);
             if (wasUnderwater) {
-                await docrt({ state });
+                // hack.c:pooleffects() restores vision around docrt() before
+                // requesting the later full recalculation. display.c's C
+                // docrt_flags() owns both phases; JS docrt() exposes them to
+                // callers so this submerged-to-air redraw follows that order.
+                await docrt({
+                    state,
+                    suspendVision: () => vision_recalc(2, { state }),
+                    restoreVision: () => vision_recalc(0, { state }),
+                });
                 state.vision_full_recalc = 1;
             }
         }
     }
 
-    if (!u.ustuck && !levitating && !flying
+    if (!u.ustuck
+        && !propertyActiveUnblocked(state, LEVITATION)
+        && !heroIsFlying(state)
         && is_pool_or_lava(u.ux, u.uy, state)) {
         if (u.usteed && !grounded(u.usteed.data, state)) {
             return false;

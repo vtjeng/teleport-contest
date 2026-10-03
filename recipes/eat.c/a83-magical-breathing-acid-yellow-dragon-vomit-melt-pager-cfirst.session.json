@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation after the source-order Dragon self-breath output at step 108 paused on More. One space advances to vomit()’s later acid-on-ICE branch; no JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed amulet of magical breathing\nP?o#polyself\nyellow dragon\n   \u0017ice\n\u0017food ration\n\u0017food ration\ne? p ep y  "
+    }
+  ]
+}

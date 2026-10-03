@@ -98,14 +98,24 @@ import {
     obj_extract_self,
     o_on,
     update_inventory,
+    sobj_at,
 } from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
 import { angry_guards, mnearto, mongone, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
-    carried, dealloc_obj, hasContents, isCandle, is_pick,
-    newObject, next_ident, newomid, objectType, sobj_at, splitobj, weight,
+    carried,
+    dealloc_obj,
+    hasContents,
+    isCandle,
+    is_pick,
+    newObject,
+    next_ident,
+    newomid,
+    objectType,
+    splitobj,
+    weight,
 } from './obj.js';
 import {
     AGATE,

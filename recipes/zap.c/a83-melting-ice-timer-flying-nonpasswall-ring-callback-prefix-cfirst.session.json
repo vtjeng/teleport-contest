@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first callback witness frozen from the observed full C route at zero-based step 187, where the first counted wait returns a screen with “Some ice melts away” and a More prompt. The input prefix ends at that wait command; it does not reuse or truncate the previous C recording. The room-map path builds five nonpasswall walls around the hero-square ice, while three neighbors are existing boundary walls. The wished food ration is not consumed; it remains an observed inventory setup input. This recipe is independently recorded and strictly compared as a complete endpoint pair.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceWallRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n2500a>>2500k\n #wizintrinsic\n>2500f\n k\u0017nonpasswall wall\nju\u0017nonpasswall wall\nbl\u0017nonpasswall wall\nhn\u0017nonpasswall wall\nyj\u0017nonpasswall wall\nk\u0017food ration\ni eo \u0017melting ice\n2001."
+    }
+  ]
+}

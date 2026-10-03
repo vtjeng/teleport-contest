@@ -112,310 +112,78 @@ import {
     TT_BEARTRAP,
     BEAR_TRAP,
     NEUTRAL,
-} from './const.js';
+    } from './const.js';
 import {
-    acurr, acurrstr, adjalign, adjattrib, exercise, gainstr, poison_strdmg,
-} from './attrib.js';
+    acurr,
+    acurrstr,
+    adjalign,
+    adjattrib,
+    exercise,
+    gainstr,
+    poison_strdmg,
+    } from './attrib.js';
 import { ART_ORB_OF_DETECTION } from './artifacts.js';
 import {
-    paranoid_query, set_occupation, y_n, yn_function,
-} from './cmd.js';
+    paranoid_query,
+    set_occupation,
+    y_n,
+    yn_function,
+    } from './cmd.js';
 import { tinnable } from './apply.js';
-import { on_level, surface } from './dungeon.js';
+import { on_level,
+    surface } from './dungeon.js';
 import { pluslvl } from './exper.js';
-import { newsym, see_monsters } from './display.js';
+import { newsym,
+    see_monsters } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
+import { is_ice,
+    is_pool_or_lava,
+} from './dbridge.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { livelog_printf } from './pline.js';
 import {
-    check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv,
-    still_chewing, curs_on_u,
-    You_can_move_again,
-} from './hack.js';
+    check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
 import { dist2, lcase } from './hacklib.js';
 import {
-    INVLET_BASIC,
-    addinv_nomerge,
-    carrying,
-    feel_cockatrice,
-    freeinv,
-    getobj,
-    hands_obj,
-    obj_extract_self,
-    obj_here,
-    stackobj,
-    useup,
-    useupall,
-    useupf,
-    will_feel_cockatrice,
-} from './invent.js';
+    INVLET_BASIC, addinv_nomerge, carrying, feel_cockatrice, freeinv, getobj, hands_obj, obj_extract_self, obj_here, stackobj, useup, useupall, useupf, will_feel_cockatrice, } from './invent.js';
 import { dropx, dropy, trycall } from './do.js';
 import { makeplural } from './fruit.js';
 import { set_ulycn, were_beastie } from './were.js';
 import { staleEgg } from './dogfood.js';
 import { iter_mons_safe, mon_offmap, pm_to_cham, rescham } from './mon.js';
 import {
-    acidic,
-    attacktype,
-    attacktype_fordmg,
-    can_teleport,
-    carnivorous,
-    cantvomit,
-    control_teleport,
-    defended,
-    dmgtype,
-    flesh_petrifies,
-    herbivorous,
-    is_giant,
-    is_rider,
-    is_clinger,
-    is_were,
-    metallivorous,
-    poisonous,
-    poly_when_stoned,
-    same_race,
-    slimeproof,
-    telepathic,
-    type_is_pname,
-    your_race,
-    is_undead,
-    olfaction,
-    breathless,
-    perceives,
-} from './mondata.js';
+    acidic, attacktype, attacktype_fordmg, can_teleport, carnivorous, cantvomit, control_teleport, defended, dmgtype, flesh_petrifies, herbivorous, is_giant, is_rider, is_clinger, is_were, metallivorous, poisonous, poly_when_stoned, same_race, slimeproof, telepathic, type_is_pname, your_race, is_undead, olfaction, breathless, perceives, } from './mondata.js';
 import {
-    AD_ACID, AD_DISE, AD_POLY, AT_BREA, PM_KNIGHT, PM_PYROLISK,
-} from './monsters.js';
+    AD_ACID, AD_DISE, AD_POLY, AT_BREA, PM_KNIGHT, PM_PYROLISK, } from './monsters.js';
 import { hcolor, Mgender, pmname, rndmonnam } from './do_name.js';
 import { monflee } from './monmove.js';
 import {
-    AD_HALU,
-    AD_STUN,
-    AT_MAGC,
-    LOW_PM,
-    M1_CARNIVORE,
-    M1_HERBIVORE,
-    M1_METALLIVORE,
-    MR_ACID,
-    MR_COLD,
-    MR_DISINT,
-    MR_ELEC,
-    MR_FIRE,
-    MR_POISON,
-    MR_SLEEP,
-    MR_STONE,
-    NON_PM,
-    NUMMONS,
-    PM_ACID_BLOB,
-    PM_BAT,
-    PM_CHAMELEON,
-    PM_DEATH,
-    PM_DISENCHANTER,
-    PM_DISPLACER_BEAST,
-    PM_DOG,
-    PM_DOPPELGANGER,
-    PM_FAMINE,
-    PM_GENETIC_ENGINEER,
-    PM_GIANT_BAT,
-    PM_GIANT_MIMIC,
-    PM_GELATINOUS_CUBE,
-    PM_GHOUL,
-    PM_HOUSECAT,
-    PM_HUMAN_WEREJACKAL,
-    PM_HUMAN_WERERAT,
-    PM_HUMAN_WEREWOLF,
-    PM_KITTEN,
-    PM_LARGE_CAT,
-    PM_LARGE_DOG,
-    PM_LARGE_MIMIC,
-    PM_LITTLE_DOG,
-    PM_MASTER_MIND_FLAYER,
-    PM_MIND_FLAYER,
-    PM_KILLER_BEE,
-    PM_SCORPION,
-    PM_NURSE,
-    PM_PESTILENCE,
-    PM_QUANTUM_MECHANIC,
-    PM_RUST_MONSTER,
-    PM_SANDESTIN,
-    PM_SMALL_MIMIC,
-    PM_WRAITH,
-    PM_YELLOW_LIGHT,
-    PM_BLACK_PUDDING,
-    PM_CAVE_DWELLER,
-    PM_CHICKATRICE,
-    PM_COCKATRICE,
-    PM_DWARF,
-    PM_FIRE_ELEMENTAL,
-    PM_FLESH_GOLEM,
-    PM_FLOATING_EYE,
-    PM_ELF,
-    PM_GREEN_SLIME,
-    PM_LEATHER_GOLEM,
-    PM_LICHEN,
-    PM_LIZARD,
-    PM_MONK,
-    PM_NEWT,
-    PM_ORC,
-    PM_RAVEN,
-    PM_STALKER,
-    PM_TIGER,
-    PM_VALKYRIE,
-    PM_VIOLET_FUNGUS,
-    PM_WIZARD,
-    PM_WERERAT,
-    PM_WEREJACKAL,
-    PM_WEREWOLF,
-    S_MIMIC,
-    S_BLOB,
-    S_ELEMENTAL,
-    S_FUNGUS,
-    S_GHOST,
-    S_GOLEM,
-    S_JELLY,
-    S_LIGHT,
-    S_PUDDING,
-    S_VORTEX,
-} from './monsters.js';
+    AD_HALU, AD_STUN, AT_MAGC, LOW_PM, M1_CARNIVORE, M1_HERBIVORE, M1_METALLIVORE, MR_ACID, MR_COLD, MR_DISINT, MR_ELEC, MR_FIRE, MR_POISON, MR_SLEEP, MR_STONE, NON_PM, NUMMONS, PM_ACID_BLOB, PM_BAT, PM_CHAMELEON, PM_DEATH, PM_DISENCHANTER, PM_DISPLACER_BEAST, PM_DOG, PM_DOPPELGANGER, PM_FAMINE, PM_GENETIC_ENGINEER, PM_GIANT_BAT, PM_GIANT_MIMIC, PM_GELATINOUS_CUBE, PM_GHOUL, PM_HOUSECAT, PM_HUMAN_WEREJACKAL, PM_HUMAN_WERERAT, PM_HUMAN_WEREWOLF, PM_KITTEN, PM_LARGE_CAT, PM_LARGE_DOG, PM_LARGE_MIMIC, PM_LITTLE_DOG, PM_MASTER_MIND_FLAYER, PM_MIND_FLAYER, PM_KILLER_BEE, PM_SCORPION, PM_NURSE, PM_PESTILENCE, PM_QUANTUM_MECHANIC, PM_RUST_MONSTER, PM_SANDESTIN, PM_SMALL_MIMIC, PM_WRAITH, PM_YELLOW_LIGHT, PM_BLACK_PUDDING, PM_CAVE_DWELLER, PM_CHICKATRICE, PM_COCKATRICE, PM_DWARF, PM_FIRE_ELEMENTAL, PM_FLESH_GOLEM, PM_FLOATING_EYE, PM_ELF, PM_GREEN_SLIME, PM_LEATHER_GOLEM, PM_LICHEN, PM_LIZARD, PM_MONK, PM_NEWT, PM_ORC, PM_RAVEN, PM_STALKER, PM_TIGER, PM_VALKYRIE, PM_VIOLET_FUNGUS, PM_WIZARD, PM_WERERAT, PM_WEREJACKAL, PM_WEREWOLF, S_MIMIC, S_BLOB, S_ELEMENTAL, S_FUNGUS, S_GHOST, S_GOLEM, S_JELLY, S_LIGHT, S_PUDDING, S_VORTEX, } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    dopotion, incr_itimeout, make_blinded, make_confused, make_deaf,
-    make_glib, make_hallucinated, make_sick, make_slimed, make_stoned,
-    make_stunned,
-    make_vomiting,
-    self_invis_message,
-    set_itimeout,
-} from './potion.js';
+    dopotion, incr_itimeout, make_blinded, make_confused, make_deaf, make_glib, make_hallucinated, make_sick, make_slimed, make_stoned, make_stunned, make_vomiting, self_invis_message, set_itimeout, } from './potion.js';
 import { delayed_killer } from './end.js';
 import {
-    carried,
-    costly_alteration,
-    bcsign,
-    is_flammable,
-    isMetallic,
-    isRustprone,
-    is_rottable,
-    objectType,
-    peek_at_iced_corpse_age,
-    remove_object,
-    set_bknown,
-    splitobj,
-    weight,
-    g_at,
-    mksobj,
-} from './obj.js';
+    carried, costly_alteration, bcsign, is_flammable, isMetallic, isRustprone, is_rottable, objectType, peek_at_iced_corpse_age, remove_object, set_bknown, splitobj, weight, g_at, mksobj, } from './obj.js';
 import {
-    an, ansimpleoname, corpse_xname, donameFresh, killer_xname, obj_is_pname,
-    otense, safe_qbuf,
-    singular, the, the_unique_pm, xnameFresh, yobjnam,
-} from './objnam.js';
+    an, ansimpleoname, corpse_xname, donameFresh, killer_xname, obj_is_pname, otense, safe_qbuf, singular, the, the_unique_pm, xnameFresh, yobjnam, } from './objnam.js';
 import {
-    APPLE,
-    AMULET_CLASS,
-    AMULET_OF_CHANGE,
-    AMULET_OF_FLYING,
-    AMULET_OF_GUARDING,
-    AMULET_OF_LIFE_SAVING,
-    AMULET_OF_REFLECTION,
-    AMULET_OF_RESTFUL_SLEEP,
-    AMULET_OF_STRANGULATION,
-    AMULET_OF_UNCHANGING,
-    AMULET_OF_YENDOR,
-    CANDY_BAR,
-    CARROT,
-    CLOVE_OF_GARLIC,
-    COIN_CLASS,
-    CORPSE,
-    CRAM_RATION,
-    CREAM_PIE,
-    C_RATION,
-    EGG,
-    ENORMOUS_MEATBALL,
-    EUCALYPTUS_LEAF,
-    FAKE_AMULET_OF_YENDOR,
-    BONE,
-    DRAGON_HIDE,
-    FLESH,
-    FOOD_CLASS,
-    BALL_CLASS,
-    CHAIN_CLASS,
-    GEM_CLASS,
-    GLASS,
-    FOOD_RATION,
-    FORTUNE_COOKIE,
-    K_RATION,
-    LEATHER,
-    LEMBAS_WAFER,
-    LUMP_OF_ROYAL_JELLY,
-    PAPER,
-    POTION_CLASS,
-    RIN_ADORNMENT,
-    RIN_FREE_ACTION,
-    RIN_GAIN_CONSTITUTION,
-    RIN_GAIN_STRENGTH,
-    RIN_INCREASE_ACCURACY,
-    RIN_INCREASE_DAMAGE,
-    RIN_INVISIBILITY,
-    RIN_LEVITATION,
-    RIN_PROTECTION_FROM_SHAPE_CHAN,
-    RING_CLASS,
-    RIN_SEE_INVISIBLE,
-    RIN_SUSTAIN_ABILITY,
-    SCROLL_CLASS,
-    MEATBALL,
-    MEAT_RING,
-    MEAT_STICK,
-    PANCAKE,
-    PEAR,
-    RIN_PROTECTION,
-    RIN_SLOW_DIGESTION,
-    SLIME_MOLD,
-    SPRIG_OF_WOLFSBANE,
-    TRIDENT,
-    FLINT,
-    LEASH,
-    SCR_MAIL,
-    SCR_SCARE_MONSTER,
-    DAGGER,
-    SILVER_DAGGER,
-    ELVEN_DAGGER,
-    ORCISH_DAGGER,
-    ATHAME,
-    KNIFE,
-    STILETTO,
-    CRYSKNIFE,
-    PICK_AXE,
-    AXE,
-    TIN,
-    TIN_OPENER,
-    TRIPE_RATION,
-    BEARTRAP,
-    WAX,
-    WOOD,
-    WEAPON_CLASS,
-    GOLD_PIECE,
-    ORANGE,
-} from './objects.js';
+    APPLE, AMULET_CLASS, AMULET_OF_CHANGE, AMULET_OF_FLYING, AMULET_OF_GUARDING, AMULET_OF_LIFE_SAVING, AMULET_OF_REFLECTION, AMULET_OF_RESTFUL_SLEEP, AMULET_OF_STRANGULATION, AMULET_OF_UNCHANGING, AMULET_OF_YENDOR, CANDY_BAR, CARROT, CLOVE_OF_GARLIC, COIN_CLASS, CORPSE, CRAM_RATION, CREAM_PIE, C_RATION, EGG, ENORMOUS_MEATBALL, EUCALYPTUS_LEAF, FAKE_AMULET_OF_YENDOR, BONE, DRAGON_HIDE, FLESH, FOOD_CLASS, BALL_CLASS, CHAIN_CLASS, GEM_CLASS, GLASS, FOOD_RATION, FORTUNE_COOKIE, K_RATION, LEATHER, LEMBAS_WAFER, LUMP_OF_ROYAL_JELLY, PAPER, POTION_CLASS, RIN_ADORNMENT, RIN_FREE_ACTION, RIN_GAIN_CONSTITUTION, RIN_GAIN_STRENGTH, RIN_INCREASE_ACCURACY, RIN_INCREASE_DAMAGE, RIN_INVISIBILITY, RIN_LEVITATION, RIN_PROTECTION_FROM_SHAPE_CHAN, RING_CLASS, RIN_SEE_INVISIBLE, RIN_SUSTAIN_ABILITY, SCROLL_CLASS, MEATBALL, MEAT_RING, MEAT_STICK, PANCAKE, PEAR, RIN_PROTECTION, RIN_SLOW_DIGESTION, SLIME_MOLD, SPRIG_OF_WOLFSBANE, TRIDENT, FLINT, LEASH, SCR_MAIL, SCR_SCARE_MONSTER, DAGGER, SILVER_DAGGER, ELVEN_DAGGER, ORCISH_DAGGER, ATHAME, KNIFE, STILETTO, CRYSKNIFE, PICK_AXE, AXE, TIN, TIN_OPENER, TRIPE_RATION, BEARTRAP, WAX, WOOD, WEAPON_CLASS, GOLD_PIECE, ORANGE, } from './objects.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
-    discover_object, observe_object, objdescr_is,
-} from './o_init.js';
+    discover_object, observe_object, objdescr_is, } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import {
-    body_part, change_sex, rehumanize,
-} from './polyself.js';
+    body_part, change_sex, rehumanize, } from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { fingers_or_gloves, toggle_displacement } from './do_wear.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { obj_stop_timers } from './timeout.js';
 import {
-    Flying,
-    Levitation, deltrap, float_up, is_pool_or_lava, reset_utrap, t_at,
-    unconscious,
-} from './trap.js';
+    Flying, Levitation, deltrap, float_up, reset_utrap, t_at, unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
 import { costly_spot } from './shk.js';
@@ -1974,9 +1742,9 @@ async function choke(food, state, env = {}) {
             state,
             env,
         );
-        // eat.c discards vomit()'s result. Its remaining source branches are
-        // not part of this task, so preserve the exact named gap.
-        note_unported('eat.c vomit');
+        // eat.c discards vomit()'s result; keep its state and output effects
+        // before choke() returns to bite().
+        await vomit(state, env);
         return true;
     }
 
@@ -2006,45 +1774,62 @@ async function choke(food, state, env = {}) {
     return !state.program_state?.gameover;
 }
 
-// C ref: eat.c vomit() (3736-3785). This is the ordinary, unpolymorphed hero
-// continuation used by fountain.c's foul-water arm. The other arms are kept
-// explicit boundaries: ubreatheu(), melt_ice(), and several other branches
-// are not ported, and dry-heaving has its own body-part message. Keep those
-// branches explicit while allowing the source-owned altar_wrath() call after
-// nomul().
-export async function vomit(state = game) {
+// C ref: eat.c vomit() (3736-3785). Keep the source order across cantvomit,
+// sickness, dry-heaving/spewing, multi-turn interruption, and the three
+// conditional effects that follow a real spew.
+export async function vomit(state = game, env = {}) {
     const hero = state.u;
     const species = state.youmonst?.data;
+    const message = env.message ?? ttyPline;
+    let spewed = false;
 
     if (!hero || !species)
-        throw new UnsupportedEatError('vomit() without an initialized hero');
-    if (Upolyd(hero))
-        throw new UnsupportedEatError('vomit() for a polymorphed hero');
-    if (cantvomit(species))
-        throw new UnsupportedEatError('vomit() cantvomit() arm');
-    if (hero.uprops?.[SICK]?.intrinsic
-        && (hero.usick_type & SICK_VOMITABLE)) {
-        await make_sick(0, null, true, SICK_VOMITABLE, state);
+        throw new TypeError('vomit requires an initialized hero and form');
+    if (cantvomit(species)) {
+        await message('Your jaw gapes convulsively.', state);
+    } else {
+        if (hero.uprops?.[SICK]?.intrinsic
+            && (hero.usick_type & SICK_VOMITABLE)) {
+            await make_sick(0, null, true, SICK_VOMITABLE, state, env);
+        }
+        if (hero.uhs >= FAINTING) {
+            await message(
+                `Your ${body_part(STOMACH, state.youmonst)} heaves convulsively!`,
+                state,
+            );
+        } else {
+            spewed = true;
+        }
     }
-    if (hero.uhs >= FAINTING)
-        throw new UnsupportedEatError('vomit() dry-heave arm');
-    if ((state.multi ?? 0) !== 0)
-        throw new UnsupportedEatError('vomit() while already multi-turn');
-    if (attacktype_fordmg(species, AT_BREA, AD_ACID))
-        throw new UnsupportedEatError('vomit() acid-breath arm');
-    if (acidic(species))
-        throw new UnsupportedEatError('vomit() acidic-form arm');
 
-    // C ref: eat.c:3759-3763. On the ordinary command path gm.multi is zero,
-    // so nomul(-2) installs the vomiting delay and end_running() clears any
-    // pending run/travel state before the reason and completion message are
-    // stored.
-    nomul(-2, state);
-    state.multi_reason = 'vomiting';
-    state.nomovemsg = You_can_move_again;
-    if (IS_ALTAR(state.level?.at(hero.ux, hero.uy)?.typ)) {
-        const { altar_wrath } = await import('./pray.js');
-        await altar_wrath(hero.ux, hero.uy, state);
+    // C ref: eat.c:3760-3763. Do not interrupt an existing multi below -2.
+    if ((state.multi ?? 0) >= -2) {
+        nomul(-2, state);
+        state.multi_reason = 'vomiting';
+        state.nomovemsg = You_can_move_again;
+    }
+
+    if (spewed) {
+        const mattk = attacktype_fordmg(species, AT_BREA, AD_ACID);
+        if (mattk) {
+            await message('You breathe acid on yourself...', state);
+            const { ubreatheu } = await import('./zap.js');
+            await ubreatheu(mattk, state, env.random);
+        }
+        if (IS_ALTAR(state.level.at(hero.ux, hero.uy).typ)) {
+            const { altar_wrath } = await import('./pray.js');
+            await altar_wrath(hero.ux, hero.uy, state);
+        }
+        if (acidic(species) && is_ice(hero.ux, hero.uy, state)) {
+            const { melt_ice } = await import('./zap.js');
+            await melt_ice(
+                hero.ux,
+                hero.uy,
+                'Your stomach acid melts straight through the ice!',
+                state,
+                env,
+            );
+        }
     }
 }
 

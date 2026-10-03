@@ -1,6 +1,8 @@
 // Player-specified fruit names and the named-fruit chain.
 // C refs: options.c optfn_fruit(), initoptions_finish(), fruitadd();
-// objnam.c makesingular(), fruitname(), fruit_from_indx(), fruit_from_name();
+// objnam.c badman(), makeplural(), makesingular(), fruitname(),
+// fruit_from_indx(), fruit_from_name(), singplur_compound(),
+// singplur_lookup(), and ch_ksound();
 // hacklib.c mungspaces(), copynchars(); bones.c sanitize_name().
 
 import { game } from './gstate.js';

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first terrain-wish route to trap.c:lava_effects(BURNING) and lifesaving rescue. The independent seed/date/character and C-observed inventory prompt come from the retained setup probe. After selecting the observed worn life-saving amulet at slot o, the final Ctrl-W request names lava; C source objnam.c:wizterrainwish sets the hero square to LAVAPOOL and calls pooleffects(), reaching lava_effects. Input ends at the actual C pager boundary for inspection before any continuation is frozen.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017amulet of life saving\nP? o\u0017lava\n"
+    }
+  ]
+}

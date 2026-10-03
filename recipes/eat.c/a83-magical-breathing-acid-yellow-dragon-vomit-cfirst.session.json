@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation after the observed Continue eating? [yn] query. The y response continues the second food ration, and the source-worn magical-breathing amulet makes choke()’s Breathless arm unconditional; the Yellow Dragon form is acidic and stands on wished ICE. No JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed amulet of magical breathing\nP?o#polyself\nyellow dragon\n   \u0017ice\n\u0017food ration\n\u0017food ration\ne? p ep y"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A83 source-selected MELT_ICE_AWAY variation: C objnam.c:wizterrainwish sets icedpool from the terrain immediately before wishing ICE (`oldtyp == MOAT` selects ICED_MOAT). Preserve the verified Flying, Slow_digestion, enclosure and callback setup, but wish a MOAT immediately before “melting ice” so the timer callback exercises zap.c:melt_ice converting ICED_MOAT back to MOAT. Freeze this variation before JS comparison.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceWallRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n2500a>>2500k2500m\n  #wizintrinsic\n>2500f\n k\u0017nonpasswall wall\nju\u0017nonpasswall wall\nbl\u0017nonpasswall wall\nhn\u0017nonpasswall wall\nyj\u0017nonpasswall wall\nk\u0017food ration\ni eo \u0017moat\n\u0017melting ice\n459."
+    }
+  ]
+}

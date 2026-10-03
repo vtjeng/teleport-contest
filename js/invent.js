@@ -1,5 +1,6 @@
 // Hero inventory and nobj-chain primitives.
-// C refs: src/invent.c addinv(), mergable(), merged(), nxtobj(), useupall();
+// C refs: src/invent.c sobj_at(), addinv(), mergable(), merged(), nxtobj(),
+// useupall();
 //         src/mkobj.c add_to_container() and add_to_buried().
 
 import { inv_cnt, near_capacity } from './hack.js';
@@ -21,6 +22,7 @@ import {
     BUC_UNCURSED,
     BUC_UNKNOWN,
     BUFSZ,
+    COLNO,
     CMDQ_INT,
     CMDQ_KEY,
     CMDQ_USER_INPUT,
@@ -138,6 +140,7 @@ import {
     W_SWAPWEP,
     W_WEAPONS,
     W_WEP,
+    ROWNO,
     WORN_AMUL,
     WORN_ARMOR,
     WORN_BLINDF,
@@ -210,11 +213,12 @@ import { stairs_description, stairway_at } from './stairs.js';
 import {
     is_drawbridge_wall,
     is_pool,
-} from './dbridge.js';
-import { is_ice } from './terrain.js';
-import {
+    is_ice,
     is_lava,
     is_pool_or_lava,
+} from './dbridge.js';
+
+import {
     t_at,
     trapname,
 } from './trap.js';
@@ -310,7 +314,6 @@ import {
     place_object,
     preflightWeight,
     set_bknown,
-    sobj_at as object_sobj_at,
     splitobj,
     unsplitobj,
     carried,
@@ -2311,11 +2314,19 @@ export function obj_here(obj, x, y, state = game) {
     return false;
 }
 
-// C ref: invent.c sobj_at() (1465-1475).  The object module owns the same
-// floor-grid primitive for its mkobj.c callers; expose that implementation
-// here too so invent.c callers can use its source-named entry point.
+// C ref: invent.c sobj_at() (1465-1475). The JS map stores the global floor
+// object chain as per-square nexthere lists; search that square in chain order.
 export function sobj_at(otyp, x, y, state = game) {
-    return object_sobj_at(otyp, x, y, state);
+    const grid = state.level?.objects;
+    if (!Array.isArray(grid) || grid.length !== COLNO
+        || !grid.every((column) => Array.isArray(column)
+            && column.length === ROWNO)) {
+        throw new Error('floor object operations require a GameMap object grid');
+    }
+    for (let obj = grid[x]?.[y] ?? null; obj; obj = obj.nexthere) {
+        if (obj.otyp === otyp) return obj;
+    }
+    return null;
 }
 
 // C ref: invent.c will_feel_cockatrice(). A sighted hero without forced touch

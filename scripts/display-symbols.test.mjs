@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { createArtifactTable } from '../js/artifacts.js';
@@ -63,6 +64,7 @@ import {
     M_AP_MONSTER,
     M_AP_OBJECT,
     MAXTCHARS,
+    MOAT,
     OBJ_FLOOR,
     PIT,
     POOL,
@@ -380,6 +382,11 @@ import {
 import {
     enableBrowserGlyphProjection,
 } from './browser-projection-test-support.mjs';
+
+const C_DISPLAY_SOURCE = readFileSync(
+    'nethack-c/upstream/src/display.c',
+    'utf8',
+);
 
 const WALL_SYMBOL_CASES = [
     // Every wall enum is present so the test catches a swapped corner or T.
@@ -5354,6 +5361,39 @@ test('a visible gas region covers the hero without refreshing map memory', () =>
     assert.equal(state.level.at(x, y).remembered_glyph.glyph, priorMemory);
 });
 
+test('newsym overlays visible gas on liquid and accessible terrain', () => {
+    // display.c:993-996 draws a region on accessible terrain, or on pool/lava
+    // terrain when the region is visible. ROOM exercises the ordinary arm;
+    // MOAT is the source-relevant inaccessible liquid arm from zap_over_floor.
+    assert.match(
+        C_DISPLAY_SOURCE,
+        /if \(reg && \(ACCESSIBLE\(lev->typ\)\s+\|\|\s+\(reg->visible && is_pool_or_lava\(x, y\)\)\)\) \{/u,
+    );
+
+    for (const [terrain, sourceArm] of [
+        [ROOM, 'ACCESSIBLE(lev->typ)'],
+        [MOAT, 'reg->visible && is_pool_or_lava(x, y)'],
+    ]) {
+        const x = 7;
+        const y = 4;
+        const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+        state.level.at(x, y).typ = terrain;
+        const cloud = create_region();
+        add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
+        cloud.visible = true;
+        cloud.glyph_cmap = S_cloud;
+        add_region(cloud, state, { deferVisual: true });
+
+        newsym(x, y);
+
+        assert.deepEqual(
+            [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+            ['#', NO_COLOR],
+            `${sourceArm} draws the visible steam region`,
+        );
+    }
+});
+
 test('gas colors and ordinary/disguised monster precedence follow newsym', () => {
     const x = 7;
     const y = 4;
@@ -6269,6 +6309,36 @@ test('newsym layers seen traps below objects and above engravings', () => {
         '^',
         'an underwater hero sees the trap through the pool layer',
     );
+
+    // C display.c:newsym() returns before redrawing an underwater square
+    // unless it is adjacent liquid/ice. A carried ration left under the old
+    // hero glyph must not leak through on that distant redraw.
+    state.u.ux = x - 3;
+    state.level.at(x, y).typ = ROOM;
+    state.level.at(x, y).disp_ch = '@';
+    state.level.objects[x][y] = { otyp: 42, oclass: WEAPON_CLASS };
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '@');
+
+    // The same early return applies to distant liquid cells; nearby liquid
+    // was exercised above. Water-level maps bypass this restriction.
+    state.level.at(x, y).typ = POOL;
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '@');
+    state.water_level = { dnum: 1, dlevel: 2 };
+    state.u.uz = { dnum: 1, dlevel: 2 };
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, ')');
+});
+
+test('newsym applies the C underwater guard before redrawing memory', () => {
+    const start = C_DISPLAY_SOURCE.indexOf(
+        'if (Underwater && !Is_waterlevel(&u.uz))',
+    );
+    assert.notEqual(start, -1);
+    const guard = C_DISPLAY_SOURCE.slice(start, start + 280);
+    assert.match(guard, /is_pool_or_lava\(x, y\) \|\| is_ice\(x, y\)/);
+    assert.match(guard, /!next2u\(x, y\)/);
 });
 
 test('newsym snapshots permanent lighting only at the visible boundary', () => {

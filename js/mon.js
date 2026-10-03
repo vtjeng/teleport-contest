@@ -1,6 +1,7 @@
 // mon.js -- Runtime monster turn state, and the removal lifecycle a monster
 // runs when the hero kills it.
-// C refs: mon.c movemon(), movemon_singlemon(), hideunder(),
+// C refs: mon.c movemon(), movemon_singlemon(), get_iter_mons(), hideunder(),
+// m_in_air(), mnearto(),
 // mon_animal_list(), mcalcmove(),
 // mpickstuff(), curr_mon_load(), max_mon_load(), m_consume_obj(),
 // pet_sanity_check(), sanity_check_single_mon(), mon_sanity_check(),
@@ -174,6 +175,8 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_lava,
+    is_pool_or_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { get_mleash, leashable } from './apply.js';
@@ -240,6 +243,7 @@ import {
     obj_extract_self,
     stackobj,
     update_inventory,
+    sobj_at,
 } from './invent.js';
 import {
     any_light_source,
@@ -555,7 +559,6 @@ import {
     accessible,
     m_can_break_boulder,
     can_hide_under_obj,
-    m_in_air,
     monnear,
     monflee,
     monhaskey,
@@ -588,7 +591,6 @@ import {
     objectType,
     place_object,
     pudding_merge_message,
-    sobj_at,
     splitobj,
     weight,
     Dragon_mail_to_pm,
@@ -679,12 +681,10 @@ import {
 } from './teleport.js';
 import {
     fill_pit,
-    is_lava,
     t_at,
     unconscious,
     Flying,
     Levitation,
-    is_pool_or_lava,
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -1184,6 +1184,16 @@ export function m_poisongas_ok(mtmp, state = game) {
         return M_POISONGAS_MINOR;
     }
     return M_POISONGAS_BAD;
+}
+
+// C ref: mon.c m_in_air() (2128-2136). Clingers count only while concealed
+// against a ceiling; ordinary flyers and floaters are unconditional.
+export function m_in_air(monster, state = game) {
+    return is_flyer(monster.data)
+        || is_floater(monster.data)
+        || (is_clinger(monster.data)
+            && has_ceiling(state.u?.uz, state)
+            && monster.mundetected);
 }
 
 // C ref: mon.c genus() (470-532). Quest guardians map to their role in mode 1;

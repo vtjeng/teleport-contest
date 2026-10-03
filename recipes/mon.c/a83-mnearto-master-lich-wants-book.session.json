@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first A83 witness for wizard.c:tactics -> mon.c:mnearto. Seed 948211 and this clock were chosen independently. The wizard wishes for the Book of the Dead, then creates a peaceful master lich whose M3_WANTSBOOK flag selects STRAT_PLAYER while the hero holds that book; one wait lets tactics call mnearto at the hero's occupied square, requiring enexto placement.",
+  "segments": [
+    {
+      "seed": 948211,
+      "datetime": "20341112142200",
+      "nethackrc": "OPTIONS=name:BookTarget,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizwish\nBook of the Dead\n#wizgenesis\npeaceful master lich\n."
+    }
+  ]
+}

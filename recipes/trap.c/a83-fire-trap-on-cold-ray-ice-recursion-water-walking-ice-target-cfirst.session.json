@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A83 C-first fire-trap recursion attempt on actual ICE. The preserved water-walking recording shows its newline after `zol` is a literal game input that moves the hero south: C freezes the east tile at step42, moves south at step43, then the later `l` goes east on ROOM. This frozen correction removes that observed newline so `l` immediately enters the frozen east tile; then it adds a fire trap, steps east, and follows the C-observed newt/trap prompts to re-enter as hero. It is not JS-compared.",
+  "segments": [
+    {
+      "seed": 64100321,
+      "datetime": "20321214103000",
+      "nethackrc": "OPTIONS=name:A83FireTrapIce,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": "#wizintrinsic\n>h\n \u0017pool\nh\u0017wand of cold\nzoll#wizintrinsic\n>2500i\n \u0017fire trap\nlhhy"
+    }
+  ]
+}

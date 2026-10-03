@@ -53,6 +53,7 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { glyph_is_object, newsym, vobj_at } from './display.js';
@@ -66,7 +67,7 @@ import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
 import { eaten_stat } from './eat.js';
 import { game } from './gstate.js';
-import { currency, obj_extract_self } from './invent.js';
+import { currency, obj_extract_self, sobj_at } from './invent.js';
 import { On_stairs } from './stairs.js';
 import {
     dist2,
@@ -145,7 +146,7 @@ import {
 } from './monmove.js';
 import { bee_eat_jelly } from './monmove.js';
 import { may_dig } from './hack.js';
-import { costly_alteration, sobj_at, splitobj } from './obj.js';
+import { costly_alteration, splitobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     an, distant_name, donameFresh, vtense, xnameFresh,
@@ -179,7 +180,6 @@ import { mpickobj, relobj } from './steal.js';
 import { gettrack } from './track.js';
 import { dismissPendingTtyMessage, ttyPline } from './tty_message.js';
 import {
-    is_lava,
     t_at,
 } from './trap.js';
 import {

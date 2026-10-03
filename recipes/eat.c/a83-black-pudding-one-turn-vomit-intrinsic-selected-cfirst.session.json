@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of the observed wizard menu. C lists VOMITING as row k and shows the numeric prefix 1; this recipe appends Enter to commit that selection and ends at the resulting intrinsic message/pager boundary. The setup remains ICE plus Black Pudding, and no JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 45317921,
+      "datetime": "20280115140720",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding4,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n#polyself\nblack pudding\n #wizintrinsic\n1k\n"
+    }
+  ]
+}

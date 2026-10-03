@@ -24,6 +24,8 @@ import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 import {
     always_hostile,
     always_peaceful,
+    attacktype,
+    attacktype_fordmg,
     big_little_match,
     can_blow,
     breakarm,
@@ -73,6 +75,25 @@ function monsterState(withVitals = false) {
 
 const state = monsterState();
 const pm = (index) => state.mons[index];
+const MONDATA_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mondata.c', import.meta.url), 'utf8',
+);
+
+test('attacktype and attacktype_fordmg preserve C scan and wildcard order', () => {
+    assert.match(MONDATA_C,
+        /attacktype_fordmg\([\s\S]*?for \(a = &ptr->mattk\[0\]; a < &ptr->mattk\[NATTK\]; a\+\+\)[\s\S]*?dtyp == AD_ANY \|\| a->adtyp == dtyp/u);
+    assert.match(MONDATA_C,
+        /attacktype\([\s\S]*?attacktype_fordmg\(ptr, atyp, AD_ANY\)/u);
+
+    // AT_BREA is 12 in monattk.h:22 and AD_ANY is -1 at monattk.h:41.
+    const firstBreath = { aatyp: 12, adtyp: 3 }; // AT_BREA/AD_COLD: monattk.h:22,45.
+    const acidBreath = { aatyp: 12, adtyp: 8 }; // AT_BREA/AD_ACID: monattk.h:22,50.
+    const species = { mattk: [firstBreath, acidBreath] };
+    assert.equal(attacktype(species, 12), true);
+    assert.equal(attacktype_fordmg(species, 12, 8), acidBreath);
+    assert.equal(attacktype_fordmg(species, 12, -1), firstBreath);
+    assert.equal(attacktype_fordmg(species, 1, 8), undefined);
+});
 
 test('monsndx returns the mons[] index a species was built from', () => {
     assert.equal(monsndx(pm(M.PM_NEWT)), M.PM_NEWT);
@@ -406,6 +427,8 @@ test('sliparm and breakarm split armor destruction by body shape', () => {
 });
 
 test('cantvomit lists rodents except two, plus the three horses', () => {
+    assert.match(MONDATA_C,
+        /cantvomit\(struct permonst \*ptr\)[\s\S]*?ptr->mlet == S_RODENT[\s\S]*?PM_ROCK_MOLE[\s\S]*?PM_WOODCHUCK[\s\S]*?PM_WARHORSE[\s\S]*?PM_HORSE[\s\S]*?PM_PONY/u);
     assert.equal(cantvomit(pm(M.PM_SEWER_RAT)), true);
     // The two S_RODENT exceptions named in the C source.
     assert.equal(cantvomit(pm(M.PM_ROCK_MOLE)), false);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first preparation: create ICE and four food rations before entering the handless form, then choose Black Pudding. monsters.h:2113–2123 gives Black Pudding SIZ(900,250,...) and M1_BREATHLESS|M1_ACID, with no AT_BREA/AD_ACID attack. The form therefore carries the setup, bypasses choke's rn2(20), and skips ubreatheu before eat.c:vomit tests ICE. Inputs are frozen before recording or JS comparison.",
+  "segments": [
+    {
+      "seed": 34918305,
+      "datetime": "20261003165200",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\n#polyself\nblack pudding\n"
+    }
+  ]
+}

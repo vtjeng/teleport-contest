@@ -1,8 +1,8 @@
 // Monster movement decisions, actions, and item search.
 // C ref: monmove.c.  Every function ported from that file lives here.
 //
-// Four functions here come from other C files and have not moved yet:
-//   mon.c    m_in_air(), mfndpos(), monnear()
+// Three functions here come from other C files and have not moved yet:
+//   mon.c    mfndpos(), monnear()
 //   trap.c   m_harmless_trap()
 // mfndpos() and its helpers are about 540 lines and call back into can_fog(),
 // monhaskey(), m_can_break_boulder(), closed_door(), accessible(), and
@@ -169,6 +169,7 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { artifactTouchable, artifact_light, has_magic_key } from './artifacts.js';
@@ -186,7 +187,7 @@ import {
 import { dogfood } from './dogfood.js';
 import { is_digging, mdig_tunnel, watch_dig } from './dig.js';
 import { could_reach_item } from './dogmove.js';
-import { has_ceiling, Is_special, on_level, u_on_newpos } from './dungeon.js';
+import { Is_special, on_level, u_on_newpos } from './dungeon.js';
 import {
     bad_rock,
     cant_squeeze_thru,
@@ -202,10 +203,12 @@ import { sengr_at, wipe_engr_at } from './engrave.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { dist2, distmin } from './hacklib.js';
-import { delobj, money_cnt, obj_extract_self } from './invent.js';
+import { delobj, money_cnt, obj_extract_self, sobj_at } from './invent.js';
 import { picking_lock } from './lock.js';
 import { grow_up, set_malign } from './makemon.js';
-import { healmon, mnearto, mongone, newcham_distress } from './mon.js';
+import {
+    healmon, m_in_air, mnearto, mongone, newcham_distress,
+} from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import { ranged_attk_available } from './mhitu.js';
 import {
@@ -255,8 +258,6 @@ import {
     is_clinger,
     is_covetous,
     is_demon,
-    is_floater,
-    is_flyer,
     is_mind_flayer,
     is_minion,
     is_rider,
@@ -357,7 +358,6 @@ import {
     isContainer,
     objectType,
     remove_object,
-    sobj_at,
     splitobj,
 } from './obj.js';
 import {
@@ -430,7 +430,6 @@ import { S_poisoncloud } from './symbols.js';
 import { gettrack, hastrack } from './track.js';
 import {
     count_traps,
-    is_lava,
     maketrap,
     t_at,
     unconscious,
@@ -1162,16 +1161,6 @@ async function watch_on_duty(mtmp, env = {}) {
             );
         }
     }
-}
-
-// C ref: mon.c m_in_air() (2128-2136). Clingers count only while concealed
-// against a ceiling; ordinary flyers and floaters are unconditional.
-export function m_in_air(monster, state = game) {
-    return is_flyer(monster.data)
-        || is_floater(monster.data)
-        || (is_clinger(monster.data)
-            && has_ceiling(state.u?.uz, state)
-            && monster.mundetected);
 }
 
 function isPick(obj, state) {

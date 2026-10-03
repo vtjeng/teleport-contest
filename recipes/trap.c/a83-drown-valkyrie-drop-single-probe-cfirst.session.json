@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only probe of the implemented single-item drop command: take off the Valkyrie's shield, drop the C-observed spear slot a, and inspect messages/remaining inventory before removing other droppable starting gear.",
+  "segments": [
+    {
+      "seed": 6042026,
+      "datetime": "20400202110000",
+      "nethackrc": "OPTIONS=name:DrownValk,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP? eTda"
+    }
+  ]
+}

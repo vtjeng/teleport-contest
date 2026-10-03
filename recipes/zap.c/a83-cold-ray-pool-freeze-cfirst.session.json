@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A83 C-first `zap_over_floor(ZT_COLD)` freeze route. Seed 64100321/date 20321214103000 were chosen independently; a prior C-only map shows open floor both west of the hero and east of the wished pool, so the hero moves west before aiming east across the pool to avoid a wall bounce into self. The observed #wizintrinsic page 3 item k enables Flying, and the C setup probe showed the wished wand of cold in slot o. Record the first cold ray alone to inspect its C prompt before defining any continuation.",
+  "segments": [
+    {
+      "seed": 64100321,
+      "datetime": "20321214103000",
+      "nethackrc": "OPTIONS=name:A83ColdRay,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": "#wizintrinsic\n>>k\n \u0017pool\nh\u0017wand of cold\nzol"
+    }
+  ]
+}

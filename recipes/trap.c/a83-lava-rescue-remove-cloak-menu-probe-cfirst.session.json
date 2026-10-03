@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first Wizard debug setup probe. The T command identifies the source inventory slot for removing the starting cloak before the BURNING witness.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "T"
+    }
+  ]
+}

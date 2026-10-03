@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-observed first pager continuation for the no-amulet Wizard rescue route. One space dismisses the lava-entry screen and captures the next source message.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017lava\n "
+    }
+  ]
+}

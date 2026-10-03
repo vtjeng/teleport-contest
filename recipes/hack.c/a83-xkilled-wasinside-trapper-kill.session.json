@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 preserved setup prefix, not completion evidence. C generated the trapper and the second wait caused “The trapper folds itself around you!--More--”; the following z input did not clear that pager or open the wand selector, so xkilled was not reached. Its C bytes are preserved in .cache/A83-logs/. A new recipe appends a space at that C-observed pager boundary before zapping.",
+  "segments": [
+    {
+      "seed": 77482061,
+      "datetime": "20261002174500",
+      "nethackrc": "OPTIONS=name:A83SwallowedKill,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of death\n#wizgenesis\n1 hostile trapper\n..z"
+    }
+  ]
+}

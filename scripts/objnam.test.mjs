@@ -59,6 +59,7 @@ import { append_price_quote } from '../js/shk.js';
 import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { newObject } from '../js/obj.js';
 import {
+    An,
     The,
     Tobjnam,
     an,
@@ -225,6 +226,11 @@ function objectOf(state, otyp, overrides = {}) {
         ...overrides,
     });
 }
+
+test('An capitalizes the C article helper result for valid nonempty names', () => {
+    assert.equal(An('ogre'), 'An ogre');
+    assert.equal(An('troll'), 'A troll');
+});
 
 test('simple_typename drops the description and the user-assigned name', () => {
     const state = namingState();

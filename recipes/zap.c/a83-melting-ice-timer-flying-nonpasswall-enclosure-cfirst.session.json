@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first timer-expiry setup, frozen from source and the corrected two-More prompt observation. #wizintrinsic keeps Flying active past the C timer maximum and temporarily enables Passes_walls. Eight adjacent C wizterrainwish(\"nonpasswall wall\") calls form a nonpassable ring around the hero before wishing melting ice at the center. Sixteen ordinary movement turns build the ring; each wall wish itself is the source-defined zero-time wizard action. The 2001 waits cover the C start_melt_ice_timeout upper bound of 2000 moves plus its due-turn processing, and #timeout observes whether MELT_ICE_AWAY expired. Inputs were frozen before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceWallRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n2500a1000i>>2500k\n  #wizintrinsic\n>2500f\n k\u0017nonpasswall wall\nju\u0017nonpasswall wall\nbl\u0017nonpasswall wall\nhn\u0017nonpasswall wall\nyj\u0017nonpasswall wall\nkb\u0017nonpasswall wall\nuh\u0017nonpasswall wall\nly\u0017nonpasswall wall\nn\u0017melting ice\n2001.#timeout\n"
+    }
+  ]
+}

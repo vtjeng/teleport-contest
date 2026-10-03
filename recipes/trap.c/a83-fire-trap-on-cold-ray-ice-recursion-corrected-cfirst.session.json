@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first A83 fire-trap-on-ICE recipe. The preserved first C attempt showed PICK_ANY keeps #wizintrinsic open after selecting fire resistance; its space scrolled to page 3 and subsequent wish text was consumed by the menu. This frozen correction sends newline to finish the property menu and one space for the observed resistance-message More, then wishes a fire trap on the source-observed ICE square and leaves/returns to trigger it. The setup is still not JS-compared.",
+  "segments": [
+    {
+      "seed": 64100321,
+      "datetime": "20321214103000",
+      "nethackrc": "OPTIONS=name:A83FireTrapIce,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": "#wizintrinsic\n>>k\n \u0017pool\nh\u0017wand of cold\nzol\nl#wizintrinsic\n>2500i\n \u0017fire trap\nhl"
+    }
+  ]
+}

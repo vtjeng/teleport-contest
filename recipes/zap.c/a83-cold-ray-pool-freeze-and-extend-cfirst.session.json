@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A83 C-first `zap_over_floor(ZT_COLD)` start/extension variation. Seed 64100321/date 20321214103000 were chosen independently. The observed #wizintrinsic menu enables Flying at page 3/k; a pool is wished under the hero, then h steps onto the source-observed open west floor. The C inventory probe assigns the wished cold wand to slot o; l aims through the pool toward the wide east room. The first C ray ends at the next command without More and records the actual timer-zero draw; the second z-o-l therefore reaches the already-timed ICE branch. This input was frozen from those C observations before comparison.",
+  "segments": [
+    {
+      "seed": 64100321,
+      "datetime": "20321214103000",
+      "nethackrc": "OPTIONS=name:A83ColdRay,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": "#wizintrinsic\n>>k\n \u0017pool\nh\u0017wand of cold\nzolzol"
+    }
+  ]
+}

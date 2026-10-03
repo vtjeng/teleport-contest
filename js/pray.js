@@ -168,7 +168,6 @@ import {
     peek_at_iced_corpse_age,
     remove_object,
     set_bknown,
-    sobj_at,
     uncurse,
 } from './obj.js';
 import { obj_stop_timers } from './timeout.js';
@@ -212,7 +211,6 @@ import { Punished } from './steed.js';
 import {
     Flying,
     Levitation,
-    is_pool_or_lava,
     reset_utrap,
 } from './trap.js';
 import { safe_teleds } from './teleport.js';
@@ -234,7 +232,7 @@ import { bimanual, which_armor } from './worn.js';
 import { encumber_msg, rider_corpse_revival } from './pickup.js';
 import { init_uhunger } from './u_init.js';
 import { see_monsters } from './display.js';
-import { feel_cockatrice, update_inventory, useup, useupf } from './invent.js';
+import { feel_cockatrice, update_inventory, useup, useupf, sobj_at } from './invent.js';
 import { discover_object, observe_object } from './o_init.js';
 import { unrestrict_weapon_skill, weapon_type } from './startup_skills.js';
 import {
@@ -244,6 +242,7 @@ import {
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { canseemon } from './display.js';
+import { is_pool_or_lava } from './dbridge.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
 // js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps every

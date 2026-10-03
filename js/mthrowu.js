@@ -83,6 +83,7 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { acurr, acurrstr, poisoned } from './attrib.js';
@@ -97,6 +98,7 @@ import {
     obfree,
     obj_extract_self,
     stackobj,
+    sobj_at,
 } from './invent.js';
 import {
     multishot_class_bonus,
@@ -167,7 +169,6 @@ import {
     mksobj,
     objectType,
     place_object,
-    sobj_at,
     splitobj,
     stone_missile,
     weight,
@@ -256,9 +257,7 @@ import { dropy, flooreffects } from './do.js';
 import { makeplural } from './fruit.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
 import { passive_obj, shade_miss } from './uhitm.js';
-import {
-    is_lava,
-} from './trap.js';
+
 import { obj_sheds_light } from './light.js';
 import {
     capitalizedMonsterName,

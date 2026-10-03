@@ -116,7 +116,6 @@ import {
     m_everyturn_effect,
     m_harmless_trap,
     find_pmmonst,
-    m_in_air,
     mfndpos,
     mon_track_add,
     monhaskey,
@@ -138,6 +137,7 @@ import { lined_up } from '../js/mthrowu.js';
 import {
     mm_aggression,
     mm_displacement,
+    m_in_air,
     mon_allowflags,
     monlineu,
 } from '../js/mon.js';
@@ -3591,7 +3591,7 @@ test('mon_allowflags uses polymorphed Charisma for conflict resistance', () => {
     assert.equal(charisma(S_HUMAN, PM_HUMAN, 10), 10, 'no form, no floor');
 });
 
-test('movement terrain helpers preserve walls, boulders, and ceilings', () => {
+test('movement terrain helpers and mon.c m_in_air preserve boundaries', () => {
     const { locations, state } = makeState();
     locations.set('3,3', { typ: STONE, flags: 0, wall_info: 0 });
     assert.equal(may_dig(3, 3, state), true);
@@ -3610,6 +3610,8 @@ test('movement terrain helpers preserve walls, boulders, and ceilings', () => {
     state.level.objects[6][6] = objectFor(state, BOULDER);
     assert.equal(bad_rock(human, 6, 6, state), true);
 
+    // m_in_air() is the selected mon.c unit and is owned by js/mon.js; the
+    // shared movement fixture keeps its ceiling and level values observable.
     const floater = newMonster({ data: state.mons[PM_FLOATING_EYE] });
     assert.equal(m_in_air(floater, state), true);
     const clinger = newMonster({

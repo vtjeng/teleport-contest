@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap independent A83 variation: a Valkyrie with a different seed and date repeats the source-name Book of the Dead wish and peaceful master-lich target route. The exact artifact name follows the C parser observation that `Book of the Dead` alone creates an ordinary papyrus spellbook.",
+  "segments": [
+    {
+      "seed": 948212,
+      "datetime": "20341112160500",
+      "nethackrc": "OPTIONS=name:BookTarget,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizwish\nThe Book of the Dead\n#wizgenesis\npeaceful master lich\n."
+    }
+  ]
+}

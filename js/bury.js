@@ -42,7 +42,7 @@ import {
     WOOD,
 } from './objects.js';
 import { rn1, rn2, rnd } from './rng.js';
-import { is_ice } from './terrain.js';
+
 import { unpunish } from './read.js';
 import {
     end_burn,
@@ -50,6 +50,9 @@ import {
     start_timer,
     stop_timer,
 } from './timeout.js';
+import {
+    is_ice,
+} from './dbridge.js';
 
 const SOURCE_RANDOM = Object.freeze({ rn1, rn2, rnd });
 

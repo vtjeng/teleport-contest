@@ -29,6 +29,7 @@ import {
     ICE,
     I_SPECIAL,
     LEVITATION,
+    LAVAWALL,
     MAX_TYPE,
     MELT_ICE_AWAY,
     KILLED_BY_AN,
@@ -79,6 +80,7 @@ import {
     notice_mons_cmp,
     monst_to_any,
     obj_to_any,
+    pooleffects,
     preflightDomoveDestination,
     requireSimpleHeroDestination,
     runmode_delay_output,
@@ -93,8 +95,9 @@ import {
     uint_to_any,
     unmul,
 } from '../js/hack.js';
-import { game } from '../js/gstate.js';
+import { game, resetGame } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
+import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     M1_FLY, PM_GRID_BUG, PM_HUMAN, PM_SOLDIER, monst_globals_init,
@@ -110,6 +113,7 @@ import {
 import { planningState } from '../js/unported_monster_actions.js';
 
 const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
+const HACK_JS_SOURCE = readFileSync('js/hack.js', 'utf8');
 
 test('planned losehp stops after source-ordered lethal state writes', async () => {
     assert.match(
@@ -451,6 +455,60 @@ test('switch_terrain preserves source blocked masks and transition messages', as
         'You start to float in the air!  You start flying.',
     );
     assert.equal(clear.disp.botl, true);
+});
+
+test('pooleffects rereads levitation and flight after leaving water', async () => {
+    // hack.c:pooleffects() calls set_uinwater(0), which calls switch_terrain()
+    // before its separate entering-liquid test. On LAVAWALL, switch_terrain
+    // blocks the previously active Flight property, so the later C test must
+    // see that updated property and enter lava_effects().
+    const start = HACK_SOURCE.indexOf('\npooleffects(');
+    const end = HACK_SOURCE.indexOf('\nvoid\nspoteffects(', start);
+    const cPooleffects = HACK_SOURCE.slice(start, end);
+    assert.match(cPooleffects,
+        /set_uinwater\(0\);[\s\S]*?if \(!u\.ustuck && !Levitation && !Flying && is_pool_or_lava/u);
+    // hack.c restores vision by calling docrt() before setting the deferred
+    // full-recalculation flag. display.c docrt_flags() brackets its memory
+    // repaint with vision_recalc(2) and vision_recalc(0); JS docrt() accepts
+    // those phases from its caller rather than running them unconditionally.
+    const jsPooleffects = HACK_JS_SOURCE.slice(
+        HACK_JS_SOURCE.indexOf('export async function pooleffects('),
+        HACK_JS_SOURCE.indexOf('\nexport async function spoteffects(',
+            HACK_JS_SOURCE.indexOf('export async function pooleffects(')),
+    );
+    assert.match(jsPooleffects,
+        /await set_uinwater\(false, state, rawEnv\);[\s\S]*?await docrt\(\{\s*state,\s*suspendVision: \(\) => vision_recalc\(2, \{ state \}\),\s*restoreVision: \(\) => vision_recalc\(0, \{ state \}\),\s*\}\);\s*state\.vision_full_recalc = 1;/u);
+
+    // Seed 840041 selects reproducible downstream lava-effect draws; (5,4) is
+    // an ordinary interior square for the LAVAWALL transition, and 20 HP keeps
+    // the fixture alive to observe that branch without a rescue hook.
+    const state = resetGame();
+    initRng(840041);
+    state.u = {
+        ux: 5,
+        uy: 4,
+        uz: { dnum: 0, dlevel: 1 },
+        uinwater: true,
+        uprops: [],
+        usteed: null,
+        uhp: 20,
+    };
+    state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.u.uprops[FLYING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.level = new GameMap();
+    state.level.at(5, 4).typ = LAVAWALL;
+    state.flags = { terrainstatus: false };
+    state.iflags = { in_lava_effects: 1 };
+    state.unported = new Set();
+
+    await pooleffects(false, state, { message: async () => {} });
+
+    assert.equal(state.u.uinwater, false);
+    assert.equal(state.u.uprops[FLYING].blocked, FROMOUTSIDE);
+    // The recursive guard is an observation point after lava_effects is
+    // entered; the chosen state keeps this fixture away from its other arms.
+    assert.ok(state.unported.has('trap.c lava_effects recursive call'));
+    resetGame();
 });
 
 test('crawl_destination follows the source goodpos and diagonal gates', async () => {

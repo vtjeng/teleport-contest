@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 preserved C-observed setup/menu prefix. After answering the engulf pager, C confirmed “You are being squashed!” while swallowed, then opened the wand selector with [cp or ?*]. No killing action has happened yet. This recording is retained in .cache/A83-logs/; the next frozen input requests the C-owned inventory selector.",
+  "segments": [
+    {
+      "seed": 77482061,
+      "datetime": "20261002174500",
+      "nethackrc": "OPTIONS=name:A83SwallowedKill,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of death\n#wizgenesis\n1 hostile trapper\n.. z"
+    }
+  ]
+}

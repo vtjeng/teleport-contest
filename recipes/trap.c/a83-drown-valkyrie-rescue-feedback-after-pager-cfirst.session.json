@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation of the frozen no-eligible disrobe/lifesaving route. Preserve the original seed, date, options, role, setup, and all prior inputs; append exactly one space to dismiss the C-observed “You are back on solid ground” --More-- boundary and capture the subsequent trap.c:rescued_from_terrain(DROWNING) feedback/state update. The original shorter recipe/record remains immutable setup history.",
+  "segments": [
+    {
+      "seed": 6042026,
+      "datetime": "20400202110000",
+      "nethackrc": "OPTIONS=name:DrownValk,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP? eTdadbdcdd\u001710 cursed loadstones\n\u0017pool\n.      "
+    }
+  ]
+}

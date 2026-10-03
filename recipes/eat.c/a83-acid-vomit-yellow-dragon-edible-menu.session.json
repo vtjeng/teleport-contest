@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first follow-up to the preserved pager-corrected setup: inspect the actual edible inventory prompt after the C-observed yellow-dragon form, ICE, and four ration wishes. The selected object letter is not assumed from JavaScript or a prior role.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nyellow dragon\n   \u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\ne?"
+    }
+  ]
+}

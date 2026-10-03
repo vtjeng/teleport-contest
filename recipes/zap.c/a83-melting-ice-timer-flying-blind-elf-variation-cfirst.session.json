@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap independent source variation of the timer-expiry route: a new seed and elven Wizard, with the same source-valid Flying/blindness/invulnerability setup and an explicit duration exceeding C's 2000-turn maximum ice timer. The final #timeout screen must confirm the MELT_ICE_AWAY timer expired before this is used as matching evidence. C-only until inspected.",
+  "segments": [
+    {
+      "seed": 65391128,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceExpiryElf,role:Wizard,race:elf,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n3000a3000i>>3000k\n \u0017melting ice\n2001.#timeout\n"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
     ALTAR,
+    BLINDED,
     CORR,
     IN_SIGHT,
     LAVAPOOL,
@@ -13,7 +14,7 @@ import {
     POOL,
     ROOM,
 } from '../js/const.js';
-import { flooreffects } from '../js/do.js';
+import { boulder_hits_pool, flooreffects } from '../js/do.js';
 import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
 import {
@@ -64,6 +65,33 @@ test('do.c boulder lava splash awaits burn_away_slime before damage', () => {
     assert.ok(jsOrder.every((index) => index >= 0));
     assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
     assert.doesNotMatch(jsBoulder, /note_unported\(['"]trap\.c burn_away_slime/u);
+});
+
+test('boulder_hits_pool keeps the C trap pointer and pushing visibility arms', () => {
+    const cStart = C_DO.indexOf('boolean\nboulder_hits_pool(\n');
+    const cEnd = C_DO.indexOf(
+        '\n/* Used for objects which sometimes do special things when dropped',
+        cStart,
+    );
+    const jsStart = JS_DO.indexOf('export async function boulder_hits_pool(');
+    const jsEnd = JS_DO.indexOf('\n}\n', jsStart) + 3;
+    assert.ok(cStart >= 0 && cEnd > cStart && jsStart >= 0 && jsEnd > jsStart);
+    const cBody = C_DO.slice(cStart, cEnd);
+    const jsBody = JS_DO.slice(jsStart, jsEnd);
+
+    assert.match(cBody, /struct trap \*ttmp = t_at\(rx, ry\)/u);
+    assert.ok(cBody.indexOf('ttmp = t_at(rx, ry)')
+        < cBody.indexOf('mondied(mtmp)'));
+    assert.match(cBody, /if \(ttmp\)\s+\(void\) delfloortrap\(ttmp\)/u);
+    assert.match(cBody,
+        /pushing \? !Blind : cansee\(rx, ry\)/u);
+    assert.match(jsBody, /const trap = t_at\(rx, ry, state\)/u);
+    assert.ok(jsBody.indexOf('const trap = t_at(rx, ry, state)')
+        < jsBody.indexOf('await mondied(monster, state, rawEnv)'));
+    assert.match(jsBody, /await delfloortrap\(trap, state\)/u);
+    assert.doesNotMatch(jsBody, /const currentTrap = t_at/u);
+    assert.match(jsBody,
+        /pushing \? !heroIsBlind\(state\) : cansee\(rx, ry, state\)/u);
 });
 
 function fixture({
@@ -159,6 +187,44 @@ test('boulder_hits_pool sinks in lava on rn2(10) zero and consumes the boulder',
     }), true);
     assert.deepEqual(calls, [10]);
     assert.notEqual(boulder.where, OBJ_FREE);
+});
+
+test('pushing pool boulders uses !Blind for both source sink messages', async () => {
+    for (const [blind, expectsSink] of [[true, false], [false, true]]) {
+        const state = fixture({ typ: POOL, seen: true });
+        state.u.uprops = blind ? { [BLINDED]: { intrinsic: 1 } } : {};
+        // A floor boulder on ordinary POOL plus rn2(10)=0 selects the C sink
+        // branch; only the Blind source predicate varies between cases.
+        const boulder = object({
+            otyp: BOULDER,
+            quan: 1,
+            where: OBJ_FLOOR,
+            ox: DROP_X,
+            oy: DROP_Y,
+            nobj: null,
+            nexthere: null,
+        });
+        state.level.objects[DROP_X][DROP_Y] = boulder;
+        const messages = [];
+
+        await boulder_hits_pool(boulder, DROP_X, DROP_Y, true, {
+            state,
+            random: { rn2: () => 0 },
+            message: async (text) => { messages.push(text); },
+            newsym: () => {},
+            wakeNear: async () => {},
+            hooks: {
+                extractExternalObject(obj) {
+                    assert.equal(state.level.objects[DROP_X][DROP_Y], obj);
+                    state.level.objects[DROP_X][DROP_Y] = null;
+                    obj.where = OBJ_FREE;
+                },
+            },
+        });
+
+        assert.equal(messages.some((text) => text === 'It sinks without a trace!'),
+            expectsSink);
+    }
 });
 
 test('hot ground breaks an unresisting potion after the source survival draw', async () => {

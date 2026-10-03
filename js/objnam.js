@@ -39,6 +39,7 @@ import { count_contents, currency } from './invent.js';
 import {
     digit, dist2, encodeUtf8ByteString, eos, highc, lowc, mungspaces, s_suffix,
     strcasecpy, strstri, truncateByteString,
+    upstart,
 } from './hacklib.js';
 import { arti_light_description, find_mid, get_obj_location } from './light.js';
 import { cansee } from './vision.js';
@@ -138,6 +139,13 @@ function heroIsBlind(state) {
 function articleName(text) {
     return an(text);
 }
+
+// C ref: objnam.c An(). The C helper capitalizes the first byte of an()'s
+// nonempty result; callers pass a nonempty name, as required by an().
+export function An(text) {
+    return upstart(an(text));
+}
+
 // C ref: obj.h is_poisonable() (264-268). The first disjunct repeats
 // is_multigen()'s three terms verbatim, so it is written as that call here.
 export function isPoisonable(obj, state) {

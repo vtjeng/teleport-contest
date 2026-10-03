@@ -76,9 +76,9 @@ import {
     mkobj,
     mksobj,
     place_object,
-    sobj_at,
     weight,
 } from './obj.js';
+import { sobj_at } from './invent.js';
 import {
     ACID_VENOM,
     AMULET_OF_YENDOR,

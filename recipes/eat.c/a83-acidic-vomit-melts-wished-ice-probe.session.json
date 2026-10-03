@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first probe chosen from eat.c:choke and eat.c:vomit source order: wizard #polyself selects acid blob, wizard terrain wish places ICE under the hero, and two wished food rations reach satiation so the second eating attempt exercises choke's Breathless-to-vomit path. If C confirms spewing, acidic() and is_ice() should reach melt_ice; menu replies may be corrected only from the observed C prompt.",
+  "segments": [
+    {
+      "seed": 21974305,
+      "datetime": "20261003100000",
+      "nethackrc": "OPTIONS=name:A83AcidVomit,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nacid blob\n.\u0017ice\n\u0017food ration\n\u0017food ration\ned edy  "
+    }
+  ]
+}

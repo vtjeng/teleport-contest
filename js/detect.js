@@ -162,12 +162,12 @@ import {
 import { poly_gender } from './polyself.js';
 import { body_part } from './polyself.js';
 import { is_quest_artifact } from './questpgr.js';
-import { consume_obj_charge, currency, money_cnt, useup } from './invent.js';
+import { consume_obj_charge, currency, money_cnt, useup, sobj_at } from './invent.js';
 import { findgold } from './steal.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { note_unported } from './unported.js';
-import { isBox, objectType, sobj_at } from './obj.js';
+import { isBox, objectType } from './obj.js';
 import {
     CHEST,
     COIN_CLASS,

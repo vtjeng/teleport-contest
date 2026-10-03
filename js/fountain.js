@@ -56,7 +56,13 @@ import { game } from './gstate.js';
 import { in_town, losehp } from './hack.js';
 import { distmin } from './hacklib.js';
 import {
-    update_inventory, delobj, hands_obj, money_cnt, obfree, useup,
+    update_inventory,
+    delobj,
+    hands_obj,
+    money_cnt,
+    obfree,
+    useup,
+    sobj_at,
 } from './invent.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
@@ -71,7 +77,7 @@ import {
     PM_KNIGHT, PM_SEWER_RAT, PM_WATER_DEMON, PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN, PM_WATER_NYMPH,
 } from './monsters.js';
-import { curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class, sobj_at } from './obj.js';
+import { curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class } from './obj.js';
 import { observe_object } from './o_init.js';
 import { body_part, mbodypart } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
@@ -697,7 +703,7 @@ export async function drinkfountain(state = game, env = {}) {
                     state,
                     hungerEnv,
                 );
-                await vomit(state);
+                await vomit(state, { ...env, message, random });
             }
             break;
         case 21: // Poisonous
@@ -1285,7 +1291,7 @@ export async function drinksink(state = game, env = {}) {
             endRunning: env.endRunning ?? endRunning,
             statusRefresh: env.statusRefresh ?? (() => bot()),
         });
-        await vomit(state);
+        await vomit(state, { ...env, message, random });
         break;
     }
     case 10:

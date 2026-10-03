@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved intermediate C continuation. After p selects the scroll, the first space dismisses 'As you read the scroll, it disappears.--More--'; C then prints 'Where do you want to be teleported?--More--'. The following '.' is still at that second pager, before getpos accepts a destination. The next frozen recipe adds a second space before the getpos pick key.",
+  "segments": [
+    {
+      "seed": 63010248,
+      "datetime": "20431003101100",
+      "nethackrc": "OPTIONS=name:A83IceLanding,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n\u0017uncursed scroll of teleportation\nrp ."
+    }
+  ]
+}

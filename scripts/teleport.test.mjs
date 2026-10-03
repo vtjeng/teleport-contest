@@ -9,12 +9,17 @@ import {
     DETECT_MONSTERS,
     DOOR,
     DUST,
+    FIRE_RES,
+    FLYING,
     GP_AVOID_MONPOS,
+    GP_ALLOW_U,
     GP_CHECKSCARY,
     HALLUC,
     HALLUC_RES,
     IN_SIGHT,
     LAVAPOOL,
+    LEVITATION,
+    LR_MONGEN,
     MAX_NUM_WORMS,
     MON_FLOOR,
     MON_MIGRATING,
@@ -24,6 +29,8 @@ import {
     RLOC_NOMSG,
     ROOM,
     ROWNO,
+    SWIMMING,
+    WWALKING,
     OBJ_FREE,
     STONE,
     STRAT_APPEARMSG,
@@ -67,7 +74,7 @@ import {
 } from '../js/teleport.js';
 import { resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
-import { BOULDER, SCR_SCARE_MONSTER } from '../js/objects.js';
+import { BOULDER, ROCK, SCR_SCARE_MONSTER } from '../js/objects.js';
 import { newObject, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
@@ -427,15 +434,158 @@ test('goodpos applies startup pet terrain, occupant, object, and scary checks', 
         assert.equal(goodpos(x, y, fake, flags, env), false);
         state.head_engr.engr_txt[0] = 'Elbereth!';
         assert.equal(goodpos(x, y, fake, flags, env), true);
+        state.head_engr.engr_txt[0] = 'The word Elbereth is here';
+        assert.equal(goodpos(x, y, fake, flags, env), true);
         state.head_engr = null;
 
         state.level.traps.push({ tx: x, ty: y });
         assert.equal(goodpos(x, y, fake, flags, env), true);
-        assert.equal(goodpos(x, y, fake, flags, {
-            ...env,
-            isExclusionZone: () => true,
-        }), false);
+        state.exclusion_zones = {
+            zonetype: LR_MONGEN,
+            lx: x,
+            ly: y,
+            hx: x,
+            hy: y,
+            next: null,
+        };
+        assert.equal(goodpos(x, y, fake, flags, env), false);
     }
+});
+
+test('goodpos wires C-owned scary, air, and exclusion checks directly', () => {
+    const cScaryStart = C_TELEPORT_SOURCE.indexOf('goodpos_onscary(\n');
+    const cScaryEnd = C_TELEPORT_SOURCE.indexOf('\n/*\n * Is (x,y)', cScaryStart);
+    assert.ok(cScaryStart >= 0 && cScaryEnd > cScaryStart);
+    const cGoodposStart = C_TELEPORT_SOURCE.indexOf('\ngoodpos(\n', cScaryEnd);
+    const cGoodposEnd = C_TELEPORT_SOURCE.indexOf('\n/*\n * "entity next to"', cGoodposStart);
+    const cGoodpos = C_TELEPORT_SOURCE.slice(cGoodposStart, cGoodposEnd);
+    const jsScaryStart = JS_TELEPORT_SOURCE.indexOf(
+        'export function goodpos_onscary(',
+    );
+    const jsGoodposStart = JS_TELEPORT_SOURCE.indexOf(
+        'export function goodpos(', jsScaryStart,
+    );
+    const jsGoodposEnd = JS_TELEPORT_SOURCE.indexOf(
+        '// C ref: teleport.c collect_coords()', jsGoodposStart,
+    );
+    const jsGoodpos = JS_TELEPORT_SOURCE.slice(jsScaryStart, jsGoodposEnd);
+
+    assert.match(C_TELEPORT_SOURCE.slice(cScaryStart, cScaryEnd),
+        /sengr_at\("Elbereth", x, y, TRUE\)/u);
+    assert.match(JS_TELEPORT_SOURCE, /import \{ sengr_at \} from '\.\/engrave\.js'/u);
+    assert.match(JS_TELEPORT_SOURCE,
+        /import \{ accessible, closed_door, onscary \} from '\.\/monmove\.js'/u);
+    assert.match(jsGoodpos, /sengr_at\('Elbereth', x, y, true, state\)/u);
+    assert.match(cGoodpos, /m_in_air\(mtmp\)/u);
+    assert.match(jsGoodpos, /m_in_air\(monster, state\)/u);
+    assert.match(cGoodpos, /accessible\(x, y\)/u);
+    assert.match(jsGoodpos, /accessible\(x, y, state\)/u);
+    assert.match(cGoodpos, /closed_door\(x, y\)/u);
+    assert.match(jsGoodpos, /closed_door\(x, y, state\)/u);
+    assert.match(cGoodpos, /is_exclusion_zone\(LR_MONGEN, x, y\)/u);
+    assert.match(jsGoodpos, /is_exclusion_zone\(LR_MONGEN, x, y, state\)/u);
+    assert.doesNotMatch(jsGoodpos,
+        /heroCanOccupy(?:Pool|Lava).*hook|isExclusionZone|normalized\.onscary/u);
+});
+
+test('teleds awaits spoteffects on an occupied destination', () => {
+    const cStart = C_TELEPORT_SOURCE.indexOf('\nteleds(coordxy nux, coordxy nuy, int teleds_flags)');
+    const cEnd = C_TELEPORT_SOURCE.indexOf(
+        '\n/* teleport the hero via some method other than scroll of teleport */',
+        cStart,
+    );
+    const jsStart = JS_TELEPORT_SOURCE.indexOf(
+        'export async function teleds(',
+    );
+    const jsEnd = JS_TELEPORT_SOURCE.indexOf(
+        '// fixed-destination trap can drop the hero onto a second teleport trap',
+        jsStart,
+    );
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const cTeleds = C_TELEPORT_SOURCE.slice(cStart, cEnd);
+    const jsTeleds = JS_TELEPORT_SOURCE.slice(jsStart, jsEnd);
+
+    assert.match(cTeleds, /u_on_newpos\(nux, nuy\)/u);
+    assert.match(cTeleds, /spoteffects\(TRUE\)/u);
+    assert.doesNotMatch(cTeleds, /m_at\(nux, nuy\)/u);
+    assert.match(jsTeleds, /u_on_newpos\(nux, nuy, state\)/u);
+    assert.match(jsTeleds, /await spoteffects\(true, state\)/u);
+    assert.doesNotMatch(jsTeleds, /m_at\(nux, nuy, state\)/u);
+    assert.ok(jsTeleds.indexOf('u_on_newpos(')
+        < jsTeleds.indexOf('await spoteffects(true, state)'),
+    'the hero arrives before the surprise effects are awaited');
+});
+
+test('goodpos reads hero pool and lava properties directly from source state', () => {
+    const state = positionState();
+    const hero = {
+        data: state.mons[PM_SEWER_RAT],
+        m_id: 0,
+        wormno: 0,
+        mundetected: false,
+    };
+    state.youmonst = hero;
+    const x = 12;
+    const y = 10;
+    state.level.at(x, y).typ = POOL;
+    state.u.uprops = {};
+
+    assert.equal(goodpos(x, y, hero, 0, { state }), false);
+    state.u.uprops[SWIMMING] = { intrinsic: 1 };
+    assert.equal(goodpos(x, y, hero, 0, { state }), true);
+    delete state.u.uprops[SWIMMING];
+    state.u.uprops[LEVITATION] = { intrinsic: 1, blocked: 1 };
+    assert.equal(goodpos(x, y, hero, 0, { state }), false);
+    state.u.uprops[LEVITATION].blocked = 0;
+    assert.equal(goodpos(x, y, hero, 0, { state }), true);
+
+    state.u.uprops = {
+        [FIRE_RES]: { intrinsic: 1 },
+        [WWALKING]: { intrinsic: 1 },
+    };
+    state.u.uarmf = { oerodeproof: 1 };
+    state.level.at(x, y).typ = LAVAPOOL;
+    assert.equal(goodpos(x, y, hero, 0, { state }), true);
+    delete state.u.uprops[FIRE_RES];
+    assert.equal(goodpos(x, y, hero, 0, { state }), false);
+
+    state.u.uprops = { [FLYING]: { intrinsic: 1 } };
+    assert.equal(goodpos(x, y, hero, 0, { state }), true);
+});
+
+test('goodpos uses canonical scary owners for both fake and live monsters', () => {
+    const state = positionState();
+    const x = state.u.ux;
+    const y = state.u.uy;
+    const species = state.mons[PM_LITTLE_DOG];
+    const fake = { data: species, m_id: 0, mundetected: false, wormno: 0 };
+    const live = {
+        data: species,
+        m_id: 91,
+        mcansee: true,
+        mpeaceful: false,
+        mundetected: false,
+        wormno: 0,
+        mx: x,
+        my: y,
+    };
+    state.level.at(x, y).typ = ROOM;
+    state.head_engr = {
+        nxt_engr: null,
+        engr_x: x,
+        engr_y: y,
+        engr_txt: ['Elbereth'],
+        engr_time: state.moves,
+        engr_type: DUST,
+    };
+    const env = { state, random: { rn2: () => 0 } };
+    assert.equal(goodpos(x, y, fake, GP_CHECKSCARY | GP_ALLOW_U, env), false);
+    assert.equal(goodpos(x, y, live, GP_CHECKSCARY | GP_ALLOW_U, env), false);
+
+    state.head_engr.engr_txt[0] = 'Not quite Elbereth';
+    assert.equal(goodpos(x, y, fake, GP_CHECKSCARY | GP_ALLOW_U, env), true);
+    assert.equal(goodpos(x, y, live, GP_CHECKSCARY | GP_ALLOW_U, env), true);
 });
 
 test('mnexto preserves monster identity and list linkage while relocating', () => {
@@ -680,14 +830,30 @@ test('rloc keeps its preflight refusals while core worm placement is wired', () 
 test('rloc exhausts fifty trials before its unshuffled fallback and backup',
     () => {
         const state = positionState();
+        const safeX = 12;
+        const safeY = 9;
+        // The sole accessible fallback square has a level-generated guarded
+        // Elbereth and floor object, so the canonical C onscary() rejects it.
+        state.head_engr = {
+            nxt_engr: null,
+            engr_x: safeX,
+            engr_y: safeY,
+            engr_txt: ['Elbereth'],
+            engr_time: 0,
+            engr_type: DUST,
+            guardobjects: true,
+        };
+        state.level.objects[safeX][safeY] = { otyp: ROCK };
         const monster = newMonster({
             data: state.mons[PM_SEWER_RAT],
             mhp: 2, // A live monster is required for relocation.
             mhpmax: 2,
-            m_id: 86, // A nonzero id selects the injected onscary operation.
+            m_id: 86, // A nonzero id selects C's full onscary() check.
+            mcansee: true,
+            mpeaceful: false,
         });
         state.level.at(10, 11).typ = ROOM;
-        state.level.at(12, 9).typ = ROOM;
+        state.level.at(safeX, safeY).typ = ROOM;
         place_monster(monster, 10, 11, state);
         const bounds = [];
         let scaryCalls = 0;
@@ -707,7 +873,7 @@ test('rloc exhausts fifty trials before its unshuffled fallback and backup',
             newsym: () => {},
             onscary() {
                 ++scaryCalls;
-                return true; // Force the sole candidate into backupcc.
+                return false; // goodpos uses the canonical source owner.
             },
             setApparxy: () => {},
         }), true);
@@ -719,10 +885,10 @@ test('rloc exhausts fifty trials before its unshuffled fallback and backup',
         assert.deepEqual(bounds.slice(-3), [
             'rnd(79)', 'rn2(21)', 'rn2(1)',
         ]);
-        // goodpos() checks scary squares before its final accessibility test:
-        // once per failed random trial, then once for the fallback candidate.
-        assert.equal(scaryCalls, 51);
-        assert.deepEqual([monster.mx, monster.my], [12, 9]);
+        // Each random trial is inaccessible. The one accessible fallback is
+        // scary, so rloc uses backupcc after completing its scan.
+        assert.equal(scaryCalls, 0);
+        assert.deepEqual([monster.mx, monster.my], [safeX, safeY]);
     });
 
 test('rloc preflights live relocation operations before its first draw', () => {

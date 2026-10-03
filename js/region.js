@@ -1,5 +1,5 @@
 // Active level regions, callback dispatch, and gas-cloud turn effects.
-// C ref: region.c create_region(), add_region(), run_regions(),
+// C ref: region.c inside_rect()/inside_region(), create_region(), add_region(), run_regions(),
 // in_out_region(), m_in_out_region(), and the gas-cloud helpers.
 
 import {

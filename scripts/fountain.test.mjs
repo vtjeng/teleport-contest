@@ -24,6 +24,8 @@ import {
     G_GONE,
     HALLUC,
     IN_SIGHT,
+    ICE,
+    ICED_POOL,
     LEVITATION,
     MM_NOMSG,
     POOL,
@@ -47,7 +49,7 @@ import {
 } from '../js/fountain.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
-import { UnsupportedEatError, vomit } from '../js/eat.js';
+import { vomit } from '../js/eat.js';
 import {
     PM_ACID_BLOB,
     PM_SEWER_RAT,
@@ -55,7 +57,6 @@ import {
     PM_WATER_MOCCASIN,
     M1_TPORT,
     PM_HUMAN,
-    PM_YELLOW_DRAGON,
     PM_WATCHMAN,
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
@@ -905,55 +906,62 @@ test('drinkfountain follows fountain.c unlooted find-gem fate 27', async () => {
     assert.equal(location.flags, 0);
 });
 
-test('vomit keeps unrelated special eat.c paths fail-closed', async () => {
+test('vomit keeps cantvomit and dry-heave effects before nomul', async () => {
+    const source = await readFile(
+        new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
+    );
+    assert.match(source,
+        /if \(cantvomit\(gy\.youmonst\.data\)\)[\s\S]*?Your\("jaw gapes convulsively\."\);[\s\S]*?if \(u\.uhs >= FAINTING\)[\s\S]*?body_part\(STOMACH\)/u);
+
     await startedGame();
-    const normal = game.youmonst.data;
+    const messages = [];
+    const message = async (text) => messages.push(text);
+    // PM_SEWER_RAT has C's S_RODENT class, one of cantvomit()'s source cases.
+    game.u.umonnum = PM_SEWER_RAT;
+    game.youmonst.data = game.mons[PM_SEWER_RAT];
+    await vomit(game, { message });
+    assert.deepEqual(messages, ['Your jaw gapes convulsively.']);
+    // eat.c:3760 calls nomul(-2) after the gag message for this source form.
+    assert.equal(game.multi, -2);
 
-    function stateFor(species, {
-        altar = false,
-        multi = 0,
-        polymorphed = false,
-        uhs = 1,
-    } = {}) {
-        const uprops = Array.from(
-            { length: SICK + 1 },
-            () => ({ intrinsic: 0 }),
-        );
-        return {
-            u: {
-                umonnum: polymorphed ? species.pmidx : normal.pmidx,
-                umonster: normal.pmidx,
-                uhs,
-                uprops,
-                usick_type: 0,
-                ux: 1,
-                uy: 1,
-            },
-            youmonst: { data: species },
-            level: { at: () => ({ typ: altar ? ALTAR : ROOM }) },
-            multi,
-        };
-    }
+    await startedGame();
+    messages.length = 0;
+    // FAINTING is the inclusive eat.c threshold for a dry-heave message.
+    game.u.uhs = FAINTING;
+    await vomit(game, { message });
+    assert.deepEqual(messages, ['Your stomach heaves convulsively!']);
+    assert.equal(game.multi, -2);
+});
 
-    const cases = [
-        ['polymorph', stateFor(game.mons[PM_ACID_BLOB], {
-            polymorphed: true,
-        })],
-        ['cantvomit form', stateFor(game.mons[PM_SEWER_RAT])],
-        ['dry heave', stateFor(normal, { uhs: FAINTING })],
-        ['existing multi-turn action', stateFor(normal, { multi: 1 })],
-        ['acid breath', stateFor(game.mons[PM_YELLOW_DRAGON])],
-        ['acidic form', stateFor(game.mons[PM_ACID_BLOB])],
-    ];
-    for (const [name, state] of cases) {
-        // vomit() reaches nomul(-2) only after every refusal above it, so a
-        // refused call leaves `multi` exactly as the case set it. The
-        // baseline is captured before the call; an expectation derived from
-        // the value under test would accept any write.
-        const multiBefore = state.multi;
-        await assert.rejects(() => vomit(state), UnsupportedEatError, name);
-        assert.equal(state.multi, multiBefore, name);
-    }
+test('vomit on acidic form melts the hero square after the delay', async () => {
+    const source = await readFile(
+        new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
+    );
+    assert.match(source,
+        /if \(acidic\(gy\.youmonst\.data\)\)[\s\S]*?if \(is_ice\(u\.ux, u\.uy\)\)[\s\S]*?melt_ice\(u\.ux, u\.uy,[\s\S]*?stomach acid melts straight through the ice/u);
+
+    await startedGame();
+    game.u.umonnum = PM_ACID_BLOB;
+    game.youmonst.data = game.mons[PM_ACID_BLOB];
+    game.u.uprops[LEVITATION].intrinsic = 1;
+    // ICE plus levitation reaches the melt without drowning the test hero.
+    const square = game.level.at(game.u.ux, game.u.uy);
+    square.typ = ICE;
+    square.icedpool = ICED_POOL;
+    const messages = [];
+    const message = async (text) => messages.push(text);
+    await vomit(game, {
+        message,
+        norepMessage: message,
+        canSee: () => false,
+        newsym: () => {},
+    });
+
+    assert.equal(game.multi, -2);
+    assert.equal(square.typ, POOL);
+    assert.ok(messages.includes(
+        'Your stomach acid melts straight through the ice!',
+    ));
 });
 
 test('vomit cures food poisoning before installing its C delay', async () => {

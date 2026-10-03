@@ -30,296 +30,41 @@ import {
     artifact_origin,
     defends,
     defends_when_carried,
-} from './artifacts.js';
+    } from './artifacts.js';
 import {
     is_moat,
     is_pool,
+    is_lava,
+    is_pool_or_lava,
+    is_ice,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    ACID_RES,
-    A_INT,
-    A_STR,
-    A_DEX,
-    A_CON,
-    AC_VALUE,
-    ANTIMAGIC,
-    ARM,
-    A_WIS,
-    BLINDED,
-    BUFSZ,
-    LARGEST_INT,
-    MAX_SPELL_STUDY,
-    COLD_RES,
-    COLNO,
-    CORR,
-    D_BROKEN,
-    DIR_180,
-    DIR_ERR,
-    D_NODOOR,
-    DB_FLOOR,
-    DB_ICE,
-    DB_UNDER,
-    DISINT_RES,
-    DISP_BEAM,
-    DISP_CHANGE,
-    DISP_END,
-    DISP_FLASH,
-    DISP_TETHER,
-    FLASHED_LIGHT,
-    ECMD_CANCEL,
-    ECMD_OK,
-    ECMD_TIME,
-    ENL_GAMEINPROGRESS,
-    FIRE_RES,
-    FUMBLING,
-    GETOBJ_EXCLUDE,
-    GETOBJ_NOFLAGS,
-    GETOBJ_SUGGEST,
-    HALF_SPDAM,
-    HALF_PHDAM,
-    HALLUC,
-    HALLUC_RES,
-    HEAD,
-    HEADSTONE,
-    IS_FURNITURE,
-    HWALL,
-    ICE,
-    INTRINSIC,
-    INVIS_BEAM,
-    ICED_MOAT,
-    ICED_POOL,
-    IRONBARS,
-    LEFT_HANDED,
-    IS_FOUNTAIN,
-    IS_OBSTRUCTED,
-    IS_ROOM,
-    IS_SINK,
-    IS_TREE,
-    IS_WALL,
-    IS_WATERWALL,
-    IS_DOOR,
-    In_mines,
-    TEST_MOVE,
-    is_hole,
-    is_pit,
-    DIED,
-    DOOR,
-    DRAWBRIDGE_UP,
-    EXPL_FIERY,
-    KILLED_BY_AN,
-    LL_ARTIFACT,
-    LL_CONDUCT,
-    LL_WISH,
-    MAGICENLIGHTENMENT,
-    NO_KILLER_PREFIX,
-    NO_TRAP_FLAGS,
-    TIMEOUT,
-    TIMER_OBJECT,
-    REVIVE_MON,
-    ROT_CORPSE,
-    COST_CANCEL,
-    COST_DRAIN,
-    COST_UNCURS,
-    COST_UNBLSS,
-    thats_enough_tries,
-    PHYS_EXPL_TYPE,
-    PICK_NONE,
-    POLY_NOFLAGS,
-    PLNMSG_ENVELOPED_IN_GAS,
-    POOL,
-    PIT,
-    P_BASIC,
-    P_EXPERT,
-    P_ISRESTRICTED,
-    P_SKILLED,
-    P_UNSKILLED,
-    Is_airlevel,
-    Is_earthlevel,
-    Is_rogue_level,
-    Is_waterlevel,
-    LAVAWALL,
-    M_AP_MONSTER,
-    M_AP_FURNITURE,
-    M_AP_NOTHING,
-    M_AP_OBJECT,
-    M_AP_TYPE,
-    M_SEEN_FIRE,
-    M_SEEN_MAGR,
-    M_SEEN_ELEC,
-    M_SEEN_COLD,
-    M_SEEN_REFL,
-    M_SEEN_SLEEP,
-    OBJ_AT,
-    OBJ_FLOOR,
-    OBJ_INVENT,
-    OBJ_CONTAINED,
-    OBJ_MINVENT,
-    OBJ_BURIED,
-    OBJ_FREE,
-    OBJ_MIGRATING,
-    OBJ_ONBILL,
-    OBJ_LUAFREE,
-    BURIED_TOO,
-    CONTAINED_TOO,
-    FM_FMON,
-    GRAVE,
-    MINV_ALL,
-    MINV_NOLET,
-    PLNMSG_OBJ_GLOWS,
-    CORPSTAT_FEMALE,
-    CORPSTAT_GENDER,
-    CORPSTAT_MALE,
-    CORPSTAT_HISTORIC,
-    STATUE_TRAP,
-    CXN_PFX_THE,
-    CXN_NORMAL,
-    CXN_NO_PFX,
-    DEAF,
-    MM_FEMALE,
-    MM_ADJACENTOK,
-    MM_MALE,
-    MM_NOCOUNTBIRTH,
-    MM_NOMSG,
-    MM_NOTAIL,
-    MM_NOWAIT,
-    NO_MINVENT,
-    NON_PM,
-    NOTELL,
-    TELL,
-    G_GENOD,
-    has_mcorpsenm,
-    REFLECTING,
-    ROOM,
-    ROWNO,
-    SDOOR,
-    SCORR,
-    VIBRATING_SQUARE,
-    SHOCK_RES,
-    POISON_RES,
-    SHOPBASE,
-    SHOP_BARS_COST,
-    SHOP_DOOR_COST,
-    STONE,
-    STOMACH,
-    STRAT_WAITMASK,
-    TT_INFLOOR,
-    TT_LAVA,
-    TT_PIT,
-    MELT_ICE_AWAY,
-    VWALL,
-    nothing_happens,
-    ONAME_KNOW_ARTI,
-    ONAME_WISH,
-    SLEEP_RES,
-    STONED,
-    STUNNED,
-    TELEPORT_CONTROL,
-    UNCHANGING,
-    DRAIN_RES,
-    FAST,
-    INVIS,
-    KICKED_WEAPON,
-    THROWN_TETHERED_WEAPON,
-    THROWN_WEAPON,
-    ZAPPED_WAND,
-    WAND_BACKFIRE_CHANCE,
-    WAND_WREST_CHANCE,
-    WEB,
-    W_ACCESSORY,
-    W_ART,
-    W_ARTI,
-    W_AMUL,
-    W_ARMC,
-    W_ARM,
-    W_ARMF,
-    W_ARMG,
-    W_ARMH,
-    W_ARMOR,
-    W_ARMS,
-    W_ARMU,
-    W_BALL,
-    W_CHAIN,
-    W_RING,
-    W_RINGL,
-    W_QUIVER,
-    W_SWAPWEP,
-    W_TOOL,
-    W_WEAPONS,
-    W_WEP,
-    W_NONDIGGABLE,
-    XKILL_GIVEMSG,
-    XKILL_NOMSG,
-    XKILL_NOCORPSE,
-    ZAP_POS,
-    xdir,
-    ydir,
-    engulfing_u,
-    u_at,
-    uhim,
-    Upolyd,
-    NC_SHOW_MSG,
-    NC_VIA_WAND_OR_SPELL,
-    ANIMATE_SPELL,
-} from './const.js';
+    ACID_RES, A_INT, A_STR, A_DEX, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, DIR_180, DIR_ERR, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEAD, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_OBSTRUCTED, IS_ROOM, IS_SINK, IS_TREE, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DOOR, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, PHYS_EXPL_TYPE, PICK_NONE, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_earthlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_REFL, M_SEEN_SLEEP, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STOMACH, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, TT_PIT, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_BALL, W_CHAIN, W_RING, W_RINGL, W_QUIVER, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, adjalign, exercise } from './attrib.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import {
-    bot,
-    cmap_to_glyph,
-    flush_screen,
-    glyph_is_invisible,
-    glyph_is_monster,
-    glyph_at,
-    map_glyphinfo,
-    map_invisible,
-    glyph_is_warning,
-    newsym,
-    knowninvisible,
-    obj_to_glyph,
-    shieldeff,
-    tmp_at,
-    unmap_invisible,
-    unmap_object,
-    zapdir_to_glyph,
-} from './display.js';
+    bot, cmap_to_glyph, flush_screen, glyph_is_invisible, glyph_is_monster, glyph_at, map_glyphinfo, map_invisible, glyph_is_warning, newsym, knowninvisible, obj_to_glyph, shieldeff, tmp_at, unmap_invisible, unmap_object, zapdir_to_glyph, } from './display.js';
 import {
-    christen_monst,
-    hliquid,
-    a_monnam,
-    noit_Monnam,
-    Monnam,
-    mon_nam,
-    monsterCommonName,
-    rndmonnam,
-} from './do_name.js';
+    christen_monst, hliquid, a_monnam, noit_Monnam, Monnam, mon_nam, monsterCommonName, rndmonnam, } from './do_name.js';
 import { get_mtraits } from './corpstat.js';
 import { eaten_stat, fix_petrification, vegetarian } from './eat.js';
 import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
 import {
-    adj_pit_checks,
-    dighole,
-    fillholetyp,
-    watch_dig,
-} from './dig.js';
+    adj_pit_checks, dighole, fillholetyp, watch_dig, } from './dig.js';
 import { dropx, dropy } from './do.js';
 import {
-    ceiling, Invocation_lev, surface, surface_typ, update_mapseen_for,
-} from './dungeon.js';
+    ceiling, Invocation_lev, surface, surface_typ, update_mapseen_for, } from './dungeon.js';
 import { done } from './end.js';
 import { losexp, more_experienced, newexplevel } from './exper.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import {
-    check_capacity, end_running, in_town, losehp, may_dig, nh_delay_output, nomul,
-    test_move,
-    set_uinwater,
-} from './hack.js';
+    check_capacity, end_running, in_town, losehp, may_dig, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
 import {
-    dist2, lcase, mungspaces, s_suffix, truncateByteString, upstart,
-} from './hacklib.js';
+    dist2, lcase, mungspaces, s_suffix, truncateByteString, upstart, } from './hacklib.js';
 import {
     getobj,
     display_binventory,
@@ -338,103 +83,17 @@ import {
     delobj,
     delobj_core,
     mergedRuntime,
+    sobj_at,
 } from './invent.js';
 import {
-    get_obj_location,
-    find_mid,
-    show_transient_light,
-    transient_light_cleanup,
-} from './light.js';
+    get_obj_location, find_mid, show_transient_light, transient_light_cleanup, } from './light.js';
 import { create_critters, monhp_per_lvl, newmcorpsenm } from './makemon.js';
 import {
-    makemon_revival,
-    makemon_runtime,
-    newcham_revival,
-    neweshk,
-} from './makemon_create.js';
+    makemon_revival, makemon_runtime, newcham_revival, neweshk, } from './makemon_create.js';
 import {
-    can_be_hatched,
-    completelyburns,
-    attacktype_fordmg,
-    defended,
-    dead_species,
-    dmgtype,
-    dmgtype_fromattack,
-    is_demon,
-    perceives,
-    hides_under,
-    is_whirly,
-    mindless,
-    is_mplayer,
-    is_rider,
-    is_reviver,
-    is_vampshifter,
-    resists_drli,
-    is_swimmer,
-    amphibious,
-    breathless,
-    Resists_Elem,
-    resists_magm,
-    resists_blnd,
-    resists_blnd_by_arti,
-    monstseesu,
-    monstunseesu,
-    nonliving,
-    is_golem,
-    carnivorous,
-    nohands,
-    is_undead,
-    sticks,
-    type_is_pname,
-    unique_corpstat,
-} from './mondata.js';
+    can_be_hatched, completelyburns, attacktype_fordmg, defended, dead_species, dmgtype, dmgtype_fromattack, is_demon, perceives, hides_under, is_whirly, mindless, is_mplayer, is_rider, is_reviver, is_vampshifter, resists_drli, is_swimmer, amphibious, breathless, Resists_Elem, resists_magm, resists_blnd, resists_blnd_by_arti, monstseesu, monstunseesu, nonliving, is_golem, carnivorous, nohands, is_undead, sticks, type_is_pname, unique_corpstat, } from './mondata.js';
 import {
-    AD_ACID,
-    AD_ANY,
-    AD_COLD,
-    AD_DGST,
-    AD_DISN,
-    AD_DRLI,
-    AD_ELEC,
-    AD_FIRE,
-    AD_DRST,
-    AD_MAGM,
-    AD_RBRE,
-    AD_SEDU,
-    AD_SSEX,
-    AD_WRAP,
-    AT_ENGL,
-    PM_CLAY_GOLEM,
-    PM_CROCODILE,
-    PM_FLESH_GOLEM,
-    PM_GLASS_GOLEM,
-    PM_GOLD_GOLEM,
-    PM_IRON_GOLEM,
-    PM_LEATHER_GOLEM,
-    PM_PAPER_GOLEM,
-    PM_ROPE_GOLEM,
-    PM_SKELETON,
-    PM_STONE_GOLEM,
-    PM_STRAW_GOLEM,
-    PM_WOOD_GOLEM,
-    PM_DEATH,
-    PM_DOPPELGANGER,
-    PM_MONK,
-    PM_KNIGHT,
-    PM_HEALER,
-    PM_GHOST,
-    PM_PESTILENCE,
-    PM_GREMLIN,
-    PM_LONG_WORM,
-    PM_ARCHEOLOGIST,
-    G_NOCORPSE,
-    G_UNIQ,
-    NUMMONS,
-    S_EEL,
-    S_MIMIC,
-    S_ZOMBIE,
-    MZ_MEDIUM,
-} from './monsters.js';
+    AD_ACID, AD_ANY, AD_COLD, AD_DGST, AD_DISN, AD_DRLI, AD_ELEC, AD_FIRE, AD_DRST, AD_MAGM, AD_RBRE, AD_SEDU, AD_SSEX, AD_WRAP, AT_ENGL, PM_CLAY_GOLEM, PM_CROCODILE, PM_FLESH_GOLEM, PM_GLASS_GOLEM, PM_GOLD_GOLEM, PM_IRON_GOLEM, PM_LEATHER_GOLEM, PM_PAPER_GOLEM, PM_ROPE_GOLEM, PM_SKELETON, PM_STONE_GOLEM, PM_STRAW_GOLEM, PM_WOOD_GOLEM, PM_DEATH, PM_DOPPELGANGER, PM_MONK, PM_KNIGHT, PM_HEALER, PM_GHOST, PM_PESTILENCE, PM_GREMLIN, PM_LONG_WORM, PM_ARCHEOLOGIST, G_NOCORPSE, G_UNIQ, NUMMONS, S_EEL, S_MIMIC, S_ZOMBIE, MZ_MEDIUM, } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import { del_engr_at, engr_at, make_engr_at } from './engrave.js';
@@ -476,254 +135,49 @@ import {
     corpse_revive_type,
     stone_furniture_type,
     stone_object_type,
-    sobj_at,
     splitobj,
     weight,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
-    CORPSE,
-    ROCK_CLASS,
-    MEATBALL,
-    MEAT_STICK,
-    ENORMOUS_MEATBALL,
-    MEAT_RING,
-    ARMOR_CLASS,
-    GEM_CLASS,
-    AMULET_OF_LIFE_SAVING,
-    AMULET_OF_UNCHANGING,
-    BOULDER,
-    DWARVISH_CLOAK,
-    HEAVY_IRON_BALL,
-    IMMEDIATE,
-    NODIR,
-    POTION_CLASS,
-    POT_POLYMORPH,
-    POT_WATER,
-    RING_CLASS,
-    ROCK,
-    SCROLL_CLASS,
-    SPBOOK_CLASS,
-    SPE_DIG,
-    SPE_FORCE_BOLT,
-    SPE_FIREBALL,
-    SPE_CONE_OF_COLD,
-    SPE_EXTRA_HEALING,
-    SPE_FINGER_OF_DEATH,
-    SPE_CURE_SICKNESS,
-    SPE_HEALING,
-    SPE_KNOCK,
-    SPE_MAGIC_MISSILE,
-    SPE_LIGHT,
-    SPE_DRAIN_LIFE,
-    SPE_CANCELLATION,
-    SPE_SLOW_MONSTER,
-    SPE_WIZARD_LOCK,
-    SPE_DETECT_UNSEEN,
-    SPE_TURN_UNDEAD,
-    SPE_BLANK_PAPER,
-    SPE_NOVEL,
-    SPE_POLYMORPH,
-    SPE_SLEEP,
-    SPE_STONE_TO_FLESH,
-    TOOL_CLASS,
-    WAND_CLASS,
-    STATUE,
-    FIGURINE,
-    WEAPON_CLASS,
-    HELM_OF_BRILLIANCE,
-    GAUNTLETS_OF_DEXTERITY,
-    RIN_GAIN_STRENGTH,
-    RIN_GAIN_CONSTITUTION,
-    RIN_ADORNMENT,
-    RIN_INCREASE_ACCURACY,
-    RIN_INCREASE_DAMAGE,
-    RIN_PROTECTION,
-    CRYSTAL_BALL,
-    CANDELABRUM_OF_INVOCATION,
-    POT_ACID,
-    POT_SICKNESS,
-    POT_SEE_INVISIBLE,
-    POT_FRUIT_JUICE,
-    SCR_BLANK_PAPER,
-    SPE_BOOK_OF_THE_DEAD,
-    WAN_DEATH,
-    WAN_DIGGING,
-    WAN_LIGHTNING,
-    WAN_LIGHT,
-    WAN_STASIS,
-    WAN_ENLIGHTENMENT,
-    WAN_MAKE_INVISIBLE,
-    WAN_SLOW_MONSTER,
-    WAN_SPEED_MONSTER,
-    WAN_UNDEAD_TURNING,
-    WAN_OPENING,
-    WAN_POLYMORPH,
-    WAN_WISHING,
-    WAN_STRIKING,
-    WAN_MAGIC_MISSILE,
-    WAN_CANCELLATION,
-    WAN_NOTHING,
-    WAN_PROBING,
-    WAN_COLD,
-    WAN_FIRE,
-    WAN_LOCKING,
-    EXPENSIVE_CAMERA,
-    FROST_HORN,
-    FIRE_HORN,
-    MUMMY_WRAPPING,
-    LARGE_BOX,
-    CHEST,
-    BAG_OF_HOLDING,
-    TIN,
-    WAN_SECRET_DOOR_DETECTION,
-    WAN_CREATE_MONSTER,
-    WAN_SLEEP,
-    WAN_TELEPORTATION,
-    POT_OIL,
-    POT_GAIN_ABILITY,
-    SCR_MAIL,
-    SCR_FIRE,
-    SPE_TELEPORT_AWAY,
-    MAGIC_LAMP,
-    MAGIC_MARKER,
-    OIL_LAMP,
-    LOW_BOOTS,
-    EGG,
-    LEASH,
-    UNICORN_HORN,
-    FLESH,
-    PAPER,
-    CLOTH,
-    LEATHER,
-    WOOD,
-    BONE,
-    IRON,
-    METAL,
-    COPPER,
-    SILVER,
-    GOLD,
-    PLATINUM,
-    MITHRIL,
-    GEMSTONE,
-    MINERAL,
-    GLASS,
-    STRANGE_OBJECT,
-} from './objects.js';
+    CORPSE, ROCK_CLASS, MEATBALL, MEAT_STICK, ENORMOUS_MEATBALL, MEAT_RING, ARMOR_CLASS, GEM_CLASS, AMULET_OF_LIFE_SAVING, AMULET_OF_UNCHANGING, BOULDER, DWARVISH_CLOAK, HEAVY_IRON_BALL, IMMEDIATE, NODIR, POTION_CLASS, POT_POLYMORPH, POT_WATER, RING_CLASS, ROCK, SCROLL_CLASS, SPBOOK_CLASS, SPE_DIG, SPE_FORCE_BOLT, SPE_FIREBALL, SPE_CONE_OF_COLD, SPE_EXTRA_HEALING, SPE_FINGER_OF_DEATH, SPE_CURE_SICKNESS, SPE_HEALING, SPE_KNOCK, SPE_MAGIC_MISSILE, SPE_LIGHT, SPE_DRAIN_LIFE, SPE_CANCELLATION, SPE_SLOW_MONSTER, SPE_WIZARD_LOCK, SPE_DETECT_UNSEEN, SPE_TURN_UNDEAD, SPE_BLANK_PAPER, SPE_NOVEL, SPE_POLYMORPH, SPE_SLEEP, SPE_STONE_TO_FLESH, TOOL_CLASS, WAND_CLASS, STATUE, FIGURINE, WEAPON_CLASS, HELM_OF_BRILLIANCE, GAUNTLETS_OF_DEXTERITY, RIN_GAIN_STRENGTH, RIN_GAIN_CONSTITUTION, RIN_ADORNMENT, RIN_INCREASE_ACCURACY, RIN_INCREASE_DAMAGE, RIN_PROTECTION, CRYSTAL_BALL, CANDELABRUM_OF_INVOCATION, POT_ACID, POT_SICKNESS, POT_SEE_INVISIBLE, POT_FRUIT_JUICE, SCR_BLANK_PAPER, SPE_BOOK_OF_THE_DEAD, WAN_DEATH, WAN_DIGGING, WAN_LIGHTNING, WAN_LIGHT, WAN_STASIS, WAN_ENLIGHTENMENT, WAN_MAKE_INVISIBLE, WAN_SLOW_MONSTER, WAN_SPEED_MONSTER, WAN_UNDEAD_TURNING, WAN_OPENING, WAN_POLYMORPH, WAN_WISHING, WAN_STRIKING, WAN_MAGIC_MISSILE, WAN_CANCELLATION, WAN_NOTHING, WAN_PROBING, WAN_COLD, WAN_FIRE, WAN_LOCKING, EXPENSIVE_CAMERA, FROST_HORN, FIRE_HORN, MUMMY_WRAPPING, LARGE_BOX, CHEST, BAG_OF_HOLDING, TIN, WAN_SECRET_DOOR_DETECTION, WAN_CREATE_MONSTER, WAN_SLEEP, WAN_TELEPORTATION, POT_OIL, POT_GAIN_ABILITY, SCR_MAIL, SCR_FIRE, SPE_TELEPORT_AWAY, MAGIC_LAMP, MAGIC_MARKER, OIL_LAMP, LOW_BOOTS, EGG, LEASH, UNICORN_HORN, FLESH, PAPER, CLOTH, LEATHER, WOOD, BONE, IRON, METAL, COPPER, SILVER, GOLD, PLATINUM, MITHRIL, GEMSTONE, MINERAL, GLASS, STRANGE_OBJECT, } from './objects.js';
 import {
-    The,
-    Tobjnam,
-    Yname2,
-    an,
-    aobjnam,
-    ansimpleoname,
-    bare_artifactname,
-    boots_simple_name,
-    cloak_simple_name,
-    donameFresh,
-    corpse_xname,
-    distant_name,
-    otense,
-    gloves_simple_name,
-    helm_simple_name,
-    killer_xname,
-    shield_simple_name,
-    shirt_simple_name,
-    simpleonames,
-    isPoisonable,
-    suit_simple_name,
-    the,
-    the_unique_pm,
-    vtense,
-    yname,
-    xnameFresh,
-} from './objnam.js';
+    An, The, Tobjnam, Yname2, an, aobjnam, ansimpleoname, bare_artifactname, boots_simple_name, cloak_simple_name, donameFresh, corpse_xname, distant_name, otense, gloves_simple_name, helm_simple_name, killer_xname, shield_simple_name, shirt_simple_name, simpleonames, isPoisonable, suit_simple_name, the, the_unique_pm, vtense, yname, xnameFresh, } from './objnam.js';
 import { readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg, force_decor } from './pickup.js';
 import { cant_revive, litroom, unpunish } from './read.js';
 import { is_quest_artifact } from './questpgr.js';
 import { mstatusline, ustatusline } from './insight.js';
 import {
-    body_part, mbodypart, polyself, polymon, rehumanize, ugolemeffects,
-} from './polyself.js';
+    body_part, mbodypart, polyself, polymon, rehumanize, ugolemeffects, } from './polyself.js';
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import {
-    healup, make_blinded, incr_itimeout, make_stunned, speed_up,
-    self_invis_message,
-} from './potion.js';
+    healup, make_blinded, incr_itimeout, make_stunned, speed_up, self_invis_message, } from './potion.js';
 import {
-    d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz,
-} from './rng.js';
+    d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz, } from './rng.js';
 import {
-    killed,
-    shieldeff_mon,
-    monkilled,
-    normal_shape,
-    replmon,
-    restore_cham,
-    seemimic,
-    healmon,
-    maybe_unhide_at,
-    m_respond,
-    newcham,
-    wake_nearto,
-    wakeup,
-    xkilled,
-    check_gear_next_turn,
-    set_ustuck,
-    unstuck,
-    mimic_hit_msg,
-} from './mon.js';
+    killed, shieldeff_mon, monkilled, normal_shape, replmon, restore_cham, seemimic, healmon, maybe_unhide_at, m_respond, m_in_air, newcham, wake_nearto, wakeup, xkilled, check_gear_next_turn, set_ustuck, unstuck, mimic_hit_msg, } from './mon.js';
 import { dmgval } from './weapon.js';
 import { expels, u_slow_down } from './mhitu.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
 import { explode } from './explode.js';
 import {
-    m_at,
-} from './monst.js';
+    m_at, } from './monst.js';
 import { mon_reflects, ureflects } from './muse.js';
 import { in_rooms } from './rooms.js';
 import {
-    check_unpaid,
-    billable,
-    contained_cost,
-    costly_spot,
-    inhishop,
-    inside_shop,
-    shkcatch,
-    shop_keeper,
-    shk_your,
-    stolen_value,
-} from './shk.js';
+    check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, shkcatch, shop_keeper, shk_your, stolen_value, } from './shk.js';
 import { Shknam, shkname } from './shknam.js';
 import { messageAt } from './startup_a11y.js';
 import {
-    S_digbeam, S_flashbeam, S_hcdoor, S_vodoor,
-} from './symbols.js';
+    S_digbeam, S_flashbeam, S_hcdoor, S_vodoor, } from './symbols.js';
 import {
-    closed_door, dissolve_bars, m_in_air, monflee, monfleeMessage,
-    onscary, set_apparxy, youHear,
-} from './monmove.js';
+    closed_door, dissolve_bars, monflee, monfleeMessage, onscary, set_apparxy, youHear, } from './monmove.js';
 import { stairway_at } from './stairs.js';
-import { is_ice } from './terrain.js';
+
 import { burnarmor } from './trap_erode_obj.js';
 import {
-    conjoined_pits,
-    delfloortrap,
-    fill_pit,
-    is_lava,
-    is_pool_or_lava,
-    maketrap,
-    openholdingtrap,
-    closeholdingtrap,
-    openfallingtrap,
-    animate_statue,
-    activate_statue_trap,
-    reset_utrap,
-    set_utrap,
-    t_at,
-    trapname,
-} from './trap.js';
+    conjoined_pits, delfloortrap, fill_pit, maketrap, openholdingtrap, closeholdingtrap, openfallingtrap, animate_statue, activate_statue_trap, reset_utrap, set_utrap, t_at, trapname } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import { flash_hits_mon, m_is_steadfast, shade_miss } from './uhitm.js';
 import { enexto, rloco, tele, u_teleport_mon } from './teleport.js';
@@ -5245,6 +4699,113 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random, rawEnv = {}) {
     });
 }
 
+// C refs: zap.c melt_ice(), start_melt_ice_timeout(), and melt_ice_away().
+// Drawbridge records keep C's drawbridgemask in their canonical `flags`
+// field. Level timer arguments retain C's packed `(x << 16) | y` coordinate.
+export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    const message = env.planning ? async () => {}
+        : (env.message ?? ttyPline);
+    const norepMessage = env.planning ? async () => {}
+        : (env.norepMessage ?? ttyNorep);
+    const canSee = env.canSee ?? ((cx, cy) => cansee(cx, cy, state));
+    const redraw = env.newsym ?? env.redraw
+        ?? (env.planning ? (() => {}) : ((cx, cy) => newsym(cx, cy, state)));
+    const lev = state.level.at(x, y);
+
+    if (lev.typ === DRAWBRIDGE_UP || lev.typ === DRAWBRIDGE_DOWN) {
+        lev.flags = (lev.flags ?? 0) & ~DB_ICE;
+    } else {
+        lev.typ = lev.icedpool === ICED_POOL ? POOL : MOAT;
+        lev.icedpool = 0;
+    }
+
+    spot_stop_timers(x, y, MELT_ICE_AWAY, state);
+    if (t_at(x, y, state)) {
+        // trap.c trap_ice_effects() is a discarded void effect, not data.
+        note_unported('trap.c trap_ice_effects');
+    }
+    obj_ice_effects(x, y, false, env);
+    const { unearth_objs } = await import('./bury.js');
+    unearth_objs(x, y, env);
+    if (state.u?.uinwater) {
+        vision_recalc(1, { ...env, state, redraw });
+    }
+    redraw(x, y, state);
+    if (canSee(x, y) || u_at(x, y, state)) {
+        await norepMessage(msg ?? 'The ice crackles and melts.', state, env);
+    }
+
+    let boulder = sobj_at(BOULDER, x, y, state);
+    if (boulder) {
+        if (canSee(x, y)) {
+            await message(
+                `${An(xnameFresh(boulder, state))} settles...`,
+                state,
+                env,
+            );
+        }
+            const { boulder_hits_pool } = await import('./do.js');
+            do {
+                obj_extract_self(boulder, env);
+                // C's impossible() here only diagnoses an impossible return from
+                // boulder_hits_pool(); the value is still not otherwise used.
+                if (!await boulder_hits_pool(boulder, x, y, false, env)) {
+                    note_unported('pline.c impossible');
+                }
+            } while (is_pool(x, y, state)
+                && (boulder = sobj_at(BOULDER, x, y, state)));
+        redraw(x, y, state);
+    }
+
+    if (u_at(x, y, state)) {
+        const { spoteffects } = await import('./hack.js');
+        await spoteffects(true, state, env);
+    } else if (is_pool(x, y, state)) {
+        const monster = m_at(x, y, state);
+        if (monster) {
+            const { minliquid } = await import('./mon.js');
+            await minliquid(monster, env);
+        }
+    }
+}
+
+// C ref: zap.c start_melt_ice_timeout(). The loop increments before drawing;
+// a returned zero installs the level timer, while exhaustion leaves the ice
+// permanent.
+export function start_melt_ice_timeout(
+    x, y, minTime, state = game, random = { rn2 },
+) {
+    let when = Math.trunc(minTime);
+    if (when < 49) when = 49;
+    while (++when <= 2000) {
+        if (!random.rn2((2000 - when) + 50)) break;
+    }
+    if (when <= 2000) {
+        const where = x * 0x10000 + y;
+        start_timer(when, TIMER_LEVEL, MELT_ICE_AWAY, where, state);
+    }
+}
+
+// C ref: zap.c melt_ice_away(). Timer coordinates are the packed long stored
+// by start_melt_ice_timeout(); mon_moving is temporarily true so drowning
+// caused by the melted square is not attributed to the hero.
+export async function melt_ice_away(arg, _timeout, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
+    state.context ??= {};
+    const savedMonMoving = state.context.mon_moving ?? false;
+    const where = Number(arg);
+    const y = where & 0xffff;
+    const x = (where >>> 16) & 0xffff;
+    state.context.mon_moving = true;
+    try {
+        await melt_ice(x, y, 'Some ice melts away.', state, env);
+    } finally {
+        state.context.mon_moving = savedMonMoving;
+    }
+}
+
 // C ref: zap.c zap_over_floor() (5140-5497), "location", "damage type plus
 // {wand|spell|breath} info", "extra output if shop door is destroyed",
 // "ignore any monster here", and "supplied when breaking a wand; or POT_OIL
@@ -5310,8 +4871,7 @@ export async function zap_over_floor(
             if (seeIt) redrawAt(x, y, state);
         }
         if (is_ice(x, y, state)) {
-            // melt_ice() returns no value and has no ported owner yet.
-            note_unported('zap.c melt_ice');
+            await melt_ice(x, y, null, state, env);
         } else if (is_pool(x, y, state)) {
             const onWaterLevel = Is_waterlevel(state.u.uz);
             let messageGiven = false;
@@ -5491,7 +5051,7 @@ export async function zap_over_floor(
                     }
                 }
                 if (!lava) {
-                    note_unported('zap.c start_melt_ice_timeout');
+                    start_melt_ice_timeout(x, y, 0, state, random);
                     obj_ice_effects(x, y, true, env);
                 }
             }
@@ -5499,7 +5059,7 @@ export async function zap_over_floor(
             const meltTime = spot_time_left(x, y, MELT_ICE_AWAY, state);
             if (meltTime) {
                 spot_stop_timers(x, y, MELT_ICE_AWAY, state);
-                note_unported('zap.c start_melt_ice_timeout');
+                start_melt_ice_timeout(x, y, meltTime, state, random);
             }
         }
         break; /* ZT_COLD */

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 preserved C-observed setup miss, not runtime evidence. The independent male Wizard C setup put the wished amulet at letter o (inventory prompt [deo or ?*]); this recipe selected n and C refused it as silly to wear. Its C recording is preserved under .cache/A83-logs/. The corrected variation uses the observed inventory letter o.",
+  "segments": [
+    {
+      "seed": 70831992,
+      "datetime": "20261002200000",
+      "nethackrc": "OPTIONS=name:A83FlyingOffVar,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017uncursed amulet of flying\nPnR "
+    }
+  ]
+}

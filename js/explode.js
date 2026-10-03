@@ -151,11 +151,11 @@ import { dmgval } from './weapon.js';
 import {
     obj_extract_self,
     stackobj,
+    sobj_at,
 } from './invent.js';
 import {
     place_object,
     remove_object,
-    sobj_at,
     splitobj,
     objectType,
 } from './obj.js';

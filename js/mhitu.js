@@ -163,7 +163,8 @@ import * as M from './monsters.js';
 import { find_offensive } from './muse.js';
 import { mon_reflects, ureflects } from './muse.js';
 import { makeplural } from './fruit.js';
-import { is_weptool, is_wet_towel, objectType, sobj_at } from './obj.js';
+import { is_weptool, is_wet_towel, objectType } from './obj.js';
+import { sobj_at } from './invent.js';
 import { place_monster, remove_monster } from './monst.js';
 import {
     AMULET_OF_GUARDING,

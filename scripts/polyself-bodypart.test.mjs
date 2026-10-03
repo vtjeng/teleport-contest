@@ -10,6 +10,7 @@
 // missing one.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -21,7 +22,11 @@ import {
     NOSE,
 } from '../js/const.js';
 import * as M from '../js/monsters.js';
-import { mbodypart } from '../js/polyself.js';
+import { body_part, mbodypart } from '../js/polyself.js';
+
+const POLYSELF_C = readFileSync(
+    new URL('../nethack-c/upstream/src/polyself.c', import.meta.url), 'utf8',
+);
 
 // Monster class letters, from the MONSYM() rows of include/defsym.h. The
 // number is the first MONSYM() argument; the line is where that row sits.
@@ -65,8 +70,18 @@ function species(mlet, overrides = {}) {
 }
 
 test('invalid body-part indices retain the source diagnostic fallback', () => {
+    assert.match(POLYSELF_C,
+        /if \(part <= NO_PART\)[\s\S]*?return "mystery part";/u);
     assert.equal(mbodypart(null, -1), 'mystery part');
     assert.equal(mbodypart(null, 19), 'mystery part');
+});
+
+test('body_part applies mbodypart to the supplied youmonst', () => {
+    assert.match(POLYSELF_C,
+        /body_part\(int part\)[\s\S]*?return mbodypart\(&gy\.youmonst, part\);/u);
+    // HEAD is the source table index used by the following human-form check.
+    const human = monster(species(S_HUMAN, { mflags1: M1_HUMANOID }));
+    assert.equal(body_part(HEAD, human), 'head');
 });
 
 test('dogs and yetis preserve their source limb exceptions', () => {

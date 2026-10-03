@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first continuation after the preserved menu-slot miss. The prior seed45317920 recording shows each food-ration wish received inventory letter p, and its final prompt is What do you want to eat? [p or ?*]; this recipe therefore selects p after the same Black Pudding transformation. Inputs are corrected from C's own displayed slot, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 45317920,
+      "datetime": "20280115140620",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding3,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\n#polyself\nblack pudding\n ep"
+    }
+  ]
+}

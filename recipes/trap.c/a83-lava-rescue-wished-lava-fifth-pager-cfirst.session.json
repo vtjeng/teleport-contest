@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen fifth C-observed lava pager continuation. It dismisses the fourth pager ending in the life-saving medallion message, then records the next BURNING rescue transition.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017amulet of life saving\nP? o\u0017lava\n     "
+    }
+  ]
+}

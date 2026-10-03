@@ -190,6 +190,8 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_lava,
+    is_pool_or_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -272,11 +274,14 @@ import {
     prinv,
     hold_another_object,
     stackobj,
+    sobj_at,
 } from './invent.js';
 import { pick_lock } from './lock.js';
 import { bagotricks, mkclass } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto } from './mon.js';
+import {
+    m_in_air, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto,
+} from './mon.js';
 import {
     can_blow,
     can_blnd,
@@ -313,7 +318,7 @@ import {
     poly_when_stoned,
 } from './mondata.js';
 import {
-    accessible, closed_door, m_in_air, monflee, onscary, set_apparxy, youHear,
+    accessible, closed_door, monflee, onscary, set_apparxy, youHear,
     youSee,
 } from './monmove.js';
 import { m_at } from './monst.js';
@@ -342,7 +347,6 @@ import {
     place_object,
     set_bknown,
     unbless,
-    sobj_at,
     is_wet_towel,
     carried,
     splitobj,
@@ -521,8 +525,6 @@ import {
     activate_statue_trap,
     deltrap,
     fill_pit,
-    is_lava,
-    is_pool_or_lava,
     Levitation,
     maketrap,
     reset_utrap,
@@ -572,7 +574,7 @@ import {
     revive_corpse,
     set_wounded_legs,
 } from './do.js';
-import { floorfood, morehungry, set_tin_variety } from './eat.js';
+import { floorfood, morehungry, set_tin_variety, vomit } from './eat.js';
 import { digests, hurtle, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
 import { makeplural } from './fruit.js';
 import { change_luck } from './moveloop_preamble.js';
@@ -3396,7 +3398,7 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
             break;
         case 4:
             if (intrinsic(VOMITING))
-                recordGap('eat.c vomit');
+                await vomit(state, { ...env, message });
             else
                 await make_vomiting(14, false, state, env);
             break;

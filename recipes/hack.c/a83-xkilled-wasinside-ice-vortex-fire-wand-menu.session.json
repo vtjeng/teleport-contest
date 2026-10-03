@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 independent C-first setup for mon.c:xkilled's wasinside branch. It creates an ordinary hostile ice vortex and opens the wand menu without assuming the wished fire wand's slot. A fire wand is selected because C showed the vortex's nonliving trait blocks death rays but does not grant fire resistance.",
+  "segments": [
+    {
+      "seed": 77482063,
+      "datetime": "20261002210000",
+      "nethackrc": "OPTIONS=name:A83SwallowedFire,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of fire\n#wizgenesis\n1 hostile ice vortex\n.. z?"
+    }
+  ]
+}

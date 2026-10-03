@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation from the observed interrupted first meal. The prior recording shows Black Pudding at Satiated after selecting one of four carried food rations; the final C message is that it bites and stops eating the food ration after its elapsed turns. This frozen input starts a second eat command on the same displayed stack to reach choke's source branch; it does not tune from JavaScript output.",
+  "segments": [
+    {
+      "seed": 34918305,
+      "datetime": "20261003165200",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\n#polyself\nblack pudding\n i eoeo"
+    }
+  ]
+}

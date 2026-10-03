@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first runtime route for trap.c:drown, emergency_disrobe, and teleport.c:safe_teleds. Seed and time are independent of the earlier crawl-success recipe. A wished life-saving amulet is worn from the C-observed n slot; ten cursed loadstones make removable gear insufficient to crawl out, then pool terrain and a wait trigger drowning. Twelve spaces are a bounded allowance to clear C-observed More prompts; the resulting capture will be inspected before any full comparison.",
+  "segments": [
+    {
+      "seed": 8439201,
+      "datetime": "20381117121000",
+      "nethackrc": "OPTIONS=name:DrownRescue,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP?n\u0017ten cursed loadstones\n\u0017pool\n.            "
+    }
+  ]
+}

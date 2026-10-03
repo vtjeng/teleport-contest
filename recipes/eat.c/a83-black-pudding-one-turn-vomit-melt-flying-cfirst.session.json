@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first variation: create ICE under the wizard, change into an Acid Black Pudding, set the C debug Flying intrinsic from the recorded wizard-intrinsic menu route, then set Vomiting to one turn. Dismissing the final vomit pager lets timeout.c:vomiting_dialogue call eat.c:vomit, whose acid melts the ice; hack.c:pooleffects should then take its Flying branch and skip the unported trap.c:drown -> display.c:under_water route. Freeze and inspect this C output before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 45317922,
+      "datetime": "20280115140721",
+      "nethackrc": "OPTIONS=name:A83VomitFlyingPudding,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n#polyself\nblack pudding\n #wizintrinsic\n>>k\n #wizintrinsic\n1k\n . "
+    }
+  ]
+}

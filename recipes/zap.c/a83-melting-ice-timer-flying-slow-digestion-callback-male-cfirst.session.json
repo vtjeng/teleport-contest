@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap A83 timer-callback variation chosen before any JS comparison: keep the already C-verified seed/map/input sequence so the wished Flying wall-ring setup still places ICE at the hero square, and vary the Wizard from female to male so C uses its male character initialization and wording. This independently checks the same MELT_ICE_AWAY start/expiry source path under the role-gender presentation variant; the installed delay is derived from the new C recording.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceTimerMale,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n2500a>>2500k2500m\n  #wizintrinsic\n>2500f\n k\u0017nonpasswall wall\nju\u0017nonpasswall wall\nbl\u0017nonpasswall wall\nhn\u0017nonpasswall wall\nyj\u0017nonpasswall wall\nk\u0017food ration\ni eo \u0017melting ice\n459."
+    }
+  ]
+}

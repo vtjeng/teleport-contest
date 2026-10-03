@@ -39,6 +39,8 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_ice,
+    is_lava,
 } from './dbridge.js';
 import { exercise, poisoned } from './attrib.js';
 // js/allmain.js imports this file's action runners, so this edge closes an
@@ -92,6 +94,7 @@ import { whimper } from './sounds.js';
 import {
     adaptMonsterActionToDochugwSignature,
     hideunder,
+    m_in_air,
     movemon,
     minliquid,
     movemon_singlemon,
@@ -135,7 +138,6 @@ import {
     m_avoid_soko_push_loc,
     m_digweapon_check,
     m_everyturn_effect,
-    m_in_air,
     m_move,
     onscary,
     set_apparxy,
@@ -172,9 +174,8 @@ import {
     rnz,
 } from './rng.js';
 
-import { is_ice } from './terrain.js';
+
 import {
-    is_lava,
     t_at,
 } from './trap.js';
 import { rloc } from './teleport.js';

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for eat.c:choke -> vomit -> acidic ICE melt: first enter the source-listed M1_ACID yellow dragon (higher cwt than acid blob), then wish ICE and food rations; inspect C prompts and the actual choke(eat.c:258) roll before defining a complete bite sequence. No JavaScript comparison until the inputs are frozen.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nyellow dragon\n \u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\ne?"
+    }
+  ]
+}

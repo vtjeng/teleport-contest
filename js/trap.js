@@ -40,11 +40,11 @@ import {
     DART_TRAP,
     DB_FLOOR,
     DB_ICE,
-    DB_LAVA,
     DB_UNDER,
     DISMOUNT_FELL,
     DROWNING,
     BURNING,
+    DISSOLVED,
     DOOR,
     DRAWBRIDGE_UP,
     ECMD_OK,
@@ -75,7 +75,6 @@ import {
     IS_AIR,
     IS_DOOR,
     IS_FURNITURE,
-    IS_LAVA,
     IS_ROOM,
     IS_WALL,
     IS_WATERWALL,
@@ -200,7 +199,10 @@ import { is_art, ART_STING, attacks, has_magic_key, Stone_resistance } from './a
 import { exercise, adjalign, acurr, poisoned } from './attrib.js';
 import { obj_resists, unearth_objs } from './bury.js';
 import { buried_ball } from './dig.js';
-import { drawbridgeFlags, drawbridgeUnder, is_pool } from './dbridge.js';
+import {
+    drawbridgeFlags, drawbridgeUnder, is_ice, is_lava, is_pool,
+    is_waterwall,
+} from './dbridge.js';
 import { getdir, xytodir } from './cmd.js';
 import {
     Monnam, capitalizedMonsterName, mon_nam, monsterCommonName, mon_pmname,
@@ -224,11 +226,15 @@ import {
     ceiling,
     surface,
     find_hell,
+    update_lastseentyp,
 } from './dungeon.js';
 import { schedule_goto } from './do.js';
 import { next_to_u } from './apply_next_to_u.js';
+import { number_leashed } from './apply.js';
 import { done } from './end.js';
-import { feel_newsym, rank_of, map_invisible } from './display.js';
+import {
+    canseemon, feel_newsym, rank_of, map_invisible,
+} from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { makeplural } from './fruit.js';
@@ -244,9 +250,17 @@ import {
 import { goodpos } from './teleport.js';
 import { sgn, upstart } from './hacklib.js';
 import {
-    stackobj, getobj, useup, useupall, consume_obj_charge, delete_contents,
-    add_to_container, nxtobj,
-    delobj, obj_extract_self,
+    stackobj,
+    getobj,
+    useup,
+    useupall,
+    consume_obj_charge,
+    delete_contents,
+    add_to_container,
+    nxtobj,
+    delobj,
+    obj_extract_self,
+    sobj_at,
 } from './invent.js';
 import { get_obj_location } from './light.js';
 import { water_damage_chain } from './trap_water_damage.js';
@@ -283,7 +297,6 @@ import {
     objectType,
     place_object,
     remove_object,
-    sobj_at,
     weight,
 } from './obj.js';
 import { mkcorpstat } from './corpstat.js';
@@ -294,13 +307,13 @@ import {
     donameFresh, Tobjnam,
 } from './objnam.js';
 import {
-    ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, DART, IRON, LAND_MINE, LEASH,
+    ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, DART, IRON, LAND_MINE,
     LOADSTONE, POTION_CLASS, POT_OIL, SCROLL_CLASS, SCR_FIRE, SPBOOK_CLASS,
     SPE_BOOK_OF_THE_DEAD, SPE_FIREBALL, STATUE, WOOD,
 } from './objects.js';
 import { encumber_msg, pickup } from './pickup.js';
 import { make_hallucinated, make_stunned, set_itimeout } from './potion.js';
-import { waterbody_name } from './pager.js';
+import { ice_descr, waterbody_name } from './pager.js';
 import { float_vs_flight, body_part, polymon } from './polyself.js';
 import { create_gas_cloud } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rn2_on_display_rng, rnz } from './rng.js';
@@ -310,7 +323,7 @@ import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { trap_to_defsym } from './symbols.js';
 import { halu_trapnames } from './trap_names_data.js';
-import { is_ice, set_levltyp } from './terrain.js';
+import { set_levltyp } from './terrain.js';
 import { burn_away_slime, spot_stop_timers } from './timeout.js';
 import {
     dofiretrap, dotrap, feeltrap, mintrap, m_easy_escape_pit,
@@ -354,22 +367,6 @@ function trapEnv(env = {}) {
 
 function capability(env, name) {
     return env[name] ?? env.hooks?.[name] ?? DEFAULT_CAPABILITIES[name];
-}
-
-function isLavaAt(location) {
-    return IS_LAVA(location.typ)
-        || (location.typ === DRAWBRIDGE_UP
-            && drawbridgeUnder(location) === DB_LAVA);
-}
-
-export function is_lava(x, y, state = game) {
-    const location = state.level?.at?.(x, y);
-    return Boolean(location && isLavaAt(location));
-}
-
-// C ref: dbridge.c is_pool_or_lava() (76-83).
-export function is_pool_or_lava(x, y, state = game) {
-    return is_pool(x, y, state) || is_lava(x, y, state);
 }
 
 function closedDoor(location) {
@@ -456,7 +453,11 @@ function findRandomLaunchCoordinate(trap, env) {
                 trap.ty + distance * dy,
                 env.state,
             )
-            && !isLavaAt(endpoint)
+            && !is_lava(
+                trap.tx + distance * dx,
+                trap.ty + distance * dy,
+                env.state,
+            )
             && clearLaunchPath(launch, distance, dx, dy, env);
         const opposite = { x: trap.tx, y: trap.ty };
         if (!clearLaunchPath(opposite, distance, -dx, -dy, env))
@@ -752,7 +753,7 @@ function heroTrapNeedsReset(x, y, typ, env) {
     case TT_BEARTRAP: return typ !== BEAR_TRAP;
     case TT_WEB: return typ !== WEB;
     case TT_PIT: return !is_pit(typ);
-    case TT_LAVA: return !isLavaAt(env.state.level.at(x, y));
+    case TT_LAVA: return !is_lava(x, y, env.state);
     default: return false;
     }
 }
@@ -912,7 +913,7 @@ export function maketrap(x, y, typ, rawEnv = {}) {
         if (undestroyable_trap(trap.ttyp)) return null;
     } else if ((!state.iflags?.debug_overwrite_stairs
         && (location.typ === LADDER || location.typ === STAIRS))
-        || is_pool(x, y, state) || isLavaAt(location)
+        || is_pool(x, y, state) || is_lava(x, y, state)
         || (IS_FURNITURE(location.typ) && typ !== PIT && typ !== HOLE)
         || (location.typ === DRAWBRIDGE_UP && typ === MAGIC_PORTAL)
         || (IS_AIR(location.typ) && typ !== MAGIC_PORTAL)
@@ -1155,15 +1156,13 @@ function heroAmphibious(state) {
     return heroBreathless(state) || amphibious(state.youmonst?.data);
 }
 
-// C ref: trap.c back_on_ground() (4976-5011). ice_descr() has not been
-// ported; surface() already supplies "ice" for that square, which is the
-// ordinary ice_descr() result used by this message.
-export async function back_on_ground(rescued, state = game) {
+// C ref: trap.c back_on_ground() (4976-5011).
+export async function back_on_ground(rescued, state = game, env = {}) {
     const { u } = state;
     let preposition = Levitation(state) || Flying(state) ? 'over' : 'on';
     let surf = surface(u.ux, u.uy, state);
     if (is_ice(u.ux, u.uy, state)) {
-        surf = 'ice';
+        surf = ice_descr(u.ux, u.uy, state);
     } else if (/^(?:floor|ground)$/iu.test(surf)) {
         surf = 'solid ground';
     } else if (/^(?:bridge|altar|headstone)$/iu.test(surf)) {
@@ -1177,16 +1176,63 @@ export async function back_on_ground(rescued, state = game) {
     const subject = rescued
         ? 'You find yourself'
         : state.flags?.verbose ? 'You are back' : 'Back';
-    await ttyPline(`${subject} ${preposition} ${surf}.`, state);
+    await (env.message ?? ttyPline)(
+        `${subject} ${preposition} ${surf}.`, state,
+    );
     state.iflags.last_msg = PLNMSG_BACK_ON_GROUND;
 }
 
-function numberLeashed(state) {
-    let count = 0;
-    for (let obj = state.invent; obj; obj = obj.nobj) {
-        if (obj.otyp === LEASH && obj.leashmon) ++count;
+// C ref: trap.c rescued_from_terrain() (5014-5054). This is called after
+// life-saving relocation by drown() and lava_effects(); it reports the
+// source cause/landing terrain, then refreshes last-seen terrain through the
+// same visibility owner used by display.c.
+export async function rescued_from_terrain(how, state = game, env = {}) {
+    const { u } = state;
+    const location = state.level?.at(u.ux, u.uy);
+    const levelTyp = location?.typ;
+    const message = env.message ?? ttyPline;
+    let messageGiven = false;
+
+    if (how === DROWNING) {
+        if (is_pool(u.ux, u.uy, state)) {
+            const midst = Is_waterlevel(u.uz) || is_waterwall(u.ux, u.uy, state);
+            await message(
+                `You find yourself ${midst ? 'in the midst' : 'on top'} of ${hliquid('water', { state })}.`,
+                state,
+            );
+            messageGiven = true;
+        } else if (IS_AIR(levelTyp)) {
+            await message(
+                `You find yourself in ${Is_waterlevel(u.uz) ? 'an air bubble' : 'mid air'}.`,
+                state,
+            );
+            messageGiven = true;
+        }
+    } else if (how === BURNING || how === DISSOLVED) {
+        if (is_pool(u.ux, u.uy, state)) {
+            await message(
+                `You find yourself ${u.uinwater ? 'in' : 'on'} ${hliquid('water', { state })}.`,
+                state,
+            );
+            messageGiven = true;
+        } else if (is_lava(u.ux, u.uy, state)) {
+            await message(
+                `You find yourself on top of ${hliquid('molten lava', { state })}.`,
+                state,
+            );
+            messageGiven = true;
+        }
     }
-    return count;
+
+    if (!messageGiven)
+        await back_on_ground(true, state, env);
+
+    state.iflags ??= {};
+    state.iflags.last_msg = PLNMSG_BACK_ON_GROUND;
+    update_lastseentyp(u.ux, u.uy, state, {
+        canSeeMonster: (monster) => canseemon(monster, state),
+    });
+    state.iflags.prev_decor = state.level.lastseentyp[u.ux][u.uy];
 }
 
 // C ref: trap.c rnd_nextto_goodpos(). The helper shuffles all eight adjacent
@@ -1231,28 +1277,30 @@ async function emergency_disrobe(lostsome, state = game) {
     while (near_capacity(state) > (Punished(state)
         ? UNENCUMBERED
         : SLT_ENCUMBER)) {
-        let obj = state.invent;
         let selected = null;
-        let index = invc > 0 ? rn2(invc) : -1;
-        while (obj) {
-            const next = obj.nobj;
-            const undroppable = (obj.otyp === LOADSTONE && obj.cursed)
-                || obj === state.uamul
-                || obj === state.uleft
-                || obj === state.uright
-                || obj === state.ublindf
-                || obj === state.uarm
-                || obj === state.uarmc
-                || obj === state.uarmg
-                || obj === state.uarmf
-                || obj === state.uarmu
-                || (obj.cursed && (obj === state.uarmh || obj === state.uarms))
-                || welded(obj, state)
-                || obj.o_id === (state.gs?.stealoid ?? -1)
-                || obj.in_use;
-            if (!undroppable) selected = obj;
-            if (--index < 0 && selected) break;
-            obj = next;
+        if (invc > 0) {
+            let index = rn2(invc);
+            let obj = state.invent;
+            while (obj) {
+                const next = obj.nobj;
+                const undroppable = (obj.otyp === LOADSTONE && obj.cursed)
+                    || obj === state.uamul
+                    || obj === state.uleft
+                    || obj === state.uright
+                    || obj === state.ublindf
+                    || obj === state.uarm
+                    || obj === state.uarmc
+                    || obj === state.uarmg
+                    || obj === state.uarmf
+                    || obj === state.uarmu
+                    || (obj.cursed && (obj === state.uarmh || obj === state.uarms))
+                    || welded(obj, state)
+                    || obj.o_id === (state.gs?.stealoid ?? -1)
+                    || obj.in_use;
+                if (!undroppable) selected = obj;
+                if (--index < 0 && selected) break;
+                obj = next;
+            }
         }
         if (!selected) return false;
         if (selected.owornmask) {
@@ -1260,8 +1308,10 @@ async function emergency_disrobe(lostsome, state = game) {
             await remove_worn_item(selected, false, state);
         }
         lostsome.value = true;
-        const { dropx } = await import('./do.js');
-        await dropx(selected, { state });
+        // C discards dropx()'s result. Its liquid-terrain branch is still
+        // refused by the partial do.c port, so skip the call at this exact
+        // boundary instead of entering that refusal or inventing a drop.
+        note_unported('do.c dropx');
         --invc;
     }
     return true;
@@ -1314,7 +1364,7 @@ export async function drown(state = game) {
     }
     if (inpoolOk) return false;
 
-    const leashed = numberLeashed(state);
+    const leashed = number_leashed(state);
     if (leashed > 0) {
         await ttyPline(
             `The leash${leashed > 1 ? 'es' : ''} slip${leashed > 1 ? '' : 's'} loose.`,
@@ -1428,9 +1478,9 @@ export async function drown(state = game) {
         await ttyPline("You're still drowning.", state);
     }
     if (u.uinwater) await set_uinwater(false, state);
-    // C discards rescued_from_terrain()'s result. Its terrain-specific
-    // feedback and decoration updates remain an explicit unported gap.
-    note_unported('trap.c rescued_from_terrain');
+    // C discards rescued_from_terrain()'s return value; keep its feedback and
+    // remembered-terrain writes before returning from the water effect.
+    await rescued_from_terrain(DROWNING, state);
     return true;
 }
 
@@ -1640,7 +1690,7 @@ export async function lava_effects(state = game) {
             return false;
         }
 
-        note_unported('trap.c rescued_from_terrain');
+        await rescued_from_terrain(BURNING, state);
         await spoteffects(false, state);
         return true;
     } else if (!waterWalking
