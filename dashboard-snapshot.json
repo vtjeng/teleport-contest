@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-03T06:42:40.405Z",
+  "capturedAt": "2026-10-03T07:57:30.174Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -16452,12 +16452,100 @@
         "type": "accepted",
         "at": "2026-10-03T06:40:38.512Z",
         "task": "B93"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B93-published-1ff70f42",
+        "type": "published",
+        "at": "2026-10-03T06:42:53.971Z",
+        "task": "B93",
+        "commit": "1ff70f42232a9340ae14268cab172de95178b55e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5cb280398ff8b2f09b77a4c3fd25e3965e8e208d",
+        "type": "ready",
+        "at": "2026-10-03T07:33:22.511Z",
+        "task": "B94",
+        "delivery": "5cb280398ff8b2f09b77a4c3fd25e3965e8e208d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B94-received-5cb28039",
+        "type": "received",
+        "at": "2026-10-03T07:36:16.224Z",
+        "task": "B94",
+        "delivery": "5cb280398ff8b2f09b77a4c3fd25e3965e8e208d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B94-feedback-wraith-source-attribution-20261003",
+        "type": "feedback",
+        "at": "2026-10-03T07:36:16.719Z",
+        "task": "B94",
+        "delivery": "5cb280398ff8b2f09b77a4c3fd25e3965e8e208d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B94-wraith-attribution-correction-20261003",
+        "type": "resume",
+        "at": "2026-10-03T07:36:42.750Z",
+        "task": "B94"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fb2cb0d61e9c9e0d1d6ae7bff810b4be537a9b9c",
+        "type": "ready",
+        "at": "2026-10-03T07:39:30.972Z",
+        "task": "B94",
+        "delivery": "fb2cb0d61e9c9e0d1d6ae7bff810b4be537a9b9c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B94-received-fb2cb0d6",
+        "type": "received",
+        "at": "2026-10-03T07:41:01.801Z",
+        "task": "B94",
+        "delivery": "fb2cb0d61e9c9e0d1d6ae7bff810b4be537a9b9c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B94-integrating-c973e13d",
+        "type": "integrating",
+        "at": "2026-10-03T07:41:20.671Z",
+        "task": "B94",
+        "integration": "c973e13d992d0d60d9beb39cb183c27071c12272"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B95-leprechaun-sleeper-disturb-preflight-v19-20261003",
+        "type": "assign",
+        "at": "2026-10-03T07:52:16.991Z",
+        "task": "B95",
+        "worker": "B",
+        "goal": "fix-leprechaun-sleeper-disturb-preflight-v19-20261003",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B94-validated-c973e13d",
+        "type": "validated",
+        "at": "2026-10-03T07:56:54.938Z",
+        "task": "B94",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B94-accepted-c973e13d",
+        "type": "accepted",
+        "at": "2026-10-03T07:57:01.368Z",
+        "task": "B94"
       }
     ]
   },
   "development": {
-    "executionCommit": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
-    "measuredAt": "2026-10-03T06:28:49.260Z",
+    "executionCommit": "c973e13d992d0d60d9beb39cb183c27071c12272",
+    "measuredAt": "2026-10-03T07:48:52.965Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

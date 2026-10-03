@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B94 M-to-M AD_DETH witness. The recipe acknowledges the C pager after #wizintrinsic reports its 30-turn Conflict timeout. A debug Healer reaches level 30, activates Conflict, creates a hostile newt and forces a hostile Death into the level; the final waits expose the Death-versus-newt touch through mhitm.c:mdamagem -> uhitm.c:mhitm_adtyping(AD_DETH) -> mhitm_ad_deth. The living target covers direct AD_DRLI delegation without the undead-only rnd branch.",
+  "segments": [
+    {
+      "seed": 9409413,
+      "datetime": "20421218153000",
+      "nethackrc": "OPTIONS=name=DeathPairB94,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n30\n                             #wizintrinsic\n>>h\n #wizgenesis\nhostile newt\n#wizgenesis\nhostile Death\ny.."
+    }
+  ]
+}
