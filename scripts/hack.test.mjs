@@ -100,11 +100,14 @@ import { GameMap } from '../js/game.js';
 import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    M1_FLY, PM_GRID_BUG, PM_HUMAN, PM_SOLDIER, monst_globals_init,
+    M1_FLY, PM_GRID_BUG, PM_HUMAN, PM_IRON_PIERCER, PM_SOLDIER,
+    S_PIERCER, monst_globals_init,
 } from '../js/monsters.js';
 import {
-    CORPSE, DAGGER, objects_globals_init,
+    CORPSE, DAGGER, HELMET, objects_globals_init,
 } from '../js/objects.js';
+import { newMonster, place_monster } from '../js/monst.js';
+import { newObject } from '../js/obj.js';
 import {
     peek_timer,
     start_timer,
@@ -832,6 +835,112 @@ test('spoteffects calls pickup only for an enabled ordinary arrival',
         dismounting.in_steed_dismounting = true;
         await spoteffects(true, dismounting);
         assert.equal(dismounting.gp.pickup_encumbrance, 7);
+    });
+
+test('spoteffects piercer uses the canonical worn hard-helmet slot',
+    async () => {
+        const cStart = HACK_SOURCE.indexOf('\nvoid\nspoteffects(');
+        const cEnd = HACK_SOURCE.indexOf('\nmonstinroom(', cStart);
+        const cSpoteffects = HACK_SOURCE.slice(cStart, cEnd);
+        assert.match(cSpoteffects,
+            /else if \(hard_helmet\(uarmh\)\)\s*\{\s*pline\("Its blow glances off your %s\."/u);
+        const jsStart = HACK_JS_SOURCE.indexOf(
+            'export async function spoteffects(',
+        );
+        const jsEnd = HACK_JS_SOURCE.indexOf('\nexport function monstinroom(',
+            jsStart);
+        const jsSpoteffects = HACK_JS_SOURCE.slice(jsStart, jsEnd);
+        assert.match(jsSpoteffects,
+            /if \(hard_helmet\(state\.uarmh, state\)\)\s*\{\s*await message\([\s\S]*?helm_simple_name\(state\.uarmh, state\)/u);
+        assert.doesNotMatch(jsSpoteffects, /hard_helmet\(u\.uarmh/u);
+
+        // worn.c's W_ARMH table writes the player slot on game state itself.
+        const wornSource = readFileSync('js/worn.js', 'utf8');
+        assert.match(wornSource,
+            /mask: W_ARMH, field: 'uarmh'/u);
+
+        const state = resetGame();
+        objects_globals_init(state);
+        monst_globals_init(state);
+        state.level = new GameMap();
+        state.level.monlist = null;
+        // (5,4) is an interior ROOM square with eight ROOM neighbors; that
+        // lets spoteffects finish its source-required mnexto() relocation.
+        state.u = {
+            ux: 5, uy: 4, ux0: 5, uy0: 4,
+            uinwater: false, uswallow: false,
+            // AC 10 plus the injected minimum rnd(20)=1 makes the unprotected
+            // source arm hit; 20 HP keeps that mistaken hit observable.
+            uac: 10, uhp: 20,
+            umonnum: PM_HUMAN,
+            uprops: terrainProperties(),
+        };
+        state.youmonst = { data: state.mons[PM_HUMAN] };
+        state.level.at(5, 4).typ = ROOM;
+        // This inclusive patch includes the center and all eight adjacent
+        // ROOM squares required by the monster's end-of-effect relocation.
+        for (let x = 4; x <= 6; ++x) {
+            for (let y = 3; y <= 5; ++y)
+                state.level.at(x, y).typ = ROOM;
+        }
+        state.iflags = { terrain_typ: ROOM };
+        state.flags = { terrainstatus: false };
+        state.unported = new Set();
+        // HELMET is the source iron hard helmet; store it only in the C uarmh
+        // slot on state, leaving the old nested-field lookup empty.
+        state.uarmh = newObject({
+            otyp: HELMET,
+            oclass: state.objects[HELMET].oc_class,
+            quan: 1,
+            dknown: true,
+        });
+        assert.equal(state.u.uarmh, undefined);
+
+        const piercer = newMonster({
+            data: state.mons[PM_IRON_PIERCER],
+            mhp: 20,
+            mhpmax: 20,
+            mcanmove: true,
+        });
+        assert.equal(piercer.data.mlet, S_PIERCER);
+        place_monster(piercer, state.u.ux, state.u.uy, state);
+
+        const messages = [];
+        const randomCalls = [];
+        const random = {
+            rn2(bound) {
+                randomCalls.push(['rn2', bound]);
+                // The zero offset makes enexto's deterministic ring shuffle
+                // reproducible without affecting the piercer attack branch.
+                return 0;
+            },
+            rnd(bound) {
+                randomCalls.push(['rnd', bound]);
+                // The minimum value would force the source attack to hit if
+                // hard_helmet() failed to read the canonical slot.
+                return 1;
+            },
+            d(count, sides) {
+                randomCalls.push(['d', count, sides]);
+                // Minimum damage keeps any incorrect attack result legible.
+                return 1;
+            },
+        };
+        await spoteffects(false, state, {
+            message: async (line) => messages.push(line),
+            random,
+            newsym: () => {},
+            setApparxy: () => {},
+        });
+
+        assert.ok(messages.some((line) =>
+            line.includes('Its blow glances off your helm.')));
+        assert.equal(state.u.uhp, 20);
+        assert.equal(randomCalls.some(([kind, bound]) =>
+            kind === 'rnd' && bound === 20), false);
+        assert.equal(randomCalls.some(([kind, count, sides]) =>
+            kind === 'd' && count === 4 && sides === 6), false);
+        resetGame();
     });
 
 test('spoteffects stops its arrival tail after terminal pooleffects',

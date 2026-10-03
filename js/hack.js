@@ -5131,9 +5131,9 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
                     state,
                 );
                 if (!monster.mtame) {
-                    if (hard_helmet(u.uarmh, state)) {
+                    if (hard_helmet(state.uarmh, state)) {
                         await message(
-                            `Its blow glances off your ${helm_simple_name(u.uarmh, state)}.`,
+                            `Its blow glances off your ${helm_simple_name(state.uarmh, state)}.`,
                             state,
                         );
                     } else if (u.uac + 3 <= random.rnd(20)) {
