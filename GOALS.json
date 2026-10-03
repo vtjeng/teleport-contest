@@ -146384,6 +146384,209 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-deth-v20-20261003",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete Death touches and source-directed drain delegation",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v20/death-touches-wizard-v20-more-confirmed"
+      ],
+      "selectionReason": "The complete current v20 Death investigation selects whole uhitm.c:mhitm_ad_deth3837–3893 and its AD_DETH dispatcher arm. Reuse the accepted mhitm_ad_drli delegation and existing hitmu permdmg reader; claim no whole caller completion. Preserve all source directions, target-data snapshot, integer half-damage, Antimagic outcome and RNG/message order, and exact discarded touch_of_death void gap. Independent newt/orc Conflict recordings cover monster targets; the separate wraith setup produces Death touching the living hero, not an undead-defender branch. The hero-attacker direction cannot occur in valid C polymorphs. Root source, attribution, receipt and input verification: .cache/B94-root-source-verification.json.",
+      "detail": "",
+      "openedAt": "1ff70f42232a9340ae14268cab172de95178b55e",
+      "openStanding": {
+        "sha": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_deth",
+          "line": 3837,
+          "endLine": 3896,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3837,
+        "to": 3896
+      },
+      "syntheticProvenance": {
+        "synthetic/v20/death-touches-wizard-v20-more-confirmed": {
+          "session": "synthetic/v20/death-touches-wizard-v20-more-confirmed",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "death-touches-wizard-v20-more-confirmed",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.session.json",
+          "recordingSha256": "db591a65e5f705ca354652b58f1819232332d8f0f93ea715f7e6310e6ee56477",
+          "evaluationPath": "challenges/evaluations/20261003063303-v20.json",
+          "evaluationCommit": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c"
+        }
+      },
+      "activeStanding": {
+        "sha": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "death-touches-wizard-v20-more-confirmed",
+          "session": "synthetic/v20/death-touches-wizard-v20-more-confirmed",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.session.json",
+          "recordingPath": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.session.json",
+          "recordingSha256": "db591a65e5f705ca354652b58f1819232332d8f0f93ea715f7e6310e6ee56477",
+          "recipe": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.recipe.session.json",
+          "recipeSha256": "2fab98356a333d365e3b207f7f1b438c4235d0b585ee22e9b8f9f8a56588f64f",
+          "replayInputSha256": "d9cf267f048d14fcb60c801e59b7f0a90e0099e9a65ddfaac05dc1628bfa0e9a",
+          "evaluationPath": "challenges/evaluations/20261003063303-v20.json",
+          "evaluationCommit": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+          "evaluationArtifact": "challenges/evaluations/20261003063303-v20.json",
+          "evaluationUtc": "2026-10-03T06:34:06.957Z",
+          "remainingScreens": 2,
+          "recordedSteps": 32,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 32
+            },
+            "rng": {
+              "matched": 2349,
+              "total": 2356
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 32
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_deth()",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_deth",
+          "message": "simple monster action requires uhitm.c mhitm_ad_deth()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/death-touches-wizard-v20-more-confirmed.json",
+            "result": {
+              "session": "synthetic/v20/death-touches-wizard-v20-more-confirmed",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "death-touches-wizard-v20-more-confirmed",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "db591a65e5f705ca354652b58f1819232332d8f0f93ea715f7e6310e6ee56477",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 2,
+              "recordedSteps": 32,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "death-touches-wizard-v20-more-confirmed",
+                "session": "synthetic/v20/death-touches-wizard-v20-more-confirmed",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.session.json",
+                "recordingPath": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.session.json",
+                "recordingSha256": "db591a65e5f705ca354652b58f1819232332d8f0f93ea715f7e6310e6ee56477",
+                "recipe": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.recipe.session.json",
+                "recipeSha256": "2fab98356a333d365e3b207f7f1b438c4235d0b585ee22e9b8f9f8a56588f64f",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 2,
+                "recordedSteps": 32,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 32
+                  },
+                  "rng": {
+                    "matched": 2349,
+                    "total": 2356
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 32
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_deth()",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_deth",
+                "message": "simple monster action requires uhitm.c mhitm_ad_deth()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The monster-action preflight refuses AD_DETH before Death’s turn. C step30 enters mhitm_ad_deth and rn2(20)=6 selects life-force draining with mhm.permdmg=1. Port the whole helper and AD_DETH dispatch arm, preserving the caller’s permanent-damage handling and all source orientations.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "AD_DETH with a non-undead hero defender; rn2(20)=6 selects permanent life-force damage. Other source arms halve undead-hero damage, invoke touch_of_death without Antimagic, clear failed damage, or delegate monster-defender draining.",
+                "functions": [
+                  "mhitm_ad_deth"
+                ],
+                "callers": [
+                  "mhitm_adtyping",
+                  "hitmu",
+                  "damageum",
+                  "mdamagem"
+                ],
+                "dependencies": [
+                  "mcastu.c:touch_of_death",
+                  "uhitm.c:mhitm_ad_drli",
+                  "display.c:shieldeff",
+                  "species is_undead flags",
+                  "Antimagic property"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "uhitm.c:3837–3893 defines mhitm_ad_deth. Its hero-defender rn2(20) switch sets permdmg on the life-force branch; it leaves actual damage application to hitmu.",
+                "C step30 prints the deadly-touch message and records rnd(20)=8 at mattacku, d(8,8)=37 at hitmu, then rn2(20)=6 at mhitm_ad_deth. Space continues the life-force message at31.",
+                "JS uhitm.js:5073 still selects the unported mhitm_ad_deth helper. The baseline reports this exact simple-monster-action refusal, so the earlier missing distfleeck draw is a planning symptom of the unsupported damage type.",
+                "The whole source unit also calls touch_of_death and mhitm_ad_drli with discarded results; audit their source and existing owners when defining implementation scope. Do not claim the life-force recording covers those alternate branches."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
