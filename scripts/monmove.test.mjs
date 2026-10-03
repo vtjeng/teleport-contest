@@ -60,6 +60,7 @@ import {
     MMOVE_MOVED,
     MMOVE_NOMOVES,
     MMOVE_NOTHING,
+    MS_CUSS,
     NEED_WEAPON,
     NOGARLIC,
     NOTONL,
@@ -151,6 +152,7 @@ import {
     MS_LEADER,
     PM_AMOROUS_DEMON,
     PM_ANGEL,
+    PM_ARCHON,
     PM_DEATH,
     PM_DISPLACER_BEAST,
     PM_DWARF,
@@ -189,8 +191,10 @@ import {
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
+import { game } from '../js/gstate.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
+import { initUnported } from '../js/unported.js';
 import { init_objects } from '../js/o_init.js';
 import {
     ARROW,
@@ -3279,6 +3283,115 @@ test('dochug gives Conflict monsters the source movement turn', async () => {
 
 // monmove.c:967.  The phase-four Conflict disjunct has no iswiz exception;
 // even a peaceful wizard rolls resist_conflict() before it attacks.
+test('dochug preserves the post-phase-four MS_CUSS gate', async () => {
+    // The defaults make an awake, hostile, visible, adjacent Archon eligible
+    // for C's final cuss test; each variation below disables one C predicate.
+    async function run({
+        inrange = true,
+        msound = MS_CUSS,
+        mpeaceful = false,
+        minvis = 0,
+        visible = true,
+        cussDraw = 0,
+    } = {}) {
+        const { state } = makeState();
+        // Use the Archon from the assigned v21 case: it is the concrete
+        // MS_CUSS species whose source gate this test pins.
+        const archon = state.mons[PM_ARCHON];
+        assert.equal(archon.msound, MS_CUSS);
+        const monster = ordinaryMonster(state, {
+            data: msound === MS_CUSS ? archon : { ...archon, msound },
+            mnum: PM_ARCHON,
+            // Keep the Archon adjacent to the hero's (10,10) fixture square.
+            mx: 9,
+            my: 10,
+            mux: 10,
+            muy: 10,
+            // An awake, sighted fixture avoids unrelated sleeping/blind gates.
+            mcanmove: true,
+            mcansee: true,
+            mpeaceful,
+            minvis,
+            // Keep the Archon's unrelated special-action cooldown active.
+            mspec_used: 1,
+            // These hp values keep the ordinary monster fixture alive through
+            // the mocked attack callback; the callback itself does no damage.
+            mhp: 20,
+            mhpmax: 20,
+        });
+        if (visible) seeSquare(state, monster.mx, monster.my);
+
+        const draws = [];
+        const events = [];
+        // The test controls only the inrange predicate; nearby remains true
+        // and scared false so phase four reaches its ordinary attack path.
+        const range = { nearby: true, inrange, scared: false };
+        initUnported();
+        await dochug(monster, {
+            state,
+            random: {
+                rn2(bound) {
+                    draws.push(bound);
+                    events.push(`rn2(${bound})`);
+                    // One avoids unrelated movement sub-branches; cussDraw
+                    // supplies the explicit rn2(5) boundary value.
+                    return bound === 5 ? cussDraw : 1;
+                },
+                rnd() { assert.fail('unexpected rnd draw'); },
+            },
+            preflight() {},
+            usePreMoveItems: () => false,
+            moveMonster() { return MMOVE_DONE; },
+            attackHero() { events.push('attackHero'); },
+            wakeMessage() {},
+            monFlee() {},
+            monsterCanSeeHero: () => true,
+            unsupported: (reason) => assert.fail(`unexpected refusal: ${reason}`),
+            castUndirectedSpell: () => false,
+            distanceAndFear: () => range,
+            setApparentHero() {},
+            wipeEngraving() {},
+            wieldPreMoveWeapon: () => false,
+            redraw() {},
+            questStatCheck() {},
+            questTalk() {},
+        });
+        const unported = [...game.unported];
+        initUnported();
+        return { draws, events, unported };
+    }
+
+    const skipped = [
+        { inrange: false },
+        // 0 is a different monster sound value from Archon's MS_CUSS value.
+        { msound: 0 },
+        { mpeaceful: true },
+        { visible: false },
+        // A minvisible Archon takes the earlier movement rn2(3), then fails
+        // C's !minvis cuss gate without consuming the later rn2(5).
+        { minvis: 1 },
+    ];
+    for (const variation of skipped) {
+        const result = await run(variation);
+        // A visible minvis Archon consumes the preceding movement rn2(3);
+        // the other disabled predicates stop before any random call.
+        assert.deepEqual(result.draws, variation.minvis ? [3] : []);
+        assert.equal(result.unported.includes('wizard.c cuss'), false);
+    }
+
+    // The C condition is !rn2(5): four misses the cuss branch; zero enters it.
+    const gateMiss = await run({ cussDraw: 4 });
+    // Bound 5 is the only draw: C's !rn2(5) gate fails at value 4.
+    assert.deepEqual(gateMiss.draws, [5]);
+    assert.equal(gateMiss.unported.includes('wizard.c cuss'), false);
+
+    const gateHit = await run({ cussDraw: 0 });
+    // The event order pins PHASE FOUR's attack callback before the cuss roll.
+    assert.deepEqual(gateHit.draws, [5]);
+    assert.deepEqual(gateHit.events, ['attackHero', 'rn2(5)']);
+    assert.deepEqual(gateHit.unported, ['wizard.c cuss']);
+});
+
 test('dochug applies the phase-four Conflict roll to peaceful wizards', async () => {
     const { state } = makeState();
     state.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
