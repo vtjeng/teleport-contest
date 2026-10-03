@@ -145635,8 +145635,8 @@
           "name": "mhitm_ad_drli",
           "line": 2445,
           "endLine": 2520,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -145815,7 +145815,99 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_drli",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_drli",
+            "sourceReview": "Read uhitm.c:2445-2518 in full. The hero-to-monster branch preserves rn2(3), resists_drli, defended(AD_DRLI), and mhitm_mgc_atk_negated order, then d(2,6), message, max-HP floor, HP loss, death/level handling, xkilled(XKILL_NOMSG), and mhm.damage=0. The monster-to-hero branch calls hitmsg before the short-circuit chance, Drain_resistance, and magic-negation gates, then losexp only on success. The monster-to-monster branch preserves AD_DETH bypass semantics, visible-message guard, max-HP floor, level-zero kill damage, and level decrement. Existing whole return units mhitm_mgc_atk_negated, resists_drli, defended, and losexp were reused with their existing source contracts; the canonical DRAIN_RES, DEADMONSTER, and nonliving state/macros remain single-owned. The direct C void xkilled call remains on its existing implementation. For planning only, a successful level-one monster-to-hero loss hands off through the existing planningDeath marker before losexp can enter done(DIED) and mutate shared terminal state; live replay still runs the normal losexp/done path. The JavaScript AD_DETH arm and C mhitm_ad_deth direct caller remain outside this task.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum (4854) -> mhitm_adtyping AD_DRLI arm (4804) -> mhitm_ad_drli"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu (1191) -> uhitm.c:mhitm_adtyping AD_DRLI arm (4804) -> mhitm_ad_drli"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem (1059) -> uhitm.c:mhitm_adtyping AD_DRLI arm (4804) -> mhitm_ad_drli"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-drli.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-drli-hero-to-monster-wraith-b92.session.json",
+              "recordings/uhitm.c/mhitm-ad-drli-hero-to-monster-wraith-variation-b92.session.json",
+              "recordings/uhitm.c/mhitm-ad-drli-monster-to-hero-wraith-b92.session.json",
+              "recordings/uhitm.c/mhitm-ad-drli-monster-to-monster-wraith-b92.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-wraith-ad-drli-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "monmove -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_DRLI) -> uhitm.c:mhitm_ad_drli monster-to-hero branch -> exper.c:losexp; the full recorded continuation also verifies planningDeath handoff to live death recovery. Root verifies the full 31-boundary selected case, including live fatal-drain recovery after the planning handoff."
+              }
+            ],
+            "checkedAt": "5ec951417cb029c76563cbaba4c1f37a67b678d9"
+          }
+        ],
+        "entryPointReview": "The active production routes are hero-to-monster through damageum, monster-to-hero through hitmu, and monster-to-monster through mdamagem; each reaches the AD_DRLI arm of mhitm_adtyping. The three directions have independent C-first recordings; the selected v18 case additionally verifies the fatal level-one planning handoff. The monster-to-monster recording reaches the helper but rn2(3)=2 misses its drain; ordinary attack damage kills that defender. A successful drain mutation is exercised in both other directions and source-pinned tests. uhitm.c:mhitm_ad_deth also calls this helper directly for Death touch, but its JavaScript AD_DETH arm remains an unported outer caller and receives no B92 entry-point credit.",
+        "entryPoints": [
+          {
+            "name": "hero-to-monster natural wraith AD_DRLI",
+            "functions": [
+              "mhitm_ad_drli"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-drli-hero-to-monster-wraith-b92.session.json",
+              "recordings/uhitm.c/mhitm-ad-drli-hero-to-monster-wraith-variation-b92.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-hero natural wraith AD_DRLI",
+            "functions": [
+              "mhitm_ad_drli"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-drli-monster-to-hero-wraith-b92.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-wraith-ad-drli-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "monmove -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_DRLI) -> uhitm.c:mhitm_ad_drli -> exper.c:losexp Root verifies the full 31-boundary selected case, including live fatal-drain recovery after the planning handoff."
+              }
+            ]
+          },
+          {
+            "name": "monster-to-monster natural wraith AD_DRLI",
+            "functions": [
+              "mhitm_ad_drli"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-drli-monster-to-monster-wraith-b92.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
