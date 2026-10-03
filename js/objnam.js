@@ -534,32 +534,37 @@ function xnameBase(obj, type, state, ident) {
             const fruit = fruit_from_indx(obj.spe, state);
             return fruit?.fname ?? 'fruit';
         }
+        // C applies the xname_flags hook to every non-fruit FOOD_CLASS item
+        // before selecting the glob/non-glob formatting arm.
+        const partlyEaten = state.iflags?.partly_eaten_hack && obj.oeaten
+            ? 'partly eaten ' : '';
         if (obj.globby) {
-            // C ref: objnam.c xname():776-782. shrink_glob() sets
-            // iflags.partly_eaten_hack so xname() adds "partly eaten"
-            // before the size word; doname() adds it separately for
-            // non-glob food but xname() normally omits it.
-            const eaten = state.iflags?.partly_eaten_hack && obj.oeaten
-                ? 'partly eaten ' : '';
+            // C ref: objnam.c xname_flags():776-789. shrink_glob() sets
+            // iflags.partly_eaten_hack; xname() uses it for every food arm.
             const size = obj.owt <= 100 ? 'small'
                 : obj.owt <= 300 ? 'medium'
                     : obj.owt <= 500 ? 'large' : 'very large';
-            return `${eaten}${size} ${actual}`;
+            return `${partlyEaten}${size} ${actual}`;
         }
         // C ref: objnam.c xname(). `known` here is the object's own flag, set
         // when the hero knows what is inside the tin, not the type's.
         if (obj.otyp === TIN && ident.known)
-            return tin_details(obj, obj.corpsenm, actual, { state });
-        return actual;
+            return tin_details(
+                obj, obj.corpsenm, `${partlyEaten}${actual}`, { state },
+            );
+        return `${partlyEaten}${actual}`;
     case COIN_CLASS:
     case CHAIN_CLASS:
         return actual;
     case ROCK_CLASS:
         if (obj.otyp === STATUE && obj.corpsenm !== NON_PM) {
             const species = obj_pmname(obj, state);
+            const monster = state.mons[obj.corpsenm];
+            const speciesArticle = type_is_pname(monster) ? ''
+                : the_unique_pm(monster) ? 'the ' : just_an(species);
             const historic = state.urole?.filecode === 'Arc'
                 && (obj.spe & CORPSTAT_HISTORIC) ? 'historic ' : '';
-            return `${historic}${actual} of ${articleName(species)}`;
+            return `${historic}${actual} of ${speciesArticle}${species}`;
         }
         if (obj.otyp === BOULDER && obj.next_boulder === 1) {
             obj.next_boulder = 0;
@@ -623,7 +628,12 @@ function xnameBase(obj, type, state, ident) {
         return `${actual}${isGemStone(obj.otyp, type) ? ' stone' : ''}`;
     }
     default:
-        unsupported(`object class ${obj.oclass}`, obj);
+        // C xname_flags() formats oclass numerically, then calls the
+        // discarded-void pline.c:impossible() helper before continuing.
+        const objectClass = typeof obj.oclass === 'number' ? obj.oclass
+            : obj.oclass.charCodeAt(0);
+        note_unported('pline.c impossible');
+        return `glorkum ${objectClass} ${obj.otyp} ${obj.spe ?? 0}`;
     }
 }
 // C ref: objnam.c not_fully_identified() (1787-1818). Callers which already
@@ -809,7 +819,7 @@ export function vtense(subj, verb) {
 // The normal xname() entry point: it observes a nearby object, marks a
 // displayed artifact found, formats its class branch, pluralizes, and appends
 // an instance name.
-function xnameFreshWithOffset(obj, state) {
+function xnameFreshWithOffset(obj, state, cxnFlags = CXN_NORMAL) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('xnameFresh requires an object');
     const quantity = Math.trunc(obj.quan ?? 1);
@@ -851,7 +861,7 @@ function xnameFreshWithOffset(obj, state) {
         : xnameBase(obj, type, state, ident);
     if (!personalName && eos(base) > BUFSZ - PREFIX - 1)
         throw new RangeError('xname: buffer overflow before appending name.');
-    if (quantity !== 1) {
+    if (quantity !== 1 && !(cxnFlags & CXN_SINGULAR)) {
         base = obj.otyp === SLIME_MOLD
             ? makeplural(makesingular(base))
             : makeplural(base);
@@ -1348,8 +1358,6 @@ export function the_unique_pm(species) {
 // the obuf[] that xname() would have used, so aobjnam() can still write into
 // the prefix area; this port returns the string and has no such buffer.
 //
-// The glob arm stops. Its input is a globby object that is not a CORPSE, which
-// only shrink_glob() and eat.c's glob meal produce, and neither is ported.
 export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
     const omndx = otmp.corpsenm;
     /* override quantity if greater than 1 */
@@ -1367,7 +1375,9 @@ export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
     let mnam;
 
     if (glob) {
-        unsupported('corpse_xname() for a glob', otmp);
+        // C OBJ_NAME(objects[otyp]); glob names have no corpse suffix and
+        // their quantity is always treated as one.
+        mnam = OBJ_NAME(objectType(otmp, state), state);
     } else if (omndx === NON_PM) { /* paranoia */
         mnam = 'thing';
     } else {
@@ -1396,7 +1406,7 @@ export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
     if (the_prefix)
         nambuf += 'the ';
 
-    if (!adjective) {
+    if (!adjective || adjective.length === 0) {
         /* normal case:  newt corpse */
         nambuf += mnam;
     } else {
@@ -1412,7 +1422,7 @@ export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
             any_prefix = false;
     }
 
-    if (!omit_corpse) {
+    if (!glob && !omit_corpse) {
         nambuf += ' corpse';
         /* makeplural(nambuf) => append "s" to "corpse" */
         if (otmp.quan > 1 && !ignore_quan) {
@@ -1432,6 +1442,14 @@ export function cxname(obj, state = game) {
     if (obj.otyp === CORPSE)
         return corpse_xname(obj, null, CXN_NORMAL, state);
     return xnameFresh(obj, state);
+}
+
+// C ref: objnam.c cxname_singular() (1933-1938). Unlike changing quan on the
+// object, CXN_SINGULAR suppresses only xname_flags' pluralization decision.
+export function cxname_singular(obj, state = game) {
+    if (obj.otyp === CORPSE)
+        return corpse_xname(obj, null, CXN_SINGULAR, state);
+    return xnameFreshWithOffset(obj, state, CXN_SINGULAR).name;
 }
 
 // C ref: objnam.c killer_xname() (1942-2005). Death reasons identify the

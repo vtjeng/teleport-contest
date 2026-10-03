@@ -15,6 +15,11 @@ import {
     BLINDED,
     COLNO,
     CORR,
+    CXN_ARTICLE,
+    CXN_NOCORPSE,
+    CXN_NORMAL,
+    CXN_PFX_THE,
+    CXN_SINGULAR,
     DOOR,
     IN_SIGHT,
     LAVAPOOL,
@@ -49,6 +54,7 @@ import {
     TIMER_OBJECT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
 import {
     dolook,
     look_here,
@@ -66,6 +72,8 @@ import {
     aobjnam,
     cloak_simple_name,
     cxname,
+    cxname_singular,
+    corpse_xname,
     otense,
     gloves_simple_name,
     helm_simple_name,
@@ -115,6 +123,7 @@ import {
     ELVEN_LEATHER_HELM,
     FIGURINE,
     FOOD_RATION,
+    GLOB_OF_GRAY_OOZE,
     GAUNTLETS_OF_POWER,
     GOLD_PIECE,
     HELM_OF_BRILLIANCE,
@@ -374,6 +383,20 @@ test('xname observes sighted objects but preserves blind descriptions', () => {
     assert.equal(xnameFresh(unseenPotion, blind), 'potion');
     assert.equal(unseenPotion.dknown, false);
     assert.equal(blind.objects[POT_HEALING].oc_encountered, 0);
+});
+
+// C objnam.c xname_flags() default arm formats numeric oclass/otyp/spe and
+// then calls the discarded pline.c:impossible() diagnostic.
+test('xname preserves the numeric invalid-class diagnostic result', () => {
+    const state = namingState();
+    game.unported = new Set();
+    const invalid = objectOf(state, FOOD_RATION, {
+        oclass: '?',
+        spe: 3,
+    });
+    assert.equal(xnameFresh(invalid, state),
+        `glorkum ${'?'.charCodeAt(0)} ${FOOD_RATION} 3`);
+    assert.ok(game.unported.has('pline.c impossible'));
 });
 
 test('type discovery and holy water follow class branches', () => {
@@ -2584,6 +2607,37 @@ test('aobjnam names the object and agrees the verb with it', () => {
     assert.equal(cxname(corpse, state), 'newt corpse');
     corpse.quan = 2;
     assert.equal(cxname(corpse, state), 'newt corpses');
+});
+
+// C refs: objnam.c corpse_xname() (1823-1919) and cxname_singular()
+// (1933-1938). Globs use their object class name without a corpse suffix;
+// CXN_SINGULAR suppresses pluralization without changing object quantity.
+test('corpse_xname and cxname_singular preserve source flags and glob naming', () => {
+    const state = namingState();
+    const corpse = objectOf(state, CORPSE, {
+        corpsenm: PM_NEWT,
+        quan: 3,
+    });
+    assert.equal(corpse_xname(corpse, null, CXN_NORMAL, state), 'newt corpses');
+    assert.equal(corpse_xname(corpse, null, CXN_SINGULAR, state), 'newt corpse');
+    assert.equal(cxname_singular(corpse, state), 'newt corpse');
+    assert.equal(corpse_xname(corpse, null, CXN_ARTICLE, state), 'newt corpses');
+    assert.equal(corpse_xname(corpse, null, CXN_PFX_THE, state), 'the newt corpses');
+    assert.equal(corpse_xname(corpse, null, CXN_NOCORPSE, state), 'newt');
+
+    const glob = objectOf(state, GLOB_OF_GRAY_OOZE, {
+        corpsenm: PM_NEWT,
+        globby: true,
+        quan: 7,
+    });
+    assert.equal(corpse_xname(glob, null, CXN_NORMAL, state), 'glob of gray ooze');
+    assert.equal(corpse_xname(glob, null, CXN_ARTICLE, state), 'a glob of gray ooze');
+    assert.equal(corpse_xname(glob, 'cursed', CXN_NORMAL, state),
+        'cursed glob of gray ooze');
+
+    const ration = objectOf(state, FOOD_RATION, { quan: 4 });
+    assert.equal(cxname_singular(ration, state), 'food ration');
+    assert.equal(ration.quan, 4);
 });
 
 // objnam.c killer_xname() (1942-2005). Death text temporarily exposes the

@@ -84,6 +84,25 @@ function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
 }
 
+test('bhito uses the source singular wrapper for a turned corpse', () => {
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
+    );
+    const cStart = cSource.indexOf('bhito(struct obj *obj, struct obj *otmp)');
+    const cEnd = cSource.indexOf('\nbhitpile(', cStart);
+    const jsSource = readFileSync(
+        new URL('../js/zap.js', import.meta.url), 'utf8',
+    );
+    const jsStart = jsSource.indexOf('export async function bhito(');
+    const jsEnd = jsSource.indexOf('// C ref: zap.c bhitm()', jsStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cSource.slice(cStart, cEnd),
+        /char \*corpsname = cxname_singular\(obj\);/u);
+    assert.match(jsSource.slice(jsStart, jsEnd),
+        /const corpseName = cxname_singular\(obj, state\);/u);
+});
+
 test('probing reads the surface beneath a raised drawbridge', () => {
     // C zap_map uses SURFACE_AT: rm.h substitutes db_under_typ for
     // DRAWBRIDGE_UP. dungeon.test.mjs pins its ice, lava and water results.

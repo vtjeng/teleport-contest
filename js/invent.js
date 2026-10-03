@@ -324,7 +324,7 @@ import { get_obj_location } from './light.js';
 import {
     an,
     assertPricedObjectNameable,
-    cxname,
+    cxname_singular,
     donameFresh,
     doname_with_price,
     distant_name,
@@ -686,7 +686,8 @@ function loot_classify(sort_item, obj, state = game) {
 }
 
 // C ref: invent.c loot_xname() (309-387). Temporarily removes attributes
-// that sortloot_cmp() compares separately before formatting a singular name.
+// that sortloot_cmp() compares separately, then cxname_singular() supplies
+// the quantity-one name without changing obj.quan.
 function loot_xname(obj, state = game) {
     const saveo = {
         odiluted: obj.odiluted,
@@ -694,7 +695,6 @@ function loot_xname(obj, state = game) {
         cursed: obj.cursed,
         spe: obj.spe,
         owt: obj.owt,
-        quan: obj.quan,
     };
     const saveOname = obj.oextra?.oname ?? null;
     const saveDebug = Boolean(state.flags?.debug);
@@ -707,7 +707,6 @@ function loot_xname(obj, state = game) {
     }
     if (obj.otyp === TOWEL) obj.spe = 0;
     if (obj.globby) obj.owt = 20;
-    obj.quan = 1;
     if (saveOname && !obj.oartifact && obj.oextra)
         obj.oextra.oname = null;
     if (state.wizard) {
@@ -718,7 +717,7 @@ function loot_xname(obj, state = game) {
 
     let result;
     try {
-        result = cxname(obj, state);
+        result = cxname_singular(obj, state);
     } finally {
         if (saveDebug) {
             state.flags.debug = true;
@@ -734,7 +733,6 @@ function loot_xname(obj, state = game) {
         }
         if (obj.otyp === TOWEL) obj.spe = saveo.spe;
         if (obj.globby) obj.owt = saveo.owt;
-        obj.quan = saveo.quan;
         if (saveOname && !obj.oartifact && obj.oextra)
             obj.oextra.oname = saveOname;
     }
