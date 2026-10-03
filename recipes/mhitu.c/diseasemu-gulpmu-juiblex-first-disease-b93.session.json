@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B93 C-first route through mhitu.c:mattacku AT_ENGL -> gulpmu AD_DISE -> diseasemu. This exact prefix clears level-change and potion prompts, forces Juiblex, and ends at zero-based recording step 91, after 'You feel deathly sick.' Caller-only evidence; no whole gulpmu or mattacku credit.",
+  "segments": [
+    {
+      "seed": 93352145,
+      "datetime": "20381207164113",
+      "nethackrc": "OPTIONS=name:JuiblexDiseaseProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n30\n                             #wizgenesis\nhostile Juiblex\ny..... \n. . . . . "
+    }
+  ]
+}
