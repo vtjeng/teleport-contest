@@ -145917,6 +145917,473 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-pest-v20-20261003",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete Pestilence attacks and shared hero disease effect",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v20/pestilence-touches-wizard-v20-more-corrected"
+      ],
+      "selectionReason": "The complete current v20 Pestilence investigation selects whole uhitm.c:mhitm_ad_pest and its required Boolean callee mhitu.c:diseasemu. The independent Juiblex caller recording also requires whole timeout.c:sickness_dialogue and its exact nh_timeout SICK arm: the disease helper matches before that separate unported dialogue skips an exercise draw. The countdown consumes mhe/pronoun_gender; verify the whole existing mondata.c helper unchanged, with its source-pinned tests and new hallucinated warning recording. Preserve every source direction and the discarded void mhitm_ad_dise gaps. Wire AD_PEST dispatch and only the consumed gulpmu AD_DISE caller, including the existing mattacku admission needed for Juiblex. Claim no whole completion for those callers. Root verifies independent C recordings, source reachability, clone state and message/RNG isolation before integration. Evidence: .cache/B93-root-source-verification.json.",
+      "detail": "",
+      "openedAt": "b44b3860fb7746d60bbd6367298a1b3736edf86b",
+      "openStanding": {
+        "sha": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mhitm_ad_pest",
+          "line": 3808,
+          "endLine": 3836,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3808,
+        "to": 3836
+      },
+      "requiredFunctions": [
+        {
+          "name": "diseasemu",
+          "line": 1033,
+          "endLine": 1046,
+          "declared": true,
+          "sourceFile": "mhitu.c",
+          "complete": true
+        },
+        {
+          "name": "sickness_dialogue",
+          "line": 323,
+          "endLine": 352,
+          "declared": true,
+          "sourceFile": "timeout.c",
+          "complete": true
+        },
+        {
+          "name": "pronoun_gender",
+          "line": 1191,
+          "endLine": 1210,
+          "declared": true,
+          "sourceFile": "mondata.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v20/pestilence-touches-wizard-v20-more-corrected": {
+          "session": "synthetic/v20/pestilence-touches-wizard-v20-more-corrected",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "pestilence-touches-wizard-v20-more-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+          "recordingSha256": "5f0cbf7cd6da87dcd9638f332cb21a9260b9a3ab97caa0e384d5d95001d22724",
+          "evaluationPath": "challenges/evaluations/20261003032251-v20.json",
+          "evaluationCommit": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3"
+        }
+      },
+      "activeStanding": {
+        "sha": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "pestilence-touches-wizard-v20-more-corrected",
+          "session": "synthetic/v20/pestilence-touches-wizard-v20-more-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+          "recordingPath": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+          "recordingSha256": "5f0cbf7cd6da87dcd9638f332cb21a9260b9a3ab97caa0e384d5d95001d22724",
+          "recipe": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.recipe.session.json",
+          "recipeSha256": "febc7150b2f1be0259cdd1b5377df487089d68a0c8e17707032fce9e8a3b6fb3",
+          "replayInputSha256": "44dba02cd0d9e9a7d546eb0e0436b32bff72a244d9b2e7a4dd31c4ea68111599",
+          "evaluationPath": "challenges/evaluations/20261003032251-v20.json",
+          "evaluationCommit": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+          "evaluationArtifact": "challenges/evaluations/20261003032251-v20.json",
+          "evaluationUtc": "2026-10-03T03:24:00.478Z",
+          "remainingScreens": 12,
+          "recordedSteps": 48,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2366,
+              "total": 2375
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_pest()",
+            "step": 36
+          },
+          "step": 36,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_pest",
+          "message": "simple monster action requires uhitm.c mhitm_ad_pest()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/pestilence-touches-wizard-v20-more-corrected.json",
+            "result": {
+              "session": "synthetic/v20/pestilence-touches-wizard-v20-more-corrected",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "pestilence-touches-wizard-v20-more-corrected",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingPath": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+              "recordingSha256": "5f0cbf7cd6da87dcd9638f332cb21a9260b9a3ab97caa0e384d5d95001d22724",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 12,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "session": "synthetic/v20/pestilence-touches-wizard-v20-more-corrected",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+                "recordingPath": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+                "recordingSha256": "5f0cbf7cd6da87dcd9638f332cb21a9260b9a3ab97caa0e384d5d95001d22724",
+                "recipe": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.recipe.session.json",
+                "recipeSha256": "febc7150b2f1be0259cdd1b5377df487089d68a0c8e17707032fce9e8a3b6fb3",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 12,
+                "recordedSteps": 48,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 2366,
+                    "total": 2375
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_pest()",
+                  "step": 36
+                },
+                "step": 36,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_pest",
+                "message": "simple monster action requires uhitm.c mhitm_ad_pest()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At zero-based step 36, C reaches Pestilence’s AD_PEST hit on the Wizard and runs diseasemu(); JavaScript stops at the unported AD_PEST dispatcher arm. mhitm_ad_pest() discards diseasemu()’s boolean here, but the helper’s RNG and sickness side effects are part of the recorded result.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A monster (magr != &gy.youmonst) lands AD_PEST on the hero (mdef == &gy.youmonst): mhitm_ad_pest() prints the fever-and-chills line, calls diseasemu(pa) with a void-cast result, then lets hitmu() apply the normal damage. The function also has a hero-attacker jump to the mhitm_ad_dise path and a monster-defender branch that rewrites the attack type to AD_DISE.",
+                "functions": [
+                  "mhitm_ad_pest"
+                ],
+                "callers": [
+                  "C: monmove.c:971 dochug() calls mhitu.c:mattacku(); the successful melee AT_TUCH path calls mhitu.c:hitmu(), which calls uhitm.c:mhitm_adtyping() at mhitu.c:1191.",
+                  "C: uhitm.c:mhitm_adtyping() dispatches AD_PEST to mhitm_ad_pest() at uhitm.c:4825.",
+                  "JavaScript: js/unported_monster_actions.js:runSimpleMonsterAction() supplies attackHeroWithMattacku() to dochug(); js/mhitu.js:mattacku() calls hitmu() for a successful AT_TUCH; hitmu() calls js/uhitm.js:mhitm_adtyping(), whose AD_PEST arm stops at unported(\"mhitm_ad_pest\") at js/uhitm.js:5074."
+                ],
+                "dependencies": [
+                  "mhitu.c:diseasemu(): mhitm_ad_pest() calls this in the hero-target branch and discards its return value with (void), but its sickness mutation, messages, and conditional rn1() draw are required for replay parity. The return is consumed at other call sites: mhitu.c:gulpmu() around line 1534 and uhitm.c:mhitm_ad_dise() at line 4607.",
+                  "uhitm.c:mhitm_ad_dise(): mhitm_ad_pest() calls this for a non-hero defender after copying mattk and changing adtyp to AD_DISE. It is a void mutator; the current JavaScript AD_DISE dispatcher arm is still unported."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20261003003219-v20.json records this case at commit b5bb23ff11504c300f032b10b1e17c99b06fc97e with 36/48 matched screens and cursors, 2366/2375 matched RNG calls, and a failed evaluation. .cache/v20-work-queue.json identifies the first mismatch as stop at step 36: “simple monster action requires uhitm.c mhitm_ad_pest()”.",
+                "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json segment 0, stored step 36, records rnd(20)=10 at mattacku(mhitu.c:806), d(8,8)=48 at hitmu(mhitu.c:1187), and rn2(14)=6 at diseasemu(mhitu.c:1039). Its message begins “It reaches out, and you feel fever and chills.” and continues “You feel deathly sick.” Step 35 is the jackal’s attack, so the Pestilence branch is reached at step 36.",
+                "nethack-c/upstream/src/uhitm.c:3808-3834 defines the whole mhitm_ad_pest() function. Lines 3815-3820 jump hero attackers to the AD_DISE-equivalent path; lines 3820-3825 handle a monster hitting the hero and explicitly cast diseasemu(pa) to void; lines 3826-3833 handle a monster hitting another monster through mhitm_ad_dise(). Lines 4782-4832 show the dispatcher and AD_PEST call at 4825.",
+                "nethack-c/upstream/src/mhitu.c:1033-1043 defines diseasemu(): Sick_resistance prints “a slight illness” and returns FALSE; otherwise it calls make_sick() with either Sick / 3 + 1 or rn1(ACURR(A_CON), 20), then returns TRUE. The AD_PEST call discards that boolean, while the function’s state, output, and RNG effects remain observable. The other return-consuming call sites are mhitu.c:1534 and uhitm.c:4607.",
+                "js/uhitm.js:4998-5074 confirms the current committed port has a source-shaped mhitm_adtyping() dispatcher but leaves AD_PEST as unported(\"mhitm_ad_pest\"). The production action wrapper in js/unported_monster_actions.js and the attacker path in js/mhitu.js wire the recorded monster attack into that dispatcher."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_pest",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_pest",
+            "sourceReview": "Read the complete C definition in uhitm.c:3808-3834. Snapshot magr->data at entry. The hero-attacker branch goes to the shared AD_DISE case and calls void mhitm_ad_dise; the hero-defender branch emits the fever/chills message, calls diseasemu with its Boolean discarded, then returns for ordinary hit damage. The monster-versus-monster branch copies mattk, changes adtyp to AD_DISE, and calls void mhitm_ad_dise. Keep both discarded calls as note_unported('uhitm.c mhitm_ad_dise'). The selected runtime range proves the active hero-defender branch; the independent newt recording proves the monster-versus-monster branch. A valid hero polymorph form cannot have AD_PEST, so the hero-attacker branch is source-pinned only and receives no active-entry completion claim.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping AD_PEST arm at line 4825 dispatches to mhitm_ad_pest; its active production routes are mhitu.c:hitmu (monster-to-hero) and mhitm.c:mdamagem (monster-to-monster)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-pest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-pest-monster-pair-healer-level30-newt-b93.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 36,
+                "source": "monmove -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_PEST) -> uhitm.c:mhitm_ad_pest -> mhitu.c:diseasemu"
+              }
+            ],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          },
+          {
+            "name": "diseasemu",
+            "implementation": "js/mhitu.js",
+            "symbol": "diseasemu",
+            "sourceReview": "Read the complete C definition in mhitu.c:1033-1044. Return FALSE immediately for Sick_resistance after the slight-illness message. Otherwise use the raw packed Sick intrinsic from youprop.h:108 and compute Sick/3+1 without masking TIMEOUT; only zero Sick draws rn1(ACURR(A_CON),20). Pass the neutral species name and SICK_NONVOMITABLE to make_sick, await it, and return TRUE. make_sick clamps duration in potion.c:itimeout while retaining intrinsic flags. Reuse canonical heroSickResistance, acurr, make_sick, exercise, and encumber_msg owners. Clone-owned state, RNG, message, and encumbrance callback are threaded through the whole call.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_pest",
+                "source": "uhitm.c:mhitm_ad_pest monster-to-hero branch at line 3824 calls diseasemu and discards its Boolean."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu AD_DISE arm at line 1534 consumes FALSE by setting tmp to zero; only this arm is wired, with no whole gulpmu credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 36,
+                "source": "uhitm.c:mhitm_ad_pest -> mhitu.c:diseasemu, with the Boolean discarded by the monster-to-hero caller"
+              }
+            ],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          },
+          {
+            "name": "sickness_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "sickness_dialogue",
+            "sourceReview": "Read the complete C body in timeout.c:315-345. Compute j from Sick & TIMEOUT and i=j/2; when i is 1..3 and j is odd, select the reversed sickness_texts row, replace illness with sickness when SICK_NONVOMITABLE is absent, then append mhe/upstart/vtense on Hallucination plus Death’s door before urgent_pline. Always call exercise(A_CON,FALSE), even if the warning condition is false. The helper receives nh_timeout’s clone state, random, urgent-message, normal-message, and encumber-message owners; planning performs the exercise on the clone without live TTY or input effects.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout calls sickness_dialogue whenever Sick is nonzero (line 632); the JS arm remains caller-only and does not claim whole nh_timeout."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-wizard-intrinsic-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "sourceFile": "timeout.c",
+            "synthetic": [],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          },
+          {
+            "name": "pronoun_gender",
+            "implementation": "js/mondata.js",
+            "symbol": "pronoun_gender",
+            "sourceReview": "Verified the complete existing mondata.c:1191-1210 body unchanged. PRONOUN_HALLU with Hallucination returns rn2(4); otherwise PRONOUN_NO_IT skips canspotmon and the visibility branch returns NEUTRAL for an unspottable monster. The remaining order is is_neuter, then humanoid || G_UNIQ || type_is_pname and the female bit, else NEUTRAL. The C mhe/mhim/mhis macros in you.h are not separate source functions. Existing direct callers and wrappers stay unchanged; this task adds a matching production mhe route through sickness_dialogue.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "mhe",
+                "source": "you.h:322 mhe(mtmp) expands to genders[pronoun_gender(mtmp, PRONOUN_HALLU)].he; timeout.c:sickness_dialogue uses mhe(&gy.youmonst) in the hallucinated Death’s-door branch."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "its_dead",
+                "source": "apply.c:238 directly calls pronoun_gender(saved, PRONOUN_NO_IT)."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "mon_nam_too",
+                "source": "do_name.c:1199 directly calls pronoun_gender(mon, PRONOUN_HALLU)."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "noitMhim",
+                "source": "dothrow.c:863 calls noit_mhim(mon), whose C pronoun wrapper delegates to pronoun_gender with the no-it/hallucination flags."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "dopay",
+                "source": "shk.c:dopay calls noit_mhe/noit_mhim/noit_mhis wrappers, which consume pronoun_gender rows."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "noitPronoun",
+                "source": "shk.c shopkeeper dialogue uses noit_mhe/noit_mhim/noit_mhis; the JS helper is used by the corresponding shopkeeper dialogue callers."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          }
+        ],
+        "entryPointReview": "Active B93 coverage consists of: (1) monster-to-hero Pestilence through hitmu and the AD_PEST dispatcher, verified by the current v20 range through segment 0 step 36; (2) monster-to-monster Pestilence through mdamagem/AD_PEST, independently recorded against a newt whose first hit dies; (3) Juiblex AT_ENGL to gulpmu AD_DISE consuming diseasemu TRUE, with its following nh_timeout sickness dialogue; (4) direct SICK timeout warning and no-warning dialogue variations, including the hallucinated Death’s-door route through the C mhe macro and pronoun_gender. The hero-as-attacker AD_PEST source branch is valid only for impossible hero data: a source-pinned identity fixture confirms its exact void gap, but it is not an active runtime route. Both active monster callers of mhitm_ad_pest that proceed to mhitm_ad_dise remain exact note_unported('uhitm.c mhitm_ad_dise') boundaries; this discarded-void gap is not credited as a port. Gulpmu’s source inventory loop for nonflaming monsters visits discarded note_unported('light.c snuff_lit') calls. No whole gulpmu, mhitm_adtyping, mattacku or nh_timeout completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero Pestilence AD_PEST",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_pest"
+              },
+              {
+                "sourceFile": "mhitu.c",
+                "name": "diseasemu"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 36,
+                "source": "monmove -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_PEST) -> uhitm.c:mhitm_ad_pest -> mhitu.c:diseasemu"
+              }
+            ]
+          },
+          {
+            "name": "monster-to-monster Pestilence AD_PEST",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_pest"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-pest-monster-pair-healer-level30-newt-b93.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Juiblex AT_ENGL -> gulpmu AD_DISE -> diseasemu",
+            "functions": [
+              {
+                "sourceFile": "mhitu.c",
+                "name": "diseasemu"
+              }
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "SICK timeout warning and unconditional CON exercise",
+            "functions": [
+              {
+                "sourceFile": "timeout.c",
+                "name": "sickness_dialogue"
+              }
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-wizard-intrinsic-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hallucinated sickness warning through the you.h mhe macro",
+            "functions": [
+              {
+                "sourceFile": "timeout.c",
+                "name": "sickness_dialogue"
+              },
+              {
+                "sourceFile": "mondata.c",
+                "name": "pronoun_gender"
+              }
+            ],
+            "recordings": [
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

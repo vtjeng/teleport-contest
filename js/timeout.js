@@ -138,7 +138,7 @@ import {
 } from './light.js';
 import {
     breathless, cantvomit, is_flyer, is_rider, is_were, name_to_mon,
-    touch_petrifies, type_is_pname, zombie_form, little_to_big,
+    mhe, touch_petrifies, type_is_pname, zombie_form, little_to_big,
 } from './mondata.js';
 import { body_part, rehumanize } from './polyself.js';
 import { restartcham, wake_nearby } from './mon.js';
@@ -711,6 +711,46 @@ async function sleep_dialogue(state, env = {}) {
         await (env.message ?? ttyPline)('You yawn.', state);
 }
 
+// C ref: timeout.c sickness_texts[] and sickness_dialogue() (315-345).
+// The SICK timeout is read before nh_timeout() decrements it. Its trailing
+// exercise(A_CON, FALSE) is unconditional, even on turns without a message.
+const sicknessTexts = Object.freeze([
+    'Your illness feels worse.',
+    'Your illness is severe.',
+    "You are at Death's door.",
+]);
+
+export async function sickness_dialogue(state = game, env = {}) {
+    const random = env.random ?? { d, rn2, rnd };
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
+    const urgentMessage = env.urgentMessage
+        ?? (env.planning
+            ? message
+            : ttyUrgentPline);
+    const sickness = state.u?.uprops?.[SICK]?.intrinsic ?? 0;
+    const j = Math.trunc(sickness) & TIMEOUT;
+    const i = Math.trunc(j / 2);
+
+    if (i > 0 && i <= sicknessTexts.length && j % 2 !== 0) {
+        let text = sicknessTexts[sicknessTexts.length - i];
+        if (!((state.u.usick_type ?? 0) & SICK_NONVOMITABLE))
+            text = text.replace('illness', 'sickness');
+
+        if (hallucinating(state) && text.includes("Death's door")) {
+            // C passes youmonst to mhe(); its species is irrelevant when the
+            // hallucination flag selects the pronoun RNG branch.
+            const pronoun = mhe(state.youmonst, { state, random });
+            text += `  ${upstart(pronoun)} ${vtense(pronoun, 'are')} inviting you in.`;
+        }
+        await urgentMessage(text, state);
+    }
+
+    const encumberMessage = env.encumberMessage
+        ?? (subject => encumber_msg(subject, { message }));
+    await exercise(A_CON, false, state, random, { encumberMessage });
+}
+
 // C ref: timeout.c choke_texts, choke_texts2 and choke_dialogue() (278-314).
 // Preserve the C countdown index (the final element is the first warning),
 // Breathless short-circuit, and the unconditional trailing exercise call.
@@ -1173,8 +1213,22 @@ export async function nh_timeout(state = game, env = {}) {
         await vomiting_dialogue(state, { ...env, random, message });
     if (u.uprops?.[STRANGLED]?.intrinsic && !env.planning)
         await choke_dialogue(state, { ...displayEnv, random, message });
-    if (u.uprops?.[SICK]?.intrinsic && !env.planning)
-        note_unported('timeout.c sickness_dialogue');
+    if (u.uprops?.[SICK]?.intrinsic) {
+        const sicknessMessage = env.message
+            ?? (env.planning ? async () => {} : ttyPline);
+        await sickness_dialogue(state, {
+            ...displayEnv,
+            state,
+            random,
+            message: sicknessMessage,
+            urgentMessage: env.urgentMessage
+                ?? (env.planning ? sicknessMessage : ttyUrgentPline),
+            encumberMessage: env.encumberMessage
+                ?? (subject => encumber_msg(subject, {
+                    message: sicknessMessage,
+                })),
+        });
+    }
     if ((u.uprops?.[LEVITATION]?.intrinsic & TIMEOUT) && !env.planning)
         note_unported('timeout.c levitation_dialogue');
     if ((u.uprops?.[PASSES_WALLS]?.intrinsic & TIMEOUT) && !env.planning)
