@@ -146677,7 +146677,7 @@
     {
       "id": "fix-leprechaun-sleeper-disturb-preflight-v19-20261003",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit sleeping leprechauns to the source wake gate",
       "cFile": "monmove.c",
       "sessions": [
@@ -146691,8 +146691,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6226e31d54b3bcf12676b4b078b0e46e59fe46c0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "disturb",
       "session": "synthetic/v19/leprechaun-steals-carried-gold-c62",
       "step": 34,
@@ -146898,7 +146901,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6226e31d54b3bcf12676b4b078b0e46e59fe46c0",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
