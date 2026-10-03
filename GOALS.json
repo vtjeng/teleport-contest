@@ -146409,8 +146409,8 @@
           "name": "mhitm_ad_deth",
           "line": 3837,
           "endLine": 3896,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -146586,7 +146586,84 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_deth",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_deth",
+            "sourceReview": "Compared the complete uhitm.c:3837-3893 body. Snapshots mdef->data before output; preserves the C hero-attacker shared monster-target arm; distinguishes the mdef==youmonst branch, including the undead integer half-damage return before rn2(20), cases 17-19 with the Antimagic fallthrough and exact discarded touch_of_death void boundary, default rolls 5-16 setting mhm.permdmg after the life-force message, and cases 0-4 with optional shieldeff before damage clear and return. For monster targets, applies rnd(damage/2) only for undead defenders and incoming damage >1, then calls the accepted whole mhitm_ad_drli with the original attack and shared damage record. The helper and only the AD_DETH arm of mhitm_adtyping are wired; the hero-attacker AD_DETH branch is source-infeasible in this build per the C comment. Source-discarded touch_of_death is represented by note_unported('mcastu.c touch_of_death'); shieldeff and mhitm_ad_drli reuse their existing verified bodies.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping case AD_DETH at 4824. Production directions reach the dispatcher through mhitu.c:hitmu(1191), mhitm.c:mdamagem(1059), or uhitm.c:damageum(4854)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-deth.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-newt-conflict-acknowledged-b94.session.json",
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-orc-conflict-acknowledged-b94.session.json",
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-wraith-variation-seed-9410053-more-dismissed-b94.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "death-touches-wizard-v20-more-confirmed",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 31,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku/hitmu -> uhitm.c:mhitm_adtyping(AD_DETH) -> uhitm.c:mhitm_ad_deth; step 30 records rn2(20)=6 @ uhitm.c:3858 and step 31 records the life-force message"
+              }
+            ],
+            "checkedAt": "7040302da907819ef4fe949439ef3f77450ecf3f"
+          }
+        ],
+        "entryPointReview": "Active monster-to-hero flow is monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_DETH) -> mhitm_ad_deth; runtime is the admitted v20 selected case through zero-based step 31 and the independent wraith/hero strict recording. Active monster-to-monster flow is mhitm.c:mattackm -> mdamagem -> uhitm.c:mhitm_adtyping(AD_DETH) -> mhitm_ad_deth; independent newt (m_lev 0) and plain-orc (m_lev 3) strict recordings exercise the source Death delegation, including its level-zero automatic-kill and nonzero level decrement branches. Hero-to-monster reaches damageum's dispatcher in source, but uhitm.c:3845-3847 says a valid hero polymorph cannot have AD_DETH; the shared branch is implemented without a live-runtime claim. mhitm_adtyping receives only its AD_DETH caller-arm wiring; no whole dispatcher, hitmu or damageum completion credit is claimed. The high-roll no-Antimagic touch_of_death call is a named discarded-void gap.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero AD_DETH",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_deth"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-wraith-variation-seed-9410053-more-dismissed-b94.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "death-touches-wizard-v20-more-confirmed",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 31,
+                "source": "mattacku -> hitmu -> mhitm_adtyping(AD_DETH) -> mhitm_ad_deth"
+              }
+            ]
+          },
+          {
+            "name": "monster-to-monster AD_DETH",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_deth"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-newt-conflict-acknowledged-b94.session.json",
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-orc-conflict-acknowledged-b94.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
