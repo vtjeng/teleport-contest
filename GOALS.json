@@ -148483,6 +148483,59 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizard-cuss-v21-20261003",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port monster curse behavior and alignment lookup",
+      "cFile": "wizard.c",
+      "sessions": [
+        "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst"
+      ],
+      "selectionReason": "The current four-screen Archon investigation traces step134 to whole wizard.c:cuss after its corrected dochug gate. Include the consumed priest.c:mon_aligntyp helper, wire only existing dochug and domonnoise cuss arms, and retain unsupported discarded-void questpgr.c:com_pager as a named source gap. Match independent source-reaching runtime through both active callers.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cuss",
+          "line": 846,
+          "endLine": 886,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 846,
+        "to": 886
+      },
+      "requiredFunctions": [
+        {
+          "name": "mon_aligntyp",
+          "line": 280,
+          "endLine": 301,
+          "declared": true,
+          "sourceFile": "priest.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst": {
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+          "evaluationPath": "challenges/evaluations/20261003220302-v21.json",
+          "evaluationCommit": "feaa7dfc03eb5830327f077c97dade2dc161e61a"
+        }
+      }
     }
   ]
 }
