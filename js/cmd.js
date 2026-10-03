@@ -5551,6 +5551,17 @@ export async function rhack(key, state = game) {
             if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
+        // C ref: cmd.c act_on_act() queues dosacrifice() for MCMD_OFFER, then
+        // rhack() dispatches the queued function pointer and applies the same
+        // ECMD reset/time tail as a directly selected extended command.
+        if (queuedExtcmdEntry?.ef_funct === 'dosacrifice') {
+            const res = await dosacrifice(state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
         // C ref: iactions.c itemactions_pushkeys() queues the doorganize
         // function pointer for IA_ADJUST_OBJ. Its ef_txt is "adjust", which
         // remains the command spelling used by can_do_extcmd(), but rhack()
