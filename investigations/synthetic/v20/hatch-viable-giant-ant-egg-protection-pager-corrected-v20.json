@@ -1,0 +1,95 @@
+{
+  "session": "synthetic/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+  "remainingScreens": 122,
+  "recordedSteps": 502,
+  "corpus": "synthetic",
+  "batch": "v20",
+  "caseId": "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+  "manifestPath": "challenges/manifests/v20.json",
+  "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+  "recordingPath": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json",
+  "recordingSha256": "fb88c4150fe6a1fa884b19c83648994cfa0a30ed0ce6d9d0aee77c0c9e83123e",
+  "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+  "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "status": "complete",
+  "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v20",
+    "caseId": "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+    "session": "synthetic/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+    "manifestPath": "challenges/manifests/v20.json",
+    "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+    "recording": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json",
+    "recordingPath": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json",
+    "recordingSha256": "fb88c4150fe6a1fa884b19c83648994cfa0a30ed0ce6d9d0aee77c0c9e83123e",
+    "recipe": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.recipe.session.json",
+    "recipeSha256": "2c1c6a26d5d554771474c1ad0b563b55ac13580dfa0563b6abb09df5c5a6c580",
+    "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+    "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+    "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationUtc": "2026-10-03T00:32:52.762Z",
+    "remainingScreens": 122,
+    "recordedSteps": 502,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 380,
+        "total": 502
+      },
+      "rng": {
+        "matched": 8541,
+        "total": 11010
+      },
+      "cursors": {
+        "matched": 380,
+        "total": 502
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "elapsed-turn nh_timeout requires a ported timeout function, but hatch_egg() is due",
+      "step": 380
+    },
+    "step": 380,
+    "kind": "stop",
+    "sourceFile": "timeout.c",
+    "function": "hatch_egg",
+    "message": "elapsed-turn nh_timeout requires a ported timeout function, but hatch_egg() is due",
+    "cFile": "timeout.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At step 380, the C run fires a viable carried giant ant egg through timeout.c:hatch_egg(). The current JavaScript timer table has no callback for HATCH_EGG, so due-timer preflight stops the turn before the hatch callback. Port the whole hatch_egg() function and wire it into timeout dispatch.",
+  "source": {
+    "file": "timeout.c",
+    "branch": "A due TIMER_OBJECT uses the HATCH_EGG function index for a fertile carried egg on the current level. hatch_egg() derives ownership from egg->spe or the male-carrier rn2(2) branch, treats timeout == svm.moves as a visible hatch, rolls rnd(egg->quan), and creates a non-unique, non-genocided species with enexto() and makemon(). A successful own same-level hatch is tamed; the inventory branch reports the hatch, learns the egg species when visible, and consumes the egg or schedules a short timer for any remainder.",
+    "functions": [
+      "hatch_egg"
+    ],
+    "callers": [
+      "C: timeout.c:1985 registers hatch_egg in timeout_funcs[HATCH_EGG]; timeout.c:2222-2242 run_timers() unlinks a due timer, decrements TIMER_OBJECT.timed, then calls the registered function.",
+      "C elapsed-turn path: timeout.c:947 nh_timeout() calls run_timers(); the assigned recording reaches this path at step 380.",
+      "C other production callers: do.c:1823 goto_level() and restore.c:930 restgamestate() also call run_timers().",
+      "Current JS elapsed-turn path: allmain.js:1310 preflights an entering turn through timeout.js:650 preflight_nh_timeout_elapsed_turn(); timeout.js:453 unportedDueTimerReason() stops because the HATCH_EGG row has no callback. The live timeout path is timeout.js:1211 nh_timeout() -> run_timers().",
+      "Current JS level-arrival path: do.js:2632-2635 calls timeout.js run_timers() after object and monster delivery."
+    ],
+    "dependencies": [
+      "Whole-function scope is timeout.c:hatch_egg; update timeout.js timeout_funcs[HATCH_EGG] and due-prefix admission so this row has a callback while other unported rows still refuse safely. The current HATCH_EGG table row at timeout.js:376 has only a name, and unportedDueTimerReason() at :453 rejects every due row without f.",
+      "The result-bearing source calls get_obj_location(), enexto(), makemon(), and tamedog() determine location, spawn success, and ownership. Current JS implementations exist at light.js:329, teleport.js:1264, makemon_create.js:2914, and dog.js:366; preserve their outcomes and await tamedog() before subsequent callback effects.",
+      "timeout.js already implements attach_egg_hatch_timeout() at :1710 and learn_egg_type() at :1728. Reuse these for remaining egg stacks and inventory knowledge; preserve the callback’s container_weight(), useup(), obj_extract_self(), obfree(), and newsym() effects through their existing JS owners.",
+      "C restore.c:930 is a third run_timers() caller; the current JS search found direct calls through nh_timeout() and goto_level() only. This case establishes the elapsed-turn route, so keep restore-path coverage separate from the cause of this mismatch."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved evaluation challenges/evaluations/20261003003219-v20.json identifies this case at evaluationCommit b5bb23ff11504c300f032b10b1e17c99b06fc97e, with 380/502 screens matched, 8541/11010 RNG calls matched, and a stop at step 380: “elapsed-turn nh_timeout requires a ported timeout function, but hatch_egg() is due”. The queue row carries remainingScreens=122 and the same evaluation commit.",
+    "The admitted recording challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json records step 380 calls rn2(2)=0 and rnd(1)=1 at timeout.c:hatch_egg(), followed by hatch placement and makemon draws. At step 381 its screen reports “You see a giant ant drop out of your pack!”. This agrees with the callback branch in upstream timeout.c:1017-1170.",
+    "Upstream nethack-c/upstream/src/timeout.c:1017-1170 defines the whole impure hatch_egg() callback, including egg viability, ownership and silent checks, location and hatch-count checks, monster placement and taming, inventory/floor/minvent output, egg knowledge, rescheduling or cleanup, and redraw. timeout.c:1976-1990 maps HATCH_EGG to the callback table; timeout.c:2222-2242 dispatches due timers.",
+    "At the examined JavaScript source, js/timeout.js:376 has no f for HATCH_EGG. js/timeout.js:453 refuses a due timer without f, and js/timeout.js:650 invokes that refusal during elapsed-turn preflight. js/timeout.js:1535-1545 applies the same due-prefix check before mutating the timer queue. The C source and saved evaluation therefore identify the same source owner and an actionable whole-function port."
+  ]
+}

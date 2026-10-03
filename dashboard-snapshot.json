@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-03T00:10:28.745Z",
+  "capturedAt": "2026-10-03T00:44:15.261Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -16215,12 +16215,30 @@
         "type": "accepted",
         "at": "2026-10-03T00:10:28.378Z",
         "task": "C63"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C63-published-d802ed6a",
+        "type": "published",
+        "at": "2026-10-03T00:11:12.662Z",
+        "task": "C63",
+        "commit": "d802ed6ae98661c8da553cc0fdb9b15ffe0660c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C64-mhitm-ad-conf-20261003",
+        "type": "assign",
+        "at": "2026-10-03T00:17:09.299Z",
+        "task": "C64",
+        "worker": "C",
+        "goal": "port-uhitm-mhitm-ad-conf-v19-20261003",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "da49f727c7429fd1bb875c98673d49bf26e5eb0d",
-    "measuredAt": "2026-10-03T00:09:43.186Z",
+    "executionCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+    "measuredAt": "2026-10-03T00:40:30.710Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
