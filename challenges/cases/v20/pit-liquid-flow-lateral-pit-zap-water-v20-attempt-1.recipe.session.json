@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v20 source probe frozen before any recording or JavaScript comparison. After the opening screen, move west off the starting square to A and wizard-wish a pit there; move west to adjacent square B and wizard-wish a pool; wish a wand of digging; return east onto the pit and aim the wand west at the pool. C dig.c:zap_dig sets pitdig only while trapped in a TT_PIT, sends the adjacent liquid through fillholetyp(..., TRUE) and pit_flow, then calls liquid_flow at the pit square. C objnam.c:wizterrainwish's pool arm changes terrain and damages floor objects without calling pooleffects at creation, so this setup can leave the pool adjacent and enter the pit before the lateral zap. Record actual C placement, trap entry, wand letter, liquid flow, terrain changes, pooleffects, and any first JavaScript stop; this recipe does not assume those outcomes.",
+  "segments": [
+    {
+      "seed": 92730461,
+      "datetime": "20490821130711",
+      "nethackrc": "OPTIONS=name:PitFlowProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "  h\u0017pit\nh\u0017pool\n\u0017wand of digging\nlzoh"
+    }
+  ]
+}

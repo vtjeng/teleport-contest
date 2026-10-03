@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen only after run-z4HrB1 showed the wished corpse ends at --More-- and the Ice Box is already on the floor under load. C then showed the carried corpse as slot o and the floor-box menu: s stashes one item; o takes an item out. Preserve the original miss unchanged. After acknowledging the C More with Space, this input stashes slot o in the floor Ice Box, then opens it again and chooses the take-out action/item. Target only pickup.c:out_container -> removed_from_icebox relative-age conversion and ice-troll corpse timeout; do not infer the callback until the new C recording shows it.",
+  "segments": [
+    {
+      "seed": 620329871,
+      "datetime": "20431025132000",
+      "nethackrc": "OPTIONS=name:C63IceAge,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizwish\nuncursed ice box\n#wizwish\nuncursed ice troll corpse\n #loot\nso#loot\noo"
+    }
+  ]
+}

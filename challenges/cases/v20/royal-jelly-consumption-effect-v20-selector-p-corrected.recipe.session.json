@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first selector correction frozen from run-XSRfMM: the corrected C wish created one lump of royal jelly in inventory slot p (step23); the o selector at steps24-25 did not consume it. This input preserves the seed/date and changes only the selector to the observed p before JavaScript comparison. The original and welcome-pager-corrected C misses remain immutable provenance.",
+  "segments": [
+    {
+      "seed": 74102031,
+      "datetime": "20470312145607",
+      "nethackrc": "OPTIONS=name:C63Jelly,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n \u0017lump of royal jelly\nep................"
+    }
+  ]
+}

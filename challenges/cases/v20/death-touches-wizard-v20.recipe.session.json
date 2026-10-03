@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent freeze for hostile Death AT_TUCH/AD_DETH. This input was chosen from the source target, before C recording and before JavaScript comparison. Record the actual unique-monster prompt, attack and rn2(20) arm; do not alter it to chase a later RNG result.",
+  "segments": [
+    {
+      "seed": 800113670,
+      "datetime": "21211122094500",
+      "nethackrc": "OPTIONS=name:C63Death,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile Death\ny......"
+    }
+  ]
+}

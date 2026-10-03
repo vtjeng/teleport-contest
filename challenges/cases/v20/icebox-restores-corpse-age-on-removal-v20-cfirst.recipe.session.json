@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent v20 candidate frozen before recording or JavaScript comparison. Wish an uncursed Ice Box and an uncursed ice troll corpse; drop the box, use #loot to insert the corpse, then use #loot to remove it. C pickup.c:out_container calls removed_from_icebox only after lift_object succeeds and obj_extract_self removes the corpse; that helper converts relative age and starts the ice-troll corpse timeout. Preserve the actual C-observed inventory letters, selection prompts, corpse age/timer outcome, and any target miss. The intended command stream uses C-observed floor-container selectors: d/o drops the first wished object, then #loot selects floor container s and inventory corpse p for insertion; the second #loot selects the same floor container and the corpse p for removal. These are input-interface choices frozen before this candidate recording.",
+  "segments": [
+    {
+      "seed": 620329871,
+      "datetime": "20431025132000",
+      "nethackrc": "OPTIONS=name:C63IceAge,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizwish\nuncursed ice box\n#wizwish\nuncursed ice troll corpse\ndo#loot\nsp#loot\nsp   "
+    }
+  ]
+}

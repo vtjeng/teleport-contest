@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first frozen continuation for eat.c:fpostfx APPLE, corrected owner from the earlier plan. C selector-o run reached rottenfood, set the apple rotten/partly consumed, and gave rnd(10)=3 sleep; this input dismisses that More, reissues eat with C-observed slot o, then supplies turns so a successfully started apple meal can finish. `!safe_wait` is chosen from the C command-preflight source to make the later period inputs elapsed turns. Earlier menu and selector misses and the rottenfood prefix remain unchanged.",
+  "segments": [
+    {
+      "seed": 73022301,
+      "datetime": "20461109141723",
+      "nethackrc": "OPTIONS=name:C63Apple,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n\u0017cursed apple\neo eo.........."
+    }
+  ]
+}

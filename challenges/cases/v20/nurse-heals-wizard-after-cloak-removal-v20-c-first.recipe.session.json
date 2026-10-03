@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first, source-derived cloak-removal continuation. The earlier six-period case confirmed “You are bare handed.” but did not establish no armor; the 24-period case reaches physical Nurse hits while the Wizard still wears u_init.c:Wizard’s CLOAK_OF_MAGIC_RESISTANCE. This independently frozen recipe first asks C to display inventory, then removes the source-known second starting item with the T command before hostile Nurse creation; the recording will confirm the actual inventory letter and successful removal before any JS comparison. It preserves the prior seed/date/setup and 24 periods; no healing result is predicted.",
+  "segments": [
+    {
+      "seed": 261002051,
+      "datetime": "20491023082500",
+      "nethackrc": "OPTIONS=name:NurseProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " iTb w-#wizgenesis\nhostile nurse\n. . . . . . .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . "
+    }
+  ]
+}

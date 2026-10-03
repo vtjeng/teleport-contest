@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent probe frozen before recording or JavaScript comparison. The intended source route is a hostile debug-created black light adjacent to the hero, then its AT_EXPL/AD_HALU attack through mhitu.c:mattacku -> mhitu.c:explmu. Preserve creation misses and any branch that does not find the hero; only C output/state establishes explmu reachability.",
+  "segments": [
+    {
+      "seed": 84621357,
+      "datetime": "21150123110802",
+      "nethackrc": "OPTIONS=name:C63Light,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile black light\n.............."
+    }
+  ]
+}
