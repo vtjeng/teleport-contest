@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first potion-mixture route frozen after the C object menu listed h as `2 uncursed potions of healing` and n as the wished brown potion of speed. The appended h chooses the healing stack as dippee; `?n` opens C’s second potion menu and chooses the C-observed speed letter. This advances the source route without changing prior seed/setup. Frozen before recording and before any JS comparison.",
+  "segments": [
+    {
+      "seed": 315601987,
+      "datetime": "21141208120600",
+      "nethackrc": "OPTIONS=name:C65DipMix,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017uncursed potion of healing\n \u0017uncursed potion of speed\n#dip\n?h?n",
+      "recorderIsDst": true
+    }
+  ]
+}

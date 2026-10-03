@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen after the preceding recording produced the second wished potion at inventory letter n and showed no outstanding More. Add the source command terminator newline and `?` to open dodip’s C object selector; no item letter is guessed here. Earlier seed/date/options and two wish actions are unchanged. Frozen before C record and JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 315601987,
+      "datetime": "21141208120600",
+      "nethackrc": "OPTIONS=name:C65DipMix,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017uncursed potion of healing\n \u0017uncursed potion of speed\n#dip\n?",
+      "recorderIsDst": true
+    }
+  ]
+}

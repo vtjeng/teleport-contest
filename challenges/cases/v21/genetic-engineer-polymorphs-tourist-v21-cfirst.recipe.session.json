@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 92053177,
+      "datetime": "21121207150300",
+      "nethackrc": "OPTIONS=name:C65Poly,role=Tourist,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0007hostile genetic engineer\n..."
+    }
+  ],
+  "comment": "Frozen C-first mission before recording or JavaScript comparison. The opening space acknowledges the startup pager; debug Ctrl-G runs wizcmds.c:wiz_genesis -> read.c:create_particular and requests a hostile Genetic Engineer. The source species entry is include/monsters.h:2136-2142, AT_CLAW/AD_POLY, 1d4. With a Tourist hero and no clairvoyance-granting Amulet, three ordinary waits give the generated adjacent hostile a chance to attack; the target is mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_poly. This recipe was frozen before C recording and JS comparison."
+}

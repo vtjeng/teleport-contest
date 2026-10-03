@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 440176309,
+      "datetime": "20460115213000",
+      "nethackrc": "OPTIONS=name:C65WaterDemon,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017fountain\nqy"
+    }
+  ],
+  "comment": "Independent C-first route frozen before recording or JavaScript comparison. Create an ordinary fountain at the Wizard's square with #wizwish, then use q and accept the fountain prompt. The target is potion.c:dodrink -> fountain.c:drinkfountain fate 23 -> dowaterdemon; C must establish the actual fate, demon creation or a source-grounded miss, fountain consumption and caller continuation. This is a different source branch from the recorded fate-6 cool-draught and fate-24 inventory-curse probes. The chosen seed/date and input were not selected from JavaScript feedback."
+}

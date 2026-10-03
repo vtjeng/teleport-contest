@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap C-first source variation for the same zap.c:bhito -> lock.c:boxlock floor-object caller, changing the chest's source state from unlocked to already locked. The C setup probe observed wand slot o and chest slot p, and the completed route is frozen before recording or JavaScript comparison. It tests the already-locked no-op arm rather than changing only the seed.",
+  "segments": [
+    {
+      "seed": 914207631,
+      "datetime": "20490518153200",
+      "nethackrc": "OPTIONS=name:HazelLock,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional,!autopickup,!safe_wait\n",
+      "moves": " #wizwish\nwand of locking\n#wizwish\nlocked chest\ndplzoh"
+    }
+  ]
+}

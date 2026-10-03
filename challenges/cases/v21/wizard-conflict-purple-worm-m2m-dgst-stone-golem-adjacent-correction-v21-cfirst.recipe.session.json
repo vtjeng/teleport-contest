@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first positional correction for the Purple Worm M-to-M AD_DGST probe. The prior C map showed the Stone Golem at x4 and hero at x2 after the west move, separated by the stair at x3. This correction retains the source-selected seed/date/options and removes only that west move, leaving the hero at x3 beside the observed x4 Stone Golem before the worm is created. C must establish the resulting monster positions, adjacency, and actual attack direction; count no engulf or AD_DGST branch unless the C trace reaches it. The intended C route is a Purple Worm AT_ENGL attack against an eligible MZ_LARGE Stone Golem, then mhitm.c:gulpmm -> mhitm.c:mdamagem -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_dgst.",
+  "segments": [
+    {
+      "seed": 73421985,
+      "datetime": "20450313190200",
+      "nethackrc": "OPTIONS=name:C65DigestPair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizgenesis\nhostile stone golem\n#wizgenesis\nhostile purple worm\n#wizintrinsic\na>>h\n  . . . ."
+    }
+  ]
+}

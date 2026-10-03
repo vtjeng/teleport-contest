@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 193856239,
+      "datetime": "20530614110200",
+      "nethackrc": "OPTIONS=name:C65ShockPair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizgenesis\n2 hostile sleeping goblin\n#wizgenesis\nhostile shocking sphere\n#wizintrinsic\na>>h\n  . . . . . . . . . . . . . ."
+    }
+  ],
+  "_comment": "Independently frozen source variation of the M-to-M AT_EXPL recipe. The sole behavior-target change is flaming sphere to shocking sphere, whose C table keeps the same 4d6 explosion shape but uses AD_ELEC. This tests the elemental branch without changing creation order, Conflict setup, seed, date, or other inputs; actual placement, adjacency, effect, and first mismatch remain C observations, not assumptions."
+}

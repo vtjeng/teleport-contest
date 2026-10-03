@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-frozen C-first zap.c:weffects -> bhit -> bhitpile -> bhito -> lock.c:boxlock route. The setup probe `wand-locking-floor-box-setup-v21-cfirst` observed the wand at slot o and chest at p, and showed the hero in an open room with an open east square. This recipe drops the chest underfoot, steps east, then zaps west so C must hit an OBJ_FLOOR chest; no JavaScript result informed these inputs.",
+  "segments": [
+    {
+      "seed": 914207631,
+      "datetime": "20490518153200",
+      "nethackrc": "OPTIONS=name:HazelLock,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional,!autopickup,!safe_wait\n",
+      "moves": " #wizwish\nwand of locking\n#wizwish\nunlocked chest\ndplzoh"
+    }
+  ]
+}

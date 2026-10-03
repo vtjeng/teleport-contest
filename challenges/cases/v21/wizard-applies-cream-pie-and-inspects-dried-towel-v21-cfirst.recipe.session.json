@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 710028463,
+      "datetime": "21190304132317",
+      "nethackrc": "OPTIONS=name:C65WetFace,role:Wizard,race:human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017wet towel\n\u0017cream pie\ni nwaoan an i "
+    }
+  ],
+  "comment": "C-first state-inspection continuation frozen after run-hlc3zp showed `Your wet towel (5) dries.` at the boundary following use_towel. It repeats that exact source-reaching route, then opens inventory and dismisses the observed first inventory page to inspect the towel on page 2. The prior C output and source order predict a decrement from wetness 5 to 4, but this recipe records the actual final inventory name/state."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93651327,
+      "datetime": "20291004113500",
+      "nethackrc": "OPTIONS=name:C65Offer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017neutral altar\n\u0017orc corpse\nd?"
+    }
+  ],
+  "comment": "Independent C-first setup probe frozen before any JavaScript comparison. Use wizard wishes to create a neutral altar and a fresh nonhuman orc corpse, then request the drop inventory menu so the following continuation can use the C-observed selector. Intended source route is #offer -> pray.c:dosacrifice -> floorfood(\"sacrifice\",1) -> pray.c:offer_corpse/eval_offering; this setup record alone does not claim the corpse was dropped or offered."
+}

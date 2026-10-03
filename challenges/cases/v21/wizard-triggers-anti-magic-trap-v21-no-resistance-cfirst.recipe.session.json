@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 352907184,
+      "datetime": "20321031152100",
+      "nethackrc": "OPTIONS=name:C65AntiMagic,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "lTb\u0017anti-magic field\nlh"
+    }
+  ],
+  "comment": "C-first cheap variation of the anti-magic trap route. The matched-source baseline revealed Wizard starts wearing a cloak of magic resistance (u_init.c:Wizard), activating Antimagic in the trap. This variation uses T then the C/source-derived inventory letter b to remove that starting cloak before wishing the same trap and triggering it. It tests the same source function with Antimagic false; exact C menu and outcome must be recorded before JS comparison."
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first v21 mission for potion.c:dodip -> potion_dip -> mixtype. Fresh seed/date and Wizard debug setup are selected independently. The wishes create two source-named potions; #dip? opens C’s real eligible-object menu so the actual target and mixture selectors can be observed before guessing. Setup predicts POT_HEALING dipped into POT_SPEED -> POT_EXTRA_HEALING from potion.c:mixtype. Frozen before its own C recording and before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 315601987,
+      "datetime": "21141208120600",
+      "nethackrc": "OPTIONS=name:C65DipMix,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed potion of healing\n\u0017uncursed potion of speed\n#dip?",
+      "recorderIsDst": true
+    }
+  ]
+}

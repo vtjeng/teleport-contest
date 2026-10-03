@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent input frozen from the source route before recording or JavaScript comparison. Dismiss startup More, call cmd.c -> wizcmds.c:wiz_genesis -> read.c:create_particular with hostile killer bee, then use explicit period waits with !safe_wait. Keep the case a target miss if C does not show the bee attacking the human Wizard; claim poisoned()/attribute or HP effects only when C records mhitu.c:mattacku -> uhitm.c:mhitm_adtyping AD_DRST -> uhitm.c:mhitm_ad_drst and its actual effect gates.",
+  "segments": [
+    {
+      "seed": 638294715,
+      "datetime": "20480426174300",
+      "nethackrc": "OPTIONS=name:C65BeePoison,role=Wizard,race=human,gender=female,align=lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile killer bee\n............"
+    }
+  ]
+}

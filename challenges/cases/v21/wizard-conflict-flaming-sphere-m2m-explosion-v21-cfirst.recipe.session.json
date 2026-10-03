@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "segments": [
+    {
+      "seed": 193856239,
+      "datetime": "20530614110200",
+      "nethackrc": "OPTIONS=name:C65FlamePair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizgenesis\n2 hostile sleeping goblin\n#wizgenesis\nhostile flaming sphere\n#wizintrinsic\na>>h\n  . . . . . . . . . . . . . ."
+    }
+  ],
+  "_comment": "Frozen from C source before recording or JavaScript comparison. Targets mhitm.c:mattackm AT_EXPL -> explmm -> explode.c:mon_explodes/ explode, using Conflict and two stationary hostile goblins as possible adjacent targets. Verify actual creation positions, adjacency, Conflict roll, and whether the sphere reaches an explosion; this input does not assume the target branch succeeds."
+}
