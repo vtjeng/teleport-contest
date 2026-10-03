@@ -144987,7 +144987,7 @@
     {
       "id": "port-uhitm-mhitm-ad-slow-v19-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete slowing attacks and intrinsic hero-speed effects",
       "cFile": "uhitm.c",
       "sessions": [
@@ -145001,8 +145001,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "82e0a29d6e1fb1033112dd229400e822af504f75",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_slow",
@@ -145309,6 +145312,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "82e0a29d6e1fb1033112dd229400e822af504f75",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
