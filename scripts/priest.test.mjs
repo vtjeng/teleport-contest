@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { A_LAWFUL, A_NEUTRAL } from '../js/const.js';
+import { A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { mon_aligntyp } from '../js/priest.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
@@ -76,4 +77,38 @@ test('Valkyrie Sanctum route reaches an ordinary EMIN action turn', async () => 
         return before && (before[0] !== roamer.mx || before[1] !== roamer.my);
     }), 'an aligned EMIN must move during the extended production route');
     assert.ok(getRngLog().length > 0);
+});
+
+
+test('priest.c mon_aligntyp selects the source extension and preserves A_NONE', () => {
+    // priest.c:280-290 reads EPRI before EMIN before per-species alignment,
+    // returns A_NONE unchanged, and sign-normalizes every other alignment.
+    assert.equal(mon_aligntyp({
+        data: { maligntyp: -3 }, // Negative nonconstant value normalizes to chaotic.
+    }), A_CHAOTIC);
+    assert.equal(mon_aligntyp({
+        data: { maligntyp: 0 }, // Zero species alignment stays neutral.
+    }), A_NEUTRAL);
+    assert.equal(mon_aligntyp({
+        data: { maligntyp: 7 }, // Positive nonconstant value normalizes to lawful.
+    }), A_LAWFUL);
+    assert.equal(mon_aligntyp({
+        data: { maligntyp: A_CHAOTIC },
+        isminion: true,
+        mextra: { emin: { min_align: 4 } }, // Positive EMIN alignment normalizes.
+    }), A_LAWFUL);
+    assert.equal(mon_aligntyp({
+        data: { maligntyp: A_CHAOTIC },
+        ispriest: true,
+        isminion: true,
+        mextra: {
+            epri: { shralign: -9 }, // EPRI takes priority and normalizes.
+            emin: { min_align: 4 }, // Conflicting EMIN value must be ignored.
+        },
+    }), A_CHAOTIC);
+    assert.equal(mon_aligntyp({
+        data: { maligntyp: A_LAWFUL },
+        ispriest: true,
+        mextra: { epri: { shralign: A_NONE } },
+    }), A_NONE);
 });

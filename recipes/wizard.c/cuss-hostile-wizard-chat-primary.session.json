@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first source route for wizard.c:cuss through sounds.c:domonnoise. Create a hostile Wizard of Yendor so the iswiz branch always uses pline/verbalize rather than a com_pager gap; chat once, then wait six turns to expose monmove.c:dochug's post-PHASE-FOUR MS_CUSS gate if its source conditions occur. The seed and date are independent inputs, frozen before C recording and JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 960101,
+      "datetime": "20360101120000",
+      "nethackrc": "OPTIONS=name:CussWizardOne,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile Wizard of Yendor\n#chat\nl\n......"
+    }
+  ]
+}

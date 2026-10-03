@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-observed cheap variation of the forced Wizard route: a different seed, date, role and gender, with the same `y` response to the unique-Wizard prompt and the C-observed westward chat target. Alternating spaces and waits acknowledge actual C pages and expose the post-attack monmove.c:dochug cuss gate without assuming a particular draw.",
+  "segments": [
+    {
+      "seed": 960102,
+      "datetime": "20360102120000",
+      "nethackrc": "OPTIONS=name:CussWizardTwo,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile Wizard of Yendor\ny#chat\nh\n . . . . . . . . . . . ."
+    }
+  ]
+}
