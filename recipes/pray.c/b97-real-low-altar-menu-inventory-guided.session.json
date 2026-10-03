@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 97309529,
+      "datetime": "20441012101500",
+      "nethackrc": "OPTIONS=name:B97OfferMenu,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".\u0017chaotic altar\n\u0017amulet of yendor\n  nothing\n#herecmdmenu\na*i   ",
+      "comment": "Independent C-first altar-menu route for the real-Amulet low-altar caller: a lawful Knight wishes for a chaotic altar and real Amulet, declines the bonus wish, chooses the MCMD_OFFER item, opens the inventory list, and selects `i`, the C-observed Amulet of Yendor slot. It exercises dosacrifice→offer_too_soon; retain the earlier guessed-slot attempt as a setup miss."
+    }
+  ]
+}

@@ -17,9 +17,11 @@ import {
     cmdq_add_ec,
     cmdq_add_key,
     cmdq_peek,
+    act_on_act,
     extcmdRow,
     failClosedCommandRefusals,
     MAX_COMMAND_COUNT,
+    MCMD,
     parseCommand,
     resetCommandVars,
     rhack,
@@ -35,6 +37,7 @@ import { itemactions } from '../js/iactions.js';
 import { INTERNALCMD, extcmdlist } from '../js/extcmdlist_data.js';
 import {
     ALTAR,
+    Align2amask,
     BEAR_TRAP,
     COLNO,
     CORR,
@@ -103,6 +106,8 @@ import {
     BOULDER,
     CORPSE,
     ARMOR_CLASS,
+    AMULET_CLASS,
+    FAKE_AMULET_OF_YENDOR,
     DAGGER,
     DART,
     FOOD_CLASS,
@@ -3628,6 +3633,65 @@ test('rhack runs a queued command even when it was given a key', async () => {
     assert.equal(state._pending_message ?? '', '');
     assert.equal(cmdq_peek(CQ_CANNED, state), null, 'the queue was drained');
 });
+
+test('MCMD_OFFER dispatches queued dosacrifice with its ECMD result',
+    async () => {
+        // C cmd.c act_on_act() queues the dosacrifice function pointer and a
+        // user-input marker; rhack() must call that pointer and apply its
+        // normal ECMD_TIME tail. The menu recording separately proves the
+        // altar's displayed MCMD_OFFER row reaches this caller.
+        assert.match(CMD_C,
+            /case MCMD_OFFER:\s*cmdq_add_ec\(CQ_CANNED, dosacrifice\);\s*cmdq_add_userinput\(CQ_CANNED\);/u);
+        assert.match(CMD_JS,
+            /case MCMD\.OFFER:\s*queueHandler\('dosacrifice', state\);\s*cmdq_add_userinput\(CQ_CANNED, state\);/u);
+        assert.match(CMD_JS,
+            /queuedExtcmdEntry\?\.ef_funct === 'dosacrifice'[\s\S]*?await dosacrifice\(state\)[\s\S]*?if \(res & ECMD_TIME\) commandTookTime\(state\)/u);
+
+        // Seed 4210044 and the fixed clock provide a stable initialized game;
+        // the test replaces only the current terrain/alignment and inventory.
+        await runSegment({
+            seed: 4210044,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:QueuedOffer,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            moves: '',
+        });
+        // Match a player typing a command after startup has dismissed its
+        // welcome line; otherwise the selector consumes the first key at the
+        // pending-message boundary before getobj() can read it.
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        const altar = game.level.at(game.u.ux, game.u.uy);
+        altar.typ = ALTAR;
+        altar.flags = Align2amask(game.u.ualign.type);
+        const amulet = {
+            invlet: 'a',
+            otyp: FAKE_AMULET_OF_YENDOR,
+            oclass: AMULET_CLASS,
+            quan: 1,
+            where: OBJ_INVENT,
+            known: false,
+            nobj: null,
+            nexthere: null,
+        };
+        game.invent = amulet;
+        game.nhDisplay.pushKey(commandKeyCode('a'));
+
+        act_on_act(MCMD.OFFER, 0, 0, game);
+        assert.equal(
+            cmdq_peek(CQ_CANNED, game)?.ec_entry?.ef_funct,
+            'dosacrifice',
+        );
+        await rhack(0, game);
+
+        assert.equal(game._pending_message,
+            'You feel an urge to return to the surface.');
+        assert.equal(game.context.move, 1, 'the selected offering costs a turn');
+        assert.equal(amulet.known, false, 'the source early return leaves it unknown');
+        assert.equal(cmdq_peek(CQ_CANNED, game), null,
+            'getobj consumes the marker when it reads the selected object');
+    });
 
 test('rhack consumes a queued command after the reqmenu prefix', async () => {
     // cmd.c:3637-3652 pops the command queue again at got_prefix_input. Wait
