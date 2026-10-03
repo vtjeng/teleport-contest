@@ -145610,6 +145610,212 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-drli-v18-20261003",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete level-draining attacks and fatal planning handoff",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v18/wizard-hostile-wraith-ad-drli-c59"
+      ],
+      "selectionReason": "Complete current v18 wraith investigation selects whole uhitm.c:mhitm_ad_drli2445-2518. Preserve all three source directions, chance/resistance/negation order, HP/level arithmetic, damage-zero and level-zero override, visibility and source callers. Four independent C-first matching recipe pairs cover active directions and a cheap role variation. The selected level-one fatal-drain case now fully matches on the worker: root identified and verified an existing planningDeath handoff before losexp can call live done(DIED) on a clone. The AD_DETH outer caller remains unported without credit. Packet/source/runtime verification is .cache/B92-root-source-verification.json.",
+      "detail": "",
+      "openedAt": "94213941a84325d064f68a868a7d70b47e8a3167",
+      "openStanding": {
+        "sha": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_drli",
+          "line": 2445,
+          "endLine": 2520,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2445,
+        "to": 2520
+      },
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-hostile-wraith-ad-drli-c59": {
+          "session": "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-hostile-wraith-ad-drli-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+          "recordingSha256": "f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873",
+          "evaluationPath": "challenges/evaluations/20261003020850-v18.json",
+          "evaluationCommit": "15be180dc8aec3010025eac5f8bbcd34571ad39c"
+        }
+      },
+      "activeStanding": {
+        "sha": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-hostile-wraith-ad-drli-c59",
+          "session": "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+          "recordingSha256": "f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873",
+          "recipe": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.recipe.session.json",
+          "recipeSha256": "cc50670259ee62e61db1240f66715433a520ac028f0a2c18259028a2d7233867",
+          "replayInputSha256": "203f802b167d7284c62820dbfef9a48064bff2afb74711bf88ece59aadad2665",
+          "evaluationPath": "challenges/evaluations/20261003020850-v18.json",
+          "evaluationCommit": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+          "evaluationArtifact": "challenges/evaluations/20261003020850-v18.json",
+          "evaluationUtc": "2026-10-03T02:09:40.404Z",
+          "remainingScreens": 2,
+          "recordedSteps": 31,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2849,
+              "total": 2854
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_drli()",
+            "step": 29
+          },
+          "step": 29,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_drli",
+          "message": "simple monster action requires uhitm.c mhitm_ad_drli()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-hostile-wraith-ad-drli-c59.json",
+            "result": {
+              "session": "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-hostile-wraith-ad-drli-c59",
+              "remainingScreens": 2,
+              "recordedSteps": 31,
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingPath": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+              "recordingSha256": "f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873",
+              "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "status": "complete",
+              "summary": "The wraith reaches the monster-to-hero AD_DRLI arm during segment 0, step 29. C mhitu.c:hitmu() dispatches through uhitm.c:mhitm_adtyping() to uhitm.c:mhitm_ad_drli(); JavaScript still refuses the AD_DRLI arm in js/uhitm.js:mhitm_adtyping(). The recorded C turn rolls rn2(3)=0, then rn2(10)=8 in mhitm_mgc_atk_negated(), and prints “Goodbye level 1.” through losexp(\"life drainage\"). Port the whole mhitm_ad_drli() function and wire its AD_DRLI dispatch. This is missing source behavior, not an RNG divergence; the comparison labels the next C call, distfleeck(), only because JavaScript stopped at the refusal. The function also has hero-to-monster and monster-to-monster arms. Its separate C caller mhitm_ad_deth() remains unported behind the AD_DETH refusal.",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-hostile-wraith-ad-drli-c59",
+                "session": "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+                "recordingSha256": "f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873",
+                "recipe": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.recipe.session.json",
+                "recipeSha256": "cc50670259ee62e61db1240f66715433a520ac028f0a2c18259028a2d7233867",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 2,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2849,
+                    "total": 2854
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_drli()",
+                  "step": 29
+                },
+                "step": 29,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_drli",
+                "message": "simple monster action requires uhitm.c mhitm_ad_drli()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "source": {
+                "file": "uhitm.c",
+                "branch": "mattk->adtyp == AD_DRLI enters mhitm_ad_drli(). The current case has a monster attacker (magr != &gy.youmonst) and the hero as defender (mdef == &gy.youmonst), selecting the mhitu arm. That arm prints hitmsg(), then evaluates !rn2(3) && !Drain_resistance && !mhitm_mgc_atk_negated(magr, mdef, TRUE) in C short-circuit order; on success it calls losexp(\"life drainage\"). At level 1 that call prints the fatal “Goodbye level 1.” message. The recorded step 29 has rn2(3)=0 and rn2(10)=8 inside mhitm_mgc_atk_negated(), and the C screen contains that message. The other two whole-function arms are hero-to-monster and monster-to-monster; preserve their own resistance, damage, kill, and Death-redirect behavior from source.",
+                "functions": [
+                  "mhitm_ad_drli"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_adtyping() (line 4804) dispatches AD_DRLI to mhitm_ad_drli(); JavaScript js/uhitm.js:mhitm_adtyping() currently throws at the AD_DRLI switch arm (line 4823), so add the dispatcher call there.",
+                  "mhitu.c:hitmu() (line 1191) calls mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm); JavaScript js/mhitu.js:hitmu() (line 1707) is the production route reached by this wraith session.",
+                  "mhitm.c:mdamagem() (line 1059) calls mhitm_adtyping(magr, mattk, mdef, &mhm); JavaScript js/mhitm.js:mdamagem() (line 1057) is the monster-to-monster production route for the function’s third arm.",
+                  "uhitm.c:damageum() (line 4854) calls mhitm_adtyping(&gy.youmonst, mattk, mdef, &mhm); JavaScript js/uhitm.js:damageum() (line 4886) is the hero-to-monster production route for the function’s first arm.",
+                  "uhitm.c:mhitm_ad_deth() (line 3892) directly calls mhitm_ad_drli() when Death’s touch targets another monster. JavaScript mhitm_adtyping() still refuses AD_DETH, so this direct caller remains a separate unported route and is not established by the wraith case."
+                ],
+                "dependencies": [
+                  "Consumed return values: rn2(3) gates life drain in all three actor/target arms; d(2,6) supplies mhm.damage in the successful hero-to-monster and ordinary monster-to-monster arms; mhitm_mgc_atk_negated() supplies the final boolean gate in all active drain arms; resists_drli() and defended() supply resistance decisions in the hero-to-monster and monster-to-monster arms. Existing JavaScript helpers are js/uhitm.js:mhitm_mgc_atk_negated() and js/mondata.js:resists_drli()/defended(). Preserve C short-circuit and random-call order.",
+                  "Consumed source predicates: DEADMONSTER(mdef) controls whether the hero-to-monster drain kills through xkilled(), nonliving(mdef->data) selects the kill message, and mattk->adtyp == AD_DETH selects the monster-target Death bypass. These are part of the whole function, not just the recorded hero-target arm.",
+                  "Void side effects with discarded return values: hitmsg(magr,mattk) runs before the monster-to-hero gate (existing JS js/mhitu.js:hitmsg()); losexp(\"life drainage\") performs level loss or fatal handling (existing JS js/exper.js:losexp()); xkilled() handles a monster killed by the hero’s drain (existing JS js/mon.js:xkilled())."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20261002065911-v18.json identifies this case at segment 0, step 29 with stop message “simple monster action requires uhitm.c mhitm_ad_drli()”: 29 of 31 screens and cursors match, 2849 of 2854 RNG calls match, and 2 screens remain. The stop is the JavaScript refusal at js/uhitm.js:4823, so the later C RNG tag at distfleeck(monmove.c:538) is subsequent work, not the cause.",
+                "C recording challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json, segment 0, step 29: C records rn2(5)=1 at distfleeck, rnd(20)=2 at mattacku, d(1,6)=3 at hitmu, rn2(3)=0 at mhitm_ad_drli(uhitm.c:2482), and rn2(10)=8 at mhitm_mgc_atk_negated(uhitm.c:87); its screen says “The wraith touches you! Goodbye level 1.” This establishes the monster-to-hero branch and successful losexp() route without another replay.",
+                "Upstream nethack-c/upstream/src/uhitm.c:2445-2518 is the complete mhitm_ad_drli() body, including the hero-to-monster and monster-to-monster arms. Lines 4782-4828 show the AD_DRLI dispatcher and the separate AD_DETH dispatch. uhitm.c:3892 shows mhitm_ad_deth()’s direct call into mhitm_ad_drli().",
+                "The exact current call path is nethack-c/upstream/src/mhitu.c:1191 -> mhitm_adtyping() -> AD_DRLI, mirrored by js/mhitu.js:1707 -> js/uhitm.js:mhitm_adtyping():4823. Other existing shared-dispatch routes are nethack-c/upstream/src/mhitm.c:1059 / js/mhitm.js:1057 and nethack-c/upstream/src/uhitm.c:4854 / js/uhitm.js:4886.",
+                "The missing implementation is limited to uhitm.c:mhitm_ad_drli() plus wiring its already-existing AD_DRLI dispatcher arm. Supporting helpers already exist in JavaScript: mhitm_mgc_atk_negated() in js/uhitm.js:776, defended()/resists_drli() in js/mondata.js:2121-2152, hitmsg() in js/mhitu.js:624, losexp() in js/exper.js:60, and xkilled() in js/mon.js:5769. The level-one losexp/death boundary still needs to be validated by the recording after the new branch reaches it; current JS stop evidence cannot establish the two remaining screens.",
+                "Manifest challenges/manifests/v18.json records this as distinct from v17 spell-ray drain-life cases: v17 uses zap.c:bhito -> drain_item on positive-enchantment floor objects, whereas c59 exercises a monster-to-hero AD_DRLI attack. The manifest records an independent patched-C replay matching the immutable C recording SHA-256 f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
