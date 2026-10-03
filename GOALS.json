@@ -145323,7 +145323,7 @@
     {
       "id": "port-uhitm-mhitm-ad-conf-v19-20261003",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete confusion attacks and source-ordered status effects",
       "cFile": "uhitm.c",
       "sessions": [
@@ -145337,8 +145337,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_conf",
@@ -145600,6 +145603,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
