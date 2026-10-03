@@ -34,6 +34,7 @@ import {
     COLD_RES,
     CONFUSION,
     DEAF,
+    DRAIN_RES,
     DISP_ALWAYS,
     DISP_END,
     DISMOUNT_POLY,
@@ -225,6 +226,7 @@ import {
     u_slow_down,
 } from './mhitu.js';
 import { abuse_dog } from './dog.js';
+import { losexp } from './exper.js';
 import {
     angry_guards,
     killed,
@@ -285,6 +287,8 @@ import {
     monstseesu,
     monstunseesu,
     noncorporeal,
+    nonliving,
+    resists_drli,
     Resists_Elem,
     noattacks,
     passes_walls,
@@ -5048,6 +5052,94 @@ export async function mhitm_ad_slow(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_drli() (2445-2518). Level-draining attacks have
+// distinct hero-to-monster, monster-to-hero, and monster-to-monster arms.
+// Keep each arm's chance, resistance, negation, output, and HP/level order
+// separate; the direct Death caller remains the unported AD_DETH arm.
+export async function mhitm_ad_drli(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = { d, rn2, ...(env.random ?? {}) };
+    const message = requireAttackOperation(env, 'message');
+    const effectEnv = { ...env, state, random, message };
+
+    if (magr === state.youmonst) {
+        if (!random.rn2(3)
+            && !(resists_drli(mdef, state) || defended(mdef, AD_DRLI, state))
+            && !(await mhitm_mgc_atk_negated(
+                magr, mdef, true, state, effectEnv,
+            ))) {
+            mhm.damage = random.d(2, 6);
+            await message(`${Monnam(mdef, state, effectEnv)} becomes weaker!`,
+                state, effectEnv);
+            if (mdef.mhpmax - mhm.damage > mdef.m_lev) {
+                mdef.mhpmax -= mhm.damage;
+            } else if (mdef.mhpmax > mdef.m_lev) {
+                mdef.mhpmax = mdef.m_lev + 1;
+            }
+            mdef.mhp -= mhm.damage;
+            if (mdef.mhp < 1 || !mdef.m_lev) {
+                await message(
+                    `${Monnam(mdef, state, effectEnv)} `
+                        + `${nonliving(mdef.data) ? 'expires' : 'dies'}!`,
+                    state,
+                    effectEnv,
+                );
+                // uhitm.c discards xkilled()'s void result; retain its current
+                // source-backed owner for kill state/corpse processing.
+                await xkilled(mdef, XKILL_NOMSG, state, effectEnv);
+            } else {
+                mdef.m_lev--;
+            }
+            // This helper applied the HP loss itself; damageum must not repeat it.
+            mhm.damage = 0;
+        }
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, effectEnv);
+        if (!random.rn2(3)
+            && !propertyPresent(state.u, DRAIN_RES)
+            && !(await mhitm_mgc_atk_negated(
+                magr, mdef, true, state, effectEnv,
+            ))) {
+            await losexp('life drainage', state, effectEnv);
+        }
+    } else {
+        const isDeath = mattk.adtyp === AD_DETH;
+        if (isDeath
+            || (!random.rn2(3)
+                && !(resists_drli(mdef, state)
+                    || defended(mdef, AD_DRLI, state))
+                && !(await mhitm_mgc_atk_negated(
+                    magr, mdef, true, state, effectEnv,
+                )))) {
+            if (!isDeath)
+                mhm.damage = random.d(2, 6);
+            if (state.gv?.vis && canspotmon(mdef, state)) {
+                const text = `${Monnam(mdef, state, effectEnv)} becomes weaker!`;
+                await message(
+                    messageAt(text, mdef.mx, mdef.my, state),
+                    state,
+                    effectEnv,
+                );
+            }
+            if (mdef.mhpmax - mhm.damage > mdef.m_lev) {
+                mdef.mhpmax -= mhm.damage;
+            } else if (mdef.mhpmax > mdef.m_lev) {
+                mdef.mhpmax = mdef.m_lev + 1;
+            }
+            if (mdef.m_lev === 0)
+                mhm.damage = mdef.mhp;
+            else
+                mdef.m_lev--;
+        }
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -5104,7 +5196,9 @@ export async function mhitm_adtyping(
     case AD_CURS:
         await mhitm_ad_curs(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_DRLI: unported('mhitm_ad_drli'); break;
+    case AD_DRLI:
+        await mhitm_ad_drli(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_RUST: unported('mhitm_ad_rust'); break;
     case AD_CORR: unported('mhitm_ad_corr'); break;
     case AD_DCAY: unported('mhitm_ad_dcay'); break;
