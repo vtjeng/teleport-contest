@@ -4747,16 +4747,36 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
                 env,
             );
         }
-            const { boulder_hits_pool } = await import('./do.js');
-            do {
-                obj_extract_self(boulder, env);
-                // C's impossible() here only diagnoses an impossible return from
-                // boulder_hits_pool(); the value is still not otherwise used.
-                if (!await boulder_hits_pool(boulder, x, y, false, env)) {
-                    note_unported('pline.c impossible');
-                }
-            } while (is_pool(x, y, state)
-                && (boulder = sobj_at(BOULDER, x, y, state)));
+        const { boulder_hits_pool } = await import('./do.js');
+        do {
+            obj_extract_self(boulder, {
+                ...env,
+                hooks: {
+                    ...env.hooks,
+                    // C obj_extract_self() unlinks the floor boulder
+                    // directly; this module's canonical adapter performs
+                    // that same external floor-chain write.
+                    extractExternalObject:
+                        env.hooks?.extractExternalObject ?? remove_object,
+                    // mkobj.c remove_object() must update vision's
+                    // boulder-block map after unlinking this floor item.
+                    recalcBlockPoint:
+                        env.hooks?.recalcBlockPoint
+                            ?? ((bx, by, hookEnv) =>
+                                recalc_block_point(
+                                    bx,
+                                    by,
+                                    hookEnv.state ?? state,
+                                )),
+                },
+            });
+            // C's impossible() here only diagnoses an impossible return from
+            // boulder_hits_pool(); the value is still not otherwise used.
+            if (!await boulder_hits_pool(boulder, x, y, false, env)) {
+                note_unported('pline.c impossible');
+            }
+        } while (is_pool(x, y, state)
+            && (boulder = sobj_at(BOULDER, x, y, state)));
         redraw(x, y, state);
     }
 

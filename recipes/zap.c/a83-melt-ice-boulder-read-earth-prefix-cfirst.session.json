@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only prefix probe for the independent boulder-on-ICE route. The setup wishes create ICE over ordinary ROOM, a cursed scroll of earth, and a fire wand; C-observed inventory places the scroll at n and wand at o. `rn` reads the scroll so the resulting boulder, message boundary and floor location can be inspected before freezing the firing suffix. This prefix is not a regression recording.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMelt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\na>>k\n \u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn"
+    }
+  ]
+}

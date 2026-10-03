@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Complete C-first pool route with source-selected Fire resistance and Flying. The C #wizintrinsic menu selection exercises zhitu's fire-resistance branch after do.c:boulder_hits_pool fills the POOL; the frozen four-space continuation dismisses the settlement, splash, hit and armor-smolder messages to the returned command boundary.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderFireRes,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\n>i>k\n \u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn lzoh    "
+    }
+  ]
+}

@@ -216,6 +216,7 @@ import { makemon } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
 import {
     healmon, m_in_air, m_into_limbo, mondied, newcham, pm_to_cham, set_ustuck,
+    wake_nearto,
 } from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
@@ -676,7 +677,12 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
     if (!otmp || otmp.otyp !== BOULDER)
         return false;
     if (!is_pool_or_lava(rx, ry, state)) return false;
-    const random = rawEnv.random ?? { rn2 };
+    const suppliedRandom = rawEnv.random ?? {};
+    const random = {
+        d: suppliedRandom.d ?? d,
+        rn2: suppliedRandom.rn2 ?? rn2,
+        rnd: suppliedRandom.rnd ?? rnd,
+    };
     const location = state.level?.at(rx, ry);
     const lava = is_lava(rx, ry, state);
     const what = (await import('./pager.js')).waterbody_name(
@@ -767,10 +773,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
                 state,
             );
             await burn_away_slime(state, rawEnv);
-            const damage = random.d
-                ? random.d(fireResistant ? 1 : 3, 6)
-                : Array.from({ length: fireResistant ? 1 : 3 },
-                    () => random.rnd(6)).reduce((sum, n) => sum + n, 0);
+            const damage = random.d(fireResistant ? 1 : 3, 6);
             await losehp(
                 maybeHalfPhysical(damage, state),
                 'molten lava',

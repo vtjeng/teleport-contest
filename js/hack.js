@@ -2394,22 +2394,37 @@ async function moverock_core(sx, sy, state, env) {
             return cannot_push(otmp, sx, sy, state);
         }
 
-        // 496-618 and 620-621 are return-valued effects. The local trap and
-        // liquid owners are not complete, so do not silently move a boulder
-        // through them or claim test_move() completion.
+        // hack.c:494. The push disturbs buried zombies before trap or liquid
+        // effects are considered.
+        disturb_buried_zombies(sx, sy, state);
+
+        // 496-618 remains the local trap-effect boundary; do not silently move
+        // a boulder through an unported trap handler.
         if (ttmp) {
             throw new UnsupportedHeroMoveBoundaryError(
                 'hack.c moverock_core boulder trap effect',
             );
         }
         if (is_pool_or_lava(rx, ry, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'do.c boulder_hits_pool',
-            );
+            // hack.c:620-621. This Boolean is consumed: TRUE means the
+            // boulder entered the liquid helper and was consumed, so C
+            // restarts the source-square pile scan instead of dopush().
+            const { boulder_hits_pool } = await import('./do.js');
+            const helperEnv = {
+                ...env,
+                state,
+                hooks: {
+                    ...boulderVisionEnv(state).hooks,
+                    ...env.hooks,
+                    // useupf() reaches obj_extract_self() for this floor
+                    // boulder; C's remove_object() unlinks both floor lists.
+                    extractExternalObject:
+                        env.hooks?.extractExternalObject ?? remove_object,
+                },
+            };
+            if (await boulder_hits_pool(otmp, rx, ry, true, helperEnv))
+                continue;
         }
-
-        /* rumbling disturbs buried zombies */
-        disturb_buried_zombies(sx, sy, state);
 
         /*
          * Re-link at top of fobj chain so that pile order is preserved

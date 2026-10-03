@@ -17,6 +17,7 @@ import {
 import { boulder_hits_pool, flooreffects } from '../js/do.js';
 import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
+import { initRng } from '../js/rng.js';
 import {
     BOULDER,
     POTION_CLASS,
@@ -188,6 +189,60 @@ test('boulder_hits_pool sinks in lava on rn2(10) zero and consumes the boulder',
     assert.deepEqual(calls, [10]);
     assert.notEqual(boulder.where, OBJ_FREE);
 });
+
+test('boulder_hits_pool supplies the C damage die for a partial random owner',
+    async () => {
+        // do.c:65-73 calls d(3,6) when an adjacent boulder does not fill lava.
+        // Only rn2 is overridden here; the selected C helper supplies d/rnd
+        // from the initialized core RNG rather than invoking an absent method.
+        const state = fixture({ typ: LAVAPOOL });
+        state.u.ux = DROP_X - 1;
+        state.u.uy = DROP_Y;
+        state.u.uhp = 100;
+        state.u.uhpmax = 100;
+        initRng(20261003);
+        const calls = [];
+        const boulder = object({ otyp: BOULDER });
+
+        assert.equal(await land(state, boulder, DROP_X, DROP_Y, {
+            random: { rn2: (n) => { calls.push(n); return 1; } },
+            message: async () => {},
+            newsym: () => {},
+            wakeNear: async () => {},
+        }), true);
+
+        assert.deepEqual(calls, [10]);
+        assert.ok(state.u.uhp < 100 && state.u.uhp >= 82,
+            'the fallback d(3,6) deals one to eighteen damage');
+        assert.notEqual(boulder.where, OBJ_FREE);
+    });
+
+test('boulder_hits_pool uses one C d(3,6) call for adjacent lava damage',
+    async () => {
+        const state = fixture({ typ: LAVAPOOL });
+        state.u.ux = DROP_X - 1;
+        state.u.uy = DROP_Y;
+        state.u.uhp = 100;
+        state.u.uhpmax = 100;
+        const calls = [];
+        const boulder = object({ otyp: BOULDER });
+
+        assert.equal(await land(state, boulder, DROP_X, DROP_Y, {
+            random: {
+                rn2: (n) => { calls.push(['rn2', n]); return 1; },
+                d: (count, sides) => {
+                    calls.push(['d', count, sides]);
+                    return 7;
+                },
+            },
+            message: async () => {},
+            newsym: () => {},
+            wakeNear: async () => {},
+        }), true);
+
+        assert.deepEqual(calls, [['rn2', 10], ['d', 3, 6]]);
+        assert.equal(state.u.uhp, 93);
+    });
 
 test('pushing pool boulders uses !Blind for both source sink messages', async () => {
     for (const [blind, expectsSink] of [[true, false], [false, true]]) {

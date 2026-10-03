@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup prefix for the selected hack.c:moverock_core -> do.c:boulder_hits_pool(pushing=TRUE) caller. An independently chosen Wizard seed/time wishes one boulder and opens inventory so the actual object slot is observed before freezing the pool placement and push input. This prefix is diagnostic only until its C output confirms the item and map state.",
+  "segments": [
+    {
+      "seed": 73142089,
+      "datetime": "20421003150700",
+      "nethackrc": "OPTIONS=name:A83MoverockPush,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "#wizwish\nboulder\ni"
+    }
+  ]
+}

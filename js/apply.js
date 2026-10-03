@@ -4539,7 +4539,12 @@ export async function maybe_dunk_boulders(
     x, y, state = game, rawEnv = {},
 ) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? { rn2 };
+    const suppliedRandom = env.random ?? {};
+    const random = {
+        d: suppliedRandom.d ?? d,
+        rn2: suppliedRandom.rn2 ?? rn2,
+        rnd: suppliedRandom.rnd ?? rnd,
+    };
     let boulder;
     while (is_pool_or_lava(x, y, state)
         && (boulder = sobj_at(BOULDER, x, y, state))) {

@@ -32,6 +32,8 @@ import {
     HVY_ENCUMBER,
     HUNGRY,
     HALLUC,
+    ICE,
+    ICED_POOL,
     INTRINSIC,
     KILLED_BY_AN,
     LEFT_SIDE,
@@ -63,6 +65,8 @@ import {
     SLT_ENCUMBER,
     SV0,
     TIMER_OBJECT,
+    TIMER_LEVEL,
+    MELT_ICE_AWAY,
     TEMP_LIT,
     WEAK,
     WOUNDED_LEGS,
@@ -86,7 +90,14 @@ import {
 import { runSegment } from '../js/jsmain.js';
 import { set_uasmon } from '../js/polyself.js';
 import { new_light_source } from '../js/light.js';
-import { getRngLog, initRng, rn1, rn2, rnd } from '../js/rng.js';
+import {
+    createCoreRandom,
+    getRngLog,
+    initRng,
+    rn1,
+    rn2,
+    rnd,
+} from '../js/rng.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AT_HUGS,
@@ -120,7 +131,10 @@ import {
     place_object,
 } from '../js/obj.js';
 import { UnsupportedShopError } from '../js/shk.js';
-import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
+import {
+    planningState,
+    preflightSimpleMonsterActions,
+} from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
     block_point,
@@ -2731,6 +2745,68 @@ test('a planned corpse rot touches neither the live map nor the live queue',
         assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
         assert.equal(game.gt.timer_base, null);
         assert.equal(square.waslit, Boolean(square.lit));
+    });
+
+test('planned ice boulder timer draws water names only from clone display RNG',
+    async () => {
+        const jsTimeoutCall = JS_ALLMAIN.indexOf('await nh_timeout(state, {');
+        const jsTimeoutEnd = JS_ALLMAIN.indexOf('\n    });', jsTimeoutCall);
+        assert.ok(jsTimeoutCall >= 0 && jsTimeoutEnd > jsTimeoutCall);
+        assert.match(JS_ALLMAIN.slice(jsTimeoutCall, jsTimeoutEnd),
+            /displayRandom: planningDisplayRandom/u);
+
+        await runSegment({
+            seed: 2026100301,
+            datetime: '20431003101700',
+            nethackrc: 'OPTIONS=name:PlannedMelt,role:Wizard,race:human,'
+                + 'gender:male,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        const x = game.u.ux + 3;
+        const y = game.u.uy;
+        const location = game.level.at(x, y);
+        location.typ = ICE;
+        location.icedpool = ICED_POOL;
+        game.u.uprops[HALLUC] = {
+            intrinsic: INTRINSIC,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        const boulder = newObject({
+            otyp: BOULDER,
+            oclass: game.objects[BOULDER].oc_class,
+            quan: 1,
+        });
+        const visionHooks = {
+            blockPoint: () => {},
+            recalcBlockPoint: () => {},
+        };
+        place_object(boulder, x, y, { state: game, hooks: visionHooks });
+        start_timer(
+            1,
+            TIMER_LEVEL,
+            MELT_ICE_AWAY,
+            x * 0x10000 + y,
+            game,
+        );
+
+        const liveDisplayBefore = structuredClone(game.displayCtx);
+        const planned = planningState(game);
+        const cloneDisplayBefore = structuredClone(planned.displayCtx);
+        const random = createCoreRandom(planned.coreCtx, planned);
+        await finishElapsedTurn(planned, random, { planning: true });
+
+        assert.deepEqual(game.displayCtx, liveDisplayBefore,
+            'planning leaves the live cosmetic ISAAC context unchanged');
+        assert.notDeepEqual(planned.displayCtx, cloneDisplayBefore,
+            'the due hallucinated waterbody name consumes the clone stream');
+        assert.notEqual(planned.level.at(x, y).typ, ICE,
+            'the due MELT_ICE_AWAY callback ran on the planning clone');
+        assert.equal(location.typ, ICE,
+            'the callback does not melt the live level during planning');
     });
 
 // The status seam of the same nh_timeout() call, which the case

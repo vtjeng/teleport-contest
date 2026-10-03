@@ -26,6 +26,8 @@ import {
     create_gas_cloud_selection,
     create_region,
     in_out_region,
+    inside_rect,
+    inside_region,
     inside_gas_cloud,
     m_in_out_region,
     region_danger,
@@ -34,6 +36,43 @@ import {
 } from '../js/region.js';
 
 const REGION_SOURCE = readFileSync('nethack-c/upstream/src/region.c', 'utf8');
+
+test('inside_rect uses C inclusive bounds and inside_region checks each rect', () => {
+    const cStart = REGION_SOURCE.indexOf('inside_rect(NhRect *r, int x, int y)');
+    const cEnd = REGION_SOURCE.indexOf('\n}\n', cStart) + 3;
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cRect = REGION_SOURCE.slice(cStart, cEnd);
+    assert.match(cRect,
+        /x >= r->lx && x <= r->hx && y >= r->ly && y <= r->hy/u);
+    const cRegion = REGION_SOURCE.slice(
+        REGION_SOURCE.indexOf('inside_region(NhRegion *reg, int x, int y)'),
+        REGION_SOURCE.indexOf('\n}\n',
+            REGION_SOURCE.indexOf('inside_region(NhRegion *reg, int x, int y)')) + 3,
+    );
+    assert.match(cRegion, /inside_rect\(&\(reg->bounding_box\), x, y\)/u);
+    assert.match(cRegion, /inside_rect\(&\(reg->rects\[i\]\), x, y\)/u);
+
+    const rect = { lx: 2, ly: 3, hx: 4, hy: 6 };
+    assert.equal(inside_rect(rect, 2, 3), true);
+    assert.equal(inside_rect(rect, 4, 6), true);
+    assert.equal(inside_rect(rect, 1, 3), false);
+    assert.equal(inside_rect(rect, 5, 6), false);
+    assert.equal(inside_rect(rect, 2, 7), false);
+
+    const region = {
+        bounding_box: { lx: 1, ly: 1, hx: 5, hy: 5 },
+        rects: [
+            { lx: 1, ly: 1, hx: 2, hy: 2 },
+            { lx: 4, ly: 4, hx: 5, hy: 5 },
+        ],
+    };
+    assert.equal(inside_region(region, 1, 2), true);
+    assert.equal(inside_region(region, 5, 5), true);
+    assert.equal(inside_region(region, 3, 3), false,
+        'a point inside the bounding box can still be outside every rect');
+    assert.equal(inside_region(region, 0, 3), false);
+    assert.equal(inside_region(null, 2, 2), false);
+});
 
 function regionState(overrides = {}) {
     return {

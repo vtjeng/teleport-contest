@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Complete C-first ordinary-ROOM ICE boulder route. This continuation preserves the exact frozen setup, dismisses the scroll ceiling More, moves off the square, and fires the observed wand west. C then draws rn2(10) in do.c:boulder_hits_pool, fills the POOL, reports the melt/settle and splash messages, and the two final spaces dismiss both C-observed Mores without adding a game action.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMelt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\na>>k\n \u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn lzoh  "
+    }
+  ]
+}

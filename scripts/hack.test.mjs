@@ -116,10 +116,11 @@ import {
     S_PIERCER, monst_globals_init,
 } from '../js/monsters.js';
 import {
-    CORPSE, DAGGER, HELMET, objects_globals_init,
+    BOULDER, CORPSE, DAGGER, HELMET, objects_globals_init,
 } from '../js/objects.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { init_dummyobj, newObject, place_object } from '../js/obj.js';
+import { sobj_at } from '../js/invent.js';
 import {
     peek_timer,
     start_timer,
@@ -722,6 +723,73 @@ test('notice distance comparator and simplified floor type follow hack.c', () =>
     ), -7);
     state.level.at(11, 10).typ = ROOM;
     assert.equal(u_simple_floortyp(11, 10, state), ROOM);
+});
+
+test('moverock_core consumes the C liquid-push result before dopush', async () => {
+    const cStart = HACK_SOURCE.indexOf(
+        'moverock_core(coordxy sx, coordxy sy)\n{',
+    );
+    const cEnd = HACK_SOURCE.indexOf('\n/*\n *  still_chewing()', cStart);
+    const jsStart = HACK_JS_SOURCE.indexOf('async function moverock_core(');
+    const jsEnd = HACK_JS_SOURCE.indexOf(
+        '\n// C ref: hack.c test_move', jsStart,
+    );
+    assert.ok(cStart >= 0 && cEnd > cStart && jsStart >= 0 && jsEnd > jsStart);
+    const cBody = HACK_SOURCE.slice(cStart, cEnd);
+    const jsBody = HACK_JS_SOURCE.slice(jsStart, jsEnd);
+    const cLiquid = cBody.indexOf('if (boulder_hits_pool(otmp, rx, ry, TRUE))');
+    assert.ok(cLiquid >= 0);
+    assert.ok(cBody.indexOf('disturb_buried_zombies(sx, sy);') < cLiquid);
+    assert.match(cBody.slice(cLiquid),
+        /if \(boulder_hits_pool\(otmp, rx, ry, TRUE\)\)\s+continue;/u);
+    assert.match(jsBody,
+        /await boulder_hits_pool\(otmp, rx, ry, true, helperEnv\)\)\s+continue;/u);
+
+    // An independently chosen ordinary push places the boulder one square
+    // ahead of the hero and a pool two squares ahead; rn2(10)=1 follows the
+    // source fill branch so the consumed Boolean must restart the pile scan.
+    await runSegment({
+        seed: 202610031,
+        datetime: '20431003091500',
+        nethackrc: 'OPTIONS=name:LiquidPush,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    const sx = game.u.ux;
+    const sy = game.u.uy;
+    const bx = sx + 1;
+    const rx = sx + 2;
+    for (const [x, y, typ] of [
+        [sx, sy, ROOM], [bx, sy, ROOM], [rx, sy, POOL],
+    ]) {
+        const location = game.level.at(x, y);
+        location.typ = typ;
+        location.flags = location.doormask = 0;
+        game.level.monsters[x][y] = null;
+        game.level.objects[x][y] = null;
+    }
+    game.level.traps = [];
+    game.u.dx = 1;
+    game.u.dy = 0;
+    game.context.run = 0;
+    const boulder = init_dummyobj(newObject(), BOULDER, 1, game);
+    const visionHooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+    place_object(boulder, bx, sy, { state: game, hooks: visionHooks });
+    const draws = [];
+    const accepted = await test_move(sx, sy, 1, 0, DO_MOVE, game, {
+        random: { rn2: (n) => { draws.push(n); return 1; } },
+        message: async () => {},
+        newsym: () => {},
+        wakeNear: async () => {},
+        hooks: visionHooks,
+    });
+
+    assert.equal(accepted, true);
+    assert.equal(draws[0], 10,
+        'the source liquid helper owns the first random choice');
+    assert.equal(game.level.at(rx, sy).typ, ROOM);
+    assert.equal(sobj_at(BOULDER, bx, sy, game), null);
 });
 
 function swimDangerState(destinationTyp = POOL) {

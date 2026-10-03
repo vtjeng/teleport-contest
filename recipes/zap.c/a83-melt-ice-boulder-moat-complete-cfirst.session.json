@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Complete C-first source-affecting variation for the boulder/melt helper route. A pool wish before ICE makes wizterrainwish record ICED_MOAT, so the fire ray and cursed-earth boulder exercise melting back to MOAT. The frozen continuation dismisses the scroll ceiling More, moves off the square, fires the observed wand west, then dismisses the melt/settle and splash Mores without adding a game action.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMoat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\na>>k\n \u0017pool\n\u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn lzoh  "
+    }
+  ]
+}

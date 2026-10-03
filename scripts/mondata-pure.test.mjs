@@ -90,6 +90,7 @@ test('attacktype and attacktype_fordmg preserve C scan and wildcard order', () =
     const acidBreath = { aatyp: 12, adtyp: 8 }; // AT_BREA/AD_ACID: monattk.h:22,50.
     const species = { mattk: [firstBreath, acidBreath] };
     assert.equal(attacktype(species, 12), true);
+    assert.equal(attacktype(species, 1), false);
     assert.equal(attacktype_fordmg(species, 12, 8), acidBreath);
     assert.equal(attacktype_fordmg(species, 12, -1), firstBreath);
     assert.equal(attacktype_fordmg(species, 1, 8), undefined);
