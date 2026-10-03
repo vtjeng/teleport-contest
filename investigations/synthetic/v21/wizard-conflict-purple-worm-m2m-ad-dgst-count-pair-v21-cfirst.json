@@ -6,50 +6,90 @@
   "manifestPath": "challenges/manifests/v21.json",
   "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
   "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
-  "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
-  "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
-  "remainingScreens": 60,
+  "evaluationPath": "challenges/evaluations/20261003202359-v21.json",
+  "evaluationCommit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
+  "remainingScreens": 5,
   "recordedSteps": 108,
   "status": "complete",
-  "commit": "f9965c07f8ddcf2eb428348fa388b692d7fae6c1",
-  "goalKind": "divergence-fix",
-  "summary": "The current queue attributes the stop to cmd.c:parse and the generic repeat path, but the actual first cause is the JavaScript rhack() count guard rejecting the # command before doextcmd() can dispatch #wizgenesis. C keeps the parsed count on #, wiz_genesis() consumes it in create_particular_parse() as monster quantity, returns ECMD_OK, and rhack() resets multi before any moveloop repeat.",
+  "commit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
   "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v21",
+    "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
     "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
-    "remainingScreens": 60,
+    "manifestPath": "challenges/manifests/v21.json",
+    "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+    "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+    "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+    "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+    "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json",
+    "recipeSha256": "e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb",
+    "replayInputSha256": "458fa0628e5e69cb24c1066551cd1722bb35f6ffe6052fe44291ffb82a0c8533",
+    "evaluationPath": "challenges/evaluations/20261003202359-v21.json",
+    "evaluationCommit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
+    "evaluationArtifact": "challenges/evaluations/20261003202359-v21.json",
+    "evaluationUtc": "2026-10-03T20:25:09.589Z",
+    "remainingScreens": 5,
+    "recordedSteps": 108,
+    "previousScreensMatched": 48,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 103,
+        "total": 108
+      },
+      "rng": {
+        "matched": 2549,
+        "total": 2630
+      },
+      "cursors": {
+        "matched": 103,
+        "total": 108
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires a monster engulfing the hero",
+      "step": 103
+    },
+    "step": 103,
     "kind": "stop",
-    "step": 48,
-    "reportedSourceFile": "cmd.c",
-    "reportedFunction": "parse",
-    "actualSourceFile": "cmd.c",
-    "actualFunction": "rhack"
+    "sourceFile": null,
+    "function": null,
+    "message": "simple monster action requires a monster engulfing the hero",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
   },
+  "summary": "After the earlier counted-command stop was fixed, this case reaches a Purple Worm attack on the hero. At step 103 C executes AT_BITE then a successful AT_ENGL/AD_DGST branch in mhitu.c:mattacku and calls gulpmu; JavaScript stops at its partial engulfing guard before the source digestion path. The case title’s intended monster-versus-monster action is not the first cause: this C step records mattacku/hitmu/gulpmu, not mattackm/gulpmm. Port whole mhitu.c:gulpmu and wire the existing mattacku and gulp_blnd_check callers.",
   "source": {
-    "file": "cmd.c",
+    "file": "mhitu.c",
+    "branch": "During the first conflict turn with two adjacent Purple Worms, one Purple Worm’s AT_BITE hits the hero, then its AT_ENGL/AD_DGST attack roll succeeds. C reaches mhitu.c:mattacku() with foundyou true and calls gulpmu(); gulpmu performs the initial swallow, sets u.uswallow and calculates the AD_DGST digestion timer. The JavaScript mattacku slice currently admits only ice-vortex AD_COLD and Juiblex AD_DISE engulfing attacks, so it refuses the Purple Worm before dispatching gulpmu().",
     "functions": [
-      "rhack"
+      "gulpmu"
     ],
-    "branch": "A positive parsed multi reaches the #/doextcmd row. That row must dispatch first; for #wizgenesis, read.c:create_particular_parse consumes 1+gm.multi as quantity, wiz_genesis returns ECMD_OK, and rhack resets command variables. The generic refusal currently runs before the # dispatch.",
     "callers": [
-      "allmain.c:moveloop_core() invokes cmd.c:rhack() to read the command. This case returns ECMD_OK from the selected #wizgenesis handler, so rhack() clears multi and the repeat branch is not reached."
+      "mhitu.c:mattacku() AT_ENGL branch (844-856) calls gulpmu() after the successful hero-targeted engulfing roll; js/mhitu.js has the existing partial caller branch at 1256-1284.",
+      "mhitu.c:gulp_blnd_check() (1273-1284) is gulpmu()’s second direct caller; js/mhitu.js:2591-2610 currently records the gulpmu gap in this caller.",
+      "monmove.c:dochug() (965-972) is the ordinary monster action path into mattacku(); the assigned recording enters it during the hero’s turn-wait commands.",
+      "No mhitm.c:mattackm()/gulpmm() branch is reached before this first stop; the saved C action trace only records mattacku(), hitmu(), and gulpmu()."
     ],
     "dependencies": [
-      "cmd.c:parse() initializes gm.multi from the count (5142-5144); its current JavaScript port reproduces this state.",
-      "cmd.c:doextcmd() resolves the full extended command and calls its selected handler (493-519); current JavaScript doextcmd() already dispatches the command.",
-      "wizcmds.c:wiz_genesis() calls create_particular() and returns ECMD_OK (201-214); current JavaScript handler is already implemented.",
-      "read.c:create_particular_parse() derives quantity from 1+gm.multi when no explicit quantity appears in the answer (3145); current JavaScript parser already implements it.",
-      "cmd.c:reset_cmd_vars() clears gm.multi after ECMD_OK; current JavaScript # result path already resets it."
+      "mondata.c:engulf_target(), digests(), and enfolds() determine swallowing eligibility, digestion behavior, and the initial swallow message.",
+      "mon.c:remove_monster(), place_monster(), and set_ustuck() perform the initial swallow placement and attachment.",
+      "mhitu.c:mdamageu(), expels(), and stop_occupation() handle digestion damage, lifesaving, expulsion, and interruption of occupations.",
+      "light.c:snuff_lit() is called for inventory objects with its void result discarded; js/mhitu.js currently records note_unported(\"light.c snuff_lit\") at that call site."
     ]
   },
+  "goalKind": "file-port",
   "evidence": [
-    "Selected saved v21 evaluation challenges/evaluations/20261003183000-v21.json at b0fd76f6091376c07bf54e8d3061aa5a9c9957d0; exact case metrics are screens 48/108, RNG 2438/2630, cursors 48/108, with first stop at zero-based step 48.",
-    "Immutable inputs: recording challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json SHA-256 9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d; recipe challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json SHA-256 e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb; manifest challenges/manifests/v21.json semantic SHA-256 d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac.",
-    "In the frozen C record, segment 0 step 47 is key 2 and step 48 is key #; C displays the extended-command prompt at step 48. The count and prompt keys make no RNG calls.",
-    "Bounded JavaScript-only scan run-uazLEF (exec session 94499, exit 0) emits 48 screens and stops on command # at keyCursor=command with inputThroughStop ending in 2#; preserved receipt/stdout and their hashes are in .cache/v21-counted-wizgenesis-source-trace.json.",
-    "C source: cmd.c:parse 5142-5144 stores 2 as gm.multi=1; cmd.c:rhack 3748-3759 dispatches doextcmd and switches to ge.ext_tlist; wizcmds.c:wiz_genesis 201-214 calls create_particular and returns ECMD_OK; read.c:create_particular_parse 3145 makes the uncounted answer quantity 1+gm.multi=2; cmd.c:rhack 3810-3816 resets the count after ECMD_OK.",
-    "JS source: cmd.js:finishCommandParse 1754-1756 keeps multi=1; cmd.js:rhack 5492-5494 throws the generic repeated-nonmovement refusal before the # branch at 5592-5604. The selected replay’s exact key/command fields confirm the refusal is on #, before any #wizgenesis prompt/handler.",
-    "Scope check: the active A83 source reservation is allmain.c:moveloop_core, not cmd.c:rhack or cmd.c:parse. A83 currently allows scripts/cmd.test.mjs but not js/cmd.js; any shared test edits should be coordinated and kept disjoint.",
-    "The intended monster-versus-monster AD_DGST behavior is not reached by JavaScript at this first stop; it is downstream and is not used to attribute the present divergence.",
-    "Supporting trace artifact and exact bounded scan receipt/log hashes: .cache/v21-counted-wizgenesis-source-trace.json."
+    "The refreshed .cache/B96-final-work-queue.json identifies this exact synthetic/v21 case at 5 remaining screens of 108 recorded steps, evaluation challenges/evaluations/20261003202359-v21.json, evaluated on 9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6. It reports 103/108 screens, 2549/2630 RNG calls, 103/108 cursors matched and a stop at step 103: “simple monster action requires a monster engulfing the hero”. The previous count-60 investigation is stale; its step-48 rhack count refusal was before the current replay prefix reached this monster action.",
+    "The assigned-case diagnostic .cache/synthetic-scans/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.json records the step-103 key as “.” and the message “The purple worm bites! The purple worm swallows you whole!--More--”. Its inputThroughStop shows the count-prefixed #wizgenesis creation and the conflict intrinsic setup.",
+    "The C recording challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json at segment 0, step 103 records rnd(20)=5 at mattacku(mhitu.c:806), d(2,8)=14 at hitmu(mhitu.c:1187), then rnd(21)=6 at mattacku(mhitu.c:848) and d(1,10)=1 at gulpmu(mhitu.c:1292). Together with the recorded bite-and-swallow message, this identifies the actor as a Purple Worm attacking the hero and the first source unit reached as gulpmu, not a monster attacking another monster.",
+    "C source nethack-c/upstream/src/mhitu.c:844-856 makes a successful foundyou AT_ENGL attack call gulpmu(); lines 1287-1396 perform the initial swallow and the AD_DGST timer branch; lines 1418-1436 apply subsequent digestion. The current JavaScript source js/mhitu.js:1256-1279 refuses Purple Worm AD_DGST at the engulfing allowlist and contains only a partial gulpmu port at 1497 onward.",
+    "The related investigation investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.json establishes the same whole mhitu.c:gulpmu source family for its later step-135 Purple Worm swallow. This case is independently attributed by its own step-103 C RNG callers and screen; the earlier case is not used as a substitute for the current actor trace.",
+    "The assigned recipe challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json says to count the monster-versus-monster branch only if C records the mattackm()/gulpmm() chain. The actual step-103 C recording instead names mattacku(), hitmu(), and gulpmu(), so the count-created pair is setup and the first mismatch is the hero-targeted engulfing path."
   ]
 }

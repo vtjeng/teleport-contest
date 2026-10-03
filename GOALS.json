@@ -147429,6 +147429,209 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-trap-trapeffect-sqky-board-v21-20261003",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the complete squeaky-board trap effect for heroes and monsters",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst"
+      ],
+      "selectionReason": "The v21 squeaky-board investigation traces the final hero boundary to trap.c:trapeffect_sqky_board. C67 covers this whole function and the supporting dotrap allow-list caller hunk, preserving the existing monster mintrap route and adding independent normal/Deaf monster recordings. The scope is independent of A83 and B97; no whole dotrap completion is claimed.",
+      "detail": "",
+      "openedAt": "1648c005766548738616bf934c7ff5c748803493",
+      "openStanding": {
+        "sha": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_sqky_board",
+          "line": 1403,
+          "endLine": 1478,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1403,
+        "to": 1478
+      },
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst": {
+          "session": "synthetic/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.session.json",
+          "recordingSha256": "d860dc7a4ce6b5431cd8506d89499a98de4079e2a5e12449742a6dd43244d64a",
+          "evaluationPath": "challenges/evaluations/20261003202359-v21.json",
+          "evaluationCommit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6"
+        }
+      },
+      "activeStanding": {
+        "sha": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+          "session": "synthetic/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.session.json",
+          "recordingSha256": "d860dc7a4ce6b5431cd8506d89499a98de4079e2a5e12449742a6dd43244d64a",
+          "recipe": "challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.recipe.session.json",
+          "recipeSha256": "65ebb2246b6136edffb88cec0be208d0eef7dcac6189dcf2cd7d7e1aa1c5ea50",
+          "replayInputSha256": "458fa0628e5e69cb24c1066551cd1722bb35f6ffe6052fe44291ffb82a0c8533",
+          "evaluationPath": "challenges/evaluations/20261003202359-v21.json",
+          "evaluationCommit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
+          "evaluationArtifact": "challenges/evaluations/20261003202359-v21.json",
+          "evaluationUtc": "2026-10-03T20:25:09.589Z",
+          "remainingScreens": 1,
+          "recordedSteps": 47,
+          "previousScreensMatched": 46,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 46,
+              "total": 47
+            },
+            "rng": {
+              "matched": 2600,
+              "total": 2601
+            },
+            "cursors": {
+              "matched": 46,
+              "total": 47
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 46
+          },
+          "step": 46,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "d860dc7a4ce6b5431cd8506d89499a98de4079e2a5e12449742a6dd43244d64a",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "remainingScreens": 1,
+              "recordedSteps": 47,
+              "status": "complete",
+              "commit": "4901dd542af51235daa15e837437a78fa6af5787",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+                "session": "synthetic/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.session.json",
+                "recordingSha256": "d860dc7a4ce6b5431cd8506d89499a98de4079e2a5e12449742a6dd43244d64a",
+                "recipe": "challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.recipe.session.json",
+                "recipeSha256": "65ebb2246b6136edffb88cec0be208d0eef7dcac6189dcf2cd7d7e1aa1c5ea50",
+                "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationUtc": "2026-10-03T18:29:21.226Z",
+                "remainingScreens": 1,
+                "recordedSteps": 47,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 46,
+                    "total": 47
+                  },
+                  "rng": {
+                    "matched": 2600,
+                    "total": 2601
+                  },
+                  "cursors": {
+                    "matched": 46,
+                    "total": 47
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: trap activation",
+                  "step": 46
+                },
+                "step": 46,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: trap activation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The replay matches through step 45, then stops at step 46 because preflight_dotrap() refuses SQKY_BOARD before the hero trap effect runs. The source-owned gap is the missing hero arm of trap.c:trapeffect_sqky_board(); JavaScript already has the monster arm, selector, dotrap() caller path, and mon.c:wake_nearby() helper. Complete the whole trap function and admit this supported trap through the dotrap preflight gates.",
+              "source": {
+                "file": "trap.c",
+                "branch": "For the hero arm (mtmp == &gy.youmonst), compute forcetrap from FORCETRAP, FAILEDUNTRAP, or Flying with VIASITTING. If the hero is levitating or flying without forcetrap, reveal the board and report a crease/loose board only when not blind; do not squeak or wake monsters. Otherwise reveal the trap, play the selected note when tnote is valid, report a vibration when Deaf or a squeak message otherwise, then call wake_nearby(FALSE). The assigned case reaches the ordinary non-flying, non-levitating path on a newly wished board; C shows the squeak and wakes the nearby sleeping goblin. The existing monster arm remains part of this whole function. To make the full hero source path reachable, preflight_dotrap() must admit SQKY_BOARD through its trap-type, already-seen-trap, and mounted-hero guards; dotrap() already implements the corresponding common source branches.",
+                "functions": [
+                  "trapeffect_sqky_board"
+                ],
+                "callers": [
+                  "hack.c:spoteffects calls trap.c:dotrap when the hero arrives on a trap square; dotrap passes the hero to trap.c:trapeffect_selector.",
+                  "trap.c:trapeffect_selector dispatches SQKY_BOARD to trapeffect_sqky_board for both hero and monster actors.",
+                  "trap.c:mintrap calls trap.c:trapeffect_selector when a monster steps onto a trap; the existing JavaScript function already implements this monster arm."
+                ],
+                "dependencies": [
+                  "trap.c:trapnote formats the board note and trap.c:seetrap reveals it; both have JavaScript implementations in js/trap_effects.js.",
+                  "mon.c:wake_nearby(FALSE) wakes monsters within u.ulevel * 20 squared-distance units without angering them; js/mon.js already implements this helper and calls wake_nearto_core.",
+                  "The branch reads Levitation, Flying, Blind, Hallucination, Deaf, trap->tnote, and FORCETRAP/FAILEDUNTRAP/VIASITTING state.",
+                  "The existing monster arm depends on m_in_air, canseemon, mindless, couldsee, mdistu, trapnote, and mon.c:wake_nearto; their current JavaScript support remains in js/trap_effects.js and js/mon.js.",
+                  "Soundeffect selects the board note but does not write to the terminal screen captured by the session recorder."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The exact current entry in .cache/v21-first-work-queue.json and challenges/evaluations/20261003183000-v21.json reports 1 unmatched screen of 47, with 46/47 screens and cursors matched and 2,600/2,601 RNG calls matched. The stop occurs at segment 0, zero-based step 46, input l, with “unsupported hero move: trap activation”. The evaluation commit is b0fd76f6091376c07bf54e8d3061aa5a9c9957d0.",
+                "The v21 manifest identifies the intended source route as hack.c:spoteffects → trap.c:dotrap → trap.c:trapeffect_sqky_board, followed by mon.c:wake_nearby. The saved C65 comparison .cache/C65-qualified-current-base-comparisons-v1.json names the first behavior as “trap.c:trapeffect_sqky_board hero activation/wake” and confirms the JavaScript boundary is the trap-activation refusal.",
+                "The immutable C recording challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.session.json records step 46 with “A board beneath you squeaks a D flat loudly. The goblin wakes up.--More--”. That step’s only RNG record is rn2(5)=4 from monmove.c:distfleeck, so the trap itself takes the unseen-board path without dotrap’s already-seen escape draw.",
+                "Upstream nethack-c/upstream/src/trap.c:trapeffect_sqky_board (1403–1475) contains both the missing hero arm and the already-translated monster arm; trap.c:trapeffect_selector (2937–2950) dispatches SQKY_BOARD, and trap.c:dotrap (2995–3060) applies the common movement, escape, reveal, and selector order. hack.c:spoteffects (3383–3398) calls dotrap on hero arrival. mon.c:wake_nearby (4365–4370) delegates to the shared nearby-wake logic.",
+                "At inspected HEAD 4901dd542af51235daa15e837437a78fa6af5787, js/trap_effects.js:584–641 explicitly implements only the monster arm. Its preflight_dotrap() rejects SQKY_BOARD at :3835–3848; it also has conservative seen-trap and mounted-hero guards at :3865–3886 that must admit SQKY_BOARD once its source behavior is implemented. The existing JavaScript selector already dispatches SQKY_BOARD at :3765–3768, dotrap() calls it at :3984, and js/hack.js:5067 wires spoteffects() to dotrap(). js/mon.js:4004–4011 already implements wake_nearby()."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
