@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-based Knight variation after two preserved setup misses. The first C run exposed the initial greeting; the second confirmed the wished scroll in slot i. This input corrects only those observed prompts and keeps the corrected Knight seed/date/options fixed. Knight's hard helmet is source-defined at u_init.c:90–99; C's scroll hit is capped at 2 damage at read.c:2318–2324, and this C trace survives to hack.c:moverock_core -> do.c:boulder_hits_pool(pushing=TRUE) at zero-based step 65. The exact recipe passed strict C/JS differential run-h2HSth (2,574 PRNG values, 66 screens and cursors). This is the only positive pushed-liquid variation; no seed search was used.",
+  "segments": [
+    {
+      "seed": 85216479,
+      "datetime": "20430618094200",
+      "nethackrc": "OPTIONS=name:A83KnightBoulder,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": " #wizintrinsic\n>>k\n \u0017pool\nl#wizwish\ncursed scroll of earth\nri  lh"
+    }
+  ]
+}

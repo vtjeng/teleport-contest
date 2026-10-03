@@ -2440,7 +2440,7 @@ export async function goto_level(
 
     stairway_free_all(state);
     // do.c:1688-1690 clears the default arrival areas a special level may
-    // override. js/teleport.js reads both through teleJumpOk().
+    // override. js/teleport.js reads both through tele_jump_ok().
     state.updest = {};
     state.dndest = {};
 

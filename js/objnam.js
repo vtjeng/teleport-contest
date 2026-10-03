@@ -163,10 +163,8 @@ function isGemStone(otyp, type) {
         && otyp !== EMERALD
         && otyp !== OPAL;
 }
-function sourceActualName(obj, type, state) {
-    if (state.urole?.mnum === PM_SAMURAI)
-        return JAPANESE_ITEM_NAMES.get(obj.otyp) ?? OBJ_NAME(type, state);
-    return OBJ_NAME(type, state);
+function Japanese_item_name(otyp, ordinaryName) {
+    return JAPANESE_ITEM_NAMES.get(otyp) ?? ordinaryName;
 }
 function sourceDescription(obj, type, state, actual) {
     if (state.urole?.mnum === PM_SAMURAI
@@ -236,7 +234,7 @@ export function obj_typename(otyp, state = game) {
     let nn = ocl.oc_name_known;
 
     if (state.urole?.mnum === PM_SAMURAI) {
-        actualn = JAPANESE_ITEM_NAMES.get(otyp) ?? actualn;
+        actualn = Japanese_item_name(otyp, actualn);
         if (otyp === WOODEN_HARP || otyp === MAGIC_HARP) dn = 'koto';
     }
     // Generic items carry no actual name and should never reach here; C
@@ -470,7 +468,10 @@ function xnameBase(obj, type, state, ident) {
     const knownType = ident.nameKnown;
     const dknown = ident.dknown;
     const un = type.oc_uname;
-    const actual = sourceActualName(obj, type, state) ?? 'object?';
+    let actual = OBJ_NAME(type, state);
+    if (state.urole?.mnum === PM_SAMURAI)
+        actual = Japanese_item_name(obj.otyp, actual);
+    actual ??= 'object?';
     const description = sourceDescription(obj, type, state, actual);
 
     switch (obj.oclass) {
@@ -816,15 +817,21 @@ export function vtense(subj, verb) {
     return strcasecpy(buf, last + 1, 's');
 }
 
-// The normal xname() entry point: it observes a nearby object, marks a
-// displayed artifact found, formats its class branch, pluralizes, and appends
-// an instance name.
-function xnameFreshWithOffset(obj, state, cxnFlags = CXN_NORMAL) {
+// C objnam.c nextobuf() rotates scratch buffers. JavaScript strings are
+// immutable and have independent lifetimes, so this named adapter returns the
+// completed buffer value without emulating a mutable ring or pointer alias.
+function nextobuf(value = '') {
+    return String(value);
+}
+
+// C objnam.c xname_flags() (581-1030). Its C char-pointer result is represented
+// by the immutable name plus the byte offset that doname_base retains.
+export function xname_flags(obj, state, cxnFlags = CXN_NORMAL) {
     if (!obj || typeof obj !== 'object')
-        throw new TypeError('xnameFresh requires an object');
+        throw new TypeError('xname_flags requires an object');
     const quantity = Math.trunc(obj.quan ?? 1);
     if (quantity <= 0)
-        throw new RangeError('xnameFresh requires positive quantity');
+        throw new RangeError('xname_flags requires positive quantity');
     const type = objectType(obj, state);
     // C ref: objnam.c xname_flags():625-626. This runs ahead of the
     // override_ID block at :632, so it reads the type's stored flag rather
@@ -859,6 +866,7 @@ function xnameFreshWithOffset(obj, state, cxnFlags = CXN_NORMAL) {
     let base = personalName
         ? String(displayedInstanceName)
         : xnameBase(obj, type, state, ident);
+    base = nextobuf(base);
     if (!personalName && eos(base) > BUFSZ - PREFIX - 1)
         throw new RangeError('xname: buffer overflow before appending name.');
     if (quantity !== 1 && !(cxnFlags & CXN_SINGULAR)) {
@@ -899,9 +907,13 @@ function xnameFreshWithOffset(obj, state, cxnFlags = CXN_NORMAL) {
     };
 }
 
-export function xnameFresh(obj, state) {
-    return xnameFreshWithOffset(obj, state).name;
+export const xnameFreshWithOffset = xname_flags;
+
+// C objnam.c xname() (575-578) selects CXN_NORMAL.
+export function xname(obj, state) {
+    return xname_flags(obj, state).name;
 }
+export const xnameFresh = xname;
 
 // C ref: objnam.c mshot_xname() (1088-1102), quantity-one arm. The multishot
 // prefix belongs to a volley this port still refuses before naming a missile.
@@ -1433,7 +1445,7 @@ export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
 
     if (any_prefix)
         nambuf = an(nambuf);
-    return nambuf;
+    return nextobuf(nambuf);
 }
 
 // C ref: objnam.c cxname() (1922-1930). xname() drops a corpse's monster
@@ -1449,7 +1461,7 @@ export function cxname(obj, state = game) {
 export function cxname_singular(obj, state = game) {
     if (obj.otyp === CORPSE)
         return corpse_xname(obj, null, CXN_SINGULAR, state);
-    return xnameFreshWithOffset(obj, state, CXN_SINGULAR).name;
+    return xname_flags(obj, state, CXN_SINGULAR).name;
 }
 
 // C ref: objnam.c killer_xname() (1942-2005). Death reasons identify the
@@ -1692,7 +1704,7 @@ function doname_base(
     const forMenu = Boolean(donameFlags & DONAME_FOR_MENU);
     const type = objectType(obj, state);
     const omndx = Math.trunc(obj.corpsenm ?? NON_PM);
-    const xnameBuffer = xnameFreshWithOffset(obj, state);
+    const xnameBuffer = xname_flags(obj, state);
     let base = xnameBuffer.name;
     let bufferOffset = xnameBuffer.bufferOffset;
     const xnameResult = base;

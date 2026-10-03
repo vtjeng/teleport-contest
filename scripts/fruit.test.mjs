@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { createArtifactTable } from '../js/artifacts.js';
@@ -31,6 +32,9 @@ import {
     initialize_symbols_from_options,
     SYM_OFF_X,
 } from '../js/symbols.js';
+
+const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
+const FRUIT_SOURCE = readFileSync('js/fruit.js', 'utf8');
 
 function objectState(initialized = false) {
     const state = { context: {}, flags: {} };
@@ -253,6 +257,20 @@ test('makeplural preserves source compounds and irregular object names', () => {
     ];
     for (const [singular, plural] of cases)
         assert.equal(makeplural(singular), plural, singular);
+});
+
+test('fruit inflection keeps the C helper owners and direction flag', () => {
+    assert.match(OBJNAM_SOURCE,
+        /singplur_lookup\([\s\S]*?boolean to_plural[\s\S]*?alt_as_is/u);
+    assert.match(OBJNAM_SOURCE, /singplur_compound\(char \*str\)/u);
+    assert.match(OBJNAM_SOURCE, /ch_ksound\(const char \*basestr\)/u);
+    assert.match(FRUIT_SOURCE, /function singplur_lookup\(value, toPlural/u);
+    assert.match(FRUIT_SOURCE, /function singplur_compound\(value\)/u);
+    assert.match(FRUIT_SOURCE, /function ch_ksound\(value\)/u);
+    assert.match(FRUIT_SOURCE,
+        /singplur_lookup\(base, true, \['ae', 'eaux', 'matzot'\]\)/u);
+    assert.match(FRUIT_SOURCE,
+        /singplur_lookup\(base, false, SPECIAL_SUBJECTS\)/u);
 });
 
 test('artifact fruit matching returns only its article classification', () => {

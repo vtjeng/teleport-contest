@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -97,6 +98,7 @@ import {
     Yobjnam2,
     obj_is_pname,
 } from '../js/objnam.js';
+
 import {
     MZ_MEDIUM,
     PM_ARCHON,
@@ -174,6 +176,9 @@ import {
 import { roles } from '../js/roles.js';
 import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
+
+const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
+const OBJNAM_JS_SOURCE = readFileSync('js/objnam.js', 'utf8');
 
 function deferred() {
     let resolve;
@@ -383,6 +388,31 @@ test('xname observes sighted objects but preserves blind descriptions', () => {
     assert.equal(xnameFresh(unseenPotion, blind), 'potion');
     assert.equal(unseenPotion.dknown, false);
     assert.equal(blind.objects[POT_HEALING].oc_encountered, 0);
+});
+
+test('objnam source helpers retain searchable C names in the immutable adapter', () => {
+    assert.match(OBJNAM_SOURCE,
+        /nextobuf\(void\)[\s\S]*?obufidx[\s\S]*?return obufs\[obufidx\]/u);
+    assert.match(OBJNAM_SOURCE,
+        /char \*\nxname\(struct obj \*obj\)[\s\S]*?return xname_flags\(obj, CXN_NORMAL\)/u);
+    assert.match(OBJNAM_SOURCE, /xname_flags\([\s\S]*?CXN_SINGULAR/u);
+    assert.match(OBJNAM_SOURCE,
+        /Japanese_item_name\(int i, const char \*ordinaryname\)/u);
+    assert.equal(
+        [...OBJNAM_SOURCE.matchAll(/Japanese_item_name\((?:otyp|typ), actualn\)/gu)].length,
+        2,
+    );
+    assert.equal(
+        [...OBJNAM_JS_SOURCE.matchAll(/JAPANESE_ITEM_NAMES\.get\(/gu)].length,
+        1,
+    );
+    assert.match(OBJNAM_JS_SOURCE, /function nextobuf\(value = ''\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /export function xname_flags\(/u);
+    assert.match(OBJNAM_JS_SOURCE, /export function xname\(/u);
+    assert.match(OBJNAM_JS_SOURCE, /function Japanese_item_name\(otyp, ordinaryName\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /actualn = Japanese_item_name\(otyp, actualn\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /actual = Japanese_item_name\(obj\.otyp, actual\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /base = nextobuf\(base\)/u);
 });
 
 // C objnam.c xname_flags() default arm formats numeric oclass/otyp/spe and

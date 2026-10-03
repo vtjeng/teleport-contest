@@ -33,7 +33,6 @@ import {
     MIGR_PORTAL,
     MM_IGNORELAVA,
     MM_IGNOREWATER,
-    MON_FLOOR,
     NO_TRAP,
     NO_KILLER_PREFIX,
     OBJ_FREE,
@@ -161,6 +160,7 @@ import {
 } from './monsters.js';
 import {
     deal_with_overcrowding,
+    get_iter_mons,
     m_in_air,
     maybe_unhide_at,
     mon_offmap,
@@ -226,7 +226,7 @@ function teleportEnv(env = {}) {
     return { ...env, random, state: env.state ?? game };
 }
 
-function teleJumpOk(x1, y1, x2, y2, state) {
+function tele_jump_ok(x1, y1, x2, y2, state) {
     if (!isok(x2, y2)) return false;
     for (const bounds of [state.dndest, state.updest]) {
         if (!(bounds?.nlx > 0)) continue;
@@ -253,7 +253,7 @@ function teleJumpOk(x1, y1, x2, y2, state) {
 
 function rlocPositionOk(x, y, monster, env) {
     if (!goodpos(x, y, monster, GP_CHECKSCARY, env)) return false;
-    return teleJumpOk(monster.mx, monster.my, x, y, env.state);
+    return tele_jump_ok(monster.mx, monster.my, x, y, env.state);
 }
 
 function requiredRelocationOperation(env, name) {
@@ -560,25 +560,17 @@ function currentDungeonIsHellish(state) {
         && Boolean(state.dungeons?.[dnum]?.flags?.hellish);
 }
 
-function blocksTeleporting(monster) {
+function m_blocks_teleporting(monster) {
     return is_dlord(monster.data) || is_dprince(monster.data);
 }
 
-// C ref: teleport.c m_blocks_teleporting() and noteleport_level(). Demon
-// courts inspect only living, on-map monsters, as get_iter_mons() does.
+// C ref: teleport.c noteleport_level(). The callback is teleport.c's static
+// m_blocks_teleporting(); mon.c:get_iter_mons owns the living/on-map scan.
 export function noteleport_level(monster, state = game) {
     if (currentDungeonIsHellish(state)
         && !is_dlord(monster.data)
         && !is_dprince(monster.data)) {
-        for (let current = state.level?.monlist ?? null;
-            current;
-            current = current.nmon) {
-            if (current.mhp < 1
-                || (current.mstate ?? MON_FLOOR) !== MON_FLOOR) {
-                continue;
-            }
-            if (blocksTeleporting(current)) return true;
-        }
+        if (get_iter_mons(m_blocks_teleporting, state)) return true;
     }
     if (state.level?.flags?.noteleport && !is_covetous(monster.data))
         return true;
@@ -1465,7 +1457,7 @@ export async function teleok(x, y, trapok, state = game) {
     }
     if (!goodpos(x, y, state.youmonst, 0, { state }))
         return false;
-    if (!teleJumpOk(state.u.ux, state.u.uy, x, y, state))
+    if (!tele_jump_ok(state.u.ux, state.u.uy, x, y, state))
         return false;
     if (!await in_out_region(x, y, { state }))
         return false;
@@ -2143,7 +2135,9 @@ export async function level_tele(state = game) {
             'level_tele() with the hero tethered to a buried ball',
         );
     }
-    if (!force_dest && !next_to_u(state)) {
+    // teleport.c:1304 evaluates next_to_u() before checking force_dest, so the
+    // companion scan still runs for controlled wizard destinations.
+    if (!next_to_u(state) && !force_dest) {
         await ttyPline('You shudder for a moment.', state);
         return;
     }

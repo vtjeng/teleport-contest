@@ -1,6 +1,5 @@
 // hacklib.js — Utility functions.
-// C refs: hacklib.c; strutil.c Strlen_() is represented by the byte-aware
-// eos() helper below.
+// C refs: hacklib.c.
 
 const utf8Encoder = new TextEncoder();
 

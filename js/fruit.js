@@ -8,11 +8,11 @@
 import { game } from './gstate.js';
 import {
     decodeUtf8ByteString,
-    eos,
     encodeUtf8ByteString,
     encodeUtf8Text,
     strstri,
 } from './hacklib.js';
+import { Strlen_ } from './strutil.js';
 import { name_to_mon } from './mondata.js';
 import {
     FOOD_CLASS,
@@ -199,7 +199,7 @@ function replaceSuffixCase(value, oldLength, replacement) {
     return prefix + caseCopy(oldText, replacement, prefix.at(-1));
 }
 
-function compoundIndex(value) {
+function singplur_compound(value) {
     const lowered = value.toLowerCase();
     let selected = -1;
     for (const compound of COMPOUNDS) {
@@ -223,70 +223,57 @@ function badman(value, toPlural) {
     return false;
 }
 
-function singularLookup(value) {
-    for (const suffix of AS_IS) {
-        if (endsWithCI(value, suffix)) return { matched: true, value };
-    }
-    for (const suffix of SPECIAL_SUBJECTS) {
-        if (endsWithCI(value, suffix)) return { matched: true, value };
-    }
-    if (value.length > 5 && endsWithCI(value, 'craft'))
-        return { matched: true, value };
-    if (equalsCI(value, 'slice') || equalsCI(value, 'mongoose'))
-        return { matched: true, value };
-    if (value.length > 2 && endsWithCI(value, 'men') && badman(value, false))
-        return { matched: true, value };
-
-    for (const [singular, plural] of ONE_OFF) {
-        if (endsWithCI(value, singular)) return { matched: true, value };
-        if (endsWithCI(value, plural)) {
-            return {
-                matched: true,
-                value: replaceSuffixCase(value, plural.length, singular),
-            };
-        }
-    }
-    return { matched: false, value };
-}
-
 function appendCase(value, suffix) {
     return value + caseCopy('', suffix, value.at(-1));
 }
 
-function pluralLookup(value) {
+// C ref: objnam.c singplur_lookup() (2708-2780). C writes replacement bytes
+// into endstring; this port returns that changed immutable string instead.
+function singplur_lookup(value, toPlural, altAsIs = []) {
+    const byteLength = Strlen_(value, 'singplur_lookup', 2716);
     for (const suffix of AS_IS) {
         if (endsWithCI(value, suffix)) return { matched: true, value };
     }
-    for (const suffix of ['ae', 'eaux', 'matzot']) {
+    for (const suffix of altAsIs) {
         if (endsWithCI(value, suffix)) return { matched: true, value };
     }
-    if (value.length > 5 && endsWithCI(value, 'craft'))
+    if (byteLength > 5 && endsWithCI(value, 'craft'))
         return { matched: true, value };
     if (equalsCI(value, 'slice') || equalsCI(value, 'mongoose')) {
-        return { matched: true, value: appendCase(value, 's') };
+        return {
+            matched: true,
+            value: toPlural ? appendCase(value, 's') : value,
+        };
     }
-    if (value.length > 2 && endsWithCI(value, 'ox')
-        && !(value.length > 5 && endsWithCI(value, 'muskox'))) {
+    if (toPlural && byteLength > 2 && endsWithCI(value, 'ox')
+        && !(byteLength > 5 && endsWithCI(value, 'muskox'))) {
         return { matched: true, value: appendCase(value, 'es') };
     }
-    if (value.length > 2 && endsWithCI(value, 'man')
-        && badman(value, true)) {
-        return { matched: true, value: appendCase(value, 's') };
+    if (toPlural) {
+        if (byteLength > 2 && endsWithCI(value, 'man')
+            && badman(value, true)) {
+            return { matched: true, value: appendCase(value, 's') };
+        }
+    } else if (byteLength > 2 && endsWithCI(value, 'men')
+        && badman(value, false)) {
+        return { matched: true, value };
     }
 
     for (const [singular, plural] of ONE_OFF) {
-        if (endsWithCI(value, plural)) return { matched: true, value };
-        if (endsWithCI(value, singular)) {
+        const same = toPlural ? plural : singular;
+        const other = toPlural ? singular : plural;
+        if (endsWithCI(value, same)) return { matched: true, value };
+        if (endsWithCI(value, other)) {
             return {
                 matched: true,
-                value: replaceSuffixCase(value, singular.length, plural),
+                value: replaceSuffixCase(value, other.length, same),
             };
         }
     }
     return { matched: false, value };
 }
 
-function chKsound(value) {
+function ch_ksound(value) {
     return value.length >= 4
         && CH_K_SOUND.some((suffix) => endsWithCI(value, suffix));
 }
@@ -316,19 +303,19 @@ export function makeplural(oldstr) {
     }
     if (/^pair of /iu.test(original)) return original;
 
-    const split = compoundIndex(original);
+    const split = singplur_compound(original);
     const excess = split >= 0 ? original.slice(split) : '';
     let base = (split >= 0 ? original.slice(0, split) : original)
         .replace(/ +$/u, '');
-    // C's Strlen/eos count the bytes before the terminating NUL. Keep that
-    // buffer offset distinct from JS indexes used by the suffix operations.
-    const len = eos(base);
+    // objnam.c:2895 calls Strlen(str), which counts UTF-8 bytes before NUL.
+    // Keep that C byte length separate from JS indexes used by suffix edits.
+    const len = Strlen_(base, 'makeplural', 2895);
     const last = base.at(-1);
     // C's letter() intentionally treats '@' as a letter alongside A-Z/a-z.
     if (len === 1 || !/[A-Za-z@]/u.test(last))
         return appendCase(base, "'s") + excess;
 
-    const lookup = pluralLookup(base);
+    const lookup = singplur_lookup(base, true, ['ae', 'eaux', 'matzot']);
     if (lookup.matched) return lookup.value + excess;
     if (equalsCI(base, 'ya') || endsWithCI(base, ' ya'))
         return base + excess;
@@ -381,7 +368,7 @@ export function makeplural(oldstr) {
     const sibilant = 'zxs'.includes(lowerLast)
         || (lowerLast === 'h'
             && 'cs'.includes(prior)
-            && !(prior === 'c' && chKsound(base)))
+            && !(prior === 'c' && ch_ksound(base)))
         || endsWithCI(base, 'ato')
         || endsWithCI(base, 'dingo');
     if (sibilant) return appendCase(base, 'es') + excess;
@@ -408,10 +395,10 @@ export function makesingular(oldstr) {
             : pronoun;
     }
 
-    const split = compoundIndex(original);
+    const split = singplur_compound(original);
     const excess = split >= 0 ? original.slice(split) : '';
     let base = split >= 0 ? original.slice(0, split) : original;
-    const lookup = singularLookup(base);
+    const lookup = singplur_lookup(base, false, SPECIAL_SUBJECTS);
     if (lookup.matched) return lookup.value + excess;
     base = lookup.value;
 

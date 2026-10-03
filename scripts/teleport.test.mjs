@@ -268,6 +268,19 @@ test('noteleport_level applies natural levels and stasis in source order', () =>
     assert.equal(noteleport_level(covetous, state), true);
 });
 
+test('level_tele evaluates next_to_u before a forced wizard destination', () => {
+    // teleport.c:1304 uses !next_to_u() && !force_dest. Since && evaluates
+    // left to right, companion scanning runs even when force_dest is true.
+    assert.match(
+        C_TELEPORT_SOURCE,
+        /if\s*\(!next_to_u\(\)\s*&&\s*!force_dest\)/u,
+    );
+    assert.match(
+        JS_TELEPORT_SOURCE,
+        /if\s*\(!next_to_u\(state\)\s*&&\s*!force_dest\)/u,
+    );
+});
+
 test('rloco moves a floor object after its source-ordered destination draws', async () => {
     const state = positionState();
     state.level.at(12, 10).typ = ROOM;
@@ -313,6 +326,31 @@ test('noteleport_level counts only living on-map demon-court blockers', () => {
         cBlocker,
         /is_dlord\(mtmp->data\)\s*\|\|\s*is_dprince\(mtmp->data\)/u,
     );
+    const cNoteleport = sourceScrolltele(
+        C_TELEPORT_SOURCE,
+        'boolean\nnoteleport_level(struct monst *mon)',
+        '\n/* this is an approximation',
+    );
+    const jsPredicate = sourceScrolltele(
+        JS_TELEPORT_SOURCE,
+        'function m_blocks_teleporting(monster)',
+        '\n// C ref: teleport.c noteleport_level()',
+    );
+    const jsNoteleport = sourceScrolltele(
+        JS_TELEPORT_SOURCE,
+        'export function noteleport_level(monster, state = game)',
+        '\nfunction monsterTeleportOperation',
+    );
+    assert.match(cNoteleport,
+        /In_hell\(&u\.uz\)[\s\S]*get_iter_mons\(m_blocks_teleporting\)/u);
+    assert.match(jsPredicate,
+        /is_dlord\(monster\.data\)\s*\|\|\s*is_dprince\(monster\.data\)/u);
+    assert.match(jsNoteleport,
+        /get_iter_mons\(m_blocks_teleporting, state\)/u);
+    assert.ok(jsNoteleport.indexOf('get_iter_mons(m_blocks_teleporting, state)')
+        < jsNoteleport.indexOf('state.level?.flags?.noteleport'));
+    assert.ok(jsNoteleport.indexOf('state.level?.flags?.noteleport')
+        < jsNoteleport.indexOf('stasis_until'));
 
     const state = positionState();
     state.dungeons[0].flags.hellish = true;
@@ -365,7 +403,7 @@ test('rloc enforces inclusive down and up destination bounds', () => {
     assert.match(cTeleJump, /svu\.updest\.nlx/u);
     assert.match(cTeleJump, /within_bounded_area\(/u);
 
-    const jsStart = JS_TELEPORT_SOURCE.indexOf('function teleJumpOk(');
+    const jsStart = JS_TELEPORT_SOURCE.indexOf('function tele_jump_ok(');
     const jsEnd = JS_TELEPORT_SOURCE.indexOf('\nfunction rlocPositionOk(', jsStart);
     assert.notEqual(jsStart, -1);
     assert.notEqual(jsEnd, -1);

@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
+import { LARGEST_INT } from '../js/const.js';
 import {
     chrcasecpy,
     digit,
@@ -37,8 +38,13 @@ import {
     upwords,
     visctrl,
 } from '../js/hacklib.js';
+import { Strlen_ } from '../js/strutil.js';
 
 const HACKLIB_SOURCE = readFileSync('nethack-c/upstream/src/hacklib.c', 'utf8');
+const STRUTIL_SOURCE = readFileSync('nethack-c/upstream/src/strutil.c', 'utf8');
+const GLOBAL_SOURCE = readFileSync('nethack-c/upstream/include/global.h', 'utf8');
+const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
+const FRUIT_SOURCE = readFileSync('js/fruit.js', 'utf8');
 
 test('eos returns the C byte offset at the first NUL terminator', () => {
     assert.match(
@@ -52,6 +58,25 @@ test('eos returns the C byte offset at the first NUL terminator', () => {
     assert.equal(eos('é'), 2);
     assert.equal(eos('a\0tail'), 1);
     assert.equal(eos('é\0tail'), 2);
+});
+
+test('Strlen_ is the bounded strutil owner used by makeplural', () => {
+    assert.match(
+        STRUTIL_SOURCE,
+        /Strlen_\([\s\S]*?for \(p = str, len = 0; len < LARGEST_INT; \+\+len\)\s*if \(\*p\+\+ == '\\0'\)\s*break;[\s\S]*?if \(len == LARGEST_INT\)\s*panic\("%s:%d string too long", file, line\);[\s\S]*?return \(unsigned\) len;/u,
+    );
+    assert.match(GLOBAL_SOURCE, /#define Strlen\(s\) Strlen_\(s,__func__,__LINE__\)/u);
+    assert.match(OBJNAM_SOURCE, /len = Strlen\(str\);/u);
+    assert.match(FRUIT_SOURCE, /Strlen_\(base, 'makeplural', 2895\)/u);
+    assert.match(GLOBAL_SOURCE, /#define LARGEST_INT 32767/u);
+    assert.equal(LARGEST_INT, 32767);
+
+    // C returns the byte count, including for UTF-8, up to the first NUL.
+    assert.equal(Strlen_('', 'test', 1), 0);
+    assert.equal(Strlen_('NetHack', 'test', 1), 7);
+    assert.equal(Strlen_('a\0tail', 'test', 1), 1);
+    assert.equal(Strlen_('é', 'test', 1), 2);
+    assert.equal(Strlen_('水', 'test', 1), 3);
 });
 
 test('digit() accepts only ASCII 0-9', () => {
