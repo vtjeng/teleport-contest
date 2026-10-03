@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-03T18:44:22.133Z",
+  "capturedAt": "2026-10-03T19:30:22.616Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -16634,6 +16634,34 @@
         "type": "accepted",
         "at": "2026-10-03T18:27:41.849Z",
         "task": "C65"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-published-C65-ee3dc7db-20261003",
+        "type": "published",
+        "at": "2026-10-03T18:55:47.882Z",
+        "task": "C65",
+        "commit": "ee3dc7db5cacad4d18557379dd75b9558de8d421"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C66-20261003",
+        "type": "assign",
+        "at": "2026-10-03T19:10:25.565Z",
+        "task": "C66",
+        "worker": "C",
+        "goal": "fix-dothrow-hurtle-invisible-planning-v21-20261003",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B96-20261003",
+        "type": "assign",
+        "at": "2026-10-03T19:25:12.069Z",
+        "task": "B96",
+        "worker": "B",
+        "goal": "fix-cmd-counted-extcmd-dispatch-v21-20261003",
+        "kind": "implementation"
       }
     ]
   },
