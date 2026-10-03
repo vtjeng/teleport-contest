@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-03T20:07:17.244Z",
+  "capturedAt": "2026-10-03T20:49:48.966Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -16727,12 +16727,53 @@
         "worker": "C",
         "goal": "port-trap-trapeffect-sqky-board-v21-20261003",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C66-published-efff58b2",
+        "type": "published",
+        "at": "2026-10-03T20:07:31.898Z",
+        "task": "C66",
+        "commit": "efff58b235dc5800f0dd735e21ceef6b34b8234f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-B96-9acbf872",
+        "type": "integrating",
+        "at": "2026-10-03T20:12:31.742Z",
+        "task": "B96",
+        "integration": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B97-20261003",
+        "type": "assign",
+        "at": "2026-10-03T20:21:00.705Z",
+        "task": "B97",
+        "worker": "B",
+        "goal": "port-pray-offer-fake-amulet-v21-20261003",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B96-validated-9acbf872",
+        "type": "validated",
+        "at": "2026-10-03T20:23:58.722Z",
+        "task": "B96",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B96-accepted-9acbf872",
+        "type": "accepted",
+        "at": "2026-10-03T20:36:09.905Z",
+        "task": "B96"
       }
     ]
   },
   "development": {
-    "executionCommit": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
-    "measuredAt": "2026-10-03T19:59:18.241Z",
+    "executionCommit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
+    "measuredAt": "2026-10-03T20:21:34.675Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

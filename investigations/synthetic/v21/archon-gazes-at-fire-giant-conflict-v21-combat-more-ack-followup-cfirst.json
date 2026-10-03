@@ -10,7 +10,7 @@
   "evaluationCommit": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
   "remainingScreens": 5,
   "recordedSteps": 138,
-  "status": "partial",
+  "status": "complete",
   "commit": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
   "mismatch": {
     "corpus": "synthetic",
@@ -113,31 +113,30 @@
     "luaFile": null,
     "line": 538
   },
-  "summary": "The combined f6bd7d8b evaluation now emits all 138 screens and leaves 5 unmatched. The former planning-clone map_invisible() exception is gone. The first residual difference is a monster-turn RNG call-order split at step 133: C enters distfleeck() while JavaScript reaches resist_conflict(). C source places distfleeck() in dochug() before and after its movement branch; JavaScript has the corresponding range checks and phase-four gate. The saved differential does not identify the monster or establish which phase-three state, movement result, or turn-order condition caused the split, so the source investigation remains partial.",
+  "summary": "The first step-133 divergence is a missing post-attack cuss-check draw in JavaScript dochug(). C executes the Archon’s MS_CUSS gate after its gaze; the gate consumes rn2(5)=4. JavaScript omits that check under a D:1 random-generation assumption, but this case creates the Archon explicitly with #wizgenesis, which bypasses that cap. The matching rn2(5)=4 from the next Fire Giant distfleeck() masks the missing draw; at RNG index 2705, C is in the Fire Giant’s distfleeck() while JavaScript is already in its mon_allowflags() call from m_move(). The screen cell is the HP ones digit (C 3, JS 1); the full JavaScript HP was not captured.",
   "source": {
     "file": "monmove.c",
-    "branch": "dochug() runs distfleeck() before the movement decision and recalculates it after m_move() when that movement phase ran; the standard Conflict/resist_conflict() attack gate follows. The observed C and JavaScript calls reach those source-owned checks in different order, but the saved evidence does not expose the monster or state that selected the path.",
+    "branch": "After PHASE FOUR, C dochug() consumes rn2(5) when the monster is in range, has MS_CUSS, is hostile, its square is couldsee-visible, and it is not invisible; it calls wizard.c:cuss() when the draw is zero. JavaScript omits this gate because it assumes D:1 difficulty prevents MS_CUSS species, but the assigned #wizgenesis recipe explicitly creates an Archon with MS_CUSS. This missing draw shifts the next monster’s movement and attack RNG order.",
     "functions": [
-      "dochug",
-      "distfleeck",
-      "m_move"
+      "dochug"
     ],
     "callers": [
-      "allmain.c:moveloop_core -> monmove.c:movemon -> monmove.c:dochug",
-      "monmove.c:dochug -> monmove.c:distfleeck",
-      "monmove.c:dochug -> monmove.c:m_move"
+      "allmain.c:moveloop_core -> mon.c:movemon -> mon.c:movemon_singlemon -> monmove.c:dochugw -> monmove.c:dochug",
+      "js/allmain.js:moveElapsedTurnMonster -> js/mon.js:movemon_singlemon -> js/monmove.js:dochug",
+      "monmove.c:dochug -> wizard.c:cuss"
     ],
     "dependencies": [
-      "mondata.c:resist_conflict"
+      "wizard.c:cuss",
+      "monmove.c:distfleeck",
+      "mon.c:mon_allowflags"
     ]
   },
   "evidence": [
-    "Current combined evaluation challenges/evaluations/20261003200023-v21.json was produced at f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34. Its Archon case record reports 133/138 screens, 2711/2820 RNG calls, and 137/138 cursors matched, leaving 5 unmatched screens.",
-    "The current assigned-case scan .cache/synthetic-scans/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.json identifies replay commit f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34, emits all 138 boundaries, and records the first screen/RNG difference at segment 0 step 133. At RNG index 2705, C calls rn2(5)=1 in distfleeck(monmove.c:538) and JavaScript consumes rnd(20)=12; the status cells show C HP 3 and JavaScript HP 1. The evaluation at the same commit reports 133/138 screens, 2711/2820 RNG calls, and 137/138 cursors matched.",
-    "The C recording step 133 has this order at its start: rnd(3)=3 in gazemu, rn2(5)=4 attributed to dochug, rn2(5)=1 in distfleeck, rnd(20)=20 in resist_conflict, a second rn2(5)=4 in distfleeck, then mattacku/hitmu and knockback calls. This proves the C ordering for the recorded turn but does not identify the monster instance at each call or the matching JavaScript actor.",
-    "C nethack-c/upstream/src/monmove.c:790-791 calls distfleeck() before item actions; :910-915 calls m_move() and recalculates distfleeck() when movement did not kill the monster; :965-968 evaluates the phase-four Conflict/resist_conflict() gate. JavaScript js/monmove.js:2603 calls distanceAndFear() before phase three, its mayMove block recalculates it after moveMonster(), and :2763-2769 contains the phase-four resist_conflict() gate. This identifies monmove.c:dochug() as the current source owner; the saved scan cannot distinguish a mayMove predicate/state difference from an m_move() result or monster iteration-order difference.",
-    "The step-133 Archon knockback path is counter-evidence for treating the old dothrow.c finding as the current cause: C uhitm.c:mhitm_knockback() first draws knock distance at :5258 and then returns at :5269-5270 when rn2(chance) is nonzero; this recording has rn2(6)=3, so it exits before attack eligibility or hurtle(). At step 135, rn2(6)=0 only opens later gates and does not prove hurtle_step() executes.",
-    "The previous stop was the planning-clone TypeError map_invisible() draws to the global game in dothrow.c:hurtle_step(), recorded in the prior investigation at ee3dc7db5cacad4d18557379dd75b9558de8d421. After C66, run-XaRRJG emits all 138 boundaries and reaches a later screen/RNG mismatch instead of the exception. The old branch correction is no longer the first unresolved behavior; retain it only as resolved counter-evidence.",
-    "Unresolved probe: capture per-monster state and call order in the assigned replay at step 133, including actor identity, inrange/nearby/scared, Conflict, iswiz, mayMove, and m_move()/moveMonster() status. The aggregate scanner and C RNG caller trace do not contain those values, so no narrower cause is claimed."
-  ]
+    "The current combined evaluation challenges/evaluations/20261003200023-v21.json at f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34 reports 133/138 screens matched and 5 remaining. At segment 0, step 133, the first RNG difference is index 2705: C rn2(5)=1 from distfleeck(monmove.c:538), JavaScript rnd(20)=12. The screen mismatch at row 23, column 16 is the HP ones digit (C 3, JS 1), not the full HP; the C step output shows HP 143(148), and no full JavaScript HP value is claimed.",
+    "The saved C step-133 recording begins rnd(3)=3 at gazemu, rn2(5)=4 at dochug(monmove.c:992), rn2(5)=1 at distfleeck(monmove.c:538), then rnd(20)=20 at resist_conflict(mondata.c:1612). The step output says the Archon blinded the hero and then “It hits.” In current upstream, the dochug() rn2(5) source is the cuss gate at monmove.c:983-985; monsters.h defines Archon with MS_CUSS. The recipe creates a hostile Archon with #wizgenesis after creating the Fire Giant; read.c:create_particular_creation() uses the requested species directly when randmonst is false, bypassing the D:1 random-monster difficulty cap. The recorded cuss gate result is 4, so the cuss() body is not entered on this step.",
+    "JavaScript js/monmove.js:2403-2414 omits the cuss gate because its comment assumes D:1 cannot generate an MS_CUSS monster. dochug() then returns after PHASE FOUR at js/monmove.js:2771 without the C gate. In the exact-case inspector capture .cache/archon-v21-C66-resist-caller-probe-v3.json, the verified mondata.js breakpoint at RNG-log length 2705 identifies Fire Giant m_id 65 at (71,16), HP 52, in a planning clone; the call stack is resist_conflict -> mon_allowflags -> m_move -> moveSimpleOrdinary -> dochug. C therefore spends index 2704 on the Archon cuss gate and index 2705 on the Fire Giant distfleeck(), while JavaScript’s index-2704 rn2(5)=4 belongs to the Fire Giant’s earlier distanceAndFear()/distfleeck() call and index 2705 has already reached the Fire Giant’s mon_allowflags(). The equal value at index 2704 masks the skipped Archon draw.",
+    "C’s separate pre-dochug Conflict gate in mon.c:1305-1318 checks Conflict, !iswiz, m_canseeu(), cansee() of the monster square, and bolt range before fightm(). The current JavaScript live caller in js/allmain.js binds canSeeHero to () => true and then checks canSeeSquare in js/mon.js:1354-1367. The captured index-2705 call is later inside m_move()/mon_allowflags(), not fightm() or PHASE FOUR; the JavaScript m_canseeu-equivalent is true for that Fire Giant. The first cause is the earlier omitted cuss gate, not either Conflict attack gate.",
+    "The focused replay captured 138 screens. The breakpoint source was verified against loaded js/mondata.js scriptId 136, URL file:///home/vtjeng/development/vtjeng/teleport-contest/js/mondata.js, SHA-256 e3dc25f4b89d2d4d5ca2bb275beae17016b8297e2db871b0abe64c38098efa39, with an actual resolved location at source line 749. Earlier no-hit breakpoints at exact RNG count are not used as causal evidence; the verified call stack supplies the caller identity."
+  ],
+  "goalKind": "divergence-fix"
 }

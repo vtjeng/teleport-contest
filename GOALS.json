@@ -147215,7 +147215,7 @@
     {
       "id": "fix-cmd-counted-extcmd-dispatch-v21-20261003",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Dispatch counted extended commands with the source count intact",
       "cFile": "cmd.c",
       "sessions": [],
@@ -147227,8 +147227,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "rhack",
       "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
       "step": 48,
@@ -147362,7 +147365,70 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+          "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json",
+          "recipeSha256": "e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb",
+          "replayInputSha256": "458fa0628e5e69cb24c1066551cd1722bb35f6ffe6052fe44291ffb82a0c8533",
+          "evaluationPath": "challenges/evaluations/20261003202359-v21.json",
+          "evaluationCommit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
+          "evaluationArtifact": "challenges/evaluations/20261003202359-v21.json",
+          "evaluationUtc": "2026-10-03T20:25:09.589Z",
+          "remainingScreens": 5,
+          "recordedSteps": 108,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 103,
+              "total": 108
+            },
+            "rng": {
+              "matched": 2549,
+              "total": 2630
+            },
+            "cursors": {
+              "matched": 103,
+              "total": 108
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster engulfing the hero",
+            "step": 103
+          },
+          "step": 103,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster engulfing the hero",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.json",
+            "previousRemainingScreens": 60
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
