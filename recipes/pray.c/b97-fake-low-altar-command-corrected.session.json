@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 97309511,
+      "datetime": "20441012094500",
+      "nethackrc": "OPTIONS=name:B97OfferCommand,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".#wizwish\nneutral altar\n#wizwish\nfake amulet of yendor\n #offer\no  ",
+      "comment": "Corrected C-first direct #offer route for pray.c:offer_fake_amulet and offer_too_soon. A neutral Wizard wishes for a neutral altar and fake Amulet, then selects the actually observed carried slot o. The aligned low-altar path should delegate before sound/knowledge changes. This corrects only the prior recipe's mistaken getobj answer; retain that earlier setup miss separately."
+    }
+  ]
+}
