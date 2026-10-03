@@ -148487,7 +148487,7 @@
     {
       "id": "port-wizard-cuss-v21-20261003",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port monster curse behavior and alignment lookup",
       "cFile": "wizard.c",
       "sessions": [
@@ -148495,8 +148495,12 @@
       ],
       "selectionReason": "The current four-screen Archon investigation traces step134 to whole wizard.c:cuss after its corrected dochug gate. Include the consumed priest.c:mon_aligntyp helper, wire only existing dochug and domonnoise cuss arms, and retain unsupported discarded-void questpgr.c:com_pager as a named source gap. Match independent source-reaching runtime through both active callers.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "fdb4b853fe8c46a7dfab9a317a5bfe3e8e1ef2c2",
+      "openStanding": {
+        "sha": "62092f3c6a618f508c18f57463366227f24d3f87",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -148535,7 +148539,236 @@
           "evaluationPath": "challenges/evaluations/20261003220302-v21.json",
           "evaluationCommit": "feaa7dfc03eb5830327f077c97dade2dc161e61a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "62092f3c6a618f508c18f57463366227f24d3f87",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+          "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+          "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
+          "replayInputSha256": "eb166e844ccbec3c77c75dd46358682014034f4256d884033a3be37abf73399f",
+          "evaluationPath": "challenges/evaluations/20261003233940-v21.json",
+          "evaluationCommit": "62092f3c6a618f508c18f57463366227f24d3f87",
+          "evaluationArtifact": "challenges/evaluations/20261003233940-v21.json",
+          "evaluationUtc": "2026-10-03T23:40:49.745Z",
+          "remainingScreens": 4,
+          "recordedSteps": 138,
+          "previousScreensMatched": 134,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 134,
+              "total": 138
+            },
+            "rng": {
+              "matched": 2741,
+              "total": 2820
+            },
+            "cursors": {
+              "matched": 138,
+              "total": 138
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 134,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 134,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "\"",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2726,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 134,
+                "key": "."
+              },
+              "stepIndex": 134
+            },
+            "cursor": null
+          },
+          "step": 134,
+          "kind": "rng",
+          "sourceFile": "nhlib.lua",
+          "function": "shuffle",
+          "message": null,
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+              "remainingScreens": 4,
+              "recordedSteps": 138,
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+              "evaluationPath": "challenges/evaluations/20261003220302-v21.json",
+              "evaluationCommit": "feaa7dfc03eb5830327f077c97dade2dc161e61a",
+              "status": "complete",
+              "commit": "feaa7dfc03eb5830327f077c97dade2dc161e61a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+                "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+                "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+                "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+                "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
+                "replayInputSha256": "7aea7aa4b60c98c00fb555e69c014dcc1d402f6247ee0d3f5614e07b4d34c649",
+                "evaluationPath": "challenges/evaluations/20261003220302-v21.json",
+                "evaluationCommit": "feaa7dfc03eb5830327f077c97dade2dc161e61a",
+                "evaluationArtifact": "challenges/evaluations/20261003220302-v21.json",
+                "evaluationUtc": "2026-10-03T22:04:13.733Z",
+                "remainingScreens": 4,
+                "recordedSteps": 138,
+                "previousScreensMatched": 133,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 134,
+                    "total": 138
+                  },
+                  "rng": {
+                    "matched": 2741,
+                    "total": 2820
+                  },
+                  "cursors": {
+                    "matched": 138,
+                    "total": 138
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 134,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 134,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "\"",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2726,
+                    "cEntry": "rn2(3)=2",
+                    "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+                    "jsEntry": "rn2(5)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 134,
+                      "key": "."
+                    },
+                    "stepIndex": 134
+                  },
+                  "cursor": null
+                },
+                "step": 134,
+                "kind": "rng",
+                "sourceFile": "nhlib.lua",
+                "function": "shuffle",
+                "message": null,
+                "cFile": null,
+                "luaFile": "nhlib.lua",
+                "line": 19,
+                "helper": {
+                  "function": "random",
+                  "luaFile": "nhlib.lua",
+                  "line": 8
+                }
+              },
+              "summary": "C68 corrected the earlier post-phase-four cuss-gate mismatch. The first current divergence is the missing whole wizard.c:cuss behavior at segment 0 step 134: the lawful Archon enters the angel_cuss pager, whose shuffle and quote draws and output are absent in JavaScript. Port the whole cuss function; account for its consumed priest.c:mon_aligntyp return through is_lminion. questpgr.c:com_pager remains a discarded-void pager dependency whose side effects are still required for parity.",
+              "source": {
+                "file": "wizard.c",
+                "branch": "Port all of cuss(): the Deaf early return; the iswiz speech and random branches; the non-wizard is_lminion && !renegade angel_cuss pager branch; the remaining minion-probability ancestry line or demon_cuss pager branch; and wake_nearto(mtmp->mx, mtmp->my, 25). In the assigned trace, the Archon passes the cuss gate and takes the lawful-minion branch. is_lminion consumes priest.c:mon_aligntyp(mon) == A_LAWFUL. The cuss-to-com_pager call is void and its result is discarded; the pager output and RNG remain a separately noted residual until questpgr.c:com_pager handles angel_cuss.",
+                "functions": [
+                  "cuss"
+                ],
+                "callers": [
+                  "allmain.c:moveloop_core -> mon.c:movemon -> mon.c:movemon_singlemon -> monmove.c:dochugw -> monmove.c:dochug -> wizard.c:cuss",
+                  "js/allmain.js:moveElapsedTurnMonster -> js/mon.js:movemon_singlemon -> js/monmove.js:dochugw -> js/monmove.js:dochug; the successful gate currently records note_unported('wizard.c cuss')"
+                ],
+                "dependencies": [
+                  "priest.c:mon_aligntyp — consumed by include/monst.h:is_lminion; existing JS implementation is js/priest.js:mon_aligntyp",
+                  "questpgr.c:com_pager — void/discarded-void residual; it discards com_pager_core result and supplies angel_cuss pager output and RNG side effects"
+                ]
+              },
+              "evidence": [
+                "At challenges/evaluations/20261003220302-v21.json on examined commit feaa7dfc03eb5830327f077c97dade2dc161e61a, the assigned case has 134/138 screens, 2741/2820 RNG calls, and 138/138 cursors matched. The first residual is segment 0, step 134, key '.', screen cell row 0 column 0 (C '\"', JS 'I'); RNG index 2726 is C rn2(3)=2 from nhlib.lua:random -> shuffle, while JS next draws rn2(5)=4 at dochug(monmove.c:992).",
+                "The saved C recording at step 134 records the successful post-phase-four cuss gate rn2(5)=0 @ dochug(monmove.c:992), followed by the pager's shuffle draws rn2(3)=2 and rn2(2)=0, then rn2(14)=0 @ com_pager_core(questpgr.c:566). The C screen starts the angel_cuss quote; JavaScript reaches a later dochug gate and displays 'I'. This establishes the immediate missing behavior as the cuss body and its pager side effects, after the gate fixed by C68.",
+                "The complete upstream owner is wizard.c:cuss (844-883): return immediately when Deaf; choose wizard-specific speech for iswiz; otherwise choose the lawful-minion branch when is_lminion and not a renegade; otherwise use the minion-dependent probability for ancestry speech or demon_cuss; then call wake_nearto with radius 25. This case reaches the is_lminion branch and calls com_pager(\"angel_cuss\").",
+                "The consumed-return dependency is priest.c:mon_aligntyp (280-289): include/monst.h:is_lminion (281-282) evaluates is_minion(mon->data) && mon_aligntyp(mon) == A_LAWFUL. The helper selects priest alignment, minion extension alignment, or species alignment, preserves A_NONE, then normalizes sign to lawful, chaotic, or neutral. The JavaScript helper is present in js/priest.js:117.",
+                "questpgr.c:com_pager (623-627) returns void and explicitly discards com_pager_core's result; wizard.c:cuss also discards the wrapper call's result. Keep this pager path as an unported discarded-void residual (note_unported('questpgr.c com_pager') if skipped by a cuss port). Its quote output and RNG side effects remain necessary for strict parity; current js/questpgr.js:443 only implements portal message IDs.",
+                "The C caller is allmain.c:moveloop_core -> mon.c:movemon -> mon.c:movemon_singlemon -> monmove.c:dochugw -> monmove.c:dochug -> wizard.c:cuss. The current JavaScript caller reaches js/monmove.js:dochug through js/allmain.js and js/mon.js; after the C68 gate's rn2(5) succeeds, it records note_unported('wizard.c cuss') at js/monmove.js:2765-2776. The previous step-133 diagnosis (omitted gate draw) is corrected by C68 and is not the current cause."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-hack-pooleffects-spoteffects-recursive-ice-v17-20261002",
