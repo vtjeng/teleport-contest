@@ -147717,7 +147717,7 @@
     {
       "id": "port-pray-offer-fake-amulet-v21-20261003",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port fake-Amulet and premature offering feedback",
       "cFile": "pray.c",
       "sessions": [
@@ -147731,15 +147731,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "26d93176cfa9d4d5c7bd5b23409cf8ca7e4368ee",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "offer_fake_amulet",
           "line": 1602,
           "endLine": 1630,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -147751,9 +147754,9 @@
           "name": "offer_too_soon",
           "line": 1480,
           "endLine": 1500,
-          "declared": false,
+          "declared": true,
           "sourceFile": "pray.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -147971,7 +147974,122 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "offer_fake_amulet",
+            "implementation": "js/pray.js",
+            "symbol": "offer_fake_amulet",
+            "sourceReview": "Compared the full pray.c:1602-1627 body. On an unknown fake Amulet below the high altar, the helper calls offer_too_soon and returns before thunderclap, message, known-state, luck, alignment, anger, and negative-offering effects. Otherwise source order is Soundeffect(se_thunderclap,100), You_hear; for unknown objects print the Hallucination-sensitive mistake, set otmp->known, then change_luck(-1); for known objects print Oh no only when Deaf, then change_luck(-3), adjalign(-1), increment u.ugangr by 3, and call offer_negative_valued. The patched tty build compiles Soundeffect away. The void offer_negative_valued result is not used; its existing desecrate_altar note_unported gap remains. The complete helper and unknown/low-altar early return have no refusal or injected replacement.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "dosacrifice",
+                "source": "pray.c:dosacrifice:1884-1887 passes the selected fake Amulet to offer_fake_amulet; #offer and MCMD_OFFER both dispatch dosacrifice."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/b97-fake-low-altar-command-corrected.session.json"
+            ],
+            "sourceFile": "pray.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 47,
+                "source": "cmd.c #offer → rhack → pray.c:dosacrifice → offer_fake_amulet → offer_too_soon"
+              }
+            ],
+            "checkedAt": "26d93176cfa9d4d5c7bd5b23409cf8ca7e4368ee"
+          },
+          {
+            "name": "offer_too_soon",
+            "implementation": "js/pray.js",
+            "symbol": "offer_too_soon",
+            "sourceReview": "Compared the full pray.c:1480-1497 body. The first branch checks altaralign == A_NONE && Inhell, calls the void gods_upset(A_NONE), and returns. Otherwise Hallucination selects homesick before alignment wording; matching alignment selects the urge-to-return line and opposing alignment selects ashamed. You_feel adds the dream-sensitive prefix under Unaware. The helper emits its selected message; it has no direct RNG or state writes, though its discarded void gods_upset call can change state in the A_NONE/Inhell branch.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "dosacrifice",
+                "source": "pray.c:dosacrifice:1874-1877 calls offer_too_soon for a real Amulet on a low altar, then returns ECMD_TIME."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_fake_amulet",
+                "source": "pray.c:offer_fake_amulet:1604-1607 calls offer_too_soon for an unknown fake Amulet below the high altar, then returns."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/b97-fake-low-altar-command-corrected.session.json",
+              "recordings/pray.c/b97-real-low-altar-menu-inventory-guided.session.json"
+            ],
+            "sourceFile": "pray.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 47,
+                "source": "cmd.c #offer → rhack → pray.c:dosacrifice → offer_fake_amulet → offer_too_soon"
+              }
+            ],
+            "checkedAt": "26d93176cfa9d4d5c7bd5b23409cf8ca7e4368ee"
+          }
+        ],
+        "entryPointReview": "The selected source helpers are reached through dosacrifice. The ordinary #offer route enters through cmd.c extended-command dispatch; altar-menu MCMD_OFFER enters through cmd.c:act_on_act, which queues dosacrifice plus CMDQ_USER_INPUT, and cmd.c:rhack dispatches the pointer before the shared ECMD reset/time tail. JS now mirrors that caller-only dispatch in js/cmd.js; getobj consumes the marker and reads the item selection. The matched independent fake-Amulet recording executes step 64; the matched real-Amulet altar-menu recording executes the low-altar offer_too_soon branch at step 60. The admitted v21 case reaches the nested fake-Amulet/offer_too_soon branch at step 47. No whole dosacrifice or rhack credit.",
+        "entryPoints": [
+          {
+            "name": "#offer with an unknown fake Amulet on a low altar",
+            "functions": [
+              "offer_fake_amulet",
+              "offer_too_soon"
+            ],
+            "recordings": [
+              "recordings/pray.c/b97-fake-low-altar-command-corrected.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 47,
+                "source": "cmd.c #offer → rhack → pray.c:dosacrifice → offer_fake_amulet → offer_too_soon"
+              }
+            ]
+          },
+          {
+            "name": "altar-menu MCMD_OFFER with a real Amulet on a low altar",
+            "functions": [
+              "offer_too_soon"
+            ],
+            "recordings": [
+              "recordings/pray.c/b97-real-low-altar-menu-inventory-guided.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "26d93176cfa9d4d5c7bd5b23409cf8ca7e4368ee",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
