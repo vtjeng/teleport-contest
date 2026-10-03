@@ -5097,6 +5097,40 @@ test('sleeping out-of-sight leprechaun takes the disturb no-op', async () => {
     assert.equal(target.replay.getScreens().length, screensBefore);
 });
 
+// C ref: monmove.c disturb():341-358. This visible, adjacent sleeping
+// leprechaun has Stealth active, so C's first wake condition fails before any
+// wakeup draw and dochug() returns with the monster asleep before movement.
+test('visible sleeping leprechaun reaches the Stealth disturb gate', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_LEPRECHAUN });
+    target.monster.msleeping = true;
+    // The nonzero intrinsic is C's active Stealth property representation.
+    game.u.uprops[STEALTH] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    assert.ok(game.viz_array[target.heroY][target.monsterX] & COULD_SEE);
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const rngBefore = target.replay.getRngLog().length;
+    const screensBefore = target.replay.getScreens().length;
+    let inspectedPlannedSleeper = false;
+
+    await preflightSimpleMonsterActions(game, {
+        advanceRound(planned) {
+            const leprechaun = planned.level.monlist;
+            assert.equal(leprechaun.msleeping, true);
+            assert.equal(leprechaun.movement, 0);
+            inspectedPlannedSleeper = true;
+            return true;
+        },
+    });
+
+    assert.equal(inspectedPlannedSleeper, true);
+    assert.deepEqual(
+        completeSecondTurnSnapshot(game, target.replay),
+        before,
+        'the clone-only wake gate leaves live game state unchanged',
+    );
+    assert.equal(target.replay.getRngLog().length, rngBefore);
+    assert.equal(target.replay.getScreens().length, screensBefore);
+});
+
 // C ref: monmove.c:341-358 and :726-731. The sleeping killer-bee guard must
 // admit the ordinary no-op whenever disturb()'s first conjunction fails: an
 // unseen bee returns before RNG, and a visible bee beyond mdistu 100 does the
