@@ -148094,7 +148094,7 @@
     {
       "id": "fix-monmove-dochug-ms-cuss-v21-20261003",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore the hostile monster curse gate",
       "cFile": "monmove.c",
       "sessions": [],
@@ -148106,8 +148106,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "feaa7dfc03eb5830327f077c97dade2dc161e61a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dochug",
       "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
       "step": 133,
@@ -148378,7 +148381,108 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+          "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+          "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
+          "replayInputSha256": "7aea7aa4b60c98c00fb555e69c014dcc1d402f6247ee0d3f5614e07b4d34c649",
+          "evaluationPath": "challenges/evaluations/20261003220302-v21.json",
+          "evaluationCommit": "feaa7dfc03eb5830327f077c97dade2dc161e61a",
+          "evaluationArtifact": "challenges/evaluations/20261003220302-v21.json",
+          "evaluationUtc": "2026-10-03T22:04:13.733Z",
+          "remainingScreens": 4,
+          "recordedSteps": 138,
+          "previousScreensMatched": 133,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 134,
+              "total": 138
+            },
+            "rng": {
+              "matched": 2741,
+              "total": 2820
+            },
+            "cursors": {
+              "matched": 138,
+              "total": 138
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 134,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 134,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "\"",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2726,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 134,
+                "key": "."
+              },
+              "stepIndex": 134
+            },
+            "cursor": null
+          },
+          "step": 134,
+          "kind": "rng",
+          "sourceFile": "nhlib.lua",
+          "function": "shuffle",
+          "message": null,
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.json",
+            "previousRemainingScreens": 5
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "feaa7dfc03eb5830327f077c97dade2dc161e61a",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
