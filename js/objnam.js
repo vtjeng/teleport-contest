@@ -998,11 +998,11 @@ export function actualoname(obj, state = game) {
 }
 
 // C ref: objnam.c simpleonames() (2427-2442). "scroll" or "scrolls":
-// minimal_xname's result, pluralized when quan > 1.
+// minimal_xname's result, pluralized when quan != 1.
 export function simpleonames(obj, state = game) {
     let name = minimal_xname(obj, state);
     if (Math.trunc(obj.quan ?? 1) !== 1)
-        name = makeplural(makesingular(name));
+        name = makeplural(name);
     return name;
 }
 

@@ -300,6 +300,28 @@ test('simpleonames preserves a named-fruit disguise', () => {
     assert.equal(simpleonames(fruit, state), 'slices of pizza');
 });
 
+test('simpleonames pluralizes the minimal fruit name without re-singularizing', () => {
+    const state = namingState();
+    // A restored/bones fruit record is read as stored by fruit_from_indx();
+    // this value distinguishes C's direct makeplural call from an extra
+    // makesingular/makeplural round trip in simpleonames().
+    state.gf = {
+        ffruit: { fname: 'news', fid: 7, nextf: null },
+    };
+    const fruit = objectOf(state, SLIME_MOLD, { spe: 7, quan: 2 });
+
+    assert.equal(simpleonames(fruit, state), 'newses');
+
+    const cBody = OBJNAM_SOURCE.match(
+        /char \*\s*simpleonames\(struct obj \*obj\)\s*\{[\s\S]*?\n\}/u,
+    )?.[0];
+    assert.ok(cBody, 'finds the complete C simpleonames definition');
+    assert.match(cBody, /makeplural\(simpleoname\)/u);
+    assert.doesNotMatch(cBody, /makesingular/u);
+    assert.match(OBJNAM_JS_SOURCE,
+        /export function simpleonames\(obj, state = game\)\s*\{[\s\S]*?name = makeplural\(name\);/u);
+});
+
 test('simple suit names preserve dragon, suffix, and fallback categories',
     () => {
         const state = namingState();
