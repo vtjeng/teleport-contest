@@ -146912,7 +146912,7 @@
     {
       "id": "fix-dothrow-hurtle-invisible-planning-v21-20261003",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve invisible-monster map memory during planned hero hurtling",
       "cFile": "dothrow.c",
       "sessions": [],
@@ -146924,8 +146924,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "hurtle_step",
       "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
       "syntheticProvenance": {
@@ -147094,7 +147097,120 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+          "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+          "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
+          "replayInputSha256": "7c73feb3b711fe4dcc07dc996a201da9eb967efc4ab0c05ff4cae58650038cd1",
+          "evaluationPath": "challenges/evaluations/20261003200023-v21.json",
+          "evaluationCommit": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
+          "evaluationArtifact": "challenges/evaluations/20261003200023-v21.json",
+          "evaluationUtc": "2026-10-03T20:01:35.509Z",
+          "remainingScreens": 5,
+          "recordedSteps": 138,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 133,
+              "total": 138
+            },
+            "rng": {
+              "matched": 2711,
+              "total": 2820
+            },
+            "cursors": {
+              "matched": 137,
+              "total": 138
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 133,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 133,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 16,
+              "cCell": {
+                "ch": "3",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "1",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2705,
+              "cEntry": "rn2(5)=1",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rnd(20)=12",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 133,
+                "key": " "
+              },
+              "stepIndex": 133
+            },
+            "cursor": {
+              "index": 137,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 137,
+                "key": "."
+              },
+              "cCursor": [
+                69,
+                16,
+                1
+              ],
+              "jsCursor": [
+                63,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 133,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "distfleeck",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.json",
+            "previousRemainingScreens": 138
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-cmd-counted-extcmd-dispatch-v21-20261003",
