@@ -76,6 +76,7 @@ import {
     hitfloor,
     impact_disturbs_zombies,
     hurtle,
+    hurtle_step,
     mhurtle,
     multishot_class_bonus,
     should_mulch_missile,
@@ -89,6 +90,8 @@ import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { vision_reset } from '../js/vision.js';
 import { isThrowingWeapon } from '../js/invent.js';
+import { canspotmon, GLYPH_INVISIBLE } from '../js/display.js';
+import { planningState } from '../js/unported_monster_actions.js';
 import {
     PM_CAVE_DWELLER,
     PM_CLERIC,
@@ -525,6 +528,86 @@ test('walk_path() follows the source Bresenham cells and rewinds on failure', as
     assert.deepEqual(destination, { x: 4, y: 3 });
 });
 
+test('hurtle_step() maps an unseen collision on the planned level only', async () => {
+    const sourceStart = DOTHROW_C.indexOf(
+        'hurtle_step(genericptr_t arg, coordxy x, coordxy y)',
+    );
+    const sourceEnd = DOTHROW_C.indexOf('\n/* used by mhurtle_step()', sourceStart);
+    const cStep = DOTHROW_C.slice(sourceStart, sourceEnd);
+    assert.ok(sourceStart >= 0 && sourceEnd > sourceStart,
+        'the complete C hurtle_step source is available');
+    assert.match(cStep,
+        /wakeup\(mon, FALSE\);\s*if \(!canspotmon\(mon\)\)\s*map_invisible\(mon->mx, mon->my\);/u);
+
+    resetGame();
+    try {
+        await runSegment({
+            seed: ARENA_SEED,
+            datetime: HURTLE_FIXTURE_DATETIME,
+            nethackrc: 'OPTIONS=name:HurtleMemory,role:Valkyrie,race:human,gender:female,align:lawful\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n',
+            moves: '',
+        });
+        const state = game;
+        const x = state.u.ux + 1;
+        const y = state.u.uy;
+        state.level.at(x, y).typ = ROOM;
+        const monster = newMonster({
+            data: state.mons[PM_ORC],
+            mnum: PM_ORC,
+            m_id: HURTLE_FIXTURE_MONSTER_ID,
+            mhp: HURTLE_FIXTURE_MONSTER_HP,
+            mhpmax: HURTLE_FIXTURE_MONSTER_HP,
+            mcanmove: true,
+            mcansee: true,
+            minvis: true,
+        });
+        monster.nmon = state.level.monlist;
+        state.level.monlist = monster;
+        place_monster(monster, x, y, state);
+        assert.equal(canspotmon(monster, state), false,
+            'the invisible collision takes C hurtle_step()\'s map branch');
+
+        const liveCell = state.level.at(x, y);
+        liveCell.remembered_glyph = undefined;
+        const originalDisplay = liveCell.disp_ch;
+        const planned = planningState(state);
+        const plannedMonster = planned.level.monsters[x][y];
+        assert.ok(plannedMonster);
+        assert.notStrictEqual(plannedMonster, monster);
+        assert.equal(canspotmon(plannedMonster, planned), false);
+
+        assert.equal(await hurtle_step({
+            state: planned,
+            planning: true,
+            range: HURTLE_FIXTURE_COLLISION_RANGE,
+        }, x, y), false);
+        assert.equal(
+            planned.level.at(x, y).remembered_glyph?.glyph,
+            GLYPH_INVISIBLE,
+            'the planning clone keeps C map memory for the unseen monster',
+        );
+        assert.equal(liveCell.remembered_glyph, undefined,
+            'the planning pass does not write live map memory');
+        assert.equal(liveCell.disp_ch, originalDisplay,
+            'the planning pass does not paint the live display');
+
+        // The live collision message is a stop message; dismiss its More so
+        // the callback can finish its source-order effects.
+        state.nhDisplay.pushKey(HURTLE_FIXTURE_MORE_KEY);
+        assert.equal(await hurtle_step({
+            state,
+            range: HURTLE_FIXTURE_COLLISION_RANGE,
+        }, x, y), false);
+        assert.equal(liveCell.remembered_glyph?.glyph, GLYPH_INVISIBLE,
+            'the live callback retains map_invisible() memory behavior');
+        assert.notEqual(liveCell.disp_ch, originalDisplay,
+            'the live callback still paints through map_invisible()');
+    } finally {
+        resetGame();
+    }
+});
+
 test('hurtle() installs source multi state and walks normalized recoil', async () => {
     const start = DOTHROW_C.indexOf('\nhurtle(int dx, int dy, int range, boolean verbose)');
     const end = DOTHROW_C.indexOf('/* Move a monster through the air', start);
@@ -645,7 +728,17 @@ test('mhurtle() moves a monster through the source callback and floor tail',
 // stream from its own first draw and no test depends on the order the runner
 // picked. Two answers this seed fixes are used, and each is named where it is:
 // the first rn2(100) is 45 and the first rn2(7) is 5.
+// The hurtle fixture also uses this seed for repeatable startup state.
 const ARENA_SEED = 1;
+
+// The fixed date gives this startup-state regression a repeatable layout.
+const HURTLE_FIXTURE_DATETIME = '20320415101723';
+// A stable identity and positive HP keep the test target alive in the clone.
+const HURTLE_FIXTURE_MONSTER_ID = 991;
+const HURTLE_FIXTURE_MONSTER_HP = 10;
+// One-cell range reaches the adjacent target; space dismisses its More.
+const HURTLE_FIXTURE_COLLISION_RANGE = 1;
+const HURTLE_FIXTURE_MORE_KEY = 32;
 
 enableRngLog();
 
