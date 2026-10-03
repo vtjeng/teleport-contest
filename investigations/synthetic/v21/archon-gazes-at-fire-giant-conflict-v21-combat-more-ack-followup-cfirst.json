@@ -31,7 +31,7 @@
     "evaluationUtc": "2026-10-03T20:01:35.509Z",
     "remainingScreens": 5,
     "recordedSteps": 138,
-    "previousScreensMatched": 133,
+    "previousScreensMatched": 0,
     "regression": false,
     "passed": false,
     "error": null,
@@ -50,23 +50,65 @@
       }
     },
     "firstMismatch": {
-      "kind": "rng",
-      "message": "At segment 0 step 133, C calls rn2(5)=1 in distfleeck(monmove.c:538) while JavaScript consumes rnd(20)=12 in resist_conflict; the saved differential does not identify the actor/state that caused the call-order split.",
-      "step": 133,
-      "location": {
-        "segmentIndex": 0,
-        "stepIndex": 133,
-        "key": " "
+      "screen": {
+        "index": 133,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 133,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 23,
+        "column": 16,
+        "cCell": {
+          "ch": "3",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "1",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
       },
-      "cEntry": "rn2(5)=1",
-      "cCaller": "distfleeck(monmove.c:538)",
-      "jsEntry": "rnd(20)=12"
+      "rng": {
+        "index": 2705,
+        "cEntry": "rn2(5)=1",
+        "cCaller": "distfleeck(monmove.c:538)",
+        "jsEntry": "rnd(20)=12",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 133,
+          "key": " "
+        },
+        "stepIndex": 133
+      },
+      "cursor": {
+        "index": 137,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 137,
+          "key": "."
+        },
+        "cCursor": [
+          69,
+          16,
+          1
+        ],
+        "jsCursor": [
+          63,
+          0,
+          1
+        ]
+      }
     },
     "step": 133,
     "kind": "rng",
     "sourceFile": "monmove.c",
-    "function": "dochug",
-    "message": "At segment 0 step 133, C calls rn2(5)=1 in distfleeck(monmove.c:538) while JavaScript consumes rnd(20)=12 in resist_conflict; the saved differential does not identify the actor/state that caused the call-order split.",
+    "function": "distfleeck",
+    "message": "C calls distfleeck() at the first differing RNG call; JavaScript consumes rnd(20) in resist_conflict().",
     "cFile": "monmove.c",
     "luaFile": null,
     "line": 538
@@ -91,7 +133,7 @@
   },
   "evidence": [
     "Current combined evaluation challenges/evaluations/20261003200023-v21.json was produced at f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34. Its Archon case record reports 133/138 screens, 2711/2820 RNG calls, and 137/138 cursors matched, leaving 5 unmatched screens.",
-    "The assigned-case scan /tmp/teleport-validation-1000/run-XaRRJG/stdout.log at replay commit c0f096740f8cafb9776647704f60947cef25fe74 reports the same 133/138 screen boundary at segment 0 step 133. At RNG index 2705, C is rn2(5)=1 from distfleeck(monmove.c:538) and JS is rnd(20)=12; the differing status cells show C HP 3 and JS HP 1. The parent confirmed that the combined f6bd7d8b helper is equivalent and that the full current evaluation retains this case at 133/138.",
+    "The current assigned-case scan .cache/synthetic-scans/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.json identifies replay commit f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34, emits all 138 boundaries, and records the first screen/RNG difference at segment 0 step 133. At RNG index 2705, C calls rn2(5)=1 in distfleeck(monmove.c:538) and JavaScript consumes rnd(20)=12; the status cells show C HP 3 and JavaScript HP 1. The evaluation at the same commit reports 133/138 screens, 2711/2820 RNG calls, and 137/138 cursors matched.",
     "The C recording step 133 has this order at its start: rnd(3)=3 in gazemu, rn2(5)=4 attributed to dochug, rn2(5)=1 in distfleeck, rnd(20)=20 in resist_conflict, a second rn2(5)=4 in distfleeck, then mattacku/hitmu and knockback calls. This proves the C ordering for the recorded turn but does not identify the monster instance at each call or the matching JavaScript actor.",
     "C nethack-c/upstream/src/monmove.c:790-791 calls distfleeck() before item actions; :910-915 calls m_move() and recalculates distfleeck() when movement did not kill the monster; :965-968 evaluates the phase-four Conflict/resist_conflict() gate. JavaScript js/monmove.js:2603 calls distanceAndFear() before phase three, its mayMove block recalculates it after moveMonster(), and :2763-2769 contains the phase-four resist_conflict() gate. This identifies monmove.c:dochug() as the current source owner; the saved scan cannot distinguish a mayMove predicate/state difference from an m_move() result or monster iteration-order difference.",
     "The step-133 Archon knockback path is counter-evidence for treating the old dothrow.c finding as the current cause: C uhitm.c:mhitm_knockback() first draws knock distance at :5258 and then returns at :5269-5270 when rn2(chance) is nonzero; this recording has rn2(6)=3, so it exits before attack eligibility or hurtle(). At step 135, rn2(6)=0 only opens later gates and does not prove hurtle_step() executes.",

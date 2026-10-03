@@ -147215,14 +147215,18 @@
     {
       "id": "fix-cmd-counted-extcmd-dispatch-v21-20261003",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Dispatch counted extended commands with the source count intact",
       "cFile": "cmd.c",
       "sessions": [],
-      "selectionReason": "The complete v21 counted Purple Worm investigation traces the first refusal to rhack before extended-command dispatch, rather than the annotated parse owner. A83 reserves no cmd.c function and has no pending count or extended-command edits; keep new tests separate from its paranoid-query coverage.",
+      "selectionReason": "B96 corrects cmd.c:rhack counted # dispatch from the source-traced v21 purple-worm count case; C66 preserves its60 unmatched screens and immutable selection.",
       "detail": "At segment0 step48 the saved and fresh replay stop at the counted # key. C cmd.c:rhack dispatches doextcmd with gm.multi intact; read.c:create_particular_parse consumes 1+gm.multi for wiz_genesis quantity, and rhack resets the count on ECMD_OK. JS rhack rejects all counted nonmovement commands before its existing # dispatch. Fix this implemented dispatch gate generally; retain subsequent unsupported repeated-command boundaries. Investigation investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.json preserves exact case provenance and source trace.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "efff58b235dc5800f0dd735e21ceef6b34b8234f",
+      "openStanding": {
+        "sha": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "rhack",
@@ -147241,7 +147245,124 @@
           "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
           "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+          "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json",
+          "recipeSha256": "e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb",
+          "replayInputSha256": "7c73feb3b711fe4dcc07dc996a201da9eb967efc4ab0c05ff4cae58650038cd1",
+          "evaluationPath": "challenges/evaluations/20261003200023-v21.json",
+          "evaluationCommit": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
+          "evaluationArtifact": "challenges/evaluations/20261003200023-v21.json",
+          "evaluationUtc": "2026-10-03T20:01:35.509Z",
+          "remainingScreens": 60,
+          "recordedSteps": 108,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 108
+            },
+            "rng": {
+              "matched": 2438,
+              "total": 2630
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 108
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+            "step": 48
+          },
+          "step": 48,
+          "kind": "stop",
+          "sourceFile": "cmd.c",
+          "function": "parse",
+          "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+          "cFile": "cmd.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "remainingScreens": 60,
+              "recordedSteps": 108,
+              "status": "complete",
+              "commit": "f9965c07f8ddcf2eb428348fa388b692d7fae6c1",
+              "goalKind": "divergence-fix",
+              "summary": "The current queue attributes the stop to cmd.c:parse and the generic repeat path, but the actual first cause is the JavaScript rhack() count guard rejecting the # command before doextcmd() can dispatch #wizgenesis. C keeps the parsed count on #, wiz_genesis() consumes it in create_particular_parse() as monster quantity, returns ECMD_OK, and rhack() resets multi before any moveloop repeat.",
+              "mismatch": {
+                "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+                "remainingScreens": 60,
+                "kind": "stop",
+                "step": 48,
+                "reportedSourceFile": "cmd.c",
+                "reportedFunction": "parse",
+                "actualSourceFile": "cmd.c",
+                "actualFunction": "rhack"
+              },
+              "source": {
+                "file": "cmd.c",
+                "functions": [
+                  "rhack"
+                ],
+                "branch": "A positive parsed multi reaches the #/doextcmd row. That row must dispatch first; for #wizgenesis, read.c:create_particular_parse consumes 1+gm.multi as quantity, wiz_genesis returns ECMD_OK, and rhack resets command variables. The generic refusal currently runs before the # dispatch.",
+                "callers": [
+                  "allmain.c:moveloop_core() invokes cmd.c:rhack() to read the command. This case returns ECMD_OK from the selected #wizgenesis handler, so rhack() clears multi and the repeat branch is not reached."
+                ],
+                "dependencies": [
+                  "cmd.c:parse() initializes gm.multi from the count (5142-5144); its current JavaScript port reproduces this state.",
+                  "cmd.c:doextcmd() resolves the full extended command and calls its selected handler (493-519); current JavaScript doextcmd() already dispatches the command.",
+                  "wizcmds.c:wiz_genesis() calls create_particular() and returns ECMD_OK (201-214); current JavaScript handler is already implemented.",
+                  "read.c:create_particular_parse() derives quantity from 1+gm.multi when no explicit quantity appears in the answer (3145); current JavaScript parser already implements it.",
+                  "cmd.c:reset_cmd_vars() clears gm.multi after ECMD_OK; current JavaScript # result path already resets it."
+                ]
+              },
+              "evidence": [
+                "Selected saved v21 evaluation challenges/evaluations/20261003183000-v21.json at b0fd76f6091376c07bf54e8d3061aa5a9c9957d0; exact case metrics are screens 48/108, RNG 2438/2630, cursors 48/108, with first stop at zero-based step 48.",
+                "Immutable inputs: recording challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json SHA-256 9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d; recipe challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json SHA-256 e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb; manifest challenges/manifests/v21.json semantic SHA-256 d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac.",
+                "In the frozen C record, segment 0 step 47 is key 2 and step 48 is key #; C displays the extended-command prompt at step 48. The count and prompt keys make no RNG calls.",
+                "Bounded JavaScript-only scan run-uazLEF (exec session 94499, exit 0) emits 48 screens and stops on command # at keyCursor=command with inputThroughStop ending in 2#; preserved receipt/stdout and their hashes are in .cache/v21-counted-wizgenesis-source-trace.json.",
+                "C source: cmd.c:parse 5142-5144 stores 2 as gm.multi=1; cmd.c:rhack 3748-3759 dispatches doextcmd and switches to ge.ext_tlist; wizcmds.c:wiz_genesis 201-214 calls create_particular and returns ECMD_OK; read.c:create_particular_parse 3145 makes the uncounted answer quantity 1+gm.multi=2; cmd.c:rhack 3810-3816 resets the count after ECMD_OK.",
+                "JS source: cmd.js:finishCommandParse 1754-1756 keeps multi=1; cmd.js:rhack 5492-5494 throws the generic repeated-nonmovement refusal before the # branch at 5592-5604. The selected replay’s exact key/command fields confirm the refusal is on #, before any #wizgenesis prompt/handler.",
+                "Scope check: the active A83 source reservation is allmain.c:moveloop_core, not cmd.c:rhack or cmd.c:parse. A83 currently allows scripts/cmd.test.mjs but not js/cmd.js; any shared test edits should be coordinated and kept disjoint.",
+                "The intended monster-versus-monster AD_DGST behavior is not reached by JavaScript at this first stop; it is downstream and is not used to attribute the present divergence.",
+                "Supporting trace artifact and exact bounded scan receipt/log hashes: .cache/v21-counted-wizgenesis-source-trace.json."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
