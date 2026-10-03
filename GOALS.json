@@ -145942,8 +145942,8 @@
           "name": "mhitm_ad_pest",
           "line": 3808,
           "endLine": 3836,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -145955,17 +145955,17 @@
           "name": "diseasemu",
           "line": 1033,
           "endLine": 1046,
-          "declared": false,
+          "declared": true,
           "sourceFile": "mhitu.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "sickness_dialogue",
           "line": 323,
           "endLine": 352,
-          "declared": false,
+          "declared": true,
           "sourceFile": "timeout.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "pronoun_gender",
@@ -145973,7 +145973,7 @@
           "endLine": 1210,
           "declared": true,
           "sourceFile": "mondata.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -146143,7 +146143,238 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_pest",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_pest",
+            "sourceReview": "Read the complete C definition in uhitm.c:3808-3834. Snapshot magr->data at entry. The hero-attacker branch goes to the shared AD_DISE case and calls void mhitm_ad_dise; the hero-defender branch emits the fever/chills message, calls diseasemu with its Boolean discarded, then returns for ordinary hit damage. The monster-versus-monster branch copies mattk, changes adtyp to AD_DISE, and calls void mhitm_ad_dise. Keep both discarded calls as note_unported('uhitm.c mhitm_ad_dise'). The selected runtime range proves the active hero-defender branch; the independent newt recording proves the monster-versus-monster branch. A valid hero polymorph form cannot have AD_PEST, so the hero-attacker branch is source-pinned only and receives no active-entry completion claim.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping AD_PEST arm at line 4825 dispatches to mhitm_ad_pest; its active production routes are mhitu.c:hitmu (monster-to-hero) and mhitm.c:mdamagem (monster-to-monster)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-pest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-pest-monster-pair-healer-level30-newt-b93.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 36,
+                "source": "monmove -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_PEST) -> uhitm.c:mhitm_ad_pest -> mhitu.c:diseasemu"
+              }
+            ],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          },
+          {
+            "name": "diseasemu",
+            "implementation": "js/mhitu.js",
+            "symbol": "diseasemu",
+            "sourceReview": "Read the complete C definition in mhitu.c:1033-1044. Return FALSE immediately for Sick_resistance after the slight-illness message. Otherwise use the raw packed Sick intrinsic from youprop.h:108 and compute Sick/3+1 without masking TIMEOUT; only zero Sick draws rn1(ACURR(A_CON),20). Pass the neutral species name and SICK_NONVOMITABLE to make_sick, await it, and return TRUE. make_sick clamps duration in potion.c:itimeout while retaining intrinsic flags. Reuse canonical heroSickResistance, acurr, make_sick, exercise, and encumber_msg owners. Clone-owned state, RNG, message, and encumbrance callback are threaded through the whole call.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_pest",
+                "source": "uhitm.c:mhitm_ad_pest monster-to-hero branch at line 3824 calls diseasemu and discards its Boolean."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu AD_DISE arm at line 1534 consumes FALSE by setting tmp to zero; only this arm is wired, with no whole gulpmu credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 36,
+                "source": "uhitm.c:mhitm_ad_pest -> mhitu.c:diseasemu, with the Boolean discarded by the monster-to-hero caller"
+              }
+            ],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          },
+          {
+            "name": "sickness_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "sickness_dialogue",
+            "sourceReview": "Read the complete C body in timeout.c:315-345. Compute j from Sick & TIMEOUT and i=j/2; when i is 1..3 and j is odd, select the reversed sickness_texts row, replace illness with sickness when SICK_NONVOMITABLE is absent, then append mhe/upstart/vtense on Hallucination plus Death’s door before urgent_pline. Always call exercise(A_CON,FALSE), even if the warning condition is false. The helper receives nh_timeout’s clone state, random, urgent-message, normal-message, and encumber-message owners; planning performs the exercise on the clone without live TTY or input effects.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout calls sickness_dialogue whenever Sick is nonzero (line 632); the JS arm remains caller-only and does not claim whole nh_timeout."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-wizard-intrinsic-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "sourceFile": "timeout.c",
+            "synthetic": [],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          },
+          {
+            "name": "pronoun_gender",
+            "implementation": "js/mondata.js",
+            "symbol": "pronoun_gender",
+            "sourceReview": "Verified the complete existing mondata.c:1191-1210 body unchanged. PRONOUN_HALLU with Hallucination returns rn2(4); otherwise PRONOUN_NO_IT skips canspotmon and the visibility branch returns NEUTRAL for an unspottable monster. The remaining order is is_neuter, then humanoid || G_UNIQ || type_is_pname and the female bit, else NEUTRAL. The C mhe/mhim/mhis macros in you.h are not separate source functions. Existing direct callers and wrappers stay unchanged; this task adds a matching production mhe route through sickness_dialogue.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "mhe",
+                "source": "you.h:322 mhe(mtmp) expands to genders[pronoun_gender(mtmp, PRONOUN_HALLU)].he; timeout.c:sickness_dialogue uses mhe(&gy.youmonst) in the hallucinated Death’s-door branch."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "its_dead",
+                "source": "apply.c:238 directly calls pronoun_gender(saved, PRONOUN_NO_IT)."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "mon_nam_too",
+                "source": "do_name.c:1199 directly calls pronoun_gender(mon, PRONOUN_HALLU)."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "noitMhim",
+                "source": "dothrow.c:863 calls noit_mhim(mon), whose C pronoun wrapper delegates to pronoun_gender with the no-it/hallucination flags."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "dopay",
+                "source": "shk.c:dopay calls noit_mhe/noit_mhim/noit_mhis wrappers, which consume pronoun_gender rows."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "noitPronoun",
+                "source": "shk.c shopkeeper dialogue uses noit_mhe/noit_mhim/noit_mhis; the JS helper is used by the corresponding shopkeeper dialogue callers."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          }
+        ],
+        "entryPointReview": "Active B93 coverage consists of: (1) monster-to-hero Pestilence through hitmu and the AD_PEST dispatcher, verified by the current v20 range through segment 0 step 36; (2) monster-to-monster Pestilence through mdamagem/AD_PEST, independently recorded against a newt whose first hit dies; (3) Juiblex AT_ENGL to gulpmu AD_DISE consuming diseasemu TRUE, with its following nh_timeout sickness dialogue; (4) direct SICK timeout warning and no-warning dialogue variations, including the hallucinated Death’s-door route through the C mhe macro and pronoun_gender. The hero-as-attacker AD_PEST source branch is valid only for impossible hero data: a source-pinned identity fixture confirms its exact void gap, but it is not an active runtime route. Both active monster callers of mhitm_ad_pest that proceed to mhitm_ad_dise remain exact note_unported('uhitm.c mhitm_ad_dise') boundaries; this discarded-void gap is not credited as a port. Gulpmu’s source inventory loop for nonflaming monsters visits discarded note_unported('light.c snuff_lit') calls. No whole gulpmu, mhitm_adtyping, mattacku or nh_timeout completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero Pestilence AD_PEST",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_pest"
+              },
+              {
+                "sourceFile": "mhitu.c",
+                "name": "diseasemu"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 36,
+                "source": "monmove -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_PEST) -> uhitm.c:mhitm_ad_pest -> mhitu.c:diseasemu"
+              }
+            ]
+          },
+          {
+            "name": "monster-to-monster Pestilence AD_PEST",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_pest"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-pest-monster-pair-healer-level30-newt-b93.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Juiblex AT_ENGL -> gulpmu AD_DISE -> diseasemu",
+            "functions": [
+              {
+                "sourceFile": "mhitu.c",
+                "name": "diseasemu"
+              }
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "SICK timeout warning and unconditional CON exercise",
+            "functions": [
+              {
+                "sourceFile": "timeout.c",
+                "name": "sickness_dialogue"
+              }
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-wizard-intrinsic-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hallucinated sickness warning through the you.h mhe macro",
+            "functions": [
+              {
+                "sourceFile": "timeout.c",
+                "name": "sickness_dialogue"
+              },
+              {
+                "sourceFile": "mondata.c",
+                "name": "pronoun_gender"
+              }
+            ],
+            "recordings": [
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
