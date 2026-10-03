@@ -89,6 +89,8 @@ test('sobj_at returns the first matching object in the requested floor chain', (
     const secondDart = { otyp: DART, nexthere: null };
     firstDart.nexthere = dagger;
     dagger.nexthere = secondDart;
+    // Interior square (5, 7) holds two matching darts separated by a dagger;
+    // neighboring (6, 7) checks that lookup stays in the requested floor chain.
     grid[5][7] = firstDart;
     grid[6][7] = { otyp: DART, nexthere: null };
 

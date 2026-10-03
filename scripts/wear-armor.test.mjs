@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_SUNSWORD, discover_artifact } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     ACID_RES,
@@ -3153,6 +3153,8 @@ test('on_msg asks the complete obj_is_pname', async () => {
     const identified = { known: 1, dknown: 1, bknown: 1, rknown: 1 };
     game.artiexist[ART_SUNSWORD].exists = 1;
     game.artiexist[ART_SUNSWORD].found = 1;
+    // artifact.c keeps identification in artidisco, separate from finding it.
+    discover_artifact(ART_SUNSWORD, game);
 
     // C's first term. A shield the hero has called something is still named
     // by its type: a called name is not an artifact's own name.
