@@ -146388,7 +146388,7 @@
     {
       "id": "port-uhitm-mhitm-ad-deth-v20-20261003",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete Death touches and source-directed drain delegation",
       "cFile": "uhitm.c",
       "sessions": [
@@ -146402,8 +146402,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c973e13d992d0d60d9beb39cb183c27071c12272",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_deth",
@@ -146663,6 +146666,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c973e13d992d0d60d9beb39cb183c27071c12272",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
