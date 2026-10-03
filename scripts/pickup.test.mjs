@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
@@ -17,6 +18,7 @@ import {
     ICE,
     INCLUDE_HERO,
     INVORDER_SORT,
+    LAST_PROP,
     LOST_DROPPED,
     LOST_EXPLODING,
     LOST_STOLEN,
@@ -135,6 +137,10 @@ function inventoryOfSize(state, count, { withCoins = false } = {}) {
 }
 
 function burdenState() {
+    const uprops = Array.from(
+        { length: LAST_PROP + 1 },
+        () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 }),
+    );
     return {
         disp: {},
         go: { oldcap: 0 },
@@ -149,7 +155,13 @@ function burdenState() {
             abon: [0, 0, 0, 0, 0, 0],
             acurr: { a: [10, 10, 10, 10, 10, 10] },
             atemp: [0, 0, 0, 0, 0, 0],
+            uprops,
+            umonnum: 0,
+            umonster: 0,
+            usteed: null,
+            uz: { dnum: 0, dlevel: 1 },
         },
+        youmonst: { data: {} },
     };
 }
 
@@ -2002,4 +2014,23 @@ test('unsplitobj returns null when objsplit context is empty', async () => {
     clear_splitobjs(state);
 
     assert.equal(unsplitobj(obj, { state }), null);
+});
+
+test('lift_object passes C youmonst anatomy to body_part for Sokoban boulders', async () => {
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/pickup.c', import.meta.url),
+        'utf8',
+    );
+    const jsSource = await readFile(
+        new URL('../js/pickup.js', import.meta.url), 'utf8',
+    );
+    const cStart = cSource.indexOf('lift_object(\n');
+    const cBody = cSource.slice(cStart, cStart + 800);
+    const jsStart = jsSource.indexOf('async function lift_object(');
+    const jsEnd = jsSource.indexOf('\n}', jsStart) + 2;
+    const jsBody = jsSource.slice(jsStart, jsEnd);
+
+    assert.match(cBody, /body_part\(HAND\)/u);
+    assert.match(jsBody, /body_part\(HAND, state\.youmonst\)/u);
+    assert.doesNotMatch(jsBody, /body_part\(HAND, state\)/u);
 });

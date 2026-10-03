@@ -69,10 +69,15 @@ function species(mlet, overrides = {}) {
     };
 }
 
-test('invalid body-part indices retain the source diagnostic fallback', () => {
+test('the lower invalid body-part index retains the source diagnostic fallback', () => {
     assert.match(POLYSELF_C,
         /if \(part <= NO_PART\)[\s\S]*?return "mystery part";/u);
     assert.equal(mbodypart(null, -1), 'mystery part');
+});
+
+test('an out-of-enum upper index uses a defensive JavaScript guard', () => {
+    // C only guards part <= NO_PART; this extra JS check protects table access
+    // for invalid callers and is not claimed as C behavior.
     assert.equal(mbodypart(null, 19), 'mystery part');
 });
 

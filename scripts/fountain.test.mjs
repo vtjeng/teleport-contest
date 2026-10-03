@@ -110,6 +110,26 @@ test('do_clear_area async callbacks preserve source callback order', async () =>
     ));
 });
 
+test('drinkfountain uses the hero youmonst for its ARM body-part message', async () => {
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    const jsSource = await readFile(
+        new URL('../js/fountain.js', import.meta.url), 'utf8',
+    );
+    const cStart = cSource.indexOf('\ndrinkfountain(void)');
+    const cCall = cSource.indexOf('body_part(ARM)', cStart);
+    const jsStart = jsSource.indexOf('export async function drinkfountain(');
+    const jsCall = jsSource.indexOf('body_part(ARM, state.youmonst)', jsStart);
+
+    assert.ok(cCall >= cStart, 'drinkfountain reaches C body_part(ARM)');
+    assert.ok(jsCall >= jsStart,
+        'drinkfountain passes its canonical youmonst value');
+    assert.doesNotMatch(jsSource.slice(jsStart),
+        /body_part\(ARM, state\)/u);
+});
+
 test('dogushforth interleaves candidate RNG with each square effect', async () => {
     const source = await readFile(
         new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),

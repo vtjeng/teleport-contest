@@ -369,7 +369,6 @@ import {
 } from './pickup.js';
 import {
     in_out_region,
-    inside_region,
     visible_region_at,
 } from './region.js';
 import { CapitalMon } from './random_text.js';
@@ -1550,11 +1549,10 @@ export function requireSimpleHeroDestination(
     const destinationTrap = t_at(x, y, state);
     if (destinationTrap) preflight_dotrap(destinationTrap, state);
 
-    for (const region of state.level?.regions ?? []) {
-        if (region.attach_2_u) continue;
-        if (Boolean(region.hero_inside) !== inside_region(region, x, y))
-            throw new UnsupportedHeroMoveBoundaryError('region crossing');
-    }
+    // Region membership is not an admission failure. hack.c runs
+    // avoid_trap_andor_region() for any needed confirmation, then
+    // in_out_region() before changing u.ux/u.uy; that same source order owns
+    // the query and hero_inside transition here.
     try {
         preflight_shop_transition(state.u.ux, state.u.uy, x, y, state);
     } catch (error) {
@@ -1699,41 +1697,6 @@ function heldStepIgnoresDestination(state) {
     return Boolean(state.u?.utrap) && state.u.utraptype === TT_BEARTRAP;
 }
 
-// The one thing domove_core() does read about the square a held hero pushes
-// against. C ref: hack.c avoid_trap_andor_region() (2513-2581), called at
-// 2822-2825 -- above the u.utrap block at 2830, so it runs whether or not the
-// step can ever commit. Its first arm asks before stepping into a visible gas
-// cloud, its second before stepping onto a trap the hero has already seen, and
-// each blocks on paranoid_query()'s y/n read. Admitting such a step would
-// print the struggle line and then take the answer key as the next command,
-// which is a silent divergence rather than a stop.
-//
-// The whole function is unported (`grep -rn "avoid_trap_andor_region" js/`
-// finds only this comment), so both destinations stop here. The refusal is
-// wider than C in four ways, each of them a stop where C carries on:
-//   ParanoidTrap -- options.c:7173 sets PARANOID_TRAP in the default
-//     paranoia_bits and js/options.js:365 reproduces that default, but a
-//     nethackrc that cleared the bit would silence both prompts;
-//   `!svc.context.nopick || svc.context.run` -- an 'm'-prefixed step skips
-//     both prompts;
-//   test_move(..., TEST_MOVE) -- C asks neither question about a square the
-//     hero could not enter anyway;
-//   immune_to_trap() != TRAP_CLEARLY_IMMUNE, and the region arm's reg_damg()
-//     comparison against the region the hero is leaving -- both suppress the
-//     prompt for a hazard that cannot touch this hero.
-function requireHeldStepDestination(x, y, state) {
-    if (visible_region_at(x, y, state)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'paranoid region confirmation',
-        );
-    }
-    if (t_at(x, y, state)?.tseen) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'paranoid trap confirmation',
-        );
-    }
-}
-
 // cmd.c establishes movement intent only after this hack.c admission seam has
 // shown that the destination is inside the currently ported domove() subset.
 export function preflightDomoveDestination(x, y, state = game, run = 0) {
@@ -1777,10 +1740,9 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // own refusals inside domove(); this arm is here to let them.
     } else if (heldStepIgnoresDestination(state)) {
         // The step never reaches the terrain rules at all, so this seam must
-        // not consult them either. See heldStepIgnoresDestination() above.
-        // avoid_trap_andor_region() is the exception C makes, and the only
-        // one: it runs above the u.utrap block.
-        requireHeldStepDestination(x, y, state);
+        // not consult them either. C still calls avoid_trap_andor_region()
+        // above trapmove(), where the live movement path can ask and consume
+        // visible-region or discovered-trap confirmation.
     } else if (refusedDiagonalDoorway(x, y, state)) {
         // test_move() owns both diagonal doorway refusals on an empty square.
     } else if (closed_door(x, y, state)) {

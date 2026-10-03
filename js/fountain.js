@@ -930,7 +930,7 @@ export async function dipfountain(obj, state = game, env = {}) {
         break;
     case 26: // Strange feeling
         await message(
-            `A strange tingling runs up your ${body_part(ARM, state)}.`,
+            `A strange tingling runs up your ${body_part(ARM, state.youmonst)}.`,
             state);
         break;
     case 27: // Strange feeling

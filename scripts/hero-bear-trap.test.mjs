@@ -410,11 +410,11 @@ test('a held hero struggles toward a square the seam screens when free',
         );
     });
 
-test('a held hero stops where C would ask to confirm the step', async () => {
+test('held-step preflight leaves source confirmations to domove_core', async () => {
     // hack.c domove_core():2822-2825 runs avoid_trap_andor_region() above the
-    // u.utrap block at 2830, so these two destinations are the exception to
-    // the arm above: C reads them even though the step can never commit, and
-    // each one raises a paranoid_query() the port cannot answer.
+    // u.utrap block at 2830. The command preflight must admit these targets so
+    // that the live movement path can ask C's region/trap questions before
+    // trapmove() consumes the held step.
     const { segments } = loadHeroBearTrapRecipe();
     await runSegment({ ...segments[1], moves: 'j ' });
     assert.equal(game.u.utraptype, TT_BEARTRAP);
@@ -429,11 +429,7 @@ test('a held hero stops where C would ask to confirm the step', async () => {
     assert.equal(neighbour.tseen, false, 'and the hero has not seen it');
     assert.doesNotThrow(() => preflightDomoveDestination(x, y, game, 0));
     neighbour.tseen = true;
-    assert.throws(
-        () => preflightDomoveDestination(x, y, game, 0),
-        (error) => error instanceof UnsupportedHeroMoveBoundaryError
-            && error.reason === 'paranoid trap confirmation',
-    );
+    assert.doesNotThrow(() => preflightDomoveDestination(x, y, game, 0));
     neighbour.tseen = false;
 
     // hack.c:2531's arm. The shape is what js/region.js inside_region() reads:
@@ -443,11 +439,7 @@ test('a held hero stops where C would ask to confirm the step', async () => {
     game.level.regions = [
         { visible: true, ttl: -1, bounding_box: there, rects: [there] },
     ];
-    assert.throws(
-        () => preflightDomoveDestination(x, y, game, 0),
-        (error) => error instanceof UnsupportedHeroMoveBoundaryError
-            && error.reason === 'paranoid region confirmation',
-    );
+    assert.doesNotThrow(() => preflightDomoveDestination(x, y, game, 0));
     game.level.regions = [];
     assert.doesNotThrow(() => preflightDomoveDestination(x, y, game, 0));
 });

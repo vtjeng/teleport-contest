@@ -69,6 +69,7 @@ import {
     NORMAL_SPEED,
     OBJ_FLOOR,
     OBJ_INVENT,
+    PARANOID_TRAP,
     PASSES_WALLS,
     PIT,
     ROOM,
@@ -120,6 +121,7 @@ import {
     domove,
     domove_swap_with_pet,
     monster_nearby,
+    preflightDomoveDestination,
     test_move,
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
@@ -1151,6 +1153,51 @@ test('a single object inside an entered visible region is described',
         assert.deepEqual([game.u.ux, game.u.uy], [target.x, target.y]);
     });
 
+test('visible cloud confirmation precedes region membership updates', async () => {
+    const { replay, x, y } = await prepareHeroMoveAdmission();
+    const region = create_region([{ lx: x, ly: y, hx: x, hy: y }]);
+    region.visible = true;
+    region.arg = 1; // A positive damage value selects C's poison-gas wording.
+    game.level.regions.push(region);
+    game.flags.paranoia_bits |= PARANOID_TRAP;
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+    game.nhDisplay.pushKey(commandKeyCode('y'));
+
+    const cConfirmStart = HACK_C.indexOf(
+        'avoid_trap_andor_region(coordxy x, coordxy y)',
+    );
+    const cConfirmEnd = HACK_C.indexOf(
+        '/* trying to move out-of-bounds? */',
+        cConfirmStart,
+    );
+    const cConfirm = HACK_C.slice(cConfirmStart, cConfirmEnd);
+    assert.match(cConfirm, /visible_region_at\(x, y\)/u);
+    assert.match(cConfirm, /paranoid_query\(ParanoidConfirm, upstart\(qbuf\)\)/u);
+    const cMoveStart = HACK_C.indexOf('domove_core(void)');
+    assert.ok(cMoveStart >= 0, 'C domove_core definition exists');
+    const cAskAt = HACK_C.indexOf(
+        'avoid_trap_andor_region(x, y)', cMoveStart,
+    );
+    const cTransitionAt = HACK_C.indexOf('in_out_region(x, y)', cMoveStart);
+    assert.ok(cAskAt >= 0 && cAskAt < cTransitionAt,
+        'C asks before changing region membership');
+
+    // The same destination passes the command admission seam and reaches the
+    // live query; a generic region-crossing refusal would skip this C prompt.
+    assert.doesNotThrow(() => preflightDomoveDestination(x, y, game, 0));
+    await domove(game);
+
+    assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+    assert.equal(region.hero_inside, true);
+    assert.ok(
+        replay.getScreens().some((screen) => (
+            screen.includes('Step into that poison gas cloud? [yn] (n)')
+        )),
+        'the admitted movement asks C’s visible poison-cloud question',
+    );
+});
+
 test('pile_limit zero leaves a single object on the naming path', async () => {
     const { x, y } = await prepareHeroMoveAdmission();
     game.flags.pickup = false;
@@ -1203,18 +1250,6 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                     o_id: 90, otyp: IRON_SHOES, oclass: ARMOR_CLASS,
                     quan: 1, owornmask: W_ARMF, where: OBJ_INVENT,
                 };
-            },
-        },
-        {
-            name: 'region entry',
-            reason: 'region crossing',
-            setup: ({ x, y }) => {
-                installFloorPile(x, y);
-                // A one-cell region isolates the false -> true membership
-                // transition at this destination.
-                game.level.regions.push(create_region([
-                    { lx: x, ly: y, hx: x, hy: y },
-                ]));
             },
         },
         // An ordinary hostile at the destination is no longer an admission

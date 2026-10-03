@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Corrected C-first membership recipe. Earlier preserved inputs revealed the scroll was slot n, the four getpos More prompts, and the source step-into-gas confirmation; the current frozen input uses the observed slot and answers that prompt yes. Cursed cloud size is 5 and centered two cursor steps east; movement into the cross-shaped gas region should execute in_out_region and change hero_inside. Orc poison resistance keeps the callback safe. This does not claim the disabled enter/leave callback slots.",
+  "segments": [
+    {
+      "seed": 202610031,
+      "datetime": "20441003093000",
+      "nethackrc": "OPTIONS=name:GasEntryA83,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017cursed scroll of stinking cloud\nrn    ll.ly."
+    }
+  ]
+}

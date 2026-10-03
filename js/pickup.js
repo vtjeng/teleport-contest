@@ -2766,7 +2766,7 @@ function carry_count(obj, container, count, telekinesis, state) {
 async function lift_object(obj, container, cnt_p, telekinesis, state) {
     if (obj.otyp === BOULDER && state.Sokoban) {
         await ttyPline(
-            `You cannot get your ${body_part(HAND, state)} around this `
+            `You cannot get your ${body_part(HAND, state.youmonst)} around this `
             + `${xnameFresh(obj, state)}.`,
             state,
         );
