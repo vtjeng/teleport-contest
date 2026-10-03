@@ -530,14 +530,21 @@ function fruitLookup(fname, exact, state) {
     }
 
     let tentative = null;
+    let tentativeLength = -1;
     if (!exact) {
+        const fnameLength = Strlen_(fname, 'fruit_from_name', 470);
+        const fnameBytes = encodeUtf8ByteString(fname).slice(0, fnameLength);
         for (const fruit of nodes) {
-            const length = fruit.fname.length;
-            if (fname.startsWith(fruit.fname)
-                && (!fname[length] || fname[length] === ' ')
-                && (!tentative
-                    || length > tentative.fname.length)) {
+            const length = Strlen_(fruit.fname, 'fruit_from_name', 470);
+            const fruitBytes = encodeUtf8ByteString(fruit.fname).slice(0, length);
+            let prefixMatches = fnameLength >= length;
+            for (let index = 0; prefixMatches && index < length; ++index)
+                prefixMatches = fnameBytes[index] === fruitBytes[index];
+            const nextByte = fnameBytes[length];
+            if (prefixMatches && (nextByte === undefined || nextByte === 0x20)
+                && length > tentativeLength) {
                 tentative = fruit;
+                tentativeLength = length;
             }
         }
         if (tentative) return { fruit: tentative, highestFid };
@@ -549,16 +556,20 @@ function fruitLookup(fname, exact, state) {
 
     if (!exact) {
         tentative = null;
+        tentativeLength = -1;
+        const fnameLength = Strlen_(fname, 'fruit_from_name', 490);
+        const fnameBytes = encodeUtf8ByteString(fname).slice(0, fnameLength);
         for (const fruit of nodes) {
-            const length = fruit.fname.length;
-            if (fname.length < length) continue;
-            const space = fname.indexOf(' ', length);
+            const length = Strlen_(fruit.fname, 'fruit_from_name', 494);
+            if (fnameLength < length) continue;
+            const space = fnameBytes.indexOf(0x20, length);
             if (space < 0) continue;
-            const prefix = makesingular(fname.slice(0, space));
-            if (fruit.fname === prefix
-                && (!tentative
-                    || prefix.length > tentative.fname.length)) {
+            const prefixBytes = fnameBytes.slice(0, space);
+            const prefix = makesingular(decodeUtf8ByteString(prefixBytes));
+            const prefixLength = Strlen_(prefix, 'fruit_from_name', 509);
+            if (fruit.fname === prefix && prefixLength > tentativeLength) {
                 tentative = fruit;
+                tentativeLength = prefixLength;
             }
         }
     }

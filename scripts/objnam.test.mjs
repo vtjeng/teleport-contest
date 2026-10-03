@@ -69,6 +69,7 @@ import { newObject } from '../js/obj.js';
 import {
     An,
     The,
+    the,
     Tobjnam,
     an,
     aobjnam,
@@ -2502,6 +2503,23 @@ test('an() applies just_an()\'s article rules', () => {
         assert.equal(just_an(name) + name, expected, `just_an ${name}`);
     }
     assert.throws(() => an(''), /an\(\) requires a name/u);
+});
+
+test('an and the keep objnam.c Strlen-based BUFSZ byte limits', () => {
+    assert.match(OBJNAM_SOURCE,
+        /return strncat\(buf, str, BUFSZ - 1 - Strlen\(buf\)\);/u);
+    assert.match(OBJNAM_SOURCE,
+        /else if \(!named && \(l = Strlen\(str\)\) >= 31/u);
+    assert.match(OBJNAM_JS_SOURCE,
+        /Strlen_\(article, 'an', 2154\)/u);
+    assert.match(OBJNAM_JS_SOURCE,
+        /Strlen_\(str, 'the', 2230\)/u);
+
+    // C uses BUFSZ=256 and reserves its last byte for NUL.
+    const suffix = 'f'.repeat(300);
+    assert.equal(an(suffix), `a ${suffix.slice(0, 253)}`);
+    const ordinary = 'ordinary '.repeat(40);
+    assert.equal(the(ordinary), `the ${ordinary.slice(0, 251)}`);
 });
 
 test('vtense() agrees with the subject objnam.c inspects', () => {

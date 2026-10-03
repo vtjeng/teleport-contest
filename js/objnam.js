@@ -65,6 +65,7 @@ import {
     is_ammo, is_missile, is_weptool, objectType,
 } from './obj.js';
 import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
+import { Strlen_ } from './strutil.js';
 import {
     AKLYS,
     ALCHEMY_SMOCK, AMULET_CLASS, AMULET_OF_YENDOR, ARMOR_CLASS, ARM_BOOTS,
@@ -737,7 +738,13 @@ export function just_an(str) {
 // name; nothing in the port can supply one, so that stays a thrown error.
 export function an(str) {
     if (!str) throw new Error(`an() requires a name; got ${String(str)}`);
-    return just_an(str) + str;
+    const article = just_an(str);
+    // C an() uses strncat(BUFSZ - 1 - Strlen(buf)); preserve its byte limit.
+    const remaining = BUFSZ - 1 - Strlen_(article, 'an', 2154);
+    const text = truncateByteString(str, Math.min(
+        remaining, Strlen_(str, 'an', 2154),
+    ));
+    return article + text;
 }
 
 // C ref: objnam.c special_subjs[]. Singular subjects that end in 's'.
@@ -783,14 +790,15 @@ export function vtense(subj, verb) {
                 || endsWith(1, 'ia') || endsWith(1, 'ae');
             if (plural) {
                 const len = spot + 1;
-                const special = SPECIAL_SUBJS.some((entry) => (
-                    (len === entry.length
+                const special = SPECIAL_SUBJS.some((entry) => {
+                    const entryLength = Strlen_(entry, 'vtense', 2610);
+                    return (len === entryLength
                         && subj.slice(0, len).toLowerCase()
                             === entry.toLowerCase())
-                    || (len > entry.length && subj[spot - entry.length] === ' '
-                        && subj.slice(spot - entry.length + 1, spot + 1)
+                    || (len > entryLength && subj[spot - entryLength] === ' '
+                        && subj.slice(spot - entryLength + 1, spot + 1)
                             .toLowerCase() === entry.toLowerCase())
-                ));
+                });
                 if (!special) return verb;
             } else if (subj.toLowerCase() === 'they'
                 || subj.toLowerCase() === 'you') {
@@ -1095,7 +1103,12 @@ export function short_oname(obj, func, altfunc, lenlimit, state = game) {
 // the hero carries, "the <minimal_xname>" for what she does not, or a
 // shopkeeper's possessive where shk_your() finds an owner.
 export function ysimple_name(obj, state = game) {
-    return `${shk_your(obj, state)}${minimal_xname(obj, state)}`;
+    const prefix = shk_your(obj, state);
+    const remaining = BUFSZ - 1 - Strlen_(prefix, 'ysimple_name', 2395);
+    const name = minimal_xname(obj, state);
+    return prefix + truncateByteString(name, Math.min(
+        remaining, Strlen_(name, 'ysimple_name', 2395),
+    ));
 }
 
 // C ref: objnam.c Ysimple_name2() (2402-2408). Capitalized variant of
@@ -1583,14 +1596,29 @@ export function the(str, state = game) {
                 if (ofIndex >= 0
                     && (namingIndex < 0 || ofIndex < namingIndex)) {
                     insertThe = true;
-                } else if (namingIndex < 0 && str.length >= 31
-                    && str.endsWith('Platinum Yendorian Express Card')) {
-                    insertThe = true;
+                } else if (namingIndex < 0) {
+                    const length = Strlen_(str, 'the', 2220);
+                    if (length >= 31) {
+                        const bytes = encodeUtf8ByteString(str).slice(0, length);
+                        const suffix = encodeUtf8ByteString(
+                            'Platinum Yendorian Express Card',
+                        );
+                        if (bytes.length >= suffix.length
+                            && suffix.every((byte, index) => (
+                                bytes[bytes.length - suffix.length + index] === byte
+                            )))
+                            insertThe = true;
+                    }
                 }
             }
         }
     }
-    return `${insertThe ? 'the ' : ''}${str}`;
+    const prefix = insertThe ? 'the ' : '';
+    const remaining = BUFSZ - 1 - Strlen_(prefix, 'the', 2230);
+    const text = truncateByteString(str, Math.min(
+        remaining, Strlen_(str, 'the', 2230),
+    ));
+    return prefix + text;
 }
 
 // C ref: objnam.c The() (2234-2241). the() with its first character
@@ -1637,7 +1665,11 @@ export function yobjnam(obj, verb, state = game) {
     if (!carried(obj)
         || !obj_is_pname(obj, state)
         || obj.oartifact >= ART_ORB_OF_DETECTION) {
-        return `${shk_your(obj, state)}${s}`;
+        const prefix = shk_your(obj, state);
+        const remaining = BUFSZ - 1 - Strlen_(prefix, 'yobjnam', 2271);
+        return prefix + truncateByteString(s, Math.min(
+            remaining, Strlen_(s, 'yobjnam', 2271),
+        ));
     }
     return s;
 }
@@ -1677,7 +1709,11 @@ export function yname(obj, state = game) {
     if (!carried(obj)
         || !obj_is_pname(obj, state)
         || obj.oartifact >= ART_ORB_OF_DETECTION) {
-        return `${shk_your(obj, state)}${s}`;
+        const prefix = shk_your(obj, state);
+        const remaining = BUFSZ - 1 - Strlen_(prefix, 'yname', 2368);
+        return prefix + truncateByteString(s, Math.min(
+            remaining, Strlen_(s, 'yname', 2368),
+        ));
     }
     return s;
 }

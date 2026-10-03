@@ -725,6 +725,27 @@ test('notice distance comparator and simplified floor type follow hack.c', () =>
     assert.equal(u_simple_floortyp(11, 10, state), ROOM);
 });
 
+test('hack.c waterwall call sites use the canonical coordinate predicate', () => {
+    const simpleStart = HACK_SOURCE.indexOf('u_simple_floortyp(coordxy');
+    const simpleEnd = HACK_SOURCE.indexOf('\n/* maybe show', simpleStart);
+    const simpleC = HACK_SOURCE.slice(simpleStart, simpleEnd);
+    const poolStart = HACK_SOURCE.indexOf('pooleffects(\n    boolean newspot)');
+    const poolEnd = HACK_SOURCE.indexOf('\nvoid\nspoteffects', poolStart);
+    const poolC = HACK_SOURCE.slice(poolStart, poolEnd);
+    const simpleJsStart = HACK_JS_SOURCE.indexOf('export function u_simple_floortyp(');
+    const simpleJsEnd = HACK_JS_SOURCE.indexOf('\n}', simpleJsStart) + 2;
+    const simpleJs = HACK_JS_SOURCE.slice(simpleJsStart, simpleJsEnd);
+    const poolJsStart = HACK_JS_SOURCE.indexOf('export async function pooleffects(');
+    const poolJsEnd = HACK_JS_SOURCE.indexOf('\n}', poolJsStart) + 2;
+    const poolJs = HACK_JS_SOURCE.slice(poolJsStart, poolJsEnd);
+
+    assert.match(simpleC, /if\s*\(is_waterwall\(x, y\)\)/u);
+    assert.match(poolC, /!Wwalking\s*\|\|\s*is_waterwall\(u\.ux,\s*u\.uy\)/u);
+    assert.match(simpleJs, /if\s*\(is_waterwall\(x, y, state\)\)/u);
+    assert.match(poolJs, /!waterWalking\s*\|\|\s*isWaterWall/u);
+    assert.match(poolJs, /const isWaterWall = is_waterwall\(u\.ux, u\.uy, state\)/u);
+});
+
 test('moverock_core consumes the C liquid-push result before dopush', async () => {
     const cStart = HACK_SOURCE.indexOf(
         'moverock_core(coordxy sx, coordxy sy)\n{',

@@ -381,6 +381,7 @@ import {
     is_ice,
     is_lava,
     is_pool_or_lava,
+    is_waterwall,
 } from './dbridge.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
@@ -3136,7 +3137,7 @@ export function u_simple_floortyp(x, y, state = game) {
     const typ = state.level?.at(x, y)?.typ;
     const inAir = propertyActiveUnblocked(state, LEVITATION)
         || heroIsFlying(state) || !grounded(state.youmonst?.data, state);
-    if (IS_WATERWALL(typ)) return WATER;
+    if (is_waterwall(x, y, state)) return WATER;
     if (typ === LAVAWALL) return LAVAWALL;
     if (!inAir) {
         if (is_pool(x, y, state)) return POOL;
@@ -4997,9 +4998,7 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
         if (is_lava(u.ux, u.uy, state)) {
             if (await lava_effects(state)) return true;
         } else {
-            const isWaterWall = IS_WATERWALL(
-                state.level?.at(u.ux, u.uy)?.typ,
-            );
+            const isWaterWall = is_waterwall(u.ux, u.uy, state);
             if ((!waterWalking || isWaterWall)
                 && (newspot || !u.uinwater
                     || !(swimming || amphibiousHero || breathlessHero))) {
