@@ -162392,7 +162392,7 @@
           "line": 5710,
           "endLine": 5721,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -162568,7 +162568,50 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "inventory_resistance_check",
+            "implementation": "js/zap.js",
+            "symbol": "inventory_resistance_check",
+            "sourceReview": "Read the whole zap.c:inventory_resistance_check body at 5710-5718. It calls u_adtyp_resistance_obj once, returns FALSE without drawing when that result is zero, and otherwise makes one rn2(100) call whose value is compared with a strict less-than. It has no message/screen or game-state write beyond the RNG call. u_adtyp_resistance_obj and its consumed adtyp_to_prop helper are supplied by pending A93 delivery 99a785cb2773e12fd6e76f42639e4e1fbf367582. All current wired JS direct callers are trap_erode_obj.js:erode_obj and zap_destroy_items.js:maybe_destroy_item. Other C call sites remain in the unported zhitu disintegration arm at zap.c:4466 and trap.c:acid_damage at 4630; neither outer caller is credited here.",
+            "callers": [
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "erode_obj",
+                "source": "C trap.c:erode_obj calls the roller for hero-carried ERODE_BURN/AD_FIRE at 205 and ERODE_CORRODE/AD_ACID at 222; JS erode_obj passes the matching type, state and RNG at 228-229."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "maybe_destroy_item",
+                "source": "C zap.c:maybe_destroy_item calls the roller before item damage at 5816; JS maybe_destroy_item passes the matching damage type, state and RNG at 237."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-resistance-check.test.mjs",
+              "scripts/zap-ray.test.mjs",
+              "scripts/zap-destroy-items.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "zap.c",
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-breaks-charged-fire-wand",
+                "segment": 0,
+                "fromStep": 62,
+                "throughStep": 62,
+                "source": "trap.c:burnarmor -> trap.c:erode_obj ERODE_BURN/AD_FIRE; then zap.c:destroy_items -> zap.c:maybe_destroy_item. At step 62 the C RNG stream tags nine calls to inventory_resistance_check(zap.c:5717)."
+              }
+            ],
+            "checkedAt": "1bccfa035833a2ef96f5b5f63a2bd3d4acf469ef"
+          }
+        ],
+        "entryPointReview": "Helper-only range; entryPoints is empty. The v14 case reaches the roller through existing erode_obj and maybe_destroy_item callers, but gives no whole-caller credit. The zhitu disintegration and acid_damage C call sites remain unported caller boundaries outside this task.",
+        "entryPoints": []
+      }
     }
   ]
 }
