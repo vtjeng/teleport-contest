@@ -161574,7 +161574,7 @@
           "line": 5613,
           "endLine": 5653,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -161753,7 +161753,34 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "destroyable",
+            "implementation": "js/zap_destroy_items.js",
+            "symbol": "destroyable",
+            "sourceReview": "Read the complete zap.c:destroyable definition at 5613-5650. The function first rejects artifacts, then rejects an in-use single object. AD_FIRE rejects SCR_FIRE and SPE_FIREBALL, then admits green-slime glob, potion, scroll and spellbook classes. AD_COLD admits potions except POT_OIL. AD_ELEC rejects non-rings/non-wands, then admits eligible types except RIN_SHOCK_RESISTANCE and WAN_LIGHTNING. All other types and unmatched objects return FALSE. It has no consumed function-return dependencies, RNG calls, output, or game-state writes.",
+            "callers": [
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "destroy_items",
+                "source": "C zap.c:destroy_items at 6041 calls destroyable(obj, dmgtyp) and continues when it returns FALSE; JS js/zap_destroy_items.js:destroy_items at 479 uses the same predicate and continue condition."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/zap-destroy-items.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "zap.c",
+            "synthetic": [],
+            "checkedAt": "9571d897450d22884d88902deed0d6a1aa2f0440"
+          }
+        ],
+        "entryPointReview": "Helper-only range. destroyable is a pure predicate, not a command, monster action, level feature, or startup path. Its direct production caller is zap.c:destroy_items / js/zap_destroy_items.js:destroy_items. No entry-point runtime claim is made for destroy_items or its callers.",
+        "entryPoints": []
+      }
     }
   ]
 }
