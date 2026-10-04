@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { adjalign, ALIGNLIM } from '../js/attrib.js';
@@ -128,6 +129,10 @@ import { glyph_is_invisible, map_invisible } from '../js/display.js';
 import { block_point } from '../js/vision.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { canspotmon } from '..//js/display.js';
+
+const MON_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8',
+);
 
 // A Valkyrie on a plain first level. Any seed that reaches the first prompt
 // will do; 7710044 is the base row of the kill matrix, so this is the hero
@@ -438,8 +443,17 @@ test('canspotmon still sees a monster with no hit points left', async () => {
     assert.equal(canspotmon(null, game), false, 'no monster at all');
 });
 
-// mon.c zombie_maker() (361-380).
-test('zombie_maker admits liches and true zombies only', async () => {
+// mon.c zombie_maker() (362-380).
+test('zombie_maker source branches match C and admit only liches/zombies', async () => {
+    const start = MON_C.indexOf('\nzombie_maker(');
+    const end = MON_C.indexOf('\nzombie_form(', start + 1);
+    assert.ok(start >= 0 && end > start, 'extract the complete C definition');
+    const cBody = MON_C.slice(start, end);
+    assert.match(cBody, /if \(mon->mcan\)\s*return FALSE;/u);
+    assert.match(cBody, /switch \(pm->mlet\)[\s\S]*?case S_ZOMBIE:[\s\S]*?PM_GHOUL[\s\S]*?PM_SKELETON[\s\S]*?return TRUE;/u);
+    assert.match(cBody, /case S_LICH:[\s\S]*?return TRUE;/u);
+    assert.match(cBody, /\}\s*return FALSE;/u);
+
     await hero();
     assert.equal(zombie_maker(monster(PM_KOBOLD_ZOMBIE)), true, 'zombie');
     assert.equal(zombie_maker(monster(PM_ARCH_LICH)), true, 'lich');

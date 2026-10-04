@@ -37,8 +37,8 @@ import {
     is_orc,
     touch_petrifies,
     unsolid,
-    zombie_form,
 } from '../js/mondata.js';
+import { zombie_form } from '../js/mon.js';
 import { accessible } from '../js/monmove.js';
 import {
     AD_DGST,
