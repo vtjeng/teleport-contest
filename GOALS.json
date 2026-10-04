@@ -159621,14 +159621,14 @@
           "line": 1303,
           "endLine": 1315,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "big_to_little",
           "line": 1316,
           "endLine": 1330,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -159811,7 +159811,91 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "little_to_big",
+            "implementation": "js/mondata.js",
+            "symbol": "little_to_big",
+            "sourceReview": "Read the complete mondata.c definition at 1303-1313. It scans active grownups rows in order, tests column 0 against montype, replaces montype with column 1 on the first match, and returns the resulting species index unchanged when no row matches. It has no RNG, output, or state writes. The active table is generated from mondata.c with the deferred #if 0 pair excluded and the NON_PM terminator omitted.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "same_race",
+                "source": "mondata.c:same_race 853-854"
+              },
+              {
+                "path": "js/mondata.js",
+                "symbol": "big_little_match",
+                "source": "mondata.c:big_little_match 1348-1356"
+              },
+              {
+                "path": "js/mondata.js",
+                "symbol": "can_be_hatched",
+                "source": "mon.c:can_be_hatched 5554"
+              },
+              {
+                "path": "js/makemon.js",
+                "symbol": "grow_up",
+                "source": "makemon.c:grow_up 2067"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_whip",
+                "source": "apply.c:use_whip 3044"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "learn_egg_type",
+                "source": "timeout.c:learn_egg_type 1196"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "522fe990c2b7328078782bcb6ca66bc29270ce15"
+          },
+          {
+            "name": "big_to_little",
+            "implementation": "js/mondata.js",
+            "symbol": "big_to_little",
+            "sourceReview": "Read the complete mondata.c definition at 1316-1327. It scans active grownups rows in order, tests column 1 against montype, replaces montype with column 0 on the first match, and returns the resulting species index unchanged when no row matches. It has no RNG, output, or state writes. Duplicate adult forms intentionally select the first matching child according to source order.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "same_race",
+                "source": "mondata.c:same_race 849-850"
+              },
+              {
+                "path": "js/mondata.js",
+                "symbol": "dead_species",
+                "source": "mon.c:dead_species 5602"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_whip",
+                "source": "apply.c:use_whip 3045"
+              },
+              {
+                "path": "js/wizard.js",
+                "symbol": "pick_nasty",
+                "source": "wizard.c:pick_nasty 566"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "522fe990c2b7328078782bcb6ca66bc29270ce15"
+          }
+        ],
+        "entryPointReview": "These two pure helper functions have no entry points of their own. They are production-wired into the direct source callers listed for each unit; the unit test pins C-derived results for all active rows. timeout.c:hatch_egg also calls big_to_little but remains an explicitly unimplemented timer callback and receives no credit in this helper task.",
+        "entryPoints": []
+      }
     }
   ]
 }
