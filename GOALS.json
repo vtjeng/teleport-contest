@@ -156503,6 +156503,195 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-awake-killer-bee-action-preflight-v21-20261004",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Correct awake killer-bee action preflight",
+      "cFile": "monmove.c",
+      "sessions": [],
+      "selectionReason": "Correct the existing simple-monster-action preflight guard for awake killer bees, matching monmove.c:dochug867–874. C only enters the royal-jelly wake path under sleeping/species/object/helper preconditions. No whole dochug completion credit. Exact one-delivery source-pinned fix independently replays all45 screens,2863RNG and45cursors; baseline34/45screens. Selected v21 case first refusal at segment0 step34 in js/unported_monster_actions.js; sleeping wake path and other guards retained.",
+      "detail": "Correct the existing simple-monster-action preflight guard for awake killer bees, matching monmove.c:dochug867–874. C only enters the royal-jelly wake path under sleeping/species/object/helper preconditions. No whole dochug completion credit. Exact one-delivery source-pinned fix independently replays all45 screens,2863RNG and45cursors; baseline34/45screens. Selected v21 case first refusal at segment0 step34 in js/unported_monster_actions.js; sleeping wake path and other guards retained.",
+      "openedAt": "a130c3cee12f4d362f0bf7d723ece000c1bd972a",
+      "openStanding": {
+        "sha": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "dochug",
+      "session": "synthetic/v21/wizard-killer-bee-stings-poison-v21-cfirst",
+      "step": 34,
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-killer-bee-stings-poison-v21-cfirst": {
+          "session": "synthetic/v21/wizard-killer-bee-stings-poison-v21-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-killer-bee-stings-poison-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.session.json",
+          "recordingSha256": "c2f81011a67c9c90524f9ada6447288f33d8da40e5d63e1185320931272d86d4",
+          "evaluationPath": "challenges/evaluations/20261004045832-v21.json",
+          "evaluationCommit": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc"
+        }
+      },
+      "activeStanding": {
+        "sha": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-killer-bee-stings-poison-v21-cfirst",
+          "session": "synthetic/v21/wizard-killer-bee-stings-poison-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.session.json",
+          "recordingSha256": "c2f81011a67c9c90524f9ada6447288f33d8da40e5d63e1185320931272d86d4",
+          "recipe": "challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.recipe.session.json",
+          "recipeSha256": "3f5afb9fa16bd437f2dd86df3fef85b57cc2b29630d3d4d7eee3f32cccaa7d67",
+          "replayInputSha256": "874861b72ee8de04ca58e66116498b7c5377879d9970c023f9e9ccc7aa372848",
+          "evaluationPath": "challenges/evaluations/20261004045832-v21.json",
+          "evaluationCommit": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc",
+          "evaluationArtifact": "challenges/evaluations/20261004045832-v21.json",
+          "evaluationUtc": "2026-10-04T05:00:07.124Z",
+          "remainingScreens": 11,
+          "recordedSteps": 45,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 45
+            },
+            "rng": {
+              "matched": 2804,
+              "total": 2863
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 45
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a special monster action",
+            "step": 34
+          },
+          "step": 34,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a special monster action",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-killer-bee-stings-poison-v21-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/wizard-killer-bee-stings-poison-v21-cfirst",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-killer-bee-stings-poison-v21-cfirst",
+              "remainingScreens": 11,
+              "recordedSteps": 45,
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "c2f81011a67c9c90524f9ada6447288f33d8da40e5d63e1185320931272d86d4",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "status": "complete",
+              "commit": "ee3dc7db5cacad4d18557379dd75b9558de8d421",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-killer-bee-stings-poison-v21-cfirst",
+                "session": "synthetic/v21/wizard-killer-bee-stings-poison-v21-cfirst",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.session.json",
+                "recordingSha256": "c2f81011a67c9c90524f9ada6447288f33d8da40e5d63e1185320931272d86d4",
+                "recipe": "challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.recipe.session.json",
+                "recipeSha256": "3f5afb9fa16bd437f2dd86df3fef85b57cc2b29630d3d4d7eee3f32cccaa7d67",
+                "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationUtc": "2026-10-03T18:29:21.226Z",
+                "remainingScreens": 11,
+                "recordedSteps": 45,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 45
+                  },
+                  "rng": {
+                    "matched": 2804,
+                    "total": 2863
+                  },
+                  "cursors": {
+                    "matched": 34,
+                    "total": 45
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a special monster action",
+                  "step": 34
+                },
+                "step": 34,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a special monster action",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is a JavaScript preflight refusal on an awake killer bee. C monmove.c:dochug applies bee_eat_jelly only when royal jelly is under the bee and the helper consumes its turn, then continues to the ordinary attack path otherwise; the JavaScript guard rejects the bee before that source condition. The case reaches poisoned() later at step 36, after the step-34 refusal.",
+              "source": {
+                "file": "monmove.c",
+                "branch": "For an awake killer bee in dochug(), C first processes PHASE TWO, then in PHASE THREE checks whether LUMP_OF_ROYAL_JELLY is on the bee square and calls bee_eat_jelly() only then. C returns from the turn only if the helper returns >= 0; it proceeds through ordinary movement and PHASE FOUR attacks when the item check fails or bee_eat_jelly() returns -1 (a queen is already present). The recorded C attack at step 34 proves that no consuming/transformation result ended that turn, but does not distinguish absent jelly from the existing-queen return. The JavaScript assertSimpleActionState() instead rejects every awake killer bee before this source decision. Fix that general preflight boundary so it follows the supported dochug path and preserves the special-action result when it actually consumes a turn.",
+                "functions": [
+                  "dochug"
+                ],
+                "callers": [
+                  "allmain.c:moveloop_core:212 calls mon.c:movemon:1320, which enters monmove.c:dochugw:214 and then monmove.c:dochug.",
+                  "monmove.c:dochug:971 calls mhitu.c:mattacku from PHASE FOUR when the hostile bee is in range, not scared, and the hero is alive; hitmu records the landed sting.",
+                  "JavaScript planning path: allmain.js:planElapsedTurn invokes unported_monster_actions.js:runSimpleMonsterAction; runSimpleMonsterAction calls assertSimpleActionState at :1484 before monmove.js:dochugw reaches its source-backed killer-bee check."
+                ],
+                "dependencies": [
+                  "invent.c:sobj_at supplies the PHASE THREE floor-object predicate for LUMP_OF_ROYAL_JELLY; js/monmove.js:2684-2687 already uses it before bee_eat_jelly().",
+                  "monmove.c:bee_eat_jelly and find_pmmonst decide whether the bee consumes its move, dies, or returns -1 because a queen already exists; js/monmove.js contains both helpers and their caller.",
+                  "monmove.c:distfleeck precedes the special-action check, and mhitu.c:mattacku/hitmu own the ordinary attack reached by this recording."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The exact entry in .cache/v21-first-work-queue.json binds synthetic/v21/wizard-killer-bee-stings-poison-v21-cfirst to 11 remaining screens, 45 recorded steps, manifest digest d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac, recording digest c2f81011a67c9c90524f9ada6447288f33d8da40e5d63e1185320931272d86d4, and evaluation challenges/evaluations/20261003183000-v21.json at engine commit b0fd76f6091376c07bf54e8d3061aa5a9c9957d0. The evaluation reports 34/45 matched screens, 2804/2863 matched RNG calls, 34/45 matched cursors, and a step-34 stop: “simple monster action requires a special monster action”. The examined accepted main commit is ee3dc7db5cacad4d18557379dd75b9558de8d421.",
+                "C65 case-specific adjudication in .cache/C65-poison-root-verification.json identifies the normalized first C mismatch at segment 0, step 34: rn2(5)=3 at monmove.c:distfleeck, rnd(20)=12 at mhitu.c:mattacku, and d(1,3)=1 at mhitu.c:hitmu. It states that C reaches the ordinary killer-bee attack and that the later poisoned() branch is at step 36, not the first cause. The diagnostic attributes the JavaScript stop to assertSimpleActionState rejecting the bee before the C jelly-at-square condition.",
+                "The immutable recording challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.session.json matches the queue recording hash. Its step 34 has key “.”, message “The killer bee stings!”, HP 12→11, and the same distfleeck/mattacku/hitmu call sequence. Step 36 later records mhitm_ad_drst followed by rn2(30)=14 and rn2(10)=5 at attrib.c:poisoned; this is continuation evidence, not the step-34 owner.",
+                "Upstream nethack-c/upstream/src/monmove.c:867-874 gates bee_eat_jelly() on the bee species, a royal-jelly object returned by sobj_at() at the bee square, and a helper result >= 0. When that branch does not consume the turn, :966-973 reaches PHASE FOUR and calls mattacku() for a hostile in-range bee. mon.c:1320 and monmove.c:214 show the movemon -> dochugw -> dochug caller path.",
+                "At the examined main commit, js/unported_monster_actions.js:357-362 raises “a special monster action” for every awake killer bee, and runSimpleMonsterAction() calls that guard at :1484 before invoking dochugw(). By contrast, js/monmove.js:2684-2687 already checks sobj_at(LUMP_OF_ROYAL_JELLY) and calls the implemented bee_eat_jelly() helper. This places the first cause in the preflight guard, not in missing bee-eat or poison behavior."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
