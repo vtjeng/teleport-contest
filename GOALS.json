@@ -157528,7 +157528,7 @@
           "line": 80,
           "endLine": 90,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -157709,7 +157709,33 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "poly_when_stoned",
+            "implementation": "js/mondata.js",
+            "symbol": "poly_when_stoned",
+            "sourceReview": "Read the complete mondata.c:poly_when_stoned definition at lines 80-86 and compared it with js/mondata.js:1654-1657. The predicate requires is_golem(ptr), excludes the PM_STONE_GOLEM target itself, then checks svm.mvitals[PM_STONE_GOLEM].mvflags & G_GENOD; its source comment explicitly allows G_EXTINCT. include/mondata.h:108 defines is_golem as mlet == S_GOLEM, and monflag.h:209-210 assigns G_GENOD=0x02 and G_EXTINCT=0x01. The JavaScript reads the corresponding state.svm.mvitals entry, applies G_GENOD, and does not reject G_EXTINCT. The function calls no C functions beyond the is_golem macro and performs no RNG, output or state mutation, so it is pure. The direct selected production caller is mhitm.c:mdamagem:1044, mirrored by js/mhitm.js:mdamagem:540. Other source call sites and current direct JS helper references are inventoried in A88-task-context.json; this evidence does not claim their outer functions complete or change them.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem:1044 calls poly_when_stoned(pa) in the petrification guard; js/mhitm.js:540 passes the corresponding attacker species and state."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "095a590ddf50c21ce53119d117e207708d7a13d9"
+          }
+        ],
+        "entryPointReview": "A88 verifies the whole pure mondata.c:poly_when_stoned predicate and its existing selected caller in mdamagem. The source-pinned test extracts the C predicate, pins is_golem, G_GENOD, G_EXTINCT and the paper-golem, stone-golem and newt source rows, then checks the live svm.mvitals mapping for no flags, G_EXTINCT alone and G_GENOD. The other active C call sites are eat.c:796,1867,2564,2649; mon.c:1433; polyself.c:807; mkmaze.c:662,681; dothrow.c:1307,1402; pickup.c:290; dokick.c:548; muse.c:530; steed.c:71; mthrowu.c:781; uhitm.c:3927,3955,5950; invent.c:4272,4351; trap.c:3848,3862,5739; mhitu.c:1751,2495; mhitm.c:226; apply.c:2200,3213; and sp_lev.c:2370. Existing direct JavaScript helper references are in dothrow.js, mklev.js, steed.js, uhitm.js, mhitu.js, apply.js, eat.js, muse.js, mhitm.js, mthrowu.js, trap.js, invent.js, sp_lev_object.js and pickup.js, as detailed in the task context. uhitm.c:2154 is inside #if 0. A88 does not claim completion of these caller functions. The selected Flaming Sphere recording reaches mhitm.c:explmm, not the petrification guard, so it is not cited as runtime execution of this pure helper.",
+        "entryPoints": []
+      }
     }
   ]
 }
