@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Retained source-relevant A85 setup miss: the final waiting turn uses search (`s`) instead of wait (`.`), changing the hero-turn/search history while retaining the three-Pudding Conflict setup. C finds a hidden door and runs a monster phase, but this short recipe ends before the Abbot's AD_STUN hit. C capture is preserved outside recordings/ at /tmp/A85-abbot-route-attempts-a46/mhitm-ad-stun-abbot-search-brown-pudding-a85-variation-c-record.session.json.",
+  "segments": [
+    {
+      "seed": 56387021,
+      "datetime": "20371026131700",
+      "nethackrc": "OPTIONS=name:A85StunPair,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n3 hostile brown pudding\n #wizgenesis\nhostile Abbot\n . s "
+    }
+  ]
+}

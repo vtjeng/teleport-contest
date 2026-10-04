@@ -178,7 +178,7 @@ import {
 } from './invent.js';
 import {
     bigmonst, hides_under, is_rider, nohands, nolimbs, notake,
-    poly_when_stoned, throws_rocks, touch_petrifies,
+    poly_when_stoned, stagger, throws_rocks, touch_petrifies,
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
@@ -252,7 +252,7 @@ const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,
     'Your movements are slowed slightly because of your load.',
     'You rebalance your load.  Movement is difficult.',
-    'You stagger under your heavy load.  Movement is very hard.',
+    null, // pickup.c calls mondata.c:stagger() for capacity 3.
     'You can barely move a handspan with this load!',
     "You can't even move a handspan with this load!",
 ]);
@@ -261,7 +261,7 @@ const DECREASED_BURDEN_MESSAGES = Object.freeze([
     'Your movements are now unencumbered.',
     'Your movements are only slowed slightly by your load.',
     'You rebalance your load.  Movement is still difficult.',
-    'You stagger under your load.  Movement is still very hard.',
+    null, // pickup.c calls mondata.c:stagger() for capacity 3.
 ]);
 
 // pickup.c's local GOLD_WT macro deliberately has no minimum-one clamp.
@@ -280,9 +280,13 @@ export async function encumber_msg(
     const newCapacity = near_capacity(state);
     let text = null;
     if (oldCapacity < newCapacity)
-        text = INCREASED_BURDEN_MESSAGES[newCapacity] ?? null;
+        text = newCapacity === 3
+            ? `You ${stagger(state.youmonst.data, 'stagger')} under your heavy load.  Movement is very hard.`
+            : INCREASED_BURDEN_MESSAGES[newCapacity] ?? null;
     else if (oldCapacity > newCapacity)
-        text = DECREASED_BURDEN_MESSAGES[newCapacity] ?? null;
+        text = newCapacity === 3
+            ? `You ${stagger(state.youmonst.data, 'stagger')} under your load.  Movement is still very hard.`
+            : DECREASED_BURDEN_MESSAGES[newCapacity] ?? null;
 
     if (text) {
         await message(text, state);

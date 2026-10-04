@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Final bounded A85 variation attempt: two hostile brown puddings instead of three changes the literal quantity accepted by read.c:create_particular_parse. The C route ends after two waits without an Abbot-to-Pudding AD_STUN hit, so this setup miss provides no runtime coverage. Its C capture is preserved outside recordings/ at /tmp/A85-abbot-route-attempts-a46/mhitm-ad-stun-abbot-two-brown-pudding-a85-variation-c-record.session.json.",
+  "segments": [
+    {
+      "seed": 56387021,
+      "datetime": "20371026131700",
+      "nethackrc": "OPTIONS=name:A85StunPair,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n2 hostile brown pudding\n #wizgenesis\nhostile Abbot\n . . "
+    }
+  ]
+}

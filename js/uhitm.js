@@ -4494,6 +4494,65 @@ export async function mhitm_ad_ston(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_stun() (4388-4419). Preserve the source's three
+// directions and await the existing physical helper before reading its done
+// field, as each C arm does.
+export async function mhitm_ad_stun(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+    const defenderData = mdef.data;
+
+    if (magr === state.youmonst) {
+        if (!heroIsBlind(state)) {
+            await message(
+                `${Monnam(mdef, state, env)} ${makeplural(
+                    stagger(defenderData, 'stagger'),
+                )} for a moment.`,
+                state,
+                env,
+            );
+        }
+        mdef.mstun = 1;
+        await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (!magr.mcan && !random.rn2(4)) {
+            const currentStun = state.u?.uprops?.[STUNNED]?.intrinsic ?? 0;
+            await make_stunned(
+                (currentStun & TIMEOUT) + mhm.damage,
+                true,
+                state,
+                env,
+            );
+            // C stores this in an int, so odd damage truncates toward zero.
+            mhm.damage = Math.trunc(mhm.damage / 2);
+        }
+    } else {
+        if (magr.mcan) return;
+        if (canseemon(mdef, state)) {
+            const text = `${Monnam(mdef, state, env)} ${makeplural(
+                stagger(defenderData, 'stagger'),
+            )} for a moment.`;
+            await message(
+                messageAt(text, mdef.mx, mdef.my, state),
+                state,
+                env,
+            );
+        }
+        mdef.mstun = 1;
+        await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_legs() (4425-4490).  The three source arms share
 // the same damage object: the hero's arm delegates to physical damage, a
 // monster attacking the hero can wound either leg, and a monster attacking a
@@ -5324,7 +5383,9 @@ export async function mhitm_adtyping(
     const unported = (name) => unsupported(`uhitm.c ${name}()`);
 
     switch (mattk.adtyp) {
-    case AD_STUN: unported('mhitm_ad_stun'); break;
+    case AD_STUN:
+        await mhitm_ad_stun(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_LEGS:
         await mhitm_ad_legs(magr, mattk, mdef, mhm, state, env);
         break;
