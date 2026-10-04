@@ -1182,7 +1182,7 @@ export async function hitfloor(obj, verbosely = true, state = game, rawEnv = {})
             }
         }
         await (rawEnv.message ?? ttyPline)(
-            `${Doname2(obj, state)} ${otense(obj, verb)} the ${landingSurface}.`,
+            `${Doname2(obj, state)} ${otense(obj, verb, state)} the ${landingSurface}.`,
             state,
             rawEnv,
         );
@@ -2406,7 +2406,7 @@ async function tmiss(obj, mon, maybeWakeup, state = game, env = {}) {
     if (!canseemon(mon, state)
         || (M_AP_TYPE(mon) && M_AP_TYPE(mon) !== M_AP_MONSTER)) {
         await message(
-            `${The(missile, state)} ${otense(obj, 'miss')}.`,
+            `${The(missile, state)} ${otense(obj, 'miss', state)}.`,
             state,
             env,
         );

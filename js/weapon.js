@@ -906,7 +906,7 @@ async function endMonsterArtifactLight(monster, obj, normalized) {
     await message(
         `${The(xnameFresh(obj, normalized.state), normalized.state)} in `
         + `${s_suffix(mon_nam(monster, normalized.state, normalized))} `
-        + `${mbodypart(monster, HAND)} ${otense(obj, 'stop')} shining.`,
+        + `${mbodypart(monster, HAND)} ${otense(obj, 'stop', normalized.state)} shining.`,
         normalized.state,
     );
 }
@@ -1076,7 +1076,7 @@ export async function mon_wield_item(monster, env = {}) {
                 const hand = bimanual(current, state)
                     ? makeplural(mbodypart(monster, HAND))
                     : mbodypart(monster, HAND);
-                const welded = `${otense(current, 'are')} welded to `
+                const welded = `${otense(current, 'are', state)} welded to `
                     + `${mhis(monster, namingEnv)} ${hand}`;
                 const message = normalized.message
                     ?? (normalized.planning ? async () => {} : ttyPline);

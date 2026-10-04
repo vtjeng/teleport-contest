@@ -3260,7 +3260,7 @@ async function splash_hero_light(obj, env) {
         || obj.otyp === POT_OIL) {
         if (!heroIsBlind(state)) {
             await requireTrapOperation(env, 'message')(
-                `${Yname2(obj, state)} ${otense(obj, 'go')} out!`,
+                `${Yname2(obj, state)} ${otense(obj, 'go', state)} out!`,
                 state,
                 env,
             );

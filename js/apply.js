@@ -3027,7 +3027,7 @@ export async function use_lamp(obj, state = game, env = {}) {
             make_glib((glib & TIMEOUT) + d(2, 10), state, env);
         } else if (!heroIsBlind(state)) {
             await ttyPline(
-                `${Tobjnam(obj, 'flicker', state)} for a moment, then ${otense(obj, 'die')}.`,
+                `${Tobjnam(obj, 'flicker', state)} for a moment, then ${otense(obj, 'die', state)}.`,
                 state,
             );
         } else {
@@ -3051,7 +3051,7 @@ export async function use_lamp(obj, state = game, env = {}) {
         const name = Yname2(obj, state);
         const plural = obj.quan !== 1;
         await ttyPline(
-            `${s_suffix(name)} flame${plural ? 's' : ''} ${otense(obj, 'burn')}`
+            `${s_suffix(name)} flame${plural ? 's' : ''} ${otense(obj, 'burn', state)}`
                 + `${heroIsBlind(state) ? '.' : ' brightly!'}`,
             state,
         );
@@ -3905,7 +3905,7 @@ async function use_royal_jelly(objp, state = game, rawEnv = {}) {
             if (eobj.timed || eobj.corpsenm !== oldCorpsenm) {
                 await message(
                     `The ${xnameFresh(eobj, state)} `
-                        + `${otense(eobj, 'quiver')} feebly.`,
+                        + `${otense(eobj, 'quiver', state)} feebly.`,
                     state,
                 );
             } else {
@@ -3925,7 +3925,7 @@ async function use_royal_jelly(objp, state = game, rawEnv = {}) {
                 || eobj.corpsenm !== oldCorpsenm) {
                 await message(
                     `The ${xnameFresh(eobj, state)} `
-                        + `${otense(eobj, 'quiver')} briefly.`,
+                        + `${otense(eobj, 'quiver', state)} briefly.`,
                     state,
                 );
             } else {

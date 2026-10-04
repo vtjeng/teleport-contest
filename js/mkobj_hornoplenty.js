@@ -152,7 +152,7 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
                 await doaltarobj(obj, state);
             } else {
                 await ttyPline(
-                    `${Doname2(obj, state)} ${otense(obj, 'drop')} to the ${surface(u.ux, u.uy, state)}.`,
+                    `${Doname2(obj, state)} ${otense(obj, 'drop', state)} to the ${surface(u.ux, u.uy, state)}.`,
                     state,
                 );
             }

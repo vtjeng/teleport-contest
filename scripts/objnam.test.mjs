@@ -206,6 +206,7 @@ import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
 
 const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
+const OBJ_HEADER_SOURCE = readFileSync('nethack-c/upstream/include/obj.h', 'utf8');
 const OBJNAM_JS_SOURCE = readFileSync('js/objnam.js', 'utf8');
 const ARTIFACT_SOURCE = readFileSync('nethack-c/upstream/src/artifact.c', 'utf8');
 const ARTIFACT_JS_SOURCE = readFileSync('js/artifacts.js', 'utf8');
@@ -2075,6 +2076,53 @@ test('artifact identification uses the discovery list, not artiexist.found', () 
     state.artiexist[ART_EYES_OF_THE_OVERWORLD].found = 0;
     state.artidisco[0] = ART_EYES_OF_THE_OVERWORLD;
     assert.equal(is_plural(eyes, state), true);
+});
+
+test('otense and naming wrappers use the active artifact discovery state', () => {
+    assert.match(
+        OBJ_HEADER_SOURCE,
+        /#define is_plural\(o\)[\s\S]*?\(o\)->quan != 1L[\s\S]*?\(o\)->oartifact == ART_EYES_OF_THE_OVERWORLD[\s\S]*?!undiscovered_artifact\(ART_EYES_OF_THE_OVERWORLD\)/u,
+    );
+    assert.match(
+        OBJNAM_SOURCE,
+        /otense\(struct obj \*otmp, const char \*verb\)[\s\S]*?if \(!is_plural\(otmp\)\)/u,
+    );
+
+    const state = namingState();
+    const eyes = objectOf(state, LENSES, {
+        oartifact: ART_EYES_OF_THE_OVERWORLD,
+    });
+    // C treats this wished artifact as extant and already found; discovery is
+    // still controlled separately by artidisco for the is_plural check.
+    state.artiexist[ART_EYES_OF_THE_OVERWORLD].exists = 1;
+    state.artiexist[ART_EYES_OF_THE_OVERWORLD].found = 1;
+    const previousGlobalDiscovery = game.artidisco;
+    game.artidisco = state.artidisco.slice();
+
+    try {
+        // C reads artidisco in the active game state. Make it disagree with
+        // the global singleton in both directions to catch a dropped state.
+        game.artidisco.fill(0);
+        // C's search starts at slot 0, so the first entry marks discovery.
+        state.artidisco[0] = ART_EYES_OF_THE_OVERWORLD;
+        // C's otense returns the supplied verb unchanged when is_plural holds.
+        assert.equal(otense(eyes, 'are', state), 'are');
+        assert.ok(aobjnam(eyes, 'are', state).endsWith(' are'));
+        assert.ok(Tobjnam(eyes, 'are', state).endsWith(' are'));
+
+        // The first global discovery slot creates the opposing singleton case.
+        game.artidisco[0] = ART_EYES_OF_THE_OVERWORLD;
+        state.artidisco.fill(0);
+        // An undiscovered Eyes object follows vtense(NULL, "are") and yields "is".
+        assert.equal(otense(eyes, 'are', state), 'is');
+        assert.ok(aobjnam(eyes, 'are', state).endsWith(' is'));
+        assert.ok(Tobjnam(eyes, 'are', state).endsWith(' is'));
+    } finally {
+        if (previousGlobalDiscovery === undefined)
+            delete game.artidisco;
+        else
+            game.artidisco = previousGlobalDiscovery;
+    }
 });
 
 test('BUC, poison, erosion, and enchantment prefixes retain source order', () => {

@@ -252,7 +252,7 @@ export async function drop_uswapwep(state = game, env = {}) {
     } else if (!state.u.twoweap) {
         await message(
             `${Yobjnam2(obj, 'evade', state)} your grasp and `
-            + `${otense(obj, 'drop')} from your ${leftHand}!`, state,
+            + `${otense(obj, 'drop', state)} from your ${leftHand}!`, state,
         );
     } else {
         await message(
@@ -431,7 +431,7 @@ export async function chwepon(otmp, amount, state = game) {
         if (!propertyActiveForWield(state, BLINDED)) {
             await ttyPline(
                 `${Yobjnam2(uwep, 'violently glow', state)} ${color} for a while and then `
-                    + `${otense(uwep, 'evaporate')}.`,
+                    + `${otense(uwep, 'evaporate', state)}.`,
                 state,
             );
         } else {
@@ -927,7 +927,7 @@ export async function doquiver_core(verb, state = game) {
                     const prefix = await shk_your_prefix(newquiver, state);
                     await ttyPline(
                         `${prefix}${simpleonames(newquiver, state)} `
-                        + `${otense(newquiver, 'remain')} wielded.`,
+                        + `${otense(newquiver, 'remain', state)} wielded.`,
                         state,
                     );
                     return ECMD_OK;
@@ -946,7 +946,7 @@ export async function doquiver_core(verb, state = game) {
                 const prefix = await shk_your_prefix(newquiver, state);
                 await ttyPline(
                     `${prefix}${simpleonames(newquiver, state)} `
-                    + `${otense(newquiver, 'remain')} wielded.`,
+                    + `${otense(newquiver, 'remain', state)} wielded.`,
                     state,
                 );
                 return ECMD_OK;
@@ -979,7 +979,7 @@ export async function doquiver_core(verb, state = game) {
                     const prefix = await shk_your_prefix(newquiver, state);
                     await ttyPline(
                         `${prefix}${simpleonames(newquiver, state)} `
-                        + `${otense(newquiver, 'remain')} `
+                        + `${otense(newquiver, 'remain', state)} `
                         + `${state.u.twoweap ? 'wielded' : 'as secondary weapon'}.`,
                         state,
                     );
@@ -998,7 +998,7 @@ export async function doquiver_core(verb, state = game) {
                 const prefix = await shk_your_prefix(newquiver, state);
                 await ttyPline(
                     `${prefix}${simpleonames(newquiver, state)} `
-                    + `${otense(newquiver, 'remain')} `
+                    + `${otense(newquiver, 'remain', state)} `
                     + `${state.u.twoweap ? 'wielded' : 'as secondary weapon'}.`,
                     state,
                 );

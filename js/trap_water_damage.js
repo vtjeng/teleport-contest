@@ -185,7 +185,7 @@ async function splashHeroLight(obj, env, state) {
             : !heroIsBlind(state)) {
             const message = env.message ?? ttyPline;
             await message(
-                `${Yname2(obj, state)} ${otense(obj, 'go')} out!`,
+                `${Yname2(obj, state)} ${otense(obj, 'go', state)} out!`,
                 state,
             );
         }
@@ -459,7 +459,7 @@ export async function lava_damage(obj, x, y, rawEnv = {}) {
             if (obj === state.gt?.thrownobj || obj === state.gk?.kickedobj) {
                 await message(
                     `${is_plural(obj) ? 'They' : 'It'} `
-                    + `${otense(obj, 'burn')} up!`,
+                    + `${otense(obj, 'burn', state)} up!`,
                     state,
                 );
             } else {

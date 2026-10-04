@@ -4022,7 +4022,7 @@ export async function bhit(
                 in_skip = true;
                 if (!heroIsBlind(state)) {
                     await ttyPline(
-                        `${Yname2(obj, state)} ${otense(obj, 'skip')}`
+                        `${Yname2(obj, state)} ${otense(obj, 'skip', state)}`
                             + `${skipcount ? ' again' : ''}.`, state,
                     );
                 } else {
@@ -4047,7 +4047,7 @@ export async function bhit(
                 || breathless(mtmp.data))) {
                 if (!heroIsBlind(state) && canspotmon(mtmp, state)) {
                     await ttyPline(
-                        `${Yname2(obj, state)} ${otense(obj, 'pass')} over `
+                        `${Yname2(obj, state)} ${otense(obj, 'pass', state)} over `
                             + `${mon_nam(mtmp, state)}.`, state,
                     );
                 }

@@ -2004,7 +2004,7 @@ export async function rehumanize(state = game, rawEnv = {}) {
         } else if (state.uamul && state.uamul.otyp === AMULET_OF_UNCHANGING) {
             await message(
                 `Your ${simpleonames(state.uamul, state)} `
-                + `${otense(state.uamul, 'fail')}!`, state, env,
+                + `${otense(state.uamul, 'fail', state)}!`, state, env,
             );
             observe_object(state.uamul, state);
             // hack.h:1530 makeknown(x) is discover_object(x, TRUE, TRUE, TRUE)

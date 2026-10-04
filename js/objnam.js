@@ -1641,8 +1641,8 @@ export function is_plural(otmp, state = game) {
 
 // C ref: objnam.c otense() (2529-2545). `verb` arrives in the plural, without
 // a trailing s, and comes back agreeing with what xname(otmp) would be.
-export function otense(otmp, verb) {
-    if (!is_plural(otmp))
+export function otense(otmp, verb, state = game) {
+    if (!is_plural(otmp, state))
         return vtense(null, verb);
     return verb;
 }
@@ -1666,7 +1666,7 @@ export function aobjnam(otmp, verb, state = game) {
     if (otmp.quan !== 1)
         bp = strprepend(bp, `${otmp.quan} `);
     if (verb)
-        bp = `${bp} ${otense(otmp, verb)}`;
+        bp = `${bp} ${otense(otmp, verb, state)}`;
     return bp;
 }
 
@@ -1700,7 +1700,7 @@ export function Tobjnam(otmp, verb, state = game) {
     const bp = The(xnameFresh(otmp, state), state);
 
     if (verb)
-        return `${bp} ${otense(otmp, verb)}`;
+        return `${bp} ${otense(otmp, verb, state)}`;
     return bp;
 }
 

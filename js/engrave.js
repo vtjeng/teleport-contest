@@ -971,7 +971,7 @@ export async function doengrave(state = game, env = {}) {
         de.ptext = false;
     }
     if (de.zapwand && de.otmp.spe < 0) {
-        await say(`${Tobjnam(de.otmp, 'turns', state)}, then ${otense(de.otmp, 'fade')}.`);
+        await say(`${Tobjnam(de.otmp, 'turns', state)}, then ${otense(de.otmp, 'fade', state)}.`);
         if (!IS_GRAVE(currentTyp))
             await say(`You are not going to get anywhere trying to write in the ${de.frosted ? 'frost' : 'dust'} with your dust.`);
         useup(de.otmp, { state, hooks: env.inventoryHooks ?? {} });
@@ -1061,7 +1061,7 @@ export async function doengrave(state = game, env = {}) {
     if (!length || bytes.includes(0x1b)) {
         if (de.zapwand) {
             if (!heroBlind(state))
-                await say(`${Tobjnam(de.otmp, 'glow', state)}, then ${otense(de.otmp, 'fade')}.`);
+                await say(`${Tobjnam(de.otmp, 'glow', state)}, then ${otense(de.otmp, 'fade', state)}.`);
             de.ret = env.ECMD_TIME ?? ECMD_TIME;
         } else {
             await say(Never_mind);

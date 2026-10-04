@@ -3008,7 +3008,7 @@ export async function glibr(state = game, env = {}) {
         const which = !lefty ? 'left ' : 'right ';
         await message(
             `Your ${otherwep} ${xfl ? 'also ' : ''}`
-            + `${otense(object, 'slip')} from your ${which}${hand}.`,
+            + `${otense(object, 'slip', state)} from your ${which}${hand}.`,
             state,
         );
         xfl = true;
@@ -3040,7 +3040,7 @@ export async function glibr(state = game, env = {}) {
             await message(
                 `${thiswep.startsWith('corpse') ? 'The' : 'Your'} `
                 + `${otherwep ? 'other ' : ''}${thiswep} `
-                + `${xfl ? 'also ' : ''}${otense(object, 'slip')} `
+                + `${xfl ? 'also ' : ''}${otense(object, 'slip', state)} `
                 + `from your ${which}${hand}.`,
                 state,
             );
