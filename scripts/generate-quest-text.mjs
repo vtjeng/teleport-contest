@@ -1,36 +1,17 @@
 #!/usr/bin/env node
 
-// Extract quest text messages from dat/quest.lua into a JavaScript module.
-// C ref: questpgr.c com_pager_core() loads quest.lua, looks up
-// questtext[<role>][<msgid>], and reads the .text, .output, and .synopsis
-// fields. This script extracts those fields for quest.c entry points and
-// messages used by the JavaScript quest pager without a Lua runtime.
+// Generate the complete questtext table from dat/quest.lua.
+// C ref: questpgr.c com_pager_core() loads the whole Lua program and looks up
+// questtext[section][msgid], including common pager messages and role text.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const UPSTREAM_ROOT = join(PROJECT_ROOT, 'nethack-c', 'upstream');
 const SOURCE_PATH = join(UPSTREAM_ROOT, 'dat', 'quest.lua');
 const OUTPUT_PATH = join(PROJECT_ROOT, 'js', 'quest_text_data.js');
-
-// Messages used by on_start(), on_locate(), on_goal(), chat_with_leader(),
-// and artitouch(). `badalign` is chat_with_leader()'s Rule 5 refusal for an
-// impure hero, given before exercise(A_WIS) and expulsion(FALSE).
-const NEEDED_MESSAGES = [
-    'firsttime', 'nexttime', 'othertime',
-    'locate_first', 'locate_next',
-    'goal_first', 'goal_next', 'goal_alt',
-    'leader_first', 'assignquest', 'gotit',
-    'badalign',
-];
-
-// All role filecodes, in the order they appear in quest.lua.
-const ROLE_SECTIONS = [
-    'common', 'Arc', 'Bar', 'Cav', 'Hea', 'Kni', 'Mon',
-    'Pri', 'Ran', 'Rog', 'Sam', 'Tou', 'Val', 'Wiz',
-];
 
 // ---------------------------------------------------------------------------
 // Minimal Lua literal parser.  quest.lua uses only tables, strings (double-
@@ -185,97 +166,82 @@ function parseLuaTable(src, pos) {
         if (src[pos] === ',') pos++;
     }
 
-    if (array.length > 0 && Object.keys(table).length === 0) {
-        return { value: array, pos };
-    }
     if (array.length > 0) {
-        // Mixed: put array elements into table with numeric keys.
-        // quest.lua uses this for discourage/encourage arrays that also
-        // have text/synopsis fields, but those are separate entries.
-        // Actually, quest.lua arrays don't mix with named keys in the
-        // same table.  The array-style tables ARE the value for keys
-        // like "discourage".
-        table._array = array;
+        if (Object.keys(table).length > 0) {
+            throw new Error('Mixed keyed and array values are unsupported in quest.lua');
+        }
+        return { value: array, pos };
     }
     return { value: table, pos };
 }
 
 // ---------------------------------------------------------------------------
-// Main
+// The Lua file is one assignment surrounded by comments and whitespace. This
+// parser rejects any executable prefix or suffix rather than silently
+// generating data from only part of the program.
 // ---------------------------------------------------------------------------
 
-const src = readFileSync(SOURCE_PATH, 'utf8');
+export function parseQuestText(src) {
+    const assignmentStart = skipWhitespaceAndComments(src, 0);
+    const assignment = /^questtext\s*=\s*/u.exec(src.slice(assignmentStart));
+    if (!assignment) throw new Error('questtext assignment not found');
 
-// Find "questtext = {" and parse the top-level table.
-const questtextMatch = src.indexOf('questtext = {');
-if (questtextMatch === -1) throw new Error('questtext table not found');
-const result = parseLuaTable(src, questtextMatch + 'questtext = '.length);
-const questtext = result.value;
+    const tableStart = assignmentStart + assignment[0].length;
+    const result = parseLuaTable(src, tableStart);
+    if (!result) throw new Error('questtext is not a Lua table');
 
-// Extract needed messages for each role.
-const output = {};
-for (const section of ROLE_SECTIONS) {
-    const roleData = questtext[section];
-    if (!roleData) {
-        console.warn(`Warning: section ${section} not found`);
-        continue;
-    }
-    const roleOutput = {};
-    for (const msgid of NEEDED_MESSAGES) {
-        const entry = roleData[msgid];
-        if (!entry) continue;
+    const sourceEnd = skipWhitespaceAndComments(src, result.pos);
+    if (sourceEnd !== src.length)
+        throw new Error(`Unexpected top-level Lua code at position ${sourceEnd}`);
+    if (!result.value || Array.isArray(result.value)
+        || typeof result.value !== 'object')
+        throw new Error('questtext must be a keyed Lua table');
 
-        if (typeof entry === 'string') {
-            roleOutput[msgid] = { text: entry };
-        } else if (Array.isArray(entry)) {
-            roleOutput[msgid] = { choices: entry };
-        } else if (typeof entry === 'object') {
-            const record = {};
-            if (entry.text !== undefined) record.text = entry.text;
-            if (entry.output !== undefined) record.output = entry.output;
-            if (entry.synopsis !== undefined) record.synopsis = entry.synopsis;
-            if (Array.isArray(entry._array)) record.choices = entry._array;
-            roleOutput[msgid] = record;
-        }
-    }
-    if (Object.keys(roleOutput).length > 0) {
-        output[section] = roleOutput;
-    }
+    return result.value;
 }
 
-// Also extract msg_fallbacks
-if (questtext.msg_fallbacks) {
-    output._fallbacks = questtext.msg_fallbacks;
+function renderModule(questtext) {
+    return [
+        '// Generated by scripts/generate-quest-text.mjs from dat/quest.lua.',
+        '// Do not edit by hand. Rerun the script to update.',
+        '//',
+        '// C ref: questpgr.c com_pager_core() looks up the raw Lua table.',
+        '// Keep array values in Lua order; the pager chooses a variant when',
+        '// the selected message has no text field.',
+        '',
+        `export const QUEST_TEXT_DATA = ${JSON.stringify(questtext, null, 4)};`,
+        '',
+        '// Role-section view for existing quest callers; entries reference',
+        '// the one generated table above rather than copying its messages.',
+        'export const QUEST_TEXT = Object.fromEntries(',
+        '    Object.entries(QUEST_TEXT_DATA).filter(([section]) =>',
+        "        section !== 'common' && section !== 'msg_fallbacks'),",
+        ');',
+        '',
+        '// This export is an alias of the single generated fallback table.',
+        'export const QUEST_TEXT_FALLBACKS = QUEST_TEXT_DATA.msg_fallbacks;',
+        '',
+    ].join('\n');
 }
 
-// Generate JS module.
-const lines = [
-    '// Generated by scripts/generate-quest-text.mjs from dat/quest.lua.',
-    '// Do not edit by hand.  Rerun the script to update.',
-    '//',
-    '// C ref: questpgr.c com_pager_core().  Each entry maps a message ID to',
-    '// its text, optional output mode, and optional synopsis.  For messages',
-    '// with multiple variants (arrays), com_pager_core() picks one at random',
-    '// via rn2(nelems).',
-    '',
-    `export const QUEST_TEXT = ${JSON.stringify(output, null, 4)};`,
-    '',
-    `export const QUEST_TEXT_FALLBACKS = ${JSON.stringify(output._fallbacks || {}, null, 4)};`,
-    '',
-];
+function main() {
+    const src = readFileSync(SOURCE_PATH, 'utf8');
+    const questtext = parseQuestText(src);
+    const generated = renderModule(questtext);
 
-const generated = lines.join('\n');
-if (process.argv.includes('--check')) {
-    const current = readFileSync(OUTPUT_PATH, 'utf8');
-    if (current !== generated)
-        throw new Error(`${OUTPUT_PATH} differs from generated quest text`);
-    console.log(`Checked ${OUTPUT_PATH}`);
-} else {
-    writeFileSync(OUTPUT_PATH, generated);
-    console.log(`Wrote ${OUTPUT_PATH}`);
+    if (process.argv.includes('--check')) {
+        const current = readFileSync(OUTPUT_PATH, 'utf8');
+        if (current !== generated)
+            throw new Error(`${OUTPUT_PATH} differs from generated quest text`);
+        console.log(`Checked ${OUTPUT_PATH}`);
+    } else {
+        writeFileSync(OUTPUT_PATH, generated);
+        console.log(`Wrote ${OUTPUT_PATH}`);
+    }
+    console.log(`Sections: ${Object.keys(questtext).join(', ')}`);
 }
-console.log(`Sections: ${Object.keys(output).filter(k => k !== '_fallbacks').join(', ')}`);
-for (const [section, msgs] of Object.entries(output)) {
-    if (section === '_fallbacks') continue;
-    console.log(`  ${section}: ${Object.keys(msgs).join(', ')}`);
+
+if (process.argv[1]
+    && pathToFileURL(process.argv[1]).href === import.meta.url) {
+    main();
 }
