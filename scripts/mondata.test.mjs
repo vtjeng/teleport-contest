@@ -124,9 +124,21 @@ import {
 import { roles } from '../js/roles.js';
 import { game } from '../js/gstate.js';
 import { initUnported } from '../js/unported.js';
+import {
+    GROWTH_END_MARKER,
+    GROWTH_START_MARKER,
+    parseGrowthRows,
+    renderGrowthTable,
+} from './generate-mondata-growth.mjs';
 
 const MON_C = readFileSync(
     new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8',
+);
+const MONDATA_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mondata.c', import.meta.url), 'utf8',
+);
+const MONDATA_JS = readFileSync(
+    new URL('../js/mondata.js', import.meta.url), 'utf8',
 );
 const MONDATA_H = readFileSync(
     new URL('../nethack-c/upstream/include/mondata.h', import.meta.url), 'utf8',
@@ -450,10 +462,32 @@ test('name_to_mon fails closed for malformed input and monster catalogs', () => 
     );
 });
 
-test('growth map matches every active row in the pinned C table', () => {
+test('growth map is regenerated from the complete active C table', () => {
     const { grownups } = _mondataInternals;
-    // NetHack 5.0 has 67 active rows; the shimmering-dragon row is under
-    // #if 0 and must not affect either lookup direction.
+    const cRows = parseGrowthRows(MONDATA_C);
+    const activeRows = cRows.slice(0, -1);
+
+    // The C table ends with the LOW_PM-terminating NON_PM sentinel. The
+    // deferred shimmering-dragon pair is under #if 0 and is not active.
+    assert.deepEqual(cRows.at(-1), ['NON_PM', 'NON_PM']);
+    assert.equal(activeRows.length, 67);
+    assert.equal(activeRows.some(([little, big]) =>
+        little === 'PM_BABY_SHIMMERING_DRAGON'
+        || big === 'PM_SHIMMERING_DRAGON'), false);
+    assert.deepEqual(
+        grownups,
+        activeRows.map(([little, big]) => [M[little], M[big]]),
+    );
+
+    const generated = renderGrowthTable(cRows);
+    const start = MONDATA_JS.indexOf(GROWTH_START_MARKER);
+    const end = MONDATA_JS.indexOf(GROWTH_END_MARKER, start);
+    assert.ok(start >= 0 && end > start, 'generated C table markers exist');
+    assert.equal(
+        MONDATA_JS.slice(start, end + GROWTH_END_MARKER.length),
+        generated,
+    );
+
     assert.equal(grownups.length, 67);
     const digest = createHash('sha256')
         .update(JSON.stringify(grownups))
@@ -470,7 +504,30 @@ test('growth map matches every active row in the pinned C table', () => {
     assert.equal(Object.isFrozen(grownups[0]), true);
 });
 
-test('growth conversions take one step and preserve first reverse match', () => {
+test('growth conversion loops preserve the complete C scan and return order', () => {
+    const littleToBigC = cFunction(MONDATA_C, 'little_to_big', 'big_to_little');
+    const bigToLittleC = cFunction(MONDATA_C, 'big_to_little', 'big_little_match');
+    assert.match(littleToBigC,
+        /for\s*\(i = 0; grownups\[i\]\[0\] >= LOW_PM; i\+\+\)/u);
+    assert.match(littleToBigC,
+        /if\s*\(montype == grownups\[i\]\[0\]\)\s*\{\s*montype = grownups\[i\]\[1\];\s*break;\s*\}/u);
+    assert.match(littleToBigC, /return montype;/u);
+    assert.match(bigToLittleC,
+        /for\s*\(i = 0; grownups\[i\]\[0\] >= LOW_PM; i\+\+\)/u);
+    assert.match(bigToLittleC,
+        /if\s*\(montype == grownups\[i\]\[1\]\)\s*\{\s*montype = grownups\[i\]\[0\];\s*break;\s*\}/u);
+    assert.match(bigToLittleC, /return montype;/u);
+
+    const { grownups } = _mondataInternals;
+    const firstChildByAdult = new Map();
+    for (const [little, big] of grownups) {
+        assert.equal(little_to_big(little), big);
+        if (!firstChildByAdult.has(big)) firstChildByAdult.set(big, little);
+    }
+    for (const [adult, firstChild] of firstChildByAdult)
+        assert.equal(big_to_little(adult), firstChild);
+
+    // Each conversion takes one table edge, not the entire growth chain.
     assert.equal(little_to_big(M.PM_LITTLE_DOG), M.PM_DOG);
     assert.equal(little_to_big(M.PM_DOG), M.PM_LARGE_DOG);
     assert.equal(little_to_big(M.PM_LARGE_DOG), M.PM_LARGE_DOG);
@@ -483,6 +540,11 @@ test('growth conversions take one step and preserve first reverse match', () => 
     assert.equal(big_to_little(M.PM_ELF_NOBLE), M.PM_ELF);
     assert.equal(little_to_big(M.PM_NEWT), M.PM_NEWT);
     assert.equal(big_to_little(M.PM_NEWT), M.PM_NEWT);
+
+    // NON_PM is the C sentinel input and remains an unchanged nonmatch.
+    assert.equal(little_to_big(M.NON_PM), M.NON_PM);
+    assert.equal(big_to_little(M.NON_PM), M.NON_PM);
+    // The missing-argument behavior is a JS boundary adapter, not a C input.
     assert.equal(little_to_big(), M.NON_PM);
     assert.equal(big_to_little(), M.NON_PM);
 });
