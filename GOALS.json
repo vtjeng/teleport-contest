@@ -158322,14 +158322,14 @@
           "line": 362,
           "endLine": 385,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "zombie_form",
           "line": 386,
           "endLine": 416,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -158511,7 +158511,88 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "zombie_maker",
+            "implementation": "js/mon.js",
+            "symbol": "zombie_maker",
+            "sourceReview": "Read the complete mon.c:zombie_maker definition at lines 362-380 and compared it with js/mon.js:zombie_maker at lines 4339-4355. The function checks mcan before switching on mlet; S_ZOMBIE returns false only for the ghoul and skeleton species and true for other zombie-class species; S_LICH returns true; other classes return false. The JavaScript species-index comparisons represent C pointer comparisons to the corresponding mons entries. The function makes no RNG calls, emits no output, and mutates no game state, so it is pure. Its permonst data pointer is required by C; the JavaScript optional class read only supplies a defensive result for malformed test input.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mm_2way_aggression",
+                "source": "mon.c:mm_2way_aggression:2412 calls zombie_maker(magr); js/mon.js:mm_2way_aggression:2001 makes that call while deciding zombie aggression."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "mon.c:xkilled:3619-3620 calls zombie_maker(&gy.youmonst); js/mon.js:xkilled:5981-5984 sets the corresponding zombify state from the same predicate."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem:1083 calls zombie_maker(magr); js/mhitm.js:mdamagem:1099 makes the corresponding non-weapon death check."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "done_in_by",
+                "source": "end.c:done_in_by:330 calls zombie_maker(mtmp); js/end.js:done_in_by:583 makes the corresponding grave-arising check."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "336ad2e47819eb3657de4771364e2de266ff0bf2"
+          },
+          {
+            "name": "zombie_form",
+            "implementation": "js/mon.js",
+            "symbol": "zombie_form",
+            "sourceReview": "Read the complete mon.c:zombie_form definition at lines 382-413 and compared it with js/mon.js:zombie_form at lines 4357-4382. The switch maps kobold, orc, giant, human/Kop, dwarf-class humanoid, and gnome species to their zombie forms; it distinguishes ettins by species identity and uses the is_elf/is_dwarf source macros before the human and humanoid fallbacks. The final result is NON_PM for existing zombies and unmatched classes. JavaScript compares the canonical monster index for C mons-pointer identity and calls the corresponding is_elf/is_dwarf predicates. include/mondata.h:97-98 defines those two macros. The C function reads permonst fields only: it makes no RNG calls, emits no output, and mutates no game state, so it is pure. The JavaScript null/invalid-record guard is a defensive extension for malformed inputs outside C's non-null permonst pointer contract.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mm_2way_aggression",
+                "source": "mon.c:mm_2way_aggression:2412 calls zombie_form(mdef->data); js/mon.js:mm_2way_aggression:2001 makes the corresponding eligibility check."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "mon.c:xkilled:3619-3621 calls zombie_form(mtmp->data); js/mon.js:xkilled:5981-5984 sets the corresponding zombify state."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem:1083-1087 calls zombie_form(mdef->data); js/mhitm.js:mdamagem:1099-1103 makes the corresponding non-weapon touch/claw/bite check."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "start_corpse_timeout",
+                "source": "mkobj.c:start_corpse_timeout:1425-1426 calls zombie_form on the corpse species; js/timeout.js:start_corpse_timeout:1848-1850 makes the corresponding timeout-selection check."
+              },
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "readobjnam",
+                "source": "objnam.c:readobjnam:5222 calls zombie_form(&mons[d.mntmp]); js/objnam_readobjnam.js:readobjnam:2307-2314 uses the result in the corresponding corpse timer decision, including C's truth test of NON_PM."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "336ad2e47819eb3657de4771364e2de266ff0bf2"
+          }
+        ],
+        "entryPointReview": "This helper-only task has no separate command entry point. The pure source-derived tests read each complete C definition, verify the relevant macro and species mappings, and exercise each source result arm; no gameplay recording is required for these two units. The selected v21 Flaming Sphere case supplies task context for the later explosion closure but stops at mhitm.c:explmm at zero-based step 143, before either helper executes, so it is not cited as helper runtime evidence. C do.c:zombify_mon:2302 is another zombie_form caller; JavaScript timeout_funcs still marks ZOMBIFY_MON unported, so that timer callback remains a separately named gap and is not claimed as wired by this task.",
+        "entryPoints": []
+      }
     }
   ]
 }
