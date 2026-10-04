@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-04T04:33:05.874Z",
+  "capturedAt": "2026-10-04T05:04:15.057Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -17635,12 +17635,87 @@
         "type": "accepted",
         "at": "2026-10-04T04:33:05.458Z",
         "task": "C73"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C73-published-1318bcbc",
+        "type": "published",
+        "at": "2026-10-04T04:44:59.669Z",
+        "task": "C73",
+        "commit": "1318bcbccbcd9937e942e4446b8ba5d2f4dfa55c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0122aed66fc55130ee39468c18ae6f63b3c08fd8",
+        "type": "ready",
+        "at": "2026-10-04T04:46:43.431Z",
+        "task": "A88",
+        "delivery": "0122aed66fc55130ee39468c18ae6f63b3c08fd8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A86-integrating-a56becf8",
+        "type": "integrating",
+        "at": "2026-10-04T04:47:15.035Z",
+        "task": "A86",
+        "integration": "a56becf8b99681e9e295420efdd8fde40bd841c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A88-received-0122aed6",
+        "type": "received",
+        "at": "2026-10-04T04:47:39.726Z",
+        "task": "A88",
+        "delivery": "0122aed66fc55130ee39468c18ae6f63b3c08fd8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C76-adjattrib-source-evidence-20261004",
+        "type": "assign",
+        "at": "2026-10-04T04:50:17.511Z",
+        "task": "C76",
+        "worker": "C",
+        "goal": "verify-attrib-adjattrib-source-prerequisite-v21-20261004",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A86-integrating-87542fd7",
+        "type": "integrating",
+        "at": "2026-10-04T04:50:53.365Z",
+        "task": "A86",
+        "integration": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-A89-muse-green-mon-20261004",
+        "type": "assign",
+        "at": "2026-10-04T04:56:57.828Z",
+        "task": "A89",
+        "worker": "A2",
+        "goal": "verify-muse-green-mon-pure-prerequisite-v18-20261004",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A86-validated-87542fd7",
+        "type": "validated",
+        "at": "2026-10-04T04:58:26.711Z",
+        "task": "A86",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A86-accepted-87542fd7",
+        "type": "accepted",
+        "at": "2026-10-04T05:04:14.578Z",
+        "task": "A86"
       }
     ]
   },
   "development": {
-    "executionCommit": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
-    "measuredAt": "2026-10-04T04:14:12.396Z",
+    "executionCommit": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc",
+    "measuredAt": "2026-10-04T04:57:58.702Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

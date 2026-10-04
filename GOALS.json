@@ -156211,7 +156211,7 @@
     {
       "id": "port-uhitm-mhitm-ad-famn-v20-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port Famine attacks and monster diet handling",
       "cFile": "uhitm.c",
       "sessions": [
@@ -156225,8 +156225,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_famn",
@@ -156493,6 +156496,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
