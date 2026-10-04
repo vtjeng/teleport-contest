@@ -161092,7 +161092,7 @@
           "line": 798,
           "endLine": 864,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -161106,7 +161106,7 @@
           "endLine": 84,
           "declared": true,
           "sourceFile": "detect.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -161279,7 +161279,115 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "unconstrain_map",
+            "implementation": "js/detect.js",
+            "symbol": "unconstrain_map",
+            "sourceReview": "Read detect.c:unconstrain_map() lines 69-81. The Boolean is computed before writes. C then saves and clears uinwater, uburied and uswallow, including when the state is already unconstrained, and returns the saved Boolean. JavaScript preserves that order; the exhaustive eight bit-pattern test verifies all fields save, clear and restore together. Its required consumed-result caller is monster_detect; other direct callers are inventoried in the task context without outer-function completion credit.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "monster_detect",
+                "source": "detect.c:monster_detect calls unconstrain_map at line 827 and consumes its Boolean to choose the blessed persistent-map path or one-shot browse."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-level-query.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "monster-detection-potion-select2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "cmd.c #quaff -> potion.c:peffect_monster_detection -> detect.c:monster_detect -> detect.c:unconstrain_map"
+              }
+            ],
+            "checkedAt": "70a7ab5ab55601c2059292eca989b98a957b52d0"
+          },
+          {
+            "name": "monster_detect",
+            "implementation": "js/detect.js",
+            "symbol": "monster_detect",
+            "sourceReview": "Read detect.c:monster_detect() lines 797-862 in full. JavaScript matches the precheck of live fmon entries, dead-monster and unentered-guardian skips, no-target strange_feeling/return 1 path, swallowed-before-unconstrain ordering, class and long-worm-tail mapping predicate, cursed helpless-monster wake branch, messages, blessed persistence predicate, I_SPECIAL map-browse lifetime, redisplay and return 0. The consumed unconstrain_map Boolean is included in this task. C-discarded void calls display_nhwindow, browse_map and map_redisplay do not receive whole-function credit; the persistent display branch keeps its named display_nhwindow gap.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_monster_detection",
+                "source": "potion.c:peffect_monster_detection dispatches potion effects to monster_detect."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "fountain.c:drinkfountain case 26 calls monster_detect(NULL, 0); this caller is documented but has no dedicated runtime credit in this task."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "use_crystal_ball",
+                "source": "detect.c:use_crystal_ball passes the selected monster class to monster_detect."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-level-query.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "monster-detection-potion-select2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "cmd.c #quaff -> potion.c:peffect_monster_detection -> detect.c:monster_detect"
+              }
+            ],
+            "checkedAt": "70a7ab5ab55601c2059292eca989b98a957b52d0"
+          }
+        ],
+        "entryPointReview": "The task verifies the whole helper source units, not whole callers. Active recorded paths are potion.c:peffect_monster_detection through #quaff and detect.c:use_crystal_ball through #use; the v7 potion case and local crystal-ball recording both replay completely on the current base. The v7 route is matched through segment 0 step 52. Crystal-ball coverage confirmed monster_detect and unconstrain_map each executed once, with instrumentation parity and a full 2519-RNG/30-screen replay. fountain.c:drinkfountain case 26 is a third production caller, but no separate fountain fate-26 runtime is claimed. C-discarded display_nhwindow, browse_map and map_redisplay remain void helper gaps/outside completion credit. Existing direct callers of unconstrain_map and the unported do_vicinity_map counterpart are recorded in task context; no outer caller is credited.",
+        "entryPoints": [
+          {
+            "name": "Crystal-ball detection of selected monster class",
+            "functions": [
+              "monster_detect",
+              "unconstrain_map"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-level-query.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Potion monster detection",
+            "functions": [
+              "monster_detect",
+              "unconstrain_map"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "monster-detection-potion-select2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "cmd.c #quaff -> potion.c:peffect_monster_detection -> detect.c:monster_detect -> detect.c:unconstrain_map"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
