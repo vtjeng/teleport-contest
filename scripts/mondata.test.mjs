@@ -150,6 +150,29 @@ function cFunction(source, name, nextName) {
     return source.slice(start, end);
 }
 
+function sourceLocoverbs() {
+    const start = MONDATA_C.indexOf('typedef const char *const locoverbs[4];');
+    const end = MONDATA_C.indexOf('\n\nconst char *\nlocomotion', start);
+    assert.ok(start >= 0 && end > start, 'extract C locoverbs table');
+    const activeTable = MONDATA_C.slice(start, end)
+        .replace(/\/\*[\s\S]*?\*\//g, '');
+    const rows = [...activeTable.matchAll(
+        /\b([A-Za-z_]\w*)\s*=\s*\{\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\}/g,
+    )];
+    return Object.fromEntries(rows.map(([, name, ...verbs]) => [name, verbs]));
+}
+
+function implementationLocoverbs() {
+    const start = MONDATA_JS.indexOf('const LOCOVERBS = Object.freeze({');
+    const end = MONDATA_JS.indexOf('\n});', start);
+    assert.ok(start >= 0 && end > start, 'extract JS LOCOVERBS table');
+    const table = MONDATA_JS.slice(start, end);
+    const rows = [...table.matchAll(
+        /^\s*([A-Za-z_]\w*): \['([^']+)', '([^']+)', '([^']+)', '([^']+)'\],?$/gm,
+    )];
+    return Object.fromEntries(rows.map(([, name, ...verbs]) => [name, verbs]));
+}
+
 // Monster flags, sizes, class letters, and attack types, transcribed from the
 // C headers. mondata.c's predicates and mon.c zombie_form() test these values,
 // so a case built from the port's own export would select its branch even if
@@ -214,6 +237,7 @@ const G_EXTINCT = 0x01;           // monflag.h:210
 // include/defsym.h MONSYM() rows, monster class letters.
 const S_ANT = 1;                  // defsym.h:295
 const S_EYE = 5;                  // defsym.h:299
+const S_LIGHT = 25;               // defsym.h:324
 const S_KOP = 37;                 // defsym.h:338
 
 // include/monattk.h, attack and damage types.
@@ -871,26 +895,145 @@ test('set_mon_data keeps C movement ownership and slow-form proration', () => {
     assert.equal(state.u.umovement, 12);
 });
 
-test('locomotion follows source trait precedence for movement messages', () => {
+test('locomotion matches the complete C verb table, macros, and branch order', () => {
+    const cRows = sourceLocoverbs();
+    const jsRows = implementationLocoverbs();
+    const rowNames = [
+        'levitate', 'flys', 'flyl', 'slither', 'ooze', 'immobile', 'crawl',
+    ];
+    // The commented swim proposal is not active C data; the seven live rows
+    // below are the complete table used by locomotion() and stagger().
+    assert.deepEqual(Object.keys(cRows), rowNames);
+    assert.deepEqual(jsRows, cRows);
+
+    const source = cFunction(MONDATA_C, 'locomotion', 'stagger');
+    assert.match(source, /int locoindx = \(\*def != highc\(\*def\)\) \? 0 : 1;/);
+    const sourceBranches = [
+        'is_floater(ptr) ? levitate[locoindx]',
+        '(is_flyer(ptr) && ptr->msize <= MZ_SMALL) ? flys[locoindx]',
+        '(is_flyer(ptr) && ptr->msize > MZ_SMALL) ? flyl[locoindx]',
+        'slithy(ptr) ? slither[locoindx]',
+        'amorphous(ptr) ? ooze[locoindx]',
+        '!ptr->mmove ? immobile[locoindx]',
+        'nolimbs(ptr) ? crawl[locoindx]',
+        ': def',
+    ];
+    let previous = -1;
+    for (const branch of sourceBranches) {
+        const current = source.indexOf(branch);
+        assert.ok(current > previous, `C locomotion branch order: ${branch}`);
+        previous = current;
+    }
+
+    // Pin the simple macro expressions locomotion() relies on, rather than
+    // deriving their meaning from the same JavaScript predicates under test.
+    assert.match(
+        MONDATA_H,
+        /^#define is_floater\(ptr\) \(\(ptr\)->mlet == S_EYE \|\| \(ptr\)->mlet == S_LIGHT\)$/m,
+    );
+    assert.match(
+        MONDATA_H,
+        /^#define is_flyer\(ptr\) \(\(\(ptr\)->mflags1 & M1_FLY\) != 0L\)$/m,
+    );
+    assert.match(
+        MONDATA_H,
+        /^#define slithy\(ptr\) \(\(\(ptr\)->mflags1 & M1_SLITHY\) != 0L\)$/m,
+    );
+    assert.match(
+        MONDATA_H,
+        /^#define amorphous\(ptr\) \(\(\(ptr\)->mflags1 & M1_AMORPHOUS\) != 0L\)$/m,
+    );
+    assert.match(
+        MONDATA_H,
+        /^#define nolimbs\(ptr\) \(\(\(ptr\)->mflags1 & M1_NOLIMBS\) == M1_NOLIMBS\)$/m,
+    );
+
+    // This is an ordinary movable medium ant form: no special flags, and its
+    // nonzero speed allows the fallback row to be reached.
     const ordinary = {
         mflags1: 0,
         mlet: S_ANT,
         mmove: 12,
         msize: MZ_MEDIUM,
     };
-    const form = (overrides, fallback = 'move') => locomotion(
-        { ...ordinary, ...overrides },
-        fallback,
-    );
+    const cases = [
+        {
+            name: 'floater before overlapping flight and slithy flags',
+            row: 'levitate',
+            species: {
+                ...ordinary,
+                mlet: S_EYE, // mondata.h is_floater: S_EYE takes this arm.
+                mflags1: M1_FLY | M1_SLITHY,
+            },
+        },
+        {
+            name: 'light class also satisfies the floater macro',
+            row: 'levitate',
+            species: {
+                ...ordinary,
+                mlet: S_LIGHT, // defsym.h's S_LIGHT is the second macro arm.
+            },
+        },
+        {
+            name: 'small flyer at the inclusive MZ_SMALL boundary',
+            row: 'flys',
+            species: {
+                ...ordinary,
+                mflags1: M1_FLY,
+                msize: MZ_SMALL, // C uses <= MZ_SMALL for the small row.
+            },
+        },
+        {
+            name: 'large flyer above the MZ_SMALL boundary',
+            row: 'flyl',
+            species: {
+                ...ordinary,
+                mflags1: M1_FLY | M1_SLITHY | M1_AMORPHOUS,
+                msize: MZ_MEDIUM, // C uses > MZ_SMALL for the large row.
+            },
+        },
+        {
+            name: 'slithy before amorphous',
+            row: 'slither',
+            species: {
+                ...ordinary,
+                mflags1: M1_SLITHY | M1_AMORPHOUS,
+            },
+        },
+        {
+            name: 'amorphous before immobile and no-limbs',
+            row: 'ooze',
+            species: {
+                ...ordinary,
+                mflags1: M1_AMORPHOUS | M1_NOLIMBS,
+                mmove: 0,
+            },
+        },
+        {
+            name: 'immobile before no-limbs',
+            row: 'immobile',
+            species: { ...ordinary, mflags1: M1_NOLIMBS, mmove: 0 },
+        },
+        {
+            name: 'moving no-limbs form',
+            row: 'crawl',
+            species: { ...ordinary, mflags1: M1_NOLIMBS },
+        },
+    ];
+    for (const { name, row, species } of cases) {
+        // These prefixes exercise C's lowercase and uppercase verb indexes.
+        assert.equal(locomotion(species, 'move'), cRows[row][0], name);
+        assert.equal(locomotion(species, 'Move'), cRows[row][1], name);
+    }
 
-    assert.equal(form({ mlet: S_EYE }), 'float');
-    assert.equal(form({ mflags1: M1_FLY }), 'fly');
-    assert.equal(form({ mflags1: M1_SLITHY }), 'slither');
-    assert.equal(form({ mflags1: M1_AMORPHOUS }), 'ooze');
-    assert.equal(form({ mmove: 0 }), 'wiggle');
-    assert.equal(form({ mflags1: M1_NOLIMBS }), 'crawl');
-    assert.equal(form({}), 'move');
-    assert.equal(form({ mflags1: M1_FLY }, 'Move'), 'Fly');
+    // The fallback is returned unchanged; a digit is unchanged by C highc(),
+    // so it selects the capitalized verb row just like an uppercase prefix.
+    assert.equal(locomotion(ordinary, 'move'), 'move');
+    assert.equal(locomotion(ordinary, '1move'), '1move');
+    assert.equal(
+        locomotion({ ...ordinary, mflags1: M1_FLY, msize: MZ_SMALL }, '1move'),
+        cRows.flys[1],
+    );
 });
 
 test('demon rank and conflict resistance preserve source composition', () => {
