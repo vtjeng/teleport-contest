@@ -3349,6 +3349,8 @@ test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', 
                 },
                 rnd() { assert.fail('unexpected rnd draw'); },
             },
+            // The new common-pager caller writes through the injected sink.
+            message(line) { events.push(`message:${line}`); },
             preflight() {},
             usePreMoveItems: () => false,
             moveMonster() { return MMOVE_DONE; },
@@ -3396,10 +3398,18 @@ test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', 
     assert.equal(gateMiss.unported.includes('questpgr.c com_pager'), false);
 
     const gateHit = await run({ cussDraw: 0 });
-    // The event order pins PHASE FOUR's attack callback before the cuss roll.
-    assert.deepEqual(gateHit.draws, [5]);
-    assert.deepEqual(gateHit.events, ['attackHero', 'rn2(5)']);
-    assert.deepEqual(gateHit.unported, ['questpgr.c com_pager']);
+    // The source cuss gate runs after the attack, then com_pager initializes
+    // nhlib.lua and selects a common angel_cuss array entry.
+    assert.deepEqual(gateHit.draws, [5, 3, 2, 14]);
+    assert.deepEqual(gateHit.events, [
+        'attackHero',
+        'rn2(5)',
+        'rn2(3)',
+        'rn2(2)',
+        'rn2(14)',
+        'message:"Thou shalt pay for thine insolence!"',
+    ]);
+    assert.equal(gateHit.unported.includes('questpgr.c com_pager'), false);
 });
 
 test('dochug applies the phase-four Conflict roll to peaceful wizards', async () => {
