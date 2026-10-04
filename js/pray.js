@@ -20,10 +20,13 @@
 
 import {
     A_CHAOTIC,
+    A_CURRENT,
     A_LAWFUL,
     A_MAX,
     A_NEUTRAL,
     A_NONE,
+    A_ORIGINAL,
+    A_CG_CONVERT,
     A_STR,
     A_WIS,
     ALTAR,
@@ -32,6 +35,7 @@ import {
     AM_SANCTUM,
     AM_SHRINE,
     AM_MASK,
+    Align2amask,
     Amask2align,
     AGGRAVATE_MONSTER,
     BLND_RES,
@@ -119,6 +123,7 @@ import {
     adjattrib,
     exercise,
     setuhpmax,
+    uchangealign,
 } from './attrib.js';
 import { paranoid_query, y_n } from './cmd.js';
 import { eaten_stat, floorfood } from './eat.js';
@@ -222,6 +227,11 @@ import {
 import { safe_teleds } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { set_voice } from './sounds.js';
+import {
+    findpriest,
+    p_coaligned,
+    temple_occupied,
+} from './priest.js';
 import { couldsee } from './vision.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import { Monnam, a_monnam } from './do_name.js';
@@ -713,6 +723,89 @@ async function offer_fake_amulet(otmp, highaltar, altaralign, state) {
     }
 }
 
+// C ref: pray.c:1631-1695 offer_different_alignment_altar(). The corpse has
+// already passed eval_offering() and the caller's high-altar gate. Preserve
+// the source's consume-before-conflict draw and altar-update order.
+async function offer_different_alignment_altar(otmp, altaralign, state) {
+    const { u } = state;
+    const altar = state.level.at(u.ux, u.uy);
+    const angry = u.ualign.record < 0;
+
+    if (angry || (altaralign === A_NONE && In_hell(u.uz, state))) {
+        if (u.ualignbase[A_CURRENT] === u.ualignbase[A_ORIGINAL]
+            && altaralign !== A_NONE) {
+            await ttyPline(
+                `You have a strong feeling that ${u_gname(state)} is angry...`,
+                state,
+            );
+            await consume_offering(otmp, state);
+            await ttyPline(
+                `${align_gname(altaralign, state)} accepts your allegiance.`,
+                state,
+            );
+            await uchangealign(altaralign, A_CG_CONVERT, state);
+            change_luck(-3, state);
+            u.ublesscnt += 300;
+        } else {
+            u.ugangr += 3;
+            adjalign(-5, state);
+            await ttyPline(
+                `${align_gname(altaralign, state)} rejects your sacrifice!`,
+                state,
+            );
+            await godvoice(altaralign, 'Suffer, infidel!', state);
+            change_luck(-5, state);
+            await adjattrib(A_WIS, -2, 1, state);
+            if (!In_hell(u.uz, state)) note_unported('pray.c angrygods');
+        }
+        return;
+    }
+
+    await consume_offering(otmp, state);
+    await ttyPline(
+        `You sense a conflict between ${u_gname(state)} and `
+            + `${align_gname(altaralign, state)}.`,
+        state,
+    );
+    if (rn2(8 + u.ulevel) > 5) {
+        await ttyPline(`You feel the power of ${u_gname(state)} increase.`,
+            state);
+        await exercise(A_WIS, true, state);
+        change_luck(1, state);
+
+        // on_shrine() tests the old altar mask; C assigns the new alignment
+        // immediately afterward, retaining only the shrine marker.
+        const shrine = Boolean(altar.flags & AM_SHRINE);
+        altar.flags = Align2amask(u.ualign.type)
+            | (shrine ? AM_SHRINE : 0);
+        newsym(u.ux, u.uy);
+        if (!Blind(state)) {
+            const color = u.ualign.type === A_LAWFUL
+                ? 'white' : u.ualign.type ? 'black' : 'gray';
+            await ttyPline(`The altar glows ${hcolor(color, state)}.`, state);
+        }
+
+        if (rnl(u.ulevel) > 6 && u.ualign.record > 0
+            && rnd(u.ualign.record) > Math.trunc(3 * ALIGNLIM(state) / 4)) {
+            note_unported('minion.c summon_minion');
+        }
+        const priest = findpriest(temple_occupied(u.urooms, state), state);
+        if (priest && !p_coaligned(priest, state))
+            note_unported('priest.c angry_priest');
+    } else {
+        await ttyPline(
+            `Unluckily, you feel the power of ${u_gname(state)} decrease.`,
+            state,
+        );
+        change_luck(-1, state);
+        await exercise(A_WIS, false, state);
+        if (rnl(u.ulevel) > 6 && u.ualign.record > 0
+            && rnd(u.ualign.record) > Math.trunc(7 * ALIGNLIM(state) / 8)) {
+            note_unported('minion.c summon_minion');
+        }
+    }
+}
+
 // C ref: pray.c:1959-2122 offer_corpse(). Its two negative-value branches
 // await offer_negative_valued() at the corresponding source call sites.
 async function offer_corpse(otmp, highaltar, altaralign, state) {
@@ -762,7 +855,7 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
         return;
     }
     if (u.ualign.type !== altaralign) {
-        note_unported('pray.c offer_different_alignment_altar');
+        await offer_different_alignment_altar(otmp, altaralign, state);
         return;
     }
 
