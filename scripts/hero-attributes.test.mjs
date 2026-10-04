@@ -40,7 +40,14 @@ import {
     WOUNDED_LEGS,
 } from '../js/const.js';
 import { newpw, newuexp } from '../js/exper.js';
-import { PM_AMOROUS_DEMON, PM_MONK, S_NYMPH } from '../js/monsters.js';
+import {
+    monst_globals_init,
+    PM_AMOROUS_DEMON,
+    PM_HILL_GIANT,
+    PM_HUMAN,
+    PM_MONK,
+    S_NYMPH,
+} from '../js/monsters.js';
 import { ART_OGRESMASHER } from '../js/artifacts.js';
 import { DUNCE_CAP, GAUNTLETS_OF_POWER, LUCKSTONE } from '../js/objects.js';
 
@@ -557,6 +564,38 @@ test('adjattrib preserves below-minimum base and maximum handling', async () => 
     assert.equal(state.u.aexe[A_STR], 4);
     assert.deepEqual(messages, ['Your innate strength has declined.']);
     random.done();
+});
+
+test('adjattrib caps polymorphed Strength at the current form maximum', async () => {
+    const state = baseState();
+    const monsterGlobals = {};
+    monst_globals_init(monsterGlobals);
+    state.mons = monsterGlobals.mons;
+    state.u.umonnum = PM_HILL_GIANT;
+    state.u.umonster = PM_HUMAN;
+    state.flags.verbose = true;
+    // C's frozen Hill Giant recording has form max 119 but human race max
+    // 118; starting at the form max exercises ATTRMAX(A_STR) after +1.
+    state.u.acurr = { a: [119, 10, 10, 10, 10, 10] };
+    state.u.amax = { a: [119, 10, 10, 10, 10, 10] };
+    state.u.aexe = [4, 0, 0, 0, 0, 0];
+    state.u.abon = [0, 0, 0, 0, 0, 0];
+    state.u.atemp = [0, 0, 0, 0, 0, 0];
+    const messages = [];
+
+    assert.equal(
+        await adjattrib(A_STR, 1, 0, state, {
+            message: (message) => messages.push(message),
+        }),
+        false,
+    );
+
+    // polyself.c:uasmon_maxStr() returns 119 for this live giant form, so the
+    // attempted increase stays capped there instead of dropping to race 118.
+    assert.equal(state.u.acurr.a[A_STR], 119);
+    assert.equal(state.u.amax.a[A_STR], 119);
+    assert.equal(state.u.aexe[A_STR], 4);
+    assert.deepEqual(messages, ["You're already as strong as you can get."]);
 });
 
 test('adjattrib preserves all three source message modes', async () => {
