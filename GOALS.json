@@ -157926,7 +157926,7 @@
           "line": 3269,
           "endLine": 3310,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -158106,7 +158106,33 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "green_mon",
+            "implementation": "js/muse.js",
+            "symbol": "green_mon",
+            "sourceReview": "Read the complete static muse.c:green_mon definition at lines 3268-3307 and compared it with js/muse.js:green_mon at lines 3343-3350. The C body reads mon->data once, returns FALSE when Hallucination is true, and otherwise returns whether mcolor equals CLR_GREEN or CLR_BRIGHT_GREEN. The older name/use_color approximation follows under #if 0 and is not active. youprop.h:116-120 defines HHallucination as u.uprops[HALLUC].intrinsic, EHalluc_resistance as u.uprops[HALLUC_RES].extrinsic, Halluc_resistance as their intrinsic/extrinsic combination, and Hallucination as hallucination without resistance. prop.h:42-43 assigns HALLUC=23 and HALLUC_RES=24; color.h defines CLR_GREEN=2 and CLR_BRIGHT_GREEN=10. The test pins representative green-slime, Lichen, red-dragon and newt color rows from monsters.h, along with the JS property indices. The C and JavaScript bodies read monster color and hero hallucination properties only; they make no RNG calls, emit no output, and mutate no game state, so green_mon is pure.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "munslime",
+                "source": "muse.c:munslime:3114-3116 calls green_mon(mon) when the monster is visible to choose the transformation text; js/muse.js:munslime:3202-3205 awaits the corresponding visible message and calls green_mon(mon, state)."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/muse-slime-pure.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "4bb3229b25da01ea5614847fd012e3281d2b9305"
+          }
+        ],
+        "entryPointReview": "This helper-only scope has no separate command entry point. Its sole direct C production caller is muse.c:munslime:3114-3116, where green_mon(mon) runs only for a visible monster and chooses the transformation text; js/muse.js:munslime:3202-3205 makes the corresponding call. The pure-function test extracts the complete C body, pins the Hallucination property-pointer macro chain and property indices, pins color constants and species values, and checks green, bright-green, non-green, active-hallucination and hallucination-resistance outcomes. The selected v18 M-to-H case stops at uhitm.c:mhitm_ad_slim at zero-based step 62 before munslime, so it is not runtime evidence for green_mon. A89 does not claim munslime or mhitm_ad_slim complete.",
+        "entryPoints": []
+      }
     }
   ]
 }
