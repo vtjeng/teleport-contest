@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-04T12:24:46.564Z",
+  "capturedAt": "2026-10-04T13:19:26.104Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -18675,12 +18675,121 @@
         "type": "accepted",
         "at": "2026-10-04T12:24:46.075Z",
         "task": "B102"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C80-otense-correction-20261004",
+        "type": "resume",
+        "at": "2026-10-04T12:25:01.581Z",
+        "task": "C80"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-22fad07c5ba49e41bcd6821bdcbb86fc00b30092",
+        "type": "ready",
+        "at": "2026-10-04T12:25:35.460Z",
+        "task": "B103",
+        "delivery": "22fad07c5ba49e41bcd6821bdcbb86fc00b30092"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B102-published-2e243214",
+        "type": "published",
+        "at": "2026-10-04T12:28:01.355Z",
+        "task": "B102",
+        "commit": "2e2432149e444fbe267ed7347871d787467ef842"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B103-replacement-received-22fad07c",
+        "type": "received",
+        "at": "2026-10-04T12:29:22.883Z",
+        "task": "B103",
+        "delivery": "22fad07c5ba49e41bcd6821bdcbb86fc00b30092"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C78-integrating-f3b1ff3a",
+        "type": "integrating",
+        "at": "2026-10-04T12:31:12.893Z",
+        "task": "C78",
+        "integration": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2ee0f7d7bb83aca54c224ef05396cd9a5d5d810b",
+        "type": "ready",
+        "at": "2026-10-04T13:01:41.684Z",
+        "task": "C80",
+        "delivery": "2ee0f7d7bb83aca54c224ef05396cd9a5d5d810b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C80-correction-received-2ee0f7d7",
+        "type": "received",
+        "at": "2026-10-04T13:06:02.349Z",
+        "task": "C80",
+        "delivery": "2ee0f7d7bb83aca54c224ef05396cd9a5d5d810b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C80-is-plural-state-feedback-2ee0f7d7",
+        "type": "feedback",
+        "at": "2026-10-04T13:08:04.752Z",
+        "task": "C80",
+        "delivery": "2ee0f7d7bb83aca54c224ef05396cd9a5d5d810b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f0f412046d2aad9c21aa88a9c2738798647430cc",
+        "type": "ready",
+        "at": "2026-10-04T13:08:24.548Z",
+        "task": "A96",
+        "delivery": "f0f412046d2aad9c21aa88a9c2738798647430cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A96-received-f0f41204",
+        "type": "received",
+        "at": "2026-10-04T13:10:49.301Z",
+        "task": "A96",
+        "delivery": "f0f412046d2aad9c21aa88a9c2738798647430cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A96-blnd-order-feedback-f0f41204",
+        "type": "feedback",
+        "at": "2026-10-04T13:11:24.632Z",
+        "task": "A96",
+        "delivery": "f0f412046d2aad9c21aa88a9c2738798647430cc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-A95-erode-evidence-correction-20261004",
+        "type": "resume",
+        "at": "2026-10-04T13:13:04.903Z",
+        "task": "A95"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C78-validated-f3b1ff3a",
+        "type": "validated",
+        "at": "2026-10-04T13:19:17.196Z",
+        "task": "C78",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C78-accepted-f3b1ff3a",
+        "type": "accepted",
+        "at": "2026-10-04T13:19:25.673Z",
+        "task": "C78"
       }
     ]
   },
   "development": {
-    "executionCommit": "25b9d60d04c841ff786c16f7a2c8d7adee213c0a",
-    "measuredAt": "2026-10-04T12:22:14.665Z",
+    "executionCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+    "measuredAt": "2026-10-04T12:42:39.724Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
