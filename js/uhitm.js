@@ -265,6 +265,8 @@ import {
     dmgtype_fromattack,
     flaming,
     gender,
+    carnivorous,
+    herbivorous,
     has_head,
     haseyes,
     hides_under,
@@ -305,6 +307,7 @@ import {
     touch_petrifies,
     poly_when_stoned,
     unsolid,
+    metallivorous,
     type_is_pname,
 } from './mondata.js';
 import {
@@ -575,7 +578,9 @@ import { destroy_items } from './zap_destroy_items.js';
 import {
     Cold_resistance, drain_item, exclam, hit, resist,
 } from './zap.js';
-import { Finish_digestion, eating_conducts, is_fainted, newuhs } from './eat.js';
+import {
+    Finish_digestion, eating_conducts, is_fainted, morehungry, newuhs,
+} from './eat.js';
 import { note_unported } from './unported.js';
 import { m_useup } from './mthrowu.js';
 import { explode, adtyp_to_expltype } from './explode.js';
@@ -5316,6 +5321,40 @@ export async function mhitm_ad_conf(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_famn() (3777-3805). The hero-attacker case jumps
+// to the monster-pair diet check in C; only a monster attacking the hero
+// prints, exercises Constitution, and may drain hunger.
+export async function mhitm_ad_famn(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    if (magr !== state.youmonst && mdef === state.youmonst) {
+        const random = env.random ?? { rn1, rn2 };
+        const message = requireAttackOperation(env, 'message');
+        const text = `${Monnam(magr, state, env)} reaches out, and your body shrivels.`;
+        await message(messageAt(text, magr.mx, magr.my, state), state, env);
+        await exercise(A_CON, false, state, random, {
+            encumberMessage: env.encumberMessage ?? encumber_msg,
+        });
+        if (!is_fainted(state)) {
+            await morehungry(random.rn1(40, 40), state, { ...env, random });
+        }
+        return;
+    }
+
+    // uhitm.c's hero-attacker goto and monster-pair arm both arrive here.
+    const defenderData = mdef.data;
+    if (!(carnivorous(defenderData)
+        || herbivorous(defenderData)
+        || metallivorous(defenderData))) {
+        mhm.damage = 0;
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_pest() (3808-3834). Snapshot the attacker's form
 // before the awaited name/message path. The valid build has no hero form with
 // AD_PEST; monster-to-monster disease effects remain at the exact discarded
@@ -5635,7 +5674,9 @@ export async function mhitm_adtyping(
     case AD_PEST:
         await mhitm_ad_pest(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_FAMN: unported('mhitm_ad_famn'); break;
+    case AD_FAMN:
+        await mhitm_ad_famn(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_DGST: unported('mhitm_ad_dgst'); break;
     case AD_HALU: unported('mhitm_ad_halu'); break;
     default:

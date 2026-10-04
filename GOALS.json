@@ -155905,6 +155905,604 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mcastu-mcast-confuse-you-v20-20261004",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port hostile cleric confusion spells",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected"
+      ],
+      "selectionReason": "Port whole mcastu.c:mcast_confuse_you and wire the existing MCAST_CONFUSE_YOU dispatcher arm. Current accepted C71 Abbot replay matches32/41screens,2131/2131RNG,41/41cursors, with the first screen mismatch at zero-based step32 where C sets Conf. The immutable C73 packet verifies the production caller prefix through32 and pins raw intrinsic properties, Antimagic, half spell damage and resistance memory. No return-bearing callees or whole caller completion credit.",
+      "detail": "",
+      "openedAt": "5c25ba77662c1363e478eefa4ef198fb1fe260ee",
+      "openStanding": {
+        "sha": "bb6fc174b9aa65beb45500502d88d5ce2be6a20f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mcast_confuse_you",
+          "line": 771,
+          "endLine": 800,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 771,
+        "to": 800
+      },
+      "syntheticProvenance": {
+        "synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected": {
+          "session": "synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json",
+          "recordingSha256": "37d564a6fc52b871ad04582c173be2a9c29a251ab9ebc86a9da282e97d069f7a",
+          "evaluationPath": "challenges/evaluations/20261004030003-v20.json",
+          "evaluationCommit": "af6e694b3d57d109c2fdf1effb342e7126439b7c"
+        }
+      },
+      "activeStanding": {
+        "sha": "bb6fc174b9aa65beb45500502d88d5ce2be6a20f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+          "session": "synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json",
+          "recordingPath": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json",
+          "recordingSha256": "37d564a6fc52b871ad04582c173be2a9c29a251ab9ebc86a9da282e97d069f7a",
+          "recipe": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.recipe.session.json",
+          "recipeSha256": "25c1989f5fb1af1a6f314f402316e91c0e35d26931dc7f56a224c740109a23cc",
+          "replayInputSha256": "26678f3bf3ce3deb2535800f8bfc652ba072f820bea7ad54fc854e326f835229",
+          "evaluationPath": "challenges/evaluations/20261004030003-v20.json",
+          "evaluationCommit": "af6e694b3d57d109c2fdf1effb342e7126439b7c",
+          "evaluationArtifact": "challenges/evaluations/20261004030003-v20.json",
+          "evaluationUtc": "2026-10-04T03:01:19.567Z",
+          "remainingScreens": 9,
+          "recordedSteps": 41,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2131,
+              "total": 2131
+            },
+            "cursors": {
+              "matched": 41,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 39,
+              "cCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.json",
+            "result": {
+              "session": "synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "37d564a6fc52b871ad04582c173be2a9c29a251ab9ebc86a9da282e97d069f7a",
+              "evaluationPath": "challenges/evaluations/20261004023049-v20.json",
+              "evaluationCommit": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+              "remainingScreens": 9,
+              "recordedSteps": 41,
+              "status": "complete",
+              "commit": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+                "session": "synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json",
+                "recordingPath": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json",
+                "recordingSha256": "37d564a6fc52b871ad04582c173be2a9c29a251ab9ebc86a9da282e97d069f7a",
+                "recipe": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.recipe.session.json",
+                "recipeSha256": "25c1989f5fb1af1a6f314f402316e91c0e35d26931dc7f56a224c740109a23cc",
+                "replayInputSha256": "2cad065da98755c355e4a02291cad9ad7e1bf29eb55df3051ed1e2852e93f6ef",
+                "evaluationPath": "challenges/evaluations/20261004023049-v20.json",
+                "evaluationCommit": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+                "evaluationArtifact": "challenges/evaluations/20261004023049-v20.json",
+                "evaluationUtc": "2026-10-04T02:32:00.996Z",
+                "remainingScreens": 9,
+                "recordedSteps": 41,
+                "previousScreensMatched": 29,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2131,
+                    "total": 2131
+                  },
+                  "cursors": {
+                    "matched": 41,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 23,
+                    "column": 39,
+                    "cCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 32,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A85 resolves the AD_STUN boundary and matches through step31. The first remaining difference is segment0 step32: C displays Conf in the status line while JavaScript leaves it blank. All2131 RNG calls and41 cursors match. The source path is mcastu.c:mcast_spell MCAST_CONFUSE_YOU -> mcast_confuse_you; the JavaScript dispatcher records the unported helper and omits its confusion state and output.",
+              "source": {
+                "file": "mcastu.c",
+                "functions": [
+                  "mcast_confuse_you"
+                ],
+                "branch": "mcast_confuse_you at lines771–791 handles Antimagic with a shield, learned magic resistance and momentary dizziness; otherwise it reads prior Confusion, takes monster level as duration, halves with (dmg+1)/2 under Half_spell_damage, calls make_confused(HConfusion+dmg,TRUE), chooses hallucination/prior-confusion text, and clears the monster learned resistance bit. Preserve state, message and evaluation order.",
+                "callers": [
+                  "C mcast_spell MCAST_CONFUSE_YOU at mcastu.c:882–885 calls mcast_confuse_you and clears damage. js/mcastu.js:mcast_spell currently calls recordMcastGap for this helper at826–827; replace this dispatcher arm with the whole source helper and source damage handling. The ordinary monster spell attack reaches mcast_spell through the existing castmu path."
+                ],
+                "dependencies": [
+                  "Confusion, Antimagic, Half_spell_damage, Hallucination and HConfusion are property macros/state reads. Confirm their JavaScript representations from source.",
+                  "shieldeff, monstseesu, make_confused, You_feel and monstunseesu are discarded-result void operations. Reuse verified implementations or record allowed named gaps; do not invent substitute state or output. Existing bodies alone do not establish whole-unit completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/20261004023049-v20.json at 527bb1f4b1c7e5dcbf2ce9ef00721076126712b1 reports32/41 screens,2131/2131 RNG calls,41/41 cursors; first screen difference is zero-based segment0 step32,row23,column39: C C, JS blank.",
+                "A85 immutable delivery strict comparison run-XTYsi5 retains the full later failure at step32; admitted prefix check and root source verification establish matching through31, not full case parity.",
+                "Read nethack-c/upstream/src/mcastu.c:771–791 and882–885 against js/mcastu.js:826–827. The missing confusion effect explains the first Conf status difference; no random-number call is present in this source helper."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mcast_confuse_you",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_confuse_you",
+            "sourceReview": "Read the complete mcastu.c:mcast_confuse_you body (771-790). The Antimagic branch awaits display.c:shieldeff, calls mondata.c:monstseesu(M_SEEN_MAGR), emits the momentarily-dizzy message, and returns without changing Confusion. Otherwise it snapshots raw HConfusion, starts dmg at mtmp->m_lev, applies C integer (dmg + 1) / 2 under Half_spell_damage, calls potion.c:make_confused(HConfusion + dmg, TRUE), selects trippy/trippier or confused/more-confused feedback from Hallucination and the saved oldprop, then calls mondata.c:monstunseesu(M_SEEN_MAGR). No return-bearing C callees are consumed. The existing void callees remain in use; no unsupported substitute remains on this path.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell MCAST_CONFUSE_YOU arm (882-885): call mcast_confuse_you(mtmp), set dmg to zero, then break."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mcastu.c:castmu -> mcastu.c:mcast_spell(MCAST_CONFUSE_YOU) -> mcastu.c:mcast_confuse_you"
+              }
+            ],
+            "checkedAt": "1ee0a640583fc54031a3b0664ec5f949b2a79588"
+          }
+        ],
+        "entryPointReview": "The active production entry point is the hostile cleric spell attack on the hero: monmove.c:dochug -> mhitu.c:mattacku -> mcastu.c:castmu -> mcast_spell(MCAST_CONFUSE_YOU) -> mcast_confuse_you. No inactive build branch exists in the selected helper or caller arm. The admitted v20 Abbot case reaches the helper through that route; its C Conf status line appears at segment 0 step 32. Source-pinned tests exercise the Antimagic, damage-rounding, packed-property, and feedback branches that this recording does not vary.",
+        "entryPoints": [
+          {
+            "name": "Hostile cleric spell confuses the hero",
+            "functions": [
+              "mcast_confuse_you"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mcastu.c:castmu -> mcastu.c:mcast_spell(MCAST_CONFUSE_YOU) -> mcastu.c:mcast_confuse_you"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-famn-v20-20261004",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port Famine attacks and monster diet handling",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v20/famine-touches-wizard-v20"
+      ],
+      "selectionReason": "Port whole uhitm.c:mhitm_ad_famn and wire AD_FAMN in the shared damage dispatcher. Selected admitted Famine case matches32/36screens at the source helper; immutable A86 evidence verifies the prefix through32. Independent Stone Golem and Newt Conflict recordings fully match both active target directions and diet variations. Accepted A83 is_fainted is the only consumed-return dependency; food predicates are C macros. Hero Famine polymorph entry is excluded by species G_UNIQ/NOGEN and M2_NOPOLY source rules.",
+      "detail": "",
+      "openedAt": "1318bcbccbcd9937e942e4446b8ba5d2f4dfa55c",
+      "openStanding": {
+        "sha": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mhitm_ad_famn",
+          "line": 3777,
+          "endLine": 3807,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3777,
+        "to": 3807
+      },
+      "syntheticProvenance": {
+        "synthetic/v20/famine-touches-wizard-v20": {
+          "session": "synthetic/v20/famine-touches-wizard-v20",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "famine-touches-wizard-v20",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+          "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7",
+          "evaluationPath": "challenges/evaluations/20261004041634-v20.json",
+          "evaluationCommit": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2"
+        }
+      },
+      "activeStanding": {
+        "sha": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "famine-touches-wizard-v20",
+          "session": "synthetic/v20/famine-touches-wizard-v20",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+          "recordingPath": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+          "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7",
+          "recipe": "challenges/cases/v20/famine-touches-wizard-v20.recipe.session.json",
+          "recipeSha256": "e011dca4725bde5fef58ff586b59924b513af6eafa417fab065b83fb02aa76db",
+          "replayInputSha256": "29f96ca594df846faa5e277d88b4b93ca7568a285012807ec6093e96159497bb",
+          "evaluationPath": "challenges/evaluations/20261004041634-v20.json",
+          "evaluationCommit": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
+          "evaluationArtifact": "challenges/evaluations/20261004041634-v20.json",
+          "evaluationUtc": "2026-10-04T04:17:53.180Z",
+          "remainingScreens": 4,
+          "recordedSteps": 36,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 36
+            },
+            "rng": {
+              "matched": 2348,
+              "total": 2355
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_famn()",
+            "step": 32
+          },
+          "step": 32,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_famn",
+          "message": "simple monster action requires uhitm.c mhitm_ad_famn()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/famine-touches-wizard-v20.json",
+            "result": {
+              "session": "synthetic/v20/famine-touches-wizard-v20",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "famine-touches-wizard-v20",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 4,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "famine-touches-wizard-v20",
+                "session": "synthetic/v20/famine-touches-wizard-v20",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+                "recordingPath": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+                "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7",
+                "recipe": "challenges/cases/v20/famine-touches-wizard-v20.recipe.session.json",
+                "recipeSha256": "e011dca4725bde5fef58ff586b59924b513af6eafa417fab065b83fb02aa76db",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 4,
+                "recordedSteps": 36,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 2348,
+                    "total": 2355
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_famn()",
+                  "step": 32
+                },
+                "step": 32,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_famn",
+                "message": "simple monster action requires uhitm.c mhitm_ad_famn()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The monster-action preflight refuses AD_FAMN before Famine’s turn. The C shrivel attack at step32 belongs to uhitm.c:mhitm_ad_famn; it exercises Constitution and draws rn1(40,40) for hunger. Port the whole helper and its dispatch arm. Its consumed is_fainted predicate is reserved by A83.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "AD_FAMN dispatch, with hero as defender; Famine prints the shrivel message, exercises Constitution, and increases hunger unless is_fainted(). Monster defenders take normal damage only when their species eats.",
+                "functions": [
+                  "mhitm_ad_famn"
+                ],
+                "callers": [
+                  "mhitm_adtyping",
+                  "hitmu",
+                  "damageum",
+                  "mdamagem"
+                ],
+                "dependencies": [
+                  "eat.c:is_fainted",
+                  "eat.c:morehungry",
+                  "attrib.c:exercise",
+                  "species carnivorous/herbivorous/metallivorous flags"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "uhitm.c:3777–3805 defines all three orientations of mhitm_ad_famn. The hero-attacker orientation is source-documented as unreachable through polymorph; it shares the monster-defender food-species test.",
+                "C recording step32 prints the shrivel message and logs rn2(2)=1 from attrib.c:exercise followed by rn2(40)=24 from mhitm_ad_famn. Earlier distfleeck draws belong to the suppressed same turn and do not identify the missing helper.",
+                "JS uhitm.js:5075 still maps AD_FAMN to the unported helper. The common damage dispatcher is called by damageum, hitmu, and mdamagem; the saved baseline reports the explicit simple-monster-action mhitm_ad_famn refusal.",
+                "JS eat.js:571 has is_fainted and :1927 morehungry; the former is part of the pending A83 source reservation. Preserve environment RNG/message routing during monster-action planning."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_famn",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_famn",
+            "sourceReview": "Read the complete uhitm.c:3777-3805 definition. When the hero is attacker, C jumps to the monster-pair check; when the hero is defender, it calls pline_mon at the attacker, exercises Constitution, then checks is_fainted before drawing rn1(40, 40) and calling morehungry. Otherwise it checks carnivorous, herbivorous, then metallivorous in short-circuit order and clears mhm.damage only when all are false. The JS body preserves those branches, order, the caller-supplied normal damage, and the existing awaited message/exercise/hunger operations. The body has no source refusal or placeholder. Its only consumed return is is_fainted(), already accepted in A83; pline_mon, exercise, and morehungry results are discarded. C's comment says the hero-attacker branch is unreachable for a valid hero polymorph because the only AD_FAMN species is unique Famine and cannot be polymorphed into.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping:4826 (AD_FAMN arm dispatches to mhitm_ad_famn)"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu:1191 (monster-to-hero attacks call mhitm_adtyping)"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem:1059 (monster-to-monster attacks call mhitm_adtyping)"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum:4854 (hero-to-monster attacks call mhitm_adtyping; excluded at entry-point level because Famine cannot be a valid hero form)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-famn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/a86-famine-mvm-stone-golem.session.json",
+              "recordings/uhitm.c/a86-famine-mvm-newt-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "famine-touches-wizard-v20",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 32,
+                "source": "mhitu.c:hitmu:1191 -> uhitm.c:mhitm_adtyping:4826 (AD_FAMN) -> uhitm.c:mhitm_ad_famn:3785-3797"
+              }
+            ],
+            "checkedAt": "a56becf8b99681e9e295420efdd8fde40bd841c0"
+          }
+        ],
+        "entryPointReview": "The selected unit is dispatched by uhitm.c:mhitm_adtyping:4826. Active production orientations are monster-to-hero through mhitu.c:hitmu:1191 and monster-to-monster through mhitm.c:mdamagem:1059. The v20 Famine case cites the M-to-hero call at segment 0 step 32. The independent Stone Golem recording reaches the M-to-M non-eater branch at zero-based step 141; later attacks at steps 145 and 147 show the source handler/caller continues, and the entire recording strictly matches. The independent Newt variation reaches the M-to-M eater branch at step 142 and strictly matches. The only AD_FAMN attack source is Famine. Hero-to-monster dispatch through uhitm.c:damageum is source-unreachable for a valid hero form: Famine is unique and G_NOGEN, and its monster row has M2_NOPOLY; uhitm.c comments explicitly say the hero cannot polymorph into any AD_FAMN form. Keep that branch implemented as C does, but do not treat it as an active runtime entry point. Other AD_FAMN callers can be found through the same dispatcher, not as separate handler bodies.",
+        "entryPoints": [
+          {
+            "name": "Monster melee attack against the hero (mattacku/hitmu)",
+            "functions": [
+              "mhitm_ad_famn"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/a86-famine-mvm-stone-golem.session.json",
+              "recordings/uhitm.c/a86-famine-mvm-newt-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "famine-touches-wizard-v20",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 32,
+                "source": "mhitu.c:hitmu:1191 -> uhitm.c:mhitm_adtyping:4826 (AD_FAMN) -> uhitm.c:mhitm_ad_famn:3785-3797"
+              }
+            ]
+          },
+          {
+            "name": "Monster melee attack against another monster (mattackm/mdamagem)",
+            "functions": [
+              "mhitm_ad_famn"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/a86-famine-mvm-stone-golem.session.json",
+              "recordings/uhitm.c/a86-famine-mvm-newt-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

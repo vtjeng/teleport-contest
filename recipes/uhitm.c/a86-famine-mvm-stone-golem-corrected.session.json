@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first A86 M-to-M route. The Tourist is raised to level 30 and the level-up pager is dismissed with 29 spaces; Conflict is enabled, then three hostile Stone Golems are created before a forced Famine. The explicit blank line answers the orange-potion call-name prompt observed in the preserved setup miss, and the final periods advance monster turns. Stone Golems have none of C carnivorous/herbivorous/metallivorous flags, so the handler should zero normal damage when a Stone Golem is the defender.",
+  "segments": [
+    {
+      "seed": 58420610,
+      "datetime": "20380114101400",
+      "nethackrc": "OPTIONS=name:A86StoneGolem,role:Tourist,race:human,gender=female,align=neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n3 hostile stone golem\n #wizgenesis\nhostile Famine\ny. . \n. . . . . . ."
+    }
+  ]
+}
