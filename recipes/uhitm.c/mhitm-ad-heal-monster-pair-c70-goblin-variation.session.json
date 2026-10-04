@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-source-led cheap variation frozen before recording or JavaScript comparison. It keeps the corrected level-30 and Conflict setup and changes only the hostile defender from a Stone Golem to a Goblin, exercising the same Nurse AD_HEAL monster-versus-monster arm against a different physical target. The two-turn endpoint is retained from the first-hit recipe as a short observation window; this recipe does not predict which monster attacks or whether the Goblin survives.",
+  "segments": [
+    {
+      "seed": 70423167,
+      "datetime": "20370614172509",
+      "nethackrc": "OPTIONS=name:C70NurseGoblin,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\nhostile goblin\n #wizgenesis\nhostile Nurse\n . ."
+    }
+  ]
+}
