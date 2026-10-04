@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -40,6 +41,11 @@ import {
 import { erode_obj } from '../js/trap_erode_obj.js';
 import { erode_armor } from '../js/uhitm.js';
 import { water_damage } from '../js/trap_water_damage.js';
+
+const TRAP_C_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
+    'utf8',
+);
 
 async function initializedMonster(seed, name) {
     await runSegment({
@@ -200,6 +206,64 @@ test('visible rust damage increments primary erosion after its message',
         assert.deepEqual(events, [
             ["The kobold's shoes rust!", 0],
         ]);
+        assert.equal(shoes.oeroded, 1);
+    });
+
+test('erode_obj uses C vtense for named and plural armor descriptions',
+    async () => {
+        // trap.c:erode_obj passes ostr to vtense for both predicate verbs and
+        // damage verbs. The naming utility selects the head before "named";
+        // a final-s guess would mistake Aegis for a plural subject.
+        const cStart = TRAP_C_SOURCE.indexOf('int\nerode_obj(');
+        const cEnd = TRAP_C_SOURCE.indexOf(
+            '\n/* Protect an item from erosion with grease.',
+            cStart,
+        );
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        const cErodeObj = TRAP_C_SOURCE.slice(cStart, cEnd);
+        assert.match(cErodeObj, /vtense\(ostr, "are"\)/u);
+        assert.match(cErodeObj, /vtense\(ostr, action\[type\]\)/u);
+
+        const monster = await initializedMonster(982469, 'NamedArmorErosion');
+        const messages = [];
+        const random = {
+            rnl: () => assert.fail('ordinary armor needs no luck draw'),
+            rn2: () => assert.fail('ungreased armor needs no draw'),
+        };
+
+        const namedMail = carried(monster, CHAIN_MAIL);
+        assert.equal(await erode_obj(
+            namedMail,
+            'chain mail named Aegis',
+            ERODE_CORRODE,
+            EF_NONE,
+            {
+                canSeeMonster: () => true,
+                message: (text) => messages.push(text),
+                random,
+                state: game,
+            },
+        ), ER_DAMAGED);
+
+        const shoes = carried(monster, IRON_SHOES);
+        assert.equal(await erode_obj(
+            shoes,
+            'shoes',
+            ERODE_RUST,
+            EF_NONE,
+            {
+                canSeeMonster: () => true,
+                message: (text) => messages.push(text),
+                random,
+                state: game,
+            },
+        ), ER_DAMAGED);
+
+        assert.deepEqual(messages, [
+            "The kobold's chain mail named Aegis corrodes!",
+            "The kobold's shoes rust!",
+        ]);
+        assert.equal(namedMail.oeroded2, 1);
         assert.equal(shoes.oeroded, 1);
     });
 

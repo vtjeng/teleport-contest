@@ -61,6 +61,7 @@ import {
     cxname,
     erosion_matters,
     helm_simple_name,
+    vtense,
     xnameFresh,
 } from './objnam.js';
 import { heroIsBlind } from './startup_a11y.js';
@@ -136,17 +137,6 @@ function erosionOperation(env, name, fallback) {
     if (typeof operation !== 'function')
         throw new TypeError(`item erosion requires a ${name} operation`);
     return operation;
-}
-
-function pluralDescription(description) {
-    return /(?:s|teeth)$/u.test(description)
-        && !/(?:ss|us)$/u.test(description);
-}
-
-function verbFor(description, verb) {
-    if (pluralDescription(description)) return verb;
-    if (verb === 'are') return 'is';
-    return `${verb}s`;
 }
 
 function currentErosion(obj, primary) {
@@ -265,7 +255,7 @@ export async function erode_obj(obj, description, type, flags, env) {
     if (details.checkGrease && (flags & EF_GREASE) && obj.greased) {
         if (uvictim || vismon) {
             await message(
-                `${possessive} ${name} ${verbFor(name, 'are')} `
+                `${possessive} ${name} ${vtense(name, 'are')} `
                 + 'protected by the layer of grease!',
                 state,
             );
@@ -284,7 +274,7 @@ export async function erode_obj(obj, description, type, flags, env) {
     if (!vulnerable || (obj.oerodeproof && obj.rknown)) {
         if (verbose && print && (uvictim || vismon)) {
             await message(
-                `${possessive} ${name} ${verbFor(name, 'are')} `
+                `${possessive} ${name} ${vtense(name, 'are')} `
                 + `not affected by ${details.affectedBy}.`,
                 state,
             );
@@ -297,7 +287,7 @@ export async function erode_obj(obj, description, type, flags, env) {
         if (verbose && (print || obj.oerodeproof) && visible) {
             await message(
                 `Somehow, ${lowerPossessive} `
-                + `${name} ${verbFor(name, 'are')} not affected by the `
+                + `${name} ${vtense(name, 'are')} not affected by the `
                 + `${details.affectedBy}.`,
                 state,
             );
@@ -317,7 +307,7 @@ export async function erode_obj(obj, description, type, flags, env) {
                 : erosion ? ' further' : '';
             await message(
                 `${possessive} ${name} `
-                + `${verbFor(name, details.action)}${adverb}!`,
+                + `${vtense(name, details.action)}${adverb}!`,
                 state,
             );
         }
@@ -335,7 +325,7 @@ export async function erode_obj(obj, description, type, flags, env) {
         if (visible) {
             const action = type === ERODE_CRACK
                 ? 'shatters'
-                : `${verbFor(name, details.action)} away`;
+                : `${vtense(name, details.action)} away`;
             await message(
                 `${possessive} ${name} ${action}!`,
                 state,
@@ -384,13 +374,13 @@ export async function erode_obj(obj, description, type, flags, env) {
         if (uvictim) {
             await message(
                 `Your ${name} `
-                + `${verbFor(name, heroIsBlind(state) ? 'feel' : 'look')} `
+                + `${vtense(name, heroIsBlind(state) ? 'feel' : 'look')} `
                 + `completely ${details.result}.`,
                 state,
             );
         } else if (vismon || visobj) {
             await message(
-                `${possessive} ${name} ${verbFor(name, 'look')} completely `
+                `${possessive} ${name} ${vtense(name, 'look')} completely `
                 + `${details.result}.`,
                 state,
             );
