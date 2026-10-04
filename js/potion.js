@@ -17,7 +17,7 @@
 //        potionbreathe() (1931-2118), make_stoned() (222-240),
 //        make_vomiting() (243-255),
 //        make_blinded() (261-331),
-//        make_hallucinated() (387-442), toggle_blindness() (336-364).
+//        make_hallucinated() (369-438), toggle_blindness() (336-364).
 //
 // dodrink() is the #quaff command entry point. Its occupied milky-potion
 // branch calls the source-ported ghost_from_bottle(); the common path calls
@@ -849,7 +849,7 @@ export async function make_stunned(xtime, talk, state = game, env = {}) {
     set_itimeout(prop, xtime);
 }
 
-// C ref: potion.c make_hallucinated() (387-442). The ordinary transition
+// C ref: potion.c make_hallucinated() (369-442). The ordinary transition
 // updates the display before its optional feedback, including the special
 // stomach redraw used when the hero is swallowed.
 export async function make_hallucinated(
@@ -904,9 +904,38 @@ export async function make_hallucinated(
         changed = !resistance.intrinsic && !resistance.extrinsic
             && Boolean(old) !== Boolean(xtime);
         set_itimeout(hallucination, xtime);
+        // C can clear an active timeout without changing the effective
+        // Hallucination state when resistance is present; it still gives the
+        // source's special feedback for that case.
+        if (!changed && !hallucination.intrinsic && old && talk) {
+            if (!haseyes(state.youmonst?.data)) {
+                await strange_feeling(null, null, state);
+            } else if (heroIsBlind(state)) {
+                let eyes = body_part(EYE, state.youmonst);
+                if (state.youmonst.data.pmidx !== PM_CYCLOPS
+                    && state.youmonst.data.pmidx !== PM_FLOATING_EYE) {
+                    eyes = makeplural(eyes);
+                }
+                await message(
+                    `Your ${eyes} momentarily ${vtense(eyes, 'itch')}.`,
+                    state,
+                );
+            } else {
+                await message(
+                    'Your vision seems to flatten for a moment but is normal now.',
+                    state,
+                );
+            }
+        }
     }
 
     if (!changed) return false;
+
+    // C calls the void eatmupdate() helper when hallucination ends. That
+    // caller's mimic-message replacement is not ported, so retain it as an
+    // explicit discarded-result gap.
+    if (!Hallucination(state) && state === game)
+        note_unported('eat.c eatmupdate');
 
     if (state.u.uswallow) {
         await swallow(false, state, env);

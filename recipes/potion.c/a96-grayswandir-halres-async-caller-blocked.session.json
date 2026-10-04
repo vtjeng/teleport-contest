@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Unrecorded A96 blocked recipe: a debug Wizard wishes for Grayswandir, wields it, then removes it to reach make_hallucinated through artifact.c:set_artifact_intrinsic's SPFX_HALRES arm. Whole make_hallucinated credit remains incomplete until that setter and its production callers use the canonical awaited helper. This is a frozen input plan, not a C observation or passing recording.",
+  "segments": [
+    {
+      "seed": 82604713,
+      "datetime": "20350929142530",
+      "nethackrc": "OPTIONS=name:HalresCallerA96,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017Grayswandir\nwaw-"
+    }
+  ]
+}

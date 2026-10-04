@@ -335,6 +335,44 @@ test('make_hallucinated keeps explicit planning on the live state silent',
     game.iflags.perm_invent = false;
     });
 
+test('make_hallucinated reports clearing an active timeout under resistance',
+    async () => {
+        const c = potionSource();
+        const cStart = c.indexOf('boolean\nmake_hallucinated(');
+        const cEnd = c.indexOf('\n}\n\nRESTORE_WARNING_FORMAT_NONLITERAL', cStart);
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        const cBody = c.slice(cStart, cEnd);
+        assert.match(cBody,
+            /if \(!changed && !HHallucination && old && talk\)/u);
+        assert.match(cBody, /if \(!Hallucination\)\s+eatmupdate\(\);/u);
+
+        const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+        const jsStart = js.indexOf('export async function make_hallucinated(');
+        const jsEnd = js.indexOf('\n}\n\n// C ref: potion.c peffect_restore_ability', jsStart);
+        assert.ok(jsStart >= 0 && jsEnd > jsStart);
+        const jsBody = js.slice(jsStart, jsEnd);
+        assert.match(jsBody,
+            /!changed && !hallucination\.intrinsic && old && talk/u);
+        assert.match(jsBody, /await strange_feeling\(null, null, state\)/u);
+        assert.match(jsBody, /note_unported\('eat\.c eatmupdate'\)/u);
+
+        await startedGame(8460004, 'HallucinationClearWithResistance');
+        clearTopline();
+        // Timeout 8 gives C's active-old-timeout arm; resistance mask 1 keeps
+        // effective Hallucination false while make_hallucinated clears it.
+        game.multi = 0;
+        game.u.uprops[HALLUC].intrinsic = 8;
+        game.u.uprops[HALLUC_RES].intrinsic = 0;
+        game.u.uprops[HALLUC_RES].extrinsic = 1;
+        const changed = await make_hallucinated(0, true, 0, game);
+        assert.equal(changed, false);
+        assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 0);
+        assert.equal(
+            toplines(),
+            'Your vision seems to flatten for a moment but is normal now.',
+        );
+    });
+
 test('make_blinded uses injected vision state for planned blindness', async () => {
     const live = {
         u: { uprops: [] },
