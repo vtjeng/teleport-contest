@@ -51,6 +51,7 @@ import {
     check_map_spot,
     cvt_sdoor_to_door,
     detecting,
+    do_vicinity_map,
     dosearch,
     dosearch0,
     food_detect,
@@ -113,6 +114,10 @@ const MONSTER_DETECT_C = cDefinition(
     'int\nmonster_detect(struct obj *otmp,',
     '\nstaticfn void\nsense_trap(',
 );
+const DO_VICINITY_MAP_C = cDefinition(
+    'void\ndo_vicinity_map(',
+    '\n/* convert a secret door into a normal door',
+);
 
 test('detecting matches only the two C detection callback identities', () => {
     // detect.c:1931 compares function pointers directly. Keep this predicate
@@ -122,6 +127,41 @@ test('detecting matches only the two C detection callback identities', () => {
     assert.equal(detecting(openone), true);
     assert.equal(detecting(() => {}), false);
 });
+
+test('do_vicinity_map preserves the C reveal, browse, restore and redraw order',
+    () => {
+        assert.match(
+            DO_VICINITY_MAP_C,
+            /lo_y = \(\(u\.uy - 5 < 0\) \? 0 : u\.uy - 5\)/u,
+        );
+        assert.match(
+            DO_VICINITY_MAP_C,
+            /lo_x = \(\(u\.ux - 9 < 1\) \? 1 : u\.ux - 9\)/u,
+        );
+        assert.ok(
+            DO_VICINITY_MAP_C.indexOf('oldglyph = glyph_at(zx, zy)')
+                < DO_VICINITY_MAP_C.indexOf(
+                    'show_map_spot(zx, zy, Confusion)',
+                ),
+            'the remembered glyph is read before show_map_spot clears it',
+        );
+        for (const source of [
+            'if (OBJ_AT(zx, zy))',
+            'if ((mtmp = m_at(zx, zy)) != 0',
+            'if (random_farsight && flags.quick_farsight)',
+            'browse_map(ter_typ, "anything of interest")',
+            'reconstrain_map();',
+            'EDetect_monsters = save_EDetect_mons;',
+            'gv.viz_array[u.uy][u.ux] = save_viz_uyux;',
+            'see_monsters();',
+            'if (refresh)\n        docrt();',
+        ]) assert.ok(DO_VICINITY_MAP_C.includes(source), source);
+        assert.match(
+            DO_VICINITY_MAP_C,
+            /extended = \(sobj && \(sobj->blessed \|\| Clairvoyant\)\)/u,
+        );
+        assert.equal(typeof do_vicinity_map, 'function');
+    });
 import { runSegment } from '../js/jsmain.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
