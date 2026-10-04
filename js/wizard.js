@@ -3,8 +3,10 @@
 // C ref: wizard.c mon_has_amulet(), mon_has_special().
 
 import {
+    A_LAWFUL,
     BOLT_LIM,
     DEAF,
+    EMIN,
     G_GENOD,
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
@@ -34,6 +36,7 @@ import {
     attacktype,
     big_to_little,
     is_covetous,
+    is_minion,
 } from './mondata.js';
 import {
     AT_MAGC,
@@ -53,6 +56,7 @@ import {
     SPE_BOOK_OF_THE_DEAD,
 } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
+import { mon_aligntyp } from './priest.js';
 import { stairway_find_type_dir } from './stairs.js';
 import { enexto, enexto_core } from './teleport.js';
 import { monster_census, msummon } from './minion.js';
@@ -65,6 +69,8 @@ import { vtense } from './objnam.js';
 import { note_unported } from './unported.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canspotmon } from './display.js';
+import { wake_nearto } from './mon.js';
+import { verbalize } from './pline.js';
 
 // monflag.h M3_WANTS* values. They are kept here with wizard.c's consumers
 // so the strategy bits cannot silently drift from the source masks.
@@ -834,4 +840,81 @@ export async function tactics(monster, rawEnv = {}) {
         return 0;
     }
     }
+}
+
+
+// C ref: wizard.c cuss() (846-883). Keep the two fixed C tables in order;
+// their indices and each preceding branch decide which source draw happens.
+const RANDOM_INSULT = Object.freeze([
+    'antic', 'blackguard', 'caitiff', 'chucklehead',
+    'coistrel', 'craven', 'cretin', 'cur',
+    'dastard', 'demon fodder', 'dimwit', 'dolt',
+    'fool', 'footpad', 'imbecile', 'knave',
+    'maledict', 'miscreant', 'niddering', 'poltroon',
+    'rattlepate', 'reprobate', 'scapegrace', 'varlet',
+    'villein', 'wittol', 'worm', 'wretch',
+]);
+
+const RANDOM_MALEDICTION = Object.freeze([
+    'Hell shall soon claim thy remains,',
+    'I chortle at thee, thou pathetic',
+    'Prepare to die, thou',
+    'Resistance is useless,',
+    'Surrender or die, thou',
+    'There shall be no mercy, thou',
+    'Thou shalt repent of thy cunning,',
+    'Thou art as a flea to me,',
+    'Thou art doomed,',
+    'Thy fate is sealed,',
+    'Verily, thou shalt be one dead',
+]);
+
+// C ref: wizard.c cuss() (846-883). The caller decides whether this source
+// function is reached; Deaf is its first early-return guard.
+export async function cuss(mtmp, state = game, rawEnv = {}) {
+    if (heroIsDeaf(state)) return;
+
+    const random = rawEnv.random ?? { rn2 };
+    const roll = random.rn2 ?? rn2;
+    const message = rawEnv.message ?? ttyPline;
+    const say = async (line) => message(line, state, rawEnv);
+    const sayVerbal = async (line) => verbalize(line, state, {
+        message: (text, targetState) => message(text, targetState, rawEnv),
+    });
+
+    if (mtmp.iswiz) {
+        if (!roll(5)) { /* typical bad guy action */
+            await say(`${Monnam(mtmp, state, rawEnv)} laughs fiendishly.`);
+        } else if (state.u?.uhave?.amulet
+                   && !roll(RANDOM_INSULT.length)) {
+            // sndprocs.h compiles SetVoice to an empty macro in this build.
+            const insult = RANDOM_INSULT[roll(RANDOM_INSULT.length)];
+            await sayVerbal(`Relinquish the amulet, ${insult}!`);
+        } else if ((state.u?.uhp ?? 0) < 5 && !roll(2)) { /* Panic */
+            const line = roll(2)
+                ? 'Even now thy life force ebbs, %s!'
+                : 'Savor thy breath, %s, it be thy last!';
+            const insult = RANDOM_INSULT[roll(RANDOM_INSULT.length)];
+            await sayVerbal(line.replace('%s', insult));
+        } else if (mtmp.mhp < 5 && !roll(2)) { /* Parthian shot */
+            await sayVerbal(roll(2) ? 'I shall return.' : "I'll be back.");
+        } else {
+            const malediction = RANDOM_MALEDICTION[
+                roll(RANDOM_MALEDICTION.length)
+            ];
+            const insult = RANDOM_INSULT[roll(RANDOM_INSULT.length)];
+            await sayVerbal(`${malediction} ${insult}!`);
+        }
+    } else if (is_minion(mtmp.data)
+               && mon_aligntyp(mtmp) === A_LAWFUL
+               && !(mtmp.isminion && EMIN(mtmp)?.renegade)) {
+        // cuss() discards questpgr.c com_pager()'s void result.
+        note_unported('questpgr.c com_pager');
+    } else if (!roll(is_minion(mtmp.data) ? 100 : 5)) {
+        await say(`${Monnam(mtmp, state, rawEnv)} casts aspersions on your ancestry.`);
+    } else {
+        note_unported('questpgr.c com_pager');
+    }
+
+    await wake_nearto(mtmp.mx, mtmp.my, 5 * 5, { ...rawEnv, state });
 }

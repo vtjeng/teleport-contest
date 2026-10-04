@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first correction frozen after run-a4KdHG exposed the exact unique-Wizard prompt: `Creating doppelganger instead; force Wizard of Yendor? [yn] (n)`. Answer y to the source-observed force prompt, then chat west because the retained C screen shows the fallback monster in the west square. The created Wizard may select a different placement; retain any resulting target miss and derive any further correction only from the C map before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 960101,
+      "datetime": "20360101120000",
+      "nethackrc": "OPTIONS=name:CussWizardOne,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile Wizard of Yendor\ny#chat\nh\n......"
+    }
+  ]
+}

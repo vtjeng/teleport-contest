@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-corrected endpoint: retain the C-confirmed hostile Wizard setup and `#chat` toward the westward target, ending after the cuss interaction so the next newline cannot start an unrelated monster turn. The prior full recipe's post-chat newline/dot tail is preserved separately as a mismatch history.",
+  "segments": [
+    {
+      "seed": 960101,
+      "datetime": "20360101120000",
+      "nethackrc": "OPTIONS=name:CussWizardOne,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile Wizard of Yendor\ny#chat\nh"
+    }
+  ]
+}

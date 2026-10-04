@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-screen-observed variation: immediately after genesis, the player is at (49,7) and the Wizard of Yendor is at (49,8), so `j` addresses the actual southward target. This preserves the prior northward wall miss separately.",
+  "segments": [
+    {
+      "seed": 960102,
+      "datetime": "20360102120000",
+      "nethackrc": "OPTIONS=name:CussWizardTwo,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile Wizard of Yendor\ny#chat\nj"
+    }
+  ]
+}

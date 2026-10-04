@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved wrong-direction attempt: this input sends k north. The earlier C map showed the hero at (49,7) and the hostile Wizard at (49,8), south of the hero, so this key misses the target. Keep the input unchanged as the recorded miss; the later `j` recipe uses the observed south target.",
+  "segments": [
+    {
+      "seed": 960102,
+      "datetime": "20360102120000",
+      "nethackrc": "OPTIONS=name:CussWizardTwo,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile Wizard of Yendor\ny#chat\nk\n . . . . . . . . . . . ."
+    }
+  ]
+}
