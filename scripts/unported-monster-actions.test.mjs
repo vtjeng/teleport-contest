@@ -197,6 +197,10 @@ const DOGMOVE_JS_SOURCE = readFileSync(
     new URL('../js/dogmove.js', import.meta.url),
     'utf8',
 );
+const MONMOVE_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/monmove.c', import.meta.url),
+    'utf8',
+);
 
 function rngSnapshot() {
     return {
@@ -5204,6 +5208,45 @@ test('sleeping killer bees admit only disturb no-op states', async () => {
             && error.reason === 'a special monster action'
         ),
         'visible bee within wake range remains fail-closed',
+    );
+});
+
+// C ref: monmove.c dochug() checks the bee's square for royal jelly in
+// PHASE THREE, then continues to ordinary movement and attacks when the
+// conditional bee_eat_jelly() call does not consume the move. The planning
+// preflight must not reject an awake bee before this source gate runs.
+test('awake killer bees reach the source jelly gate during preflight', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_KILLER_BEE });
+    const { monster } = target;
+    monster.msleeping = false;
+    monster.mtame = 0;
+    monster.mpeaceful = false;
+    game.viz_array[target.heroY][target.monsterX] |= COULD_SEE;
+    assert.equal(monster.mcanmove, true);
+    assert.equal(monster.data?.pmidx, PM_KILLER_BEE);
+    assert.equal(
+        game.level.objects[target.monsterX][target.heroY],
+        null,
+        'this ordinary route has no floor jelly under the bee',
+    );
+
+    const dochug = MONMOVE_SOURCE.indexOf('dochug(struct monst *mtmp)');
+    const beeGate = MONMOVE_SOURCE.indexOf(
+        'if (mdat == &mons[PM_KILLER_BEE]', dochug,
+    );
+    const phaseFour = MONMOVE_SOURCE.indexOf('PHASE FOUR: Standard Attacks', beeGate);
+    assert.ok(dochug >= 0 && beeGate > dochug && phaseFour > beeGate);
+    assert.match(
+        MONMOVE_SOURCE.slice(beeGate, phaseFour),
+        /sobj_at\(LUMP_OF_ROYAL_JELLY, mtmp->mx, mtmp->my\)[\s\S]*?bee_eat_jelly\(mtmp, otmp\)\) >= 0/u,
+    );
+
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(
+        completeSecondTurnSnapshot(game, target.replay),
+        before,
+        'awake-bee action planning leaves the live game unchanged',
     );
 });
 
