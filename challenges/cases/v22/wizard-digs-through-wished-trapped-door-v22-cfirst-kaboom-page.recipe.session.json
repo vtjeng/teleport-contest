@@ -8,5 +8,5 @@
       "moves": " #wizwish\nwall\n#wizwish\ntrapped door\nh#wizwish\npick-axe\nwpapl . "
     }
   ],
-  "_comment": "C-observed continuation to the trapped-door hit: an initial space acknowledges the hit page; the following period is preserved as a blocked pager key, then this final space exposes b_trapped's queued explosion page. The C record verifies the dig.c completion and trap.c:b_trapped calls without relying on JS behavior. Its source event is zero-based segment 0, step 63; the strict diff log prints the sole segment as segment 1."
+  "_comment": "C-observed continuation to the trapped-door hit: an initial space acknowledges the hit page; the following period is preserved as a blocked pager key, then this final space exposes b_trapped’s queued explosion page. The C record verifies the dig.c completion and trap.c:b_trapped calls without relying on JS behavior. The b_trapped source event is normalized segment 0, zero-based step 62 (input space); the strict diff log prints segment 1, step 63."
 }

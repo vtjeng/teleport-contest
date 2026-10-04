@@ -1,1 +1,12 @@
-{"version":5,"segments":[{"seed":2201037067,"datetime":"20261003141523","nethackrc":"OPTIONS=name:V22CockatriceEggEat,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n","moves":" #wizwish\ncockatrice egg\neo"}],"_comment":"Independent C-first cockatrice-egg route. A sibling inventory probe with the same character, date, time, and seed identified the wished egg at slot o. The first missing behavior is eat.c:fprefx’s EGG branch for a non-Pyrolisk, non-stale egg, which calls give_feedback. After that command continues, eat.c:fpostfx applies delayed stoning. Cockatrice corpse meat instead follows eat.c:cprefx and ends the game immediately, so this recipe eats the source-identified egg."}
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037067,
+      "datetime": "20261003141523",
+      "nethackrc": "OPTIONS=name:V22CockatriceEggEat,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\ncockatrice egg\neo"
+    }
+  ],
+  "_comment": "Independent C-first cockatrice-egg route. A sibling inventory probe with the same character, date, time, and seed identified the wished egg at slot o. The first missing behavior is eat.c:fprefx’s EGG branch for a non-Pyrolisk, non-stale egg at normalized segment 0, zero-based step 27 (input \"o\"); C calls give_feedback and continues. After that command, eat.c:fpostfx applies delayed stoning. Cockatrice corpse meat instead follows eat.c:cprefx and ends the game immediately, so this recipe eats the source-identified egg."
+}
