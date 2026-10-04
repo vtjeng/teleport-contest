@@ -159090,7 +159090,7 @@
           "line": 117,
           "endLine": 202,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -159104,7 +159104,7 @@
           "endLine": 1122,
           "declared": true,
           "sourceFile": "polyself.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "character_race",
@@ -159112,7 +159112,7 @@
           "endLine": 2176,
           "declared": true,
           "sourceFile": "role.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -159285,7 +159285,156 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "adjattrib",
+            "implementation": "js/attrib.js",
+            "symbol": "adjattrib",
+            "sourceReview": "Read attrib.c:adjattrib() lines 117-202. The positive branch first raises ABASE and AMAX, then clamps both to ATTRMAX; attrib.h:ATTRMAX(A_STR) calls polyself.c:uasmon_maxStr() when Upolyd. The other source branches retain their existing Fixed_abil, dunce-cap, ATTRMIN/rn2, unchanged-ACURR, AEXE, botl, message, and encumbrance order. JavaScript now selects that form cap for polymorphed Strength and retains urace.attrmax for every other attribute/state. The C76 independent routes now cover both living Hill Giant STR19(19)=119 and strong non-giant Ettin STR18(100)=118 caps.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_gain_ability",
+                "source": "potion.c:peffect_gain_ability calls adjattrib in the blessed gain-ability loop"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "fountain.c:drinkfountain calls adjattrib for blessed attribute changes; this caller remains outside C76 runtime credit"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/attrib.c/adjattrib-polymorphed-giant-gain-ability-c76-slot-o-cfirst.session.json",
+              "recordings/attrib.c/adjattrib-polymorphed-ettin-gain-ability-c76-strong-nongiant-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-quaffs-blessed-gain-ability-potion",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "potion.c:peffect_gain_ability -> attrib.c:adjattrib"
+              }
+            ],
+            "checkedAt": "29ccd381156ecf90c60c2cae332f7d45804de329"
+          },
+          {
+            "name": "uasmon_maxStr",
+            "implementation": "js/polyself.js",
+            "symbol": "uasmon_maxStr",
+            "sourceReview": "Read polyself.c:uasmon_maxStr() lines 1077-1119. It remaps ordinary orc, elf, dwarf and gnome forms before character_race; preserves the Uruk-hai and orc-captain exceptions; then uses Race.attrmax, STR19(19)=119 for living non-race giants, STR18(100)=118 for other strong non-race forms, and 18 for nonstrong non-race forms. The helper is pure and its source branches are pinned in scripts/polyself-transform.test.mjs. The Ettin form is exercised in C at normalized step 17; its strong, non-giant, non-race branch produces the 118 cap, and step 60 confirms the gain-ability attempt stops at that cap.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon calls uasmon_maxStr while establishing the polymorphed form's Strength cap"
+              },
+              {
+                "path": "js/attrib.js",
+                "symbol": "adjattrib",
+                "source": "attrib.h:ATTRMAX(A_STR) calls uasmon_maxStr when Upolyd"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/polyself-transform.test.mjs"
+            ],
+            "recordings": [
+              "recordings/attrib.c/adjattrib-polymorphed-giant-gain-ability-c76-slot-o-cfirst.session.json",
+              "recordings/attrib.c/adjattrib-polymorphed-ettin-gain-ability-c76-strong-nongiant-cfirst.session.json"
+            ],
+            "sourceFile": "polyself.c",
+            "checkedAt": "29ccd381156ecf90c60c2cae332f7d45804de329"
+          },
+          {
+            "name": "character_race",
+            "implementation": "js/roles.js",
+            "symbol": "character_race",
+            "sourceReview": "Read role.c:character_race() lines 2163-2171. It scans the Race table in order, returns the entry whose mnum matches pmindex, and returns NULL at the terminator. This pure lookup is source-pinned for human, orc, gnome, dwarf, elf, and a non-race monster in scripts/polyself-transform.test.mjs. The Ettin runtime case also confirms the non-race lookup path through its form-specific cap.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "uasmon_maxStr",
+                "source": "polyself.c:uasmon_maxStr calls character_race after form-to-race remapping"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/polyself-transform.test.mjs"
+            ],
+            "recordings": [
+              "recordings/attrib.c/adjattrib-polymorphed-giant-gain-ability-c76-slot-o-cfirst.session.json",
+              "recordings/attrib.c/adjattrib-polymorphed-ettin-gain-ability-c76-strong-nongiant-cfirst.session.json"
+            ],
+            "sourceFile": "role.c",
+            "checkedAt": "29ccd381156ecf90c60c2cae332f7d45804de329"
+          }
+        ],
+        "entryPointReview": "The C76 runtime entry point is potion.c:peffect_gain_ability calling attrib.c:adjattrib from a blessed gain-ability potion. The v16 Wizard recording exercises this production caller through zero-based segment 0 step 43 on this worker. Two independent C76 routes then use polyself.c:polymon to establish a form, which calls uasmon_maxStr and character_race, and consume the wished blessed potion through peffect_gain_ability. The Hill Giant reaches the living-giant STR19(19)=119 cap; the Ettin reaches the strong non-giant STR18(100)=118 cap. Both strict C/JavaScript comparisons match completely. fountain.c:drinkfountain remains an existing adjattrib caller but is not separately runtime-credited.",
+        "entryPoints": [
+          {
+            "name": "Wizard quaffs blessed gain-ability potion",
+            "functions": [
+              "adjattrib"
+            ],
+            "recordings": [
+              "recordings/attrib.c/adjattrib-polymorphed-giant-gain-ability-c76-slot-o-cfirst.session.json",
+              "recordings/attrib.c/adjattrib-polymorphed-ettin-gain-ability-c76-strong-nongiant-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-quaffs-blessed-gain-ability-potion",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "potion.c:peffect_gain_ability -> attrib.c:adjattrib"
+              }
+            ]
+          },
+          {
+            "name": "Polymorphed Hill Giant reaches blessed gain-ability Strength cap",
+            "functions": [
+              "adjattrib",
+              {
+                "sourceFile": "polyself.c",
+                "name": "uasmon_maxStr"
+              },
+              {
+                "sourceFile": "role.c",
+                "name": "character_race"
+              }
+            ],
+            "recordings": [
+              "recordings/attrib.c/adjattrib-polymorphed-giant-gain-ability-c76-slot-o-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Polymorphed Ettin reaches strong non-giant blessed gain-ability Strength cap",
+            "functions": [
+              "adjattrib",
+              {
+                "sourceFile": "polyself.c",
+                "name": "uasmon_maxStr"
+              },
+              {
+                "sourceFile": "role.c",
+                "name": "character_race"
+              }
+            ],
+            "recordings": [
+              "recordings/attrib.c/adjattrib-polymorphed-ettin-gain-ability-c76-strong-nongiant-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
