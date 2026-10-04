@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-04T09:48:27.862Z",
+  "capturedAt": "2026-10-04T10:18:03.883Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -18359,12 +18359,53 @@
         "type": "accepted",
         "at": "2026-10-04T09:48:27.393Z",
         "task": "C76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C76-published-7b3deda8",
+        "type": "published",
+        "at": "2026-10-04T09:50:24.103Z",
+        "task": "C76",
+        "commit": "7b3deda89bd568e37e18ec976de9dec253e1d398"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A91-integrating-b76bb384",
+        "type": "integrating",
+        "at": "2026-10-04T09:52:55.935Z",
+        "task": "A91",
+        "integration": "b76bb38476ce81155e44ac82e1f7e4e7eec28bd9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C80-towel-wet-dry-v21-20261004",
+        "type": "assign",
+        "at": "2026-10-04T10:11:32.137Z",
+        "task": "C80",
+        "worker": "C",
+        "goal": "port-weapon-towel-wet-dry-v21-20261004",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A91-validated-b76bb384",
+        "type": "validated",
+        "at": "2026-10-04T10:16:47.399Z",
+        "task": "A91",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A91-accepted-b76bb384",
+        "type": "accepted",
+        "at": "2026-10-04T10:16:56.817Z",
+        "task": "A91"
       }
     ]
   },
   "development": {
-    "executionCommit": "e807fa3da68260c58a41583e2de259cfa33bbdca",
-    "measuredAt": "2026-10-04T09:41:49.304Z",
+    "executionCommit": "b76bb38476ce81155e44ac82e1f7e4e7eec28bd9",
+    "measuredAt": "2026-10-04T10:06:22.396Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
