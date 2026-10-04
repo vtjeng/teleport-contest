@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked hero armor-erosion recipe retained for uhitm.c:erode_armor. C reaches zap.c:zhitu and logs a later erosion draw, but strict JS replay first diverges at segment 0 step 120 when the equipped spear sends discarded trap.c:acid_damage through inventory_resistance_check. The later C erosion draw is after that mismatch and is not matching runtime evidence.",
+  "segments": [
+    {
+      "seed": 3701425,
+      "datetime": "20450206151200",
+      "nethackrc": "OPTIONS=name:A95AcidRoute,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " #levelchange\n30\n                             \u0017blessed +3 yellow dragon scale mail\nWe\u0007hostile yellow dragon\nhhhhh . . . . . ."
+    }
+  ]
+}

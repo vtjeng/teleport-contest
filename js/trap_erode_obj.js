@@ -70,6 +70,7 @@ import { which_armor } from './worn.js';
 import { cansee } from './vision.js';
 import { dist2 } from './hacklib.js';
 import { canseemon } from './display.js';
+import { note_unported } from './unported.js';
 
 // C ref: trap.c erode_obj()'s three static tables (177-182), one row per
 // ERODE_* value, together with the `vulnerable` predicate and the `is_primary`
@@ -195,7 +196,10 @@ export async function erode_obj(obj, description, type, flags, env) {
     const floorVictim = !uvictim && !monsterVictim;
 
     const details = EROSION[type];
-    if (!details) throw new RangeError(`invalid erosion type ${type}`);
+    if (!details) {
+        note_unported('pline.c impossible');
+        return ER_NOTHING;
+    }
     const { state } = env;
     const random = env.random;
     const message = erosionOperation(env, 'message', ttyPline);
@@ -231,7 +235,7 @@ export async function erode_obj(obj, description, type, flags, env) {
     const vulnerable = details.vulnerable(obj, state);
     const erosion = currentErosion(obj, details.primary);
 
-    let name = description || cxname(obj, state);
+    let name = description ?? cxname(obj, state);
     // trap.c's visobj strings are already article-free: it strips the
     // leading "the " from cxname() before using the floor-object message.
     if (visobj && !uvictim && !vismon && /^the /iu.test(name))
