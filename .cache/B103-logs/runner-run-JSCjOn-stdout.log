@@ -1,9 +1,0 @@
-PRNG length: C=2311, JS=2311
-PRNG values: match
-Screen length: C=110, JS=110
-Screen cells and attributes: match
-Cursor length: C=110, JS=110
-Cursor values: match
-Animation frame length: C=0, JS=0
-Animation frames: match
-RESULT: PASS
