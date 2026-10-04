@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked source-relevant A85 variation: four hostile brown puddings instead of three changes placement/target selection through read.c:create_particular_parse. C reaches a brown-pudding-versus-brown-pudding action before the Abbot's kick; strict JS replay stops at the existing uhitm.c:mhitm_ad_dcay() gap. The captured failed C record is preserved outside recordings/ at /tmp/A85-abbot-route-attempts-a46/mhitm-ad-stun-abbot-four-brown-pudding-a85-variation-c-record.session.json.",
+  "segments": [
+    {
+      "seed": 56387021,
+      "datetime": "20371026131700",
+      "nethackrc": "OPTIONS=name:A85StunPair,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n4 hostile brown pudding\n #wizgenesis\nhostile Abbot\n . . "
+    }
+  ]
+}

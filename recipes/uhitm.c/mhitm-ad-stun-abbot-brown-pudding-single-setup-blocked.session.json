@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked A85 setup attempt retained as history. One hostile brown pudding was placed two squares from the Abbot, so Conflict did not produce an adjacent monster-pair attack and uhitm.c:mhitm_ad_stun was not reached. The matching route uses C's literal quantity syntax to place three targets near the hero.",
+  "segments": [
+    {
+      "seed": 56387021,
+      "datetime": "20371026131700",
+      "nethackrc": "OPTIONS=name:A85StunPair,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\nhostile brown pudding\n #wizgenesis\nhostile Abbot\n . . . . . . . . . . . . . ."
+    }
+  ]
+}

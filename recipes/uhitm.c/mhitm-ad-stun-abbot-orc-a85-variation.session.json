@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked A85 Orc variation attempt. The route reached an Orc-vs-Orc hit, but the Abbot opened a door and did not reach the selected AD_STUN handler in the short input. Its source-driven setup miss is preserved here; Brown Pudding quantity variations also missed the selected handler or reached a separate decay gap; only the primary three-target short recording fully matches.",
+  "segments": [
+    {
+      "seed": 56387021,
+      "datetime": "20371026131700",
+      "nethackrc": "OPTIONS=name:A85StunPair,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n3 hostile orc\n #wizgenesis\nhostile Abbot\n . . "
+    }
+  ]
+}
