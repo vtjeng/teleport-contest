@@ -163401,7 +163401,7 @@
           "line": 1195,
           "endLine": 1222,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -163577,7 +163577,62 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "erosion_matters",
+            "implementation": "js/objnam.js",
+            "symbol": "erosion_matters",
+            "sourceReview": "Compared the complete C definition objnam.c:1195-1215 with js/objnam.js:104-116. The C switch returns TRUE for WEAPON_CLASS, ARMOR_CLASS, BALL_CLASS, and CHAIN_CLASS; TOOL_CLASS delegates to is_weptool, whose obj.h macro checks TOOL_CLASS and objects[otyp].oc_skill != P_NONE; default returns FALSE. JavaScript has the same order and results through its canonical is_weptool helper. The function reads object/table values only and is pure. The obj.js compatibility wrapper was removed, and all seven direct C callers use the canonical JavaScript owner.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "may_generate_eroded",
+                "source": "mkobj.c:183 calls erosion_matters; js/obj.js:810 calls the canonical js/objnam.js helper."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "mergable",
+                "source": "invent.c:4432 calls erosion_matters; js/invent.js:3585 calls the canonical js/objnam.js helper."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "destroy_arm",
+                "source": "do_wear.c:3299 calls erosion_matters; js/do_wear.js:4080 calls the canonical js/objnam.js helper."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_enchant_weapon",
+                "source": "read.c:1640 calls erosion_matters; js/read.js:3393 already calls the canonical js/objnam.js helper."
+              },
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "erode_obj",
+                "source": "trap.c:249 calls erosion_matters; js/trap_erode_obj.js:278 calls the canonical js/objnam.js helper."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "poly_obj",
+                "source": "zap.c:1789 calls erosion_matters; js/zap.js:2303 calls the canonical js/objnam.js helper."
+              },
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "readobjnam_finish_after_buc",
+                "source": "objnam.c:5271 calls erosion_matters during readobjnam; js/objnam_readobjnam.js:2381 calls the canonical helper in the corresponding readobjnam completion path."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "0a4c48d41b6433e1a1c8a5505ce9dc062924e8c7"
+          }
+        ],
+        "entryPointReview": "erosion_matters is a pure helper and has no independent game entry point. Its production callers are object generation, inventory merge comparison, armor destruction, confused weapon enchantment, object erosion, object polymorph, and wished-object finalization. The test pins the full predicate and verifies the corresponding C caller sites and JavaScript imports/calls. No outer caller is claimed as a completed source unit.",
+        "entryPoints": []
+      }
     }
   ]
 }
