@@ -154881,7 +154881,7 @@
     {
       "id": "port-uhitm-mhitm-ad-stun-v20-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port stun attacks and creature-specific stagger callers",
       "cFile": "uhitm.c",
       "sessions": [
@@ -154895,15 +154895,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_stun",
           "line": 4388,
           "endLine": 4424,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -154917,7 +154920,7 @@
           "endLine": 1410,
           "declared": true,
           "sourceFile": "mondata.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -155086,7 +155089,338 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_stun",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_stun",
+            "sourceReview": "Read and compared the complete uhitm.c:mhitm_ad_stun body (4388-4419). It first handles hero-to-monster: emits the pluralized defender stagger message only when not blind, sets mdef.mstun, calls mhitm_ad_phys, then returns only when mhm.done. The monster-to-hero arm calls hitmsg, gates on !magr->mcan before rn2(4), adds the existing stun timeout to integer mhm.damage, calls make_stunned, and divides damage by two using C integer truncation. The monster-to-monster arm returns immediately for a cancelled attacker, otherwise emits the positioned stagger message only when canseemon, sets stun, calls mhitm_ad_phys, and checks done. The AD_STUN arm in uhitm.c:mhitm_adtyping (4782-4788) now dispatches here. The three production callers of that dispatcher are uhitm.c:damageum (4854), mhitu.c:hitmu (1191), and mhitm.c:mdamagem (1059); the hero-form route is source-table unreachable for AD_STUN, while the other two have matching evidence below. The function is impure through output, RNG and monster/hero combat state. Existing partial mhitm_ad_phys and hitmsg bodies are retained; no whole-function credit is claimed for them.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:4782-4788, the AD_STUN dispatch arm calls mhitm_ad_stun."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:4854 passes hero polymorph attacks to mhitm_adtyping."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:1191 passes a monster attack against the hero to mhitm_adtyping."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:1059 passes a monster-to-monster attack to mhitm_adtyping."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-stun.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-stun-abbot-brown-pudding-a85.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 31,
+                "source": "monsters.h:3833 Abbot AT_KICK/AD_STUN -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> mhitm_ad_stun; failed rn2(4) branch at step 29."
+              }
+            ],
+            "checkedAt": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1"
+          },
+          {
+            "name": "stagger",
+            "implementation": "js/mondata.js",
+            "symbol": "stagger",
+            "sourceReview": "Read and compared the complete pure mondata.c:stagger body (1395-1408). The first byte of def selects locomotion index 2 for lower case or 3 for upper case through highc; the function then tests floater, small flyer, large flyer, slithy, amorphous, immobile, and no-limbs in source order before returning def. It performs no RNG, output or game-state mutation. The selected A85 paths call the existing JS helper from both capacity-three pickup messages, with both C call sites and resulting Brown Pudding verb pinned in pickup.test.mjs. All other active source call sites are mapped below; mhitm.c:passivemm has an existing explicit unsupported AD_STUN outer arm, so A85 does not claim execution through it.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_stagger",
+                "source": "uhitm.c:1580 calls stagger(mon->data, \"stagger\") after the unarmed-hit probability gate."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_stun",
+                "source": "uhitm.c:4398 and 4416 use stagger for hero-to-monster and monster-to-monster messages."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "passiveum",
+                "source": "mhitu.c:2580 uses stagger for the yellow-mold AD_STUN passive message."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "make_stunned",
+                "source": "potion.c:124 uses stagger for an on-foot stun message."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "encumber_msg",
+                "source": "pickup.c:1992 and 2013 use stagger for the capacity-three increase/decrease messages."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "chest_trap",
+                "source": "trap.c:6481 uses stagger for a chest-trap stun message."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "passivemm",
+                "source": "mhitm.c:1415 has a stagger call in passivemm; the existing JS outer AD_STUN arm remains an explicit out-of-scope refusal."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata-pure.test.mjs",
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-stun-abbot-brown-pudding-a85.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1"
+          }
+        ],
+        "entryPointReview": "The two active A85 combat entry points are monster-to-monster and monster-to-hero AD_STUN. The independent Abbot/Brown Pudding recording fully matches the monster-to-monster route. The admitted v20 Valkyrie/Abbot case reaches mhitm_ad_stun at segment 0 step 29 and matches through step 31; the later step-32 screen difference belongs to the unported mcastu.c:mcast_confuse_you path, so only the verified prefix is cited. The hero-to-monster arm is source-table unreachable for valid hero forms: the source AD_STUN entries are yellow mold AT_NONE, Baalzebub AT_GAZE/M2_NOPOLY, and Abbot AT_KICK/M2_NOPOLY. stagger is also used by the existing uhitm.c:hmon_hitmon_stagger, mhitu.c:passiveum, potion.c:make_stunned, pickup.c:encumber_msg, trap.c:chest_trap and mhitm.c:passivemm callers. The first five are connected to matching existing JS symbols; passivemm retains its named unsupported AD_STUN outer arm and is not claimed as a runtime route. The added pickup caller contract is source-pinned for both capacity-three transitions; it does not claim complete encumber_msg behavior.",
+        "entryPoints": [
+          {
+            "name": "monster-to-monster AD_STUN",
+            "functions": [
+              "mhitm_ad_stun",
+              {
+                "sourceFile": "mondata.c",
+                "name": "stagger"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-stun-abbot-brown-pudding-a85.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-hero AD_STUN",
+            "functions": [
+              "mhitm_ad_stun"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 31,
+                "source": "monsters.h:3833 Abbot kick -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> mhitm_ad_stun."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+          "session": "synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json",
+          "recordingPath": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json",
+          "recordingSha256": "37d564a6fc52b871ad04582c173be2a9c29a251ab9ebc86a9da282e97d069f7a",
+          "recipe": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.recipe.session.json",
+          "recipeSha256": "25c1989f5fb1af1a6f314f402316e91c0e35d26931dc7f56a224c740109a23cc",
+          "replayInputSha256": "2cad065da98755c355e4a02291cad9ad7e1bf29eb55df3051ed1e2852e93f6ef",
+          "evaluationPath": "challenges/evaluations/20261004023049-v20.json",
+          "evaluationCommit": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+          "evaluationArtifact": "challenges/evaluations/20261004023049-v20.json",
+          "evaluationUtc": "2026-10-04T02:32:00.996Z",
+          "remainingScreens": 9,
+          "recordedSteps": 41,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2131,
+              "total": 2131
+            },
+            "cursors": {
+              "matched": 41,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 39,
+              "cCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.json",
+            "result": {
+              "session": "synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "37d564a6fc52b871ad04582c173be2a9c29a251ab9ebc86a9da282e97d069f7a",
+              "evaluationPath": "challenges/evaluations/20261004023049-v20.json",
+              "evaluationCommit": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+              "remainingScreens": 9,
+              "recordedSteps": 41,
+              "status": "complete",
+              "commit": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+                "session": "synthetic/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json",
+                "recordingPath": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json",
+                "recordingSha256": "37d564a6fc52b871ad04582c173be2a9c29a251ab9ebc86a9da282e97d069f7a",
+                "recipe": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.recipe.session.json",
+                "recipeSha256": "25c1989f5fb1af1a6f314f402316e91c0e35d26931dc7f56a224c740109a23cc",
+                "replayInputSha256": "2cad065da98755c355e4a02291cad9ad7e1bf29eb55df3051ed1e2852e93f6ef",
+                "evaluationPath": "challenges/evaluations/20261004023049-v20.json",
+                "evaluationCommit": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+                "evaluationArtifact": "challenges/evaluations/20261004023049-v20.json",
+                "evaluationUtc": "2026-10-04T02:32:00.996Z",
+                "remainingScreens": 9,
+                "recordedSteps": 41,
+                "previousScreensMatched": 29,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2131,
+                    "total": 2131
+                  },
+                  "cursors": {
+                    "matched": 41,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 23,
+                    "column": 39,
+                    "cCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 32,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A85 resolves the AD_STUN boundary and matches through step31. The first remaining difference is segment0 step32: C displays Conf in the status line while JavaScript leaves it blank. All2131 RNG calls and41 cursors match. The source path is mcastu.c:mcast_spell MCAST_CONFUSE_YOU -> mcast_confuse_you; the JavaScript dispatcher records the unported helper and omits its confusion state and output.",
+              "source": {
+                "file": "mcastu.c",
+                "functions": [
+                  "mcast_confuse_you"
+                ],
+                "branch": "mcast_confuse_you at lines771–791 handles Antimagic with a shield, learned magic resistance and momentary dizziness; otherwise it reads prior Confusion, takes monster level as duration, halves with (dmg+1)/2 under Half_spell_damage, calls make_confused(HConfusion+dmg,TRUE), chooses hallucination/prior-confusion text, and clears the monster learned resistance bit. Preserve state, message and evaluation order.",
+                "callers": [
+                  "C mcast_spell MCAST_CONFUSE_YOU at mcastu.c:882–885 calls mcast_confuse_you and clears damage. js/mcastu.js:mcast_spell currently calls recordMcastGap for this helper at826–827; replace this dispatcher arm with the whole source helper and source damage handling. The ordinary monster spell attack reaches mcast_spell through the existing castmu path."
+                ],
+                "dependencies": [
+                  "Confusion, Antimagic, Half_spell_damage, Hallucination and HConfusion are property macros/state reads. Confirm their JavaScript representations from source.",
+                  "shieldeff, monstseesu, make_confused, You_feel and monstunseesu are discarded-result void operations. Reuse verified implementations or record allowed named gaps; do not invent substitute state or output. Existing bodies alone do not establish whole-unit completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/20261004023049-v20.json at 527bb1f4b1c7e5dcbf2ce9ef00721076126712b1 reports32/41 screens,2131/2131 RNG calls,41/41 cursors; first screen difference is zero-based segment0 step32,row23,column39: C C, JS blank.",
+                "A85 immutable delivery strict comparison run-XTYsi5 retains the full later failure at step32; admitted prefix check and root source verification establish matching through31, not full case parity.",
+                "Read nethack-c/upstream/src/mcastu.c:771–791 and882–885 against js/mcastu.js:826–827. The missing confusion effect explains the first Conf status difference; no random-number call is present in this source helper."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
