@@ -160686,7 +160686,7 @@
           "line": 1380,
           "endLine": 1394,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -160869,7 +160869,37 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "locomotion",
+            "implementation": "js/mondata.js",
+            "symbol": "locomotion",
+            "sourceReview": "Read the complete mondata.c locoverbs table (1366-1377) and locomotion definition (1379-1392). The seven live rows are levitate, flys, flyl, slither, ooze, immobile, and crawl; the swim proposal is commented out. C computes the verb index from (*def != highc(*def)) before evaluating the ordered branches: is_floater; is_flyer with msize <= MZ_SMALL; is_flyer with msize > MZ_SMALL; slithy; amorphous; !mmove; nolimbs; then def unchanged. The source-pinned test checks this complete order and parses all four strings from every active C row before comparing them with the JS LOCOVERBS table. It also pins the C definitions of is_floater, is_flyer, slithy, amorphous, and nolimbs in mondata.h (19-20,30,53,67), and checks source-derived outcomes including overlapping-flag precedence, the flyer size boundary, lowercase/capitalized rows, digit-prefix selection through highc, and fallback. highc is an already accepted pure helper. locomotion has no RNG, output, or game-state writes; it returns an immutable table string or the original def argument.",
+            "callers": [
+              {
+                "path": "js/startup_a11y.js",
+                "symbol": "singularMovementVerb",
+                "source": "monmove.c:msg_mon_movement:41-46 calls locomotion; monmove.c:m_move:2053 is represented by js/monmove.js:m_move:4219 -> collectMonsterMovementMessage:1414-1445 -> singularMovementVerb:1399-1409."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "u_locomotion",
+                "source": "hack.c:u_locomotion:1817-1828 calls locomotion, represented by js/hack.js:u_locomotion:5257-5262."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "99146af549e4cc5875b3cd2ec23ffd7bfb056ede"
+          }
+        ],
+        "entryPointReview": "locomotion is a pure helper and has no entry point of its own. Existing production direct callers mapped during the source search include monmove.c, hack.c, apply.c, dogmove.c, uhitm.c, muse.c, mon.c, and monmove.c again for movement through bars; their corresponding JavaScript locations are listed in A92-context.json. The test covers the source helper directly but does not claim any outer caller as a completed source unit. The remaining C-only caller sites are do.c:2209 (inventory-contained revive_corpse arm), timeout.c:1114/1117/1153 (hatch_egg, whose HATCH_EGG callback is absent), and shk.c:5092; these are documented gaps outside A92. trap.c:1926 is only a comment, not a call. The helper remains production-wired through the verified monmove and hack caller paths.",
+        "entryPoints": []
+      }
     }
   ]
 }
