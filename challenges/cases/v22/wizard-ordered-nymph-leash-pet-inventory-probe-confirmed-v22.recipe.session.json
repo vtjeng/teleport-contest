@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010479,
+      "datetime": "20261004051500",
+      "nethackrc": "OPTIONS=name:V22OrderedLeashProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\nDa\n*\n#wizwish\nleash\n#wizgenesis\nnymph\n#wizgenesis\ntame dog\ni"
+    }
+  ],
+  "_comment": "Corrected setup-only probe: the predecessor ended before the final newline that submits the tame-dog genesis prompt. This record confirms both spawned-mob geometry and the leash's current inventory letter before the separate theft candidate; it remains probe evidence, not a candidate recording."
+}

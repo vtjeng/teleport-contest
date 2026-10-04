@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent wizard-mode route to timeout.c:phaze_dialogue. #wizintrinsic selects the source menu's pass-through-walls property with a three-turn count; one wait reaches an odd, positive countdown without requiring a wall-escape setup.",
+  "segments": [
+    {
+      "seed": 2201037072,
+      "datetime": "20261003184522",
+      "nethackrc": "OPTIONS=name:V22PhazeTimer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n3z\n ."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first inventory/setup probe for the confused rustproofing arm of read.c:seffect_enchant_weapon. Freeze the selected long sword letter from this actual C inventory before constructing the effect recipe; no JS comparison informs the setup.",
+  "segments": [
+    {
+      "seed": 22010433,
+      "datetime": "20311006141200",
+      "nethackrc": "OPTIONS=name:V22Rustproof,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nlong sword\ni"
+    }
+  ]
+}

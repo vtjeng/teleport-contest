@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only source-position probe for the expensive-camera break candidate. Wish the camera and inspect the current map/inventory, then choose a C-observed throw direction rather than assuming an inventory slot or impact square.",
+  "segments": [
+    {
+      "seed": 2201037081,
+      "datetime": "20261003200411",
+      "nethackrc": "OPTIONS=name:V22CameraProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nexpensive camera\ni"
+    }
+  ]
+}

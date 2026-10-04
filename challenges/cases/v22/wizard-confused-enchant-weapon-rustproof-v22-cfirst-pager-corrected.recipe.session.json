@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation from the frozen rustproofing route: the prior recording showed the read-disappearance page at step 86 and the confusion/mispronunciation page at step 87. Add exactly one space to acknowledge the second observed page and capture whether seffect_enchant_weapon enters its rustproofing branch. Keep the earlier endpoint recording unchanged; this continuation was frozen before a new C record or JS comparison.",
+  "segments": [
+    {
+      "seed": 22010433,
+      "datetime": "20311006141200",
+      "nethackrc": "OPTIONS=name:V22Rustproof,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nlong sword\nwo #wizintrinsic\ng\n #wizwish\nuncursed scroll of enchant weapon\nrp  "
+    }
+  ]
+}

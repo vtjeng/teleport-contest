@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037994,
+      "datetime": "20261003223800",
+      "nethackrc": "OPTIONS=name:V22QuantumBox,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017+1 large box\ndo#loot\n."
+    }
+  ],
+  "_comment": "C-observed correction to the retained drop-menu setup miss: `d` opened an object selector and the literal `o` is its item choice, with no intervening space. It then invokes #loot and targets the square underfoot. This corrects only the menu input confirmed by the prior C trace; target behavior remains unclaimed until the recorder shows the special-box observation."
+}

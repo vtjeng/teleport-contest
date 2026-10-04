@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010423,
+      "datetime": "20261004034500",
+      "nethackrc": "OPTIONS=name:V22CursedEarth,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\ncursed scroll of earth\nrp"
+    }
+  ],
+  "_comment": "Independent source-directed cursed read.c:seffect_earth case. The exact seed/date were first used only in the inventory probe, which showed the wished scroll at slot p. The cursed branch suppresses the surrounding-square boulder loop, then calls drop_boulder_on_player(confused, FALSE, TRUE, FALSE); this record tests the resulting player-drop path."
+}

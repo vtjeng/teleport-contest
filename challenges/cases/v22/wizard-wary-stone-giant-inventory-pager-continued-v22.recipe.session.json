@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010404,
+      "datetime": "20311004103000",
+      "nethackrc": "OPTIONS=name:V22DogRevival,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\ntame stone giant\n\n#wizwish\nwand of death\n#wizwish\nwand of undead turning\ni"
+    }
+  ],
+  "_comment": "B98 C-first inventory/placement probe with the C-observed stone-giant creation More explicitly acknowledged before wishes. Confirm actual item letters and pet location for a later corpse revival route; do not treat this probe as the wary_dog behavior case."
+}

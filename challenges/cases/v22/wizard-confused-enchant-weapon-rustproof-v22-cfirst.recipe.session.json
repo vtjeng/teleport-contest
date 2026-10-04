@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first source route for read.c:seffect_enchant_weapon's confused rustproofing arm. The C inventory probe showed a wished long sword at o; wield it, grant Confusion through the debug intrinsic command, wish an uncursed enchant-weapon scroll, then inspect the actual resulting scroll slot before freezing the effect continuation. No JavaScript result informed the route.",
+  "segments": [
+    {
+      "seed": 22010433,
+      "datetime": "20311006141200",
+      "nethackrc": "OPTIONS=name:V22Rustproof,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nlong sword\nwo #wizintrinsic\ng\n #wizwish\nuncursed scroll of enchant weapon\ni"
+    }
+  ]
+}

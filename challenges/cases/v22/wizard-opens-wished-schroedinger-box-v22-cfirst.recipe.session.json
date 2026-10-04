@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037994,
+      "datetime": "20261003223800",
+      "nethackrc": "OPTIONS=name:V22QuantumBox,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017+1 large box\nd o#loot\n."
+    }
+  ],
+  "_comment": "Independent C-first pickup.c:observe_quantum_cat route. C objnam.c:readobjnam() permits an explicit +1 spe wish for LARGE_BOX in wizard mode; pickup.c's SchroedingersBox predicate recognizes LARGE_BOX with spe==1, and #loot's container path calls observe_quantum_cat. The inventory probe recorded slot o for the one wished box. Count only if C confirms the special box predicate/result and the JavaScript first mismatch is this observation branch, not the wish or loot command setup."
+}

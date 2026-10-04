@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037995,
+      "datetime": "20261003224000",
+      "nethackrc": "OPTIONS=name:V22EarthRing,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nuncursed scroll of earth\nrp"
+    }
+  ],
+  "_comment": "Source-directed uncursed read.c:seffect_earth mission. A preceding C inventory probe at this exact seed/date showed the wished scroll in slot p; this fresh route reads that observed slot and retains the scroll's 3x3 boulder placement plus player-drop branch."
+}

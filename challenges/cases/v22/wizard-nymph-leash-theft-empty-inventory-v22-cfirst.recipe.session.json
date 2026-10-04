@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010479,
+      "datetime": "20261004051500",
+      "nethackrc": "OPTIONS=name:V22LeashEmptyPack,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\nTRdRw-Da\n.\n\n\n\n\n\n\n\n\n\n\n\n\n\n#wizwish\nleash\n#wizgenesis\nnymph\n#wizgenesis\ntame dog\naah"
+    }
+  ],
+  "_comment": "Corrected source-directed theft attempt after the preceding inventory-probe misses. C showed the Wizard starts with one worn cloak, two worn rings, and a wielded quarterstaff: T removes the cloak; R d and R remove both rings; w- unwields the staff. D a plus menu-select-all then drops the 13 carried objects, with one newline per C --More-- drop message. Wish a leash into the empty inventory, create hostile nymph before a tame dog, and apply the sole leash west toward the C-observed dog. Count only if C confirms steal.c:steal takes the attached leash and invokes apply.c:o_unleash; preserve the exact setup outcome otherwise."
+}

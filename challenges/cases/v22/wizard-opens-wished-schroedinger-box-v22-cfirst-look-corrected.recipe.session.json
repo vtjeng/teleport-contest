@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037994,
+      "datetime": "20261003223800",
+      "nethackrc": "OPTIONS=name:V22QuantumBox,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017+1 unlocked large box\ndp#loot\n:"
+    }
+  ],
+  "_comment": "C-observed correction to the retained #loot menu setup miss: the large box opens its container menu with `: - Look inside`; select `:` after #loot. C has already confirmed the wish location p and the box reaches the unlocked container menu. This is the source route to pickup.c:use_container/observe_quantum_cat; the outcome is established only by the next C record."
+}

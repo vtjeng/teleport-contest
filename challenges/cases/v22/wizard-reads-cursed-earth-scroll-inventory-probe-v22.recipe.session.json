@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010423,
+      "datetime": "20261004034500",
+      "nethackrc": "OPTIONS=name:V22CursedEarthProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\ncursed scroll of earth\ni"
+    }
+  ],
+  "_comment": "Independent C inventory probe for the cursed read.c:seffect_earth branch. The final inventory screen identifies the actual wished-scroll letter; this probe is setup evidence, not a candidate recording."
+}

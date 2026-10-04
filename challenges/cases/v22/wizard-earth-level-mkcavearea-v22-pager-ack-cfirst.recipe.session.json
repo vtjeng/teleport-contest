@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010403,
+      "datetime": "20311004102000",
+      "nethackrc": "OPTIONS=name:V22EarthCave,role:Ranger,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizlevelport\n?\n>>N       #wizwish\nblessed +7 pick-axe\niwha\nl.................."
+    }
+  ],
+  "_comment": "Independent B98 C-first Earth-level dig candidate with the observed wield-message pager acknowledged. The inventory probe established the actual pick-axe slot h. The item-action menu selects digging; its queued doapply resumes after the wield pager, so l is the first target-direction input. Keep only if C reaches dig.c:dig Earth-level blessed mkcavearea(FALSE); the earlier unacknowledged-pager attempt is preserved separately as setup history."
+}
