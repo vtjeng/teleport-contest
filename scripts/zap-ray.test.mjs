@@ -160,6 +160,182 @@ test('melt_ice uses objnam An() for its settled boulder message', () => {
     assert.match(jsSource.slice(jsStart, jsEnd), /An\(xnameFresh\(boulder, state\)\)/u);
 });
 
+test('inventory resistance mapping matches its complete C source', () => {
+    const cSource = readFileSync(new URL(
+        '../nethack-c/upstream/src/zap.c', import.meta.url,
+    ), 'utf8');
+    const cAttackTypes = readFileSync(new URL(
+        '../nethack-c/upstream/include/monattk.h', import.meta.url,
+    ), 'utf8');
+    const cProperties = readFileSync(new URL(
+        '../nethack-c/upstream/include/prop.h', import.meta.url,
+    ), 'utf8');
+    const cObjects = readFileSync(new URL(
+        '../nethack-c/upstream/include/objects.h', import.meta.url,
+    ), 'utf8');
+    const cInsight = readFileSync(new URL(
+        '../nethack-c/upstream/src/insight.c', import.meta.url,
+    ), 'utf8');
+    const jsSource = readFileSync(new URL('../js/zap.js', import.meta.url), 'utf8');
+    const jsDestroyItems = readFileSync(
+        new URL('../js/zap_destroy_items.js', import.meta.url), 'utf8',
+    );
+    const jsInsight = readFileSync(new URL('../js/insight.js', import.meta.url), 'utf8');
+    const jsConstants = readFileSync(new URL('../js/const.js', import.meta.url), 'utf8');
+    const jsMonsters = readFileSync(new URL('../js/monsters.js', import.meta.url), 'utf8');
+    const jsObjects = readFileSync(new URL('../js/objects.js', import.meta.url), 'utf8');
+
+    // These values are the C damage/property enum entries and worn-source
+    // masks that the selected functions use; property zero remains unused.
+    for (const [damage, value] of [
+        ['AD_COLD', 3], ['AD_FIRE', 2], ['AD_ELEC', 6],
+        ['AD_ACID', 8], ['AD_DISN', 5],
+    ]) {
+        assert.match(cAttackTypes, new RegExp(`^#define ${damage}\\s+${value}\\b`, 'mu'));
+    }
+    assert.match(cAttackTypes, /^#define AD_PHYS 0\b/mu);
+    for (const [property, value] of [
+        ['COLD_RES', 2], ['FIRE_RES', 1], ['SHOCK_RES', 5],
+        ['ACID_RES', 7], ['DISINT_RES', 4],
+    ]) {
+        assert.match(cProperties, new RegExp(`\\b${property}\\s*=\\s*${value},`, 'u'));
+    }
+    assert.match(cProperties, /Property #0 is not used/u);
+    assert.match(cProperties, /#define W_ARMOR \(W_ARM \| W_ARMC \| W_ARMH \| W_ARMS \| W_ARMG \| W_ARMF \| W_ARMU\)/u);
+    for (const [mask, value] of [
+        ['W_ARM', '0x00000001L'], ['W_ARMC', '0x00000002L'],
+        ['W_ARMH', '0x00000004L'], ['W_ARMS', '0x00000008L'],
+        ['W_ARMG', '0x00000010L'], ['W_ARMF', '0x00000020L'],
+        ['W_ARMU', '0x00000040L'], ['W_WEP', '0x00000100L'],
+        ['W_ART', '0x00001000L'], ['W_AMUL', '0x00010000L'],
+        ['W_RINGL', '0x00020000L'], ['W_RINGR', '0x00040000L'],
+        ['W_TOOL', '0x00080000L'],
+    ]) {
+        assert.match(cProperties, new RegExp(`#define ${mask} ${value}`, 'u'));
+    }
+    assert.match(cProperties, /#define W_RING \(W_RINGL \| W_RINGR\)/u);
+    assert.match(cProperties, /#define W_ACCESSORY \(W_RING \| W_AMUL \| W_TOOL\)/u);
+    assert.match(cObjects, /CLOAK\("dwarvish cloak", "hooded cloak",[\s\S]*?DWARVISH_CLOAK\)/u);
+    // The JavaScript constants mirror the same source headers and object row.
+    for (const [property, value] of [
+        ['COLD_RES', 2], ['FIRE_RES', 1], ['SHOCK_RES', 5],
+        ['ACID_RES', 7], ['DISINT_RES', 4],
+    ]) {
+        assert.match(jsConstants, new RegExp(`export const ${property} = ${value};`, 'u'));
+    }
+    for (const [damage, value] of [
+        ['AD_COLD', 3], ['AD_FIRE', 2], ['AD_ELEC', 6],
+        ['AD_ACID', 8], ['AD_DISN', 5], ['AD_PHYS', 0],
+    ]) {
+        assert.match(jsMonsters, new RegExp(`export const ${damage} = ${value};`, 'u'));
+    }
+    assert.match(jsConstants, /export const W_ARMOR = W_ARM \| W_ARMC \| W_ARMH \| W_ARMS \| W_ARMG \| W_ARMF \| W_ARMU;/u);
+    for (const [mask, value] of [
+        ['W_ARM', '0x00000001'], ['W_ARMC', '0x00000002'],
+        ['W_ARMH', '0x00000004'], ['W_ARMS', '0x00000008'],
+        ['W_ARMG', '0x00000010'], ['W_ARMF', '0x00000020'],
+        ['W_ARMU', '0x00000040'], ['W_WEP', '0x00000100'],
+        ['W_ART', '0x00001000'], ['W_AMUL', '0x00010000'],
+        ['W_RINGL', '0x00020000'], ['W_RINGR', '0x00040000'],
+        ['W_TOOL', '0x00080000'],
+    ]) {
+        assert.match(jsConstants, new RegExp(`export const ${mask} = ${value};`, 'u'));
+    }
+    assert.match(jsConstants, /export const W_RING = W_RINGL \| W_RINGR;/u);
+    assert.match(jsConstants, /export const W_ACCESSORY = W_RING \| W_AMUL \| W_TOOL;/u);
+    assert.match(jsObjects, /export const DWARVISH_CLOAK = \d+;/u);
+
+    const cMapStart = cSource.indexOf('\nadtyp_to_prop(int dmgtyp)\n{');
+    const cProtectionStart = cSource.indexOf(
+        '\nu_adtyp_resistance_obj(int dmgtyp)\n{', cMapStart,
+    );
+    const cRollStart = cSource.indexOf(
+        '\ninventory_resistance_check(int dmgtyp)\n{', cProtectionStart,
+    );
+    assert.ok(cMapStart >= 0 && cProtectionStart > cMapStart && cRollStart > cProtectionStart);
+    const cMap = cSource.slice(cMapStart, cProtectionStart);
+    const cProtection = cSource.slice(cProtectionStart, cRollStart);
+
+    for (const [damage, property] of [
+        ['AD_COLD', 'COLD_RES'],
+        ['AD_FIRE', 'FIRE_RES'],
+        ['AD_ELEC', 'SHOCK_RES'],
+        ['AD_ACID', 'ACID_RES'],
+        ['AD_DISN', 'DISINT_RES'],
+    ]) {
+        assert.match(cMap, new RegExp(`case ${damage}:\\s*return ${property};`, 'u'));
+    }
+    assert.match(cMap, /default:\s*break;[\s\S]*return 0;/u);
+    assert.match(cProtection, /int prop = adtyp_to_prop\(dmgtyp\);[\s\S]*if \(!prop\)[\s\S]*return 0;/u);
+    assert.match(
+        cProtection,
+        /extrinsic & \(W_ARMOR \| W_ACCESSORY \| W_WEP \| W_ART\)[\s\S]*return 99;/u,
+    );
+    assert.match(
+        cProtection,
+        /uarmc && uarmc->otyp == DWARVISH_CLOAK[\s\S]*dmgtyp == AD_COLD \|\| dmgtyp == AD_FIRE[\s\S]*return 90;/u,
+    );
+    assert.match(cProtection, /return 0;\s*\}/u);
+
+    // C's inventory roller consumes the selected percentage before any
+    // per-item vulnerability test in destroy_items' helper.
+    const cItemWhatStart = cSource.indexOf('\nitem_what(int dmgtyp)\n{', cRollStart);
+    assert.ok(cItemWhatStart > cRollStart);
+    const cRoll = cSource.slice(cRollStart, cItemWhatStart);
+    assert.match(cRoll,
+        /int prob = u_adtyp_resistance_obj\(dmgtyp\);[\s\S]*if \(!prob\)[\s\S]*return FALSE;[\s\S]*rn2\(100\) < prob/u);
+    const cMaybeDestroyStart = cSource.indexOf('\nmaybe_destroy_item(\n', cItemWhatStart);
+    const cItemWhat = cSource.slice(cItemWhatStart, cMaybeDestroyStart);
+    assert.match(cItemWhat, /int prop = adtyp_to_prop\(dmgtyp\);/u);
+    const cDestroyStart = cSource.indexOf('\ndestroy_items(\n', cMaybeDestroyStart);
+    assert.ok(cMaybeDestroyStart > cItemWhatStart && cDestroyStart > cMaybeDestroyStart);
+    assert.match(cSource.slice(cMaybeDestroyStart, cDestroyStart),
+        /if \(u_carry && inventory_resistance_check\(dmgtyp\)\)\s*return 0;/u);
+    const cResistStart = cSource.indexOf('\nresist(struct monst *mtmp', cDestroyStart);
+    assert.ok(cResistStart > cDestroyStart);
+    assert.match(cSource.slice(cDestroyStart, cResistStart),
+        /dmg_out \+= maybe_destroy_item\(mon, obj, dmgtyp\);/u);
+    assert.match(cInsight, /int protection = u_adtyp_resistance_obj\(adtyp\);/u);
+
+    const jsMapStart = jsSource.indexOf('export function adtyp_to_prop(dmgtyp) {');
+    const jsProtectionStart = jsSource.indexOf(
+        'export function u_adtyp_resistance_obj(dmgtyp, state = game) {', jsMapStart,
+    );
+    const jsRollStart = jsSource.indexOf(
+        'export function inventory_resistance_check(', jsProtectionStart,
+    );
+    assert.ok(jsMapStart >= 0 && jsProtectionStart > jsMapStart && jsRollStart > jsProtectionStart);
+    const jsMap = jsSource.slice(jsMapStart, jsProtectionStart);
+    const jsProtection = jsSource.slice(jsProtectionStart, jsRollStart);
+    for (const [damage, property] of [
+        ['AD_COLD', 'COLD_RES'],
+        ['AD_FIRE', 'FIRE_RES'],
+        ['AD_ELEC', 'SHOCK_RES'],
+        ['AD_ACID', 'ACID_RES'],
+        ['AD_DISN', 'DISINT_RES'],
+    ]) {
+        assert.match(jsMap, new RegExp(`case ${damage}: return ${property};`, 'u'));
+    }
+    assert.match(jsMap, /default: return 0;/u);
+    assert.match(jsProtection, /const prop = adtyp_to_prop\(dmgtyp\);[\s\S]*if \(!prop\) return 0;/u);
+    assert.match(jsProtection, /return 99;/u);
+    assert.match(jsProtection, /DWARVISH_CLOAK[\s\S]*AD_COLD \|\| dmgtyp === AD_FIRE[\s\S]*return 90;/u);
+
+    const jsItemWhatStart = jsSource.indexOf('export function item_what(', jsRollStart);
+    assert.ok(jsItemWhatStart > jsRollStart);
+    const jsRoll = jsSource.slice(jsRollStart, jsItemWhatStart);
+    assert.match(jsRoll,
+        /const prob = u_adtyp_resistance_obj\(dmgtyp, state\);[\s\S]*if \(!prob\) return false;[\s\S]*random\.rn2\(100\) < prob/u);
+    assert.match(jsSource.slice(jsItemWhatStart),
+        /export function item_what\(dmgtyp, state = game\) \{[\s\S]*const prop = adtyp_to_prop\(dmgtyp\);/u);
+    assert.match(jsDestroyItems,
+        /if \(u_carry && inventory_resistance_check\(dmgtyp, state, random\)\)\s*return 0;/u);
+    assert.match(jsDestroyItems,
+        /export async function destroy_items\([\s\S]*?await maybe_destroy_item\(mon, obj, dmgtyp, env\);/u);
+    assert.match(jsInsight,
+        /const item_resistance_message = \(adtyp, message\) => \{\s*const protection = u_adtyp_resistance_obj\(adtyp, state\);/u);
+});
+
 // The matrix's own first segment, replayed here so the always-run suite
 // exercises the same keys the C recorder does.
 function raySegment(index) {
