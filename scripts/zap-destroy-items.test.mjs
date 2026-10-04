@@ -65,6 +65,24 @@ import {
     destroy_strings,
 } from '../js/zap_destroy_items.js';
 
+const ZAP_C = readFileSync(
+    new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
+);
+
+function sourceBody(source, signature) {
+    const start = source.indexOf(signature);
+    assert.notEqual(start, -1, `${signature} has a C definition`);
+    const open = source.indexOf('{', start);
+    assert.notEqual(open, -1, `${signature} has a C body`);
+    let depth = 0;
+    for (let i = open; i < source.length; i++) {
+        if (source[i] === '{') depth++;
+        else if (source[i] === '}' && --depth === 0)
+            return source.slice(start, i + 1);
+    }
+    assert.fail(`${signature} C body closes`);
+}
+
 async function initializedGame(seed, name) {
     await runSegment({
         seed,
@@ -201,11 +219,8 @@ test('destroy_strings holds the seven rows zap.c declares', () => {
     // zap.c:5778-5787 is 21 strings no mutation and no recording can reach:
     // the witness prints two of them and every other row is dead weight until
     // its damage type is ported. Read the table out of the C source instead.
-    const zapSource = readFileSync(
-        new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
-    );
-    const declaration = zapSource.slice(
-        zapSource.indexOf('const char *const destroy_strings[][3] = {'),
+    const declaration = ZAP_C.slice(
+        ZAP_C.indexOf('const char *const destroy_strings[][3] = {'),
     );
     const body = declaration.slice(
         declaration.indexOf('{', declaration.indexOf('\n')),
@@ -220,6 +235,36 @@ test('destroy_strings holds the seven rows zap.c declares', () => {
         destroy_strings.map((row) => [...row]),
         rows,
     );
+});
+
+test('destroyable keeps the complete zap.c eligibility order', () => {
+    const body = sourceBody(
+        ZAP_C, 'destroyable(struct obj *obj, int adtyp)',
+    ).replace(/\s+/gu, ' ');
+    const branches = [
+        'if (obj->oartifact)',
+        'if (obj->in_use && obj->quan == 1L)',
+        'if (adtyp == AD_FIRE)',
+        '} else if (adtyp == AD_COLD)',
+        '} else if (adtyp == AD_ELEC)',
+    ];
+    let previous = -1;
+    for (const branch of branches) {
+        const index = body.indexOf(branch);
+        assert.ok(index > previous, `${branch} remains in C source order`);
+        previous = index;
+    }
+    assert.match(body,
+        /obj->otyp == SCR_FIRE \|\| obj->otyp == SPE_FIREBALL/u);
+    assert.match(body,
+        /obj->otyp == GLOB_OF_GREEN_SLIME \|\| obj->oclass == POTION_CLASS \|\| obj->oclass == SCROLL_CLASS \|\| obj->oclass == SPBOOK_CLASS/u);
+    assert.match(body,
+        /obj->oclass == POTION_CLASS && obj->otyp != POT_OIL/u);
+    assert.match(body,
+        /obj->oclass != RING_CLASS && obj->oclass != WAND_CLASS/u);
+    assert.match(body,
+        /obj->otyp != RIN_SHOCK_RESISTANCE && obj->otyp != WAN_LIGHTNING/u);
+    assert.match(body, /return FALSE; \}$/u);
 });
 
 test('destroyable answers each damage type from the object it is handed',
