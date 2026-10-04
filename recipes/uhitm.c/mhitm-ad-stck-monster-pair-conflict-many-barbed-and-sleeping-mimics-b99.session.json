@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C-first B99 M-to-M observation. Four hostile Barbed Devils and four hostile sleeping giant mimics are source-created in the starting room; explicit spaces acknowledge creation/combat pages. C reaches a Barbed Devil→Giant Mimic AD_STCK hit through mattackm at zero-based step 127, after C end.c:done() accepts the wizard-mode “Die?” no-death answer and returns to the move loop at step 125. The strict JS replay matches through the prior death prompt, then produces no boundary for that C no-death response; its saved artifact has no JS stop reason, so the exact JS owner is unresolved. Keep this as blocked setup/source evidence, not a passing recording; no more placement search follows.",
+  "segments": [
+    {
+      "seed": 9184307,
+      "datetime": "20360720130000",
+      "nethackrc": "OPTIONS=name:B99MimicDevilPairs,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\na>>h\n \n#wizgenesis\n4 hostile barbed devil\n      #wizgenesis\n4 hostile sleeping giant mimic\n      .        .        .        .        ."
+    }
+  ]
+}

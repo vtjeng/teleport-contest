@@ -64,6 +64,7 @@ import {
     raceptr,
     sliparm,
     stagger,
+    sticks,
 } from '../js/mondata.js';
 
 function monsterState(withVitals = false) {
@@ -470,6 +471,31 @@ test('dmgtype_fromattack matches damage type and honors the AT_ANY wildcard',
         assert.equal(dmgtype_fromattack(cobra, 11, 2), null);
         assert.equal(dmgtype_fromattack(pm(M.PM_NEWT), 11, -1), null);
     });
+
+// C ref: mondata.c:654-659. The enum values below come from
+// monattk.h:13,19,21,42,61,70; the function preserves C's short-circuit
+// across damage-type and attack-type scans.
+test('sticks follows all three C predicates and excludes engulfing wrap', () => {
+    const source = readFileSync(
+        new URL('../nethack-c/upstream/include/monattk.h', import.meta.url),
+        'utf8',
+    );
+    assert.match(MONDATA_C,
+        /boolean\s+sticks\(struct permonst \*ptr\)[\s\S]*?dmgtype\(ptr, AD_STCK\)[\s\S]*?dmgtype\(ptr, AD_WRAP\) && !attacktype\(ptr, AT_ENGL\)[\s\S]*?attacktype\(ptr, AT_HUGS\)/u);
+    assert.match(source, /#define AT_CLAW 1/u);
+    assert.match(source, /#define AT_HUGS 7/u);
+    assert.match(source, /#define AT_ENGL 11/u);
+    assert.match(source, /#define AD_PHYS 0/u);
+    assert.match(source, /#define AD_STCK 19/u);
+    assert.match(source, /#define AD_WRAP 28/u);
+
+    const attack = (aatyp, adtyp) => ({ aatyp, adtyp });
+    assert.equal(sticks({ mattk: [attack(1, 19)] }), true);
+    assert.equal(sticks({ mattk: [attack(5, 28)] }), true);
+    assert.equal(sticks({ mattk: [attack(11, 28)] }), false);
+    assert.equal(sticks({ mattk: [attack(7, 0)] }), true);
+    assert.equal(sticks({ mattk: [attack(1, 0)] }), false);
+});
 
 test('max_passive_dmg multiplies passive damage by the attacker attack count',
     () => {

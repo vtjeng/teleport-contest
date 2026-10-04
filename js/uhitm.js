@@ -396,6 +396,7 @@ import {
     PM_AMOROUS_DEMON,
     PM_ARCHON,
     PM_BALROG,
+    PM_BARBED_DEVIL,
     PM_FOG_CLOUD,
     PM_GREEN_SLIME,
     PM_CLAY_GOLEM,
@@ -4928,6 +4929,48 @@ async function mhitm_ad_were(magr, mattk, mdef, mhm, state = game, env = {}) {
     }
 }
 
+// C ref: uhitm.c mhitm_ad_stck() (3305-3334). Preserve all three attack
+// directions and cache the same entry data pointers before hitmsg() can await.
+export async function mhitm_ad_stck(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const effectEnv = { ...env, state };
+    const negated = await mhitm_mgc_atk_negated(
+        magr, mdef, false, state, effectEnv,
+    );
+    const pd = mdef.data;
+    const barbs = magr.data === state.mons[PM_BARBED_DEVIL];
+
+    if (magr === state.youmonst) {
+        if (!negated && !sticks(pd) && m_next2u(mdef, state)) {
+            set_ustuck(mdef, state);
+            if (barbs) {
+                const message = requireAttackOperation(env, 'message');
+                await message(
+                    `Your barbs stick to ${y_monnam(mdef, state, env)}!`,
+                    state,
+                );
+            }
+        }
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, effectEnv);
+        if (!negated && !state.u.ustuck && !sticks(pd)) {
+            set_ustuck(magr, state);
+            if (barbs) {
+                const message = requireAttackOperation(env, 'message');
+                await message('The barbs stick to you!', state);
+            }
+        }
+    } else if (negated) {
+        mhm.damage = 0;
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_slee() (3478-3522). Preserve all three attack
 // directions and the source's short-circuit/RNG order. In the monster-pair
 // arm C calls sleep_monst() twice, although its first successful call makes
@@ -5563,7 +5606,9 @@ export async function mhitm_adtyping(
         await mhitm_ad_drst(magr, mattk, mdef, mhm, state, env);
         break;
     case AD_DRIN: unported('mhitm_ad_drin'); break;
-    case AD_STCK: unported('mhitm_ad_stck'); break;
+    case AD_STCK:
+        await mhitm_ad_stck(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_WRAP: unported('mhitm_ad_wrap'); break;
     case AD_PLYS:
         await mhitm_ad_plys(magr, mattk, mdef, mhm, state, env);
