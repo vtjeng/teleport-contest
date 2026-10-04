@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61007683,
+      "datetime": "20561004091500",
+      "nethackrc": "OPTIONS=name:C76Cap,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nhill giant\n #wizwish\nblessed potion of gain ability\nqo",
+      "comment": "C-observed selector correction to the preserved cfirst recipe: the wished pink potion occupies slot o, so the final q/o input reaches the blessed gain-ability consumption after controlled Wizard polymorph into Hill Giant. This attempts +1 Strength at the form cap STR19(19)=119, beyond the human racial maximum STR18(100)=118; verify the reached C state and source calls before comparison."
+    }
+  ]
+}

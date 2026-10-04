@@ -15,6 +15,8 @@ import {
     PM_BAT, PM_GIANT_BAT, PM_RAVEN,
     PM_STALKER, PM_BLACK_LIGHT, PM_GRID_BUG,
     PM_GRAY_DRAGON, PM_RED_DRAGON, PM_HUMAN_ZOMBIE,
+    PM_HILL_ORC, PM_URUK_HAI, PM_ORC_CAPTAIN, PM_ELF_NOBLE,
+    PM_HILL_GIANT, PM_GIANT_MUMMY, PM_GIANT_ZOMBIE, PM_TITAN, PM_ETTIN,
     M2_HUMAN, NUMMONS,
 } from '../js/monsters.js';
 import {
@@ -188,12 +190,20 @@ test('character_race maps player race PM indices to their race entries', () => {
     const human = character_race(PM_HUMAN);
     assert.ok(human);
     assert.equal(human.noun, 'human');
+    // role.c's player-race table stores this PM_ORC match with noun "orc".
+    const orc = character_race(PM_ORC);
+    assert.ok(orc);
+    assert.equal(orc.noun, 'orc');
     const gnome = character_race(PM_GNOME);
     assert.ok(gnome);
     assert.equal(gnome.noun, 'gnome');
     const dwarf = character_race(PM_DWARF);
     assert.ok(dwarf);
     assert.equal(dwarf.noun, 'dwarf');
+    // The same role.c table maps PM_ELF to its "elf" Race entry.
+    const elf = character_race(PM_ELF);
+    assert.ok(elf);
+    assert.equal(elf.noun, 'elf');
     // A non-race PM returns null
     const dragon = character_race(PM_GRAY_DRAGON);
     assert.equal(dragon, null);
@@ -213,6 +223,47 @@ test('uasmon_maxStr returns 18 for a generic non-strong monster', () => {
     // PM_GRID_BUG is neither a player race nor strongmonst
     const state = minimalState(PM_GRID_BUG);
     assert.equal(uasmon_maxStr(state), 18);
+});
+
+test('uasmon_maxStr maps ordinary orcs to the orc race strength cap', () => {
+    // PM_HILL_ORC is M2_ORC but not the two source exceptions; polyself.c
+    // remaps it to PM_ORC and role.c gives that race a 68 Strength maximum.
+    assert.equal(uasmon_maxStr(minimalState(PM_HILL_ORC)), 68);
+});
+
+test('uasmon_maxStr preserves the Uruk-hai and orc-captain caps', () => {
+    // polyself.c excludes these two M2_ORC forms from the PM_ORC remapping;
+    // each is non-race strong and therefore receives STR18(100), or 118.
+    for (const species of [PM_URUK_HAI, PM_ORC_CAPTAIN])
+        assert.equal(uasmon_maxStr(minimalState(species)), 118);
+});
+
+test('uasmon_maxStr maps a strong elf noble to the elf race cap', () => {
+    // PM_ELF_NOBLE is strong; polyself.c remaps it to PM_ELF, whose race
+    // attrmax[A_STR] is 18 rather than the non-race strong default of 118.
+    assert.equal(uasmon_maxStr(minimalState(PM_ELF_NOBLE)), 18);
+});
+
+test('uasmon_maxStr uses the dwarf race strength cap', () => {
+    // PM_DWARF maps to its role.c Race entry, whose attrmax[A_STR] is 118.
+    assert.equal(uasmon_maxStr(minimalState(PM_DWARF)), 118);
+});
+
+test('uasmon_maxStr uses STR19 only for living non-race giants', () => {
+    // A living Hill Giant reaches STR19(19) = 119 in polyself.c:1114.
+    assert.equal(uasmon_maxStr(minimalState(PM_HILL_GIANT)), 119);
+    // Giant mummy and zombie are strong undead giants, so live_H is false
+    // and both take STR18(100) = 118 from polyself.c:1114.
+    assert.equal(uasmon_maxStr(minimalState(PM_GIANT_MUMMY)), 118);
+    assert.equal(uasmon_maxStr(minimalState(PM_GIANT_ZOMBIE)), 118);
+});
+
+test('uasmon_maxStr gives strong non-giants STR18(100)', () => {
+    // A Titan is strong but does not have M2_GIANT, so C selects 18+100=118.
+    assert.equal(uasmon_maxStr(minimalState(PM_TITAN)), 118);
+    // monsters.h defines Ettin as M2_STRONG without M2_GIANT, and role.c has
+    // no Race row for it, so polyself.c takes STR18(100)=118 as well.
+    assert.equal(uasmon_maxStr(minimalState(PM_ETTIN)), 118);
 });
 
 // -- set_uasmon (polyself.c:38-126): PROPSET block --
