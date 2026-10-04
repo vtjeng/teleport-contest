@@ -604,7 +604,9 @@ import {
 import { explode } from './explode.js';
 import { heroUnaware, verbalize } from './pline.js';
 import { note_unported } from './unported.js';
-import { dbon, setmnotwielded, uwep_skill_type } from './weapon.js';
+import {
+    dbon, dry_a_towel, setmnotwielded, uwep_skill_type,
+} from './weapon.js';
 import { mwelded } from './wield.js';
 import { u_wipe_engr } from './engrave.js';
 import { select_menu } from './windows.js';
@@ -4199,13 +4201,13 @@ export async function use_mirror(obj, state = game, env = {}) {
     return ECMD_TIME;
 }
 
-// C ref: apply.c use_towel() (112-197). Towel wetness is stored in spe;
-// dry_a_towel() is a discarded void call whose implementation is not yet
-// ported, so each reached wet-towel site records and skips that call.
+// C ref: apply.c use_towel() (112-197). Towel wetness is stored in spe; its
+// four cleanup branches call weapon.c dry_a_towel() in source order.
 export async function use_towel(obj, state = game, env = {}) {
     const random = { rn1, rn2, ...(env.random ?? {}) };
     const message = env.message ?? ttyPline;
     const u = state.u;
+    const drying_feedback = obj === state.uwep;
 
     if (!freehand(state, env)) {
         await message(
@@ -4227,7 +4229,7 @@ export async function use_towel(obj, state = game, env = {}) {
                 state,
             );
             if (is_wet_towel(obj))
-                note_unported('apply.c dry_a_towel');
+                await dry_a_towel(obj, -1, drying_feedback, state, env);
             return ECMD_TIME;
         case 1:
             if (!state.ublindf) {
@@ -4263,7 +4265,7 @@ export async function use_towel(obj, state = game, env = {}) {
                 }
             }
             if (is_wet_towel(obj))
-                note_unported('apply.c dry_a_towel');
+                await dry_a_towel(obj, -1, drying_feedback, state, env);
             return ECMD_TIME;
         case 0:
             break;
@@ -4279,7 +4281,7 @@ export async function use_towel(obj, state = game, env = {}) {
             state,
         );
         if (is_wet_towel(obj))
-            note_unported('apply.c dry_a_towel');
+            await dry_a_towel(obj, -1, drying_feedback, state, env);
         return ECMD_TIME;
     } else if (u.ucreamed) {
         incr_itimeout(u.uprops[BLINDED], -1 * Math.trunc(u.ucreamed));
@@ -4303,7 +4305,7 @@ export async function use_towel(obj, state = game, env = {}) {
             );
         }
         if (is_wet_towel(obj))
-            note_unported('apply.c dry_a_towel');
+            await dry_a_towel(obj, -1, drying_feedback, state, env);
         return ECMD_TIME;
     }
 

@@ -1647,13 +1647,24 @@ export function otense(otmp, verb) {
     return verb;
 }
 
+// C ref: objnam.c strprepend() (123-135). C writes into the prefix area
+// before the existing string. JavaScript returns the equivalent string and
+// retains C's discarded impossible() path when a prefix exceeds PREFIX bytes.
+export function strprepend(s, pref) {
+    if (Strlen_(pref, 'strprepend', 126) > PREFIX) {
+        note_unported('pline.c impossible');
+        return s;
+    }
+    return `${pref}${s}`;
+}
+
 // C ref: objnam.c aobjnam() (2242-2258). "count cxname(otmp)", or just
 // cxname(otmp) when the count is 1, with the verb agreed and appended.
 export function aobjnam(otmp, verb, state = game) {
     let bp = cxname(otmp, state);
 
     if (otmp.quan !== 1)
-        bp = `${otmp.quan} ${bp}`;
+        bp = strprepend(bp, `${otmp.quan} `);
     if (verb)
         bp = `${bp} ${otense(otmp, verb)}`;
     return bp;
@@ -1961,19 +1972,25 @@ function doname_base(
             );
     }
     const corpsePrefixConsumed = corpsePrefix !== null;
-    let words = corpsePrefixConsumed
-        ? `${corpsePrefix}${base}`
-        : [...modifiers, base].filter(Boolean).join(' ');
+    const unprefixedWords = [...modifiers, base].filter(Boolean).join(' ');
+    let words;
     if (corpsePrefixConsumed) {
-        // corpse_xname() already supplied both its article and any stack count.
+        // C stores corpse_xname()'s complete article/count prefix separately,
+        // then inserts it into bp with strprepend() at the end of doname_base.
+        words = strprepend(base, corpsePrefix);
     } else if (quantity !== 1) {
-        words = `${ident.dknown || !vagueQuantity ? quantity : 'some'} ${words}`;
+        const count = ident.dknown || !vagueQuantity ? quantity : 'some';
+        words = strprepend(unprefixedWords, `${count} `);
     } else if (fakeArtifact?.slice(0, 4).toLowerCase() === 'the '
         || obj_is_pname(obj, state)
         || theUniqueObject(obj, type, state)) {
-        words = `the ${words.replace(/^the /iu, '')}`;
+        words = strprepend(unprefixedWords.replace(/^the /iu, ''), 'the ');
     } else if (!fakeArtifact) {
-        words = articleName(words);
+        // C's just_an() builds the ordinary article in prefix[] before the
+        // final strprepend(bp, prefix) call.
+        words = strprepend(unprefixedWords, just_an(unprefixedWords));
+    } else {
+        words = unprefixedWords;
     }
 
     const byteLength = encodeUtf8ByteString(words).length;
@@ -2027,13 +2044,13 @@ export function paydoname(obj, state = game) {
     if (contents) {
         if (!obj.no_charge) {
             name = name.replace(/^an? /u, '');
-            name = `${obj.unpaid ? 'an unpaid ' : 'your '}${name}`;
+            name = strprepend(name, obj.unpaid ? 'an unpaid ' : 'your ');
         }
         if (!obj.cknown) {
             if (obj.unpaid) {
                 const suffix = ' and its contents';
                 if (name.length + suffix.length < BUFSZ - PREFIX) name += suffix;
-            } else name = `the contents of ${name}`;
+            } else name = strprepend(name, 'the contents of ');
         }
     }
     obj.cknown = savedKnown;

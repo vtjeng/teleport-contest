@@ -199,7 +199,6 @@ import { UnsupportedPositionCheckError, tele } from './teleport.js';
 import { reset_utrap, t_at, dountrap } from './trap.js';
 import { stairway_at } from './stairs.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
-import { UnsupportedErosionError } from './trap_erode_obj.js';
 import {
     doeat,
     morehungry,
@@ -2926,12 +2925,8 @@ export function failClosedCommandRefusals() {
         // across the map -- so the segment has to end on them rather than
         // lose the screens they matched.
         UnsupportedZapError,
-        // trap.c burnarmor() and erode_obj() raise this for a monster victim
-        // and for the wet towel a hero's own fire would dry. zhitu()'s fire
-        // arm is the ported caller, one frame below UnsupportedZapError.
-        UnsupportedErosionError,
-        // The two classes zhitu()'s destroy_items() call reaches below
-        // UnsupportedErosionError, each after the bolt has been drawn and the
+        // The two classes zhitu()'s destroy_items() call reaches below the
+        // zap effect boundary, each after the bolt has been drawn and the
         // items it destroyed have been announced. zap.c maybe_destroy_item()
         // raises the first from its AD_COLD and AD_ELEC cases and from a worn
         // or wielded object; do_name.c docall() raises the second for an

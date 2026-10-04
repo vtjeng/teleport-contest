@@ -80,6 +80,7 @@ import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
 import { destroy_strings } from './zap_destroy_items.js';
 import { youSee } from './monmove.js';
+import { wet_a_towel } from './weapon.js';
 
 function propertyActive(hero, property) {
     const value = hero?.uprops?.[property];
@@ -224,11 +225,7 @@ async function splashLit(obj, env, state) {
 async function wetTowel(obj, random, env) {
     const rnd = random.rnd ?? (await import('./rng.js')).rnd;
     const amount = -rnd(7 - (obj.spe ?? 0));
-    if (typeof env.wetATowel === 'function') {
-        await env.wetATowel(obj, amount, true, env);
-    } else {
-        note_unported('weapon.c wet_a_towel');
-    }
+    await wet_a_towel(obj, amount, true, env.state ?? game, env);
 }
 
 async function acidDamage(obj, inInvent, described, env) {

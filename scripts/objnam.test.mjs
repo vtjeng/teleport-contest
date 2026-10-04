@@ -95,10 +95,12 @@ import {
     is_plural,
     not_fully_identified,
     obj_typename,
+    paydoname,
     shield_simple_name,
     shirt_simple_name,
     simpleonames,
     simple_typename,
+    strprepend,
     suit_simple_name,
     donameFresh,
     concatFormatNameBody,
@@ -169,6 +171,7 @@ import {
     SLIME_MOLD,
     STATUE,
     TALLOW_CANDLE,
+    TOWEL,
     WAN_SLEEP,
     objects_globals_init,
     RIN_PROTECTION,
@@ -2918,6 +2921,68 @@ test('aobjnam names the object and agrees the verb with it', () => {
     assert.equal(cxname(corpse, state), 'newt corpse');
     corpse.quan = 2;
     assert.equal(cxname(corpse, state), 'newt corpses');
+
+    // C80's towel feedback reaches cxname() through Yobjnam2→yobjnam→aobjnam;
+    // C's non-corpse arm returns xname(), which describes positive spe as wet.
+    const towel = objectOf(state, TOWEL, { dknown: true, spe: 3 });
+    assert.equal(cxname(towel, state), 'wet towel');
+    assert.match(
+        OBJNAM_SOURCE,
+        /cxname\(struct obj \*obj\)\s*\{\s*if \(obj->otyp == CORPSE\)\s*return corpse_xname\(obj,\s*\(const char \*\) 0, CXN_NORMAL\);\s*return xname\(obj\);/u,
+    );
+});
+
+test('strprepend preserves C prefix bounds and the impossible fallback', () => {
+    // objnam.c:123-135 permits at most PREFIX bytes and returns the original
+    // name after the discarded impossible() diagnostic when the prefix is longer.
+    assert.match(OBJNAM_SOURCE, /if \(i > PREFIX\) \{\s*impossible\("PREFIX too short/);
+    assert.equal(strprepend('towel', '3 '), '3 towel');
+
+    // PREFIX is 80 bytes in objnam.c; exactly this boundary remains accepted.
+    const atLimit = 'p'.repeat(80);
+    assert.equal(strprepend('towel', atLimit), `${atLimit}towel`);
+
+    // One extra byte exercises C's guard path and returns the original name.
+    const overLimit = 'p'.repeat(81);
+    assert.equal(strprepend('towel', overLimit), 'towel');
+
+    // C's doname_base() and paydoname() also consume strprepend()'s returned
+    // prefix. The recorded inventory menu exercises doname_base(); the
+    // contained sack pins paydoname()'s two prefix branches here.
+    const donameStart = OBJNAM_SOURCE.indexOf(
+        'doname_base(\n    struct obj *obj,',
+    );
+    const paydonameStart = OBJNAM_SOURCE.indexOf(
+        'paydoname(struct obj *obj)',
+    );
+    assert.notEqual(donameStart, -1);
+    assert.notEqual(paydonameStart, -1);
+    assert.ok(OBJNAM_SOURCE.indexOf(
+        'bp = strprepend(bp, prefix);', donameStart,
+    ) > donameStart);
+    assert.ok(OBJNAM_SOURCE.indexOf(
+        'p = strprepend(p, obj->unpaid ? "an unpaid " : "your ");',
+        paydonameStart,
+    ) > paydonameStart);
+    assert.ok(OBJNAM_SOURCE.indexOf(
+        'p = strprepend(p, "the contents of ");', paydonameStart,
+    ) > paydonameStart);
+    assert.match(OBJNAM_JS_SOURCE, /words = strprepend\(unprefixedWords, `\$\{count\} `\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /name = strprepend\(name, obj\.unpaid \? 'an unpaid ' : 'your '\)/u);
+
+    const state = namingState();
+    const stack = objectOf(state, POT_WATER, { quan: 2 });
+    assert.match(donameFresh(stack, state), /^2 /u);
+    const sack = objectOf(state, SACK, {
+        where: OBJ_INVENT,
+        bknown: true,
+        cknown: true,
+    });
+    sack.cobj = objectOf(state, DART, {
+        where: OBJ_CONTAINED,
+        ocontainer: sack,
+    });
+    assert.match(paydoname(sack, state), /^the contents of your /u);
 });
 
 // C refs: objnam.c corpse_xname() (1823-1919) and cxname_singular()

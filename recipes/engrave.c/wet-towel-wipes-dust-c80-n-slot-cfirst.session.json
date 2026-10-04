@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93627841,
+      "datetime": "20370705101010",
+      "nethackrc": "OPTIONS=name:C80TowelWipe,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": "\u0017wet towel\n#engrave\n- x\n#engrave\nn"
+    }
+  ],
+  "comment": "Source-observed selector correction to the preserved wrong-slot C80 attempt. Its C inventory screen showed the wished wet towel at slot n (the attempted o reached the real getobj missing-object More). With the independently frozen finger-write More acknowledgement and x dust inscription, this continuation selects n to enter the existing DUST towel-wipe arm. Frozen from the exact C selector display before JavaScript comparison."
+}

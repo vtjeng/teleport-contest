@@ -79,6 +79,7 @@ import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
 import { livelog_printf } from './pline.js';
+import { dry_a_towel } from './weapon.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -594,7 +595,8 @@ export async function doengrave_sfx_item(de, state = game, env = {}) {
             de.ptext = false;
             if (de.oep) {
                 if ([DUST, ENGR_BLOOD, MARK].includes(de.oep.engr_type)) {
-                    if (is_wet_towel(otmp)) note_unported('apply.c dry_a_towel');
+                    if (is_wet_towel(otmp))
+                        await dry_a_towel(otmp, -1, true, state, env);
                     if (!blind) await message('You wipe out the message here.');
                     else await message(`${Yobjnam2(otmp, 'get', state)} ${de.frosted ? 'frosty' : 'dusty'}.`);
                     de.dengr = true;

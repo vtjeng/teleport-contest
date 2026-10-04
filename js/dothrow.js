@@ -418,7 +418,7 @@ import { body_part, polymon } from './polyself.js';
 import { makeplural } from './fruit.js';
 import { d, rn1, rn2, rnl, rnd, rne } from './rng.js';
 import {
-    autoreturn_weapon, dmgval, hitval, skill_name, weapon_descr,
+    autoreturn_weapon, dmgval, dry_a_towel, hitval, skill_name, weapon_descr,
     weapon_hit_bonus,
 } from './weapon.js';
 import { container_impact_dmg, ship_object } from './dokick.js';
@@ -2131,7 +2131,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
     }
     if (is_wet_towel(obj, state)) {
         // dothrow.c discards weapon.c:dry_a_towel()'s void result, then throws.
-        note_unported('weapon.c dry_a_towel');
+        await dry_a_towel(obj, -1, false, state);
     }
 
     /* Multishot calculations

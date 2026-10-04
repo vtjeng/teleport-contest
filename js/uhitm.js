@@ -537,6 +537,7 @@ import {
     abon,
     dbon,
     dmgval,
+    dry_a_towel,
     hitval,
     martial_bonus,
     special_dmgval,
@@ -3543,10 +3544,8 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     await hmon_hitmon_msg_hit(hmd, mon, obj, state, env);
 
     if (hmd.dryit) {
-        /* apply.c dry_a_towel() changes wetness after the hit message.  The
-           consumed result is void and that owner remains outside this span;
-           retain the source call boundary without inventing a state update. */
-        note_unported('apply.c dry_a_towel');
+        /* C reaches weapon.c dry_a_towel() after its hit message. */
+        await dry_a_towel(obj, -1, true, state, env);
     }
 
     if (hmd.silvermsg)
