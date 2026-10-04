@@ -216,7 +216,6 @@ import {
     is_sword,
     isMetallic,
     objectType,
-    erosionMatters,
     isCorrodeable,
     isCrackable,
     isDamageable,
@@ -361,6 +360,7 @@ import {
     xnameFresh,
     vtense,
     yname,
+    erosion_matters,
 } from './objnam.js';
 import { encumber_msg, u_safe_from_fatal_corpse } from './pickup.js';
 import { body_part, float_vs_flight } from './polyself.js';
@@ -4077,7 +4077,7 @@ export async function destroy_arm(state = game, random = { rn2, rnl }) {
     let ret = false;
     for (let i = 0; i < hits; ++i) {
         const armor = armors[random.rn2(armors.length)];
-        if (erosionMatters(armor, state)
+        if (erosion_matters(armor, state)
             && isDamageable(armor, state) && !armor.oerodeproof) {
             const erosion = obj_erode_type(armor, state);
             if (erosion !== ERODE_NONE) {
