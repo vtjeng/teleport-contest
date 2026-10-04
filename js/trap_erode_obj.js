@@ -48,7 +48,6 @@ import { AD_ACID, AD_FIRE } from './monsters.js';
 import {
     carried,
     costly_alteration,
-    erosionMatters,
     isCorrodeable,
     isCrackable,
     is_flammable,
@@ -60,6 +59,7 @@ import { TOWEL } from './objects.js';
 import {
     cloak_simple_name,
     cxname,
+    erosion_matters,
     helm_simple_name,
     xnameFresh,
 } from './objnam.js';
@@ -275,7 +275,7 @@ export async function erode_obj(obj, description, type, flags, env) {
         }
         return ER_GREASED;
     }
-    if (!erosionMatters(obj, state)) return ER_NOTHING;
+    if (!erosion_matters(obj, state)) return ER_NOTHING;
 
     if (!vulnerable || (obj.oerodeproof && obj.rknown)) {
         if (verbose && print && (uvictim || vismon)) {

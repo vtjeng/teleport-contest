@@ -105,7 +105,6 @@ import {
     dealloc_oextra,
     free_omid,
     free_omonst,
-    erosionMatters,
     fixup_oil,
     hasContents,
     is_helmet,
@@ -143,7 +142,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import {
     CORPSE, ROCK_CLASS, MEATBALL, MEAT_STICK, ENORMOUS_MEATBALL, MEAT_RING, ARMOR_CLASS, GEM_CLASS, AMULET_OF_LIFE_SAVING, AMULET_OF_UNCHANGING, BOULDER, DWARVISH_CLOAK, HEAVY_IRON_BALL, IMMEDIATE, NODIR, POTION_CLASS, POT_POLYMORPH, POT_WATER, RING_CLASS, ROCK, SCROLL_CLASS, SPBOOK_CLASS, SPE_DIG, SPE_FORCE_BOLT, SPE_FIREBALL, SPE_CONE_OF_COLD, SPE_EXTRA_HEALING, SPE_FINGER_OF_DEATH, SPE_CURE_SICKNESS, SPE_HEALING, SPE_KNOCK, SPE_MAGIC_MISSILE, SPE_LIGHT, SPE_DRAIN_LIFE, SPE_CANCELLATION, SPE_SLOW_MONSTER, SPE_WIZARD_LOCK, SPE_DETECT_UNSEEN, SPE_TURN_UNDEAD, SPE_BLANK_PAPER, SPE_NOVEL, SPE_POLYMORPH, SPE_SLEEP, SPE_STONE_TO_FLESH, TOOL_CLASS, WAND_CLASS, STATUE, FIGURINE, WEAPON_CLASS, HELM_OF_BRILLIANCE, GAUNTLETS_OF_DEXTERITY, RIN_GAIN_STRENGTH, RIN_GAIN_CONSTITUTION, RIN_ADORNMENT, RIN_INCREASE_ACCURACY, RIN_INCREASE_DAMAGE, RIN_PROTECTION, CRYSTAL_BALL, CANDELABRUM_OF_INVOCATION, POT_ACID, POT_SICKNESS, POT_SEE_INVISIBLE, POT_FRUIT_JUICE, SCR_BLANK_PAPER, SPE_BOOK_OF_THE_DEAD, WAN_DEATH, WAN_DIGGING, WAN_LIGHTNING, WAN_LIGHT, WAN_STASIS, WAN_ENLIGHTENMENT, WAN_MAKE_INVISIBLE, WAN_SLOW_MONSTER, WAN_SPEED_MONSTER, WAN_UNDEAD_TURNING, WAN_OPENING, WAN_POLYMORPH, WAN_WISHING, WAN_STRIKING, WAN_MAGIC_MISSILE, WAN_CANCELLATION, WAN_NOTHING, WAN_PROBING, WAN_COLD, WAN_FIRE, WAN_LOCKING, EXPENSIVE_CAMERA, FROST_HORN, FIRE_HORN, MUMMY_WRAPPING, LARGE_BOX, CHEST, BAG_OF_HOLDING, TIN, WAN_SECRET_DOOR_DETECTION, WAN_CREATE_MONSTER, WAN_SLEEP, WAN_TELEPORTATION, POT_OIL, POT_GAIN_ABILITY, SCR_MAIL, SCR_FIRE, SPE_TELEPORT_AWAY, MAGIC_LAMP, MAGIC_MARKER, OIL_LAMP, LOW_BOOTS, EGG, LEASH, UNICORN_HORN, FLESH, PAPER, CLOTH, LEATHER, WOOD, BONE, IRON, METAL, COPPER, SILVER, GOLD, PLATINUM, MITHRIL, GEMSTONE, MINERAL, GLASS, STRANGE_OBJECT, } from './objects.js';
 import {
-    An, The, Tobjnam, Yname2, an, aobjnam, ansimpleoname, bare_artifactname, boots_simple_name, cloak_simple_name, donameFresh, corpse_xname, cxname_singular, distant_name, otense, gloves_simple_name, helm_simple_name, killer_xname, shield_simple_name, shirt_simple_name, simpleonames, isPoisonable, suit_simple_name, the, the_unique_pm, vtense, yname, xnameFresh, } from './objnam.js';
+    An, The, Tobjnam, Yname2, an, aobjnam, ansimpleoname, bare_artifactname, boots_simple_name, cloak_simple_name, donameFresh, corpse_xname, cxname_singular, distant_name, otense, gloves_simple_name, helm_simple_name, killer_xname, shield_simple_name, shirt_simple_name, simpleonames, isPoisonable, suit_simple_name, the, the_unique_pm, vtense, yname, xnameFresh, erosion_matters, } from './objnam.js';
 import { readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg, force_decor } from './pickup.js';
 import { cant_revive, litroom, unpunish } from './read.js';
@@ -2302,7 +2301,7 @@ export async function poly_obj(obj, id, state = game,
         || replacement.oclass === ARMOR_CLASS)
         replacement.spe = obj.spe;
 
-    if (erosionMatters(replacement, state)) {
+    if (erosion_matters(replacement, state)) {
         if (is_flammable(replacement, state)
             || isRustprone(replacement, state)
             || isCrackable(replacement, state))
