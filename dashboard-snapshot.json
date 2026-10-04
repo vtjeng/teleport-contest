@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-04T00:19:34.971Z",
+  "capturedAt": "2026-10-04T00:46:03.736Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -17099,6 +17099,31 @@
         "type": "accepted",
         "at": "2026-10-04T00:18:58.909Z",
         "task": "C69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C69-published-6b110b74",
+        "type": "published",
+        "at": "2026-10-04T00:19:51.334Z",
+        "task": "C69",
+        "commit": "6b110b74d83c89b29ae0d7152d942520d4939992"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A84-park-source-closure-20261004",
+        "type": "park",
+        "at": "2026-10-04T00:28:04.387Z",
+        "task": "A84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A85-mhitm-ad-stun-20261004",
+        "type": "assign",
+        "at": "2026-10-04T00:43:11.266Z",
+        "task": "A85",
+        "worker": "A2",
+        "goal": "port-uhitm-mhitm-ad-stun-v20-20261004",
+        "kind": "implementation"
       }
     ]
   },
