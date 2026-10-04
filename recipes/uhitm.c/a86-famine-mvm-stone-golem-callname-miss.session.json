@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first setup miss. The level-up pager was dismissed and three hostile Stone Golems plus a forced Famine were created, but the Famine drank an orange potion and C asked `Call an orange potion:` before the planned fight. The wait input answered that naming prompt instead of advancing turns, so this capture does not establish mhitm_ad_famn runtime coverage. Corrected recipe supplies a blank answer at that prompt.",
+  "segments": [
+    {
+      "seed": 58420610,
+      "datetime": "20380114101400",
+      "nethackrc": "OPTIONS=name:A86StoneGolem,role:Tourist,race:human,gender=female,align=neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n3 hostile stone golem\n #wizgenesis\nhostile Famine\ny. . . . . . . . ."
+    }
+  ]
+}
