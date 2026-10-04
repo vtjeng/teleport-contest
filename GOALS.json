@@ -158762,7 +158762,7 @@
     {
       "id": "port-uhitm-mhitm-ad-stck-v19-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port sticking attacks and verify the sticks predicate",
       "cFile": "uhitm.c",
       "sessions": [
@@ -159053,7 +159053,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8478541750f8418895057298e9403d2521e31226",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial B99 delivery: mondata.c sticks is verified; complete mhitm_ad_stck remains blocked by unmatched M-to-M runtime evidence. Exact private C run KLCWoy paired replay JMWA1i matches 125/149 screens and 3794/3893 RNG calls. Preserve independent blocked recipe and full planned scope; no whole helper completion or goal-closure score event."
     }
   ]
 }
