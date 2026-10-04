@@ -157900,6 +157900,213 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "verify-muse-green-mon-pure-prerequisite-v18-20261004",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Verify green monster color and hallucination predicate",
+      "cFile": "muse.c",
+      "sessions": [
+        "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected"
+      ],
+      "selectionReason": "Whole pure green_mon is a consumed-return prerequisite for the parked slime source closure. Complete active C color/Hallucination predicate and existing visible-monster munslime wiring verified; disabled approximation is excluded. The executable helper is unchanged; its source-reference comment changes official game input digest, so all admitted batches will be freshly reassessed.",
+      "detail": "",
+      "openedAt": "d0d1d93541bd7f90d4b08c4eaa348189413d132b",
+      "openStanding": {
+        "sha": "2f89e76867ec12ad25535b7af643a17309089976",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "green_mon",
+          "line": 3269,
+          "endLine": 3310,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3269,
+        "to": 3310
+      },
+      "syntheticProvenance": {
+        "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected": {
+          "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+          "evaluationPath": "challenges/evaluations/20261004052204-v18.json",
+          "evaluationCommit": "42577ca60bc8a5134b6beabccce17b6daad07a12"
+        }
+      },
+      "activeStanding": {
+        "sha": "2f89e76867ec12ad25535b7af643a17309089976",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+          "recipe": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.recipe.session.json",
+          "recipeSha256": "cd0a01a0fc27e10f7331da0cbb981fa15345d51eb1d04075a00b2fba0d86e8ba",
+          "replayInputSha256": "0732bd3ca4ff004c0ed73ee670e29de1a36a425e25791f83cfddf7599912bbf1",
+          "evaluationPath": "challenges/evaluations/20261004052204-v18.json",
+          "evaluationCommit": "42577ca60bc8a5134b6beabccce17b6daad07a12",
+          "evaluationArtifact": "challenges/evaluations/20261004052204-v18.json",
+          "evaluationUtc": "2026-10-04T05:23:10.484Z",
+          "remainingScreens": 45,
+          "recordedSteps": 107,
+          "previousScreensMatched": 62,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 62,
+              "total": 107
+            },
+            "rng": {
+              "matched": 2519,
+              "total": 2630
+            },
+            "cursors": {
+              "matched": 62,
+              "total": 107
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_slim()",
+            "step": 62
+          },
+          "step": 62,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_slim",
+          "message": "simple monster action requires uhitm.c mhitm_ad_slim()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.json",
+            "result": {
+              "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+              "remainingScreens": 45,
+              "recordedSteps": 107,
+              "status": "complete",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+                "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+                "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+                "recipe": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.recipe.session.json",
+                "recipeSha256": "cd0a01a0fc27e10f7331da0cbb981fa15345d51eb1d04075a00b2fba0d86e8ba",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 45,
+                "recordedSteps": 107,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 62,
+                    "total": 107
+                  },
+                  "rng": {
+                    "matched": 2519,
+                    "total": 2630
+                  },
+                  "cursors": {
+                    "matched": 62,
+                    "total": 107
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_slim()",
+                  "step": 62
+                },
+                "step": 62,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_slim",
+                "message": "simple monster action requires uhitm.c mhitm_ad_slim()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the examined commit, js/uhitm.js:mhitm_adtyping stops at its AD_SLIM refusal instead of executing uhitm.c:mhitm_ad_slim. Port the whole source function in js/uhitm.js and wire the existing dispatcher across hero-to-monster, monster-to-hero, and monster-to-monster branches. The case follows the monster-to-hero branch. Preserve the source gates, RNG order, messages, slime transformation, death flags, and damage updates. In the monster-to-hero first-infection branch, potion.c:make_slimed() is a void, discarded-return helper with no full JS implementation; the source-gap rule permits note_unported('potion.c make_slimed'), but that leaves timed sliming and later behavior unresolved and may cause a later mismatch.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "mhitm_ad_slim"
+                ],
+                "branch": "Whole-function scope at uhitm.c:3526-3600. When magr == &gy.youmonst, handle hero-to-monster slime attacks: magic negation returns early; otherwise a 1-in-4 roll and !slimeproof(pd) enter munslime/newcham/death-flag handling and zero damage. When mdef == &gy.youmonst, handle monster-to-hero attacks: hitmsg first, then negation; otherwise flaming attackers burn slime away, Unchanging/noncorporeal/green-slime heroes are unaffected, and a not-yet-Slimed hero gets the infection message, make_slimed(10L,NULL), and delayed killer. The remaining branch handles monster-to-monster attacks with the same negation and 1-in-4/slimeproof gates, visibility-sensitive transformation messages, strategy/flag updates, and zero damage.",
+                "callers": [
+                  "Direct C dispatch: uhitm.c:mhitm_adtyping AD_SLIM at :4817. Current JS dispatcher is js/uhitm.js:mhitm_adtyping at :4776, whose AD_SLIM arm at :4838 refuses with the exact missing-function message.",
+                  "Monster-to-hero route exercised by this case: monmove.c:dochug at :971 -> mhitu.c:mattacku -> mhitu.c:hitmu at :1144, which calls uhitm.c:mhitm_adtyping at :1191 -> mhitm_ad_slim. JS route: js/mhitu.js:hitmu at :1650 calls the dispatcher at :1707.",
+                  "Hero-to-monster production route: uhitm.c:damageum at :4835 calls mhitm_adtyping at :4854; hmonas calls damageum at :5546, :5587, :5664, :5727, :5745, and :5757, and dokick.c calls it at :212. JS dispatch is js/uhitm.js:damageum at :4858 -> mhitm_adtyping at :4886; js/dokick.js calls damageum at :419.",
+                  "Monster-to-monster production route: mhitm.c:mdamagem at :1016 calls mhitm_adtyping at :1059. JS dispatch is js/mhitm.js:mdamagem at :1037 -> mhitm_adtyping at :1057."
+                ],
+                "dependencies": [
+                  "uhitm.c:mhitm_mgc_atk_negated() returns the Boolean used by the negation gates; preserve its branch and RNG/message ordering.",
+                  "rnd.c:rn2(4) returns the value used by the 1-in-4 conversion gates in the hero-to-monster and monster-to-monster branches.",
+                  "include/mondata.h:slimeproof(), flaming(), and noncorporeal() are Boolean macros whose source predicates control slime immunity, burning, and hero immunity branches.",
+                  "muse.c:munslime() returns whether the target took action; its result controls whether newcham() is attempted, and its effects may kill either monster.",
+                  "mon.c:newcham() returns a Boolean tested by the source while changing the target form to PM_GREEN_SLIME.",
+                  "display.c:canseemon() returns the visibility predicate used to select NC_SHOW_MSG in the monster-to-monster branch.",
+                  "do_name.c:mon_nam() and pmname() return text consumed by the hero-to-monster message and delayed killer name respectively.",
+                  "potion.c:make_slimed() is void and its result is discarded. If left unported, record note_unported('potion.c make_slimed') and skip the call; this gap leaves the hero sliming timeout/status unresolved.",
+                  "end.c:delayed_killer() is void; the monster-to-hero first-infection branch uses it to store the SLIMED killer after make_slimed()."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20261002065911-v18.json records 62/107 screens, 2519/2630 RNG calls, and 62/107 cursors matched, then stops at zero-based step 62 with “simple monster action requires uhitm.c mhitm_ad_slim()”. This is a missing source branch, not a completed-behavior divergence.",
+                "challenges/manifests/v18.json identifies the case route as monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_slim and records an independent patched-C replay byte-identical to the recording. Its historical comparison locates the next C-only RNG draw at index 2519 in distfleeck(monmove.c:538), step 62; that later boundary/draw is downstream evidence, not the attack source owner.",
+                "Upstream uhitm.c:mhitm_ad_slim is the whole source unit at :3526-3600; uhitm.c:mhitm_adtyping dispatches AD_SLIM to it at :4817. Its three parameter modes implement hero-to-monster, monster-to-hero, and monster-to-monster behavior. The current implementation refusal is js/uhitm.js:mhitm_adtyping AD_SLIM at :4838.",
+                "The monster-to-hero infection calls potion.c:make_slimed(10L,NULL) and end.c:delayed_killer(...) at uhitm.c:3568-3572. make_slimed changes the Slimed timeout and related hero state at potion.c:195-217; it has no full JS implementation, so this remains a declared downstream gap if the outer function records note_unported and skips it."
+              ],
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d"
+            }
+          }
+        }
+      ]
     }
   ]
 }
