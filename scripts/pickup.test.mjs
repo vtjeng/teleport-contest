@@ -60,6 +60,7 @@ import {
 import { runSegment } from '../js/jsmain.js';
 import {
     M1_NOTAKE,
+    PM_BROWN_PUDDING,
     PM_COCKATRICE,
     PM_DEATH,
     PM_IRON_GOLEM,
@@ -164,6 +165,65 @@ function burdenState() {
         youmonst: { data: {} },
     };
 }
+
+test('encumber_msg uses the polymorphed form at capacity three',
+    async () => {
+        const cSource = await readFile(
+            new URL('../nethack-c/upstream/src/pickup.c', import.meta.url),
+            'utf8',
+        );
+        const jsSource = await readFile(
+            new URL('../js/pickup.js', import.meta.url), 'utf8',
+        );
+        const cBody = cSource.match(
+            /^void\nencumber_msg\(void\)\n\{[\s\S]*?^\}/mu,
+        )?.[0];
+        const jsBody = jsSource.match(
+            /^export async function encumber_msg\([\s\S]*?^\}/mu,
+        )?.[0];
+        assert.ok(cBody, 'pickup.c defines the complete encumber_msg body');
+        assert.ok(jsBody, 'pickup.js defines the complete encumber_msg body');
+        assert.equal(
+            [...cBody.matchAll(/stagger\(gy\.youmonst\.data, "stagger"\)/gu)].length,
+            2,
+        );
+        assert.equal(
+            [...jsBody.matchAll(/stagger\(state\.youmonst\.data, 'stagger'\)/gu)].length,
+            2,
+        );
+        assert.match(jsBody,
+            /newCapacity === 3[\s\S]*?stagger\(state\.youmonst\.data, 'stagger'\)/u);
+        assert.match(jsBody,
+            /else if \(oldCapacity > newCapacity\)[\s\S]*?newCapacity === 3[\s\S]*?stagger\(state\.youmonst\.data, 'stagger'\)/u);
+
+        const state = await heroOnAnEmptySquare();
+        // Brown pudding has C cwt 500 and MZ_MEDIUM, so Upolyd halves the
+        // live capacity. Keep the C hero-form macro and displayed data aligned.
+        state.u.umonnum = PM_BROWN_PUDDING;
+        state.youmonst.data = state.mons[PM_BROWN_PUDDING];
+        const capacity = weight_cap(state);
+        const messages = [];
+        const message = async (line) => { messages.push(line); };
+
+        // C calc_capacity maps excess above capacity to level 3 when the
+        // excess is at least one capacity but less than 1.5 capacities.
+        state.invent = {
+            oclass: TOOL_CLASS, otyp: SACK,
+            owt: capacity + Math.floor(capacity * 5 / 4),
+            nobj: null,
+        };
+        state.go.oldcap = 2; // C upward branch enters encumber_msg case 3.
+        assert.equal(await encumber_msg(state, { message }), 3);
+        assert.equal(messages.pop(),
+            'You tremble under your heavy load.  Movement is very hard.');
+
+        // The same capacity-three load now exercises C's decrease branch;
+        // an old category 4 falls to category 3 without changing the form.
+        state.go.oldcap = 4;
+        assert.equal(await encumber_msg(state, { message }), 3);
+        assert.equal(messages.pop(),
+            'You tremble under your load.  Movement is still very hard.');
+    });
 
 test('encumber_msg reports the live weakness capacity transition once',
     async () => {

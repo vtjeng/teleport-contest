@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A85 C-first Abbot/Conflict route. Three hostile brown puddings use read.c:create_particular_parse's literal quantity prefix to ensure an adjacent monster target; the amorphous species selects the C tremble verb. Inputs were chosen independently for this task. The short tail ends after the recorded tremble message, before unrelated AD_DECAY interactions.",
+  "segments": [
+    {
+      "seed": 56387021,
+      "datetime": "20371026131700",
+      "nethackrc": "OPTIONS=name:A85StunPair,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n3 hostile brown pudding\n #wizgenesis\nhostile Abbot\n . . "
+    }
+  ]
+}
