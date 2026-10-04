@@ -64,6 +64,7 @@ import { runSegment } from '../js/jsmain.js';
 import {
     could_seduce,
     diseasemu,
+    explmu,
     gazemu,
     getmattk,
     hitmsg,
@@ -578,7 +579,7 @@ test('explmu handles the compiled AD_HALU attack after the AT_EXPL dispatch',
         );
         assert.match(cBlind,
             /mon_visible\(mtmp\) \|\| \(rnd\(tmp \/= 2\) > u\.ulevel\)/u,
-            'C halves damage before the optional roll and later effects');
+            'C halves damage only in the invisible-monster right operand');
         assert.ok(cBody.indexOf('mondead(mtmp);')
             < cBody.indexOf('make_hallucinated('));
 
@@ -590,9 +591,9 @@ test('explmu handles the compiled AD_HALU attack after the AT_EXPL dispatch',
         const jsBlind = jsBody.slice(
             jsBody.indexOf('case M.AD_BLND:'), jsBody.indexOf('case M.AD_HALU:'),
         );
-        assert.ok(jsBlind.indexOf('tmp = Math.trunc(tmp / 2);')
-            < jsBlind.indexOf('random.rnd(tmp)'),
-        'JavaScript mutates the damage value before the source-ordered draw');
+        assert.match(jsBlind,
+            /mon_visible\(mtmp, state\)\s*\|\|\s*random\.rnd\(tmp\s*=\s*Math\.trunc\(tmp \/ 2\)\)/u,
+            'JavaScript keeps division and its draw inside the short-circuited operand');
         assert.ok(jsBody.indexOf('await mondead(mtmp, state, rawEnv)')
             < jsBody.indexOf('await make_hallucinated('));
         const cDispatch = MHITU_C.match(
@@ -629,6 +630,47 @@ test('explmu handles the compiled AD_HALU attack after the AT_EXPL dispatch',
             'You are caught in a blast of kaleidoscopic light!',
         ));
         assert.ok(result.lines.includes('You are freaked out.'));
+    },
+);
+
+test('explmu AD_BLND preserves visible short-circuit and invisible damage order',
+    async () => {
+        // C's source expression skips rnd(tmp /= 2) for a visible attacker;
+        // an invisible one divides five damage to two before rnd(2).
+        for (const scenario of [
+            { invisible: false, expectedDraws: ['d(1,6)'], expectedBlindness: 5 },
+            { invisible: true, expectedDraws: ['d(1,6)', 'rnd(2)'], expectedBlindness: 2 },
+        ]) {
+            const state = await meleeHero();
+            // Level one makes the invisible branch's scripted rnd(2)=2
+            // pass the C comparison; visible attackers bypass it entirely.
+            state.u.ulevel = 1;
+            state.u.uprops[BLINDED] = {
+                intrinsic: 0, extrinsic: 0, blocked: 0,
+            };
+            // The umber hulk is simply a valid placed monster here; explmu
+            // receives the explicit AD_BLND/AT_EXPL attack under test. The
+            // east-adjacent square keeps it on-map in the live fixture.
+            const attacker = meleeAttacker(state, PM_UMBER_HULK, 1, 0, {
+                minvis: scenario.invisible,
+            });
+            // Five deterministic damage is odd so C integer division yields
+            // two; 1d6 identifies the source's initial damage call.
+            const result = meleeEnv(state, [2], { d: () => 5 });
+            await explmu(attacker, {
+                aatyp: AT_EXPL,
+                adtyp: AD_BLND,
+                damn: 1,
+                damd: 6,
+            }, true, result.env);
+
+            assert.deepEqual(result.bounds, scenario.expectedDraws);
+            assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT,
+                scenario.expectedBlindness);
+            assert.ok(result.lines.includes(
+                'You are blinded by a blast of light!',
+            ));
+        }
     },
 );
 

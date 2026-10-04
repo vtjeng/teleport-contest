@@ -901,7 +901,10 @@ export async function make_hallucinated(
         if (!xtime) resistance.extrinsic |= mask;
         else resistance.extrinsic &= ~mask;
     } else {
-        changed = !resistance.intrinsic && !resistance.extrinsic
+        // C's changed test uses EHalluc_resistance alone. Intrinsic
+        // resistance can suppress effective Hallucination without
+        // suppressing this timeout transition.
+        changed = !resistance.extrinsic
             && Boolean(old) !== Boolean(xtime);
         set_itimeout(hallucination, xtime);
         // C can clear an active timeout without changing the effective

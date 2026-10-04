@@ -1934,10 +1934,10 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
     case M.AD_BLND:
         notAffected = resists_blnd(state.youmonst, state);
         if (ufound && !notAffected) {
-            // C mutates tmp with integer division before the optional draw;
-            // ugolemeffects below receives that halved damage as well.
-            tmp = Math.trunc(tmp / 2);
-            if (mon_visible(mtmp, state) || random.rnd(tmp) > state.u.ulevel) {
+            // C places the division inside the right side of ||. A visible
+            // monster skips both that mutation and its random draw.
+            if (mon_visible(mtmp, state)
+                || random.rnd(tmp = Math.trunc(tmp / 2)) > state.u.ulevel) {
                 await message('You are blinded by a blast of light!', state);
                 await make_blinded(tmp, false, state, rawEnv);
                 if (!heroIsBlind(state))
