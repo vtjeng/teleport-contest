@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010423,
+      "datetime": "20261004034500",
+      "nethackrc": "OPTIONS=name:V22CursedEarth,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\ncursed scroll of earth\nrp "
+    }
+  ],
+  "_comment": "Continues the same independently frozen cursed Earth C-first setup after the ceiling-rumble More page. The predecessor is preserved as a pager-truncated setup trace; this variant acknowledges that page to observe the source player-drop result. Scroll letter p was confirmed by the separate inventory probe."
+}

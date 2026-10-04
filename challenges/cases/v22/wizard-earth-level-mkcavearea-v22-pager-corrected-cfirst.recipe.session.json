@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010403,
+      "datetime": "20311004102000",
+      "nethackrc": "OPTIONS=name:V22EarthCave,role:Ranger,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizlevelport\n?\n>>N       #wizwish\nblessed +7 pick-axe\niwha\nl\n.................."
+    }
+  ],
+  "_comment": "Independent B98 C-first Earth-level dig route, frozen after two C-observed pager boundaries: acknowledge `You now wield a pick-axe`, then issue the east direction and acknowledge `You start digging` before continuation inputs. C inventory probe confirms the actual blessed pick-axe letter h. Keep only if the resulting C steps show dig.c:dig on Earth and the blessed mkcavearea(FALSE) branch; earlier pager misses remain separately preserved."
+}

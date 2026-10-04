@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010403,
+      "datetime": "20311004102000",
+      "nethackrc": "OPTIONS=name:V22EarthCaveProbe,role:Ranger,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizlevelport\n?\n>>N       #wizwish\nblessed +7 pick-axe\ni"
+    }
+  ],
+  "_comment": "B98 setup probe only: use an independently selected Ranger/debug character and fresh seed/time to enter the Earth level, wish a blessed +7 pick-axe, and inspect the actual inventory slot before freezing the dig action. This is not a passing mission recording unless the C trace confirms the Earth-level rock/tree setup and mkcavearea branch."
+}

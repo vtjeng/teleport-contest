@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201038003,
+      "datetime": "20261003230000",
+      "nethackrc": "OPTIONS=name:V22LeashProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\ntame dog#wizwish\nleash\ni"
+    }
+  ],
+  "_comment": "Bounded C setup probe for apply.c:o_unleash through the existing steal.c:steal leash branch. Verify tame-dog generation, wished leash inventory slot and adjacent geometry before freezing the separate nymph theft mission."
+}

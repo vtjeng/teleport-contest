@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010404,
+      "datetime": "20311004103000",
+      "nethackrc": "OPTIONS=name:V22DogRevival,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizgenesis\ntame dog\n#wizwish\nwand of death\n#wizwish\nwand of undead turning\ni"
+    }
+  ],
+  "_comment": "B98 C-first Wary Dog setup probe only: create a tame dog, wish death and undead-turning wands, then inspect actual C inventory letters and the dog position before freezing a revival recipe. Not an admitted behavior case."
+}

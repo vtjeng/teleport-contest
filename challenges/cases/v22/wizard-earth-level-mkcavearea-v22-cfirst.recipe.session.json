@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010403,
+      "datetime": "20311004102000",
+      "nethackrc": "OPTIONS=name:V22EarthCave,role:Ranger,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizlevelport\n?\n>>N       #wizwish\nblessed +7 pick-axe\niwhahl.............."
+    }
+  ],
+  "_comment": "Independent B98 C-first Earth-level dig candidate: an independently selected Ranger and seed enter the Earth plane, wish a blessed +7 pick-axe, display inventory to establish slot h, wield and apply that exact pick-axe east into the adjacent unseen wall, then continue the occupation. Keep only if C shows dig.c:dig reaches the Earth-level blessed mkcavearea(FALSE) branch; the separate setup probe confirms the actual item slot before the action input was frozen."
+}

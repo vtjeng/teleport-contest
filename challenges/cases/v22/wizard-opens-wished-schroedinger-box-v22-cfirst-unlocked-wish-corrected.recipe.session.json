@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037994,
+      "datetime": "20261003223800",
+      "nethackrc": "OPTIONS=name:V22QuantumBox,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017+1 unlocked large box\ndp#loot\n."
+    }
+  ],
+  "_comment": "C-observed correction to the preserved locked-box setup: `+1` sets the special LARGE_BOX spe flag, while the explicit `unlocked` adjective prevents #loot from stopping before open/observation. The prior C trace showed the box at p and `d p` dropped that exact object. The following #loot targets the floor box at the hero's square; count only after C confirms the observer branch."
+}

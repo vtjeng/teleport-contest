@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010403,
+      "datetime": "20311004102000",
+      "nethackrc": "OPTIONS=name:V22EarthCave,role:Ranger,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizlevelport\n?\n>>N       #wizwish\nblessed +7 pick-axe\niwha\nl\n\n.................."
+    }
+  ],
+  "_comment": "Single bounded continuation of the independently recorded Earth dig setup: acknowledge the wield pager, select east, acknowledge the dig-start pager and the one C-observed Wizard-of-Yendor teleport page, then provide dig-occupation inputs. The earlier recordings preserve both pager causes. Count as an Earth-level dig behavior only if C shows dig.c:dig reaches the blessed mkcavearea(FALSE) branch; otherwise defer this setup-heavy mission."
+}

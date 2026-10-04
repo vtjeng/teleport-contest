@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent wizard-mode route to timeout.c:slime_dialogue. #wizintrinsic selects the source menu's third entry (becoming slime) with a five-turn count, then one wait reaches its first odd-time warning. This bypasses the separate green-slime attack infection path.",
+  "segments": [
+    {
+      "seed": 2201037071,
+      "datetime": "20261003183025",
+      "nethackrc": "OPTIONS=name:V22SlimeTimer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n5c\n ."
+    }
+  ]
+}

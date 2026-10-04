@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037991,
+      "datetime": "20261003222000",
+      "nethackrc": "OPTIONS=name:V22RegionAir,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n>7g\n \u0017scroll of stinking cloud\nro."
+    }
+  ],
+  "_comment": "Independent C-first timeout.c:region_dialogue attempt. In the wiz_intrinsic property order, magical breathing is property row 27 (page two, item g); timer 7 enables the callback while allowing region_dialogue to temporarily clear only the timed value and test an active poison-gas region. A wished stinking-cloud scroll is read and targeted at the hero's current square. C recording must confirm the gas-cloud region contains the hero before any timeout message is attributed to region_dialogue."
+}

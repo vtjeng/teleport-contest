@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037995,
+      "datetime": "20261003224000",
+      "nethackrc": "OPTIONS=name:V22EarthProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nuncursed scroll of earth\ni"
+    }
+  ],
+  "_comment": "Independent C inventory probe to verify the actual slot of the uncursed scroll before selecting it in a separate read.c:seffect_earth mission. No target slot is assumed."
+}

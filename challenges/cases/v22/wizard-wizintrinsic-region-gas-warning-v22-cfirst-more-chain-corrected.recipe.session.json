@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037991,
+      "datetime": "20261003222000",
+      "nethackrc": "OPTIONS=name:V22RegionAir,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n>7g\n \u0017scroll of stinking cloud\nro   . ..."
+    }
+  ],
+  "_comment": "C-observed pager correction: the read path displayed sequential More prompts for the disappearing scroll, discovery message, and getpos prompt. This attempt acknowledges each source message before confirming the current-square gas-cloud center; no timeout.c:region_dialogue evidence is claimed unless the C map/region and subsequent timeout tick confirm it."
+}

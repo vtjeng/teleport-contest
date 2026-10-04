@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037994,
+      "datetime": "20261003223800",
+      "nethackrc": "OPTIONS=name:V22QuantumBox,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017+1 large box\ndp#loot\n."
+    }
+  ],
+  "_comment": "C-observed correction to the retained wrong-slot attempt: the target seed's wish report put the +1 large box in slot p (slot o held a blindfold). Drop p without an intervening space, then #loot at the hero's square. The source target is still pickup.c:observe_quantum_cat and will be counted only if C shows the spe==1 box observation path."
+}
