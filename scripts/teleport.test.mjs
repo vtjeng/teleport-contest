@@ -72,6 +72,7 @@ import {
     rloc_to,
     rloc_to_flag,
     scrolltele,
+    tele_restrict,
     u_teleport_mon,
 } from '../js/teleport.js';
 import { resetGame } from '../js/gstate.js';
@@ -266,6 +267,57 @@ test('noteleport_level applies natural levels and stasis in source order', () =>
 
     state.level.flags.stasis_until = state.moves;
     assert.equal(noteleport_level(covetous, state), true);
+});
+
+test('tele_restrict returns the C block result and only messages when seen', async () => {
+    const cHelper = sourceScrolltele(
+        C_TELEPORT_SOURCE,
+        'boolean\ntele_restrict(struct monst *mon)',
+        'void\nmtele_trap(struct monst *mtmp, struct trap *trap, int in_sight)',
+    );
+    const jsHelper = sourceScrolltele(
+        JS_TELEPORT_SOURCE,
+        'export async function tele_restrict(mon, state = game, rawEnv = {})',
+        '// C ref: teleport.c teleport_pet()',
+    );
+    assert.match(cHelper,
+        /if \(noteleport_level\(mon\)\)[\s\S]*?if \(canseemon\(mon\)\)[\s\S]*?pline\([\s\S]*?return TRUE;[\s\S]*?return FALSE;/u);
+    assert.match(jsHelper,
+        /if \(noteleport_level\(mon, state\)\)[\s\S]*?if \(canseemon\(mon, state\)\)[\s\S]*?await message\([\s\S]*?return true;[\s\S]*?return false;/u);
+
+    const state = positionState();
+    const monster = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 4,
+        mhpmax: 4,
+        m_id: 120, // Unique id for this direct teleport-restriction fixture.
+        mcansee: true,
+        mx: 10,
+        my: 11,
+    });
+    state.level.at(10, 11).typ = ROOM;
+    place_monster(monster, 10, 11, state);
+    state.level.flags.noteleport = true;
+    setupVision(state);
+
+    const messages = [];
+    const env = { message: async (line) => messages.push(line) };
+    assert.equal(await tele_restrict(monster, state, env), true);
+    assert.deepEqual(messages, [
+        'A mysterious force prevents the sewer rat from teleporting!',
+    ]);
+
+    // Keep the same source block but remove sight to exercise C's silent gate.
+    setupVision(state, 0);
+    messages.length = 0;
+    assert.equal(await tele_restrict(monster, state, env), true);
+    assert.deepEqual(messages, []);
+
+    // A visible monster on a level without either C restriction returns false.
+    setupVision(state);
+    state.level.flags.noteleport = false;
+    assert.equal(await tele_restrict(monster, state, env), false);
+    assert.deepEqual(messages, []);
 });
 
 test('level_tele evaluates next_to_u before a forced wizard destination', () => {
