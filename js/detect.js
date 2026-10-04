@@ -12,6 +12,7 @@ import {
     BURIED_TOO,
     BOLT_LIM,
     COLNO,
+    CLAIRVOYANT,
     CONFUSION,
     CONTAINED_TOO,
     CORR,
@@ -38,6 +39,8 @@ import {
     HALLUC_RES,
     HALF_PHDAM,
     KILLED_BY_AN,
+    LAVAPOOL,
+    LAVAWALL,
     TIMEOUT,
     SYM_BOULDER,
     M_AP_OBJECT,
@@ -97,6 +100,7 @@ import {
     glyph_is_trap,
     glyph_is_warning,
     glyph_at,
+    glyph_to_mon,
     feel_location,
     map_invisible,
     map_invisible_planning,
@@ -120,6 +124,7 @@ import {
     unmap_invisible,
     xy_set_wall_state,
     flush_screen,
+    see_monsters,
     GLYPH_INVISIBLE,
     mon_to_glyph,
     flash_glyph_at,
@@ -131,7 +136,7 @@ import {
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
 import { get_obj_location } from './light.js';
-import { find_drawbridge } from './dbridge.js';
+import { find_drawbridge, is_pool } from './dbridge.js';
 import { Is_box } from './lock.js';
 import { losehp, nomul } from './hack.js';
 import { hides_under, is_hider, resists_blnd } from './mondata.js';
@@ -139,6 +144,7 @@ import {
     NUMMONS,
     PM_GOLD_GOLEM,
     PM_LONG_WORM,
+    PM_LONG_WORM_TAIL,
     PM_TENGU,
     S_EEL,
     S_GHOST,
@@ -1667,6 +1673,129 @@ export async function do_mapping(state = game, env = {}) {
         reconstrain_map(state);
     }
     await exercise(A_WIS, true, state, random);
+}
+
+function coversObjects(x, y, state) {
+    // display.h:covers_objects(): water covers floor objects unless the hero
+    // is underwater; lava pools and lava walls cover them unconditionally.
+    const typ = state.level.at(x, y).typ;
+    return (is_pool(x, y, state) && !state.u.uinwater)
+        || typ === LAVAPOOL || typ === LAVAWALL;
+}
+
+// C ref: detect.c do_vicinity_map() (1448-1585). The third-screen glyph is
+// snapshotted before show_map_spot() clears remembered detections; each map
+// operation then updates the same state before the extended-detection test.
+export async function do_vicinity_map(sobj, state = game, env = {}) {
+    const random = env.random ?? { rn2 };
+    const message = env.message ?? ttyPline;
+    const ux = state.u.ux;
+    const uy = state.u.uy;
+    const vizRow = state.viz_array?.[uy];
+    const saveViz = vizRow?.[ux] ?? 0;
+    const swallowed = Boolean(state.u.uswallow);
+    const detectProperty = state.u.uprops[DETECT_MONSTERS] ??= {
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    const saveEDetectMons = detectProperty.extrinsic ?? 0;
+    const extended = Boolean(sobj
+        && (sobj.blessed || propertyActiveUnblocked(
+            state.u, CLAIRVOYANT,
+        )));
+    const randomFarsight = !sobj;
+    let refresh = false;
+    let monsterDetected = false;
+    let objectDetected = false;
+    const loY = Math.max(0, uy - 5);
+    const hiY = Math.min(ROWNO - 1, uy + 6);
+    const loX = Math.max(1, ux - 9);
+    const hiX = Math.min(COLNO - 1, ux + 10);
+    let terrainType = TER_DETECT | TER_MAP | TER_TRP | TER_OBJ;
+
+    // Detect.c temporarily shows the hero's square while swallowed, and marks
+    // every sensed monster as special for getpos/map presentation.
+    if (swallowed && vizRow)
+        vizRow[ux] = saveViz | IN_SIGHT;
+    detectProperty.extrinsic = saveEDetectMons | I_SPECIAL;
+    const unconstrained = unconstrain_map(state);
+
+    for (let x = loX; x <= hiX; ++x) {
+        for (let y = loY; y <= hiY; ++y) {
+            const oldGlyph = glyph_at(x, y, state);
+            show_map_spot(
+                x, y,
+                Boolean(state.u.uprops?.[CONFUSION]?.intrinsic),
+                state, random,
+            );
+
+            // OBJ_AT() examines only the top object at this location; buried
+            // objects are intentionally not revealed by clairvoyance.
+            const object = state.level.objects?.[x]?.[y] ?? null;
+            if (object) {
+                if (extended) observe_object(object, state);
+                map_object(object, true, state);
+                const newGlyph = glyph_at(x, y, state);
+                if (newGlyph !== oldGlyph && coversObjects(x, y, state))
+                    objectDetected = true;
+            }
+
+            // m_at() can also return a worm tail; only the monster's actual
+            // mx,my square is handled here, matching the C guard.
+            const monster = m_at(x, y, state);
+            if (monster && monster.mx === x && monster.my === y) {
+                if ((unconstrained || !state.level.flags.hero_memory)
+                    && !extended && (x !== ux || y !== uy)
+                    && !glyph_is_monster(oldGlyph)) {
+                    map_invisible(x, y, state);
+                } else {
+                    map_monst(monster, state, env);
+                }
+                const newGlyph = glyph_at(x, y, state);
+                if (extended && newGlyph !== oldGlyph
+                    && !glyph_is_invisible(newGlyph)) {
+                    monsterDetected = true;
+                }
+            }
+        }
+    }
+
+    // quick_farsight suppresses only the timed caller's browse trigger; the
+    // clairvoyance spell retains its message and getpos interruption.
+    if (randomFarsight && state.flags?.quick_farsight)
+        monsterDetected = objectDetected = false;
+
+    if (!state.level.flags.hero_memory || unconstrained
+        || monsterDetected || objectDetected) {
+        await flush_screen(1);
+        await message('You sense your surroundings.', state);
+        if (extended || glyph_is_monster(glyph_at(ux, uy, state)))
+            terrainType |= TER_MON;
+        await browse_map(terrainType, 'anything of interest', state);
+        refresh = true;
+    }
+
+    reconstrain_map(state);
+    detectProperty.extrinsic = saveEDetectMons;
+    if (vizRow) vizRow[ux] = saveViz;
+
+    // Replace stale detected-monster glyphs only after constraints have been
+    // restored, then let normal vision redraw currently visible monsters.
+    for (let x = loX; x <= hiX; ++x) {
+        for (let y = loY; y <= hiY; ++y) {
+            if (u_at(x, y)) continue;
+            const glyph = glyph_at(x, y, state);
+            if (glyph_is_monster(glyph)
+                && glyph_to_mon(glyph) !== PM_LONG_WORM_TAIL) {
+                const monster = m_at(x, y, state);
+                if (!monster || !canspotmon(monster, state))
+                    map_invisible(x, y, state);
+            }
+        }
+    }
+    see_monsters(state);
+    if (refresh) await docrt();
 }
 
 function propertyActiveUnblocked(hero, propertyIndex) {
