@@ -130,10 +130,10 @@ import {
     candle_light_range, arti_light_radius, del_light_source, get_obj_location, new_light_source, } from './light.js';
 import {
     breathless, cantvomit, is_flyer, is_rider, is_were, name_to_mon,
-    mhe, touch_petrifies, type_is_pname, zombie_form, little_to_big,
+    mhe, touch_petrifies, type_is_pname, little_to_big,
 } from './mondata.js';
 import { body_part, rehumanize } from './polyself.js';
-import { restartcham, wake_nearby } from './mon.js';
+import { restartcham, wake_nearby, zombie_form } from './mon.js';
 import { note_unported } from './unported.js';
 import {
     float_down, unconscious } from './trap.js';

@@ -6,7 +6,7 @@
 // mpickstuff(), curr_mon_load(), max_mon_load(), m_consume_obj(),
 // pet_sanity_check(), sanity_check_single_mon(), mon_sanity_check(),
 // m_poisongas_ok(), genus(), monlineu(), mm_2way_aggression(),
-// mm_aggression(), mm_displacement(), zombie_maker(), unstuck(),
+// mm_aggression(), mm_displacement(), zombie_maker(), zombie_form(), unstuck(),
 // m_respond_shrieker(), m_respond_medusa(), m_respond(),
 // qst_guardians_respond(), peacefuls_respond(), wake_nearto_core(),
 // mon_leaving_level(), m_detach(), mlifesaver(), lifesaved_monster(),
@@ -356,7 +356,6 @@ import {
     unsolid,
     vegan,
     verysmall,
-    zombie_form,
     set_mon_data,
     dead_species,
     olfaction,
@@ -426,6 +425,7 @@ import {
     PM_CLERIC,
     PM_CAVE_DWELLER,
     PM_DWARF,
+    PM_ETTIN,
     PM_ETTIN_MUMMY,
     PM_ETTIN_ZOMBIE,
     PM_FLESH_GOLEM,
@@ -538,7 +538,11 @@ import {
     S_DRAGON,
     S_FUNGUS,
     S_GHOST,
+    S_GIANT,
+    S_GNOME,
     S_HUMAN,
+    S_HUMANOID,
+    S_KOBOLD,
     S_KOP,
     S_LICH,
     S_MIMIC,
@@ -4329,7 +4333,7 @@ function killRedraw(x, y, env) {
     else if ((env.state ?? game) === game) newsym(x, y);
 }
 
-// C ref: mon.c zombie_maker() (361-380). "return True if mon is capable of
+// C ref: mon.c zombie_maker() (362-380). "return True if mon is capable of
 // converting other monsters into zombies". mon.c:3620 passes &gy.youmonst, so
 // this answers for the hero as well as for a monster.
 export function zombie_maker(mon) {
@@ -4347,6 +4351,33 @@ export function zombie_maker(mon) {
         return true;
     default:
         return false;
+    }
+}
+
+// C ref: mon.c zombie_form() (386-413). Return the zombie species
+// corresponding to this monster, or NON_PM when no direct counterpart exists.
+export function zombie_form(pm) {
+    if (!pm || !Number.isInteger(pm.mlet) || !Number.isInteger(pm.mflags2))
+        return NON_PM;
+
+    switch (pm.mlet) {
+    case S_ZOMBIE:
+        return NON_PM;
+    case S_KOBOLD:
+        return PM_KOBOLD_ZOMBIE;
+    case S_ORC:
+        return PM_ORC_ZOMBIE;
+    case S_GIANT:
+        return pm.pmidx === PM_ETTIN ? PM_ETTIN_ZOMBIE : PM_GIANT_ZOMBIE;
+    case S_HUMAN:
+    case S_KOP:
+        return is_elf(pm) ? PM_ELF_ZOMBIE : PM_HUMAN_ZOMBIE;
+    case S_HUMANOID:
+        return is_dwarf(pm) ? PM_DWARF_ZOMBIE : NON_PM;
+    case S_GNOME:
+        return PM_GNOME_ZOMBIE;
+    default:
+        return NON_PM;
     }
 }
 
