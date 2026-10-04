@@ -99,9 +99,8 @@ import {
 import { Glib } from './wield.js';
 import { note_unported } from './unported.js';
 
-// C ref: objnam.c erosion_matters() (1197-1215). obj.js exports a
-// compatibility adapter for its existing callers; keep the source-owned
-// predicate here beside the rest of objnam.c.
+// C ref: objnam.c erosion_matters() (1195-1215). Keep this predicate in the
+// source-owned objnam module so its callers share the same implementation.
 export function erosion_matters(obj, state = game) {
     switch (obj.oclass) {
     case TOOL_CLASS:

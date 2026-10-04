@@ -296,7 +296,6 @@ import {
     curse,
     clear_splitobjs,
     dealloc_obj,
-    erosionMatters,
     extract_nobj,
     greatest_erosion,
     hasContents,
@@ -336,6 +335,7 @@ import {
     ansimpleoname,
     yname,
     corpse_xname,
+    erosion_matters,
 } from './objnam.js';
 import { hliquid, mon_nam, noit_Monnam } from './do_name.js';
 import { in_rooms } from './rooms.js';
@@ -3582,7 +3582,7 @@ export function mergable(otmp, obj, env = {}) {
         || Boolean(obj.greased) !== Boolean(otmp.greased)) {
         return false;
     }
-    if (erosionMatters(obj, normalized.state)
+    if (erosion_matters(obj, normalized.state)
         && (Boolean(obj.oerodeproof) !== Boolean(otmp.oerodeproof)
             || (Boolean(obj.rknown) !== Boolean(otmp.rknown)
                 && blindOrHallucinating()))) {
