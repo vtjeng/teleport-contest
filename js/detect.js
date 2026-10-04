@@ -1784,7 +1784,7 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
     // restored, then let normal vision redraw currently visible monsters.
     for (let x = loX; x <= hiX; ++x) {
         for (let y = loY; y <= hiY; ++y) {
-            if (u_at(x, y)) continue;
+            if (u_at(x, y, state)) continue;
             const glyph = glyph_at(x, y, state);
             if (glyph_is_monster(glyph)
                 && glyph_to_mon(glyph) !== PM_LONG_WORM_TAIL) {
