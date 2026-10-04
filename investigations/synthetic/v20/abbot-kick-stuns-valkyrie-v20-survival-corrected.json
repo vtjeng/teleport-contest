@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v20.json",
   "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
   "recordingSha256": "37d564a6fc52b871ad04582c173be2a9c29a251ab9ebc86a9da282e97d069f7a",
-  "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
-  "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
-  "remainingScreens": 12,
+  "evaluationPath": "challenges/evaluations/20261004023049-v20.json",
+  "evaluationCommit": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+  "remainingScreens": 9,
   "recordedSteps": 41,
   "status": "complete",
-  "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "commit": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v20",
@@ -24,68 +24,86 @@
     "recordingSha256": "37d564a6fc52b871ad04582c173be2a9c29a251ab9ebc86a9da282e97d069f7a",
     "recipe": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.recipe.session.json",
     "recipeSha256": "25c1989f5fb1af1a6f314f402316e91c0e35d26931dc7f56a224c740109a23cc",
-    "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
-    "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
-    "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
-    "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
-    "evaluationUtc": "2026-10-03T00:32:52.762Z",
-    "remainingScreens": 12,
+    "replayInputSha256": "2cad065da98755c355e4a02291cad9ad7e1bf29eb55df3051ed1e2852e93f6ef",
+    "evaluationPath": "challenges/evaluations/20261004023049-v20.json",
+    "evaluationCommit": "527bb1f4b1c7e5dcbf2ce9ef00721076126712b1",
+    "evaluationArtifact": "challenges/evaluations/20261004023049-v20.json",
+    "evaluationUtc": "2026-10-04T02:32:00.996Z",
+    "remainingScreens": 9,
     "recordedSteps": 41,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 29,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 29,
+        "matched": 32,
         "total": 41
       },
       "rng": {
-        "matched": 2101,
+        "matched": 2131,
         "total": 2131
       },
       "cursors": {
-        "matched": 29,
+        "matched": 41,
         "total": 41
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "simple monster action requires uhitm.c mhitm_ad_stun()",
-      "step": 29
+      "screen": {
+        "index": 32,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 32,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 23,
+        "column": 39,
+        "cCell": {
+          "ch": "C",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": null
     },
-    "step": 29,
-    "kind": "stop",
-    "sourceFile": "uhitm.c",
-    "function": "mhitm_ad_stun",
-    "message": "simple monster action requires uhitm.c mhitm_ad_stun()",
-    "cFile": "uhitm.c",
+    "step": 32,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
     "luaFile": null,
     "line": null
   },
-  "summary": "The saved run first diverges at step 29 when a monster AD_STUN attack reaches the monster-versus-hero arm of uhitm.c:mhitm_ad_stun. C calls hitmsg, rolls rn2(4)=1, skips stun and damage halving, then finishes the turn with the Valkyrie at 0 HP; JavaScript stops at the unported AD_STUN arm in uhitm.js:mhitm_adtyping. Port the complete three-arm mhitm_ad_stun function and replace that dispatcher refusal.",
+  "summary": "A85 resolves the AD_STUN boundary and matches through step31. The first remaining difference is segment0 step32: C displays Conf in the status line while JavaScript leaves it blank. All2131 RNG calls and41 cursors match. The source path is mcastu.c:mcast_spell MCAST_CONFUSE_YOU -> mcast_confuse_you; the JavaScript dispatcher records the unported helper and omits its confusion state and output.",
   "source": {
-    "file": "uhitm.c",
-    "branch": "mhitm_adtyping() selects AD_STUN for a landed attack; magr and mdef select hero-versus-monster, monster-versus-hero, or monster-versus-monster behavior. In this case mdef is the hero, the attacker is uncancelled, and rn2(4)=1 makes the stun and damage-halving block at uhitm.c:4406-4409 skip.",
+    "file": "mcastu.c",
     "functions": [
-      "mhitm_ad_stun"
+      "mcast_confuse_you"
     ],
+    "branch": "mcast_confuse_you at lines771–791 handles Antimagic with a shield, learned magic resistance and momentary dizziness; otherwise it reads prior Confusion, takes monster level as duration, halves with (dmg+1)/2 under Half_spell_damage, calls make_confused(HConfusion+dmg,TRUE), chooses hallucination/prior-confusion text, and clears the monster learned resistance bit. Preserve state, message and evaluation order.",
     "callers": [
-      "Case path: nethack-c/upstream/src/monmove.c:dochug() standard-attack gate -> mhitu.c:mattacku() -> hitmu(); mhitu.c:hitmu() calls mhitm_adtyping() at :1191, and uhitm.c:mhitm_adtyping() dispatches AD_STUN to mhitm_ad_stun() at :4787. JavaScript path: js/monmove.js:dochug() -> attackHeroWithMattacku() in js/unported_monster_actions.js -> js/mhitu.js:mattacku() -> hitmu() -> js/uhitm.js:mhitm_adtyping(), whose AD_STUN arm currently refuses.",
-      "Other production dispatch sites share this helper: uhitm.c:damageum() at :4854 and mhitm.c:mdamagem() at :1059. Their JavaScript equivalents are js/uhitm.js:damageum() and js/mhitm.js:mdamagem(); changing the existing AD_STUN dispatcher arm wires all three source contexts."
+      "C mcast_spell MCAST_CONFUSE_YOU at mcastu.c:882–885 calls mcast_confuse_you and clears damage. js/mcastu.js:mcast_spell currently calls recordMcastGap for this helper at826–827; replace this dispatcher arm with the whole source helper and source damage handling. The ordinary monster spell attack reaches mcast_spell through the existing castmu path."
     ],
     "dependencies": [
-      "mhitu.c:hitmsg() is already implemented at js/mhitu.js:hitmsg() and is consumed by the monster-versus-hero arm.",
-      "potion.c:make_stunned() is already implemented at js/potion.js:make_stunned(); the monster-versus-hero arm calls it only when the uncancelled attacker passes rn2(4)==0.",
-      "mondata.c:stagger() and makeplural() are available to the message branches in the other two arms.",
-      "uhitm.c:mhitm_ad_phys() is implemented in js/uhitm.js and is called by the hero-versus-monster and monster-versus-monster arms; C discards its void result, so this investigation requires no callee expansion."
+      "Confusion, Antimagic, Half_spell_damage, Hallucination and HConfusion are property macros/state reads. Confirm their JavaScript representations from source.",
+      "shieldeff, monstseesu, make_confused, You_feel and monstunseesu are discarded-result void operations. Reuse verified implementations or record allowed named gaps; do not invent substitute state or output. Existing bodies alone do not establish whole-unit completion."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The saved evaluation challenges/evaluations/20261003003219-v20.json, evaluated at b5bb23ff11504c300f032b10b1e17c99b06fc97e, reports 29/41 screens, 29/41 cursors, and 2101/2131 RNG calls matched. The assigned queue entry reports 12 remaining screens and first mismatch kind stop at step 29: “simple monster action requires uhitm.c mhitm_ad_stun()”.",
-    "The immutable recording challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json has step 29 key “.”. Its RNG log includes d(3,2)=4 at hitmu(mhitu.c:1187) and rn2(4)=1 at mhitm_ad_stun(uhitm.c:4406); the C screen says “The abbot hits!  The abbot kicks!” and ends with HP:0(16). The initial screen identifies a human Valkyrie. The recipe and recording are both in the v20 manifest with the queue’s recorded digests.",
-    "Upstream nethack-c/upstream/src/uhitm.c:4388-4420 defines all three identity branches. In the monster-versus-hero branch, hitmsg() runs first; only an uncancelled attacker with rn2(4)==0 calls make_stunned() and halves mhm->damage. At :4406 this recording returns 1, so C skips both effects and continues with the unhalved attack damage.",
-    "Upstream uhitm.c:mhitm_adtyping() dispatches AD_STUN to mhitm_ad_stun() at :4782-4788. The matching JavaScript dispatcher in js/uhitm.js:4998-5012 currently calls unported(\"mhitm_ad_stun\") at :5010. The C dispatch sites are mhitu.c:hitmu() at :1191, uhitm.c:damageum() at :4854, and mhitm.c:mdamagem() at :1059; their JS owners already call this dispatcher."
+    "Current saved evaluation challenges/evaluations/20261004023049-v20.json at 527bb1f4b1c7e5dcbf2ce9ef00721076126712b1 reports32/41 screens,2131/2131 RNG calls,41/41 cursors; first screen difference is zero-based segment0 step32,row23,column39: C C, JS blank.",
+    "A85 immutable delivery strict comparison run-XTYsi5 retains the full later failure at step32; admitted prefix check and root source verification establish matching through31, not full case parity.",
+    "Read nethack-c/upstream/src/mcastu.c:771–791 and882–885 against js/mcastu.js:826–827. The missing confusion effect explains the first Conf status difference; no random-number call is present in this source helper."
   ]
 }
