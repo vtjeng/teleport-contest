@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Short matching-runtime candidate frozen after the corrected full C route established its first Nurse-versus-monster attack. It preserves the exact setup prefix and stops immediately after the second elapsed turn: C showed no attack on the first turn and “The nurse hits the stone golem” on the second. No JavaScript comparison guided this endpoint.",
+  "segments": [
+    {
+      "seed": 70423167,
+      "datetime": "20370614172509",
+      "nethackrc": "OPTIONS=name:C70NursePair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\nhostile stone golem\n #wizgenesis\nhostile Nurse\n . ."
+    }
+  ]
+}
