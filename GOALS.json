@@ -154536,6 +154536,220 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-heal-v20-20261003",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port Nurse attack healing and teleport restriction",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first"
+      ],
+      "selectionReason": "Port whole uhitm.c:mhitm_ad_heal and consumed teleport.c:tele_restrict; wire AD_HEAL dispatch. Selected synthetic/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first reaches equipped non-Healer physical fallback at step42; investigations/synthetic/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first.json records source scope and v20 recording identity. Current accepted evaluation challenges/evaluations/20261004001232-v20.json matches42/113 screens at dbe3b13e. Whole attack-direction coverage includes independently recorded monster combat and player Nurse form excluded by species polymorph rules.",
+      "detail": "",
+      "openedAt": "e7dffdb15a8b9fb2bf10dddd84920973399f8c88",
+      "openStanding": {
+        "sha": "dbe3b13eb8d89e203a0ae76d9c0d8592703b435f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_heal",
+          "line": 4296,
+          "endLine": 4387,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4296,
+        "to": 4387
+      },
+      "requiredFunctions": [
+        {
+          "name": "tele_restrict",
+          "line": 1950,
+          "endLine": 1961,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first": {
+          "session": "synthetic/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "nurse-heals-unarmed-wizard-v20-more-turns-c-first",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first.session.json",
+          "recordingSha256": "5b8cf40ee44495abfa51d232f62ad2a62ef8ec1282e4ebc72ea51cdf2793ead4",
+          "evaluationPath": "challenges/evaluations/20261004001232-v20.json",
+          "evaluationCommit": "dbe3b13eb8d89e203a0ae76d9c0d8592703b435f"
+        }
+      },
+      "activeStanding": {
+        "sha": "dbe3b13eb8d89e203a0ae76d9c0d8592703b435f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "nurse-heals-unarmed-wizard-v20-more-turns-c-first",
+          "session": "synthetic/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first.session.json",
+          "recordingPath": "challenges/cases/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first.session.json",
+          "recordingSha256": "5b8cf40ee44495abfa51d232f62ad2a62ef8ec1282e4ebc72ea51cdf2793ead4",
+          "recipe": "challenges/cases/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first.recipe.session.json",
+          "recipeSha256": "c86cab86ee1c9b367fceeff5375fc9620ba807b9b129ef7a8a0dfe6ee524403d",
+          "replayInputSha256": "05b9874fba7679abb0e9429d1aa0c43ff8d9f3a8914c06b6505c89f73c4a5025",
+          "evaluationPath": "challenges/evaluations/20261004001232-v20.json",
+          "evaluationCommit": "dbe3b13eb8d89e203a0ae76d9c0d8592703b435f",
+          "evaluationArtifact": "challenges/evaluations/20261004001232-v20.json",
+          "evaluationUtc": "2026-10-04T00:13:47.137Z",
+          "remainingScreens": 71,
+          "recordedSteps": 113,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 113
+            },
+            "rng": {
+              "matched": 2872,
+              "total": 3098
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 113
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_heal()",
+            "step": 42
+          },
+          "step": 42,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_heal",
+          "message": "simple monster action requires uhitm.c mhitm_ad_heal()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first.json",
+            "result": {
+              "session": "synthetic/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "nurse-heals-unarmed-wizard-v20-more-turns-c-first",
+              "remainingScreens": 71,
+              "recordedSteps": 113,
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "5b8cf40ee44495abfa51d232f62ad2a62ef8ec1282e4ebc72ea51cdf2793ead4",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "nurse-heals-unarmed-wizard-v20-more-turns-c-first",
+                "session": "synthetic/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first.session.json",
+                "recordingPath": "challenges/cases/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first.session.json",
+                "recordingSha256": "5b8cf40ee44495abfa51d232f62ad2a62ef8ec1282e4ebc72ea51cdf2793ead4",
+                "recipe": "challenges/cases/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first.recipe.session.json",
+                "recipeSha256": "c86cab86ee1c9b367fceeff5375fc9620ba807b9b129ef7a8a0dfe6ee524403d",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 71,
+                "recordedSteps": 113,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 113
+                  },
+                  "rng": {
+                    "matched": 2872,
+                    "total": 3098
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 113
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_heal()",
+                  "step": 42
+                },
+                "step": 42,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_heal",
+                "message": "simple monster action requires uhitm.c mhitm_ad_heal()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The unported AD_HEAL branch causes the step-42 stop. The C recipe disarms the Wizard but leaves its starting cloak equipped, so mhitm_ad_heal takes the ordinary hit-message fallback and preserves the nurse's base damage. Port the whole helper and wire its AD_HEAL dispatch branch.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "For a landed hostile Nurse attack on the recorded unpolymorphed Wizard, w- leaves uwep empty but the Wizard starts with a cloak of magic resistance; u_init.c:ini_inv_use_obj equips that cloak in uarmc. In uhitm.c:mhitm_ad_heal the no-weapon/no-armor condition therefore fails at !uarmc, and the non-Healer branch calls hitmsg without clearing mhm->damage initialized by mhitu.c:hitmu. Port the entire helper, including cancellation and petrification checks, the true nurse-healing branch and its RNG/state changes, healer-role behavior, nurse disappearance/teleport/flee outcomes, and the hero-attacker and monster-vs-monster branches.",
+                "functions": [
+                  "mhitm_ad_heal",
+                  "mhitm_adtyping (AD_HEAL dispatch branch)"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_adtyping:4790 dispatches AD_HEAL to mhitm_ad_heal.",
+                  "mhitu.c:hitmu:1191 calls mhitm_adtyping after setting base attack damage; mhitu.c:mattacku calls hitmu for landed non-weapon attacks, and monmove.c:dochug:971 calls mattacku for an adjacent hostile monster.",
+                  "mhitm.c:mdamagem:1059 calls mhitm_adtyping for monster-vs-monster attacks.",
+                  "uhitm.c:damageum:4854 calls mhitm_adtyping for hero-vs-monster attacks."
+                ],
+                "dependencies": [
+                  "Reuse uhitm.c:mhitm_ad_phys for the hero-attacker and monster-vs-monster arms of mhitm_ad_heal.",
+                  "Reuse mhitu.c:hitmsg for the cancellation, petrification, and equipped-weapon/armor fallback messages.",
+                  "Preserve attrib.c:exercise and potion.c:make_sick effects in the nurse-healing arm, including their source-ordered calls.",
+                  "Preserve mon.c:mongone, teleport.c:tele_restrict and rloc, and monmove.c:monflee outcomes when the nurse leaves or flees."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The exact queue entry in .cache/v20-work-queue.json and saved evaluation challenges/evaluations/20261003003219-v20.json identify batch v20, case nurse-heals-unarmed-wizard-v20-more-turns-c-first, 71 remaining screens, 113 recorded steps, and evaluation commit b5bb23ff11504c300f032b10b1e17c99b06fc97e. The evaluation reports 42/113 matched screens, 2872/3098 matched RNG calls, 42/113 matched cursors, and the step-42 stop “simple monster action requires uhitm.c mhitm_ad_heal()”. The queue row binds manifest digest 83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0 and recording digest 5b8cf40ee44495abfa51d232f62ad2a62ef8ec1282e4ebc72ea51cdf2793ead4.",
+                "The immutable C session challenges/cases/v20/nurse-heals-unarmed-wizard-v20-more-turns-c-first.session.json records “You are bare handed.” at step 3. Its step 42 records rnd(20)=6 at mhitu.c:mattacku, d(2,6)=7 at mhitu.c:hitmu, “The nurse hits!”, and HP 12→5; step 45 records d(2,6)=12, another “The nurse hits!”, and HP 0. The recipe input is w- followed by #wizgenesis and waits; it contains no armor-removal command.",
+                "Upstream nethack-c/upstream/src/u_init.c:167-171 gives Wizard a quarterstaff and cloak of magic resistance. Its ini_inv_use_obj() at :1259-1280 equips an initial cloak with setworn(obj, W_ARMC); the recorded w- command removes the weapon, not that cloak. This explains why the attack is bare-handed but fails mhitm_ad_heal()’s full no-armor predicate.",
+                "Upstream nethack-c/upstream/src/uhitm.c:4296-4385 defines the complete mhitm_ad_heal helper. Lines :4311-4318 reject nurse healing when any listed armor slot, including uarmc, is occupied; lines :4369-4378 select hitmsg for non-Healer fallback. mhitu.c:1175-1191 initializes base damage with d(damn, damd) before calling uhitm.c:mhitm_adtyping, and uhitm.c:4782-4790 dispatches AD_HEAL to mhitm_ad_heal.",
+                "The active source route is monmove.c:971 dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_HEAL) -> mhitm_ad_heal. At the examined commit, js/uhitm.js:5017 still sends AD_HEAL to unported(\"mhitm_ad_heal\"), which matches the saved stop. The C63 delivery row in .cache/worker-state-loop-20260925.json.deliveries/0630c68d2c093a7132ff6e9db12a5983515863647fd63c01b43348089db91eaf.json independently labels this recorded step as the worn-cloak physical fallback; the main-worktree recording hash matches the queue identity."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
