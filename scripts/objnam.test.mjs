@@ -46,6 +46,7 @@ import {
     GLIB,
     ICE,
     LEVITATION,
+    P_NONE,
     W_WEP,
     W_AMUL,
     W_ARM,
@@ -175,6 +176,7 @@ import {
     SACK,
     LARGE_BOX,
     TIN,
+    TOOL_CLASS,
     T_SHIRT,
     AMULET_OF_ESP,
     BLINDFOLD,
@@ -204,6 +206,7 @@ import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
 
 const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
 const OBJNAM_JS_SOURCE = readFileSync('js/objnam.js', 'utf8');
+const OBJ_H_SOURCE = readFileSync('nethack-c/upstream/include/obj.h', 'utf8');
 const ARTIFACT_SOURCE = readFileSync('nethack-c/upstream/src/artifact.c', 'utf8');
 const ARTIFACT_JS_SOURCE = readFileSync('js/artifacts.js', 'utf8');
 const ZAP_SOURCE = readFileSync('nethack-c/upstream/src/zap.c', 'utf8');
@@ -2098,15 +2101,130 @@ test('BUC, poison, erosion, and enchantment prefixes retain source order', () =>
 test('objnam.c erosion_matters recognizes source object classes', () => {
     const state = namingState();
 
-    // objnam.c:1197-1215 returns true for weapons, armor, balls and chains;
-    // tools depend on is_weptool(), while every other class is false.
+    // DART is a weapon, ELVEN_LEATHER_HELM is armor, HEAVY_IRON_BALL is a
+    // ball, and IRON_CHAIN is a chain; objnam.c returns TRUE for these classes.
     assert.equal(erosion_matters(objectOf(state, DART), state), true);
     assert.equal(erosion_matters(objectOf(state, ELVEN_LEATHER_HELM), state), true);
     assert.equal(erosion_matters(objectOf(state, HEAVY_IRON_BALL), state), true);
     assert.equal(erosion_matters(objectOf(state, IRON_CHAIN), state), true);
+    // PICK_AXE is a TOOL_CLASS item whose C object row has a non-P_NONE skill.
+    const pickAxe = objectOf(state, PICK_AXE);
+    assert.equal(pickAxe.oclass, TOOL_CLASS);
+    assert.notEqual(state.objects[PICK_AXE].oc_skill, P_NONE);
+    assert.equal(erosion_matters(pickAxe, state), true);
+    // BLINDFOLD is a TOOL_CLASS item whose C object row has P_NONE.
+    const blindfold = objectOf(state, BLINDFOLD);
+    assert.equal(blindfold.oclass, TOOL_CLASS);
+    assert.equal(state.objects[BLINDFOLD].oc_skill, P_NONE);
+    assert.equal(erosion_matters(blindfold, state), false);
+    // AKLYS is another WEAPON_CLASS item and must reach the source true arm.
     assert.equal(erosion_matters(objectOf(state, AKLYS), state), true);
-    assert.equal(erosion_matters(objectOf(state, BLINDFOLD), state), false);
+    // POT_HEALING exercises the switch default for an unrelated object class.
     assert.equal(erosion_matters(objectOf(state, POT_HEALING), state), false);
+});
+
+test('erosion_matters keeps the full C switch, weptool macro, and source callers', () => {
+    const cName = OBJNAM_SOURCE.indexOf('erosion_matters(struct obj *obj)');
+    const cStart = OBJNAM_SOURCE.lastIndexOf('\nboolean', cName);
+    const cEnd = OBJNAM_SOURCE.indexOf('\n#define DONAME_WITH_PRICE', cName);
+    const cBody = OBJNAM_SOURCE.slice(cStart, cEnd);
+    assert.ok(cName > cStart && cEnd > cName, 'extract the complete C helper');
+    assert.match(
+        cBody,
+        /switch \(obj->oclass\)[\s\S]*?case TOOL_CLASS:[\s\S]*?return is_weptool\(obj\) \? TRUE : FALSE;[\s\S]*?case WEAPON_CLASS:[\s\S]*?case ARMOR_CLASS:[\s\S]*?case BALL_CLASS:[\s\S]*?case CHAIN_CLASS:[\s\S]*?return TRUE;[\s\S]*?default:[\s\S]*?return FALSE;/u,
+    );
+
+    const macroStart = OBJ_H_SOURCE.indexOf('#define is_weptool(o)');
+    const macroEnd = OBJ_H_SOURCE.indexOf('#define is_blunt_weapon', macroStart);
+    const macroBody = OBJ_H_SOURCE.slice(macroStart, macroEnd);
+    assert.ok(macroStart >= 0 && macroEnd > macroStart,
+        'extract the complete is_weptool macro');
+    assert.match(
+        macroBody,
+        /\(\(o\)->oclass == TOOL_CLASS && objects\[\(o\)->otyp\]\.oc_skill != P_NONE\)/u,
+    );
+
+    const jsName = OBJNAM_JS_SOURCE.indexOf('export function erosion_matters(');
+    const jsEnd = OBJNAM_JS_SOURCE.indexOf(
+        '\nexport class UnsupportedObjectNameError',
+        jsName,
+    );
+    const jsBody = OBJNAM_JS_SOURCE.slice(jsName, jsEnd);
+    assert.ok(jsName >= 0 && jsEnd > jsName,
+        'extract the complete JavaScript helper');
+    assert.match(
+        jsBody,
+        /switch \(obj\.oclass\)[\s\S]*?case TOOL_CLASS:[\s\S]*?return is_weptool\(obj, state\);[\s\S]*?case WEAPON_CLASS:[\s\S]*?case ARMOR_CLASS:[\s\S]*?case BALL_CLASS:[\s\S]*?case CHAIN_CLASS:[\s\S]*?return true;[\s\S]*?default:[\s\S]*?return false;/u,
+    );
+
+    // Each C call site and its JavaScript caller must use the same helper.
+    const cCallers = [
+        [
+            'nethack-c/upstream/src/mkobj.c',
+            'may_generate_eroded(struct obj *otmp)',
+            'erosion_matters(otmp)',
+        ], // Generation gate.
+        [
+            'nethack-c/upstream/src/invent.c',
+            'mergable(',
+            'erosion_matters(obj)',
+        ], // Stack comparison.
+        [
+            'nethack-c/upstream/src/do_wear.c',
+            'destroy_arm(void)',
+            'erosion_matters(otmp)',
+        ], // Armor damage gate.
+        [
+            'nethack-c/upstream/src/read.c',
+            'seffect_enchant_weapon(struct obj **sobjp)',
+            'erosion_matters(uwep)',
+        ], // Confused proof gate.
+        [
+            'nethack-c/upstream/src/trap.c',
+            'erode_obj(',
+            'erosion_matters(otmp)',
+        ], // Erosion applicability gate.
+        [
+            'nethack-c/upstream/src/zap.c',
+            'poly_obj(struct obj *obj, int id)',
+            'erosion_matters(otmp)',
+        ], // Polymorph state preservation.
+        [
+            'nethack-c/upstream/src/objnam.c',
+            'readobjnam(char *bp, struct obj *no_wish)',
+            'erosion_matters(d.otmp)',
+        ], // Wished-object erosion gate.
+    ];
+    for (const [path, signature, call] of cCallers) {
+        const source = readFileSync(path, 'utf8');
+        const callAt = source.indexOf(call);
+        const signatureAt = source.lastIndexOf(signature, callAt);
+        assert.ok(signatureAt >= 0 && callAt > signatureAt,
+            `${path} source caller ${signature} calls erosion_matters`);
+    }
+
+    // The read.c caller was already canonical and is checked without editing it.
+    const callers = [
+        ['js/obj.js', /function may_generate_eroded\(otmp, state\)[\s\S]*?erosion_matters\(otmp, state\)/u],
+        ['js/invent.js', /export function mergable\(otmp, obj, env = \{\}\)[\s\S]*?erosion_matters\(obj, normalized\.state\)/u],
+        ['js/do_wear.js', /export async function destroy_arm\([\s\S]*?erosion_matters\(armor, state\)/u],
+        ['js/read.js', /function seffect_enchant_weapon\([\s\S]*?erosion_matters\(uwep, state\)/u],
+        ['js/trap_erode_obj.js', /export async function erode_obj\([\s\S]*?erosion_matters\(obj, state\)/u],
+        ['js/zap.js', /export async function poly_obj\([\s\S]*?erosion_matters\(replacement, state\)/u],
+        ['js/objnam_readobjnam.js', /function readobjnam_finish_after_buc\([\s\S]*?erosion_matters\(d\.otmp, state\)/u],
+    ];
+    for (const [path, functionAndCall] of callers) {
+        const source = readFileSync(path, 'utf8');
+        assert.match(
+            source,
+            /import\s*\{[^}]*\berosion_matters\b[^}]*\}\s*from\s*['"]\.\/objnam\.js['"]/u,
+            `${path} imports the source-owned helper`,
+        );
+        assert.match(source, functionAndCall,
+            `${path} calls the helper from its corresponding production function`);
+        assert.doesNotMatch(source, /\berosionMatters\b/u,
+            `${path} no longer uses the legacy adapter`);
+    }
 });
 
 // obj.h is_poisonable() (264-268) admits an object on either of two terms, and

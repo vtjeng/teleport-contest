@@ -39,7 +39,8 @@ import { counter_were, genus, zombie_form } from './mon.js';
 import { obj_to_any } from './hack.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
 import {
-    curse, erosionMatters, is_ammo, isBox, isCandle, isCorrodeable, isCrackable, isDamageable, is_flammable, is_missile, isMultigen, is_rottable, isRustprone, is_weptool, mkobj, mksobj, objectType, place_object, rnd_class, set_corpsenm, weight, } from './obj.js';
+    curse, is_ammo, isBox, isCandle, isCorrodeable, isCrackable, isDamageable, is_flammable, is_missile, isMultigen, is_rottable, isRustprone, is_weptool, mkobj, mksobj, objectType, place_object, rnd_class, set_corpsenm, weight, } from './obj.js';
+import { erosion_matters } from './objnam.js';
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
@@ -2377,7 +2378,7 @@ function readobjnam_finish_after_buc(d, normalized) {
     const { state } = normalized;
     const random = wishRandom(normalized);
     /* set eroded and erodeproof */
-    if (erosionMatters(d.otmp, state)) {
+    if (erosion_matters(d.otmp, state)) {
         /* wished-for item shouldn't be eroded unless specified */
         d.otmp.oeroded = 0;
         d.otmp.oeroded2 = 0;
