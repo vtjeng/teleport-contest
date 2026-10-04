@@ -1,0 +1,938 @@
+{
+  "version": 1,
+  "batch": "v19",
+  "manifestPath": "challenges/manifests/v19.json",
+  "sha": "b640ed97643c5d5f2ca5fc3b5df3eef5693e5586",
+  "utc": "2026-10-04T01:30:31.173Z",
+  "status": "complete",
+  "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "9853d779e6c5c14e12c1dcbd82db160312b52444336b3a16e76a268b9ce79ff9",
+  "inputFiles": [
+    "challenges/cases/v19/archeologist-whip-snags-floor-ration-c62-drop-pager-corrected.recipe.session.json",
+    "challenges/cases/v19/archeologist-whip-snags-floor-ration-c62-drop-pager-corrected.session.json",
+    "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+    "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+    "challenges/cases/v19/blessed-genocide-class-orcs-c62-completed.recipe.session.json",
+    "challenges/cases/v19/blessed-genocide-class-orcs-c62-completed.session.json",
+    "challenges/cases/v19/blessed-genocide-class-orcs-c62-welcome-corrected.recipe.session.json",
+    "challenges/cases/v19/blessed-genocide-class-orcs-c62-welcome-corrected.session.json",
+    "challenges/cases/v19/blessed-genocide-class-orcs-c62.recipe.session.json",
+    "challenges/cases/v19/blessed-genocide-class-orcs-c62.session.json",
+    "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.recipe.session.json",
+    "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+    "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62.recipe.session.json",
+    "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62.session.json",
+    "challenges/cases/v19/cancellation-reveals-hostile-large-mimic-c62.recipe.session.json",
+    "challenges/cases/v19/cancellation-reveals-hostile-large-mimic-c62.session.json",
+    "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.recipe.session.json",
+    "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+    "challenges/cases/v19/genetic-engineer-polymorphs-wizard-c62.recipe.session.json",
+    "challenges/cases/v19/genetic-engineer-polymorphs-wizard-c62.session.json",
+    "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.recipe.session.json",
+    "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+    "challenges/cases/v19/large-mimic-sticks-viking-c62.recipe.session.json",
+    "challenges/cases/v19/large-mimic-sticks-viking-c62.session.json",
+    "challenges/cases/v19/leprechaun-steals-carried-gold-c62.recipe.session.json",
+    "challenges/cases/v19/leprechaun-steals-carried-gold-c62.session.json",
+    "challenges/cases/v19/python-wraps-with-hug-attack-c62.recipe.session.json",
+    "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+    "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.recipe.session.json",
+    "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.session.json",
+    "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.recipe.session.json",
+    "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+    "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.recipe.session.json",
+    "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json",
+    "challenges/cases/v19/skeleton-slows-wizard-c62.recipe.session.json",
+    "challenges/cases/v19/skeleton-slows-wizard-c62.session.json",
+    "challenges/cases/v19/spotted-jelly-acid-passive-c62-west-attack.recipe.session.json",
+    "challenges/cases/v19/spotted-jelly-acid-passive-c62-west-attack.session.json",
+    "challenges/cases/v19/spotted-jelly-acid-passive-c62.recipe.session.json",
+    "challenges/cases/v19/spotted-jelly-acid-passive-c62.session.json",
+    "challenges/cases/v19/trapper-engulfs-with-wrap-c62-stay-put.recipe.session.json",
+    "challenges/cases/v19/trapper-engulfs-with-wrap-c62-stay-put.session.json",
+    "challenges/cases/v19/trapper-engulfs-with-wrap-c62.recipe.session.json",
+    "challenges/cases/v19/trapper-engulfs-with-wrap-c62.session.json",
+    "challenges/cases/v19/wand-cancellation-floor-sickness-c62-slots-corrected.recipe.session.json",
+    "challenges/cases/v19/wand-cancellation-floor-sickness-c62-slots-corrected.session.json",
+    "challenges/cases/v19/wand-cancellation-floor-sickness-c62.recipe.session.json",
+    "challenges/cases/v19/wand-cancellation-floor-sickness-c62.session.json",
+    "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.recipe.session.json",
+    "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.session.json",
+    "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.recipe.session.json",
+    "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.session.json",
+    "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62.recipe.session.json",
+    "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62.session.json",
+    "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.recipe.session.json",
+    "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.session.json",
+    "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-pager-corrected.recipe.session.json",
+    "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-pager-corrected.session.json",
+    "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62.recipe.session.json",
+    "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62.session.json",
+    "challenges/manifests/v19.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "energy-vortex-engulfs-and-drains-energy-c62-more",
+      "recordingSha256": "5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2704,
+          "total": 2731
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "trapper-engulfs-with-wrap-c62",
+      "recordingSha256": "ae114cab4cab5d26475b6d43494566a43da55e5e3d478c33eb4c1015e1565494",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 3000,
+          "total": 3000
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "trapper-engulfs-with-wrap-c62-stay-put",
+      "recordingSha256": "b930a0f3bf2bd1bebd8e313974eeed481d368fb33a52b3cb51b7dc021411c9a0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2872,
+          "total": 2872
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "python-wraps-with-hug-attack-c62",
+      "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 40
+        },
+        "rng": {
+          "matched": 3736,
+          "total": 3747
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "blessed-genocide-class-orcs-c62",
+      "recordingSha256": "3f726c5ce67986f0f84ed50c4d5448a6cd94b4edb4c413de297939fc64bb230a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2779,
+          "total": 2779
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "blessed-genocide-class-orcs-c62-welcome-corrected",
+      "recordingSha256": "1f4c5bdad4aa81111979e53be28a0a4476d3a4d53de3f34c496fe00eac19bb49",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 42,
+          "total": 42
+        },
+        "rng": {
+          "matched": 2755,
+          "total": 2755
+        },
+        "cursors": {
+          "matched": 42,
+          "total": 42
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "blessed-genocide-class-orcs-c62-completed",
+      "recordingSha256": "779b80d1ca70a69a1ec3ac5dcb4078fe985ad2caab10c7ed32b4e294bf0405c8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 45,
+          "total": 45
+        },
+        "rng": {
+          "matched": 2749,
+          "total": 2749
+        },
+        "cursors": {
+          "matched": 45,
+          "total": 45
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cancellation-reveals-hostile-large-mimic-c62",
+      "recordingSha256": "3c212fddee0b53b2484f0a4e0a56302bf4eeb43b24b67ce34106077eb52f445c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 61,
+          "total": 61
+        },
+        "rng": {
+          "matched": 2672,
+          "total": 2672
+        },
+        "cursors": {
+          "matched": 61,
+          "total": 61
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+      "recordingSha256": "a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 64,
+          "total": 71
+        },
+        "rng": {
+          "matched": 3162,
+          "total": 3170
+        },
+        "cursors": {
+          "matched": 64,
+          "total": 71
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "black-pudding-corrosion-on-worn-chain-mail-c62",
+      "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 67,
+          "total": 72
+        },
+        "rng": {
+          "matched": 2692,
+          "total": 2698
+        },
+        "cursors": {
+          "matched": 67,
+          "total": 72
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "brown-pudding-decays-worn-leather-armor-c62",
+      "recordingSha256": "b05b749e6f43414d14177eedb8b84add974d5f17409821e7680d088078d49389",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 75,
+          "total": 75
+        },
+        "rng": {
+          "matched": 2649,
+          "total": 2649
+        },
+        "cursors": {
+          "matched": 75,
+          "total": 75
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+      "recordingSha256": "ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 72,
+          "total": 91
+        },
+        "rng": {
+          "matched": 2646,
+          "total": 2999
+        },
+        "cursors": {
+          "matched": 72,
+          "total": 91
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "quantum-mechanic-teleports-hero-c62",
+      "recordingSha256": "bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 61
+        },
+        "rng": {
+          "matched": 6259,
+          "total": 6297
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 61
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "genetic-engineer-polymorphs-wizard-c62",
+      "recordingSha256": "d1abe73f370ff21f278cf23af11248f5f0154031a9749e34c6849629d2bd07d2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2883,
+          "total": 2883
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "skeleton-slows-wizard-c62",
+      "recordingSha256": "4e981d82ede727e8e3250c258d9120c0cb78384f2f3cd1455527e22c3fcdc4de",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 45,
+          "total": 45
+        },
+        "rng": {
+          "matched": 2922,
+          "total": 2922
+        },
+        "cursors": {
+          "matched": 45,
+          "total": 45
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "skeleton-slows-wizard-c62-pager-corrected",
+      "recordingSha256": "426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 46,
+          "total": 46
+        },
+        "rng": {
+          "matched": 3002,
+          "total": 3002
+        },
+        "cursors": {
+          "matched": 46,
+          "total": 46
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "spotted-jelly-acid-passive-c62",
+      "recordingSha256": "f628a380fe7f998587bdbe39ab7ed56397736b3995fd19f02352e97d5f45a457",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 42,
+          "total": 42
+        },
+        "rng": {
+          "matched": 3079,
+          "total": 3079
+        },
+        "cursors": {
+          "matched": 42,
+          "total": 42
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "spotted-jelly-acid-passive-c62-west-attack",
+      "recordingSha256": "74fff48656e1780f3cb48dc59014b1edead682f710e83fe76f8eb33c4f064334",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 36,
+          "total": 42
+        },
+        "rng": {
+          "matched": 3088,
+          "total": 3111
+        },
+        "cursors": {
+          "matched": 36,
+          "total": 42
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-cancellation-floor-sickness-c62",
+      "recordingSha256": "873e7029cfcba3d1fedcd38ece0f842633bb937a7419e8739dfe48c6c3d1a6c3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2588,
+          "total": 2588
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-cancellation-floor-sickness-c62-slots-corrected",
+      "recordingSha256": "e35e2d20604cab71483d0c84977cc3f32c1ce3ad8d1d3bb4e7894b3ca40caea8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2590,
+          "total": 2590
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "large-mimic-sticks-viking-c62",
+      "recordingSha256": "fad167987d66230782355bb115ae838e0d814985cd5b1840e13bae9d3b7cd1e9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 40
+        },
+        "rng": {
+          "matched": 2103,
+          "total": 2103
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+      "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 41
+        },
+        "rng": {
+          "matched": 2207,
+          "total": 2224
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "yeenoghu-confuses-with-weapon-c62",
+      "recordingSha256": "fb42488b2111e4a31b51f2715290de0378d1db63ac9dd3ac0b92d9093ea5a2ce",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 40
+        },
+        "rng": {
+          "matched": 2309,
+          "total": 2309
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "yeenoghu-confuses-with-weapon-c62-pager-corrected",
+      "recordingSha256": "c3fad2a537c40b9002f6d56f0ee29b2492b273c0ac6c1139633203b49b827fc3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 2305,
+          "total": 2305
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+      "recordingSha256": "94dd3eba9eb357304d87278f5498c3f625c3240a0971bc36987b41515e474089",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2429,
+          "total": 2429
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "leprechaun-steals-carried-gold-c62",
+      "recordingSha256": "fe3f36ced179ff7795440bfa3fba0af450bc68c74c420a23feb32bb0eba25073",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2902,
+          "total": 2902
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wear-warning-ring-reveals-monsters-c62",
+      "recordingSha256": "cae79d1b392af605f408af886014c1c64ab3be8bc9b9f8439dc97912445cc009",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 54
+        },
+        "rng": {
+          "matched": 2826,
+          "total": 2826
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 54
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+      "recordingSha256": "043e228144da907d0453b55427976cae61bf67f4440017b820553b89657388b2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 54
+        },
+        "rng": {
+          "matched": 2833,
+          "total": 2833
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 54
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+      "recordingSha256": "abe24900655387cc4ca256901f970f476e17bb24267b8626466538848b9ae330",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 55,
+          "total": 55
+        },
+        "rng": {
+          "matched": 2826,
+          "total": 2826
+        },
+        "cursors": {
+          "matched": 55,
+          "total": 55
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-whip-snags-floor-ration-c62-drop-pager-corrected",
+      "recordingSha256": "84de97dddd0b625bbc0008f5e62888f10971a24d24bce596202c94b3ba1d7f04",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 1762,
+          "total": 1762
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 22,
+      "total": 30
+    },
+    "screens": {
+      "matched": 1401,
+      "total": 1479
+    },
+    "rng": {
+      "matched": 85329,
+      "total": 85812
+    },
+    "cursors": {
+      "matched": 1401,
+      "total": 1479
+    }
+  }
+}

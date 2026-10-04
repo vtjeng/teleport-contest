@@ -154540,7 +154540,7 @@
     {
       "id": "port-uhitm-mhitm-ad-heal-v20-20261003",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port Nurse attack healing and teleport restriction",
       "cFile": "uhitm.c",
       "sessions": [
@@ -154554,15 +154554,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b640ed97643c5d5f2ca5fc3b5df3eef5693e5586",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_heal",
           "line": 4296,
           "endLine": 4387,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -154576,7 +154579,7 @@
           "endLine": 1961,
           "declared": true,
           "sourceFile": "teleport.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -154749,7 +154752,131 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_heal",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_heal",
+            "sourceReview": "Compared the complete uhitm.c:mhitm_ad_heal body at 4296-4383, including all direction arms and message/RNG/state order. Hero-attacks-monster and monster-versus-monster delegate to the existing void mhitm_ad_phys and immediately consume mhm.done. Monster-attacks-hero preserves cancellation and petrification fallbacks, weapon/tool and each worn-armor gate, the unarmed healing/maximum-HP/exercise/sickness path, Nurse removal, the rn2(33) relocation/flee path, and Healer-role cooperation. The unarmed heal path uses the C draw order. mongone is awaited before mhm.done/hitflags; rloc is awaited before monflee because its RLOC_MSG message can suspend. No claim is made that the existing mhitm_ad_phys is completed by this task.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:damageum -> mhitm_adtyping(AD_HEAL) -> mhitm_ad_heal; Nurse is M2_NOPOLY and polyself.c:polyok rejects the hero-form route in ordinary play."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_HEAL) -> mhitm_ad_heal."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "mhitm.c:mattackm -> hitmm -> mdamagem -> uhitm.c:mhitm_adtyping(AD_HEAL) -> mhitm_ad_heal."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-heal.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-heal-monster-pair-c70-first-hit.session.json",
+              "recordings/uhitm.c/mhitm-ad-heal-monster-pair-c70-goblin-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-unarmed-wizard-v20-more-turns-c-first",
+                "segment": 0,
+                "fromStep": 42,
+                "throughStep": 42,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_HEAL) -> mhitm_ad_heal; current fresh comparison covers the full 113-boundary recording."
+              }
+            ],
+            "checkedAt": "b640ed97643c5d5f2ca5fc3b5df3eef5693e5586"
+          },
+          {
+            "name": "tele_restrict",
+            "implementation": "js/teleport.js",
+            "symbol": "tele_restrict",
+            "sourceReview": "Compared complete teleport.c:tele_restrict at 1950-1959. It calls noteleport_level, conditionally prints the source message only when canseemon is true, returns TRUE for a blocked monster and FALSE otherwise. C70 adds source-pinned tests for visible, unseen and unrestricted outcomes. mhitm_ad_heal consumes the Boolean before conditionally calling rloc; rloc’s C return is discarded.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_heal",
+                "source": "uhitm.c:mhitm_ad_heal calls tele_restrict before rloc on its Nurse-flee branch."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "steal",
+                "source": "steal.c:steal calls tele_restrict before the nymph relocates; existing recording proves the visible refusal path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/restricted-theft-wizard1.session.json"
+            ],
+            "sourceFile": "teleport.c",
+            "synthetic": [],
+            "checkedAt": "b640ed97643c5d5f2ca5fc3b5df3eef5693e5586"
+          }
+        ],
+        "entryPointReview": "Active C70 evidence covers monster-versus-monster Nurse AD_HEAL through mattackm/mdamagem in two independently recorded matching recipes, with Stone Golem primary and Goblin variation. The v20 selected case reaches the monster-to-hero AD_HEAL path at normalized segment 0 step 42 and strictly matches all 113 boundaries; the Wizard retains a cloak, so that case proves the C physical-hit fallback, not the unarmored healing effect. The unarmored healing body is separately pinned by direct source-order/state tests. The hero-attacks-monster Nurse direction exists in the source body, but the only AD_HEAL monster is Nurse and M2_NOPOLY plus polyself.c:polyok rejects it as a player form in ordinary play; it is a runtime-reachability exclusion, not a compile-time inactive source branch. The direct tele_restrict tests pin visible, unseen and unrestricted outcomes. The theft caller has recorded runtime evidence at segment 0 step 35 for the visible refusal. The Nurse call is source-wired and covered by direct branch tests; the selected case reaches the physical fallback and does not prove the Nurse flee branch reaches tele_restrict. The unrelated v20 cloak-removal recipe stopped at a prior do_wear/input divergence (run-xk1cDs, preserved) and is not used as Nurse evidence.",
+        "entryPoints": [
+          {
+            "name": "Monster-versus-monster AD_HEAL",
+            "functions": [
+              "mhitm_ad_heal"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-heal-monster-pair-c70-first-hit.session.json",
+              "recordings/uhitm.c/mhitm-ad-heal-monster-pair-c70-goblin-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster-to-hero Nurse AD_HEAL physical fallback",
+            "functions": [
+              "mhitm_ad_heal"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-unarmed-wizard-v20-more-turns-c-first",
+                "segment": 0,
+                "fromStep": 42,
+                "throughStep": 42,
+                "source": "mattacku -> hitmu -> mhitm_adtyping(AD_HEAL) -> mhitm_ad_heal; cloak blocks healing and C takes the physical-hit fallback."
+              }
+            ]
+          },
+          {
+            "name": "tele_restrict theft caller",
+            "functions": [
+              {
+                "sourceFile": "teleport.c",
+                "name": "tele_restrict"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/restricted-theft-wizard1.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b640ed97643c5d5f2ca5fc3b5df3eef5693e5586",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
