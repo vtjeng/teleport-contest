@@ -156232,8 +156232,8 @@
           "name": "mhitm_ad_famn",
           "line": 3777,
           "endLine": 3807,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -156408,7 +156408,92 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_famn",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_famn",
+            "sourceReview": "Read the complete uhitm.c:3777-3805 definition. When the hero is attacker, C jumps to the monster-pair check; when the hero is defender, it calls pline_mon at the attacker, exercises Constitution, then checks is_fainted before drawing rn1(40, 40) and calling morehungry. Otherwise it checks carnivorous, herbivorous, then metallivorous in short-circuit order and clears mhm.damage only when all are false. The JS body preserves those branches, order, the caller-supplied normal damage, and the existing awaited message/exercise/hunger operations. The body has no source refusal or placeholder. Its only consumed return is is_fainted(), already accepted in A83; pline_mon, exercise, and morehungry results are discarded. C's comment says the hero-attacker branch is unreachable for a valid hero polymorph because the only AD_FAMN species is unique Famine and cannot be polymorphed into.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping:4826 (AD_FAMN arm dispatches to mhitm_ad_famn)"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu:1191 (monster-to-hero attacks call mhitm_adtyping)"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem:1059 (monster-to-monster attacks call mhitm_adtyping)"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum:4854 (hero-to-monster attacks call mhitm_adtyping; excluded at entry-point level because Famine cannot be a valid hero form)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-famn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/a86-famine-mvm-stone-golem.session.json",
+              "recordings/uhitm.c/a86-famine-mvm-newt-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "famine-touches-wizard-v20",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 32,
+                "source": "mhitu.c:hitmu:1191 -> uhitm.c:mhitm_adtyping:4826 (AD_FAMN) -> uhitm.c:mhitm_ad_famn:3785-3797"
+              }
+            ],
+            "checkedAt": "a56becf8b99681e9e295420efdd8fde40bd841c0"
+          }
+        ],
+        "entryPointReview": "The selected unit is dispatched by uhitm.c:mhitm_adtyping:4826. Active production orientations are monster-to-hero through mhitu.c:hitmu:1191 and monster-to-monster through mhitm.c:mdamagem:1059. The v20 Famine case cites the M-to-hero call at segment 0 step 32. The independent Stone Golem recording reaches the M-to-M non-eater branch at zero-based step 141; later attacks at steps 145 and 147 show the source handler/caller continues, and the entire recording strictly matches. The independent Newt variation reaches the M-to-M eater branch at step 142 and strictly matches. The only AD_FAMN attack source is Famine. Hero-to-monster dispatch through uhitm.c:damageum is source-unreachable for a valid hero form: Famine is unique and G_NOGEN, and its monster row has M2_NOPOLY; uhitm.c comments explicitly say the hero cannot polymorph into any AD_FAMN form. Keep that branch implemented as C does, but do not treat it as an active runtime entry point. Other AD_FAMN callers can be found through the same dispatcher, not as separate handler bodies.",
+        "entryPoints": [
+          {
+            "name": "Monster melee attack against the hero (mattacku/hitmu)",
+            "functions": [
+              "mhitm_ad_famn"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/a86-famine-mvm-stone-golem.session.json",
+              "recordings/uhitm.c/a86-famine-mvm-newt-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "famine-touches-wizard-v20",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 32,
+                "source": "mhitu.c:hitmu:1191 -> uhitm.c:mhitm_adtyping:4826 (AD_FAMN) -> uhitm.c:mhitm_ad_famn:3785-3797"
+              }
+            ]
+          },
+          {
+            "name": "Monster melee attack against another monster (mattackm/mdamagem)",
+            "functions": [
+              "mhitm_ad_famn"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/a86-famine-mvm-stone-golem.session.json",
+              "recordings/uhitm.c/a86-famine-mvm-newt-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
