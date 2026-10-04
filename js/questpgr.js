@@ -20,7 +20,7 @@ import { type_is_pname } from './mondata.js';
 import { makeplural } from './fruit.js';
 import { an, the } from './objnam.js';
 import { align_gname } from './pray.js';
-import { QUEST_TEXT, QUEST_TEXT_FALLBACKS } from './quest_text_data.js';
+import { QUEST_TEXT_DATA } from './quest_text_data.js';
 import { rn2 } from './rng.js';
 import { rankOf } from './roles.js';
 import { ttyPline } from './tty_message.js';
@@ -337,19 +337,19 @@ async function comPagerCore(
     if (skip_pager(state)) return false;
     initializeQuestPagerLua(random);
 
-    const roleData = QUEST_TEXT[section];
-    if (!roleData) {
+    const sectionData = QUEST_TEXT_DATA[section];
+    if (!sectionData) {
         if (showerror)
             throw new Error(`com_pager: section ${section} not found`);
         return false;
     }
 
     let fallbackMsgid = null;
-    let entry = roleData[msgid];
+    let entry = sectionData[msgid];
     if (!entry) {
         // Try msg_fallbacks.
-        fallbackMsgid = QUEST_TEXT_FALLBACKS[msgid];
-        if (fallbackMsgid) entry = roleData[fallbackMsgid];
+        fallbackMsgid = QUEST_TEXT_DATA.msg_fallbacks?.[msgid] ?? null;
+        if (fallbackMsgid) entry = sectionData[fallbackMsgid];
     }
     if (!entry) {
         if (showerror)
@@ -358,19 +358,25 @@ async function comPagerCore(
         return false;
     }
 
-    let text = entry.text ?? null;
-    if (!text && entry.choices) {
-        // Array of strings: pick one at random.
-        const nelems = entry.choices.length;
+    let text = null;
+    let outputMode = 'default';
+    let synopsis = null;
+    if (Array.isArray(entry)) {
+        // Raw Lua array: com_pager_core() chooses one 1-based array element.
+        const nelems = entry.length;
         if (nelems < 2) {
             if (showerror)
                 throw new Error(
                     `com_pager: ${section}.${msgid} array too short`);
             return false;
         }
-        text = entry.choices[random(nelems)];
+        text = entry[random(nelems)];
+    } else if (entry && typeof entry === 'object') {
+        text = entry.text ?? null;
+        outputMode = entry.output ?? 'default';
+        synopsis = entry.synopsis ?? null;
     }
-    if (!text) {
+    if (typeof text !== 'string') {
         if (showerror)
             throw new Error(
                 `com_pager: ${section}.${msgid} has no text`);
@@ -380,11 +386,10 @@ async function comPagerCore(
     // Determine output mode.  C maps: pline=1, window=2, text=2, menu=3,
     // default=0.  Mode 0 upgrades to 2 when the text contains newlines or
     // exceeds BUFSZ.
-    const outputStr = entry.output ?? 'default';
     const OUTPUT_MAP = {
         pline: 1, window: 2, text: 2, menu: 3, default: 0,
     };
-    let mode = OUTPUT_MAP[outputStr] ?? 0;
+    let mode = OUTPUT_MAP[outputMode] ?? 0;
     if (mode === 0
         && (text.includes('\n') || text.length >= BUFSZ - 1)) {
         mode = 2;
@@ -399,8 +404,8 @@ async function comPagerCore(
     // C ref: questpgr.c com_pager_core() 597-609.  Synopsis goes into
     // message history via putmsghistory().  The port uses ttyPline for the
     // synopsis so it appears in the message window and --More-- recall.
-    if (entry.synopsis) {
-        const converted = convertLine(entry.synopsis, state);
+    if (synopsis) {
+        const converted = convertLine(synopsis, state);
         // putmsghistory equivalent: add to message history without
         // displaying.  The port doesn't have a separate message history
         // yet, so this is a no-op for now.
@@ -421,49 +426,17 @@ export async function qt_pager(
     }
 }
 
-// ---------------------------------------------------------------------------
-// Existing functions below (com_pager for portal messages, is_quest_artifact).
-// ---------------------------------------------------------------------------
-
-function questLeaderName(state) {
-    return ldrname(state);
-}
-
-const QUEST_PORTAL_LINES = Object.freeze([
-    (leader) => `You receive a faint telepathic message from ${leader}:`,
-    (_leader, homebase_) =>
-        `Your help is urgently needed at ${homebase_}!`,
-    () => 'Look for a ...ic transporter.',
-    () => "You couldn't quite make out that last message.",
-]);
-
-// dat/quest.lua questtext.common portal messages. These are explicitly
-// `output="pline"`, so no text window is involved; each line is awaited in
-// source order and can independently reach tty's More prompt.
+// C ref: questpgr.c com_pager(). The wrapper selects the common section;
+// comPagerCore owns the single Lua initialization and message delivery.
 export async function com_pager(
     messageId,
     state = game,
     { message = ttyPline, random = rn2 } = {},
 ) {
-    initializeQuestPagerLua(random);
-    const leader = questLeaderName(state);
-    const homebase_ = state.urole?.homebase;
-    let lines;
-    switch (messageId) {
-    case 'quest_portal':
-        lines = QUEST_PORTAL_LINES.map((line) => line(leader, homebase_));
-        break;
-    case 'quest_portal_again':
-        lines = [`You again sense ${leader} pleading for help.`];
-        break;
-    case 'quest_portal_demand':
-        lines = [`You again sense ${leader} demanding your attendance.`];
-        break;
-    default:
-        throw new Error(`unsupported quest pager message ${messageId}`);
-    }
-    for (const line of lines) await message(line, state);
-    return true;
+    return await comPagerCore(
+        'common', messageId, true, state, random,
+        { pline: message, window: displayTtyTextWindow },
+    );
 }
 
 // C ref: questpgr.c is_quest_artifact() (66-70).  gu.urole.questarti is the
