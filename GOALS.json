@@ -157123,7 +157123,7 @@
           "line": 414,
           "endLine": 430,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -157300,7 +157300,48 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "fruitname",
+            "implementation": "js/fruit.js",
+            "symbol": "fruitname",
+            "sourceReview": "Read complete objnam.c:411-427. The helper obtains a temporary nextobuf buffer, searches svp.pl_fruit for case-insensitive ' of ', advances four characters after a match or uses the full configured name otherwise, calls makesingular(), conditionally appends ' juice', and returns the buffer. It makes no RNG call, message, or screen output and does not change game state. nextobuf's rotating scratch-buffer bookkeeping is transient formatting storage; the JavaScript function returns an immutable string. Its consumed helpers strstri (hacklib.c:740), makesingular (objnam.c:3037-3167), and nextobuf (objnam.c:142-149) have accepted whole-source evidence in GOALS.json under port-hack-pooleffects-spoteffects-recursive-ice-v17-20261002. The existing JavaScript implementation matches this order; this task adds direct source-pinned behavior and state-preservation tests.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "C fountain.c:drinkfountain case 21 calls fruitname(FALSE) to format the farm name after a poison-resistant hero drinks contaminated water."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "dosinkring",
+                "source": "C do.c:dosinkring calls fruitname(FALSE) in the poison-resistance ring branch when a ring is dropped over a sink."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_see_invisible",
+                "source": "C potion.c:peffect_see_invisible calls fruitname(TRUE) when formatting the fruit-juice taste message."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_sickness",
+                "source": "C potion.c:peffect_sickness calls fruitname(TRUE) in the blessed and poison-resistant taste-message branches."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/fruit.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "bc01f2be11915a047c2a53c178f70b938042e47c"
+          }
+        ],
+        "entryPointReview": "This range contains one pure helper and no standalone entry point. Its production callers are fountain.c:drinkfountain case 21, do.c:dosinkring, and potion.c:peffect_see_invisible/peffect_sickness; the corresponding JavaScript functions already call js/fruit.js:fruitname. The source-pinned test calls the pure helper directly, checks both separator branches and the optional suffix, and verifies that its JavaScript state input remains unchanged. No recording is required for this helper-only range.",
+        "entryPoints": []
+      }
     }
   ]
 }
