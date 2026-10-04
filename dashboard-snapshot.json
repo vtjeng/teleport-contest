@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-04T05:34:15.166Z",
+  "capturedAt": "2026-10-04T06:04:10.187Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -17767,12 +17767,91 @@
         "type": "accepted",
         "at": "2026-10-04T05:34:14.753Z",
         "task": "C74"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C74-published-e0e10bea",
+        "type": "published",
+        "at": "2026-10-04T05:39:35.148Z",
+        "task": "C74",
+        "commit": "e0e10bea467b2bb571058fa448c8aa22e5ba9f33"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A87-integrating-6a422f16",
+        "type": "integrating",
+        "at": "2026-10-04T05:43:56.152Z",
+        "task": "A87",
+        "integration": "6a422f16e1e2e7db6cb15c0c03085c5ba4655de9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-28a388841314afc247610001337086c98a6af064",
+        "type": "ready",
+        "at": "2026-10-04T05:47:59.315Z",
+        "task": "A90",
+        "delivery": "28a388841314afc247610001337086c98a6af064"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-643a0da006b763d457e9103c6988516136b45707",
+        "type": "ready",
+        "at": "2026-10-04T05:48:17.386Z",
+        "task": "B99",
+        "delivery": "643a0da006b763d457e9103c6988516136b45707"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9b8c0a8e2324ad2d361ed986067bb8e09efa6ff1",
+        "type": "ready",
+        "at": "2026-10-04T05:52:03.215Z",
+        "task": "C76",
+        "delivery": "9b8c0a8e2324ad2d361ed986067bb8e09efa6ff1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A90-received-28a38884",
+        "type": "received",
+        "at": "2026-10-04T05:53:12.576Z",
+        "task": "A90",
+        "delivery": "28a388841314afc247610001337086c98a6af064"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B99-received-643a0da0",
+        "type": "received",
+        "at": "2026-10-04T05:53:45.806Z",
+        "task": "B99",
+        "delivery": "643a0da006b763d457e9103c6988516136b45707"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C76-received-9b8c0a8e",
+        "type": "received",
+        "at": "2026-10-04T05:53:47.922Z",
+        "task": "C76",
+        "delivery": "9b8c0a8e2324ad2d361ed986067bb8e09efa6ff1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A87-validated-6a422f16",
+        "type": "validated",
+        "at": "2026-10-04T06:02:18.065Z",
+        "task": "A87",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A87-accepted-6a422f16",
+        "type": "accepted",
+        "at": "2026-10-04T06:04:09.765Z",
+        "task": "A87"
       }
     ]
   },
   "development": {
-    "executionCommit": "42577ca60bc8a5134b6beabccce17b6daad07a12",
-    "measuredAt": "2026-10-04T05:20:47.845Z",
+    "executionCommit": "6a422f16e1e2e7db6cb15c0c03085c5ba4655de9",
+    "measuredAt": "2026-10-04T06:01:09.911Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -9,6 +9,7 @@ import {
     fruit_from_indx,
     fruit_from_name,
     fruitadd,
+    fruitname,
     finish_fruit_option,
     makeplural,
     matching_artifact_fruit,
@@ -233,6 +234,49 @@ test('makesingular preserves the object-name inflection rules used by fruit', ()
     ];
     for (const [plural, singular] of cases)
         assert.equal(makesingular(plural), singular, plural);
+});
+
+test('fruitname follows objnam.c fruit splitting and suffix order', () => {
+    // objnam.c fruitname() owns the split, suffix selection, and return order.
+    const start = OBJNAM_SOURCE.indexOf('\nfruitname(');
+    const end = OBJNAM_SOURCE.indexOf('\n/* look up a named fruit', start);
+    assert.ok(start >= 0 && end > start, 'C fruitname definition is present');
+    const source = OBJNAM_SOURCE.slice(start, end);
+    assert.match(source, /char \*buf = nextobuf\(\)/u);
+    assert.match(source,
+        /strstri\(svp\.pl_fruit, " of "\)/u);
+    assert.match(source, /fruit_nam \+= 4/u);
+    assert.match(source,
+        /Sprintf\(buf, "%s%s",\s*makesingular\(fruit_nam\),\s*juice \? " juice" : ""\)/u);
+    assert.match(source, /return buf;/u);
+
+    const cases = [
+        {
+            // The C " of " branch skips "slice of " before singularizing.
+            fruit: 'slice of peaches',
+            juice: false,
+            expected: 'peach',
+        },
+        {
+            // strstri() finds the separator without regard to its case, then
+            // fruitname() appends the requested juice suffix.
+            fruit: 'slice OF berries',
+            juice: true,
+            expected: 'berry juice',
+        },
+        {
+            // With no " of " separator, C singularizes the configured name.
+            fruit: 'tomatoes',
+            juice: true,
+            expected: 'tomato juice',
+        },
+    ];
+    for (const { fruit, juice, expected } of cases) {
+        const state = { svp: { pl_fruit: fruit } };
+        const before = structuredClone(state);
+        assert.equal(fruitname(juice, state), expected, fruit);
+        assert.deepEqual(state, before, 'fruitname leaves game state unchanged');
+    }
 });
 
 test('makeplural preserves source compounds and irregular object names', () => {
