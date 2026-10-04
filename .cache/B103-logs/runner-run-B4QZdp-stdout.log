@@ -1,2 +1,0 @@
-__RESULTS_JSON__
-{"timestamp":"2026-10-04T10:41:47.121Z","commit":"6da5f5eb","speed":{"startup_ms":0,"per_move_ms":0,"r2":0,"label":"?","sessions":1},"results":[{"session":"b103-do-earthquake-moat-liquid-flow-level7-variation-cfirst.session.json","passed":false,"metrics":{"rngCalls":{"matched":2598,"total":2598},"screens":{"matched":194,"total":234},"cellsOnly":{"matched":194,"total":234},"cursors":{"matched":234,"total":234},"animFrames":{"matched":0,"total":0}},"error":null,"time":{"ms":355.62,"moves":233}}]}
