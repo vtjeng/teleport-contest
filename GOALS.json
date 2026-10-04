@@ -156507,7 +156507,7 @@
     {
       "id": "fix-awake-killer-bee-action-preflight-v21-20261004",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Correct awake killer-bee action preflight",
       "cFile": "monmove.c",
       "sessions": [],
@@ -156519,8 +156519,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "42577ca60bc8a5134b6beabccce17b6daad07a12",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dochug",
       "session": "synthetic/v21/wizard-killer-bee-stings-poison-v21-cfirst",
       "step": 34,
@@ -156691,7 +156694,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "42577ca60bc8a5134b6beabccce17b6daad07a12",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
