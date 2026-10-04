@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dighole/liquid_flow setup probe. The hero wishes water walking boots (C appearance jungle boots, observed inventory slot n) and wears them; seven neighboring floor squares are changed to MOAT with the source-supported wizard terrain wish while the center square stays dry, then a digging wand is wished. This probe stops at the wand selector so its actual inventory letter can be read before freezing a final target input. No liquid_flow runtime credit.",
+  "segments": [
+    {
+      "seed": 57310041,
+      "datetime": "20410917091327",
+      "nethackrc": "OPTIONS=name:B103MoatProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017water walking boots\nWnk#wizwish\nmoat\nju#wizwish\nmoat\nbl#wizwish\nmoat\nhn#wizwish\nmoat\nyj#wizwish\nmoat\nkh#wizwish\nmoat\nly#wizwish\nmoat\nn#wizwish\nwand of digging\nz"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "run-8IHPv5",
+  "profile": "focused",
+  "memory": 2147483648,
+  "seconds": 120,
+  "command": [
+    "node",
+    "--test",
+    "scripts/dig.test.mjs",
+    "scripts/dig-pit-flow.test.mjs",
+    "scripts/trap-names.test.mjs",
+    "scripts/apply-break-wand.test.mjs",
+    "scripts/music.test.mjs",
+    "scripts/trap-landmine.test.mjs",
+    "scripts/zap-command.test.mjs"
+  ],
+  "cwd": "/tmp/teleport-loop-worker-b-20260925",
+  "createdAt": "2026-10-04T11:20:56.689Z",
+  "unit": "teleport-validation-88554f9b589cda4de1d290b0.service",
+  "startedAt": "2026-10-04T11:20:57.127Z",
+  "observed": {
+    "TimeoutStopUSec": "2s",
+    "RuntimeMaxUSec": "2min",
+    "MainPID": "0",
+    "Result": "exit-code",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "1",
+    "ControlGroup": "",
+    "MemoryMax": "2147483648",
+    "MemorySwapMax": "0",
+    "KillMode": "control-group",
+    "Description": "teleport validation run-8IHPv5",
+    "LoadState": "loaded",
+    "ActiveState": "failed",
+    "SubState": "failed",
+    "InvocationID": "702c939c503a4debbe59979959e9e1aa"
+  },
+  "result": {
+    "reason": "exit-code",
+    "exitCode": 1
+  },
+  "finishedAt": "2026-10-04T11:21:03.150Z",
+  "reapedAt": "2026-10-04T11:21:03.169Z"
+}

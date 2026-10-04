@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first route from apply.c:do_break_wand(WAN_DIGGING) into dig.c:liquid_flow. It wishes water-walking boots, builds moat terrain around the starting square, then selects the observed digging wand slot o and applies it with the source command sequence ao.",
+  "segments": [
+    {
+      "seed": 80624017,
+      "datetime": "20411205091500",
+      "nethackrc": "OPTIONS=name:B103FlowBreak,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017water walking boots\nWnlk#wizwish\nmoat\nju#wizwish\nmoat\nbl#wizwish\nmoat\nhn#wizwish\nmoat\nyj#wizwish\nmoat\nkb#wizwish\nmoat\nuh#wizwish\nmoat\nly#wizwish\nmoat\nn#wizwish\nwand of digging\nao"
+    }
+  ]
+}

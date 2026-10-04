@@ -1,0 +1,40 @@
+{
+  "id": "run-PhvXqT",
+  "profile": "focused",
+  "memory": 2147483648,
+  "seconds": 120,
+  "command": [
+    "node",
+    "scripts/record-session.mjs",
+    "recipes/trap.c/b103-blow-up-landmine-moat-neighbor-pager-corrected-cfirst.session.json",
+    ".cache/B103-logs/b103-blow-up-landmine-moat-neighbor-pager-corrected-cfirst.session.json"
+  ],
+  "cwd": "/tmp/teleport-loop-worker-b-20260925",
+  "createdAt": "2026-10-04T11:01:41.223Z",
+  "unit": "teleport-validation-33af9b97dd0dbcffdb00a7b5.service",
+  "startedAt": "2026-10-04T11:01:41.307Z",
+  "observed": {
+    "TimeoutStopUSec": "2s",
+    "RuntimeMaxUSec": "2min",
+    "MainPID": "0",
+    "Result": "success",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "0",
+    "ControlGroup": "",
+    "MemoryMax": "2147483648",
+    "MemorySwapMax": "0",
+    "KillMode": "control-group",
+    "Description": "teleport validation run-PhvXqT",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "55fa85c6a01346829f923af77162607c"
+  },
+  "result": {
+    "reason": "success",
+    "exitCode": 0
+  },
+  "finishedAt": "2026-10-04T11:01:41.633Z",
+  "reapedAt": "2026-10-04T11:01:41.649Z"
+}

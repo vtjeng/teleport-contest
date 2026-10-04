@@ -1,0 +1,40 @@
+{
+  "id": "run-JSCjOn",
+  "profile": "focused",
+  "memory": 2147483648,
+  "seconds": 120,
+  "command": [
+    "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+    "/tmp/teleport-loop-worker-b-20260925/scripts/diff-fresh.mjs",
+    "--recipe",
+    "recipes/trap.c/b103-blow-up-landmine-moat-three-neighbor-cfirst.session.json"
+  ],
+  "cwd": "/tmp/teleport-loop-worker-b-20260925",
+  "createdAt": "2026-10-04T11:11:09.113Z",
+  "unit": "teleport-validation-3064dda2b6bbb5559ea87e14.service",
+  "startedAt": "2026-10-04T11:11:09.196Z",
+  "observed": {
+    "TimeoutStopUSec": "2s",
+    "RuntimeMaxUSec": "2min",
+    "MainPID": "0",
+    "Result": "success",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "0",
+    "ControlGroup": "",
+    "MemoryMax": "2147483648",
+    "MemorySwapMax": "0",
+    "KillMode": "control-group",
+    "Description": "teleport validation run-JSCjOn",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "6921673a80b34d54a88c260e18a7cc72"
+  },
+  "result": {
+    "reason": "success",
+    "exitCode": 0
+  },
+  "finishedAt": "2026-10-04T11:11:10.544Z",
+  "reapedAt": "2026-10-04T11:11:10.558Z"
+}

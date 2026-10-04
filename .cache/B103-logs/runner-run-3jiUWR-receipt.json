@@ -1,0 +1,40 @@
+{
+  "id": "run-3jiUWR",
+  "profile": "focused",
+  "memory": 2147483648,
+  "seconds": 120,
+  "command": [
+    "node",
+    "scripts/record-session.mjs",
+    "recipes/music.c/b103-do-earthquake-moat-liquid-flow-cfirst.session.json",
+    ".cache/B103-logs/b103-do-earthquake-moat-liquid-flow-cfirst.session.json"
+  ],
+  "cwd": "/tmp/teleport-loop-worker-b-20260925",
+  "createdAt": "2026-10-04T10:35:13.178Z",
+  "unit": "teleport-validation-db1e5598e8664eaba69fd4b2.service",
+  "startedAt": "2026-10-04T10:35:13.250Z",
+  "observed": {
+    "TimeoutStopUSec": "2s",
+    "RuntimeMaxUSec": "2min",
+    "MainPID": "0",
+    "Result": "success",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "0",
+    "ControlGroup": "",
+    "MemoryMax": "2147483648",
+    "MemorySwapMax": "0",
+    "KillMode": "control-group",
+    "Description": "teleport validation run-3jiUWR",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "f3c86cc4cc5e42c99ddd5499002232a1"
+  },
+  "result": {
+    "reason": "success",
+    "exitCode": 0
+  },
+  "finishedAt": "2026-10-04T10:35:13.824Z",
+  "reapedAt": "2026-10-04T10:35:13.838Z"
+}

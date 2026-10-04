@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dighole→liquid_flow route. The source-supported wizard terrain wish makes seven neighboring squares MOAT while the central dry square stays unchanged; water-walking boots were wished and worn at observed slot n (appearance jungle boots), and the newly wished wand of digging is observed at slot o. The final `z o <` invokes the C downward-wand dighole branch at the dry center. This is independent of the v20 zap_dig lateral-pit case.",
+  "segments": [
+    {
+      "seed": 57310041,
+      "datetime": "20410917091327",
+      "nethackrc": "OPTIONS=name:B103MoatDig,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017water walking boots\nWnk#wizwish\nmoat\nju#wizwish\nmoat\nbl#wizwish\nmoat\nhn#wizwish\nmoat\nyj#wizwish\nmoat\nkh#wizwish\nmoat\nly#wizwish\nmoat\nn#wizwish\nwand of digging\nzo<"
+    }
+  ]
+}

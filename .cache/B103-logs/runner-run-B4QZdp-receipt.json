@@ -1,0 +1,39 @@
+{
+  "id": "run-B4QZdp",
+  "profile": "focused",
+  "memory": 2147483648,
+  "seconds": 120,
+  "command": [
+    "node",
+    "frozen/ps_test_runner.mjs",
+    ".cache/B103-logs/b103-do-earthquake-moat-liquid-flow-level7-variation-cfirst.session.json"
+  ],
+  "cwd": "/tmp/teleport-loop-worker-b-20260925",
+  "createdAt": "2026-10-04T10:41:45.992Z",
+  "unit": "teleport-validation-039f832e48c9fe5d42d2080c.service",
+  "startedAt": "2026-10-04T10:41:46.094Z",
+  "observed": {
+    "TimeoutStopUSec": "2s",
+    "RuntimeMaxUSec": "2min",
+    "MainPID": "0",
+    "Result": "success",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "0",
+    "ControlGroup": "",
+    "MemoryMax": "2147483648",
+    "MemorySwapMax": "0",
+    "KillMode": "control-group",
+    "Description": "teleport validation run-B4QZdp",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "6e727c95462245d9a6daddb84c121936"
+  },
+  "result": {
+    "reason": "success",
+    "exitCode": 0
+  },
+  "finishedAt": "2026-10-04T10:41:47.194Z",
+  "reapedAt": "2026-10-04T10:41:47.211Z"
+}

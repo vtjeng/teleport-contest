@@ -1,0 +1,45 @@
+{
+  "id": "run-n1rcQR",
+  "profile": "focused",
+  "memory": 2147483648,
+  "seconds": 120,
+  "command": [
+    "node",
+    "--test",
+    "scripts/dig.test.mjs",
+    "scripts/dig-pit-flow.test.mjs",
+    "scripts/trap-names.test.mjs",
+    "scripts/apply-break-wand.test.mjs",
+    "scripts/music.test.mjs",
+    "scripts/trap-landmine.test.mjs",
+    "scripts/zap-command.test.mjs"
+  ],
+  "cwd": "/tmp/teleport-loop-worker-b-20260925",
+  "createdAt": "2026-10-04T11:22:02.580Z",
+  "unit": "teleport-validation-88554f9b589cda4de1d290b0.service",
+  "startedAt": "2026-10-04T11:22:03.007Z",
+  "observed": {
+    "TimeoutStopUSec": "2s",
+    "RuntimeMaxUSec": "2min",
+    "MainPID": "0",
+    "Result": "success",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "0",
+    "ControlGroup": "",
+    "MemoryMax": "2147483648",
+    "MemorySwapMax": "0",
+    "KillMode": "control-group",
+    "Description": "teleport validation run-n1rcQR",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "9b9689bb196f4b918ee82e2e9f49258b"
+  },
+  "result": {
+    "reason": "success",
+    "exitCode": 0
+  },
+  "finishedAt": "2026-10-04T11:22:09.785Z",
+  "reapedAt": "2026-10-04T11:22:09.826Z"
+}

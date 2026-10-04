@@ -1,0 +1,40 @@
+{
+  "id": "run-8hXV0h",
+  "profile": "focused",
+  "memory": 2147483648,
+  "seconds": 120,
+  "command": [
+    "node",
+    "scripts/record-session.mjs",
+    "recipes/apply.c/b103-do-break-wand-liquid-flow-valkyrie-after-explosion-more-cfirst.session.json",
+    ".cache/B103-logs/b103-do-break-wand-liquid-flow-valkyrie-after-explosion-more-cfirst.session.json"
+  ],
+  "cwd": "/tmp/teleport-loop-worker-b-20260925",
+  "createdAt": "2026-10-04T10:14:22.449Z",
+  "unit": "teleport-validation-f7f5e0355b9c76ba38678584.service",
+  "startedAt": "2026-10-04T10:14:22.526Z",
+  "observed": {
+    "TimeoutStopUSec": "2s",
+    "RuntimeMaxUSec": "2min",
+    "MainPID": "0",
+    "Result": "success",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "0",
+    "ControlGroup": "",
+    "MemoryMax": "2147483648",
+    "MemorySwapMax": "0",
+    "KillMode": "control-group",
+    "Description": "teleport validation run-8hXV0h",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "dc026319eb9f4d889f47a5506a86715b"
+  },
+  "result": {
+    "reason": "success",
+    "exitCode": 0
+  },
+  "finishedAt": "2026-10-04T10:14:23.112Z",
+  "reapedAt": "2026-10-04T10:14:23.125Z"
+}

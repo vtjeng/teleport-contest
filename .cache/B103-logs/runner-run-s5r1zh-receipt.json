@@ -1,0 +1,38 @@
+{
+  "id": "run-s5r1zh",
+  "profile": "focused",
+  "memory": 2147483648,
+  "seconds": 120,
+  "command": [
+    "node",
+    "/tmp/b103-compare-existing-record.mjs"
+  ],
+  "cwd": "/tmp/teleport-loop-worker-b-20260925",
+  "createdAt": "2026-10-04T10:44:08.648Z",
+  "unit": "teleport-validation-768238cc053dbf59456c798e.service",
+  "startedAt": "2026-10-04T10:44:08.787Z",
+  "observed": {
+    "TimeoutStopUSec": "2s",
+    "RuntimeMaxUSec": "2min",
+    "MainPID": "0",
+    "Result": "success",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "0",
+    "ControlGroup": "",
+    "MemoryMax": "2147483648",
+    "MemorySwapMax": "0",
+    "KillMode": "control-group",
+    "Description": "teleport validation run-s5r1zh",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "42948eadb6504f2c88cf2c7e1fa1a753"
+  },
+  "result": {
+    "reason": "success",
+    "exitCode": 0
+  },
+  "finishedAt": "2026-10-04T10:44:10.742Z",
+  "reapedAt": "2026-10-04T10:44:10.772Z"
+}

@@ -1,0 +1,143 @@
+{
+  "taskId": "B103",
+  "goal": "port-dig-pit-flow-liquid-flow-trapname-v20-20261004",
+  "kind": "file-port",
+  "goalKind": "file-port",
+  "assignmentBase": "497bc6bf02e6b077b97b927225e0a3aae2bf362c",
+  "deliveryBase": "497bc6bf02e6b077b97b927225e0a3aae2bf362c",
+  "dependencies": [
+    "643a0da006b763d457e9103c6988516136b45707",
+    "497bc6bf02e6b077b97b927225e0a3aae2bf362c",
+    "3d5e36384e90a5995ca164320ae280d949f17eb0",
+    "4f75db6fa60d648826c4121f13c8993b022a79f1",
+    "9e86d3067d5800d03cddb510cd7192acf4953ce0"
+  ],
+  "cFile": "dig.c",
+  "functions": ["pit_flow"],
+  "requiredFunctions": [
+    {"sourceFile": "dig.c", "name": "liquid_flow"},
+    {"sourceFile": "trap.c", "name": "trapname"}
+  ],
+  "lineRanges": ["1844-1882"],
+  "cLines": 39,
+  "jsFile": "js/dig.js",
+  "sessions": ["synthetic/v20/pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup"],
+  "selectedMismatch": {
+    "corpus": "synthetic",
+    "batch": "v20",
+    "caseId": "pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+    "manifestPath": "challenges/manifests/v20.json",
+    "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+    "recording": "challenges/cases/v20/pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup.session.json",
+    "recordingSha256": "3aa2cc068fff1e549763ce4b68c0e736765ad5560108f82f47fa3b58ae07bf1d",
+    "recipe": "challenges/cases/v20/pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup.recipe.session.json",
+    "recipeSha256": "1944f69e5def0496e247d445cd130edd640e7facc0f1e18008150a8b190c82f6",
+    "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+    "remainingScreens": 1,
+    "recordedSteps": 35,
+    "firstMismatch": {"segment": 0, "step": 34, "key": "h", "source": "dig.c:pit_flow/liquid_flow"}
+  },
+  "selectionRationale": {
+    "reason": "Port the whole lateral-pit liquid filling path from dig.c, its whole liquid_flow helper, the consumed trapname result, and the trap_to_defsym macro contract. Reuse the admitted v20 case only for zap_dig→pit_flow. Independently record the other active caller routes: both dighole sites, do_break_wand, do_pit from do_earthquake, and blow_up_landmine. Caller edits remain branch-local and earn no whole caller credit. A95 confirmed its zap.js edits are limited to separate ZT_ACID arms; C79 owns map and clairvoyance functions."
+  },
+  "sourceReview": {
+    "functions": [
+      {
+        "sourceFile": "dig.c",
+        "name": "pit_flow",
+        "definition": "dig.c:pit_flow (1844-1882)",
+        "branches": [
+          "Proceed only for a non-null pit and filltyp other than ROOM.",
+          "Copy the trap before liquid_flow may remove it and clear conjoined links.",
+          "Set terrain and clear flags before liquid_flow.",
+          "Choose the fill message from u_at, then recurse over copied conjoined bits in N_DIRS order."
+        ],
+        "consumedDependencies": ["liquid_flow return is discarded; its side effects stay source ordered."]
+      },
+      {
+        "sourceFile": "dig.c",
+        "name": "liquid_flow",
+        "definition": "dig.c:liquid_flow (838-880)",
+        "branches": [
+          "Validate is_pool_or_lava; under sanity_check, format an invalid-terrain diagnostic using trapname(..., TRUE).",
+          "Delete ttmp before releasing ice or unearthing buried objects.",
+          "Print the optional fill message with hliquid after exposing objects.",
+          "Damage floor objects before selecting hero pooleffects(FALSE) or monster minliquid."
+        ],
+        "consumedDependencies": ["is_pool_or_lava", "hliquid"]
+      },
+      {
+        "sourceFile": "trap.c",
+        "name": "trapname",
+        "definition": "trap.c:trapname (7100-7155)",
+        "branches": [
+          "Hallucination without override chooses among actual and invented names with display RNG; the role/rank entry also draws core rn2(3).",
+          "Otherwise return the explanation mapped by trap_to_defsym."
+        ],
+        "consumedDependencies": ["include/rm.h trap_to_defsym macro mapping"]
+      }
+    ],
+    "discardedResults": [
+      "delfloortrap, obj_ice_effects, unearth_objs, fire_damage_chain, water_damage_chain, pooleffects(FALSE), and minliquid have discarded C returns; retain their effects and order, with explicit note_unported only for genuinely unported behavior.",
+      "trap_to_defsym is a C macro contract rather than a source function; preserve its map and existing source-pinned tests."
+    ]
+  },
+  "callerRoutes": [
+    {"route": "zap_dig→pit_flow→liquid_flow", "source": "dig.c:zap_dig around 1739-1748", "js": "js/zap.js:zap_dig → js/dig.js:pit_flow/liquid_flow", "evidence": "Reuse only the admitted v20 lateral-pit/water case."},
+    {"route": "dighole→liquid_flow", "source": "dig.c:dighole at 979 and 998", "js": "js/dig.js:dighole → liquid_flow", "evidence": "Independent water-adjacent dighole record; dry variation reaches digactualhole→trapname."},
+    {"route": "do_break_wand→liquid_flow", "source": "apply.c:do_break_wand at 4065", "js": "js/apply.js:do_break_wand → js/dig.js:liquid_flow", "evidence": "Independent C recipe and recording."},
+    {"route": "do_earthquake→do_pit→liquid_flow", "source": "music.c:do_earthquake dispatches do_pit; music.c:do_pit at 251", "js": "js/music.js:do_earthquake/do_pit → js/dig.js:liquid_flow", "evidence": "Independent C recipe; preserve random scan order and stop after two distinct setup attempts if blocked."},
+    {"route": "blow_up_landmine→liquid_flow", "source": "trap.c:blow_up_landmine at 3205", "js": "js/trap_effects.js:blow_up_landmine → js/dig.js:liquid_flow", "evidence": "Independent C recipe; stop after two distinct setup attempts if blocked."},
+    {"route": "digactualhole→trapname", "source": "dig.c:digactualhole at 666 and 701, reached from a dry dighole branch", "js": "js/dig.js:digactualhole → js/trap.js:trapname", "evidence": "Use the dry dighole variation for a valid runtime call; do not use the liquid_flow sanity diagnostic as ordinary-play evidence."}
+  ],
+  "entryPointReview": {
+    "summary": "Five liquid_flow caller routes require matching runtime evidence. dighole has two C call sites but is one production route. The v20 case supplies only zap_dig/pit_flow. The dry dighole variation supplies a valid trapname call through digactualhole. Caller bodies remain outside whole-function credit.",
+    "entryPoints": [
+      {"name": "zap_dig-pit_flow", "functions": ["pit_flow", "liquid_flow"], "recordings": [], "synthetic": [{"batch": "v20", "caseId": "pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup", "segment": 0, "fromStep": 34, "throughStep": 34, "source": "dig.c:zap_dig→pit_flow→liquid_flow"}]},
+      {"name": "dighole-liquid_flow", "functions": ["liquid_flow"], "recordings": [], "synthetic": []},
+      {"name": "do_break_wand-liquid_flow", "functions": ["liquid_flow"], "recordings": [], "synthetic": []},
+      {"name": "do_earthquake-do_pit-liquid_flow", "functions": ["liquid_flow"], "recordings": [], "synthetic": []},
+      {"name": "blow_up_landmine-liquid_flow", "functions": ["liquid_flow"], "recordings": [], "synthetic": []},
+      {"name": "digactualhole-trapname", "functions": ["trapname"], "recordings": [], "synthetic": []}
+    ]
+  },
+  "runtimePlan": {
+    "reuseOnly": ["synthetic/v20/pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup"],
+    "limit": "Freeze every new input-only recipe before C recording and JS comparison. At most two materially different C setups per difficult route. Preserve setup misses with the exact earlier source blocker and stop that route rather than expanding placement search.",
+    "routes": [
+      "dighole via a downward wand ray at a nonliquid tile adjacent to water, with water-walking/flight protection if C requires it; dry variation reaches trapname",
+      "do_break_wand with a wished digging wand and nearby liquid; verify break confirmation and surviving hero",
+      "do_earthquake with a drum and a pool-adjacent sink, fountain, or room, preserving force and scan order",
+      "blow_up_landmine on a valid land square adjacent to pool, moat, or lava"
+    ]
+  },
+  "currentImplementationReview": "js/dig.js has no liquid_flow or pit_flow. js/zap.js:zap_dig calls note_unported('dig.c pit_flow'); js/dig.js:dighole has two liquid_flow gaps; js/apply.js:do_break_wand, js/music.js:do_pit, and js/trap_effects.js:blow_up_landmine each retain a liquid_flow gap. js/trap.js:trapname and js/symbols.js:trap_to_defsym already exist and need full C contract verification.",
+  "reservations": [
+    "source:dig.c:pit_flow",
+    "source:dig.c:liquid_flow",
+    "source:trap.c:trapname",
+    "contract:dig-zap-dig-pit-flow-caller",
+    "contract:dig-dighole-liquid-flow-callers",
+    "contract:apply-do-break-wand-liquid-flow-caller",
+    "contract:music-do-pit-earthquake-liquid-flow-caller",
+    "contract:trap-blow-up-landmine-liquid-flow-caller",
+    "contract:trap-to-defsym-macro-map"
+  ],
+  "allowedPaths": [
+    "js/dig.js", "js/zap.js", "js/apply.js", "js/music.js", "js/trap_effects.js", "js/trap.js", "js/symbols.js",
+    "scripts/dig.test.mjs", "scripts/dig-pit-flow.test.mjs", "scripts/trap-names.test.mjs", "scripts/apply-break-wand.test.mjs", "scripts/music.test.mjs", "scripts/trap-landmine.test.mjs", "scripts/zap-command.test.mjs",
+    "recipes/dig.c/", "recordings/dig.c/", "recipes/apply.c/", "recordings/apply.c/", "recipes/music.c/", "recordings/music.c/", "recipes/trap.c/", "recordings/trap.c/",
+    ".cache/task-context.json", ".cache/task-evidence.json", ".cache/B103-context.json", ".cache/B103-evidence.json", ".cache/B103-checks.json", ".cache/B103-logs/"
+  ],
+  "currentReservationAudit": {
+    "checkedAtHead": "497bc6bf02e6b077b97b927225e0a3aae2bf362c",
+    "checkedKeys": ["source:dig.c:pit_flow", "source:dig.c:liquid_flow", "source:trap.c:trapname", "contract:dig-zap-dig-pit-flow-caller", "contract:dig-dighole-liquid-flow-callers", "contract:apply-do-break-wand-liquid-flow-caller", "contract:music-do-pit-earthquake-liquid-flow-caller", "contract:trap-blow-up-landmine-liquid-flow-caller", "contract:trap-to-defsym-macro-map"],
+    "otherWorkers": {
+      "A95": ["source:uhitm.c:erode_armor", "source:trap.c:erode_obj", "contract:zap-zhitu-acid-erode-armor-caller", "contract:zap-bhitm-acid-erode-armor-caller", "contract:zap-zhitm-acid-erode-armor-caller"],
+      "C79": ["source:detect.c:do_vicinity_map", "source:display.c:glyph_at", "contract:allmain-clairvoyance-map-callback", "contract:spell-clairvoyance-dispatch-arm"]
+    },
+    "sharedFileCoordination": "A95 confirmed its zap.js edits are limited to separate ZT_ACID arms and imports; B103 may change only zap_dig and preserve both import sets."
+  },
+  "deliveryBaseReason": "The current registered worker HEAD 497bc6bf is the latest B99 correction and contains unaccepted B99/B100/B101/B102 ancestry. Preserve those exact deliveries as dependencies and do not amend or remove their history."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B103 trap.c:blow_up_landmine route. On a debug Valkyrie at level 7, wish and wear water-walking boots, turn the starting floor tile into a moat, move east onto adjacent dry floor, wish a trapped land mine there, then step west and re-enter it. This tests the source path that calls fillholetyp and liquid_flow when the mine trap remains. The moat is a single neighbor, so fillholetyp can still choose ROOM; that outcome is a preserved setup result, not liquid-flow evidence.",
+  "segments": [
+    {
+      "seed": 18409357,
+      "datetime": "20510416092718",
+      "nethackrc": "OPTIONS=name:B103MineFlow,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".#levelchange\n7\n\u0017water walking boots\nWn\u0017moat\nl#wizwish\ntrapped land mine\nhl"
+    }
+  ]
+}

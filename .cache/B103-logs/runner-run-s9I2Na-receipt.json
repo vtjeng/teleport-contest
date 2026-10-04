@@ -1,0 +1,38 @@
+{
+  "id": "run-s9I2Na",
+  "profile": "focused",
+  "memory": 2147483648,
+  "seconds": 120,
+  "command": [
+    "node",
+    "/tmp/b103-print-mismatch-screen.mjs"
+  ],
+  "cwd": "/tmp/teleport-loop-worker-b-20260925",
+  "createdAt": "2026-10-04T10:45:58.358Z",
+  "unit": "teleport-validation-d5c7dd51875de007e573bb58.service",
+  "startedAt": "2026-10-04T10:45:58.454Z",
+  "observed": {
+    "TimeoutStopUSec": "2s",
+    "RuntimeMaxUSec": "2min",
+    "MainPID": "0",
+    "Result": "success",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "0",
+    "ControlGroup": "",
+    "MemoryMax": "2147483648",
+    "MemorySwapMax": "0",
+    "KillMode": "control-group",
+    "Description": "teleport validation run-s9I2Na",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "8841fa934c124c8d82d0a313d36656a9"
+  },
+  "result": {
+    "reason": "success",
+    "exitCode": 0
+  },
+  "finishedAt": "2026-10-04T10:45:59.556Z",
+  "reapedAt": "2026-10-04T10:45:59.570Z"
+}

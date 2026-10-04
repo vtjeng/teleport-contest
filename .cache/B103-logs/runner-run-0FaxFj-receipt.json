@@ -1,0 +1,40 @@
+{
+  "id": "run-0FaxFj",
+  "profile": "focused",
+  "memory": 2147483648,
+  "seconds": 120,
+  "command": [
+    "node",
+    "scripts/record-session.mjs",
+    "recipes/dig.c/b103-dighole-waterwalk-inventory-probe.session.json",
+    ".cache/B103-logs/b103-dighole-waterwalk-inventory-probe.session.json"
+  ],
+  "cwd": "/tmp/teleport-loop-worker-b-20260925",
+  "createdAt": "2026-10-04T09:42:11.347Z",
+  "unit": "teleport-validation-5b1f23ce99ac17ad5b2d7a39.service",
+  "startedAt": "2026-10-04T09:42:11.410Z",
+  "observed": {
+    "TimeoutStopUSec": "2s",
+    "RuntimeMaxUSec": "2min",
+    "MainPID": "0",
+    "Result": "success",
+    "OOMPolicy": "kill",
+    "ExecMainCode": "1",
+    "ExecMainStatus": "0",
+    "ControlGroup": "",
+    "MemoryMax": "2147483648",
+    "MemorySwapMax": "0",
+    "KillMode": "control-group",
+    "Description": "teleport validation run-0FaxFj",
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "6b99ab875cf1444f8b75ee2022d52797"
+  },
+  "result": {
+    "reason": "success",
+    "exitCode": 0
+  },
+  "finishedAt": "2026-10-04T09:42:11.734Z",
+  "reapedAt": "2026-10-04T09:42:11.748Z"
+}

@@ -1,0 +1,803 @@
+TAP version 13
+# Subtest: apply.c doapply reaches the broken-wand no-effect arm
+ok 1 - apply.c doapply reaches the broken-wand no-effect arm
+  ---
+  duration_ms: 2952.602547
+  type: 'test'
+  ...
+# Subtest: apply.c do_break_wand reaches WAN_LIGHT explosion and litroom
+ok 2 - apply.c do_break_wand reaches WAN_LIGHT explosion and litroom
+  ---
+  duration_ms: 277.058029
+  type: 'test'
+  ...
+# Subtest: dig_typ answers what each tool would break
+ok 3 - dig_typ answers what each tool would break
+  ---
+  duration_ms: 254.93197
+  type: 'test'
+  ...
+# Subtest: dig_typ answers undiggable for a square off the map
+ok 4 - dig_typ answers undiggable for a square off the map
+  ---
+  duration_ms: 1.404709
+  type: 'test'
+  ...
+# Subtest: pick_can_reach follows pit, bimanual, and flight rules
+ok 5 - pick_can_reach follows pit, bimanual, and flight rules
+  ---
+  duration_ms: 1.911112
+  type: 'test'
+  ...
+# Subtest: dig_typ prefers reachable statues and boulders before terrain
+ok 6 - dig_typ prefers reachable statues and boulders before terrain
+  ---
+  duration_ms: 1.932813
+  type: 'test'
+  ...
+# Subtest: fillholetyp preserves liquid counts, weighting and draw order
+ok 7 - fillholetyp preserves liquid counts, weighting and draw order
+  ---
+  duration_ms: 19.916134
+  type: 'test'
+  ...
+# Subtest: digactualhole preserves the old visible furniture label in its fall message
+ok 8 - digactualhole preserves the old visible furniture label in its fall message
+  ---
+  duration_ms: 35.232537
+  type: 'test'
+  ...
+# Subtest: dig_up_grave keeps the C selector values for zombie and mummy creation
+ok 9 - dig_up_grave keeps the C selector values for zombie and mummy creation
+  ---
+  duration_ms: 0.919506
+  type: 'test'
+  ...
+# Subtest: dighole returns the drawbridge refusal after source-ordered spot checks
+ok 10 - dighole returns the drawbridge refusal after source-ordered spot checks
+  ---
+  duration_ms: 11.759579
+  type: 'test'
+  ...
+# Subtest: adj_pit_checks reports hard foundations and supporting structures
+ok 11 - adj_pit_checks reports hard foundations and supporting structures
+  ---
+  duration_ms: 19.650732
+  type: 'test'
+  ...
+# Subtest: rot_corpse deletes a floor corpse and redraws its square
+ok 12 - rot_corpse deletes a floor corpse and redraws its square
+  ---
+  duration_ms: 26.263277
+  type: 'test'
+  ...
+# Subtest: rot_corpse exposes a hider only once nothing is left to hide under
+ok 13 - rot_corpse exposes a hider only once nothing is left to hide under
+  ---
+  duration_ms: 57.512688
+  type: 'test'
+  ...
+# Subtest: unportedRotCorpseReason names the arm each corpse is waiting on
+ok 14 - unportedRotCorpseReason names the arm each corpse is waiting on
+  ---
+  duration_ms: 18.288323
+  type: 'test'
+  ...
+# Subtest: unportedRotCorpseReason demands the newsym seam it will draw through
+ok 15 - unportedRotCorpseReason demands the newsym seam it will draw through
+  ---
+  duration_ms: 19.946234
+  type: 'test'
+  ...
+# Subtest: the corpse rot matrix rests long enough for a corpse to come due
+ok 16 - the corpse rot matrix rests long enough for a corpse to come due
+  ---
+  duration_ms: 0.724805
+  type: 'test'
+  ...
+# Subtest: the crashing-rock line of a dug wall prints under the default options
+ok 17 - the crashing-rock line of a dug wall prints under the default options
+  ---
+  duration_ms: 485.093478
+  type: 'test'
+  ...
+# Subtest: the crashing-rock line of a dug wall stays silent under !acoustics
+ok 18 - the crashing-rock line of a dug wall stays silent under !acoustics
+  ---
+  duration_ms: 102.05531
+  type: 'test'
+  ...
+# Subtest: mdig_tunnel supplies object hooks for a boulder on stone
+ok 19 - mdig_tunnel supplies object hooks for a boulder on stone
+  ---
+  duration_ms: 86.889405
+  type: 'test'
+  ...
+# Subtest: digcheck_result values match the C enum and failure alias
+ok 20 - digcheck_result values match the C enum and failure alias
+  ---
+  duration_ms: 0.441903
+  type: 'test'
+  ...
+# Subtest: dig_check follows C's ordered terrain, trap, and actor tests
+ok 21 - dig_check follows C's ordered terrain, trap, and actor tests
+  ---
+  duration_ms: 2.972521
+  type: 'test'
+  ...
+# Subtest: dig preserves the C fumbling gate and outcome-selection draw
+ok 22 - dig preserves the C fumbling gate and outcome-selection draw
+  ---
+  duration_ms: 3.332423
+  type: 'test'
+  ...
+# Subtest: dig uses the second fumbling draw to select the C swing-miss arm
+ok 23 - dig uses the second fumbling draw to select the C swing-miss arm
+  ---
+  duration_ms: 2.672518
+  type: 'test'
+  ...
+# Subtest: lateral digging breaks a secret door and finishes the occupation
+ok 24 - lateral digging breaks a secret door and finishes the occupation
+  ---
+  duration_ms: 9.864869
+  type: 'test'
+  ...
+# Subtest: dig triggers a set trap with the C FORCETRAP flag
+ok 25 - dig triggers a set trap with the C FORCETRAP flag
+  ---
+  duration_ms: 0.462704
+  type: 'test'
+  ...
+# Subtest: digging into a pit schedules the flattened vision recalculation
+ok 26 - digging into a pit schedules the flattened vision recalculation
+  ---
+  duration_ms: 634.297416
+  type: 'test'
+  ...
+# Subtest: is_digging compares the active occupation with dig
+ok 27 - is_digging compares the active occupation with dig
+  ---
+  duration_ms: 0.238502
+  type: 'test'
+  ...
+# Subtest: drawbridge lookup preserves four directions, negative failure, and in/out coordinates
+ok 28 - drawbridge lookup preserves four directions, negative failure, and in/out coordinates
+  ---
+  duration_ms: 2.42327
+  type: 'test'
+  ...
+# Subtest: generic_lvl_desc follows source level precedence and branch names
+ok 29 - generic_lvl_desc follows source level precedence and branch names
+  ---
+  duration_ms: 0.254297
+  type: 'test'
+  ...
+# Subtest: earthquake ports whole source scans and caps force at thirteen
+not ok 30 - earthquake ports whole source scans and caps force at thirteen
+  ---
+  duration_ms: 1.751878
+  type: 'test'
+  location: '/tmp/teleport-loop-worker-b-20260925/scripts/music.test.mjs:77:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /await maketrap\(x, y, PIT[\s\S]*?note_unported\('dig\.c liquid_flow'\);\s*if \(!t_at\(x, y, state\)\) return;/u. Input:
+    
+    'export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {\n' +
+      '    const env = { ...rawEnv, state };\n' +
+      '    const random = env.random ?? musicRandom;\n' +
+      '    const message = env.message ?? ttyPline;\n' +
+      '\n' +
+      '    const chasm = await maketrap(x, y, PIT, { ...env, random });\n' +
+      '    if (!chasm) return; // C maketrap() refuses a portal at this location.\n' +
+      '    chasm.tseen = 1;\n' +
+      '\n' +
+      '    const mtmp = m_at(x, y, state);\n' +
+      '    const boulder = sobj_at(BOULDER, x, y, state);\n' +
+      '    if (boulder) {\n' +
+      '        if (cansee(x, y, state)) {\n' +
+      '            await message(`KADOOM!  The boulder falls into a chasm${u_at(x, y, state)\n' +
+      "                ? ' below you' : ''}!`, state);\n" +
+      '        }\n' +
+      '        if (mtmp) mtmp.mtrapped = false;\n' +
+      '        obj_extract_self(boulder, { ...env, state });\n' +
+      "        // C discards flooreffects()'s return. The partial helper cannot stand\n" +
+      '        // in for its missing branch effects or RNG.\n' +
+      "        note_unported('do.c flooreffects');\n" +
+      '        return;\n' +
+      '    }\n' +
+      '\n' +
+      '    // Keep the source order: fill the hole, change its terrain, resolve the\n' +
+      '    // discarded liquid-flow result, then re-read the possibly deleted trap.\n' +
+      '    const fillType = fillholetyp(x, y, false, state, random);\n' +
+      '    if (fillType !== ROOM) {\n' +
+      '        set_levltyp(x, y, fillType, { state });\n' +
+      '        await liquid_flow(x, y, fillType, chasm, null, state, { ...env, random });\n' +
+      '        if (!t_at(x, y, state)) return;\n' +
+      '    }\n' +
+      '\n' +
+      '    if (mtmp) {\n' +
+      '        if (!is_flyer(mtmp.data) && !is_clinger(mtmp.data)) {\n' +
+      '            const alreadyTrapped = Boolean(mtmp.mtrapped);\n' +
+      '            mtmp.mtrapped = true;\n' +
+      '            if (!alreadyTrapped) {\n' +
+      '                if (cansee(x, y, state)) {\n' +
+      '                    await message(`${Monnam(mtmp, state, env)} falls into a chasm!`, state);\n' +
+      '                } else if (humanoid(mtmp.data)) {\n' +
+      '                    // Soundeffect(se_scream, 50) is compiled away by the\n' +
+      '                    // reference tty backend; You_hear still owns the line.\n' +
+      "                    const heard = youHear('a scream!', state);\n" +
+      '                    if (heard) await message(heard, state);\n' +
+      '                }\n' +
+      '            }\n' +
+      "            note_unported('trap.c mselftouch'); // C's void call; keep its point.\n" +
+      '            if (mtmp.mhp >= 1) {\n' +
+      '                mtmp.mhp -= random.rnd(alreadyTrapped ? 4 : 6);\n' +
+      '                if (mtmp.mhp < 1) {\n' +
+      '                    if (!cansee(x, y, state)) {\n' +
+      "                        await message('It is destroyed!', state);\n" +
+      '                    } else {\n' +
+      '                        const name = mtmp.mtame\n' +
+      "                            ? x_monnam(mtmp, ARTICLE_THE, 'poor',\n" +
+      '                                has_mgivenname(mtmp) ? SUPPRESS_SADDLE : 0,\n' +
+      '                                false, state, env)\n' +
+      '                            : mon_nam(mtmp, state, env);\n' +
+      '                        await message(`You destroy ${name}!`, state);\n' +
+      '                    }\n' +
+      "                    note_unported('mon.c xkilled');\n" +
+      '                }\n' +
+      '            }\n' +
+      '        }\n' +
+      '    } else if (u_at(x, y, state)) {\n' +
+      '        const u = state.u;\n' +
+      '        if (u.utrap && u.utraptype === TT_BURIEDBALL) {\n' +
+      "            await message('Your chain breaks!', state);\n" +
+      '            await reset_utrap(true, state);\n' +
+      '        }\n' +
+      '        if (Levitation(state) || Flying(state) || is_clinger(state.youmonst.data)) {\n' +
+      '            if (!tuPit) {\n' +
+      "                await message('A chasm opens up under you!', state);\n" +
+      `                await message("You don't fall in!", state);\n` +
+      '            }\n' +
+      '        } else if (!tuPit || !u.utrap || u.utraptype !== TT_PIT) {\n' +
+      "            await message('You fall into a chasm!', state);\n" +
+      '            set_utrap(random.rn1(6, 2), TT_PIT, state);\n' +
+      '            await losehp(musicMaybeHalfPhys(random.rnd(6), state),\n' +
+      "                'fell into a chasm', NO_KILLER_PREFIX, state, env);\n" +
+      "            note_unported('trap.c selftouch');\n" +
+      '        } else if (u.utrap && u.utraptype === TT_PIT) {\n' +
+      '            const fumbling = property(state, FUMBLING);\n' +
+      '            const keepFooting = (!fumbling || !random.rn2(5))\n' +
+      '                && (!random.rnl(state.urole?.mnum === PM_ARCHEOLOGIST ? 3 : 9)\n' +
+      '                    || (acurr(state, A_DEX) > 7 && random.rn2(5)));\n' +
+      '\n' +
+      "            await message('You are jostled around violently!', state);\n" +
+      '            set_utrap(random.rn1(6, 2), TT_PIT, state);\n' +
+      '            await losehp(musicMaybeHalfPhys(random.rnd(keepFooting ? 2 : 4), state),\n' +
+      "                'hurt in a chasm', NO_KILLER_PREFIX, state, env);\n" +
+      '            if (keepFooting) {\n' +
+      '                await exercise(A_DEX, true, state, random);\n' +
+      '            } else {\n' +
+      '                // C chooses the selftouch prefix from Upolyd/slithy/nolimbs\n' +
+      '                // here; those predicates have no effects and its callee is\n' +
+      '                // still a discarded source gap.\n' +
+      "                note_unported('trap.c selftouch');\n" +
+      '            }\n' +
+      '        }\n' +
+      '    } else {\n' +
+      '        newsym(x, y, state);\n' +
+      '    }\n' +
+      '}'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
+        const env = { ...rawEnv, state };
+        const random = env.random ?? musicRandom;
+        const message = env.message ?? ttyPline;
+    
+        const chasm = await maketrap(x, y, PIT, { ...env, random });
+        if (!chasm) return; // C maketrap() refuses a portal at this location.
+        chasm.tseen = 1;
+    
+        const mtmp = m_at(x, y, state);
+        const boulder = sobj_at(BOULDER, x, y, state);
+        if (boulder) {
+            if (cansee(x, y, state)) {
+                await message(`KADOOM!  The boulder falls into a chasm${u_at(x, y, state)
+                    ? ' below you' : ''}!`, state);
+            }
+            if (mtmp) mtmp.mtrapped = false;
+            obj_extract_self(boulder, { ...env, state });
+            // C discards flooreffects()'s return. The partial helper cannot stand
+            // in for its missing branch effects or RNG.
+            note_unported('do.c flooreffects');
+            return;
+        }
+    
+        // Keep the source order: fill the hole, change its terrain, resolve the
+        // discarded liquid-flow result, then re-read the possibly deleted trap.
+        const fillType = fillholetyp(x, y, false, state, random);
+        if (fillType !== ROOM) {
+            set_levltyp(x, y, fillType, { state });
+            await liquid_flow(x, y, fillType, chasm, null, state, { ...env, random });
+            if (!t_at(x, y, state)) return;
+        }
+    
+        if (mtmp) {
+            if (!is_flyer(mtmp.data) && !is_clinger(mtmp.data)) {
+                const alreadyTrapped = Boolean(mtmp.mtrapped);
+                mtmp.mtrapped = true;
+                if (!alreadyTrapped) {
+                    if (cansee(x, y, state)) {
+                        await message(`${Monnam(mtmp, state, env)} falls into a chasm!`, state);
+                    } else if (humanoid(mtmp.data)) {
+                        // Soundeffect(se_scream, 50) is compiled away by the
+                        // reference tty backend; You_hear still owns the line.
+                        const heard = youHear('a scream!', state);
+                        if (heard) await message(heard, state);
+                    }
+                }
+                note_unported('trap.c mselftouch'); // C's void call; keep its point.
+                if (mtmp.mhp >= 1) {
+                    mtmp.mhp -= random.rnd(alreadyTrapped ? 4 : 6);
+                    if (mtmp.mhp < 1) {
+                        if (!cansee(x, y, state)) {
+                            await message('It is destroyed!', state);
+                        } else {
+                            const name = mtmp.mtame
+                                ? x_monnam(mtmp, ARTICLE_THE, 'poor',
+                                    has_mgivenname(mtmp) ? SUPPRESS_SADDLE : 0,
+                                    false, state, env)
+                                : mon_nam(mtmp, state, env);
+                            await message(`You destroy ${name}!`, state);
+                        }
+                        note_unported('mon.c xkilled');
+                    }
+                }
+            }
+        } else if (u_at(x, y, state)) {
+            const u = state.u;
+            if (u.utrap && u.utraptype === TT_BURIEDBALL) {
+                await message('Your chain breaks!', state);
+                await reset_utrap(true, state);
+            }
+            if (Levitation(state) || Flying(state) || is_clinger(state.youmonst.data)) {
+                if (!tuPit) {
+                    await message('A chasm opens up under you!', state);
+                    await message("You don't fall in!", state);
+                }
+            } else if (!tuPit || !u.utrap || u.utraptype !== TT_PIT) {
+                await message('You fall into a chasm!', state);
+                set_utrap(random.rn1(6, 2), TT_PIT, state);
+                await losehp(musicMaybeHalfPhys(random.rnd(6), state),
+                    'fell into a chasm', NO_KILLER_PREFIX, state, env);
+                note_unported('trap.c selftouch');
+            } else if (u.utrap && u.utraptype === TT_PIT) {
+                const fumbling = property(state, FUMBLING);
+                const keepFooting = (!fumbling || !random.rn2(5))
+                    && (!random.rnl(state.urole?.mnum === PM_ARCHEOLOGIST ? 3 : 9)
+                        || (acurr(state, A_DEX) > 7 && random.rn2(5)));
+    
+                await message('You are jostled around violently!', state);
+                set_utrap(random.rn1(6, 2), TT_PIT, state);
+                await losehp(musicMaybeHalfPhys(random.rnd(keepFooting ? 2 : 4), state),
+                    'hurt in a chasm', NO_KILLER_PREFIX, state, env);
+                if (keepFooting) {
+                    await exercise(A_DEX, true, state, random);
+                } else {
+                    // C chooses the selftouch prefix from Upolyd/slithy/nolimbs
+                    // here; those predicates have no effects and its callee is
+                    // still a discarded source gap.
+                    note_unported('trap.c selftouch');
+                }
+            }
+        } else {
+            newsym(x, y, state);
+        }
+    }
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/teleport-loop-worker-b-20260925/scripts/music.test.mjs:95:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: do_pit marks its created trap seen and leaves an ordinary empty square
+ok 31 - do_pit marks its created trap seen and leaves an ordinary empty square
+  ---
+  duration_ms: 302.277214
+  type: 'test'
+  ...
+# Subtest: Maybe_Half_Phys uses source intrinsic/extrinsic state and rounds odd damage up
+ok 32 - Maybe_Half_Phys uses source intrinsic/extrinsic state and rounds odd damage up
+  ---
+  duration_ms: 0.613804
+  type: 'test'
+  ...
+# Subtest: improvised_notes draws one to five notes, then preserves the saved jingle when Unchanging
+ok 33 - improvised_notes draws one to five notes, then preserves the saved jingle when Unchanging
+  ---
+  duration_ms: 0.348702
+  type: 'test'
+  ...
+# Subtest: charm_monsters matches C dead, inclusive range, and resistance-before-taming order
+ok 34 - charm_monsters matches C dead, inclusive range, and resistance-before-taming order
+  ---
+  duration_ms: 86.250582
+  type: 'test'
+  ...
+# Subtest: charm_snakes uses C strict squared range and redraws before visible feedback
+ok 35 - charm_snakes uses C strict squared range and redraws before visible feedback
+  ---
+  duration_ms: 106.597119
+  type: 'test'
+  ...
+# Subtest: calm_nymphs clears source state before visible feedback and preserves range order
+ok 36 - calm_nymphs clears source state before visible feedback and preserves range order
+  ---
+  duration_ms: 87.48329
+  type: 'test'
+  ...
+# Subtest: awaken_scare skips resistance for waiting and mindless monsters
+ok 37 - awaken_scare skips resistance for waiting and mindless monsters
+  ---
+  duration_ms: 87.222588
+  type: 'test'
+  ...
+# Subtest: awaken_monsters uses the live monster chain and strict squared ranges
+ok 38 - awaken_monsters uses the live monster chain and strict squared ranges
+  ---
+  duration_ms: 61.697016
+  type: 'test'
+  ...
+# Subtest: awaken_soldiers wakes every non-guard mercenary and uses strict squared range for others
+ok 39 - awaken_soldiers wakes every non-guard mercenary and uses strict squared range for others
+  ---
+  duration_ms: 73.600896
+  type: 'test'
+  ...
+# Subtest: awaken_soldiers uses deaf-aware no-repeat feedback for unseen mercenaries
+ok 40 - awaken_soldiers uses deaf-aware no-repeat feedback for unseen mercenaries
+  ---
+  duration_ms: 61.40522
+  type: 'test'
+  ...
+# Subtest: put_monsters_to_sleep skips dead and out-of-range monsters and consumes sleep_monst result
+ok 41 - put_monsters_to_sleep skips dead and out-of-range monsters and consumes sleep_monst result
+  ---
+  duration_ms: 144.191304
+  type: 'test'
+  ...
+# Subtest: put_monsters_to_sleep leaves an in-range sleep-resistant monster unchanged
+ok 42 - put_monsters_to_sleep leaves an in-range sleep-resistant monster unchanged
+  ---
+  duration_ms: 182.578371
+  type: 'test'
+  ...
+# Subtest: a leather drum draws its tune before deafness and wisdom exercise
+ok 43 - a leather drum draws its tune before deafness and wisdom exercise
+  ---
+  duration_ms: 29.964308
+  type: 'test'
+  ...
+# Subtest: an already-deaf drummer does not add deafness or draw its duration
+ok 44 - an already-deaf drummer does not add deafness or draw its duration
+  ---
+  duration_ms: 29.231603
+  type: 'test'
+  ...
+# Subtest: a depleted earthquake drum chooses its mundane riff without deafness or exercise
+ok 45 - a depleted earthquake drum chooses its mundane riff without deafness or exercise
+  ---
+  duration_ms: 62.926938
+  type: 'test'
+  ...
+# Subtest: five correct notes plus excess reveal the tune even when acoustics suppresses hints
+ok 46 - five correct notes plus excess reveal the tune even when acoustics suppresses hints
+  ---
+  duration_ms: 101.215005
+  type: 'test'
+  ...
+# Subtest: trapeffect_selector dispatches a heavy monster to a land mine
+ok 47 - trapeffect_selector dispatches a heavy monster to a land mine
+  ---
+  duration_ms: 467.995054
+  type: 'test'
+  ...
+# Subtest: a light monster spends the damage roll before the trigger-weight gate
+ok 48 - a light monster spends the damage roll before the trigger-weight gate
+  ---
+  duration_ms: 113.711366
+  type: 'test'
+  ...
+# Subtest: blow_up_landmine converts an ordinary-room trap to a visible pit
+ok 49 - blow_up_landmine converts an ordinary-room trap to a visible pit
+  ---
+  duration_ms: 97.377466
+  type: 'test'
+  ...
+# Subtest: trap hallucination table matches a fresh extraction from trap.c
+ok 50 - trap hallucination table matches a fresh extraction from trap.c
+  ---
+  duration_ms: 7.473407
+  type: 'test'
+  ...
+# Subtest: trapname preserves display/core RNG order and override/resistance gates
+ok 51 - trapname preserves display/core RNG order and override/resistance gates
+  ---
+  duration_ms: 335.857556
+  type: 'test'
+  ...
+# Subtest: bhito uses the source singular wrapper for a turned corpse
+ok 52 - bhito uses the source singular wrapper for a turned corpse
+  ---
+  duration_ms: 15.353303
+  type: 'test'
+  ...
+# Subtest: probing reads the surface beneath a raised drawbridge
+ok 53 - probing reads the surface beneath a raised drawbridge
+  ---
+  duration_ms: 1.611111
+  type: 'test'
+  ...
+# Subtest: zap_ok suggests every wand and excludes everything else
+ok 54 - zap_ok suggests every wand and excludes everything else
+  ---
+  duration_ms: 0.266402
+  type: 'test'
+  ...
+# Subtest: immediate polymorph protects source-unpolyable objects before RNG
+ok 55 - immediate polymorph protects source-unpolyable objects before RNG
+  ---
+  duration_ms: 0.230302
+  type: 'test'
+  ...
+# Subtest: obj_shudders halves the source odds only after the quantity check
+ok 56 - obj_shudders halves the source odds only after the quantity check
+  ---
+  duration_ms: 8.978761
+  type: 'test'
+  ...
+# Subtest: cancel_item turns a floor sickness potion into fruit juice
+ok 57 - cancel_item turns a floor sickness potion into fruit juice
+  ---
+  duration_ms: 584.888568
+  type: 'test'
+  ...
+# Subtest: self-cancellation runs cancel_item across the hero inventory chain
+ok 58 - self-cancellation runs cancel_item across the hero inventory chain
+  ---
+  duration_ms: 127.520187
+  type: 'test'
+  ...
+# Subtest: zappable refuses a spent wand without drawing
+ok 59 - zappable refuses a spent wand without drawing
+  ---
+  duration_ms: 91.014234
+  type: 'test'
+  ...
+# Subtest: zappable draws once for a worn-out wand and usually loses
+ok 60 - zappable draws once for a worn-out wand and usually loses
+  ---
+  duration_ms: 179.244748
+  type: 'test'
+  ...
+# Subtest: zappable wrests a last charge when the draw lands on zero
+ok 61 - zappable wrests a last charge when the draw lands on zero
+  ---
+  duration_ms: 165.846155
+  type: 'test'
+  ...
+# Subtest: zappable spends a charge from a wand that has one
+ok 62 - zappable spends a charge from a wand that has one
+  ---
+  duration_ms: 68.94858
+  type: 'test'
+  ...
+# Subtest: check_unpaid bills only for unpaid merchandise used in a shop
+ok 63 - check_unpaid bills only for unpaid merchandise used in a shop
+  ---
+  duration_ms: 34.145938
+  type: 'test'
+  ...
+# Subtest: Tobjnam prepends The and agrees the verb with the object
+ok 64 - Tobjnam prepends The and agrees the verb with the object
+  ---
+  duration_ms: 63.302341
+  type: 'test'
+  ...
+# Subtest: the zap command is admitted and shares its extcmdlist row with dozap
+ok 65 - the zap command is admitted and shares its extcmdlist row with dozap
+  ---
+  duration_ms: 8.924062
+  type: 'test'
+  ...
+# Subtest: an overloaded hero is refused before the object prompt opens
+ok 66 - an overloaded hero is refused before the object prompt opens
+  ---
+  duration_ms: 108.796957
+  type: 'test'
+  ...
+# Subtest: the zap command asks for an object and then for a direction
+ok 67 - the zap command asks for an object and then for a direction
+  ---
+  duration_ms: 163.180665
+  type: 'test'
+  ...
+# Subtest: dozap() keeps its foreign naming state after an escaped direction
+ok 68 - dozap() keeps its foreign naming state after an escaped direction
+  ---
+  duration_ms: 63.497657
+  type: 'test'
+  ...
+# Subtest: only a zap that chose a wand spends the turn
+ok 69 - only a zap that chose a wand spends the turn
+  ---
+  duration_ms: 146.21945
+  type: 'test'
+  ...
+# Subtest: an aimed zap reaches the ray and stops in zhitu
+ok 70 - an aimed zap reaches the ray and stops in zhitu
+  ---
+  duration_ms: 132.778254
+  type: 'test'
+  ...
+# Subtest: a NODIR wand reaches its effect without a direction prompt
+ok 71 - a NODIR wand reaches its effect without a direction prompt
+  ---
+  duration_ms: 46.999737
+  type: 'test'
+  ...
+# Subtest: polymorphed enlightenment records its void insight gap and continues
+ok 72 - polymorphed enlightenment records its void insight gap and continues
+  ---
+  duration_ms: 35.686956
+  type: 'test'
+  ...
+# Subtest: zap.c zapnodir uses create_critters return and source count draws
+ok 73 - zap.c zapnodir uses create_critters return and source count draws
+  ---
+  duration_ms: 21.918358
+  type: 'test'
+  ...
+# Subtest: a secret-door-detection wand reports an empty findit result
+ok 74 - a secret-door-detection wand reports an empty findit result
+  ---
+  duration_ms: 20.253646
+  type: 'test'
+  ...
+# Subtest: secret-door discovery clears the transient current wand
+ok 75 - secret-door discovery clears the transient current wand
+  ---
+  duration_ms: 47.589142
+  type: 'test'
+  ...
+# Subtest: empty secret-door detection discovers a seen unknown wand
+ok 76 - empty secret-door detection discovers a seen unknown wand
+  ---
+  duration_ms: 41.974302
+  type: 'test'
+  ...
+# Subtest: a wand with no charge left says so and crumbles
+ok 77 - a wand with no charge left says so and crumbles
+  ---
+  duration_ms: 76.208748
+  type: 'test'
+  ...
+# Subtest: a worn-out wand that loses its draw is kept, not crumbled
+ok 78 - a worn-out wand that loses its draw is kept, not crumbled
+  ---
+  duration_ms: 48.65455
+  type: 'test'
+  ...
+# Subtest: a blind hero is told nothing when the direction prompt is cancelled
+ok 79 - a blind hero is told nothing when the direction prompt is cancelled
+  ---
+  duration_ms: 171.372331
+  type: 'test'
+  ...
+# Subtest: a cursed wand spends the backfire draw before the direction prompt
+ok 80 - a cursed wand spends the backfire draw before the direction prompt
+  ---
+  duration_ms: 56.453214
+  type: 'test'
+  ...
+# Subtest: a self-zap of sleep puts the hero under for rnd(50) turns
+ok 81 - a self-zap of sleep puts the hero under for rnd(50) turns
+  ---
+  duration_ms: 30.886228
+  type: 'test'
+  ...
+# Subtest: a self-zap discovers an unfamiliar wand and credits the hero
+ok 82 - a self-zap discovers an unfamiliar wand and credits the hero
+  ---
+  duration_ms: 34.169753
+  type: 'test'
+  ...
+# Subtest: a blind hero learns nothing from a wand they cannot see
+ok 83 - a blind hero learns nothing from a wand they cannot see
+  ---
+  duration_ms: 80.232094
+  type: 'test'
+  ...
+# Subtest: a hero who resists sleep keeps the source shield branch without a roll
+ok 84 - a hero who resists sleep keeps the source shield branch without a roll
+  ---
+  duration_ms: 111.173323
+  type: 'test'
+  ...
+# Subtest: a self-zap of an unimplemented type records C impossible and returns
+ok 85 - a self-zap of an unimplemented type records C impossible and returns
+  ---
+  duration_ms: 77.192072
+  type: 'test'
+  ...
+# Subtest: zapping unpaid merchandise inside a shop stops at the usage fee
+ok 86 - zapping unpaid merchandise inside a shop stops at the usage fee
+  ---
+  duration_ms: 69.940918
+  type: 'test'
+  ...
+# Subtest: a zap under perm_invent stops at the inventory window
+ok 87 - a zap under perm_invent stops at the inventory window
+  ---
+  duration_ms: 53.678297
+  type: 'test'
+  ...
+# Subtest: the death ray survive path restores the hero after declining death
+ok 88 - the death ray survive path restores the hero after declining death
+  ---
+  duration_ms: 136.50061
+  type: 'test'
+  ...
+# Subtest: the death ray accept-death path reaches really_done()
+ok 89 - the death ray accept-death path reaches really_done()
+  ---
+  duration_ms: 107.892399
+  type: 'test'
+  ...
+# Subtest: the death ray recipe covers both paths
+ok 90 - the death ray recipe covers both paths
+  ---
+  duration_ms: 0.257802
+  type: 'test'
+  ...
+# Subtest: the zap matrix covers both prompts, both dispatch routes and no wand
+ok 91 - the zap matrix covers both prompts, both dispatch routes and no wand
+  ---
+  duration_ms: 0.465703
+  type: 'test'
+  ...
+# Subtest: the charge matrix reaches every arm of zappable and the dust tail
+ok 92 - the charge matrix reaches every arm of zappable and the dust tail
+  ---
+  duration_ms: 0.484104
+  type: 'test'
+  ...
+# Subtest: the discovery matrix zaps a wand whose type is not yet known
+ok 93 - the discovery matrix zaps a wand whose type is not yet known
+  ---
+  duration_ms: 0.263302
+  type: 'test'
+  ...
+# Subtest: every remaining zap refusal names an unported zap.c function
+ok 94 - every remaining zap refusal names an unported zap.c function
+  ---
+  duration_ms: 2.208817
+  type: 'test'
+  ...
+1..94
+# tests 94
+# suites 0
+# pass 93
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5560.617588

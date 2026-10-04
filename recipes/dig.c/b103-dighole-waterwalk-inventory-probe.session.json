@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe for B103's dighole route. Seed 57310041 and the timestamp were selected for this task. Wish water-walking boots, then stop at the wear-item selector so the complete recording recipe can use the observed inventory letter. This probe does not claim liquid_flow runtime coverage.",
+  "segments": [
+    {
+      "seed": 57310041,
+      "datetime": "20410917091327",
+      "nethackrc": "OPTIONS=name:B103DigholeProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017water walking boots\nW"
+    }
+  ]
+}

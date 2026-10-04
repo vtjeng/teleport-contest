@@ -1,0 +1,30 @@
+{
+  "index": 194,
+  "mismatch": {
+    "index": 194,
+    "location": {
+      "segmentIndex": 0,
+      "stepIndex": 194,
+      "key": " "
+    },
+    "kind": "ch",
+    "row": 0,
+    "column": 43,
+    "cCell": {
+      "ch": "T",
+      "color": 8,
+      "attr": 0,
+      "decgfx": 0
+    },
+    "jsCell": {
+      "ch": " ",
+      "color": 8,
+      "attr": 0,
+      "decgfx": 0
+    }
+  },
+  "cFirstLine": "The entire dungeon is shaking around you!  The door collapses.",
+  "jsFirstLine": "The entire dungeon is shaking around you!",
+  "cScreen": "The entire dungeon is shaking around you!  The door collapses.\n\n\n\u001b[54C-----\n\u001b[54C|\u001b[34m}}}\u001b[39m|\n\u001b[54C|\u001b[34m}}\u001b[97m@\u001b[33m+\u001b[39m\n\u001b[54C..\u001b[31m%\u001b[39m.|\n\u001b[54C|...|\n\u001b[54C-.---\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Thaumaturge\u001b[9CSt:10 Dx:11 Co:14 In:18 Wi:12 Ch:10 Neutral\nDlvl:1 $:0 HP:49(49) Pw:71(71) AC:8 Xp:7",
+  "jsScreen": "The entire dungeon is shaking around you!\n\n\n\u001b[54C-----\n\u001b[54C|\u001b[34m}}}\u001b[39m|\n\u001b[54C|\u001b[34m}}\u001b[97m@\u001b[33m+\u001b[39m\n\u001b[54C..\u001b[31m%\u001b[39m.|\n\u001b[54C|...|\n\u001b[54C-^---\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Thaumaturge         St:10 Dx:11 Co:14 In:18 Wi:12 Ch:10 Neutral\nDlvl:1 $:0 HP:49(49) Pw:71(71) AC:8 Xp:7"
+}
