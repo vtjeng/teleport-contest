@@ -156727,7 +156727,7 @@
           "line": 1475,
           "endLine": 1515,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -156907,7 +156907,33 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "attk_protection",
+            "implementation": "js/mhitm.js",
+            "symbol": "attk_protection",
+            "sourceReview": "Read the full mhitm.c:1475-1518 definition and compared every switch arm and its return mask with js/mhitm.js:141-167. The AT_NONE, AT_SPIT, AT_EXPL, AT_BOOM, AT_GAZE, AT_BREA and AT_MAGC arms return ~0L; AT_CLAW, AT_TUCH and AT_WEAP return W_ARMG; AT_KICK returns W_ARMF; AT_BUTT returns W_ARMH; AT_HUGS returns W_ARMC|W_ARMG; AT_BITE, AT_STNG, AT_ENGL, AT_TENT and default return 0L. The source helper has no RNG, output or game-state mutation and has no callees. The production path is mhitu.c:passiveum:2484, reached through mattacku/hitmu; js/mhitu.js:passiveum calls the existing helper. The other C call sites, mhitm.c:mdamagem:1035 and uhitm.c:passive:5936, remain outside A87 because their current JS paths refuse the corresponding branches; this task does not claim those callers are wired.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "passiveum",
+                "source": "mhitu.c:passiveum:2484 calls attk_protection((int)mattk->aatyp); mhitu.c:mattacku:1262 dispatches to passiveum and js/mhitu.js:hitmu:1883 mirrors that dispatch."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "322705dc95befcb60a40d35aac0a02b697aece4f"
+          }
+        ],
+        "entryPointReview": "This A87 helper-only scope covers the pure mask lookup and its existing JS production wiring through mhitu.c:passiveum:2484. The live JS dispatch is hitmu→passiveum, corresponding to mhitu.c:mattacku:1262→passiveum. Two other C call paths are not claimed: mhitm.c:mdamagem:1035 is stopped by the current JS petrification precheck, and uhitm.c:passive:5936 is stopped by the current JS passive-handler refusal for AD_STON. The source-pinned test checks the complete switch with numeric attack values from monattk.h and mask values from prop.h. Because this source unit is pure, no recorded play is required for its completion evidence.",
+        "entryPoints": []
+      }
     }
   ]
 }
