@@ -1,6 +1,6 @@
 {
   "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
-  "remainingScreens": 4,
+  "remainingScreens": 3,
   "recordedSteps": 138,
   "corpus": "synthetic",
   "batch": "v21",
@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v21.json",
   "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
   "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
-  "evaluationPath": "challenges/evaluations/20261004001232-v21.json",
-  "evaluationCommit": "dbe3b13eb8d89e203a0ae76d9c0d8592703b435f",
-  "status": "complete",
-  "commit": "dbe3b13eb8d89e203a0ae76d9c0d8592703b435f",
+  "evaluationPath": "challenges/evaluations/20261004124607-v21.json",
+  "evaluationCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+  "status": "partial",
+  "commit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v21",
@@ -24,12 +24,12 @@
     "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
     "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
     "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
-    "replayInputSha256": "372a8f55a086adee8df29a2eb24e7bae5ea58a251f91e90f0d6e75fc827c7aaa",
-    "evaluationPath": "challenges/evaluations/20261004001232-v21.json",
-    "evaluationCommit": "dbe3b13eb8d89e203a0ae76d9c0d8592703b435f",
-    "evaluationArtifact": "challenges/evaluations/20261004001232-v21.json",
-    "evaluationUtc": "2026-10-04T00:13:52.654Z",
-    "remainingScreens": 4,
+    "replayInputSha256": "523eda35187d23f558edc23a3a0b6cbf7fd446cadd7b69fe82270f0338d3453c",
+    "evaluationPath": "challenges/evaluations/20261004124607-v21.json",
+    "evaluationCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+    "evaluationArtifact": "challenges/evaluations/20261004124607-v21.json",
+    "evaluationUtc": "2026-10-04T12:47:35.624Z",
+    "remainingScreens": 3,
     "recordedSteps": 138,
     "previousScreensMatched": 134,
     "regression": false,
@@ -37,94 +37,99 @@
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 134,
+        "matched": 135,
         "total": 138
       },
       "rng": {
-        "matched": 2741,
+        "matched": 2752,
         "total": 2820
       },
       "cursors": {
-        "matched": 138,
+        "matched": 135,
         "total": 138
       }
     },
     "firstMismatch": {
       "screen": {
-        "index": 134,
+        "index": 135,
         "location": {
           "segmentIndex": 0,
-          "stepIndex": 134,
+          "stepIndex": 135,
           "key": "."
         },
         "kind": "ch",
         "row": 0,
         "column": 0,
         "cCell": {
-          "ch": "\"",
+          "ch": "I",
           "color": 8,
           "attr": 0,
           "decgfx": 0
         },
         "jsCell": {
-          "ch": "I",
+          "ch": "\"",
           "color": 8,
           "attr": 0,
           "decgfx": 0
         }
       },
       "rng": {
-        "index": 2726,
-        "cEntry": "rn2(3)=2",
-        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
-        "jsEntry": "rn2(5)=4",
+        "index": 2752,
+        "cEntry": "rnd(20)=19",
+        "cCaller": "resist_conflict(mondata.c:1612)",
+        "jsEntry": "rn2(3)=2",
         "location": {
           "segmentIndex": 0,
-          "stepIndex": 134,
+          "stepIndex": 135,
           "key": "."
         },
-        "stepIndex": 134
+        "stepIndex": 135
       },
-      "cursor": null
+      "cursor": {
+        "index": 135,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 135,
+          "key": "."
+        },
+        "cCursor": [
+          69,
+          16,
+          1
+        ],
+        "jsCursor": [
+          67,
+          0,
+          1
+        ]
+      }
     },
-    "step": 134,
+    "step": 135,
     "kind": "rng",
-    "sourceFile": "nhlib.lua",
-    "function": "shuffle",
+    "sourceFile": "mondata.c",
+    "function": "resist_conflict",
     "message": null,
-    "cFile": null,
-    "luaFile": "nhlib.lua",
-    "line": 19,
-    "helper": {
-      "function": "random",
-      "luaFile": "nhlib.lua",
-      "line": 8
-    }
+    "cFile": "mondata.c",
+    "luaFile": null,
+    "line": 1612
   },
-  "summary": "The first divergence at segment 0 step 134 is the missing angel_cuss quest pager. wizard.c:cuss now reaches its lawful-minion branch and explicitly records the discarded-void questpgr.c:com_pager gap. The C pager initializes the Lua shuffle, selects the quote, and displays it; those draws and output are absent in JavaScript. Complete the common-message pager and wire its source callers.",
+  "summary": "Complete quest text now matches the Archon taunt through step134. At step135 JavaScript emits another angel taunt and pager RNG draw, while C proceeds to resist_conflict and a melee message. The caller predicate or actor causing this extra invocation remains unresolved; three cursor mismatches follow the same divergence.",
   "source": {
-    "file": "questpgr.c",
+    "file": "monmove.c",
+    "branch": "After the matching angel cuss at step134, the next recorded dot reaches C resist_conflict without another com_pager_core call; JS instead enters the common angel_cuss pager again.",
     "functions": [
-      "com_pager",
-      "com_pager_core"
+      "dochug"
     ],
-    "branch": "A non-Deaf lawful minion that is not renegade passes the monmove.c:dochug cuss gate. wizard.c:cuss calls com_pager(\"angel_cuss\"); com_pager dispatches to com_pager_core(\"common\",msgid,TRUE,NULL). The core initializes quest Lua, resolves the section/message and fallback, draws an array quote when text is absent, selects output mode, delivers it, records the synopsis, and releases temporary state.",
     "callers": [
-      "monmove.c:dochug -> wizard.c:cuss -> questpgr.c:com_pager -> questpgr.c:com_pager_core",
-      "js/monmove.js:dochug -> js/wizard.js:cuss; the angel_cuss and demon_cuss arms explicitly record note_unported(\"questpgr.c com_pager\")",
-      "questpgr.c:qt_pager consumes com_pager_core success to select its fallback; questpgr.c:stinky_nemesis also calls the core for raw text"
+      "wizard.c:cuss calls questpgr.c:com_pager for angel_cuss; JS extra invocation at step135 is observed, but the exact actor and dochug caller predicate still need attribution."
     ],
-    "dependencies": [
-      "dat/nhlib.lua initialization shuffle and dat/quest.lua message tables",
-      "questpgr.c:skip_pager, get_table_str_opt and get_table_option control selection; convert_line and delivery helpers format output",
-      "Audit the complete core, rawtext and fallback branches, output modes and synopsis history; existing js/questpgr.js:comPagerCore is partial and does not establish completion."
-    ]
+    "dependencies": []
   },
   "evidence": [
-    "Current challenges/evaluations/20261004001232-v21.json at dbe3b13eb8d89e203a0ae76d9c0d8592703b435f: 134/138 screens, 2741/2820 RNG calls and 138/138 cursors match. First screen and RNG mismatch remain segment 0 step 134.",
-    "The immutable C recording at step 134 records rn2(5)=0 @ dochug(monmove.c:992), then rn2(3)=2 and rn2(2)=0 from nhlib.lua shuffle, then rn2(14)=0 @ com_pager_core(questpgr.c:566). The C screen starts the angel_cuss quote. This establishes the pager rather than a missing outer gate as the first residual.",
-    "Whole wizard.c:cuss and its consumed priest.c:mon_aligntyp helper are now verified. js/wizard.js:cuss preserves the lawful-minion branch and records the named questpgr.c:com_pager gap; no fabricated pager output or RNG stands in for it. The preceding step-133 gate diagnosis is resolved.",
-    "questpgr.c:com_pager (624–627) discards the core result, while qt_pager (630–634) consumes it for fallback and stinky_nemesis uses rawtext. com_pager_core (468–621) owns message lookup, quote draw, output and synopsis handling. js/questpgr.js:com_pager currently supports only portal message IDs; private comPagerCore lacks the full rawtext and synopsis behavior. Preserve those independent source branches in a whole-source plan."
-  ],
-  "goalKind": "file-port"
+    "Whole dat/quest.lua and its common pager route were ported at f3b1ff3ac670e168e558ab641d1cfbfd229f5382. The frozen recording and matching prefix through normalized segment0 step134 show the source quote and pager RNG/output; this does not establish full monster caller completion.",
+    "Complete evaluation challenges/evaluations/20261004124607-v21.json records 135/138 screens, 2752/2820 RNG calls and 135/138 cursors. The previous accepted evaluation had 134/138 screens, 2741/2820 RNG and 138/138 cursors. These measured cursor losses remain visible.",
+    "Pinned read-only replays run-AveZf2 and run-m7TPs9 establish candidate matching screen/cursor prefix0–134. Both C and JS step134 display the repent taunt followed by It hits!, cursor[69,16,1]. Baseline5346c19 already diverged at134 because it omitted the common pager text/RNG.",
+    "At normalized step135 C draws rnd(20)=19 in mondata.c:resist_conflict and displays It hits! You feel a bit steadier now. JS instead enters another common angel-cuss pager initialization, starts rn2(3)=2 and displays the thou-shalt-meet-thy-maker taunt followed by It hits!--More--. JS cursor[67,0,1] differs from C[69,16,1] at135–137; no cursor-only defect precedes the output/RNG divergence.",
+    "Next source-backed probe: identify the JS cuss caller and monster at step135, then compare monmove.c:dochug MS_CUSS and action/Conflict gates with C preconditions. The earlier rn2(3) minvis attribution was only a guess and is superseded by the observed pager initialization. Do not infer the actor solely from RNG annotations."
+  ]
 }

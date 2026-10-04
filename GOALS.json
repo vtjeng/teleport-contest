@@ -162775,7 +162775,7 @@
     {
       "id": "port-quest-text-data-lua-v21-20261004",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete quest text Lua data and common pager callers",
       "luaFile": "quest.lua",
       "sessions": [
@@ -162789,8 +162789,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "quest.lua",
@@ -163124,6 +163127,253 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+          "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+          "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
+          "replayInputSha256": "523eda35187d23f558edc23a3a0b6cbf7fd446cadd7b69fe82270f0338d3453c",
+          "evaluationPath": "challenges/evaluations/20261004124607-v21.json",
+          "evaluationCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+          "evaluationArtifact": "challenges/evaluations/20261004124607-v21.json",
+          "evaluationUtc": "2026-10-04T12:47:35.624Z",
+          "remainingScreens": 3,
+          "recordedSteps": 138,
+          "previousScreensMatched": 134,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 135,
+              "total": 138
+            },
+            "rng": {
+              "matched": 2752,
+              "total": 2820
+            },
+            "cursors": {
+              "matched": 135,
+              "total": 138
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 135,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 135,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "\"",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2752,
+              "cEntry": "rnd(20)=19",
+              "cCaller": "resist_conflict(mondata.c:1612)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 135,
+                "key": "."
+              },
+              "stepIndex": 135
+            },
+            "cursor": {
+              "index": 135,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 135,
+                "key": "."
+              },
+              "cCursor": [
+                69,
+                16,
+                1
+              ],
+              "jsCursor": [
+                67,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 135,
+          "kind": "rng",
+          "sourceFile": "mondata.c",
+          "function": "resist_conflict",
+          "message": null,
+          "cFile": "mondata.c",
+          "luaFile": null,
+          "line": 1612,
+          "investigation": {
+            "status": "partial",
+            "path": "investigations/synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+              "remainingScreens": 3,
+              "recordedSteps": 138,
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+              "evaluationPath": "challenges/evaluations/20261004124607-v21.json",
+              "evaluationCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+              "status": "partial",
+              "commit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+                "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+                "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+                "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+                "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
+                "replayInputSha256": "523eda35187d23f558edc23a3a0b6cbf7fd446cadd7b69fe82270f0338d3453c",
+                "evaluationPath": "challenges/evaluations/20261004124607-v21.json",
+                "evaluationCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+                "evaluationArtifact": "challenges/evaluations/20261004124607-v21.json",
+                "evaluationUtc": "2026-10-04T12:47:35.624Z",
+                "remainingScreens": 3,
+                "recordedSteps": 138,
+                "previousScreensMatched": 134,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 135,
+                    "total": 138
+                  },
+                  "rng": {
+                    "matched": 2752,
+                    "total": 2820
+                  },
+                  "cursors": {
+                    "matched": 135,
+                    "total": 138
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 135,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 135,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "\"",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2752,
+                    "cEntry": "rnd(20)=19",
+                    "cCaller": "resist_conflict(mondata.c:1612)",
+                    "jsEntry": "rn2(3)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 135,
+                      "key": "."
+                    },
+                    "stepIndex": 135
+                  },
+                  "cursor": {
+                    "index": 135,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 135,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      69,
+                      16,
+                      1
+                    ],
+                    "jsCursor": [
+                      67,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 135,
+                "kind": "rng",
+                "sourceFile": "mondata.c",
+                "function": "resist_conflict",
+                "message": null,
+                "cFile": "mondata.c",
+                "luaFile": null,
+                "line": 1612
+              },
+              "summary": "Complete quest text now matches the Archon taunt through step134. At step135 JavaScript emits another angel taunt and pager RNG draw, while C proceeds to resist_conflict and a melee message. The caller predicate or actor causing this extra invocation remains unresolved; three cursor mismatches follow the same divergence.",
+              "source": {
+                "file": "monmove.c",
+                "branch": "After the matching angel cuss at step134, the next recorded dot reaches C resist_conflict without another com_pager_core call; JS instead enters the common angel_cuss pager again.",
+                "functions": [
+                  "dochug"
+                ],
+                "callers": [
+                  "wizard.c:cuss calls questpgr.c:com_pager for angel_cuss; JS extra invocation at step135 is observed, but the exact actor and dochug caller predicate still need attribution."
+                ],
+                "dependencies": []
+              },
+              "evidence": [
+                "Whole dat/quest.lua and its common pager route were ported at f3b1ff3ac670e168e558ab641d1cfbfd229f5382. The frozen recording and matching prefix through normalized segment0 step134 show the source quote and pager RNG/output; this does not establish full monster caller completion.",
+                "Complete evaluation challenges/evaluations/20261004124607-v21.json records 135/138 screens, 2752/2820 RNG calls and 135/138 cursors. The previous accepted evaluation had 134/138 screens, 2741/2820 RNG and 138/138 cursors. These measured cursor losses remain visible.",
+                "Pinned read-only replays run-AveZf2 and run-m7TPs9 establish candidate matching screen/cursor prefix0–134. Both C and JS step134 display the repent taunt followed by It hits!, cursor[69,16,1]. Baseline5346c19 already diverged at134 because it omitted the common pager text/RNG.",
+                "At normalized step135 C draws rnd(20)=19 in mondata.c:resist_conflict and displays It hits! You feel a bit steadier now. JS instead enters another common angel-cuss pager initialization, starts rn2(3)=2 and displays the thou-shalt-meet-thy-maker taunt followed by It hits!--More--. JS cursor[67,0,1] differs from C[69,16,1] at135–137; no cursor-only defect precedes the output/RNG divergence.",
+                "Next source-backed probe: identify the JS cuss caller and monster at step135, then compare monmove.c:dochug MS_CUSS and action/Conflict gates with C preconditions. The earlier rn2(3) minvis attribution was only a guess and is superseded by the observed pager initialization. Do not infer the actor solely from RNG annotations."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
