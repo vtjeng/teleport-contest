@@ -160088,14 +160088,14 @@
           "line": 345,
           "endLine": 362,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "ing_suffix",
           "line": 363,
           "endLine": 399,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -160354,7 +160354,70 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "s_suffix",
+            "implementation": "js/hacklib.js",
+            "symbol": "s_suffix",
+            "sourceReview": "Read the complete hacklib.c:s_suffix definition at 345-359. The helper copies input to static buf, tests strcmpi(buf,\"it\") before strcmpi(buf,\"you\"), then tests the exact final byte via eos(buf)-1 for lowercase s, appends the selected suffix, and returns buf. The JS helper preserves all four branches and represents the C scratch buffer as a fresh immutable string. There are no RNG calls, messages/screens, or game-state mutations. strcmpi expands in include/global.h:113-117 to strncmpi((a),(b),-1); accepted whole evidence for hacklib.c:strncmpi and hacklib.c:eos is in port-hack-pooleffects-spoteffects-recursive-ice-v17-20261002. Strcpy/Strcat return values are discarded.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "xname_flags",
+                "source": "C objnam.c:xname_flags:1855 calls s_suffix(mnam) for unique or personal monster names; JS js/objnam.js:xname_flags:1415 calls the selected helper before producing the possessive name."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "drop",
+                "source": "C do.c:drop:744 calls s_suffix(mnam_p) for swallowed-drop feedback; JS js/do.js:drop:1519 constructs the corresponding possessive holder name."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/hacklib-strings.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "hacklib.c",
+            "synthetic": [],
+            "checkedAt": "0640c774b40e6d54460a132eb0cbd28d37761c5a"
+          },
+          {
+            "name": "ing_suffix",
+            "implementation": "js/hacklib.js",
+            "symbol": "ing_suffix",
+            "sourceReview": "Read the complete hacklib.c:ing_suffix definition at 363-396. It copies input into static buf, saves the end pointer, checks trailing \" on\", \" off\", and \" with\" in that exact case-insensitive order, saves the final-space suffix using strrchr, then applies the case-insensitive er no-op, CVC doubling with the exact vowel set aeiouwy, case-insensitive ie-to-y, and lowercase-e deletion in source order. It appends ing and then the saved tail. The JS helper preserves those branches and returns an immutable string for the C scratch buffer. Its only consumed game-function returns are eos and strcmpi/strncmpi, both already accepted as whole units; strchr/strrchr are libc, and other copy/append returns are discarded. It makes no RNG call, emits no output and changes no game state.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "mime_action",
+                "source": "C invent.c:mime_action:1704 calls ing_suffix(bp) when building mime feedback; JS js/invent.js:mime_action:977 calls the selected helper in the same message construction."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "swim_move_danger",
+                "source": "C hack.c:swim_move_danger:1913 calls ing_suffix(u_locomotion(\"step\")) for avoided-step feedback; JS js/hack.js:swim_move_danger:3153 uses the helper for the same message."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "do_attack",
+                "source": "C uhitm.c:do_attack:546 calls ing_suffix for unarmed attack feedback; JS js/uhitm.js:do_attack:2073 constructs the same gerund."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/hacklib-strings.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "hacklib.c",
+            "synthetic": [],
+            "checkedAt": "0640c774b40e6d54460a132eb0cbd28d37761c5a"
+          }
+        ],
+        "entryPointReview": "Helper-only range: these pure string formatters add no command/action entry point, so entryPoints is empty. Existing active direct JS caller routes are xname_flags and swallowed drop feedback for s_suffix, and mime_action, swim_move_danger, and do_attack for ing_suffix. C timeout.c:hatch_egg:1121 also calls ing_suffix, but its outer JavaScript timer path remains unported and is explicitly outside this helper task; no hatch_egg completion is claimed.",
+        "entryPoints": []
+      }
     }
   ]
 }
