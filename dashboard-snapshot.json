@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-04T07:04:17.431Z",
+  "capturedAt": "2026-10-04T07:45:51.502Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -18012,12 +18012,105 @@
         "type": "accepted",
         "at": "2026-10-04T07:04:16.879Z",
         "task": "A88"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A88-published-d0d1d935",
+        "type": "published",
+        "at": "2026-10-04T07:07:29.919Z",
+        "task": "A88",
+        "commit": "d0d1d93541bd7f90d4b08c4eaa348189413d132b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B101-zap-destroyable-20261004",
+        "type": "assign",
+        "at": "2026-10-04T07:09:10.766Z",
+        "task": "B101",
+        "worker": "B",
+        "goal": "port-zap-destroyable-v18-20261004",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A89-integrating-dc330f1e",
+        "type": "integrating",
+        "at": "2026-10-04T07:10:45.395Z",
+        "task": "A89",
+        "integration": "dc330f1e73abfa3d96c1715f6952b0e9c8391a48"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4f75db6fa60d648826c4121f13c8993b022a79f1",
+        "type": "ready",
+        "at": "2026-10-04T07:17:06.896Z",
+        "task": "B101",
+        "delivery": "4f75db6fa60d648826c4121f13c8993b022a79f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B101-received-4f75db6f",
+        "type": "received",
+        "at": "2026-10-04T07:18:40.132Z",
+        "task": "B101",
+        "delivery": "4f75db6fa60d648826c4121f13c8993b022a79f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A93-zap-resistance-map-20261004",
+        "type": "assign",
+        "at": "2026-10-04T07:24:41.836Z",
+        "task": "A93",
+        "worker": "A2",
+        "goal": "port-zap-adtyp-resistance-map-v21-20261004",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C78-quest-text-data-lua-v21-20261004",
+        "type": "assign",
+        "at": "2026-10-04T07:40:21.043Z",
+        "task": "C78",
+        "worker": "C",
+        "goal": "port-quest-text-data-lua-v21-20261004",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-99a785cb2773e12fd6e76f42639e4e1fbf367582",
+        "type": "ready",
+        "at": "2026-10-04T07:43:55.487Z",
+        "task": "A93",
+        "delivery": "99a785cb2773e12fd6e76f42639e4e1fbf367582"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A89-validated-dc330f1e",
+        "type": "validated",
+        "at": "2026-10-04T07:44:39.048Z",
+        "task": "A89",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A93-received-99a785cb",
+        "type": "received",
+        "at": "2026-10-04T07:45:23.937Z",
+        "task": "A93",
+        "delivery": "99a785cb2773e12fd6e76f42639e4e1fbf367582"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A89-accepted-dc330f1e",
+        "type": "accepted",
+        "at": "2026-10-04T07:45:51.070Z",
+        "task": "A89"
       }
     ]
   },
   "development": {
-    "executionCommit": "2f89e76867ec12ad25535b7af643a17309089976",
-    "measuredAt": "2026-10-04T07:00:29.444Z",
+    "executionCommit": "dc330f1e73abfa3d96c1715f6952b0e9c8391a48",
+    "measuredAt": "2026-10-04T07:25:33.963Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
