@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61007683,
+      "datetime": "20561004091500",
+      "nethackrc": "OPTIONS=name:C76Cap,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nettin\n #wizwish\nblessed potion of gain ability\nqo",
+      "comment": "Source-directed cheap variation of the frozen Hill Giant route: monsters.h defines Ettin with M2_STRONG and without M2_GIANT, while role.c:character_race has no Ettin entry. polyself.c:uasmon_maxStr therefore takes the strong, non-giant, non-race STR18(100)=118 branch. The blessed potion's +1 Strength attempt should stop at that form cap; this contrasts the living Hill Giant STR19(19)=119 branch."
+    }
+  ]
+}

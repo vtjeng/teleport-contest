@@ -131,7 +131,7 @@ import {
 import { bare_artifactname, the, ysimple_name } from './objnam.js';
 // js/polyself.js imports exercise() from this file; both sides use the
 // other's exports only inside function bodies, so the cycle resolves.
-import { body_part } from './polyself.js';
+import { body_part, uasmon_maxStr } from './polyself.js';
 // js/potion.js imports adjattrib, exercise, poisontell from this file;
 // both sides use the other's exports only inside function bodies, so the
 // cycle resolves.
@@ -1166,8 +1166,11 @@ export async function adjattrib(
     const racialMinimum = Math.trunc(
         state.urace?.attrmin?.[index] ?? attrs.base[index],
     );
-    const racialMaximum = Math.trunc(
-        state.urace?.attrmax?.[index] ?? attrs.max[index],
+    // attrib.h:ATTRMAX(A_STR) uses the current form's cap while Upolyd.
+    const attributeMaximum = Math.trunc(
+        index === A_STR && Upolyd(state.u)
+            ? uasmon_maxStr(state)
+            : (state.urace?.attrmax?.[index] ?? attrs.max[index]),
     );
     attrs.base[index] += increment;
 
@@ -1176,8 +1179,8 @@ export async function adjattrib(
     if (increment > 0) {
         if (attrs.base[index] > attrs.max[index]) {
             attrs.max[index] = attrs.base[index];
-            if (attrs.max[index] > racialMaximum)
-                attrs.base[index] = attrs.max[index] = racialMaximum;
+            if (attrs.max[index] > attributeMaximum)
+                attrs.base[index] = attrs.max[index] = attributeMaximum;
         }
         description = POSITIVE_ATTRIBUTE_DESCRIPTIONS[index];
         bonusOpposesChange = attributeBonus(state.u, index) < 0;
