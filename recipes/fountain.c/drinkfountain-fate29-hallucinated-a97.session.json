@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C-first Hallucination variation of the independently chosen A97 fountain route. It keeps the primary recipe's role, seed, clock and fountain wish, then grants timed Hallucination through the source debug command before q/y. C still selects fate 3, so this does not reach drinkfountain's hliquid branch. Strict replay fails earlier at zero-based segment 0, step 27 (the first Hallucination refresh): C shows '+' and JS shows '[' at screen row 16, column 45, in the display.c newsym screen-refresh path. Preserve the C capture at /tmp/A97-drinkfountain-fate29-hallucinated-c-capture.session.json (SHA-256 133649300fe2e1a265e4687c8bdaeac62b29490a51480eaaa3ee5e72f9d2a38c); this unrelated screen mismatch blocks quaffing, so no recording is committed.",
+  "segments": [
+    {
+      "seed": 73519421,
+      "datetime": "20370518110642",
+      "nethackrc": "OPTIONS=name:FountainScareA97,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017fountain\n#wizintrinsic\nh\n qy"
+    }
+  ]
+}

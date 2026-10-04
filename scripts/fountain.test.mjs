@@ -14,6 +14,7 @@ import {
     Align2amask,
     A_DEX,
     A_MAX,
+    BLINDED,
     COULD_SEE,
     DEAF,
     FIRE_RES,
@@ -26,6 +27,7 @@ import {
     IN_SIGHT,
     ICE,
     ICED_POOL,
+    INVIS,
     LEVITATION,
     MM_NOMSG,
     POOL,
@@ -33,6 +35,7 @@ import {
     ROOM,
     SICK,
     SICK_VOMITABLE,
+    SEE_INVIS,
     SINK,
     S_LRING,
     TIMEOUT,
@@ -55,13 +58,16 @@ import {
     PM_SEWER_RAT,
     PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN,
+    PM_WATER_NYMPH,
+    PM_VROCK,
     M1_TPORT,
     PM_HUMAN,
     PM_WATCHMAN,
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
 import {
-    DILITHIUM_CRYSTAL, LOADSTONE, LUCKSTONE, POTION_CLASS, POT_SPEED,
+    DILITHIUM_CRYSTAL, GOLD_PIECE, LOADSTONE, LUCKSTONE,
+    POTION_CLASS, POT_SPEED,
     POT_WATER,
 } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
@@ -238,6 +244,342 @@ test('drinkfountain dispatches fate 30 to gushing before dryup', async () => {
     assert.deepEqual(expectedDraws, []);
     assert.equal(messages.at(0),
         'Water gushes forth from the overflowing fountain!');
+    assert.equal(location.typ, FOUNTAIN);
+});
+
+test('drinkfountain fate 24 curses eligible items in inventory order', async () => {
+    const { c } = await drinkfountainSource();
+    assert.match(c,
+        /for \(obj = gi\.invent; obj; obj = nextobj\)[\s\S]*?nextobj = obj->nobj;[\s\S]*?obj->oclass != COIN_CLASS && !obj->cursed && !rn2\(5\)[\s\S]*?curse\(obj\);[\s\S]*?if \(buc_changed\)[\s\S]*?update_inventory\(\);/u);
+
+    await startedGame();
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.horizontal = 0;
+    location.flags = 0;
+    game.invent = null; // Keep the source scan to the three items below.
+
+    const changed = mksobj(POT_SPEED, false, false, { state: game });
+    changed.blessed = true;
+    const alreadyCursed = mksobj(POT_SPEED, false, false, { state: game });
+    alreadyCursed.cursed = true;
+    const coin = mksobj(GOLD_PIECE, false, false, { state: game });
+    // C scans the head first; linking in reverse makes the coin and cursed
+    // potion prove that those entries consume no rn2(5) draw.
+    addinv(changed, { state: game });
+    addinv(alreadyCursed, { state: game });
+    addinv(coin, { state: game });
+
+    const draws = [];
+    const queuedBucDraws = [[5, 0], [3, 1]];
+    await drinkfountain(game, {
+        message: () => {},
+        random: {
+            rnd(bound) {
+                assert.equal(bound, 30); // C chooses one of thirty fates.
+                return 24; // This reaches fountain.c's item-curse branch.
+            },
+            rn2(bound) {
+                const expected = queuedBucDraws.shift();
+                assert.ok(expected, `unexpected rn2(${bound})`);
+                assert.equal(bound, expected[0]);
+                draws.push([bound, expected[1]]);
+                return expected[1];
+            },
+        },
+    });
+
+    assert.deepEqual(draws, [[5, 0], [3, 1]]);
+    assert.deepEqual(queuedBucDraws, []);
+    assert.equal(changed.cursed, true);
+    assert.equal(changed.blessed, false);
+    assert.equal(alreadyCursed.cursed, true);
+    assert.equal(coin.cursed, false);
+    assert.equal(location.typ, FOUNTAIN); // rn2(3)=1 keeps the fountain.
+});
+
+test('drinkfountain fate 25 preserves all see-invisible message branches', async () => {
+    const { c } = await drinkfountainSource();
+    assert.match(c,
+        /case 25:[\s\S]*?if \(Blind\)[\s\S]*?if \(Invisible\)[\s\S]*?HSee_invisible \|= FROMOUTSIDE;[\s\S]*?newsym\(u\.ux, u\.uy\);[\s\S]*?exercise\(A_WIS, TRUE\);/u);
+
+    const cases = [
+        {
+            blind: true,
+            invisible: true,
+            expected: ['You feel transparent.'],
+            reason: 'Blind plus Invisible selects the transparent message.',
+        },
+        {
+            blind: true,
+            invisible: false,
+            expected: [
+                'You feel very self-conscious.',
+                'Then it passes.',
+            ],
+            reason: 'Blind without Invisible selects the two-line message.',
+        },
+        {
+            blind: false,
+            invisible: false,
+            expected: [
+                'You see an image of someone stalking you.',
+                'But it disappears.',
+            ],
+            reason: 'A sighted hero sees the stalking image.',
+        },
+    ];
+    for (const { blind, invisible, expected, reason } of cases) {
+        await startedGame();
+        const location = game.level.at(game.u.ux, game.u.uy);
+        location.typ = FOUNTAIN;
+        location.horizontal = 0;
+        location.flags = 0;
+        if (blind) game.u.uprops[BLINDED].intrinsic = FROMOUTSIDE;
+        if (invisible) game.u.uprops[INVIS].intrinsic = FROMOUTSIDE;
+
+        const messages = [];
+        const queue = [[19, 0], [3, 1]];
+        await drinkfountain(game, {
+            message: (line) => messages.push(line),
+            random: {
+                rnd(bound) {
+                    assert.equal(bound, 30); // C draws the fountain fate.
+                    return 25; // This reaches the see-invisible branch.
+                },
+                rn2(bound) {
+                    const expectedDraw = queue.shift();
+                    assert.ok(expectedDraw, `${reason} unexpected rn2(${bound})`);
+                    assert.equal(bound, expectedDraw[0]);
+                    return expectedDraw[1];
+                },
+            },
+        });
+
+        assert.deepEqual(messages, expected, reason);
+        assert.ok(game.u.uprops[SEE_INVIS].intrinsic & FROMOUTSIDE,
+            'C adds FROMOUTSIDE to HSee_invisible');
+        assert.deepEqual(queue, [], reason);
+    }
+});
+
+test('drinkfountain fate 28 awaits the ordinary water-nymph result', async () => {
+    const { c } = await drinkfountainSource();
+    assert.match(c, /case 28:[\s\S]*?dowaternymph\(\);[\s\S]*?dryup\(u\.ux, u\.uy, TRUE\);/u);
+
+    await startedGame();
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.horizontal = 0;
+    location.flags = 0;
+    const nymph = newMonster({
+        data: game.mons[PM_WATER_NYMPH],
+        mnum: PM_WATER_NYMPH,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mhp: 12, // One living nymph is enough to verify the caller's result.
+        mhpmax: 12,
+        msleeping: true,
+    });
+    const events = [];
+    const queue = [[3, 1]];
+    await drinkfountain(game, {
+        message: async (line) => {
+            events.push(line);
+            await Promise.resolve();
+        },
+        random: {
+            rnd(bound) {
+                assert.equal(bound, 30); // C's fate selector has bound 30.
+                return 28; // This selects the ordinary nymph effect.
+            },
+            rn2(bound) {
+                assert.equal(bound, queue[0][0]);
+                assert.equal(Boolean(nymph.msleeping), false,
+                    'the awaited nymph effect completes before dryup');
+                queue.shift();
+                return 1; // Keep the fountain for inspection.
+            },
+        },
+        async makeMonster(type, x, y, flags) {
+            assert.equal(type, game.mons[PM_WATER_NYMPH]);
+            assert.equal(x, game.u.ux);
+            assert.equal(y, game.u.uy);
+            assert.equal(flags, MM_NOMSG);
+            events.push('created');
+            await Promise.resolve();
+            return nymph;
+        },
+    });
+
+    assert.deepEqual(events, ['created', 'You attract a water nymph!']);
+    assert.equal(Boolean(nymph.msleeping), false);
+    assert.deepEqual(queue, []);
+    assert.equal(location.typ, FOUNTAIN);
+});
+
+test('drinkfountain fate 29 flees live monsters before the common dryup tail', async () => {
+    const { c, js } = await drinkfountainSource();
+    assert.match(c,
+        /for \(mtmp = fmon; mtmp; mtmp = mtmp->nmon\)[\s\S]*?if \(DEADMONSTER\(mtmp\)\)[\s\S]*?continue;[\s\S]*?monflee\(mtmp, 0, FALSE, FALSE\);/u);
+    assert.match(js,
+        /for \(let mtmp = state\.level\.monlist;[\s\S]*?if \(mtmp\.mhp < 1\) continue;[\s\S]*?await monflee\(mtmp, 0, false, false,/u);
+    assert.doesNotMatch(js, /UnsupportedFountainError/u);
+
+    await startedGame();
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.horizontal = 0;
+    location.flags = 0;
+    const first = newMonster({
+        data: game.mons[PM_HUMAN],
+        mnum: PM_HUMAN,
+        mhp: 8, // A living human exercises monflee without Vrock gas effects.
+        mhpmax: 8,
+        mcanmove: true,
+        mfleetim: 7, // Zero flee time must clear an existing timer.
+    });
+    const dead = newMonster({
+        data: game.mons[PM_HUMAN],
+        mnum: PM_HUMAN,
+        mhp: 0, // DEADMONSTER skips this node before calling monflee.
+        mfleetim: 9,
+    });
+    const alreadyFleeing = newMonster({
+        data: game.mons[PM_HUMAN],
+        mnum: PM_HUMAN,
+        mhp: 6, // A second living list node checks the loop continues.
+        mhpmax: 6,
+        mcanmove: true,
+        mflee: true,
+        mfleetim: 5, // The false `first` argument permits refreshing it.
+    });
+    first.nmon = dead;
+    dead.nmon = alreadyFleeing;
+    first.mtrack[0] = { x: 2, y: 3 }; // Nonzero source tracking is cleared.
+    alreadyFleeing.mtrack[0] = { x: 4, y: 5 };
+    game.level.monlist = first;
+
+    const messages = [];
+    await drinkfountain(game, {
+        message: (line) => messages.push(line),
+        random: {
+            rnd(bound) {
+                assert.equal(bound, 30); // C selects exactly one of 30 fates.
+                return 29; // This is the scare fate that calls monflee.
+            },
+            rn2(bound) {
+                assert.equal(bound, 3); // dryup tests the fountain with rn2(3).
+                assert.equal(first.mflee, true);
+                assert.equal(first.mfleetim, 0);
+                assert.ok(first.mtrack.every(({ x, y }) => !x && !y));
+                assert.equal(alreadyFleeing.mflee, true);
+                assert.equal(alreadyFleeing.mfleetim, 0);
+                assert.ok(alreadyFleeing.mtrack.every(({ x, y }) => !x && !y));
+                assert.equal(dead.mfleetim, 9,
+                    'the dead node is skipped before monflee');
+                return 1; // Keep the fountain in place for the final checks.
+            },
+        },
+    });
+
+    assert.deepEqual(messages, ['This water gives you bad breath!']);
+    assert.equal(first.mflee, true);
+    assert.equal(alreadyFleeing.mflee, true);
+    assert.equal(dead.mflee, false);
+    assert.equal(location.typ, FOUNTAIN);
+});
+
+test('drinkfountain fate 29 supplies the real Vrock gas-cloud operations', async () => {
+    const { js } = await drinkfountainSource();
+    assert.match(js,
+        /create_gas_cloud\(x, y, size, damage, \{[\s\S]*?blockPoint:[\s\S]*?unblockPoint:[\s\S]*?doesBlock:[\s\S]*?canSee:[\s\S]*?newsym:[\s\S]*?message,/u);
+
+    await startedGame();
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.horizontal = 0;
+    location.flags = 0;
+    const vrock = newMonster({
+        data: game.mons[PM_VROCK],
+        mnum: PM_VROCK,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mhp: 20, // One living Vrock reaches monflee's gas creation arm.
+        mhpmax: 20,
+        mcanmove: true,
+    });
+    game.level.monlist = vrock;
+    game.level.monsters[vrock.mx][vrock.my] = vrock;
+    game.level.regions = [];
+    const rn2Bounds = [];
+    await drinkfountain(game, {
+        message: () => {},
+        random: {
+            rnd(bound) {
+                assert.equal(bound, 30); // C chooses a fountain fate from 30.
+                return 29; // Scare reaches monflee for the Vrock.
+            },
+            rn2(bound) {
+                rn2Bounds.push(bound);
+                return bound === 3 ? 1 : 0;
+            },
+        },
+    });
+
+    assert.equal(vrock.mflee, true);
+    assert.equal(vrock.mspec_used, 75,
+        'rn2(25)=0 gives the C base gas-cloud cooldown');
+    assert.ok(rn2Bounds.includes(25),
+        'monflee consumes its source rn2(25) before cloud placement');
+    assert.equal(game.level.regions.length, 1,
+        'the default caller adapter creates one poison-gas region');
+    assert.equal(game.level.regions[0].arg, 8,
+        'the C monflee call creates its source damage-8 cloud');
+});
+
+test('drinkfountain fate 29 uses display RNG for its hallucinatory liquid', async () => {
+    const { c, js } = await drinkfountainSource();
+    assert.match(c,
+        /case 29:[\s\S]*?hliquid\("water"\)[\s\S]*?monflee\(mtmp, 0, FALSE, FALSE\);/u);
+    assert.match(js,
+        /case 29:[\s\S]*?hliquid\('water', liquidEnv\)[\s\S]*?await monflee\(mtmp, 0, false, false,/u);
+
+    await startedGame();
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.horizontal = 0;
+    location.flags = 0;
+    game.u.uprops[HALLUC].intrinsic = FROMOUTSIDE;
+    const coreDraws = [];
+    const displayBounds = [];
+    const messages = [];
+    await drinkfountain(game, {
+        message: (line) => messages.push(line),
+        random: {
+            rnd(bound) {
+                assert.equal(bound, 30); // C selects one fountain fate.
+                coreDraws.push(bound);
+                return 29; // This calls hliquid before the live-monster scan.
+            },
+            rn2(bound) {
+                coreDraws.push(bound);
+                assert.equal(bound, 3); // dryup consumes the next core draw.
+                return 1; // Preserve the fountain for this check.
+            },
+        },
+        displayRandom(bound) {
+            displayBounds.push(bound);
+            return 0; // C's first hliquid table entry is "yoghurt".
+        },
+    });
+
+    assert.deepEqual(messages, ['This yoghurt gives you bad breath!']);
+    assert.deepEqual(coreDraws, [30, 3],
+        'hliquid draws from the display stream, between fate and dryup');
+    assert.equal(displayBounds.length, 1);
+    assert.ok(displayBounds[0] > 1,
+        'hallucinatory hliquid selects from the source text table');
     assert.equal(location.typ, FOUNTAIN);
 });
 
@@ -476,6 +818,28 @@ async function startedGame() {
         moves: '',
     });
     return game;
+}
+
+async function drinkfountainSource() {
+    const [cSource, jsSource] = await Promise.all([
+        readFile(
+            new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+            'utf8',
+        ),
+        readFile(new URL('../js/fountain.js', import.meta.url), 'utf8'),
+    ]);
+    const cStart = cSource.indexOf('\ndrinkfountain(void)');
+    const cEnd = cSource.indexOf('\n/* dip an object into a fountain', cStart);
+    const jsStart = jsSource.indexOf('export async function drinkfountain(');
+    const jsEnd = jsSource.indexOf('\n// ── Fountain flag macros', jsStart);
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'extract drinkfountain through the next C function definition');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart,
+        'extract the complete JavaScript drinkfountain function');
+    return {
+        c: cSource.slice(cStart, cEnd),
+        js: jsSource.slice(jsStart, jsEnd),
+    };
 }
 
 test('dipfountain curses a carried non-coin through mkobj.c curse()', async () => {

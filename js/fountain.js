@@ -19,12 +19,14 @@ import {
     ER_DESTROYED,
     ER_GREASED,
     ER_NOTHING,
+    FROMOUTSIDE,
     FOUNTAIN,
     G_GONE,
     HALLUC,
     HALLUC_RES,
     HAND,
     HEAD,
+    INVIS,
     IS_DOOR,
     IS_FOUNTAIN,
     KILLED_BY,
@@ -39,6 +41,7 @@ import {
     ROOM,
     SDOOR,
     S_LRING,
+    SEE_INVIS,
     UNCHANGING,
     nothing_seems_to_happen,
 } from './const.js';
@@ -70,7 +73,7 @@ import {
     nolimbs,
 } from './mondata.js';
 import { get_iter_mons } from './mon.js';
-import { onscary, set_apparxy, youHear } from './monmove.js';
+import { monflee, onscary, set_apparxy, youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import { heroIsBlind } from './startup_a11y.js';
 import {
@@ -83,7 +86,15 @@ import { body_part, mbodypart } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { set_levltyp } from './terrain.js';
 import { rloc } from './teleport.js';
-import { cansee, couldsee, do_clear_area_async } from './vision.js';
+import {
+    block_point,
+    cansee,
+    couldsee,
+    does_block,
+    do_clear_area_async,
+    unblock_point,
+} from './vision.js';
+import { create_gas_cloud } from './region.js';
 import { S_cloud } from './symbols.js';
 import { mintrap } from './trap_effects.js';
 import { t_at, delfloortrap } from './trap.js';
@@ -127,6 +138,15 @@ function Levitation(state) {
 function Poison_resistance(state) {
     const value = state.u?.uprops?.[POISON_RES];
     return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+// C ref: youprop.h Invisible. See-invisible suppresses the invisible status.
+function Invisible(state) {
+    const invisibility = state.u?.uprops?.[INVIS];
+    const seeInvisible = state.u?.uprops?.[SEE_INVIS];
+    return Boolean(invisibility?.intrinsic || invisibility?.extrinsic)
+        && !invisibility?.blocked
+        && !(seeInvisible?.intrinsic || seeInvisible?.extrinsic);
 }
 
 // ── floating_above ──
@@ -590,6 +610,7 @@ const F_WARNED = 2;
 export async function drinkfountain(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const liquidEnv = { state, displayRandom: env.displayRandom };
 
     // C rm.h overlays blessedftn on horizontal for fountain terrain. The
     // JavaScript map stores this shared field as a boolean for geometry too.
@@ -752,15 +773,49 @@ export async function drinkfountain(state = game, env = {}) {
         case 23: // Water demon
             await dowaterdemon(state, env);
             break;
-        case 24: // Maybe curse some items
-            throw new UnsupportedFountainError(
-                'cursing-items fountain effect (fate 24)');
-        case 25: // See invisible
-            throw new UnsupportedFountainError(
-                'see-invisible fountain effect (fate 25)');
+        case 24: { // Maybe curse some items
+            let bucChanged = 0;
+            for (let obj = state.invent; obj;) {
+                const nextObj = obj.nobj;
+                if (obj.oclass !== COIN_CLASS && !obj.cursed
+                    && !random.rn2(5)) {
+                    // C's curse() is synchronous. The JavaScript adapter can
+                    // await a light, weapon, or active-book side effect before
+                    // the inventory scan advances to the saved next pointer.
+                    await curse(obj, { ...env, state, random, message });
+                    ++bucChanged;
+                }
+                obj = nextObj;
+            }
+            if (bucChanged) update_inventory({ ...env, state });
+            break;
+        }
+        case 25: { // See invisible
+            if (heroIsBlind(state)) {
+                if (Invisible(state)) {
+                    await message('You feel transparent.', state);
+                } else {
+                    await message('You feel very self-conscious.', state);
+                    await message('Then it passes.', state);
+                }
+            } else {
+                await message(
+                    'You see an image of someone stalking you.', state);
+                await message('But it disappears.', state);
+            }
+            state.u.uprops[SEE_INVIS].intrinsic |= FROMOUTSIDE;
+            newsym(state.u.ux, state.u.uy);
+            await exercise(A_WIS, true, state, random, {
+                encumberMessage: env.encumberMessage,
+            });
+            break;
+        }
         case 26: // See Monsters
             if (await monster_detect(null, 0, state, env)) {
-                await message('The water tastes like nothing.', state);
+                await message(
+                    `The ${hliquid('water', liquidEnv)} tastes like nothing.`,
+                    state,
+                );
             }
             await exercise(A_WIS, true, state, random, {
                 encumberMessage: env.encumberMessage,
@@ -776,11 +831,33 @@ export async function drinkfountain(state = game, env = {}) {
             }
             // FALLTHROUGH: C's fate 27 branch falls through when looted.
         case 28: // Water Nymph
-            throw new UnsupportedFountainError(
-                'water-nymph fountain effect (fate 28)');
-        case 29: // Scare
-            throw new UnsupportedFountainError(
-                'scare fountain effect (fate 29)');
+            await dowaternymph(state, { ...env, random, message });
+            break;
+        case 29: { // Scare
+            await message(
+                `This ${hliquid('water', liquidEnv)} gives you bad breath!`,
+                state,
+            );
+            const createGasCloud = env.createGasCloud
+                ?? ((x, y, size, damage, effectEnv) =>
+                    create_gas_cloud(x, y, size, damage, {
+                        ...effectEnv,
+                        blockPoint: (cx, cy) => block_point(cx, cy, state),
+                        unblockPoint: (cx, cy) =>
+                            unblock_point(cx, cy, state),
+                        doesBlock: (cx, cy, region) =>
+                            does_block(cx, cy, region, state),
+                        canSee: (cx, cy) => cansee(cx, cy, state),
+                        newsym: (cx, cy) => newsym(cx, cy, state),
+                        message,
+                    }));
+            const fleeEnv = { ...env, state, random, createGasCloud };
+            for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
+                if (mtmp.mhp < 1) continue;
+                await monflee(mtmp, 0, false, false, fleeEnv);
+            }
+            break;
+        }
         case 30: // Gushing forth
             await dogushforth(true, state, env);
             break;
@@ -789,7 +866,9 @@ export async function drinkfountain(state = game, env = {}) {
             // for a hallucinatory liquid name; ordinary water consumes no
             // additional core draw before dryup() below.
             await message(
-                `This tepid ${hliquid('water', env)} is tasteless.`, state);
+                `This tepid ${hliquid('water', liquidEnv)} is tasteless.`,
+                state,
+            );
             break;
         }
     }
