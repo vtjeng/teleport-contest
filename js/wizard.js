@@ -55,7 +55,7 @@ import {
     AMULET_OF_YENDOR, BELL_OF_OPENING, CANDELABRUM_OF_INVOCATION,
     SPE_BOOK_OF_THE_DEAD,
 } from './objects.js';
-import { is_quest_artifact } from './questpgr.js';
+import { com_pager, is_quest_artifact } from './questpgr.js';
 import { mon_aligntyp } from './priest.js';
 import { stairway_find_type_dir } from './stairs.js';
 import { enexto, enexto_core } from './teleport.js';
@@ -909,11 +909,17 @@ export async function cuss(mtmp, state = game, rawEnv = {}) {
                && mon_aligntyp(mtmp) === A_LAWFUL
                && !(mtmp.isminion && EMIN(mtmp)?.renegade)) {
         // cuss() discards questpgr.c com_pager()'s void result.
-        note_unported('questpgr.c com_pager');
+        await com_pager('angel_cuss', state, {
+            message: (line, targetState) => message(line, targetState, rawEnv),
+            random: roll,
+        });
     } else if (!roll(is_minion(mtmp.data) ? 100 : 5)) {
         await say(`${Monnam(mtmp, state, rawEnv)} casts aspersions on your ancestry.`);
     } else {
-        note_unported('questpgr.c com_pager');
+        await com_pager('demon_cuss', state, {
+            message: (line, targetState) => message(line, targetState, rawEnv),
+            random: roll,
+        });
     }
 
     await wake_nearto(mtmp.mx, mtmp.my, 5 * 5, { ...rawEnv, state });

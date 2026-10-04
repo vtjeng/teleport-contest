@@ -161943,6 +161943,1438 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-zap-adtyp-resistance-map-v21-20261004",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Verify inventory resistance property and equipment protection",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62"
+      ],
+      "selectionReason": "The armor erosion closure consumes inventory_resistance_check, whose only nonmacro consumed helper is u_adtyp_resistance_obj and its mapper. Verify these consecutive pure helpers with complete C/header/result checks and source-aligned inventory/enlightenment callers while broader erosion and combat scope remains deferred.",
+      "detail": "",
+      "openedAt": "0e1097169ba3f14aa26ae48ffba95ad1c9ec84e6",
+      "openStanding": {
+        "sha": "2544f872692ee5553b0ae1730b50c2202c63f2fc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "a39613040dedd0dc50b41343d5f445cec15ba29e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "adtyp_to_prop",
+          "line": 5654,
+          "endLine": 5675,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "u_adtyp_resistance_obj",
+          "line": 5676,
+          "endLine": 5709,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 5654,
+        "to": 5709
+      },
+      "syntheticProvenance": {
+        "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62": {
+          "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+          "evaluationPath": "challenges/evaluations/20261004112320-v19.json",
+          "evaluationCommit": "5346c19e98ac2470ba471c92b89a59b35a9529b9"
+        }
+      },
+      "activeStanding": {
+        "sha": "2544f872692ee5553b0ae1730b50c2202c63f2fc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+          "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+          "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+          "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+          "replayInputSha256": "6afb39cf3854e95f2c17e480e34a4aeb9defe39cd49fa931386b2064db017343",
+          "evaluationPath": "challenges/evaluations/20261004112320-v19.json",
+          "evaluationCommit": "5346c19e98ac2470ba471c92b89a59b35a9529b9",
+          "evaluationArtifact": "challenges/evaluations/20261004112320-v19.json",
+          "evaluationUtc": "2026-10-04T11:24:23.633Z",
+          "remainingScreens": 5,
+          "recordedSteps": 72,
+          "previousScreensMatched": 67,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 67,
+              "total": 72
+            },
+            "rng": {
+              "matched": 2692,
+              "total": 2698
+            },
+            "cursors": {
+              "matched": 67,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+            "step": 67
+          },
+          "step": 67,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_corr",
+          "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62.json",
+            "result": {
+              "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+              "remainingScreens": 5,
+              "recordedSteps": 72,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+                "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+                "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+                "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 5,
+                "recordedSteps": 72,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 67,
+                    "total": 72
+                  },
+                  "rng": {
+                    "matched": 2692,
+                    "total": 2698
+                  },
+                  "cursors": {
+                    "matched": 67,
+                    "total": 72
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                  "step": 67
+                },
+                "step": 67,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_corr",
+                "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A black pudding bites the hero, but the AD_CORR dispatch refuses mhitm_ad_corr before completing the turn. C corrodes the worn chain mail. Port the whole helper and its required armor-erosion return chain.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A successful AT_BITE/AD_CORR monster-to-hero hit with an uncancelled black pudding and worn chain mail reaches erode_armor(ERODE_CORRODE).",
+                "functions": [
+                  "mhitm_ad_corr",
+                  "erode_armor"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku -> hitmu",
+                  "uhitm.c:mhitm_adtyping AD_CORR"
+                ],
+                "dependencies": [
+                  "worn.c:which_armor",
+                  "trap.c:erode_obj",
+                  "objnam.c:xname",
+                  "mhitu.c:hitmsg"
+                ]
+              },
+              "evidence": [
+                "nethack-c/upstream/src/uhitm.c:2338-2361 defines the whole mhitm_ad_corr helper. Hero-to-monster erodes armor and clears damage; monster-to-hero prints hitmsg and skips erosion when cancelled; monster-to-monster skips when cancelled, otherwise erodes armor, clears STRAT_WAITFORU, and clears damage.",
+                "nethack-c/upstream/src/uhitm.c:126-185 erode_armor retries rn2(5) until an eligible helmet, shield, gloves, or boots target changes, while the body case tries cloak, suit, then shirt and terminates. It consumes which_armor, xname, and erode_obj results. Resolve their complete source-backed return dependencies rather than introducing a fixed target or draw.",
+                "js/uhitm.js:4958 dispatches AD_CORR to unported(mhitm_ad_corr); a search for function erode_armor in js found no body. The admitted baseline stops at zero-based segment 0 step 67 with simple monster action requires uhitm.c mhitm_ad_corr().",
+                "The frozen C recording at segment 0 step 67 contains rnd(20)=5 at mattacku, d(3,8)=17 at hitmu, then rn2(5)=1 at erode_armor and the screen The black pudding bites! Your chain mail corrodes!--More--. These prove the attack and body-slot corrosion route, not just a generic monster-turn RNG annotation.",
+                "The first missing comparator call is distfleeck(monmove.c:538). C makes it before the attack in this turn; the JS preflight refusal prevents the entire turn boundary. It is a reporting symptom, not evidence that distfleeck needs a special draw. Scope includes all three actor combinations of mhitm_ad_corr and required helper/caller wiring; no completion credit for the whole outer mattacku or hitmu functions.",
+                "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "adtyp_to_prop",
+            "implementation": "js/zap.js",
+            "symbol": "adtyp_to_prop",
+            "sourceReview": "Read the full C definition at zap.c:5654-5671 and the JS definition at zap.js:4365-4378. The five source rows map AD_COLD→COLD_RES, AD_FIRE→FIRE_RES, AD_ELEC→SHOCK_RES, AD_ACID→ACID_RES, and AD_DISN→DISINT_RES; the default reaches return 0 because prop_types index 0 is unused. The test reads monattk.h and prop.h for the enum values, checks the corresponding JavaScript constants, and compares the complete branch set in both function bodies. This function reads one integer and returns an integer; it makes no RNG call, output, or state write.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "u_adtyp_resistance_obj",
+                "source": "zap.c:u_adtyp_resistance_obj:5678 calls adtyp_to_prop; zap.js:u_adtyp_resistance_obj:4389 makes the same call."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "item_what",
+                "source": "zap.c:item_what:5726 calls adtyp_to_prop; zap.js:item_what:4427 makes the same call."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "867d8778a321dd4154131183885f984c597eb215"
+          },
+          {
+            "name": "u_adtyp_resistance_obj",
+            "implementation": "js/zap.js",
+            "symbol": "u_adtyp_resistance_obj",
+            "sourceReview": "Read the full C definition at zap.c:5676-5698 and the JS definition at zap.js:4388-4405. The helper returns 0 before reading equipment when adtyp_to_prop returns 0. For a valid property it checks the exact extrinsic mask W_ARMOR | W_ACCESSORY | W_WEP | W_ART first and returns 99; only when that mask is clear does a worn DWARVISH_CLOAK grant 90 for AD_COLD or AD_FIRE; all remaining cases return 0. The test checks each mask component and composition against prop.h and const.js, the cloak row against objects.h, and the full C and JS branch order. The function only reads hero properties/equipment and returns a number; it makes no RNG call, output, or state write.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "inventory_resistance_check",
+                "source": "zap.c:inventory_resistance_check:5712 and zap.js:inventory_resistance_check:4416 call u_adtyp_resistance_obj before the probability roll. The test also pins the C and JS destroy_items→maybe_destroy_item→inventory_resistance_check chain."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "item_resistance_message",
+                "source": "insight.c:item_resistance_message:1473 calls u_adtyp_resistance_obj; insight.js:attributes_enlightenment:item_resistance_message:1483-1484 does the same."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "867d8778a321dd4154131183885f984c597eb215"
+          }
+        ],
+        "entryPointReview": "Helper-only range: adtyp_to_prop and u_adtyp_resistance_obj only map or read state and return values. The source has no command, monster action, level feature or startup entry point. Existing inventory resistance, destruction and enlightenment caller correspondence is verified; no whole outer caller completion or synthetic runtime credit is claimed.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+          "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+          "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+          "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+          "replayInputSha256": "6afb39cf3854e95f2c17e480e34a4aeb9defe39cd49fa931386b2064db017343",
+          "evaluationPath": "challenges/evaluations/20261004112320-v19.json",
+          "evaluationCommit": "5346c19e98ac2470ba471c92b89a59b35a9529b9",
+          "evaluationArtifact": "challenges/evaluations/20261004112320-v19.json",
+          "evaluationUtc": "2026-10-04T11:24:23.633Z",
+          "remainingScreens": 5,
+          "recordedSteps": 72,
+          "previousScreensMatched": 67,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 67,
+              "total": 72
+            },
+            "rng": {
+              "matched": 2692,
+              "total": 2698
+            },
+            "cursors": {
+              "matched": 67,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+            "step": 67
+          },
+          "step": 67,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_corr",
+          "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62.json",
+            "result": {
+              "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+              "remainingScreens": 5,
+              "recordedSteps": 72,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+                "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+                "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+                "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 5,
+                "recordedSteps": 72,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 67,
+                    "total": 72
+                  },
+                  "rng": {
+                    "matched": 2692,
+                    "total": 2698
+                  },
+                  "cursors": {
+                    "matched": 67,
+                    "total": 72
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                  "step": 67
+                },
+                "step": 67,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_corr",
+                "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A black pudding bites the hero, but the AD_CORR dispatch refuses mhitm_ad_corr before completing the turn. C corrodes the worn chain mail. Port the whole helper and its required armor-erosion return chain.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A successful AT_BITE/AD_CORR monster-to-hero hit with an uncancelled black pudding and worn chain mail reaches erode_armor(ERODE_CORRODE).",
+                "functions": [
+                  "mhitm_ad_corr",
+                  "erode_armor"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku -> hitmu",
+                  "uhitm.c:mhitm_adtyping AD_CORR"
+                ],
+                "dependencies": [
+                  "worn.c:which_armor",
+                  "trap.c:erode_obj",
+                  "objnam.c:xname",
+                  "mhitu.c:hitmsg"
+                ]
+              },
+              "evidence": [
+                "nethack-c/upstream/src/uhitm.c:2338-2361 defines the whole mhitm_ad_corr helper. Hero-to-monster erodes armor and clears damage; monster-to-hero prints hitmsg and skips erosion when cancelled; monster-to-monster skips when cancelled, otherwise erodes armor, clears STRAT_WAITFORU, and clears damage.",
+                "nethack-c/upstream/src/uhitm.c:126-185 erode_armor retries rn2(5) until an eligible helmet, shield, gloves, or boots target changes, while the body case tries cloak, suit, then shirt and terminates. It consumes which_armor, xname, and erode_obj results. Resolve their complete source-backed return dependencies rather than introducing a fixed target or draw.",
+                "js/uhitm.js:4958 dispatches AD_CORR to unported(mhitm_ad_corr); a search for function erode_armor in js found no body. The admitted baseline stops at zero-based segment 0 step 67 with simple monster action requires uhitm.c mhitm_ad_corr().",
+                "The frozen C recording at segment 0 step 67 contains rnd(20)=5 at mattacku, d(3,8)=17 at hitmu, then rn2(5)=1 at erode_armor and the screen The black pudding bites! Your chain mail corrodes!--More--. These prove the attack and body-slot corrosion route, not just a generic monster-turn RNG annotation.",
+                "The first missing comparator call is distfleeck(monmove.c:538). C makes it before the attack in this turn; the JS preflight refusal prevents the entire turn boundary. It is a reporting symptom, not evidence that distfleeck needs a special draw. Scope includes all three actor combinations of mhitm_ad_corr and required helper/caller wiring; no completion credit for the whole outer mattacku or hitmu functions.",
+                "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "a39613040dedd0dc50b41343d5f445cec15ba29e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-zap-inventory-resistance-check-ad-corr-v20-20261004",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Verify the source inventory resistance roll",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62"
+      ],
+      "selectionReason": "The still-unmatched black-pudding AD_CORR case requires uhitm.c:erode_armor, which consumes trap.c:erode_obj; the corrosion arm consumes zap.c:inventory_resistance_check. Verify the whole existing roller and its accepted A93 resistance mapping dependency. The fully matching v14 fire-wand range is runtime evidence through both existing wired callers, rather than the mismatch selected for this prerequisite. No whole erode_obj, destruction, combat or unwired caller credit.",
+      "detail": "",
+      "openedAt": "d3274b736fbba09a80e3279d5f4a64796c604b9b",
+      "openStanding": {
+        "sha": "a39613040dedd0dc50b41343d5f445cec15ba29e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "25b9d60d04c841ff786c16f7a2c8d7adee213c0a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "inventory_resistance_check",
+          "line": 5710,
+          "endLine": 5721,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 5710,
+        "to": 5721
+      },
+      "syntheticProvenance": {
+        "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62": {
+          "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+          "evaluationPath": "challenges/evaluations/20261004112320-v19.json",
+          "evaluationCommit": "5346c19e98ac2470ba471c92b89a59b35a9529b9"
+        }
+      },
+      "activeStanding": {
+        "sha": "a39613040dedd0dc50b41343d5f445cec15ba29e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+          "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+          "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+          "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+          "replayInputSha256": "6afb39cf3854e95f2c17e480e34a4aeb9defe39cd49fa931386b2064db017343",
+          "evaluationPath": "challenges/evaluations/20261004112320-v19.json",
+          "evaluationCommit": "5346c19e98ac2470ba471c92b89a59b35a9529b9",
+          "evaluationArtifact": "challenges/evaluations/20261004112320-v19.json",
+          "evaluationUtc": "2026-10-04T11:24:23.633Z",
+          "remainingScreens": 5,
+          "recordedSteps": 72,
+          "previousScreensMatched": 67,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 67,
+              "total": 72
+            },
+            "rng": {
+              "matched": 2692,
+              "total": 2698
+            },
+            "cursors": {
+              "matched": 67,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+            "step": 67
+          },
+          "step": 67,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_corr",
+          "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62.json",
+            "result": {
+              "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+              "remainingScreens": 5,
+              "recordedSteps": 72,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+                "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+                "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+                "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 5,
+                "recordedSteps": 72,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 67,
+                    "total": 72
+                  },
+                  "rng": {
+                    "matched": 2692,
+                    "total": 2698
+                  },
+                  "cursors": {
+                    "matched": 67,
+                    "total": 72
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                  "step": 67
+                },
+                "step": 67,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_corr",
+                "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A black pudding bites the hero, but the AD_CORR dispatch refuses mhitm_ad_corr before completing the turn. C corrodes the worn chain mail. Port the whole helper and its required armor-erosion return chain.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A successful AT_BITE/AD_CORR monster-to-hero hit with an uncancelled black pudding and worn chain mail reaches erode_armor(ERODE_CORRODE).",
+                "functions": [
+                  "mhitm_ad_corr",
+                  "erode_armor"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku -> hitmu",
+                  "uhitm.c:mhitm_adtyping AD_CORR"
+                ],
+                "dependencies": [
+                  "worn.c:which_armor",
+                  "trap.c:erode_obj",
+                  "objnam.c:xname",
+                  "mhitu.c:hitmsg"
+                ]
+              },
+              "evidence": [
+                "nethack-c/upstream/src/uhitm.c:2338-2361 defines the whole mhitm_ad_corr helper. Hero-to-monster erodes armor and clears damage; monster-to-hero prints hitmsg and skips erosion when cancelled; monster-to-monster skips when cancelled, otherwise erodes armor, clears STRAT_WAITFORU, and clears damage.",
+                "nethack-c/upstream/src/uhitm.c:126-185 erode_armor retries rn2(5) until an eligible helmet, shield, gloves, or boots target changes, while the body case tries cloak, suit, then shirt and terminates. It consumes which_armor, xname, and erode_obj results. Resolve their complete source-backed return dependencies rather than introducing a fixed target or draw.",
+                "js/uhitm.js:4958 dispatches AD_CORR to unported(mhitm_ad_corr); a search for function erode_armor in js found no body. The admitted baseline stops at zero-based segment 0 step 67 with simple monster action requires uhitm.c mhitm_ad_corr().",
+                "The frozen C recording at segment 0 step 67 contains rnd(20)=5 at mattacku, d(3,8)=17 at hitmu, then rn2(5)=1 at erode_armor and the screen The black pudding bites! Your chain mail corrodes!--More--. These prove the attack and body-slot corrosion route, not just a generic monster-turn RNG annotation.",
+                "The first missing comparator call is distfleeck(monmove.c:538). C makes it before the attack in this turn; the JS preflight refusal prevents the entire turn boundary. It is a reporting symptom, not evidence that distfleeck needs a special draw. Scope includes all three actor combinations of mhitm_ad_corr and required helper/caller wiring; no completion credit for the whole outer mattacku or hitmu functions.",
+                "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "inventory_resistance_check",
+            "implementation": "js/zap.js",
+            "symbol": "inventory_resistance_check",
+            "sourceReview": "Read the whole zap.c:inventory_resistance_check body at 5710-5718. It calls u_adtyp_resistance_obj once, returns FALSE without drawing when that result is zero, and otherwise makes one rn2(100) call whose value is compared with a strict less-than. It has no message/screen or game-state write beyond the RNG call. u_adtyp_resistance_obj and its consumed adtyp_to_prop helper are supplied by pending A93 delivery 99a785cb2773e12fd6e76f42639e4e1fbf367582. All current wired JS direct callers are trap_erode_obj.js:erode_obj and zap_destroy_items.js:maybe_destroy_item. Other C call sites remain in the unported zhitu disintegration arm at zap.c:4466 and trap.c:acid_damage at 4630; neither outer caller is credited here.",
+            "callers": [
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "erode_obj",
+                "source": "C trap.c:erode_obj calls the roller for hero-carried ERODE_BURN/AD_FIRE at 205 and ERODE_CORRODE/AD_ACID at 222; JS erode_obj passes the matching type, state and RNG at 228-229."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "maybe_destroy_item",
+                "source": "C zap.c:maybe_destroy_item calls the roller before item damage at 5816; JS maybe_destroy_item passes the matching damage type, state and RNG at 237."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-resistance-check.test.mjs",
+              "scripts/zap-ray.test.mjs",
+              "scripts/zap-destroy-items.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "zap.c",
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-breaks-charged-fire-wand",
+                "segment": 0,
+                "fromStep": 62,
+                "throughStep": 62,
+                "source": "trap.c:burnarmor -> trap.c:erode_obj ERODE_BURN/AD_FIRE; then zap.c:destroy_items -> zap.c:maybe_destroy_item. At step 62 the C RNG stream tags nine calls to inventory_resistance_check(zap.c:5717)."
+              }
+            ],
+            "checkedAt": "1bccfa035833a2ef96f5b5f63a2bd3d4acf469ef"
+          }
+        ],
+        "entryPointReview": "Helper-only range; entryPoints is empty. The v14 case reaches the roller through existing erode_obj and maybe_destroy_item callers, but gives no whole-caller credit. The zhitu disintegration and acid_damage C call sites remain unported caller boundaries outside this task.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+          "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+          "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+          "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+          "replayInputSha256": "6afb39cf3854e95f2c17e480e34a4aeb9defe39cd49fa931386b2064db017343",
+          "evaluationPath": "challenges/evaluations/20261004112320-v19.json",
+          "evaluationCommit": "5346c19e98ac2470ba471c92b89a59b35a9529b9",
+          "evaluationArtifact": "challenges/evaluations/20261004112320-v19.json",
+          "evaluationUtc": "2026-10-04T11:24:23.633Z",
+          "remainingScreens": 5,
+          "recordedSteps": 72,
+          "previousScreensMatched": 67,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 67,
+              "total": 72
+            },
+            "rng": {
+              "matched": 2692,
+              "total": 2698
+            },
+            "cursors": {
+              "matched": 67,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+            "step": 67
+          },
+          "step": 67,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_corr",
+          "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62.json",
+            "result": {
+              "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+              "remainingScreens": 5,
+              "recordedSteps": 72,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+                "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+                "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+                "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 5,
+                "recordedSteps": 72,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 67,
+                    "total": 72
+                  },
+                  "rng": {
+                    "matched": 2692,
+                    "total": 2698
+                  },
+                  "cursors": {
+                    "matched": 67,
+                    "total": 72
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                  "step": 67
+                },
+                "step": 67,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_corr",
+                "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A black pudding bites the hero, but the AD_CORR dispatch refuses mhitm_ad_corr before completing the turn. C corrodes the worn chain mail. Port the whole helper and its required armor-erosion return chain.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A successful AT_BITE/AD_CORR monster-to-hero hit with an uncancelled black pudding and worn chain mail reaches erode_armor(ERODE_CORRODE).",
+                "functions": [
+                  "mhitm_ad_corr",
+                  "erode_armor"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku -> hitmu",
+                  "uhitm.c:mhitm_adtyping AD_CORR"
+                ],
+                "dependencies": [
+                  "worn.c:which_armor",
+                  "trap.c:erode_obj",
+                  "objnam.c:xname",
+                  "mhitu.c:hitmsg"
+                ]
+              },
+              "evidence": [
+                "nethack-c/upstream/src/uhitm.c:2338-2361 defines the whole mhitm_ad_corr helper. Hero-to-monster erodes armor and clears damage; monster-to-hero prints hitmsg and skips erosion when cancelled; monster-to-monster skips when cancelled, otherwise erodes armor, clears STRAT_WAITFORU, and clears damage.",
+                "nethack-c/upstream/src/uhitm.c:126-185 erode_armor retries rn2(5) until an eligible helmet, shield, gloves, or boots target changes, while the body case tries cloak, suit, then shirt and terminates. It consumes which_armor, xname, and erode_obj results. Resolve their complete source-backed return dependencies rather than introducing a fixed target or draw.",
+                "js/uhitm.js:4958 dispatches AD_CORR to unported(mhitm_ad_corr); a search for function erode_armor in js found no body. The admitted baseline stops at zero-based segment 0 step 67 with simple monster action requires uhitm.c mhitm_ad_corr().",
+                "The frozen C recording at segment 0 step 67 contains rnd(20)=5 at mattacku, d(3,8)=17 at hitmu, then rn2(5)=1 at erode_armor and the screen The black pudding bites! Your chain mail corrodes!--More--. These prove the attack and body-slot corrosion route, not just a generic monster-turn RNG annotation.",
+                "The first missing comparator call is distfleeck(monmove.c:538). C makes it before the attack in this turn; the JS preflight refusal prevents the entire turn boundary. It is a reporting symptom, not evidence that distfleeck needs a special draw. Scope includes all three actor combinations of mhitm_ad_corr and required helper/caller wiring; no completion credit for the whole outer mattacku or hitmu functions.",
+                "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "25b9d60d04c841ff786c16f7a2c8d7adee213c0a",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-quest-text-data-lua-v21-20261004",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the complete quest text Lua data and common pager callers",
+      "luaFile": "quest.lua",
+      "sessions": [
+        "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst"
+      ],
+      "selectionReason": "Whole dat/quest.lua literal program includes common, all thirteen roles and fallback data. Replace filtered data and hardcoded common portal text with the complete generated table; wire existing cuss pager sites. Matching portal recording and Archon step134 verify data routes. No whole C pager or monster-action completion credit.",
+      "detail": "",
+      "openedAt": "2e2432149e444fbe267ed7347871d787467ef842",
+      "openStanding": {
+        "sha": "25b9d60d04c841ff786c16f7a2c8d7adee213c0a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "quest.lua",
+          "line": 1,
+          "endLine": 3087,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst": {
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+          "evaluationPath": "challenges/evaluations/20261004112320-v21.json",
+          "evaluationCommit": "5346c19e98ac2470ba471c92b89a59b35a9529b9"
+        }
+      },
+      "activeStanding": {
+        "sha": "25b9d60d04c841ff786c16f7a2c8d7adee213c0a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+          "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+          "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
+          "replayInputSha256": "2b8b880583c09130c221544df1d8ea60aad23afc611880b610a217d1bef8e93e",
+          "evaluationPath": "challenges/evaluations/20261004112320-v21.json",
+          "evaluationCommit": "5346c19e98ac2470ba471c92b89a59b35a9529b9",
+          "evaluationArtifact": "challenges/evaluations/20261004112320-v21.json",
+          "evaluationUtc": "2026-10-04T11:24:37.916Z",
+          "remainingScreens": 4,
+          "recordedSteps": 138,
+          "previousScreensMatched": 134,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 134,
+              "total": 138
+            },
+            "rng": {
+              "matched": 2741,
+              "total": 2820
+            },
+            "cursors": {
+              "matched": 138,
+              "total": 138
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 134,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 134,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "\"",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2726,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 134,
+                "key": "."
+              },
+              "stepIndex": 134
+            },
+            "cursor": null
+          },
+          "step": 134,
+          "kind": "rng",
+          "sourceFile": "nhlib.lua",
+          "function": "shuffle",
+          "message": null,
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+              "remainingScreens": 4,
+              "recordedSteps": 138,
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+              "evaluationPath": "challenges/evaluations/20261004001232-v21.json",
+              "evaluationCommit": "dbe3b13eb8d89e203a0ae76d9c0d8592703b435f",
+              "status": "complete",
+              "commit": "dbe3b13eb8d89e203a0ae76d9c0d8592703b435f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+                "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+                "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+                "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+                "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
+                "replayInputSha256": "372a8f55a086adee8df29a2eb24e7bae5ea58a251f91e90f0d6e75fc827c7aaa",
+                "evaluationPath": "challenges/evaluations/20261004001232-v21.json",
+                "evaluationCommit": "dbe3b13eb8d89e203a0ae76d9c0d8592703b435f",
+                "evaluationArtifact": "challenges/evaluations/20261004001232-v21.json",
+                "evaluationUtc": "2026-10-04T00:13:52.654Z",
+                "remainingScreens": 4,
+                "recordedSteps": 138,
+                "previousScreensMatched": 134,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 134,
+                    "total": 138
+                  },
+                  "rng": {
+                    "matched": 2741,
+                    "total": 2820
+                  },
+                  "cursors": {
+                    "matched": 138,
+                    "total": 138
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 134,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 134,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "\"",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2726,
+                    "cEntry": "rn2(3)=2",
+                    "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+                    "jsEntry": "rn2(5)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 134,
+                      "key": "."
+                    },
+                    "stepIndex": 134
+                  },
+                  "cursor": null
+                },
+                "step": 134,
+                "kind": "rng",
+                "sourceFile": "nhlib.lua",
+                "function": "shuffle",
+                "message": null,
+                "cFile": null,
+                "luaFile": "nhlib.lua",
+                "line": 19,
+                "helper": {
+                  "function": "random",
+                  "luaFile": "nhlib.lua",
+                  "line": 8
+                }
+              },
+              "summary": "The first divergence at segment 0 step 134 is the missing angel_cuss quest pager. wizard.c:cuss now reaches its lawful-minion branch and explicitly records the discarded-void questpgr.c:com_pager gap. The C pager initializes the Lua shuffle, selects the quote, and displays it; those draws and output are absent in JavaScript. Complete the common-message pager and wire its source callers.",
+              "source": {
+                "file": "questpgr.c",
+                "functions": [
+                  "com_pager",
+                  "com_pager_core"
+                ],
+                "branch": "A non-Deaf lawful minion that is not renegade passes the monmove.c:dochug cuss gate. wizard.c:cuss calls com_pager(\"angel_cuss\"); com_pager dispatches to com_pager_core(\"common\",msgid,TRUE,NULL). The core initializes quest Lua, resolves the section/message and fallback, draws an array quote when text is absent, selects output mode, delivers it, records the synopsis, and releases temporary state.",
+                "callers": [
+                  "monmove.c:dochug -> wizard.c:cuss -> questpgr.c:com_pager -> questpgr.c:com_pager_core",
+                  "js/monmove.js:dochug -> js/wizard.js:cuss; the angel_cuss and demon_cuss arms explicitly record note_unported(\"questpgr.c com_pager\")",
+                  "questpgr.c:qt_pager consumes com_pager_core success to select its fallback; questpgr.c:stinky_nemesis also calls the core for raw text"
+                ],
+                "dependencies": [
+                  "dat/nhlib.lua initialization shuffle and dat/quest.lua message tables",
+                  "questpgr.c:skip_pager, get_table_str_opt and get_table_option control selection; convert_line and delivery helpers format output",
+                  "Audit the complete core, rawtext and fallback branches, output modes and synopsis history; existing js/questpgr.js:comPagerCore is partial and does not establish completion."
+                ]
+              },
+              "evidence": [
+                "Current challenges/evaluations/20261004001232-v21.json at dbe3b13eb8d89e203a0ae76d9c0d8592703b435f: 134/138 screens, 2741/2820 RNG calls and 138/138 cursors match. First screen and RNG mismatch remain segment 0 step 134.",
+                "The immutable C recording at step 134 records rn2(5)=0 @ dochug(monmove.c:992), then rn2(3)=2 and rn2(2)=0 from nhlib.lua shuffle, then rn2(14)=0 @ com_pager_core(questpgr.c:566). The C screen starts the angel_cuss quote. This establishes the pager rather than a missing outer gate as the first residual.",
+                "Whole wizard.c:cuss and its consumed priest.c:mon_aligntyp helper are now verified. js/wizard.js:cuss preserves the lawful-minion branch and records the named questpgr.c:com_pager gap; no fabricated pager output or RNG stands in for it. The preceding step-133 gate diagnosis is resolved.",
+                "questpgr.c:com_pager (624–627) discards the core result, while qt_pager (630–634) consumes it for fallback and stinky_nemesis uses rawtext. com_pager_core (468–621) owns message lookup, quote draw, output and synopsis handling. js/questpgr.js:com_pager currently supports only portal message IDs; private comPagerCore lacks the full rawtext and synopsis behavior. Preserve those independent source branches in a whole-source plan."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "quest.lua",
+            "implementation": "js/quest_text_data.js",
+            "symbol": "QUEST_TEXT_DATA",
+            "sourceReview": "Read the complete dat/quest.lua program. It contains one questtext literal assignment and no executable top-level statements. The generator parses every nested table, preserving all section names, key/value fields, one-based array order, Lua string contents, numbers, booleans, and msg_fallbacks in one generated QUEST_TEXT_DATA object. It rejects unconsumed source and mixed keyed/array table shapes, which do not occur in the current source. comPagerCore reads the source-shaped array or message object, chooses an array entry with the source RNG call, then uses text/output/synopsis fields. The task changes common com_pager delegation and existing wizard.c:cuss data call sites but does not claim whole com_pager_core, qt_pager, or wizard.c:cuss completion.",
+            "callers": [
+              {
+                "path": "js/questpgr.js",
+                "symbol": "comPagerCore",
+                "source": "questpgr.c:com_pager_core loads dat/quest.lua and reads questtext[section][msgid]"
+              },
+              {
+                "path": "js/questpgr.js",
+                "symbol": "com_pager",
+                "source": "questpgr.c:com_pager selects the common section and delegates to com_pager_core"
+              },
+              {
+                "path": "js/questpgr.js",
+                "symbol": "qt_pager",
+                "source": "questpgr.c:qt_pager checks the role section, then falls back to common through com_pager_core"
+              },
+              {
+                "path": "js/wizard.js",
+                "symbol": "cuss",
+                "source": "wizard.c:cuss calls com_pager(\"angel_cuss\") or com_pager(\"demon_cuss\") for the corresponding source branches"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/generate-quest-text.test.mjs",
+              "scripts/questpgr.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-portal.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "segment": 0,
+                "fromStep": 134,
+                "throughStep": 134,
+                "source": "monmove.c:dochug MS_CUSS gate -> wizard.c:cuss -> questpgr.c:com_pager(\"angel_cuss\") -> questpgr.c:com_pager_core common section array selection and output from dat/quest.lua"
+              }
+            ],
+            "checkedAt": "9cbabb7023810a77623207ac6995fc899f86751a"
+          }
+        ],
+        "entryPointReview": "dat/quest.lua is a single questtext table assignment. It defines common messages, every role section, and msg_fallbacks; it has no executable caller branches of its own. Production reads occur through questpgr.c:com_pager_core, reached from questpgr.c:com_pager for common messages and questpgr.c:qt_pager for role text with common fallback. The common quest_portal route is covered by the matching trap portal recording. The common angel_cuss route is covered through monmove.c:dochug's MS_CUSS gate, wizard.c:cuss, and questpgr.c:com_pager in admitted v21 through zero-based step 134. Demon and role data values are covered by full parsed-source equality tests; this task claims no full com_pager_core or wizard.c:cuss completion.",
+        "entryPoints": [
+          {
+            "name": "common quest portal text",
+            "functions": [
+              "quest.lua"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-portal.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "common angel cuss text",
+            "functions": [
+              "quest.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "segment": 0,
+                "fromStep": 134,
+                "throughStep": 134,
+                "source": "monmove.c:dochug MS_CUSS gate -> wizard.c:cuss -> questpgr.c:com_pager(\"angel_cuss\") -> questpgr.c:com_pager_core common section array selection and output from dat/quest.lua"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+          "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+          "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
+          "replayInputSha256": "523eda35187d23f558edc23a3a0b6cbf7fd446cadd7b69fe82270f0338d3453c",
+          "evaluationPath": "challenges/evaluations/20261004124607-v21.json",
+          "evaluationCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+          "evaluationArtifact": "challenges/evaluations/20261004124607-v21.json",
+          "evaluationUtc": "2026-10-04T12:47:35.624Z",
+          "remainingScreens": 3,
+          "recordedSteps": 138,
+          "previousScreensMatched": 134,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 135,
+              "total": 138
+            },
+            "rng": {
+              "matched": 2752,
+              "total": 2820
+            },
+            "cursors": {
+              "matched": 135,
+              "total": 138
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 135,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 135,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "\"",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2752,
+              "cEntry": "rnd(20)=19",
+              "cCaller": "resist_conflict(mondata.c:1612)",
+              "jsEntry": "rn2(3)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 135,
+                "key": "."
+              },
+              "stepIndex": 135
+            },
+            "cursor": {
+              "index": 135,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 135,
+                "key": "."
+              },
+              "cCursor": [
+                69,
+                16,
+                1
+              ],
+              "jsCursor": [
+                67,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 135,
+          "kind": "rng",
+          "sourceFile": "mondata.c",
+          "function": "resist_conflict",
+          "message": null,
+          "cFile": "mondata.c",
+          "luaFile": null,
+          "line": 1612,
+          "investigation": {
+            "status": "partial",
+            "path": "investigations/synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+              "remainingScreens": 3,
+              "recordedSteps": 138,
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+              "evaluationPath": "challenges/evaluations/20261004124607-v21.json",
+              "evaluationCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+              "status": "partial",
+              "commit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+                "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+                "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+                "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+                "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
+                "replayInputSha256": "523eda35187d23f558edc23a3a0b6cbf7fd446cadd7b69fe82270f0338d3453c",
+                "evaluationPath": "challenges/evaluations/20261004124607-v21.json",
+                "evaluationCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+                "evaluationArtifact": "challenges/evaluations/20261004124607-v21.json",
+                "evaluationUtc": "2026-10-04T12:47:35.624Z",
+                "remainingScreens": 3,
+                "recordedSteps": 138,
+                "previousScreensMatched": 134,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 135,
+                    "total": 138
+                  },
+                  "rng": {
+                    "matched": 2752,
+                    "total": 2820
+                  },
+                  "cursors": {
+                    "matched": 135,
+                    "total": 138
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 135,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 135,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "\"",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2752,
+                    "cEntry": "rnd(20)=19",
+                    "cCaller": "resist_conflict(mondata.c:1612)",
+                    "jsEntry": "rn2(3)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 135,
+                      "key": "."
+                    },
+                    "stepIndex": 135
+                  },
+                  "cursor": {
+                    "index": 135,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 135,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      69,
+                      16,
+                      1
+                    ],
+                    "jsCursor": [
+                      67,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 135,
+                "kind": "rng",
+                "sourceFile": "mondata.c",
+                "function": "resist_conflict",
+                "message": null,
+                "cFile": "mondata.c",
+                "luaFile": null,
+                "line": 1612
+              },
+              "summary": "Complete quest text now matches the Archon taunt through step134. At step135 JavaScript emits another angel taunt and pager RNG draw, while C proceeds to resist_conflict and a melee message. The caller predicate or actor causing this extra invocation remains unresolved; three cursor mismatches follow the same divergence.",
+              "source": {
+                "file": "monmove.c",
+                "branch": "After the matching angel cuss at step134, the next recorded dot reaches C resist_conflict without another com_pager_core call; JS instead enters the common angel_cuss pager again.",
+                "functions": [
+                  "dochug"
+                ],
+                "callers": [
+                  "wizard.c:cuss calls questpgr.c:com_pager for angel_cuss; JS extra invocation at step135 is observed, but the exact actor and dochug caller predicate still need attribution."
+                ],
+                "dependencies": []
+              },
+              "evidence": [
+                "Whole dat/quest.lua and its common pager route were ported at f3b1ff3ac670e168e558ab641d1cfbfd229f5382. The frozen recording and matching prefix through normalized segment0 step134 show the source quote and pager RNG/output; this does not establish full monster caller completion.",
+                "Complete evaluation challenges/evaluations/20261004124607-v21.json records 135/138 screens, 2752/2820 RNG calls and 135/138 cursors. The previous accepted evaluation had 134/138 screens, 2741/2820 RNG and 138/138 cursors. These measured cursor losses remain visible.",
+                "Pinned read-only replays run-AveZf2 and run-m7TPs9 establish candidate matching screen/cursor prefix0–134. Both C and JS step134 display the repent taunt followed by It hits!, cursor[69,16,1]. Baseline5346c19 already diverged at134 because it omitted the common pager text/RNG.",
+                "At normalized step135 C draws rnd(20)=19 in mondata.c:resist_conflict and displays It hits! You feel a bit steadier now. JS instead enters another common angel-cuss pager initialization, starts rn2(3)=2 and displays the thou-shalt-meet-thy-maker taunt followed by It hits!--More--. JS cursor[67,0,1] differs from C[69,16,1] at135–137; no cursor-only defect precedes the output/RNG divergence.",
+                "Next source-backed probe: identify the JS cuss caller and monster at step135, then compare monmove.c:dochug MS_CUSS and action/Conflict gates with C preconditions. The earlier rn2(3) minvis attribution was only a guess and is superseded by the observed pager initialization. Do not infer the actor solely from RNG annotations."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
