@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010479,
+      "datetime": "20261004051500",
+      "nethackrc": "OPTIONS=name:V22LeashTheftAttempt,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\nTa\n.\n....Da\n.\n#wizwish\nleash\n#wizgenesis\nnymph\n#wizgenesis\ntame dog\naah"
+    }
+  ],
+  "_comment": "One source-directed C attempt for steal.c:steal selecting an attached LEASH and invoking apply.c:o_unleash. Remove all worn/wielded starting gear and drop other items first so a newly wished leash is the only carried stealable item; create the hostile nymph before the tame dog so the nymph acts first, then attach via west (h) using the C-confirmed dog-west/nymph-east geometry. This counts only if the C recording confirms actual leash theft/unleashing; otherwise retain as a setup miss."
+}

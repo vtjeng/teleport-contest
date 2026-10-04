@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201038000,
+      "datetime": "20261003225000",
+      "nethackrc": "OPTIONS=name:V22TrappedDoor,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nwall\n#wizwish\ntrapped door\nh#wizwish\npick-axe\nwpapl ."
+    }
+  ],
+  "_comment": "C-observed follow-through to the frozen first trapped-door hit: acknowledge its More prompt, then continue the same pickaxe occupation for one source-controlled turn. The final behavior remains counted only if a later frozen C output reaches the source b_trapped call."
+}

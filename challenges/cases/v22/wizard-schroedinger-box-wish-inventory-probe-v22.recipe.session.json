@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201037993,
+      "datetime": "20261003223500",
+      "nethackrc": "OPTIONS=name:V22BoxProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017+1 large box\n"
+    }
+  ],
+  "_comment": "C-only source setup probe for pickup.c:observe_quantum_cat. C objnam.c readobjnam() permits wizard wishes to set a requested object spe, and the LARGE_BOX spe==1 predicate denotes a Schroedinger box. This records the actual wish result and inventory slot before any #loot inputs are frozen; no runtime target is claimed from this probe alone."
+}

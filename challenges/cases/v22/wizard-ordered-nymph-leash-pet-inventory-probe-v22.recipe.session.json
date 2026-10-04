@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010479,
+      "datetime": "20261004051500",
+      "nethackrc": "OPTIONS=name:V22OrderedLeashProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\nDa\n*\n#wizwish\nleash\n#wizgenesis\nnymph\n#wizgenesis\ntame dog"
+    }
+  ],
+  "_comment": "Setup-only C probe for one source-planned leash-theft route. Drop inventory before spawning the hostile nymph, wish one leash, then create the nymph before a tame dog so the nymph precedes the pet in monster order when the leash is applied. The observed map and slot determine the separate target recipe; this probe is not candidate evidence by itself."
+}

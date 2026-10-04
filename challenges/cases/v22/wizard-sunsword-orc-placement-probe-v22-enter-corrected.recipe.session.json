@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Corrected C-only position probe for the Sunsword ray. The previous probe ended while the #wizgenesis species prompt was still open; this version submits 'hostile orc' with the required newline before reading its actual map square.",
+  "segments": [
+    {
+      "seed": 2201037076,
+      "datetime": "20261003192211",
+      "nethackrc": "OPTIONS=name:V22RayProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nSunsword\n#wizgenesis\nhostile orc\n"
+    }
+  ]
+}

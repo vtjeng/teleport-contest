@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010404,
+      "datetime": "20311004103000",
+      "nethackrc": "OPTIONS=name:V22DogRevival,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\ntame stone giant\n\n#wizwish\nwand of death\n#wizwish\nwand of undead turning\nzpl\n\nzpl\n\nzql\n."
+    }
+  ],
+  "_comment": "B98 C-first wary_dog route with the C-observed stone-giant creation pager, wand letters and east placement. The first death-ray miss is preserved separately; these two newlines clear its observed miss/bounce/hero-resistance pages before one bounded retry at the same source-selected tame non-minion target. After the hit, the same C-observed q wand revives the traits-bearing corpse through zap.c:revive → montraits → wary_dog(mtmp, TRUE). Keep as a behavior case only if the recording reaches that revival path; all earlier setup misses remain separate."
+}

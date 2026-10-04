@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-guided correction of the preserved northward camera miss: the original C map showed a grid bug north of the hero. This recipe aims south (`j`) at the adjacent bottom wall, keeping the same independently chosen seed/map and the C-confirmed slot-o camera.",
+  "segments": [
+    {
+      "seed": 2201037081,
+      "datetime": "20261003200411",
+      "nethackrc": "OPTIONS=name:V22CameraBreak,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nexpensive camera\ntoj"
+    }
+  ]
+}

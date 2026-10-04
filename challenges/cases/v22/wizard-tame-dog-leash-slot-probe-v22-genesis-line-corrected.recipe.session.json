@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201038003,
+      "datetime": "20261003230000",
+      "nethackrc": "OPTIONS=name:V22LeashProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\ntame dog\n#wizwish\nleash\ni"
+    }
+  ],
+  "_comment": "C-observed correction after preserving the first miss: terminate the #wizgenesis monster-species line before starting #wizwish, then inspect the actually wished leash and the generated tame dog's location."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Inventory correction for the preserved pick-axe slot-o setup miss: the C wishlist shows the pick-axe in slot n for this female Wizard. Move west off the entrance stairs, wield/apply n, and use `>` for downward digging; the remaining period window is source-selected for the first pit transition.",
+  "segments": [
+    {
+      "seed": 2201037080,
+      "datetime": "20261003195509",
+      "nethackrc": "OPTIONS=name:V22DigRoom,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nuncursed pick-axe\nhwnan>....."
+    }
+  ]
+}

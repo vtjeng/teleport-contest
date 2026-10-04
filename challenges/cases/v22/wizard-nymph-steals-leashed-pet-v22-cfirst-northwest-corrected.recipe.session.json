@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2201038003,
+      "datetime": "20261003230000",
+      "nethackrc": "OPTIONS=name:V22LeashTheft,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\ntame dog\n#wizwish\nleash\naoy#wizgenesis\nnymph\n."
+    }
+  ],
+  "_comment": "C-observed correction to the saved leash-target miss: the tame dog is northwest of the hero in the source map, so attach the slot-o leash with direction y before creating the nymph. The earlier direction k was not adjacent and stays preserved as setup-miss history."
+}
