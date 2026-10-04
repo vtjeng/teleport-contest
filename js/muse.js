@@ -3340,7 +3340,7 @@ export function cures_sliming(mon, obj) {
         && obj.spe > 0;
 }
 
-/* C ref: muse.c green_mon() (3249-3258). TRUE if the monster appears green
+/* C ref: muse.c green_mon() (3268-3307). TRUE if the monster appears green
    based on its display color. Returns FALSE under hallucination. */
 export function green_mon(mon, state = game) {
     if (Hallucination(state))
