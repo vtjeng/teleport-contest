@@ -158783,7 +158783,7 @@
           "name": "mhitm_ad_stck",
           "line": 3306,
           "endLine": 3336,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -158960,7 +158960,100 @@
             }
           }
         }
-      ]
+      ],
+      "requiredFunctions": [
+        {
+          "name": "sticks",
+          "line": 654,
+          "endLine": 662,
+          "declared": true,
+          "sourceFile": "mondata.c",
+          "complete": true
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "sticks",
+            "implementation": "js/mondata.js",
+            "symbol": "sticks",
+            "sourceReview": "Compared the complete mondata.c:654-659 body. The function returns true for AD_STCK, then for AD_WRAP only when AT_ENGL is absent, then for AT_HUGS; the C short-circuit order is preserved. The function reads only the monster attack table and makes no RNG call, output, or state write. The test pins the corresponding C enum values and each positive, negative, and engulfing-wrap result.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_stck",
+                "source": "uhitm.c:mhitm_ad_stck calls sticks(pd) in the hero-to-monster gate at 3316 and monster-to-hero gate at 3324."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-stck-hero-to-monster-large-mimic-forcefight-b99.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_STCK) -> uhitm.c:mhitm_ad_stck; the C boundary records the lichen contact and the monster-to-hero sticking checks."
+              }
+            ],
+            "checkedAt": "15c54d5dfdb36fa7ee75b9e0b582b87a8fb747f3"
+          }
+        ],
+        "entryPointReview": "This is a partial handoff. The complete pure dependency mondata.c:sticks is source-pinned and tested. The changed uhitm.c:mhitm_ad_stck body and AD_STCK dispatcher arm have matching monster-to-hero evidence in the admitted v19 case through segment 0 step 40, and a separate hero-to-monster C recording strictly matches through its complete 52 screen/cursor boundaries. The third active route is monster-to-monster: the exact private C recording from run-KLCWoy reaches mdamagem -> mhitm_adtyping(AD_STCK) -> mhitm_ad_stck at normalized step 127, with a Barbed Devil striking a Giant Mimic. A bounded replay of that immutable recording with frozen/ps_test_runner.mjs (run-JMWA1i) does not match: 3,794/3,893 RNG calls and 125/149 screen/cursor boundaries, with error:null. That runner reports aggregate counts but no first mismatch or stop reason. A prior diff-fresh run-18Doxm is retained separately; its recipe-input identity against the final committed recipe is unproven, so its reported boundary is not attributed to this final private recording. The blocked recipe identifies the C wizard no-death continuation at end.c:done() before its M-to-M attack. No JavaScript stop owner is claimed. The whole mhitm_ad_stck function remains incomplete until an M-to-M route matches; no whole mhitm_adtyping, hitmu, damageum, or mdamagem credit is claimed.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero AD_STCK",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_stck"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_STCK) -> uhitm.c:mhitm_ad_stck; the C boundary records the lichen contact and the monster-to-hero sticking checks."
+              }
+            ]
+          },
+          {
+            "name": "hero-to-monster AD_STCK",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_stck"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-stck-hero-to-monster-large-mimic-forcefight-b99.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-monster AD_STCK",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_stck"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
