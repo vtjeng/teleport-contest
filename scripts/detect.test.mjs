@@ -97,6 +97,23 @@ const DETECT_C = readFileSync(
     new URL('../nethack-c/upstream/src/detect.c', import.meta.url), 'utf8',
 );
 
+function cDefinition(startMarker, endMarker) {
+    const start = DETECT_C.indexOf(startMarker);
+    assert.notEqual(start, -1, `missing C source marker: ${startMarker}`);
+    const end = DETECT_C.indexOf(endMarker, start);
+    assert.notEqual(end, -1, `missing C source marker: ${endMarker}`);
+    return DETECT_C.slice(start, end);
+}
+
+const UNCONSTRAIN_MAP_C = cDefinition(
+    'staticfn boolean\nunconstrain_map(void)',
+    '\n/* put hero back underwater',
+);
+const MONSTER_DETECT_C = cDefinition(
+    'int\nmonster_detect(struct obj *otmp,',
+    '\nstaticfn void\nsense_trap(',
+);
+
 test('detecting matches only the two C detection callback identities', () => {
     // detect.c:1931 compares function pointers directly. Keep this predicate
     // tied to findone/openone identity instead of a caller-selected label.
@@ -253,22 +270,81 @@ test('drawing.c furniture lookup uses the compiled symbol table', () => {
 });
 
 test('detect.c unconstrain/reconstrain saves and restores every constraint', () => {
-    const state = {
-        u: { uinwater: 2, uburied: 1, uswallow: 0 },
-        iflags: {},
-    };
-    assert.equal(unconstrain_map(state), true);
-    assert.deepEqual(
-        [state.u.uinwater, state.u.uburied, state.u.uswallow], [0, 0, 0],
-    );
-    reconstrain_map(state);
-    assert.deepEqual(
-        [state.u.uinwater, state.u.uburied, state.u.uswallow], [2, 1, 0],
-    );
-    assert.deepEqual(
-        [state.iflags.save_uinwater, state.iflags.save_uburied,
-            state.iflags.save_uswallow], [0, 0, 0],
-    );
+    // detect.c computes this Boolean before it overwrites any of the three
+    // C fields, then unconditionally saves and clears each field.
+    assert.match(UNCONSTRAIN_MAP_C,
+        /boolean res = u\.uinwater \|\| u\.uburied \|\| u\.uswallow;/u);
+    for (const assignment of [
+        'iflags.save_uinwater = u.uinwater, u.uinwater = 0;',
+        'iflags.save_uburied  = u.uburied,  u.uburied  = 0;',
+        'iflags.save_uswallow = u.uswallow, u.uswallow = 0;',
+        'return res;',
+    ]) {
+        assert.ok(UNCONSTRAIN_MAP_C.includes(assignment), assignment);
+    }
+
+    // These bit patterns exercise no constraint, each individual C state
+    // field, and combinations; nonzero values stand for active C constraints.
+    for (let bits = 0; bits < 8; ++bits) {
+        const original = [
+            bits & 1 ? 2 : 0,
+            bits & 2 ? 1 : 0,
+            bits & 4 ? 3 : 0,
+        ];
+        const state = {
+            u: {
+                uinwater: original[0],
+                uburied: original[1],
+                uswallow: original[2],
+            },
+            iflags: {
+                save_uinwater: 91,
+                save_uburied: 92,
+                save_uswallow: 93,
+            },
+        };
+        assert.equal(unconstrain_map(state), bits !== 0);
+        assert.deepEqual(
+            [state.u.uinwater, state.u.uburied, state.u.uswallow],
+            [0, 0, 0],
+        );
+        assert.deepEqual(
+            [state.iflags.save_uinwater, state.iflags.save_uburied,
+                state.iflags.save_uswallow],
+            original,
+        );
+        reconstrain_map(state);
+        assert.deepEqual(
+            [state.u.uinwater, state.u.uburied, state.u.uswallow],
+            original,
+        );
+        assert.deepEqual(
+            [state.iflags.save_uinwater, state.iflags.save_uburied,
+                state.iflags.save_uswallow],
+            [0, 0, 0],
+        );
+    }
+});
+
+test('detect.c monster_detect pins the complete live, return and display order', () => {
+    assert.match(MONSTER_DETECT_C,
+        /for \(mtmp = fmon; mtmp; mtmp = mtmp->nmon\)/u);
+    assert.match(MONSTER_DETECT_C,
+        /if \(DEADMONSTER\(mtmp\) \|\| \(mtmp->isgd && !mtmp->mx\)\)\s*continue;/u);
+    assert.match(MONSTER_DETECT_C,
+        /if \(!mcnt\) \{[\s\S]*?if \(otmp\)[\s\S]*?strange_feeling\([\s\S]*?return 1;/u);
+    assert.match(MONSTER_DETECT_C,
+        /unsigned swallowed = u\.uswallow; \/\* before unconstrain_map\(\) \*\/[\s\S]*?unconstrained = unconstrain_map\(\);/u);
+    assert.match(MONSTER_DETECT_C,
+        /!mclass \|\| mtmp->data->mlet == mclass[\s\S]*?mclass == S_WORM_TAIL/u);
+    assert.ok(MONSTER_DETECT_C.indexOf('map_monst(mtmp, TRUE);')
+        < MONSTER_DETECT_C.indexOf('otmp && otmp->cursed && helpless(mtmp)'));
+    assert.match(MONSTER_DETECT_C,
+        /if \(!swallowed\)\s*display_self\(\);[\s\S]*?You\("sense the presence of monsters\."\);[\s\S]*?if \(woken\)\s*pline\("Monsters sense the presence of you\."\);/u);
+    assert.match(MONSTER_DETECT_C,
+        /if \(\(otmp && otmp->blessed\) && !unconstrained\) \{[\s\S]*?display_nhwindow\(WIN_MAP, TRUE\);[\s\S]*?EDetect_monsters \|= I_SPECIAL;[\s\S]*?browse_map\(TER_DETECT \| TER_MON, "monster of interest"\);[\s\S]*?EDetect_monsters &= ~I_SPECIAL;/u);
+    assert.match(MONSTER_DETECT_C,
+        /map_redisplay\(\);\s*\}\s*return 0;/u);
 });
 
 function monsterDetectionFixture() {
@@ -322,6 +398,35 @@ test('monster_detect makes remote names perceptible only during map browsing', a
     assert.equal(await monster_detect(null, 0, state, env), 0);
     assert.deepEqual(events, ['message', 'browse', 'redisplay']);
 });
+
+test('monster_detect returns 1 when the live-monster scan finds no target',
+    async () => {
+        const { state, env } = monsterDetectionFixture();
+        state.level.monlist = null;
+        let called = false;
+        env.cls = async () => { called = true; };
+        assert.equal(await monster_detect(null, 0, state, env), 1);
+        assert.equal(called, false);
+    });
+
+test('monster_detect consumes unconstrain_map result for blessed persistence',
+    async () => {
+        for (const unconstrained of [false, true]) {
+            const { state, env } = monsterDetectionFixture();
+            const events = [];
+            env.unconstrainMap = () => unconstrained;
+            env.displaySelf = () => events.push('self');
+            env.message = async () => events.push('message');
+            env.browseMap = async () => events.push('browse');
+            env.mapRedisplay = async () => events.push('redisplay');
+            assert.equal(await monster_detect(
+                { cursed: false, blessed: true }, 0, state, env,
+            ), 0);
+            assert.deepEqual(events, unconstrained
+                ? ['self', 'message', 'browse', 'redisplay']
+                : ['self', 'message', 'redisplay']);
+        }
+    });
 
 test('monster_detect clears only I_SPECIAL, including when browsing suspends', async () => {
     for (const suspended of [false, true]) {
