@@ -13,6 +13,7 @@ import {
     BZ_M_SPELL,
     BZ_OFS_AD,
     BZ_VALID_ADTYP,
+    CONFUSION,
     DEAF,
     DISPLACED,
     FIRE_RES,
@@ -40,6 +41,7 @@ import { nomul } from './hack.js';
 import { sgn } from './hacklib.js';
 import { shieldeff } from './display.js';
 import { healmon } from './mon.js';
+import { make_confused } from './potion.js';
 import {
     cvt_adtyp_to_mseenres,
     monstseesu,
@@ -824,7 +826,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         resultDmg = await mcast_paralyze(mtmp, env);
         break;
     case MCAST_CONFUSE_YOU:
-        recordMcastGap('mcastu.c mcast_confuse_you', env);
+        await mcast_confuse_you(mtmp, env);
         break;
     default:
         recordMcastGap('mcastu.c impossible', env);
@@ -837,6 +839,52 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         }
         await mdamageu(mtmp, resultDmg);
     }
+}
+
+// C ref: mcastu.c mcast_confuse_you() (771-790). This is a void effect:
+// Antimagic teaches visible monsters that the hero resisted magic; otherwise
+// the spell adds the caster level to packed HConfusion before selecting feedback.
+async function mcast_confuse_you(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const confusion = state.u?.uprops?.[CONFUSION];
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+
+    if (heroProperty(state, ANTIMAGIC)) {
+        await shieldeff(state.u.ux, state.u.uy, state);
+        monstseesu(M_SEEN_MAGR, state);
+        await message('You feel momentarily dizzy.', state);
+        return;
+    }
+
+    // HConfusion is the raw intrinsic field, not its low TIMEOUT bits.
+    const oldConfusion = Boolean(confusion?.intrinsic);
+    let damage = mtmp.m_lev;
+    if (heroProperty(state, HALF_SPDAM))
+        damage = Math.trunc((damage + 1) / 2);
+
+    const effectEnv = { ...rawEnv, message };
+    await make_confused(
+        (confusion?.intrinsic ?? 0) + damage,
+        true,
+        state,
+        effectEnv,
+    );
+
+    // C's Hallucination macro tests the raw intrinsic field and both
+    // Hallucination-resistance fields; HConfusion may contain high flag bits.
+    const hallucinating = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
+        && !heroProperty(state, HALLUC_RES);
+    if (hallucinating) {
+        await message(
+            `You feel ${oldConfusion ? 'trippier' : 'trippy'}!`, state,
+        );
+    } else {
+        await message(
+            `You feel ${oldConfusion ? 'more ' : ''}confused!`, state,
+        );
+    }
+    monstunseesu(M_SEEN_MAGR, state);
 }
 
 // ---- buzzmu() ----

@@ -5,7 +5,12 @@ import {
     ANTIMAGIC,
     BLND_RES,
     BLINDED,
+    CONFUSION,
     COULD_SEE,
+    FROMFORM,
+    HALF_SPDAM,
+    HALLUC,
+    HALLUC_RES,
     IN_SIGHT,
     INVIS,
     M_AP_OBJECT,
@@ -16,6 +21,7 @@ import {
     STRAT_APPEARMSG,
     STRAT_WAITFORU,
     TELEPAT,
+    TIMEOUT,
 } from '../js/const.js';
 import { buzzmu, castmu, mcast_summon_mons } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
@@ -709,7 +715,8 @@ test('castmu fumble: the deaf roleplay option silences the crackle', async () =>
 });
 
 test('castmu fumble: m_lev=7 passes when rn2(70) >= 20', async () => {
-    // spellval=2 (MCAST_CONFUSE_YOU, effect 4, unported), fumble=50 passes.
+    // spellval=2 selects MCAST_CONFUSE_YOU; fumble=50 is above 20, so the
+    // test reaches the spell effect rather than the fumble message.
     const random = scriptedRandom([2, 50]);
     const messages = [];
     const mtmp = makeCaster({ m_lev: 7 });
@@ -727,6 +734,196 @@ test('castmu fumble: m_lev=7 passes when rn2(70) >= 20', async () => {
     assert.ok(!messages.some(m => m.includes('air crackles')),
         'should not produce fumble message');
 });
+
+test('MCAST_CONFUSE_YOU halves its own caster level with C integer rounding',
+    async () => {
+        const visibleMonster = {
+            // This live monster occupies makeState's visible (5,5) square;
+            // M_SEEN_MAGR is its existing resistance-memory bit.
+            mhp: 10,
+            mx: 5,
+            my: 5,
+            data: {},
+            seen_resistance: M_SEEN_MAGR,
+            nmon: null,
+        };
+        const state = makeState({
+            disp: {},
+            level: { monlist: visibleMonster },
+        });
+        // Existing HConfusion=3 and m_lev=7 make the source formula
+        // 3 + (7+1)/2 = 7, pinning the odd-level Half_spell_damage branch.
+        state.u.uprops[CONFUSION] = { intrinsic: 3, extrinsic: 0 };
+        state.u.uprops[HALF_SPDAM] = { intrinsic: 1, extrinsic: 0 };
+        const random = scriptedRandom([2, 50]);
+        const messages = [];
+        const damageCalls = [];
+
+        const result = await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state,
+                random,
+                unsupported: refuse,
+                message: async (text) => messages.push(text),
+                mdamageu: async (...args) => damageCalls.push(args),
+            },
+        );
+
+        assert.equal(result, M_ATTK_HIT);
+        assert.equal(state.u.uprops[CONFUSION].intrinsic, 7,
+            'HConfusion becomes the seven-turn timeout from the source sum');
+        assert.equal(state.disp.botl, true,
+            'starting confusion marks the status line for redraw');
+        assert.deepEqual(messages.slice(-1), ['You feel more confused!']);
+        assert.equal(visibleMonster.seen_resistance & M_SEEN_MAGR, 0,
+            'the ordinary branch clears remembered magic resistance');
+        assert.deepEqual(damageCalls, [],
+            'the MCAST_CONFUSE_YOU arm clears damage before mdamageu');
+        assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
+    });
+
+test('MCAST_CONFUSE_YOU adds raw HConfusion flags before timeout clamping',
+    async () => {
+        const state = makeState({ disp: {} });
+        // FROMFORM is a high packed-property flag. C adds the raw HConfusion
+        // integer to caster level, so make_confused clamps it to TIMEOUT while
+        // preserving FROMFORM in the packed intrinsic value.
+        state.u.uprops[CONFUSION] = {
+            intrinsic: FROMFORM | 2, extrinsic: 0,
+        };
+        const random = scriptedRandom([2, 50]);
+        const messages = [];
+
+        await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state,
+                random,
+                unsupported: refuse,
+                message: async (text) => messages.push(text),
+            },
+        );
+
+        assert.equal(state.u.uprops[CONFUSION].intrinsic, FROMFORM | TIMEOUT);
+        assert.deepEqual(messages.slice(-1), ['You feel more confused!']);
+    });
+
+test('MCAST_CONFUSE_YOU uses raw Hallucination and resistance properties',
+    async () => {
+        const state = makeState({ disp: {} });
+        // HALLUC extrinsic alone is not HHallucination, so with prior
+        // Confusion the C message remains "more confused".
+        state.u.uprops[CONFUSION] = { intrinsic: 2, extrinsic: 0 };
+        state.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 5 };
+        const messages = [];
+
+        await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state,
+                random: scriptedRandom([2, 50]),
+                unsupported: refuse,
+                message: async (text) => messages.push(text),
+            },
+        );
+
+        assert.deepEqual(messages.slice(-1), ['You feel more confused!']);
+        assert.equal(state.u.uprops[CONFUSION].intrinsic, 9,
+            'raw prior HConfusion=2 is extended by caster level 7');
+
+        // Intrinsic Hallucination plus extrinsic resistance selects the
+        // ordinary confusion wording, matching Hallucination's C macro.
+        const resistantState = makeState({ disp: {} });
+        resistantState.u.uprops[CONFUSION] = {
+            intrinsic: 2, extrinsic: 0,
+        };
+        resistantState.u.uprops[HALLUC] = {
+            intrinsic: 5, extrinsic: 0,
+        };
+        resistantState.u.uprops[HALLUC_RES] = {
+            intrinsic: 0, extrinsic: 1,
+        };
+        const resistantMessages = [];
+        await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state: resistantState,
+                random: scriptedRandom([2, 50]),
+                unsupported: refuse,
+                message: async (text) => resistantMessages.push(text),
+            },
+        );
+        assert.deepEqual(resistantMessages.slice(-1), [
+            'You feel more confused!',
+        ]);
+
+        // Raw intrinsic HHallucination with no resistance selects "trippier".
+        const hallucinatedMessages = [];
+        await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state: makeState({
+                    disp: {},
+                    u: {
+                        ux: 4,
+                        uy: 5,
+                        uprops: {
+                            [CONFUSION]: { intrinsic: 2, extrinsic: 0 },
+                            [HALLUC]: { intrinsic: 5, extrinsic: 0 },
+                        },
+                    },
+                }),
+                random: scriptedRandom([2, 50]),
+                unsupported: refuse,
+                message: async (text) => hallucinatedMessages.push(text),
+            },
+        );
+        assert.deepEqual(hallucinatedMessages.slice(-1), ['You feel trippier!']);
+    });
+
+test('MCAST_CONFUSE_YOU Antimagic remembers resistance and leaves Confusion alone',
+    async () => {
+        const visibleMonster = {
+            mhp: 10,
+            mx: 5,
+            my: 5,
+            data: {},
+            seen_resistance: 0,
+            nmon: null,
+        };
+        const state = makeState({
+            disp: {},
+            flags: { sparkle: false },
+            level: { monlist: visibleMonster },
+        });
+        // Antimagic is active while pre-existing Confusion is zero; disabling
+        // sparkle keeps the shield routine headless but still exercises the
+        // Antimagic branch's source-ordered call.
+        state.u.uprops[ANTIMAGIC] = { intrinsic: 1, extrinsic: 0 };
+        state.u.uprops[CONFUSION] = { intrinsic: 0, extrinsic: 0 };
+        const messages = [];
+        const damageCalls = [];
+
+        await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state,
+                random: scriptedRandom([2, 50]),
+                unsupported: refuse,
+                message: async (text) => messages.push(text),
+                mdamageu: async (...args) => damageCalls.push(args),
+            },
+        );
+
+        assert.equal(visibleMonster.seen_resistance & M_SEEN_MAGR, M_SEEN_MAGR,
+            'monstseesu records that the visible monster saw Antimagic');
+        assert.equal(state.u.uprops[CONFUSION].intrinsic, 0,
+            'the Antimagic branch does not call make_confused');
+        assert.deepEqual(messages.slice(-1), ['You feel momentarily dizzy.']);
+        assert.deepEqual(damageCalls, [],
+            'the caller clears spell damage after this void effect');
+    });
 
 // -- the cast announcement ---------------------------------------------
 
