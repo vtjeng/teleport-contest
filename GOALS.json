@@ -156207,6 +156207,302 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-famn-v20-20261004",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port Famine attacks and monster diet handling",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v20/famine-touches-wizard-v20"
+      ],
+      "selectionReason": "Port whole uhitm.c:mhitm_ad_famn and wire AD_FAMN in the shared damage dispatcher. Selected admitted Famine case matches32/36screens at the source helper; immutable A86 evidence verifies the prefix through32. Independent Stone Golem and Newt Conflict recordings fully match both active target directions and diet variations. Accepted A83 is_fainted is the only consumed-return dependency; food predicates are C macros. Hero Famine polymorph entry is excluded by species G_UNIQ/NOGEN and M2_NOPOLY source rules.",
+      "detail": "",
+      "openedAt": "1318bcbccbcd9937e942e4446b8ba5d2f4dfa55c",
+      "openStanding": {
+        "sha": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mhitm_ad_famn",
+          "line": 3777,
+          "endLine": 3807,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3777,
+        "to": 3807
+      },
+      "syntheticProvenance": {
+        "synthetic/v20/famine-touches-wizard-v20": {
+          "session": "synthetic/v20/famine-touches-wizard-v20",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "famine-touches-wizard-v20",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+          "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7",
+          "evaluationPath": "challenges/evaluations/20261004041634-v20.json",
+          "evaluationCommit": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2"
+        }
+      },
+      "activeStanding": {
+        "sha": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "famine-touches-wizard-v20",
+          "session": "synthetic/v20/famine-touches-wizard-v20",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+          "recordingPath": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+          "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7",
+          "recipe": "challenges/cases/v20/famine-touches-wizard-v20.recipe.session.json",
+          "recipeSha256": "e011dca4725bde5fef58ff586b59924b513af6eafa417fab065b83fb02aa76db",
+          "replayInputSha256": "29f96ca594df846faa5e277d88b4b93ca7568a285012807ec6093e96159497bb",
+          "evaluationPath": "challenges/evaluations/20261004041634-v20.json",
+          "evaluationCommit": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
+          "evaluationArtifact": "challenges/evaluations/20261004041634-v20.json",
+          "evaluationUtc": "2026-10-04T04:17:53.180Z",
+          "remainingScreens": 4,
+          "recordedSteps": 36,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 36
+            },
+            "rng": {
+              "matched": 2348,
+              "total": 2355
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_famn()",
+            "step": 32
+          },
+          "step": 32,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_famn",
+          "message": "simple monster action requires uhitm.c mhitm_ad_famn()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/famine-touches-wizard-v20.json",
+            "result": {
+              "session": "synthetic/v20/famine-touches-wizard-v20",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "famine-touches-wizard-v20",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 4,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "famine-touches-wizard-v20",
+                "session": "synthetic/v20/famine-touches-wizard-v20",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+                "recordingPath": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+                "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7",
+                "recipe": "challenges/cases/v20/famine-touches-wizard-v20.recipe.session.json",
+                "recipeSha256": "e011dca4725bde5fef58ff586b59924b513af6eafa417fab065b83fb02aa76db",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 4,
+                "recordedSteps": 36,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 2348,
+                    "total": 2355
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_famn()",
+                  "step": 32
+                },
+                "step": 32,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_famn",
+                "message": "simple monster action requires uhitm.c mhitm_ad_famn()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The monster-action preflight refuses AD_FAMN before Famine’s turn. The C shrivel attack at step32 belongs to uhitm.c:mhitm_ad_famn; it exercises Constitution and draws rn1(40,40) for hunger. Port the whole helper and its dispatch arm. Its consumed is_fainted predicate is reserved by A83.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "AD_FAMN dispatch, with hero as defender; Famine prints the shrivel message, exercises Constitution, and increases hunger unless is_fainted(). Monster defenders take normal damage only when their species eats.",
+                "functions": [
+                  "mhitm_ad_famn"
+                ],
+                "callers": [
+                  "mhitm_adtyping",
+                  "hitmu",
+                  "damageum",
+                  "mdamagem"
+                ],
+                "dependencies": [
+                  "eat.c:is_fainted",
+                  "eat.c:morehungry",
+                  "attrib.c:exercise",
+                  "species carnivorous/herbivorous/metallivorous flags"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "uhitm.c:3777–3805 defines all three orientations of mhitm_ad_famn. The hero-attacker orientation is source-documented as unreachable through polymorph; it shares the monster-defender food-species test.",
+                "C recording step32 prints the shrivel message and logs rn2(2)=1 from attrib.c:exercise followed by rn2(40)=24 from mhitm_ad_famn. Earlier distfleeck draws belong to the suppressed same turn and do not identify the missing helper.",
+                "JS uhitm.js:5075 still maps AD_FAMN to the unported helper. The common damage dispatcher is called by damageum, hitmu, and mdamagem; the saved baseline reports the explicit simple-monster-action mhitm_ad_famn refusal.",
+                "JS eat.js:571 has is_fainted and :1927 morehungry; the former is part of the pending A83 source reservation. Preserve environment RNG/message routing during monster-action planning."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_famn",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_famn",
+            "sourceReview": "Read the complete uhitm.c:3777-3805 definition. When the hero is attacker, C jumps to the monster-pair check; when the hero is defender, it calls pline_mon at the attacker, exercises Constitution, then checks is_fainted before drawing rn1(40, 40) and calling morehungry. Otherwise it checks carnivorous, herbivorous, then metallivorous in short-circuit order and clears mhm.damage only when all are false. The JS body preserves those branches, order, the caller-supplied normal damage, and the existing awaited message/exercise/hunger operations. The body has no source refusal or placeholder. Its only consumed return is is_fainted(), already accepted in A83; pline_mon, exercise, and morehungry results are discarded. C's comment says the hero-attacker branch is unreachable for a valid hero polymorph because the only AD_FAMN species is unique Famine and cannot be polymorphed into.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping:4826 (AD_FAMN arm dispatches to mhitm_ad_famn)"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu:1191 (monster-to-hero attacks call mhitm_adtyping)"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem:1059 (monster-to-monster attacks call mhitm_adtyping)"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum:4854 (hero-to-monster attacks call mhitm_adtyping; excluded at entry-point level because Famine cannot be a valid hero form)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-famn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/a86-famine-mvm-stone-golem.session.json",
+              "recordings/uhitm.c/a86-famine-mvm-newt-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "famine-touches-wizard-v20",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 32,
+                "source": "mhitu.c:hitmu:1191 -> uhitm.c:mhitm_adtyping:4826 (AD_FAMN) -> uhitm.c:mhitm_ad_famn:3785-3797"
+              }
+            ],
+            "checkedAt": "a56becf8b99681e9e295420efdd8fde40bd841c0"
+          }
+        ],
+        "entryPointReview": "The selected unit is dispatched by uhitm.c:mhitm_adtyping:4826. Active production orientations are monster-to-hero through mhitu.c:hitmu:1191 and monster-to-monster through mhitm.c:mdamagem:1059. The v20 Famine case cites the M-to-hero call at segment 0 step 32. The independent Stone Golem recording reaches the M-to-M non-eater branch at zero-based step 141; later attacks at steps 145 and 147 show the source handler/caller continues, and the entire recording strictly matches. The independent Newt variation reaches the M-to-M eater branch at step 142 and strictly matches. The only AD_FAMN attack source is Famine. Hero-to-monster dispatch through uhitm.c:damageum is source-unreachable for a valid hero form: Famine is unique and G_NOGEN, and its monster row has M2_NOPOLY; uhitm.c comments explicitly say the hero cannot polymorph into any AD_FAMN form. Keep that branch implemented as C does, but do not treat it as an active runtime entry point. Other AD_FAMN callers can be found through the same dispatcher, not as separate handler bodies.",
+        "entryPoints": [
+          {
+            "name": "Monster melee attack against the hero (mattacku/hitmu)",
+            "functions": [
+              "mhitm_ad_famn"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/a86-famine-mvm-stone-golem.session.json",
+              "recordings/uhitm.c/a86-famine-mvm-newt-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "famine-touches-wizard-v20",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 32,
+                "source": "mhitu.c:hitmu:1191 -> uhitm.c:mhitm_adtyping:4826 (AD_FAMN) -> uhitm.c:mhitm_ad_famn:3785-3797"
+              }
+            ]
+          },
+          {
+            "name": "Monster melee attack against another monster (mattackm/mdamagem)",
+            "functions": [
+              "mhitm_ad_famn"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/a86-famine-mvm-stone-golem.session.json",
+              "recordings/uhitm.c/a86-famine-mvm-newt-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "87542fd75fa4b8fca14b1ed8790c65cf00d69dfc",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
