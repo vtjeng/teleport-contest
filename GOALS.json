@@ -160660,6 +160660,216 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "verify-mondata-locomotion-source-completion-v21-20261004",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Verify source trait precedence and movement verbs",
+      "cFile": "mondata.c",
+      "sessions": [
+        "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5"
+      ],
+      "selectionReason": "Verify the bounded existing pure movement formatter while broad monster-action closures are deferred. Its only consumed C function is accepted highc. Complete locoverbs data, five macro predicates, capitalization and trait precedence are source/result pinned, with actual u_locomotion and monster-movement callers. Outer do/timeout/shk caller gaps remain explicit and receive no completion credit; this helper task claims no synthetic screen gain.",
+      "detail": "",
+      "openedAt": "fe76a8c8c96411b9413668b3f8ea62c945f905bd",
+      "openStanding": {
+        "sha": "6a46ac1e3bc2eab6a6b557b3fd7ebb149e54f82e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "locomotion",
+          "line": 1380,
+          "endLine": 1394,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1380,
+        "to": 1394
+      },
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5": {
+          "session": "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+          "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50",
+          "evaluationPath": "challenges/evaluations/20261004100719-v21.json",
+          "evaluationCommit": "b76bb38476ce81155e44ac82e1f7e4e7eec28bd9"
+        }
+      },
+      "activeStanding": {
+        "sha": "6a46ac1e3bc2eab6a6b557b3fd7ebb149e54f82e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+          "session": "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+          "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50",
+          "recipe": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.recipe.session.json",
+          "recipeSha256": "d0e556e750761376bc8308fa2e9fb7ff8590dba17199c525eb43857da6b70760",
+          "replayInputSha256": "c9a54bf65aef2663071c94221e54b75bf569040042063d5b6c9e4a4c33ea011b",
+          "evaluationPath": "challenges/evaluations/20261004100719-v21.json",
+          "evaluationCommit": "b76bb38476ce81155e44ac82e1f7e4e7eec28bd9",
+          "evaluationArtifact": "challenges/evaluations/20261004100719-v21.json",
+          "evaluationUtc": "2026-10-04T10:08:45.185Z",
+          "remainingScreens": 25,
+          "recordedSteps": 168,
+          "previousScreensMatched": 143,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 143,
+              "total": 168
+            },
+            "rng": {
+              "matched": 3287,
+              "total": 3790
+            },
+            "cursors": {
+              "matched": 143,
+              "total": 168
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster exploding at another monster",
+            "step": 143
+          },
+          "step": 143,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster exploding at another monster",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.json",
+            "result": {
+              "session": "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+              "remainingScreens": 25,
+              "recordedSteps": 168,
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingPath": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+              "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "commit": "e64736796e0ff198431f49727f0ad04689c646f2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+                "session": "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+                "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50",
+                "recipe": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.recipe.session.json",
+                "recipeSha256": "d0e556e750761376bc8308fa2e9fb7ff8590dba17199c525eb43857da6b70760",
+                "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationUtc": "2026-10-03T18:29:21.226Z",
+                "remainingScreens": 25,
+                "recordedSteps": 168,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 143,
+                    "total": 168
+                  },
+                  "rng": {
+                    "matched": 3287,
+                    "total": 3790
+                  },
+                  "cursors": {
+                    "matched": 143,
+                    "total": 168
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a monster exploding at another monster",
+                  "step": 143
+                },
+                "step": 143,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a monster exploding at another monster",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "status": "complete",
+              "summary": "At zero-based step 143, Conflict reaches the adjacent Flaming Sphere AT_EXPL arm and missing explmm caller. A complete explmm port also requires its result-valued mdamagem fallback and two direct return dependencies without accepted whole-source evidence: at least four whole functions before recursive review. attk_protection, poly_when_stoned, zombie_maker and zombie_form are accepted; the elemental case alone cannot cover the non-elemental fallback.",
+              "source": {
+                "file": "mhitm.c",
+                "branch": "When mattackm() selects AT_EXPL and distmin(magr, mdef) is at most 1, C calls explmm(); a cancelled aggressor returns M_ATTK_MISS. For AD_FIRE, AD_COLD, and AD_ELEC, explmm() calls mon_explodes(), which rolls the explosion damage and removes the aggressor before explode() affects the defender. Other explosion damage types go through mdamagem(), followed by the attacker-death and lifesaving checks. The assigned C recording reaches the adjacent Flaming Sphere AD_FIRE path through Conflict and fightm().",
+                "functions": [
+                  "explmm"
+                ],
+                "callers": [
+                  "mhitm.c:mattackm() AT_EXPL arm (497-508), direct caller of explmm()",
+                  "mhitm.c:fightm() adjacent-target path (121-168), calls mattackm() for the Conflict-selected defender",
+                  "mon.c:movemon_singlemon() Conflict gate (1305-1318), runtime entry into fightm()"
+                ],
+                "dependencies": [
+                  "explode.c:mon_explodes for elemental explosions",
+                  "mhitm.c:mdamagem for non-elemental explosion damage",
+                  "mhitm.c:noises for unseen explosion feedback",
+                  "mon.c:mondead via mon_explodes before elemental blasts and directly on the non-elemental fallback",
+                  "DEADMONSTER state and M_ATTK_* result flags for death and lifesaving disposition",
+                  "Whole mdamagem consumes attk_protection, poly_when_stoned, mhitm_knockback, zombie_maker, zombie_form, and grow_up. Whole attk_protection is accepted at validated candidate 6a422f16e1e2e7db6cb15c0c03085c5ba4655de9; whole poly_when_stoned at 2f89e76867ec12ad25535b7af643a17309089976. Whole zombie_maker and zombie_form are accepted under port-mon-zombie-predicates-v21-20261004 at validated candidate e64736796e0ff198431f49727f0ad04689c646f2. mhitm_knockback and grow_up still lack accepted whole-source evidence; audit their recursive consumed-return closure before assigning the complete scope."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/v21-first-work-queue.json records this v21 session with 25 unmatched screens over 168 steps, manifest SHA-256 d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac, recording SHA-256 feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50, and an unsupported M-to-M explosion stop at step 143. challenges/evaluations/20261003183000-v21.json confirms 143/168 matched screens and cursors, 3287/3790 matched RNG calls, and an evaluation at engine commit b0fd76f6091376c07bf54e8d3061aa5a9c9957d0.",
+                ".cache/C65-explosion-root-verification.json records the assigned case’s bounded C evidence at step 143: an adjacent Flaming Sphere and eastern goblin enter fightm(); mattackm() selects AT_EXPL, calls explmm(), then mon_explodes() rolls the 4d6 damage and kills the aggressor before explode() affects the goblin. The C evidence rules out a preliminary explmu() damage draw as the cause.",
+                ".cache/C65-explosion-crosswalk-v2-root-verification.json confirms the corrected source attribution is the elemental monster-to-monster AT_EXPL/explmm route; its source adjudication passed. The first missing helper is mhitm.c:explmm(), wired at mattackm()’s AT_EXPL arm; whole-source completion also includes its consumed-return closure.",
+                "nethack-c/upstream/src/mhitm.c:497-508 calls explmm() only after the AT_EXPL distance check passes. Lines 970-1009 define the whole helper: cancellation exits before effects, elemental attacks call mon_explodes(), other damage types call mdamagem(), then the helper applies attacker death, lifesaving, leash, and tame-monster outcomes.",
+                "nethack-c/upstream/src/explode.c:1019-1063 shows mon_explodes() rolling damage and calling mondead() before explode(). At the accepted main commit, js/mhitm.js:798-800 still throws the unsupported M-to-M explosion boundary, and js/mhitm.js has no explmm() implementation. js/explode.js:728-750 already ports mon_explodes(), so explmm and its mattackm() wiring locate the first defect; the return-bearing fallback determines the larger completion scope.",
+                "The production entry path is nethack-c/upstream/src/mon.c:1305-1318 movemon_singlemon() -> fightm(), then mhitm.c:fightm():143 -> mattackm(). In JavaScript, js/monmove.js:2693-2697 documents the Conflict fightm() attempt, and js/unported_monster_actions.js:1742-1749 dispatches fightMonster() to mhitm.js:fightm().",
+                "Root read complete mhitm.c:explmm970–1009 and mdamagem1016–1119 at bb6fc174b9aa65beb45500502d88d5ce2be6a20f. explmm consumes mdamagem on every non-elemental explosion. mdamagem directly consumes attk_protection, poly_when_stoned, mhitm_knockback, zombie_maker, zombie_form, and grow_up. Closed GOALS evidence has no whole-source record for any of these eight units. The minimum is eight whole functions before recursive review, and completion needs runtime evidence for the non-elemental path. minliquid, mintrap, goodpos and t_at occur in the preceding gulpmm recovery path and are outside this direct closure.",
+                "At validated candidate 6a422f16e1e2e7db6cb15c0c03085c5ba4655de9, A87 accepted the complete pure mhitm.c:attk_protection with direct switch/enum/mask result tests and existing passiveum production caller evidence. This removes one of the eight units identified at historical bb6fc174. The current minimum is seven: explmm, mdamagem, poly_when_stoned, mhitm_knockback, zombie_maker, zombie_form, and grow_up, before recursive closure review. Pending worker deliveries are not counted as accepted. The assigned recording and its first missing explosion path are unchanged.",
+                "At validated candidate 2f89e76867ec12ad25535b7af643a17309089976, A88 accepted the complete pure mondata.c:poly_when_stoned with direct C predicate/header/species result tests and existing mdamagem production caller correspondence. Together with A87 this reduces the historical eight-unit minimum to six: explmm, mdamagem, mhitm_knockback, zombie_maker, zombie_form, and grow_up, before recursive closure review. Pending zombie-helper deliveries are not counted as accepted. The assigned recording and first missing explosion path are unchanged.",
+                "At validated candidate e64736796e0ff198431f49727f0ad04689c646f2, A90 accepted the complete pure mon.c zombie_maker and zombie_form pair, with full C/result tests, source-owner relocation and all existing production importer wiring. Together with A87/A88 this reduces the historical eight-unit direct minimum to four: explmm, mdamagem, mhitm_knockback and grow_up, before recursive closure review. Pending little_to_big/big_to_little evidence does not close grow_up. The assigned recording and first missing explosion path are unchanged."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
