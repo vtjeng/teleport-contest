@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -14,10 +15,6 @@ import {
     NATTK,
     PIT,
     STRAT_WAITFORU,
-    W_ARMC,
-    W_ARMF,
-    W_ARMG,
-    W_ARMH,
 } from '../js/const.js';
 import {
     glyph_is_invisible,
@@ -51,18 +48,14 @@ import {
     AD_WRAP,
     AT_BITE,
     AT_BREA,
-    AT_BOOM,
-    AT_BUTT,
     AT_ENGL,
     AT_EXPL,
     AT_CLAW,
     AT_GAZE,
     AT_HUGS,
     AT_KICK,
-    AT_MAGC,
     AT_NONE,
     AT_SPIT,
-    AT_STNG,
     AT_TENT,
     AT_TUCH,
     AT_WEAP,
@@ -106,6 +99,22 @@ import {
     admitPlannedVisionChange,
     planningState,
 } from '../js/unported_monster_actions.js';
+
+const MHITM_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mhitm.c', import.meta.url), 'utf8',
+);
+const MHITU_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8',
+);
+const MHITU_JS = readFileSync(
+    new URL('../js/mhitu.js', import.meta.url), 'utf8',
+);
+const MONATTK_H = readFileSync(
+    new URL('../nethack-c/upstream/include/monattk.h', import.meta.url), 'utf8',
+);
+const PROP_H = readFileSync(
+    new URL('../nethack-c/upstream/include/prop.h', import.meta.url), 'utf8',
+);
 
 // A Valkyrie with no pet on a plain first level. The fixtures below place
 // every combatant themselves, so all the seed has to supply is a lit room
@@ -200,20 +209,93 @@ function scripted(rolls = [], fallback = 1) {
     };
 }
 
-test('attk_protection maps every source attack family', () => {
-    // mhitm.c:1475-1518. The special attacks require no worn protection;
-    // contact attacks select the exact equipment masks used by C.
-    for (const aatyp of [AT_NONE, AT_SPIT, AT_EXPL, AT_BOOM,
-        AT_GAZE, AT_BREA, AT_MAGC]) {
-        assert.equal(attk_protection(aatyp), ~0);
+test('attk_protection matches the source switch and C numeric values', () => {
+    const cStart = MHITM_C.indexOf('\nlong\nattk_protection(int aatyp)\n{');
+    const cEnd = MHITM_C.indexOf('\n/*mhitm.c*/', cStart);
+    assert.notEqual(cStart, -1, 'mhitm.c must contain attk_protection');
+    assert.notEqual(cEnd, -1, 'attk_protection must end before the next source group');
+    const cFunction = MHITM_C.slice(cStart + 1, cEnd);
+
+    // These source pins keep every returned equipment mask tied to the whole
+    // C switch in mhitm.c:1475-1518, including its default arm.
+    assert.match(cFunction,
+        /case AT_NONE:[\s\S]*?case AT_MAGC:\s*w_mask = ~0L;[\s\S]*?break;/u);
+    assert.match(cFunction,
+        /case AT_CLAW:[\s\S]*?case AT_WEAP:\s*w_mask = W_ARMG;[\s\S]*?break;/u);
+    assert.match(cFunction, /case AT_KICK:\s*w_mask = W_ARMF;/u);
+    assert.match(cFunction, /case AT_BUTT:\s*w_mask = W_ARMH;/u);
+    assert.match(cFunction,
+        /case AT_HUGS:\s*w_mask = \(W_ARMC \| W_ARMG\);/u);
+    assert.match(cFunction,
+        /case AT_BITE:[\s\S]*?case AT_TENT:[\s\S]*?default:\s*w_mask = 0L;/u);
+    assert.match(cFunction, /return w_mask;/u);
+
+    // The live AD_STON production path wires the pure owner in both sources.
+    assert.match(MHITU_C,
+        /long protector = attk_protection\(\(int\) mattk->aatyp\)/u);
+    assert.match(MHITU_JS,
+        /const protector = attk_protection\(mattk\.aatyp\);/u);
+
+    // The inputs are the C enum values in monattk.h:12-29; numeric literals
+    // make this test independent of the JavaScript enum table.
+    const attacksWithoutProtection = [
+        0, // AT_NONE, monattk.h:12; passive attacks need no worn defense.
+        10, // AT_SPIT, monattk.h:20; ranged spit uses the no-defense arm.
+        13, // AT_EXPL, monattk.h:23; proximity explosion uses that arm.
+        14, // AT_BOOM, monattk.h:24; death explosion uses that arm.
+        15, // AT_GAZE, monattk.h:25; gaze uses that arm.
+        12, // AT_BREA, monattk.h:22; breath uses that arm.
+        255, // AT_MAGC, monattk.h:29; magic uses that arm.
+    ];
+    for (const aatyp of attacksWithoutProtection) {
+        assert.equal(attk_protection(aatyp), -1); // C ~0L is all bits set.
     }
-    for (const aatyp of [AT_CLAW, AT_TUCH, AT_WEAP])
-        assert.equal(attk_protection(aatyp), W_ARMG);
-    assert.equal(attk_protection(AT_KICK), W_ARMF);
-    assert.equal(attk_protection(AT_BUTT), W_ARMH);
-    assert.equal(attk_protection(AT_HUGS), W_ARMC | W_ARMG);
-    for (const aatyp of [AT_BITE, AT_STNG, AT_ENGL, AT_TENT, -2])
-        assert.equal(attk_protection(aatyp), 0);
+
+    const attacksProtectedByGloves = [
+        1, // AT_CLAW, monattk.h:13; the C mask is W_ARMG.
+        5, // AT_TUCH, monattk.h:17; the C mask is W_ARMG.
+        254, // AT_WEAP, monattk.h:28; the C mask is W_ARMG.
+    ];
+    for (const aatyp of attacksProtectedByGloves) {
+        assert.equal(attk_protection(aatyp), 0x10); // prop.h:105 defines W_ARMG.
+    }
+    assert.equal(attk_protection(3), 0x20); // AT_KICK=3; W_ARMF=0x20 (monattk.h:15, prop.h:106).
+    assert.equal(attk_protection(4), 0x04); // AT_BUTT=4; W_ARMH=0x04 (monattk.h:16, prop.h:103).
+    assert.equal(attk_protection(7), 0x12); // AT_HUGS=7; W_ARMC|W_ARMG=0x02|0x10 (monattk.h:19, prop.h:102,105).
+
+    const attacksWithoutAvailableDefense = [
+        2, // AT_BITE, monattk.h:14; C groups it with the zero-mask arm.
+        6, // AT_STNG, monattk.h:18; C groups it with the zero-mask arm.
+        11, // AT_ENGL, monattk.h:21; C groups it with the zero-mask arm.
+        16, // AT_TENT, monattk.h:26; C groups it with the zero-mask arm.
+        -2, // Outside monattk.h's enum; exercises the C default arm.
+    ];
+    for (const aatyp of attacksWithoutAvailableDefense) {
+        assert.equal(attk_protection(aatyp), 0); // C initializes and returns a zero mask.
+    }
+
+    // These header pins tie the numeric inputs and masks above to upstream.
+    assert.match(MONATTK_H, /^#define AT_NONE 0\s/mu);
+    assert.match(MONATTK_H, /^#define AT_CLAW 1\s/mu);
+    assert.match(MONATTK_H, /^#define AT_BITE 2\s/mu);
+    assert.match(MONATTK_H, /^#define AT_KICK 3\s/mu);
+    assert.match(MONATTK_H, /^#define AT_BUTT 4\s/mu);
+    assert.match(MONATTK_H, /^#define AT_TUCH 5\s/mu);
+    assert.match(MONATTK_H, /^#define AT_STNG 6\s/mu);
+    assert.match(MONATTK_H, /^#define AT_HUGS 7\s/mu);
+    assert.match(MONATTK_H, /^#define AT_SPIT 10\s/mu);
+    assert.match(MONATTK_H, /^#define AT_ENGL 11\s/mu);
+    assert.match(MONATTK_H, /^#define AT_BREA 12\s/mu);
+    assert.match(MONATTK_H, /^#define AT_EXPL 13\s/mu);
+    assert.match(MONATTK_H, /^#define AT_BOOM 14\s/mu);
+    assert.match(MONATTK_H, /^#define AT_GAZE 15\s/mu);
+    assert.match(MONATTK_H, /^#define AT_TENT 16\s/mu);
+    assert.match(MONATTK_H, /^#define AT_WEAP 254\s/mu);
+    assert.match(MONATTK_H, /^#define AT_MAGC 255\s/mu);
+    assert.match(PROP_H, /^#define W_ARMC 0x00000002L/mu);
+    assert.match(PROP_H, /^#define W_ARMH 0x00000004L/mu);
+    assert.match(PROP_H, /^#define W_ARMG 0x00000010L/mu);
+    assert.match(PROP_H, /^#define W_ARMF 0x00000020L/mu);
 });
 
 test('mdisplacem consumes its miss roll and swaps occupied squares',
