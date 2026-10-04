@@ -155909,7 +155909,7 @@
     {
       "id": "port-mcastu-mcast-confuse-you-v20-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port hostile cleric confusion spells",
       "cFile": "mcastu.c",
       "sessions": [
@@ -155923,8 +155923,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mcast_confuse_you",
@@ -156197,6 +156200,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "69ba00f7c7c82481ed30173854c21a04c8fb7fc2",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
