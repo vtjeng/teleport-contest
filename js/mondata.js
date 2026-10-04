@@ -1400,40 +1400,6 @@ export function emits_light(ptr) {
             || ptr?.pmidx === M.PM_GOLD_DRAGON) ? 1 : 0;
 }
 
-function isElf(ptr) {
-    return Boolean(ptr.mflags2 & M.M2_ELF);
-}
-
-function isDwarf(ptr) {
-    return Boolean(ptr.mflags2 & M.M2_DWARF);
-}
-
-export function zombie_form(pm) {
-    if (!pm || !Number.isInteger(pm.mlet) || !Number.isInteger(pm.mflags2))
-        return M.NON_PM;
-    switch (pm.mlet) {
-    case M.S_ZOMBIE:
-        return M.NON_PM;
-    case M.S_KOBOLD:
-        return M.PM_KOBOLD_ZOMBIE;
-    case M.S_ORC:
-        return M.PM_ORC_ZOMBIE;
-    case M.S_GIANT:
-        return pm.pmidx === M.PM_ETTIN
-            ? M.PM_ETTIN_ZOMBIE
-            : M.PM_GIANT_ZOMBIE;
-    case M.S_HUMAN:
-    case M.S_KOP:
-        return isElf(pm) ? M.PM_ELF_ZOMBIE : M.PM_HUMAN_ZOMBIE;
-    case M.S_HUMANOID:
-        return isDwarf(pm) ? M.PM_DWARF_ZOMBIE : M.NON_PM;
-    case M.S_GNOME:
-        return M.PM_GNOME_ZOMBIE;
-    default:
-        return M.NON_PM;
-    }
-}
-
 export function undead_to_corpse(mndx) {
     mndx = monsterIndexOrNonPm(mndx);
     switch (mndx) {

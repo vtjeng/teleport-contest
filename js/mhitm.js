@@ -55,6 +55,7 @@ import {
     set_ustuck,
     unstuck,
     zombie_maker,
+    zombie_form,
     seemimic,
 } from './mon.js';
 import {
@@ -71,7 +72,6 @@ import {
     unsolid,
     Resists_Elem,
     poly_when_stoned,
-    zombie_form,
     defended,
 } from './mondata.js';
 import { closed_door, itsstuck, monnear, youHear } from './monmove.js';

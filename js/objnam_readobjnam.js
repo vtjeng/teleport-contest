@@ -32,10 +32,10 @@ import {
     delete_contents, hands_obj, obj_extract_self, obfree, } from './invent.js';
 import { def_char_to_objclass } from './drawing.js';
 import {
-    can_be_hatched, dead_species, is_female, is_human, is_male, is_neuter, is_were, name_to_monplus, name_to_mon, verysmall, zombie_form, } from './mondata.js';
+    can_be_hatched, dead_species, is_female, is_human, is_male, is_neuter, is_were, name_to_monplus, name_to_mon, verysmall, } from './mondata.js';
 import {
     G_NOCORPSE, G_UNIQ, MS_GUARDIAN, PM_BLACK_PUDDING, PM_GRAY_DRAGON, PM_GRAY_OOZE, PM_LONG_WORM, PM_LONG_WORM_TAIL, PM_MAIL_DAEMON, PM_YELLOW_DRAGON, S_PUDDING, } from './monsters.js';
-import { counter_were, genus } from './mon.js';
+import { counter_were, genus, zombie_form } from './mon.js';
 import { obj_to_any } from './hack.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
 import {

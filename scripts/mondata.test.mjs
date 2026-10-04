@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -109,8 +110,8 @@ import {
     vegan,
     verysmall,
     webmaker,
-    zombie_form,
 } from '../js/mondata.js';
+import { zombie_form } from '../js/mon.js';
 import * as M from '../js/monsters.js';
 import {
     ALCHEMY_SMOCK,
@@ -124,9 +125,23 @@ import { roles } from '../js/roles.js';
 import { game } from '../js/gstate.js';
 import { initUnported } from '../js/unported.js';
 
+const MON_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8',
+);
+const MONDATA_H = readFileSync(
+    new URL('../nethack-c/upstream/include/mondata.h', import.meta.url), 'utf8',
+);
+function cFunction(source, name, nextName) {
+    const start = source.indexOf(`\n${name}(`);
+    const end = source.indexOf(`\n${nextName}(`, start + 1);
+    assert.ok(start >= 0 && end > start, `extract C ${name} definition`);
+    return source.slice(start, end);
+}
+
 // Monster flags, sizes, class letters, and attack types, transcribed from the
-// C headers. mondata.c's predicates test these exact values, so a case built
-// from the port's own export would select its branch even if the export were
+// C headers. mondata.c's predicates and mon.c zombie_form() test these values,
+// so a case built from the port's own export would select its branch even if
+// the export were
 // missing or wrong: `undefined === undefined` is true and `x & undefined` is 0
 // on both sides of the assertion. PM_ constants stay as exports, because C
 // generates them from the row order of monsters.h and writes no numeral.
@@ -566,6 +581,21 @@ test('zombie and mummy corpses use their living source species', () => {
     assert.equal(undead_to_corpse(), M.NON_PM);
 });
 
+test('zombie_form source mapping matches the complete C switch', () => {
+    const cBody = cFunction(MON_C, 'zombie_form', 'undead_to_corpse');
+    assert.match(cBody, /switch \(pm->mlet\)/u);
+    assert.match(cBody, /case S_ZOMBIE:[\s\S]*?return NON_PM;/u);
+    assert.match(cBody, /case S_KOBOLD:[\s\S]*?return PM_KOBOLD_ZOMBIE;/u);
+    assert.match(cBody, /case S_ORC:[\s\S]*?return PM_ORC_ZOMBIE;/u);
+    assert.match(cBody, /case S_GIANT:[\s\S]*?PM_ETTIN[\s\S]*?PM_ETTIN_ZOMBIE[\s\S]*?return PM_GIANT_ZOMBIE;/u);
+    assert.match(cBody, /case S_HUMAN:[\s\S]*?case S_KOP:[\s\S]*?is_elf\(pm\)[\s\S]*?return PM_HUMAN_ZOMBIE;/u);
+    assert.match(cBody, /case S_HUMANOID:[\s\S]*?is_dwarf\(pm\)[\s\S]*?return NON_PM;/u);
+    assert.match(cBody, /case S_GNOME:[\s\S]*?return PM_GNOME_ZOMBIE;/u);
+    assert.match(cBody, /\}\s*return NON_PM;/u);
+    assert.match(MONDATA_H, /#define is_elf\(ptr\) \([\s\S]*?M2_ELF/u);
+    assert.match(MONDATA_H, /#define is_dwarf\(ptr\) \([\s\S]*?M2_DWARF/u);
+});
+
 test('zombie_form follows monster class and race flags', () => {
     const state = monsterState();
     const pm = (index) => state.mons[index];
@@ -581,7 +611,9 @@ test('zombie_form follows monster class and race flags', () => {
     assert.equal(zombie_form(pm(M.PM_GNOME)), M.PM_GNOME_ZOMBIE);
     assert.equal(zombie_form(pm(M.PM_GHOUL)), M.NON_PM);
     assert.equal(zombie_form(pm(M.PM_SKELETON)), M.NON_PM);
-    assert.equal(zombie_form(), M.NON_PM);
+    // A newt has an unhandled monster class, so it exercises the final C fallback.
+    assert.equal(zombie_form(pm(M.PM_NEWT)), M.NON_PM);
+    assert.equal(zombie_form(), M.NON_PM); // malformed JS-only defensive input; C requires a permonst pointer.
 
     // Kops share the human branch, but its elf test precedes the fallback.
     assert.equal(zombie_form({ mlet: S_KOP, mflags2: M2_ELF }),
