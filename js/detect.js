@@ -239,9 +239,8 @@ export class UnsupportedSearchError extends Error {
     }
 }
 
-// C refs: detect.c unconstrain_map()/reconstrain_map() (70-91). This slice
-// owns only an ordinary, unconstrained map. Save slots are still initialized
-// so reconstrain_map() follows the source-shaped no-op path.
+// C ref: detect.c:unconstrain_map() (69-81). Save all three constraint fields
+// before clearing them; the return value reports whether any saved value was set.
 export function unconstrain_map(state = game) {
     const constrained = Boolean(
         state.u?.uinwater || state.u?.uburied || state.u?.uswallow,
@@ -1009,7 +1008,7 @@ export async function object_detect(detector = null, objectClass = 0,
     return 0;
 }
 
-// C ref: detect.c monster_detect() (797-860). Handles potion/spell object
+// C ref: detect.c:monster_detect() (797-862). Handles potion/spell object
 // state, optional monster-class filtering, constrained maps, and the long-worm
 // tail class. The persistent blessed-map arm's display_nhwindow() is void in C
 // and remains a named gap; the return contract is still exact: 1 when nothing
