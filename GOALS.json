@@ -158758,6 +158758,312 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-stck-v19-20261004",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port sticking attacks and verify the sticks predicate",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected"
+      ],
+      "selectionReason": "The admitted v19 lichen touch stops at missing AD_STCK dispatch. Exact source implementation and matching M-to-hero prefix/H-to-M recording are ready, with verified pure mondata.c:sticks. The M-to-M entry lacks matching runtime evidence; this partial delivery will preserve full planned scope and park the goal without whole mhitm_ad_stck completion or a goal-closure score event.",
+      "detail": "",
+      "openedAt": "8e70c894a30cee12375ffa04c953259a4d68707d",
+      "openStanding": {
+        "sha": "e64736796e0ff198431f49727f0ad04689c646f2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_stck",
+          "line": 3306,
+          "endLine": 3336,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3306,
+        "to": 3336
+      },
+      "syntheticProvenance": {
+        "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected": {
+          "session": "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+          "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b",
+          "evaluationPath": "challenges/evaluations/20261004080226-v19.json",
+          "evaluationCommit": "e64736796e0ff198431f49727f0ad04689c646f2"
+        }
+      },
+      "activeStanding": {
+        "sha": "e64736796e0ff198431f49727f0ad04689c646f2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+          "session": "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+          "recordingPath": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+          "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b",
+          "recipe": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.recipe.session.json",
+          "recipeSha256": "93b08d0cb425731274a53ff080c1136fbf67f56c322509c21a9d9fecbc348117",
+          "replayInputSha256": "7aa2b29a2cb489888398faccdaa04591f529f82fab143157f645ca77e8d916b7",
+          "evaluationPath": "challenges/evaluations/20261004080226-v19.json",
+          "evaluationCommit": "e64736796e0ff198431f49727f0ad04689c646f2",
+          "evaluationArtifact": "challenges/evaluations/20261004080226-v19.json",
+          "evaluationUtc": "2026-10-04T08:03:58.500Z",
+          "remainingScreens": 1,
+          "recordedSteps": 41,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2207,
+              "total": 2224
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_stck()",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_stck",
+          "message": "simple monster action requires uhitm.c mhitm_ad_stck()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.json",
+            "result": {
+              "session": "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+              "remainingScreens": 1,
+              "recordedSteps": 41,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+                "session": "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+                "recordingPath": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+                "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b",
+                "recipe": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.recipe.session.json",
+                "recipeSha256": "93b08d0cb425731274a53ff080c1136fbf67f56c322509c21a9d9fecbc348117",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 1,
+                "recordedSteps": 41,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2207,
+                    "total": 2224
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_stck()",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_stck",
+                "message": "simple monster action requires uhitm.c mhitm_ad_stck()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The large-mimic recipe instead reaches a lichen touch. JS refuses AD_STCK before completing that turn. C enters mhitm_ad_stck and its magic-negation gate; port the whole sticking helper and wire its dispatch.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A successful lichen AT_TUCH/AD_STCK hit reaches the monster-to-hero sticking branch; setting u.ustuck depends on magical cancellation, existing stuck state, and the defender sticks predicate.",
+                "functions": [
+                  "mhitm_ad_stck"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku -> hitmu",
+                  "uhitm.c:mhitm_adtyping AD_STCK"
+                ],
+                "dependencies": [
+                  "uhitm.c:mhitm_mgc_atk_negated",
+                  "mhitu.c:magic_negation",
+                  "mon.c:set_ustuck",
+                  "mhitu.c:hitmsg",
+                  "include/you.h:m_next2u (adjacency macro)"
+                ]
+              },
+              "evidence": [
+                "nethack-c/upstream/src/uhitm.c:3306-3335 defines mhitm_ad_stck for all three actor combinations. It first computes mhitm_mgc_atk_negated. Hero-to-monster additionally requires a non-sticky adjacent defender; monster-to-hero emits hitmsg and requires no existing u.ustuck and a non-sticky defender. Barbed-devil messages are separate branches. Negation clears damage only for monster-to-monster.",
+                "js/uhitm.js:4967 leaves AD_STCK unported. The admitted baseline stops at zero-based segment 0 step 40 with simple monster action requires uhitm.c mhitm_ad_stck().",
+                "The frozen recording at segment 0 step 40 shows The lichen touches you!, a lichen F south of the hero, and the created large mimic still disguised as ] to the north. It records d(0,0)=0 at hitmu and rn2(10)=3 at mhitm_mgc_atk_negated(uhitm.c:87), establishing entry into the AD_STCK gate.",
+                "The recipe title does not identify the actual attacker. This prefix provides no large-mimic AD_STCK hit evidence. The absence of a helper-specific RNG label or stuck-state field does not establish that mhitm_ad_stck was skipped: the magic-negation draw comes from its first call. The screen alone does not serialize u.ustuck.",
+                "nethack-c/upstream/src/uhitm.c:80-99 compares rn2(10) with 3 * magic_negation(mdef), after attacker cancellation. mon.c:3421 owns set_ustuck. Port the complete helper and consume source-backed return values from its recursive dependencies; reuse the shared magic-negation helper only with direct completion evidence. Do not infer an allmain RNG defect from the truncated turn.",
+                "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "name": "sticks",
+          "line": 654,
+          "endLine": 662,
+          "declared": true,
+          "sourceFile": "mondata.c",
+          "complete": true
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "sticks",
+            "implementation": "js/mondata.js",
+            "symbol": "sticks",
+            "sourceReview": "Compared the complete mondata.c:654-659 body. The function returns true for AD_STCK, then for AD_WRAP only when AT_ENGL is absent, then for AT_HUGS; the C short-circuit order is preserved. The function reads only the monster attack table and makes no RNG call, output, or state write. The test pins the corresponding C enum values and each positive, negative, and engulfing-wrap result.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_stck",
+                "source": "uhitm.c:mhitm_ad_stck calls sticks(pd) in the hero-to-monster gate at 3316 and monster-to-hero gate at 3324."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-stck-hero-to-monster-large-mimic-forcefight-b99.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_STCK) -> uhitm.c:mhitm_ad_stck; the C boundary records the lichen contact and the monster-to-hero sticking checks."
+              }
+            ],
+            "checkedAt": "15c54d5dfdb36fa7ee75b9e0b582b87a8fb747f3"
+          }
+        ],
+        "entryPointReview": "This is a partial handoff. The complete pure dependency mondata.c:sticks is source-pinned and tested. The changed uhitm.c:mhitm_ad_stck body and AD_STCK dispatcher arm have matching monster-to-hero evidence in the admitted v19 case through segment 0 step 40, and a separate hero-to-monster C recording strictly matches through its complete 52 screen/cursor boundaries. The third active route is monster-to-monster: the exact private C recording from run-KLCWoy reaches mdamagem -> mhitm_adtyping(AD_STCK) -> mhitm_ad_stck at normalized step 127, with a Barbed Devil striking a Giant Mimic. A bounded replay of that immutable recording with frozen/ps_test_runner.mjs (run-JMWA1i) does not match: 3,794/3,893 RNG calls and 125/149 screen/cursor boundaries, with error:null. That runner reports aggregate counts but no first mismatch or stop reason. A prior diff-fresh run-18Doxm is retained separately; its recipe-input identity against the final committed recipe is unproven, so its reported boundary is not attributed to this final private recording. The blocked recipe identifies the C wizard no-death continuation at end.c:done() before its M-to-M attack. No JavaScript stop owner is claimed. The whole mhitm_ad_stck function remains incomplete until an M-to-M route matches; no whole mhitm_adtyping, hitmu, damageum, or mdamagem credit is claimed.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero AD_STCK",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_stck"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_STCK) -> uhitm.c:mhitm_ad_stck; the C boundary records the lichen contact and the monster-to-hero sticking checks."
+              }
+            ]
+          },
+          {
+            "name": "hero-to-monster AD_STCK",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_stck"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-stck-hero-to-monster-large-mimic-forcefight-b99.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-monster AD_STCK",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_stck"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8478541750f8418895057298e9403d2521e31226",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial B99 delivery: mondata.c sticks is verified; complete mhitm_ad_stck remains blocked by unmatched M-to-M runtime evidence. Exact private C run KLCWoy paired replay JMWA1i matches 125/149 screens and 3794/3893 RNG calls. Preserve independent blocked recipe and full planned scope; no whole helper completion or goal-closure score event."
     }
   ]
 }
