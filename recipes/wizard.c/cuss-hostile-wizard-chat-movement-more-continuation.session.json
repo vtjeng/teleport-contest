@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-observed continuation for cuss-hostile-wizard-chat-primary-force-confirmed. C reaches wizard.c:cuss via sounds.c:domonnoise at normalized step46, then the Wizard's attack emits a More at step47 and swallows the original wait tail. One leading space acknowledges that exact More. The remaining frozen alternating spaces and waits expose the source-ordered monmove.c:dochug MS_CUSS gate after attacks while safely acknowledging any later C message pages; they do not assume the gate draw or cuss branch result.",
+  "segments": [
+    {
+      "seed": 960101,
+      "datetime": "20360101120000",
+      "nethackrc": "OPTIONS=name:CussWizardOne,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile Wizard of Yendor\ny#chat\nh\n . . . . . . . . . . . ."
+    }
+  ]
+}

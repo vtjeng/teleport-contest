@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-planned monmove.c:dochug entry route for wizard.c:cuss's Deaf early return. Set timed invulnerability and Deaf through the documented #wizintrinsic menu (a and j), create five hostile Imps with MS_CUSS, then spend ten source-planned waits while space keys acknowledge any combat pages. Each live, visible, in-range hostile Imp reaches dochug's rn2(5) cuss gate; when the gate fires, cuss returns immediately because Deaf is active, so the C pager gaps cannot be reached. The current record must confirm the actual gate and monster action history.",
+  "segments": [
+    {
+      "seed": 960105,
+      "datetime": "20360105120000",
+      "nethackrc": "OPTIONS=name:CussDeafImpOne,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizintrinsic\naj\n#wizgenesis\nhostile imp\n#wizgenesis\nhostile imp\n#wizgenesis\nhostile imp\n#wizgenesis\nhostile imp\n#wizgenesis\nhostile imp\n . . . . . . . . . ."
+    }
+  ]
+}
