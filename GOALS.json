@@ -155425,7 +155425,7 @@
     {
       "id": "port-pray-offer-different-alignment-altar-v21-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port offerings at an altar of a different alignment",
       "cFile": "pray.c",
       "sessions": [
@@ -155439,15 +155439,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "af6e694b3d57d109c2fdf1effb342e7126439b7c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "offer_different_alignment_altar",
           "line": 1631,
           "endLine": 1697,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -155461,7 +155464,7 @@
           "endLine": 152,
           "declared": true,
           "sourceFile": "priest.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "histemple_at",
@@ -155469,7 +155472,7 @@
           "endLine": 160,
           "declared": true,
           "sourceFile": "priest.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "findpriest",
@@ -155477,7 +155480,7 @@
           "endLine": 409,
           "declared": true,
           "sourceFile": "priest.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "p_coaligned",
@@ -155485,7 +155488,7 @@
           "endLine": 375,
           "declared": true,
           "sourceFile": "priest.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -155759,7 +155762,149 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "offer_different_alignment_altar",
+            "implementation": "js/pray.js",
+            "symbol": "offer_different_alignment_altar",
+            "sourceReview": "Read all of pray.c:offer_different_alignment_altar (1631-1695). The angry macro is u.ualign.record < 0; the Gehennom/un-aligned special gate follows it. The conversion arm prints the source feeling, consumes the offering, accepts allegiance, calls the existing uchangealign(A_CG_CONVERT), then changes luck and bless timeout. The rejection arm updates anger/alignment before its message and explicit godvoice, applies luck and silent Wisdom loss, then records pray.c:angrygods only outside Gehennom because its result is discarded and its JavaScript body remains partial. The ordinary arm consumes the corpse before the conflict line and rn2(8+ulevel), then preserves both power branches, Wisdom exercise, luck, old shrine-bit snapshot, new alignment mask, newsym, visibility-gated color, and late summon/priest short-circuit order. The offer_corpse caller now awaits this helper only after its existing high-altar desecration gate. The priest return closure is verified through temple_occupied -> findpriest -> histemple_at/in_rooms/on_level and p_coaligned -> mon_aligntyp; C71 directly tests the four helper return values. The selected v21 offering recipe strictly matches all 42 screens/cursors and 2879 RNG calls. Void C callees remain named gaps: minion.c:summon_minion, priest.c:angry_priest, and pray.c:angrygods. A direct high-level #offer fixture exercises both late minion branches at ulevel 30 and record 10: seed 1 reaches the success threshold with rnl(30)=18 and rnd(10)=10; seed 32 reaches the failure threshold with rnl(30)=19 and rnd(10)=10. Both assert the source-order RNG log and minion.c summon_minion named gap. The admitted low-level case itself does not reach these late gates.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_corpse",
+                "source": "pray.c:2024-2027; offer_corpse calls this helper for positive offerings at a differently aligned altar after high-altar handling."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "sourceFile": "pray.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-offers-orc-corpse-lawful-altar-v21-misaligned-result-final",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 41,
+                "source": "cmd.c #offer -> dosacrifice -> offer_corpse -> offer_different_alignment_altar; the fresh comparison matches the entire recording."
+              }
+            ],
+            "checkedAt": "af6e694b3d57d109c2fdf1effb342e7126439b7c"
+          },
+          {
+            "name": "temple_occupied",
+            "implementation": "js/priest.js",
+            "symbol": "temple_occupied",
+            "sourceReview": "Returns the first temple room number in the NUL-terminated hero room list. C71 directly tests true and false outcomes against the source expression; these existing JavaScript bodies required no changes.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_different_alignment_altar",
+                "source": "pray.c:1679 passes the returned room number to findpriest."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/pray-offering-alignment.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "priest.c",
+            "synthetic": [],
+            "checkedAt": "af6e694b3d57d109c2fdf1effb342e7126439b7c"
+          },
+          {
+            "name": "histemple_at",
+            "implementation": "js/priest.js",
+            "symbol": "histemple_at",
+            "sourceReview": "Returns true only for a priest in its recorded temple room on the hero current level. C71 directly tests true and false outcomes against the source expression; these existing JavaScript bodies required no changes.",
+            "callers": [
+              {
+                "path": "js/priest.js",
+                "symbol": "findpriest",
+                "source": "priest.c:400-403 consumes the Boolean before returning the matching priest."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/pray-offering-alignment.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "priest.c",
+            "synthetic": [],
+            "checkedAt": "af6e694b3d57d109c2fdf1effb342e7126439b7c"
+          },
+          {
+            "name": "findpriest",
+            "implementation": "js/priest.js",
+            "symbol": "findpriest",
+            "sourceReview": "Returns the first live priest in the requested room whose current coordinates satisfy histemple_at. C71 directly tests true and false outcomes against the source expression; these existing JavaScript bodies required no changes.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_different_alignment_altar",
+                "source": "pray.c:1679 consumes the returned priest pointer in the angry_priest short-circuit."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/pray-offering-alignment.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "priest.c",
+            "synthetic": [],
+            "checkedAt": "af6e694b3d57d109c2fdf1effb342e7126439b7c"
+          },
+          {
+            "name": "p_coaligned",
+            "implementation": "js/priest.js",
+            "symbol": "p_coaligned",
+            "sourceReview": "Returns whether the hero alignment equals mon_aligntyp(priest). C71 directly tests true and false outcomes against the source expression; these existing JavaScript bodies required no changes.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_different_alignment_altar",
+                "source": "pray.c:1680 consumes the Boolean before the discarded angry_priest call."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/pray-offering-alignment.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "priest.c",
+            "synthetic": [],
+            "checkedAt": "af6e694b3d57d109c2fdf1effb342e7126439b7c"
+          }
+        ],
+        "entryPointReview": "This helper is wired at the existing offer_corpse different-alignment call. The admitted v21 neutral Wizard at a lawful altar consumes the corpse, reaches the ordinary conflict-success branch, updates the altar, and matches the complete fresh C recording. Conversion and rejection are implemented in source order; the C-discarded anger/summon effects remain explicit named gaps when their rare gates select them. The source-pinned high-level #offer tests also reach the late minion gates on both conflict outcomes and confirm the rnl/rnd order before recording minion.c:summon_minion as a discarded void gap.",
+        "entryPoints": [
+          {
+            "name": "Offer a positive corpse at a differently aligned non-high altar",
+            "functions": [
+              "offer_different_alignment_altar"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-offers-orc-corpse-lawful-altar-v21-misaligned-result-final",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 41,
+                "source": "cmd.c #offer -> pray.c:dosacrifice -> pray.c:offer_corpse -> pray.c:offer_different_alignment_altar; strict comparison matches all 42 screens, cursors, and 2879 RNG calls."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "af6e694b3d57d109c2fdf1effb342e7126439b7c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
