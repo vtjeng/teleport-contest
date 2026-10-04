@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-04T06:04:10.187Z",
+  "capturedAt": "2026-10-04T06:23:37.415Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -17846,12 +17846,53 @@
         "type": "accepted",
         "at": "2026-10-04T06:04:09.765Z",
         "task": "A87"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A87-published-6c66ea6f",
+        "type": "published",
+        "at": "2026-10-04T06:08:38.125Z",
+        "task": "A87",
+        "commit": "6c66ea6f916aeeb930b8de6711f8b119002578e6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C75-integrating-ac297b31",
+        "type": "integrating",
+        "at": "2026-10-04T06:11:03.118Z",
+        "task": "C75",
+        "integration": "ac297b3174960040b812afb2224231515e3ea1fd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A91-mondata-growth-conversions-20261004",
+        "type": "assign",
+        "at": "2026-10-04T06:15:21.419Z",
+        "task": "A91",
+        "worker": "A2",
+        "goal": "port-mondata-growth-conversion-helpers-v20-20261004",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C75-validated-ac297b31",
+        "type": "validated",
+        "at": "2026-10-04T06:20:54.257Z",
+        "task": "C75",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C75-accepted-ac297b31",
+        "type": "accepted",
+        "at": "2026-10-04T06:23:37.001Z",
+        "task": "C75"
       }
     ]
   },
   "development": {
-    "executionCommit": "6a422f16e1e2e7db6cb15c0c03085c5ba4655de9",
-    "measuredAt": "2026-10-04T06:01:09.911Z",
+    "executionCommit": "ac297b3174960040b812afb2224231515e3ea1fd",
+    "measuredAt": "2026-10-04T06:19:55.387Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
