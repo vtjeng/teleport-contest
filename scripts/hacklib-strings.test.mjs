@@ -178,28 +178,92 @@ test('chrcasecpy() forces the new char into the old char\'s case', () => {
     assert.equal(chrcasecpy('1', 'B'), 'B');   // old is not a letter
 });
 
-test('s_suffix() special-cases it/you and words ending in s', () => {
+test('s_suffix() source branches and possessives match hacklib.c', () => {
+    const definition = HACKLIB_SOURCE.match(
+        /char \*\s*s_suffix\(const char \*s\)\s*\{([\s\S]*?)\n\}/u,
+    );
+    assert.ok(definition, 'hacklib.c defines s_suffix');
+    const uncommented = definition[1].replace(/\/\*[\s\S]*?\*\//gu, '');
+    assert.match(
+        uncommented,
+        /static char buf\[BUFSZ\];[\s\S]*?Strcpy\(buf, s\);[\s\S]*?if \(!strcmpi\(buf, "it"\)\)\s*Strcat\(buf, "s"\);\s*else if \(!strcmpi\(buf, "you"\)\)\s*Strcat\(buf, "r"\);\s*else if \(\*\(eos\(buf\) - 1\) == 's'\)\s*Strcat\(buf, "'"\);\s*else\s*Strcat\(buf, "'s"\);\s*return buf;/u,
+    );
+    assert.match(
+        GLOBAL_SOURCE,
+        /#define strcmpi\(a, b\) strncmpi\(\(a\), \(b\), -1\)/u,
+    );
+
+    // A non-special name exercises C's final default apostrophe-s branch.
     assert.equal(s_suffix('gnome'), "gnome's");
-    assert.equal(s_suffix('Gauss'), "Gauss'");   // trailing s takes bare '
+    // A lowercase trailing s exercises the C bare-apostrophe branch.
+    assert.equal(s_suffix('Gauss'), "Gauss'");
+    // The exact lowercase spelling exercises strcmpi's first special branch.
     assert.equal(s_suffix('it'), 'its');
+    // The exact lowercase spelling exercises strcmpi's second special branch.
     assert.equal(s_suffix('you'), 'your');
-    // The it/you tests are case-blind in C via strcmpi.
+    // Mixed case confirms strcmpi is case-insensitive for the second branch.
     assert.equal(s_suffix('You'), 'Your');
+    // Mixed case confirms strcmpi is case-insensitive for the first branch.
     assert.equal(s_suffix('It'), 'Its');
+    // Uppercase S is not C's exact trailing lowercase 's' test.
+    assert.equal(s_suffix('BOSS'), "BOSS's");
 });
 
-test('ing_suffix() applies each stem rule from hacklib.c', () => {
-    // "er" stem: no doubling, no elision.
+test('ing_suffix() source branches and gerunds match hacklib.c', () => {
+    const definition = HACKLIB_SOURCE.match(
+        /char \*\s*ing_suffix\(const char \*s\)\s*\{([\s\S]*?)\n\}/u,
+    );
+    assert.ok(definition, 'hacklib.c defines ing_suffix');
+    const source = definition[1].replace(/\/\*[\s\S]*?\*\//gu, '')
+        .replace(/"[^"]*"|'[^']*'|\s+/gu, (token) =>
+            token[0] === '"' || token[0] === "'" ? token : '',
+        );
+    // Pin C's tail tests, stem-rule order, and suffix reattachment order.
+    const markers = [
+        'staticconstcharvowel[]="aeiouwy";',
+        'Strcpy(buf,s);',
+        'p=eos(buf);',
+        '!strcmpi(p-3," on")',
+        '!strcmpi(p-4," off")',
+        '!strcmpi(p-5," with")',
+        "p=strrchr(buf,' ');",
+        '!strcmpi(p-2,"er")',
+        '!strchr(vowel,*(p-1))',
+        'strchr(vowel,*(p-2))',
+        '!strchr(vowel,*(p-3))',
+        '!strcmpi(p-2,"ie")',
+        "*(p-1)=='e'",
+        'Strcat(buf,"ing");',
+        'if(onoff[0])',
+        'Strcat(buf,onoff);',
+        'returnbuf;'
+    ];
+    let after = -1;
+    for (const marker of markers) {
+        const at = source.indexOf(marker, after + 1);
+        assert.ok(at > after, 'C ing_suffix preserves source marker order at ' + marker);
+        after = at;
+    }
+    assert.match(
+        GLOBAL_SOURCE,
+        /#define strcmpi\(a, b\) strncmpi\(\(a\), \(b\), -1\)/u,
+    );
+
+    // "er" stem: no doubling or elision.
     assert.equal(ing_suffix('slither'), 'slithering');
-    // consonant-vowel-consonant: double the final consonant.
+    // Consonant-vowel-consonant: double the final consonant.
     assert.equal(ing_suffix('tip'), 'tipping');
-    // "ie" -> "y".
-    assert.equal(ing_suffix('vie'), 'vying');
-    // trailing 'e' is dropped.
+    // Case-insensitive "ie" becomes y, matching C's strcmpi branch.
+    assert.equal(ing_suffix('TIE'), 'Tying');
+    // Lowercase trailing 'e' is dropped.
     assert.equal(ing_suffix('grease'), 'greasing');
-    // A trailing preposition is set aside and reattached after "ing".
+    // The C " on" suffix is stripped, then reattached after ing.
     assert.equal(ing_suffix('put on'), 'putting on');
+    // The C " off" suffix is stripped, then reattached after ing.
     assert.equal(ing_suffix('take off'), 'taking off');
+    // Tail detection is case-insensitive and preserves the saved tail bytes.
+    assert.equal(ing_suffix('take OFF'), 'taking OFF');
+    // The C " with" suffix is stripped, then reattached after ing.
     assert.equal(ing_suffix('fight with'), 'fighting with');
 });
 
