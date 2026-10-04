@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-04T07:45:51.502Z",
+  "capturedAt": "2026-10-04T08:10:40.106Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -18105,12 +18105,63 @@
         "type": "accepted",
         "at": "2026-10-04T07:45:51.070Z",
         "task": "A89"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A89-published-f1acaa9c",
+        "type": "published",
+        "at": "2026-10-04T07:47:55.873Z",
+        "task": "A89",
+        "commit": "f1acaa9c64066aa80f84b4f88b43cc06c406c3ff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A90-integrating-e6473679",
+        "type": "integrating",
+        "at": "2026-10-04T07:49:45.762Z",
+        "task": "A90",
+        "integration": "e64736796e0ff198431f49727f0ad04689c646f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A94-erosion-matters-20261004",
+        "type": "assign",
+        "at": "2026-10-04T07:57:38.986Z",
+        "task": "A94",
+        "worker": "A2",
+        "goal": "port-objnam-erosion-matters-canonical-callers-20261004",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B102-inventory-resistance-check-20261004",
+        "type": "assign",
+        "at": "2026-10-04T08:08:57.528Z",
+        "task": "B102",
+        "worker": "B",
+        "goal": "port-zap-inventory-resistance-check-ad-corr-v20-20261004",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A90-validated-e6473679",
+        "type": "validated",
+        "at": "2026-10-04T08:10:26.995Z",
+        "task": "A90",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A90-accepted-e6473679",
+        "type": "accepted",
+        "at": "2026-10-04T08:10:39.335Z",
+        "task": "A90"
       }
     ]
   },
   "development": {
-    "executionCommit": "dc330f1e73abfa3d96c1715f6952b0e9c8391a48",
-    "measuredAt": "2026-10-04T07:25:33.963Z",
+    "executionCommit": "e64736796e0ff198431f49727f0ad04689c646f2",
+    "measuredAt": "2026-10-04T08:01:39.996Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
