@@ -79,6 +79,15 @@ const pm = (index) => state.mons[index];
 const MONDATA_C = readFileSync(
     new URL('../nethack-c/upstream/src/mondata.c', import.meta.url), 'utf8',
 );
+const MONDATA_H = readFileSync(
+    new URL('../nethack-c/upstream/include/mondata.h', import.meta.url), 'utf8',
+);
+const MONFLAG_H = readFileSync(
+    new URL('../nethack-c/upstream/include/monflag.h', import.meta.url), 'utf8',
+);
+const MONSTERS_H = readFileSync(
+    new URL('../nethack-c/upstream/include/monsters.h', import.meta.url), 'utf8',
+);
 
 test('attacktype and attacktype_fordmg preserve C scan and wildcard order', () => {
     assert.match(MONDATA_C,
@@ -171,18 +180,40 @@ test('is_watch names both members of the town watch', () => {
     assert.equal(is_watch(pm(M.PM_CAPTAIN)), false);
 });
 
-test('poly_when_stoned excludes the stone golem and honors genocide', () => {
+test('poly_when_stoned follows the C golem and genocide predicate', () => {
+    const body = MONDATA_C.match(
+        /boolean\s+poly_when_stoned\(struct permonst \*ptr\)\s*\{([\s\S]*?)\n\}/u,
+    )?.[1];
+    assert.ok(body, 'mondata.c contains the complete poly_when_stoned definition');
+    assert.match(body,
+        /is_golem\(ptr\)\s*&&\s*ptr\s*!=\s*&mons\[PM_STONE_GOLEM\]\s*&&\s*!\(svm\.mvitals\[PM_STONE_GOLEM\]\.mvflags\s*&\s*G_GENOD\)/u);
+    assert.match(body, /allow G_EXTINCT/u);
+    assert.match(MONDATA_H,
+        /#define is_golem\(ptr\)\s+\(\(ptr\)->mlet == S_GOLEM\)/u);
+    assert.match(MONFLAG_H, /#define G_GENOD\s+0x02/u);
+    assert.match(MONFLAG_H, /#define G_EXTINCT\s+0x01/u);
+    // These source rows give one eligible golem, the excluded target golem,
+    // and a non-golem control for the C is_golem macro.
+    assert.match(MONSTERS_H, /MON\(NAM\("paper golem"\), S_GOLEM,/u); // monsters.h:2516.
+    assert.match(MONSTERS_H, /MON\(NAM\("stone golem"\), S_GOLEM,/u); // monsters.h:2570.
+    assert.match(MONSTERS_H, /MON\(NAM\("newt"\), S_LIZARD,/u); // monsters.h:3260.
+
     const vitals = monsterState(true);
+    // Zero means the target species is neither extinct nor genocided.
+    vitals.svm.mvitals[M.PM_STONE_GOLEM].mvflags = 0;
+    // Paper golem is a non-stone golem and the stone golem is available.
     assert.equal(poly_when_stoned(pm(M.PM_PAPER_GOLEM), vitals), true);
     // A non-golem never polymorphs on being stoned.
     assert.equal(poly_when_stoned(pm(M.PM_NEWT), vitals), false);
     // The stone golem is already the target form.
     assert.equal(poly_when_stoned(pm(M.PM_STONE_GOLEM), vitals), false);
 
-    // With the stone golem genocided there is nothing to turn into.
-    // poly_when_stoned() masks mvflags with G_GENOD, which is 0x02
-    // (monflag.h:209).
-    vitals.svm.mvitals[M.PM_STONE_GOLEM].mvflags |= 0x02;
+    // G_EXTINCT alone is 0x01 (monflag.h:210) and is explicitly allowed.
+    vitals.svm.mvitals[M.PM_STONE_GOLEM].mvflags = 0x01;
+    assert.equal(poly_when_stoned(pm(M.PM_PAPER_GOLEM), vitals), true);
+
+    // G_GENOD is 0x02 (monflag.h:209); unlike G_EXTINCT, it blocks the form.
+    vitals.svm.mvitals[M.PM_STONE_GOLEM].mvflags = 0x02;
     assert.equal(poly_when_stoned(pm(M.PM_PAPER_GOLEM), vitals), false);
 });
 
