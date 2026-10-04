@@ -161969,14 +161969,14 @@
           "line": 5654,
           "endLine": 5675,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "u_adtyp_resistance_obj",
           "line": 5676,
           "endLine": 5709,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -162152,7 +162152,61 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "adtyp_to_prop",
+            "implementation": "js/zap.js",
+            "symbol": "adtyp_to_prop",
+            "sourceReview": "Read the full C definition at zap.c:5654-5671 and the JS definition at zap.js:4365-4378. The five source rows map AD_COLD→COLD_RES, AD_FIRE→FIRE_RES, AD_ELEC→SHOCK_RES, AD_ACID→ACID_RES, and AD_DISN→DISINT_RES; the default reaches return 0 because prop_types index 0 is unused. The test reads monattk.h and prop.h for the enum values, checks the corresponding JavaScript constants, and compares the complete branch set in both function bodies. This function reads one integer and returns an integer; it makes no RNG call, output, or state write.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "u_adtyp_resistance_obj",
+                "source": "zap.c:u_adtyp_resistance_obj:5678 calls adtyp_to_prop; zap.js:u_adtyp_resistance_obj:4389 makes the same call."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "item_what",
+                "source": "zap.c:item_what:5726 calls adtyp_to_prop; zap.js:item_what:4427 makes the same call."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "867d8778a321dd4154131183885f984c597eb215"
+          },
+          {
+            "name": "u_adtyp_resistance_obj",
+            "implementation": "js/zap.js",
+            "symbol": "u_adtyp_resistance_obj",
+            "sourceReview": "Read the full C definition at zap.c:5676-5698 and the JS definition at zap.js:4388-4405. The helper returns 0 before reading equipment when adtyp_to_prop returns 0. For a valid property it checks the exact extrinsic mask W_ARMOR | W_ACCESSORY | W_WEP | W_ART first and returns 99; only when that mask is clear does a worn DWARVISH_CLOAK grant 90 for AD_COLD or AD_FIRE; all remaining cases return 0. The test checks each mask component and composition against prop.h and const.js, the cloak row against objects.h, and the full C and JS branch order. The function only reads hero properties/equipment and returns a number; it makes no RNG call, output, or state write.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "inventory_resistance_check",
+                "source": "zap.c:inventory_resistance_check:5712 and zap.js:inventory_resistance_check:4416 call u_adtyp_resistance_obj before the probability roll. The test also pins the C and JS destroy_items→maybe_destroy_item→inventory_resistance_check chain."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "item_resistance_message",
+                "source": "insight.c:item_resistance_message:1473 calls u_adtyp_resistance_obj; insight.js:attributes_enlightenment:item_resistance_message:1483-1484 does the same."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "867d8778a321dd4154131183885f984c597eb215"
+          }
+        ],
+        "entryPointReview": "Helper-only range: adtyp_to_prop and u_adtyp_resistance_obj only map or read state and return values. The source has no command, monster action, level feature or startup entry point. Existing inventory resistance, destruction and enlightenment caller correspondence is verified; no whole outer caller completion or synthetic runtime credit is claimed.",
+        "entryPoints": []
+      }
     }
   ]
 }
