@@ -5770,7 +5770,7 @@ export async function display_binventory(x, y, as_if_seen, state = game,
         });
 
         if (!obj.nexthere) {
-            let moreThanOne = is_plural(obj);
+            let moreThanOne = is_plural(obj, state);
             await ttyPline(
                 `There ${moreThanOne ? 'are' : 'is'} `
                     + `${donameFresh(obj, state)} under the ${seenLiquid} here.`,

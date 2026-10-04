@@ -175,7 +175,7 @@ function item_naming_classification(obj, state) {
     if (name_ok(obj, state) === GETOBJ_SUGGEST) {
         const article = the_unique_obj(obj, state)
             ? 'the'
-            : !is_plural(obj) ? 'this specific' : 'this stack of';
+            : !is_plural(obj, state) ? 'this specific' : 'this stack of';
         const nameOrRename = (!has_oname(obj) || !ONAME(obj))
             ? 'Name' : 'Rename or un-name';
         onamebuf = `${nameOrRename} ${article} ${simpleonames(obj, state)}`;
@@ -184,7 +184,7 @@ function item_naming_classification(obj, state) {
         let callname = simpleonames(obj, state);
         if (the_unique_obj(obj, state))
             callname = the(callname, state);
-        else if (!is_plural(obj))
+        else if (!is_plural(obj, state))
             callname = makeplural(callname);
         const type = objectType(obj, state);
         const callOrRecall = (!type.oc_uname || !type.oc_uname)
@@ -394,10 +394,10 @@ export async function itemactions(otmp, state = game, hooks = {}) {
         || otmp === state.uquiver) {
         const verb = otmp === state.uquiver ? 'Quiver' : 'Wield';
         const action = otmp === state.uquiver ? 'un-ready' : 'un-wield';
-        const which = is_plural(otmp) ? 'these' : 'this';
+        const which = is_plural(otmp, state) ? 'these' : 'this';
         let what = (otmp.oclass === WEAPON_CLASS || is_weptool(otmp, state))
             ? 'weapon' : 'item';
-        if (is_plural(otmp)) what = makeplural(what);
+        if (is_plural(otmp, state)) what = makeplural(what);
         ia_addmenu(items, IA_UNWIELD, '-',
             `${verb} '${HANDS_SYM}' to ${action} ${which} ${what}`);
     }
@@ -470,7 +470,7 @@ export async function itemactions(otmp, state = game, hooks = {}) {
         && state.objects[otmp.otyp].oc_name_known) {
         ia_addmenu(items, IA_APPLY_OBJ, 'a', `${light} this oil`);
     } else if (otmp.oclass === POTION_CLASS) {
-        const these = is_plural(otmp) ? 'one of these' : 'this';
+        const these = is_plural(otmp, state) ? 'one of these' : 'this';
         ia_addmenu(items, IA_DIP_OBJ, 'a',
             `Dip something into ${these} potion${plur(otmp.quan)}`);
     } else if (otmp.otyp === EXPENSIVE_CAMERA)

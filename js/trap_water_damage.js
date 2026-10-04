@@ -458,7 +458,7 @@ export async function lava_damage(obj, x, y, rawEnv = {}) {
             const message = rawEnv.message ?? ttyPline;
             if (obj === state.gt?.thrownobj || obj === state.gk?.kickedobj) {
                 await message(
-                    `${is_plural(obj) ? 'They' : 'It'} `
+                    `${is_plural(obj, state) ? 'They' : 'It'} `
                     + `${otense(obj, 'burn', state)} up!`,
                     state,
                 );

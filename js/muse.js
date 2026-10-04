@@ -1655,7 +1655,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
             `${The_whip} wraps around ${the_weapon} you're wielding!`, state);
         if (welded(obj, state)) {
             await ttyPline(
-                `${!is_plural(obj) ? 'It is' : 'They are'} welded to your ${hand_buf}${!obj.bknown ? '!' : '.'}`,
+                `${!is_plural(obj, state) ? 'It is' : 'They are'} welded to your ${hand_buf}${!obj.bknown ? '!' : '.'}`,
                 state);
             /* welded() takes care of obj->bknown = 1 */
             where_to = 0;

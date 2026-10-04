@@ -896,7 +896,7 @@ async function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
             const otyp = glyph_to_obj(glyph);
             const otmp = mksobj(otyp, false, false, { state });
             const otmp_name = simpleonames(otmp, state);
-            const those = is_plural(otmp) ? 'Those' : 'That';
+            const those = is_plural(otmp, state) ? 'Those' : 'That';
             const verb = otense(otmp, 'are', state);
             fmtbuf = `${those} ${otmp_name} ${verb} %s!`;
         } else if (glyph_is_monster(glyph)) {

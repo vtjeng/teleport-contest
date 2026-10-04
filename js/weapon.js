@@ -1166,7 +1166,7 @@ export async function mon_wield_item(monster, env = {}) {
                 if (bimanual(obj, state)) hand = makeplural(hand);
                 await message(
                     `${Tobjnam(obj, 'weld', state)} `
-                    + `${is_plural(obj) ? 'themselves' : 'itself'} `
+                    + `${is_plural(obj, state) ? 'themselves' : 'itself'} `
                     + `to ${s_suffix(mon_nam(monster, state, namingEnv))} `
                     + `${hand}!`,
                     state,

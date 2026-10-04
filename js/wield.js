@@ -209,7 +209,7 @@ export async function can_twoweapon(state = game, env = {}) {
         otmp = !TWOWEAPOK(uwep, state) ? uwep : uswapwep;
         await message(
             `${Yname2(otmp, state)} `
-            + `${is_plural(otmp) ? "aren't" : "isn't a"} suitable `
+            + `${is_plural(otmp, state) ? "aren't" : "isn't a"} suitable `
             + `${(otmp === uwep) ? 'primary' : 'secondary'} `
             + `weapon${plur(otmp.quan)}.`, state,
         );
@@ -937,7 +937,7 @@ export async function doquiver_core(verb, state = game) {
                 was_uwep = true;
             }
         } else {
-            const usePlural = is_plural(newquiver)
+            const usePlural = is_plural(newquiver, state)
                 || pair_of(newquiver, state);
             // The source wording has two clauses; retain its exact pronouns.
             const fullQbuf = `You are wielding ${!usePlural ? 'that' : 'those'}`
@@ -989,7 +989,7 @@ export async function doquiver_core(verb, state = game) {
                 await untwoweapon(state);
             }
         } else {
-            const usePlural = is_plural(newquiver)
+            const usePlural = is_plural(newquiver, state)
                 || pair_of(newquiver, state);
             qbuf = `${!usePlural ? 'That is' : 'Those are'} your `
                 + `${state.u.twoweap ? 'second' : 'alternate'} weapon.  `

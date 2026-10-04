@@ -954,7 +954,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             if (cansee(x, y, state)) {
                 await (rawEnv.message ?? ttyPline)(
                     `${Tobjnam(obj, 'heat', state)} up as `
-                        + `${is_plural(obj) ? 'they hit' : 'it hits'} the hot ground.`,
+                        + `${is_plural(obj, state) ? 'they hit' : 'it hits'} the hot ground.`,
                     state,
                 );
             }
@@ -969,7 +969,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             })) {
                 if (cansee(x, y, state)) {
                     await (rawEnv.message ?? ttyPline)(
-                        `${is_plural(obj) ? 'They shatter' : 'It shatters'} from the heat!`,
+                        `${is_plural(obj, state) ? 'They shatter' : 'It shatters'} from the heat!`,
                         state,
                     );
                 } else if (!heroIsDeaf(state)) {
