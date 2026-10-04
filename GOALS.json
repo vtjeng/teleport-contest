@@ -155930,8 +155930,8 @@
           "name": "mcast_confuse_you",
           "line": 771,
           "endLine": 800,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -156144,7 +156144,60 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mcast_confuse_you",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_confuse_you",
+            "sourceReview": "Read the complete mcastu.c:mcast_confuse_you body (771-790). The Antimagic branch awaits display.c:shieldeff, calls mondata.c:monstseesu(M_SEEN_MAGR), emits the momentarily-dizzy message, and returns without changing Confusion. Otherwise it snapshots raw HConfusion, starts dmg at mtmp->m_lev, applies C integer (dmg + 1) / 2 under Half_spell_damage, calls potion.c:make_confused(HConfusion + dmg, TRUE), selects trippy/trippier or confused/more-confused feedback from Hallucination and the saved oldprop, then calls mondata.c:monstunseesu(M_SEEN_MAGR). No return-bearing C callees are consumed. The existing void callees remain in use; no unsupported substitute remains on this path.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell MCAST_CONFUSE_YOU arm (882-885): call mcast_confuse_you(mtmp), set dmg to zero, then break."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mcastu.c:castmu -> mcastu.c:mcast_spell(MCAST_CONFUSE_YOU) -> mcastu.c:mcast_confuse_you"
+              }
+            ],
+            "checkedAt": "1ee0a640583fc54031a3b0664ec5f949b2a79588"
+          }
+        ],
+        "entryPointReview": "The active production entry point is the hostile cleric spell attack on the hero: monmove.c:dochug -> mhitu.c:mattacku -> mcastu.c:castmu -> mcast_spell(MCAST_CONFUSE_YOU) -> mcast_confuse_you. No inactive build branch exists in the selected helper or caller arm. The admitted v20 Abbot case reaches the helper through that route; its C Conf status line appears at segment 0 step 32. Source-pinned tests exercise the Antimagic, damage-rounding, packed-property, and feedback branches that this recording does not vary.",
+        "entryPoints": [
+          {
+            "name": "Hostile cleric spell confuses the hero",
+            "functions": [
+              "mcast_confuse_you"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mcastu.c:castmu -> mcastu.c:mcast_spell(MCAST_CONFUSE_YOU) -> mcastu.c:mcast_confuse_you"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
