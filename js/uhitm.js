@@ -165,7 +165,7 @@ import {
     x_monnam,
     y_monnam,
 } from './do_name.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, verbalize } from './pline.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
@@ -234,6 +234,7 @@ import {
     angry_guards,
     killed,
     m_carrying,
+    mongone,
     mlifesaver,
     mon_give_prop,
     mondied,
@@ -521,7 +522,8 @@ import { acurr } from './attrib.js';
 import { set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
 import {
-    make_blinded, make_confused, make_slimed, make_stunned, potionhit,
+    make_blinded, make_confused, make_sick, make_slimed, make_stunned,
+    potionhit,
 } from './potion.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import { night } from './calendar.js';
@@ -5303,6 +5305,132 @@ export async function mhitm_ad_deth(
     await mhitm_ad_drli(magr, mattk, mdef, mhm, state, env);
 }
 
+// C ref: uhitm.c mhitm_ad_heal() (4296-4383). Hero attacks and
+// monster-versus-monster attacks delegate physical state to mhitm_ad_phys()
+// and immediately observe mhm.done. A monster attacking the hero either lands
+// an ordinary hit, heals an unarmed and unarmored hero, or gives the Healer
+// role's cooperation message.
+export async function mhitm_ad_heal(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { d, rn2, rnd };
+    const message = requireAttackOperation(env, 'message');
+    const pd = mdef.data;
+    const u = state.u;
+
+    if (magr === state.youmonst) {
+        // uhitm.c:4303-4307. Nurse is M2_NOPOLY; polyself.c's polyok()
+        // rejects it as a player form in ordinary play.
+        await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    } else if (mdef === state.youmonst) {
+        // uhitm.c:4309-4316. C suppresses healing but keeps the ordinary hit
+        // message if the Nurse is cancelled or the hero's polymorphed form
+        // would petrify it.
+        if (magr.mcan || (Upolyd(u) && touch_petrifies(pd))) {
+            await hitmsg(magr, mattk, state, env);
+            return;
+        }
+
+        // uhitm.c:4317-4366. Weapon, weapon-tool, or worn armor blocks the
+        // healing routine; the listed worn slots mirror C's armor macros.
+        if (!(state.uwep
+              && (state.uwep.oclass === WEAPON_CLASS
+                  || is_weptool(state.uwep, state)))
+            && !state.uarmu && !state.uarm && !state.uarmc
+            && !state.uarms && !state.uarmg && !state.uarmf
+            && !state.uarmh) {
+            let goaway = false;
+            const line = Monnam(magr, state, env)
+                + " hits!  (I hope you don't mind.)";
+            await message(
+                messageAt(line, magr.mx, magr.my, state),
+                state,
+                env,
+            );
+
+            if (Upolyd(u)) {
+                u.mh += random.rnd(7);
+                if (!random.rn2(7)) {
+                    // C allows temporary monster-form HP to grow without a
+                    // level-based ceiling.
+                    u.mhmax++;
+                    if (!random.rn2(13)) goaway = true;
+                }
+                if (u.mh > u.mhmax) u.mh = u.mhmax;
+            } else {
+                u.uhp += random.rnd(7);
+                if (!random.rn2(7)) {
+                    if (u.uhpmax < 5 * u.ulevel
+                        + random.d(2 * u.ulevel, 10)) {
+                        u.uhpmax++;
+                        if (u.uhpmax > u.uhppeak) u.uhppeak = u.uhpmax;
+                    }
+                    if (!random.rn2(13)) goaway = true;
+                }
+                if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+            }
+
+            if (!random.rn2(3)) {
+                await exercise(A_STR, true, state, random, {
+                    encumberMessage: env.encumberMessage ?? encumber_msg,
+                });
+            }
+            if (!random.rn2(3)) {
+                await exercise(A_CON, true, state, random, {
+                    encumberMessage: env.encumberMessage ?? encumber_msg,
+                });
+            }
+            if (heroSick(state))
+                await make_sick(0, null, false, SICK_ALL, state, env);
+            state.disp ??= {};
+            state.disp.botl = true;
+
+            if (goaway) {
+                await mongone(magr, { ...env, state });
+                mhm.done = true;
+                mhm.hitflags = M_ATTK_DEF_DIED;
+                return;
+            } else if (!random.rn2(33)) {
+                if (!await tele_restrict(magr, state, env))
+                    await rloc(magr, RLOC_MSG, { ...env, state, random });
+                await monflee(magr, random.d(3, 6), true, false, {
+                    ...env,
+                    state,
+                    random,
+                });
+                mhm.done = true;
+                mhm.hitflags = M_ATTK_HIT | M_ATTK_DEF_DIED;
+                return;
+            }
+            mhm.damage = 0;
+        } else if (state.urole?.mnum === PM_HEALER) {
+            // sndprocs.h SetVoice is an empty macro in this build. Its only
+            // runtime effect is the source verbalize() call below.
+            if (!Deaf(state) && !(state.moves % 5)) {
+                await verbalize(
+                    "Doc, I can't help you unless you cooperate.",
+                    state,
+                    { message },
+                );
+            }
+            mhm.damage = 0;
+        } else {
+            await hitmsg(magr, mattk, state, env);
+        }
+    } else {
+        // uhitm.c:4376-4382. The physical helper is void, but its mhm
+        // mutation is consumed by the following source done check.
+        await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -5331,7 +5459,9 @@ export async function mhitm_adtyping(
     case AD_WERE:
         await mhitm_ad_were(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_HEAL: unported('mhitm_ad_heal'); break;
+    case AD_HEAL:
+        await mhitm_ad_heal(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_PHYS:
         await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
         break;
