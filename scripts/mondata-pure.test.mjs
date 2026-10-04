@@ -656,6 +656,8 @@ test('raceptr returns the racial species only for an unpolymorphed hero', () => 
 });
 
 test('stagger picks the third and fourth locomotion verbs', () => {
+    assert.match(MONDATA_C,
+        /stagger\(const struct permonst \*ptr, const char \*def\)[\s\S]*?is_floater\(ptr\)[\s\S]*?is_flyer\(ptr\) && ptr->msize <= MZ_SMALL[\s\S]*?is_flyer\(ptr\) && ptr->msize > MZ_SMALL[\s\S]*?slithy\(ptr\)[\s\S]*?amorphous\(ptr\)[\s\S]*?!ptr->mmove[\s\S]*?nolimbs\(ptr\)[\s\S]*?: def/u);
     // locoverbs indexes 2 and 3 are the staggering forms. A lowercase default
     // selects index 2 and an uppercase default selects index 3.
     assert.equal(stagger(pm(M.PM_FLOATING_EYE), 'stumble'), 'wobble');

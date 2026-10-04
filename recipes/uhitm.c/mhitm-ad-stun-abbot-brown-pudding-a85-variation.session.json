@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Retained extended C-first A85 attempt. It reaches the selected Brown Pudding tremble message, but its later turns continue into the separate unported uhitm.c:mhitm_ad_dcay path; strict JS playback stops there. The independent short recipe ends immediately after the matching AD_STUN source range.",
+  "segments": [
+    {
+      "seed": 56387021,
+      "datetime": "20371026131700",
+      "nethackrc": "OPTIONS=name:A85StunPair,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n3 hostile brown pudding\n #wizgenesis\nhostile Abbot\n . . . . . . . . . . . . . ."
+    }
+  ]
+}

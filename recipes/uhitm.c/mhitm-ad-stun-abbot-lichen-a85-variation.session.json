@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked A85 Lichen variation attempt. Lichen has zero movement, so stagger's `!ptr->mmove` arm would precede the no-limbs arm, but the extended C route reached only newt/lichen attacks through the final turn and never dispatched AD_STUN. The exact C recording is preserved outside the passing recordings corpus.",
+  "segments": [
+    {
+      "seed": 56387021,
+      "datetime": "20371026131700",
+      "nethackrc": "OPTIONS=name:A85StunPair,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n3 hostile lichen\n #wizgenesis\nhostile Abbot\n . . . . . . . . . . . . . ."
+    }
+  ]
+}
