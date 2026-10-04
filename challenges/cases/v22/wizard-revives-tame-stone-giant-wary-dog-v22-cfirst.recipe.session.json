@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010404,
+      "datetime": "20311004103000",
+      "nethackrc": "OPTIONS=name:V22DogRevival,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\ntame stone giant\n\n#wizwish\nwand of death\n#wizwish\nwand of undead turning\nzpl\nzql\n."
+    }
+  ],
+  "_comment": "B98 independent C-first pet-revival case for dog.c:wary_dog. The C placement/inventory probe establishes this tame, non-minion stone giant appears east, and the two wished wands occupy p (death) and q (undead turning). Its huge size makes corpse_chance true by C source; xkilled records killed_by_u and mkcorpstat saves the pet traits; zap.c:revive then restores through montraits and invokes wary_dog(mtmp, TRUE). Pager acknowledgments follow the observed genesis and death-ray messages. Retain only if the C steps confirm corpse revival and the wary_dog call path."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first candidate for the confused rustproofing branch of read.c:seffect_enchant_weapon(). The preceding probe established the long sword at slot o and the wished scroll at p; keep those C-derived selectors, read only that scroll, and acknowledge the resulting page. Frozen before this C recording and before JS comparison. If C does not show the weapon's rustproofing effect, preserve the output as a setup miss.",
+  "segments": [
+    {
+      "seed": 22010433,
+      "datetime": "20311006141200",
+      "nethackrc": "OPTIONS=name:V22Rustproof,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nlong sword\nwo #wizintrinsic\ng\n #wizwish\nuncursed scroll of enchant weapon\nrp "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010404,
+      "datetime": "20311004103000",
+      "nethackrc": "OPTIONS=name:V22DogRevival,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\ntame stone giant\n#wizwish\nwand of death\n#wizwish\nwand of undead turning\ni"
+    }
+  ],
+  "_comment": "B98 source-directed pet-revival setup probe: the prior little-dog attempt reached xkilled but corpse_chance rejected its corpse. A stone giant is a non-minion tame monster with MZ_HUGE and C corpse_chance always true for bigmonst; inspect its actual C placement and wished-wand inventory slots before freezing the bounded revive route. This probe itself is not a candidate behavior case."
+}

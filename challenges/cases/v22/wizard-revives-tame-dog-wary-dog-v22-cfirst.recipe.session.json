@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22010404,
+      "datetime": "20311004103000",
+      "nethackrc": "OPTIONS=name:V22DogRevival,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\ntame dog\n#wizwish\nwand of death\n#wizwish\nwand of undead turning\nzpl\nzql\n."
+    }
+  ],
+  "_comment": "B98 independent C-first revival path for dog.c:wary_dog: create a tame dog, kill it with the wished death wand, then revive its corpse with the wished wand of undead turning. The preceding C-only inventory/position probe established the deterministic dog-at-east setup and actual wand slots p/q for this exact seed/date. C xkilled marks EDOG.killed_by_u and mkcorpstat saves monster traits; zap.c:revive restores those traits then calls wary_dog(mtmp, TRUE). Keep only if C confirms corpse creation/revival and records that caller path; the probe and pager/setup misses remain outside the candidate corpus."
+}

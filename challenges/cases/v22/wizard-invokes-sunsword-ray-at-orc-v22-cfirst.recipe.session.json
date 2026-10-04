@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first artifact-invocation route. Four hostile orcs are created without consuming a turn; the matching placement probe showed an adjacent east orc, so the ray uses `l`. C reaches artifact.c:invoke_blinding_ray and its apply.c:do_blinding_ray caller, testing the active monster-hit arm. The setup differs from the prior Black Light blast and wand slow cases.",
+  "segments": [
+    {
+      "seed": 2201037078,
+      "datetime": "20261003193342",
+      "nethackrc": "OPTIONS=name:V22SunswordRay,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nSunsword\n#wizgenesis\nhostile orc\n#wizgenesis\nhostile orc\n#wizgenesis\nhostile orc\n#wizgenesis\nhostile orc\n#invoke\no\nl"
+    }
+  ]
+}

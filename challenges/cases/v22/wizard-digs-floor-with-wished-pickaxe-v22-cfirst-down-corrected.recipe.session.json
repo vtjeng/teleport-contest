@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Corrected independent dry-floor digging candidate. Wish the C-observed slot-o pick-axe, wield and apply it, then use `>` (the C prompt's down key), not `.` which hit the hero in the preserved setup miss. The final period window is chosen to reach the first source-confirmed pit transition, not from a JavaScript result.",
+  "segments": [
+    {
+      "seed": 2201037079,
+      "datetime": "20261003194400",
+      "nethackrc": "OPTIONS=name:V22DigDown,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nuncursed pick-axe\nwoao>....."
+    }
+  ]
+}

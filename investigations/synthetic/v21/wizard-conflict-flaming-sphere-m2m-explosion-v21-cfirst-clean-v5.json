@@ -11,7 +11,7 @@
   "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50",
   "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
   "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
-  "commit": "ee3dc7db5cacad4d18557379dd75b9558de8d421",
+  "commit": "bb6fc174b9aa65beb45500502d88d5ce2be6a20f",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v21",
@@ -64,7 +64,7 @@
     "line": null
   },
   "status": "complete",
-  "summary": "At step 143, C’s Conflict turn selects an adjacent target and mattackm() reaches its AT_EXPL call to explmm(); JavaScript mattackm() stops at that attack arm. Port the whole mhitm.c explmm() function and wire its existing caller to preserve the elemental explosion and attacker-death order.",
+  "summary": "At zero-based step143, Conflict reaches the adjacent Flaming Sphere AT_EXPL arm and missing explmm caller. A complete explmm port also requires its result-valued mdamagem fallback and six direct return dependencies without accepted whole-source evidence: at least eight whole functions before recursive review. The elemental case alone cannot cover the non-elemental fallback.",
   "source": {
     "file": "mhitm.c",
     "branch": "When mattackm() selects AT_EXPL and distmin(magr, mdef) is at most 1, C calls explmm(); a cancelled aggressor returns M_ATTK_MISS. For AD_FIRE, AD_COLD, and AD_ELEC, explmm() calls mon_explodes(), which rolls the explosion damage and removes the aggressor before explode() affects the defender. Other explosion damage types go through mdamagem(), followed by the attacker-death and lifesaving checks. The assigned C recording reaches the adjacent Flaming Sphere AD_FIRE path through Conflict and fightm().",
@@ -81,16 +81,18 @@
       "mhitm.c:mdamagem for non-elemental explosion damage",
       "mhitm.c:noises for unseen explosion feedback",
       "mon.c:mondead via mon_explodes before elemental blasts and directly on the non-elemental fallback",
-      "DEADMONSTER state and M_ATTK_* result flags for death and lifesaving disposition"
+      "DEADMONSTER state and M_ATTK_* result flags for death and lifesaving disposition",
+      "Whole mdamagem consumes attk_protection, poly_when_stoned, mhitm_knockback, zombie_maker, zombie_form, and grow_up; none has accepted whole-source completion evidence. Audit each recursive consumed-return dependency before assigning the complete scope."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
     ".cache/v21-first-work-queue.json records this v21 session with 25 unmatched screens over 168 steps, manifest SHA-256 d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac, recording SHA-256 feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50, and an unsupported M-to-M explosion stop at step 143. challenges/evaluations/20261003183000-v21.json confirms 143/168 matched screens and cursors, 3287/3790 matched RNG calls, and an evaluation at engine commit b0fd76f6091376c07bf54e8d3061aa5a9c9957d0.",
     ".cache/C65-explosion-root-verification.json records the assigned case’s bounded C evidence at step 143: an adjacent Flaming Sphere and eastern goblin enter fightm(); mattackm() selects AT_EXPL, calls explmm(), then mon_explodes() rolls the 4d6 damage and kills the aggressor before explode() affects the goblin. The C evidence rules out a preliminary explmu() damage draw as the cause.",
-    ".cache/C65-explosion-crosswalk-v2-root-verification.json confirms the corrected source attribution is the elemental monster-to-monster AT_EXPL/explmm route; its source adjudication passed. The required whole source unit is mhitm.c:explmm(), with its call wired at mattackm()’s existing AT_EXPL arm.",
+    ".cache/C65-explosion-crosswalk-v2-root-verification.json confirms the corrected source attribution is the elemental monster-to-monster AT_EXPL/explmm route; its source adjudication passed. The first missing helper is mhitm.c:explmm(), wired at mattackm()’s AT_EXPL arm; whole-source completion also includes its consumed-return closure.",
     "nethack-c/upstream/src/mhitm.c:497-508 calls explmm() only after the AT_EXPL distance check passes. Lines 970-1009 define the whole helper: cancellation exits before effects, elemental attacks call mon_explodes(), other damage types call mdamagem(), then the helper applies attacker death, lifesaving, leash, and tame-monster outcomes.",
-    "nethack-c/upstream/src/explode.c:1019-1063 shows mon_explodes() rolling damage and calling mondead() before explode(). At the accepted main commit, js/mhitm.js:798-800 still throws the unsupported M-to-M explosion boundary, and js/mhitm.js has no explmm() implementation. js/explode.js:728-750 already ports mon_explodes(), so the missing source unit and its mattackm() wiring are the actionable scope.",
-    "The production entry path is nethack-c/upstream/src/mon.c:1305-1318 movemon_singlemon() -> fightm(), then mhitm.c:fightm():143 -> mattackm(). In JavaScript, js/monmove.js:2693-2697 documents the Conflict fightm() attempt, and js/unported_monster_actions.js:1742-1749 dispatches fightMonster() to mhitm.js:fightm()."
+    "nethack-c/upstream/src/explode.c:1019-1063 shows mon_explodes() rolling damage and calling mondead() before explode(). At the accepted main commit, js/mhitm.js:798-800 still throws the unsupported M-to-M explosion boundary, and js/mhitm.js has no explmm() implementation. js/explode.js:728-750 already ports mon_explodes(), so explmm and its mattackm() wiring locate the first defect; the return-bearing fallback determines the larger completion scope.",
+    "The production entry path is nethack-c/upstream/src/mon.c:1305-1318 movemon_singlemon() -> fightm(), then mhitm.c:fightm():143 -> mattackm(). In JavaScript, js/monmove.js:2693-2697 documents the Conflict fightm() attempt, and js/unported_monster_actions.js:1742-1749 dispatches fightMonster() to mhitm.js:fightm().",
+    "Root read complete mhitm.c:explmm970–1009 and mdamagem1016–1119 at bb6fc174b9aa65beb45500502d88d5ce2be6a20f. explmm consumes mdamagem on every non-elemental explosion. mdamagem directly consumes attk_protection, poly_when_stoned, mhitm_knockback, zombie_maker, zombie_form, and grow_up. Closed GOALS evidence has no whole-source record for any of these eight units. The minimum is eight whole functions before recursive review, and completion needs runtime evidence for the non-elemental path. minliquid, mintrap, goodpos and t_at occur in the preceding gulpmm recovery path and are outside this direct closure."
   ]
 }

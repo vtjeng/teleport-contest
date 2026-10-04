@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-directed inventory probe for the Sunsword invocation route; record the actual artifact slot before freezing the independent #invoke input.",
+  "segments": [
+    {
+      "seed": 2201037075,
+      "datetime": "20261003190538",
+      "nethackrc": "OPTIONS=name:V22SunswordProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nSunsword\ni"
+    }
+  ]
+}

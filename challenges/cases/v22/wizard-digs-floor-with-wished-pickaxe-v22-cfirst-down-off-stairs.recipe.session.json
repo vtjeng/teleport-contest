@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first dry-floor digging route corrected from the preserved stair setup miss. Start on the usual entrance stairs, move one C-observed clear square west, then wield/apply the C-observed pick-axe and dig down; the later periods allow the source occupation to reach its first pit branch.",
+  "segments": [
+    {
+      "seed": 2201037080,
+      "datetime": "20261003195509",
+      "nethackrc": "OPTIONS=name:V22DigRoom,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nuncursed pick-axe\nhwoao>....."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Corrected independent route to timeout.c:phaze_dialogue. After paging to #wizintrinsic's second menu page, select the sixth property there (PASSES_WALLS, source menu index 25) with timeout 3; one wait reaches the odd countdown dialogue. The earlier page-one letter attempt is retained as a setup miss.",
+  "segments": [
+    {
+      "seed": 2201037073,
+      "datetime": "20261003185247",
+      "nethackrc": "OPTIONS=name:V22PhazePg2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n>3f\n ."
+    }
+  ]
+}
