@@ -162797,7 +162797,7 @@
           "line": 1,
           "endLine": 3087,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -163043,7 +163043,88 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "quest.lua",
+            "implementation": "js/quest_text_data.js",
+            "symbol": "QUEST_TEXT_DATA",
+            "sourceReview": "Read the complete dat/quest.lua program. It contains one questtext literal assignment and no executable top-level statements. The generator parses every nested table, preserving all section names, key/value fields, one-based array order, Lua string contents, numbers, booleans, and msg_fallbacks in one generated QUEST_TEXT_DATA object. It rejects unconsumed source and mixed keyed/array table shapes, which do not occur in the current source. comPagerCore reads the source-shaped array or message object, chooses an array entry with the source RNG call, then uses text/output/synopsis fields. The task changes common com_pager delegation and existing wizard.c:cuss data call sites but does not claim whole com_pager_core, qt_pager, or wizard.c:cuss completion.",
+            "callers": [
+              {
+                "path": "js/questpgr.js",
+                "symbol": "comPagerCore",
+                "source": "questpgr.c:com_pager_core loads dat/quest.lua and reads questtext[section][msgid]"
+              },
+              {
+                "path": "js/questpgr.js",
+                "symbol": "com_pager",
+                "source": "questpgr.c:com_pager selects the common section and delegates to com_pager_core"
+              },
+              {
+                "path": "js/questpgr.js",
+                "symbol": "qt_pager",
+                "source": "questpgr.c:qt_pager checks the role section, then falls back to common through com_pager_core"
+              },
+              {
+                "path": "js/wizard.js",
+                "symbol": "cuss",
+                "source": "wizard.c:cuss calls com_pager(\"angel_cuss\") or com_pager(\"demon_cuss\") for the corresponding source branches"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/generate-quest-text.test.mjs",
+              "scripts/questpgr.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-portal.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "segment": 0,
+                "fromStep": 134,
+                "throughStep": 134,
+                "source": "monmove.c:dochug MS_CUSS gate -> wizard.c:cuss -> questpgr.c:com_pager(\"angel_cuss\") -> questpgr.c:com_pager_core common section array selection and output from dat/quest.lua"
+              }
+            ],
+            "checkedAt": "9cbabb7023810a77623207ac6995fc899f86751a"
+          }
+        ],
+        "entryPointReview": "dat/quest.lua is a single questtext table assignment. It defines common messages, every role section, and msg_fallbacks; it has no executable caller branches of its own. Production reads occur through questpgr.c:com_pager_core, reached from questpgr.c:com_pager for common messages and questpgr.c:qt_pager for role text with common fallback. The common quest_portal route is covered by the matching trap portal recording. The common angel_cuss route is covered through monmove.c:dochug's MS_CUSS gate, wizard.c:cuss, and questpgr.c:com_pager in admitted v21 through zero-based step 134. Demon and role data values are covered by full parsed-source equality tests; this task claims no full com_pager_core or wizard.c:cuss completion.",
+        "entryPoints": [
+          {
+            "name": "common quest portal text",
+            "functions": [
+              "quest.lua"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-portal.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "common angel cuss text",
+            "functions": [
+              "quest.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "segment": 0,
+                "fromStep": 134,
+                "throughStep": 134,
+                "source": "monmove.c:dochug MS_CUSS gate -> wizard.c:cuss -> questpgr.c:com_pager(\"angel_cuss\") -> questpgr.c:com_pager_core common section array selection and output from dat/quest.lua"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
