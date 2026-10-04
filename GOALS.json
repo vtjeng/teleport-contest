@@ -158300,7 +158300,7 @@
     {
       "id": "port-mon-zombie-predicates-v21-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Verify zombie makers and species forms under their source owner",
       "cFile": "mon.c",
       "sessions": [
@@ -158314,8 +158314,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e64736796e0ff198431f49727f0ad04689c646f2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "zombie_maker",
@@ -158592,7 +158595,475 @@
         ],
         "entryPointReview": "This helper-only task has no separate command entry point. The pure source-derived tests read each complete C definition, verify the relevant macro and species mappings, and exercise each source result arm; no gameplay recording is required for these two units. The selected v21 Flaming Sphere case supplies task context for the later explosion closure but stops at mhitm.c:explmm at zero-based step 143, before either helper executes, so it is not cited as helper runtime evidence. C do.c:zombify_mon:2302 is another zombie_form caller; JavaScript timeout_funcs still marks ZOMBIFY_MON unported, so that timer callback remains a separately named gap and is not claimed as wired by this task.",
         "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+          "session": "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+          "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50",
+          "recipe": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.recipe.session.json",
+          "recipeSha256": "d0e556e750761376bc8308fa2e9fb7ff8590dba17199c525eb43857da6b70760",
+          "replayInputSha256": "002e6feebcde5e9edd422b74dd33a183a8f412250e35696b49deaefc1ea7ea71",
+          "evaluationPath": "challenges/evaluations/20261004080226-v21.json",
+          "evaluationCommit": "e64736796e0ff198431f49727f0ad04689c646f2",
+          "evaluationArtifact": "challenges/evaluations/20261004080226-v21.json",
+          "evaluationUtc": "2026-10-04T08:04:19.444Z",
+          "remainingScreens": 25,
+          "recordedSteps": 168,
+          "previousScreensMatched": 143,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 143,
+              "total": 168
+            },
+            "rng": {
+              "matched": 3287,
+              "total": 3790
+            },
+            "cursors": {
+              "matched": 143,
+              "total": 168
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster exploding at another monster",
+            "step": 143
+          },
+          "step": 143,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster exploding at another monster",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.json",
+            "result": {
+              "session": "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+              "remainingScreens": 25,
+              "recordedSteps": 168,
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingPath": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+              "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "commit": "2f89e76867ec12ad25535b7af643a17309089976",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+                "session": "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+                "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50",
+                "recipe": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.recipe.session.json",
+                "recipeSha256": "d0e556e750761376bc8308fa2e9fb7ff8590dba17199c525eb43857da6b70760",
+                "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationUtc": "2026-10-03T18:29:21.226Z",
+                "remainingScreens": 25,
+                "recordedSteps": 168,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 143,
+                    "total": 168
+                  },
+                  "rng": {
+                    "matched": 3287,
+                    "total": 3790
+                  },
+                  "cursors": {
+                    "matched": 143,
+                    "total": 168
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a monster exploding at another monster",
+                  "step": 143
+                },
+                "step": 143,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a monster exploding at another monster",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "status": "complete",
+              "summary": "At zero-based step 143, Conflict reaches the adjacent Flaming Sphere AT_EXPL arm and missing explmm caller. A complete explmm port also requires its result-valued mdamagem fallback and four direct return dependencies without accepted whole-source evidence: at least six whole functions before recursive review. attk_protection and poly_when_stoned are accepted; the elemental case alone cannot cover the non-elemental fallback.",
+              "source": {
+                "file": "mhitm.c",
+                "branch": "When mattackm() selects AT_EXPL and distmin(magr, mdef) is at most 1, C calls explmm(); a cancelled aggressor returns M_ATTK_MISS. For AD_FIRE, AD_COLD, and AD_ELEC, explmm() calls mon_explodes(), which rolls the explosion damage and removes the aggressor before explode() affects the defender. Other explosion damage types go through mdamagem(), followed by the attacker-death and lifesaving checks. The assigned C recording reaches the adjacent Flaming Sphere AD_FIRE path through Conflict and fightm().",
+                "functions": [
+                  "explmm"
+                ],
+                "callers": [
+                  "mhitm.c:mattackm() AT_EXPL arm (497-508), direct caller of explmm()",
+                  "mhitm.c:fightm() adjacent-target path (121-168), calls mattackm() for the Conflict-selected defender",
+                  "mon.c:movemon_singlemon() Conflict gate (1305-1318), runtime entry into fightm()"
+                ],
+                "dependencies": [
+                  "explode.c:mon_explodes for elemental explosions",
+                  "mhitm.c:mdamagem for non-elemental explosion damage",
+                  "mhitm.c:noises for unseen explosion feedback",
+                  "mon.c:mondead via mon_explodes before elemental blasts and directly on the non-elemental fallback",
+                  "DEADMONSTER state and M_ATTK_* result flags for death and lifesaving disposition",
+                  "Whole mdamagem consumes attk_protection, poly_when_stoned, mhitm_knockback, zombie_maker, zombie_form, and grow_up. Whole attk_protection is accepted under port-mhitm-attk-protection-pure-prerequisite-v21-20261004 at validated candidate 6a422f16e1e2e7db6cb15c0c03085c5ba4655de9. Whole poly_when_stoned is accepted under verify-mondata-poly-when-stoned-v21-20261004 at validated candidate 2f89e76867ec12ad25535b7af643a17309089976. The other four direct dependencies lack accepted whole-source evidence; audit their recursive consumed-return closure before assigning the complete scope."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/v21-first-work-queue.json records this v21 session with 25 unmatched screens over 168 steps, manifest SHA-256 d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac, recording SHA-256 feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50, and an unsupported M-to-M explosion stop at step 143. challenges/evaluations/20261003183000-v21.json confirms 143/168 matched screens and cursors, 3287/3790 matched RNG calls, and an evaluation at engine commit b0fd76f6091376c07bf54e8d3061aa5a9c9957d0.",
+                ".cache/C65-explosion-root-verification.json records the assigned case’s bounded C evidence at step 143: an adjacent Flaming Sphere and eastern goblin enter fightm(); mattackm() selects AT_EXPL, calls explmm(), then mon_explodes() rolls the 4d6 damage and kills the aggressor before explode() affects the goblin. The C evidence rules out a preliminary explmu() damage draw as the cause.",
+                ".cache/C65-explosion-crosswalk-v2-root-verification.json confirms the corrected source attribution is the elemental monster-to-monster AT_EXPL/explmm route; its source adjudication passed. The first missing helper is mhitm.c:explmm(), wired at mattackm()’s AT_EXPL arm; whole-source completion also includes its consumed-return closure.",
+                "nethack-c/upstream/src/mhitm.c:497-508 calls explmm() only after the AT_EXPL distance check passes. Lines 970-1009 define the whole helper: cancellation exits before effects, elemental attacks call mon_explodes(), other damage types call mdamagem(), then the helper applies attacker death, lifesaving, leash, and tame-monster outcomes.",
+                "nethack-c/upstream/src/explode.c:1019-1063 shows mon_explodes() rolling damage and calling mondead() before explode(). At the accepted main commit, js/mhitm.js:798-800 still throws the unsupported M-to-M explosion boundary, and js/mhitm.js has no explmm() implementation. js/explode.js:728-750 already ports mon_explodes(), so explmm and its mattackm() wiring locate the first defect; the return-bearing fallback determines the larger completion scope.",
+                "The production entry path is nethack-c/upstream/src/mon.c:1305-1318 movemon_singlemon() -> fightm(), then mhitm.c:fightm():143 -> mattackm(). In JavaScript, js/monmove.js:2693-2697 documents the Conflict fightm() attempt, and js/unported_monster_actions.js:1742-1749 dispatches fightMonster() to mhitm.js:fightm().",
+                "Root read complete mhitm.c:explmm970–1009 and mdamagem1016–1119 at bb6fc174b9aa65beb45500502d88d5ce2be6a20f. explmm consumes mdamagem on every non-elemental explosion. mdamagem directly consumes attk_protection, poly_when_stoned, mhitm_knockback, zombie_maker, zombie_form, and grow_up. Closed GOALS evidence has no whole-source record for any of these eight units. The minimum is eight whole functions before recursive review, and completion needs runtime evidence for the non-elemental path. minliquid, mintrap, goodpos and t_at occur in the preceding gulpmm recovery path and are outside this direct closure.",
+                "At validated candidate 6a422f16e1e2e7db6cb15c0c03085c5ba4655de9, A87 accepted the complete pure mhitm.c:attk_protection with direct switch/enum/mask result tests and existing passiveum production caller evidence. This removes one of the eight units identified at historical bb6fc174. The current minimum is seven: explmm, mdamagem, poly_when_stoned, mhitm_knockback, zombie_maker, zombie_form, and grow_up, before recursive closure review. Pending worker deliveries are not counted as accepted. The assigned recording and its first missing explosion path are unchanged.",
+                "At validated candidate 2f89e76867ec12ad25535b7af643a17309089976, A88 accepted the complete pure mondata.c:poly_when_stoned with direct C predicate/header/species result tests and existing mdamagem production caller correspondence. Together with A87 this reduces the historical eight-unit minimum to six: explmm, mdamagem, mhitm_knockback, zombie_maker, zombie_form, and grow_up, before recursive closure review. Pending zombie-helper deliveries are not counted as accepted. The assigned recording and first missing explosion path are unchanged."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "e64736796e0ff198431f49727f0ad04689c646f2",
+        "screens": 11405,
+        "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-stck-v19-20261004",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port sticking attacks and verify the sticks predicate",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected"
+      ],
+      "selectionReason": "The admitted v19 lichen touch stops at missing AD_STCK dispatch. Exact source implementation and matching M-to-hero prefix/H-to-M recording are ready, with verified pure mondata.c:sticks. The M-to-M entry lacks matching runtime evidence; this partial delivery will preserve full planned scope and park the goal without whole mhitm_ad_stck completion or a goal-closure score event.",
+      "detail": "",
+      "openedAt": "8e70c894a30cee12375ffa04c953259a4d68707d",
+      "openStanding": {
+        "sha": "e64736796e0ff198431f49727f0ad04689c646f2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_stck",
+          "line": 3306,
+          "endLine": 3336,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3306,
+        "to": 3336
+      },
+      "syntheticProvenance": {
+        "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected": {
+          "session": "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+          "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b",
+          "evaluationPath": "challenges/evaluations/20261004080226-v19.json",
+          "evaluationCommit": "e64736796e0ff198431f49727f0ad04689c646f2"
+        }
+      },
+      "activeStanding": {
+        "sha": "e64736796e0ff198431f49727f0ad04689c646f2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+          "session": "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+          "recordingPath": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+          "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b",
+          "recipe": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.recipe.session.json",
+          "recipeSha256": "93b08d0cb425731274a53ff080c1136fbf67f56c322509c21a9d9fecbc348117",
+          "replayInputSha256": "7aa2b29a2cb489888398faccdaa04591f529f82fab143157f645ca77e8d916b7",
+          "evaluationPath": "challenges/evaluations/20261004080226-v19.json",
+          "evaluationCommit": "e64736796e0ff198431f49727f0ad04689c646f2",
+          "evaluationArtifact": "challenges/evaluations/20261004080226-v19.json",
+          "evaluationUtc": "2026-10-04T08:03:58.500Z",
+          "remainingScreens": 1,
+          "recordedSteps": 41,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2207,
+              "total": 2224
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_stck()",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_stck",
+          "message": "simple monster action requires uhitm.c mhitm_ad_stck()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.json",
+            "result": {
+              "session": "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+              "remainingScreens": 1,
+              "recordedSteps": 41,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+                "session": "synthetic/v19/large-mimic-sticks-valkyrie-c62-pager-corrected",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+                "recordingPath": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+                "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b",
+                "recipe": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.recipe.session.json",
+                "recipeSha256": "93b08d0cb425731274a53ff080c1136fbf67f56c322509c21a9d9fecbc348117",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 1,
+                "recordedSteps": 41,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2207,
+                    "total": 2224
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_stck()",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_stck",
+                "message": "simple monster action requires uhitm.c mhitm_ad_stck()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The large-mimic recipe instead reaches a lichen touch. JS refuses AD_STCK before completing that turn. C enters mhitm_ad_stck and its magic-negation gate; port the whole sticking helper and wire its dispatch.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A successful lichen AT_TUCH/AD_STCK hit reaches the monster-to-hero sticking branch; setting u.ustuck depends on magical cancellation, existing stuck state, and the defender sticks predicate.",
+                "functions": [
+                  "mhitm_ad_stck"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku -> hitmu",
+                  "uhitm.c:mhitm_adtyping AD_STCK"
+                ],
+                "dependencies": [
+                  "uhitm.c:mhitm_mgc_atk_negated",
+                  "mhitu.c:magic_negation",
+                  "mon.c:set_ustuck",
+                  "mhitu.c:hitmsg",
+                  "include/you.h:m_next2u (adjacency macro)"
+                ]
+              },
+              "evidence": [
+                "nethack-c/upstream/src/uhitm.c:3306-3335 defines mhitm_ad_stck for all three actor combinations. It first computes mhitm_mgc_atk_negated. Hero-to-monster additionally requires a non-sticky adjacent defender; monster-to-hero emits hitmsg and requires no existing u.ustuck and a non-sticky defender. Barbed-devil messages are separate branches. Negation clears damage only for monster-to-monster.",
+                "js/uhitm.js:4967 leaves AD_STCK unported. The admitted baseline stops at zero-based segment 0 step 40 with simple monster action requires uhitm.c mhitm_ad_stck().",
+                "The frozen recording at segment 0 step 40 shows The lichen touches you!, a lichen F south of the hero, and the created large mimic still disguised as ] to the north. It records d(0,0)=0 at hitmu and rn2(10)=3 at mhitm_mgc_atk_negated(uhitm.c:87), establishing entry into the AD_STCK gate.",
+                "The recipe title does not identify the actual attacker. This prefix provides no large-mimic AD_STCK hit evidence. The absence of a helper-specific RNG label or stuck-state field does not establish that mhitm_ad_stck was skipped: the magic-negation draw comes from its first call. The screen alone does not serialize u.ustuck.",
+                "nethack-c/upstream/src/uhitm.c:80-99 compares rn2(10) with 3 * magic_negation(mdef), after attacker cancellation. mon.c:3421 owns set_ustuck. Port the complete helper and consume source-backed return values from its recursive dependencies; reuse the shared magic-negation helper only with direct completion evidence. Do not infer an allmain RNG defect from the truncated turn.",
+                "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "requiredFunctions": [
+        {
+          "name": "sticks",
+          "line": 654,
+          "endLine": 662,
+          "declared": true,
+          "sourceFile": "mondata.c",
+          "complete": true
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "sticks",
+            "implementation": "js/mondata.js",
+            "symbol": "sticks",
+            "sourceReview": "Compared the complete mondata.c:654-659 body. The function returns true for AD_STCK, then for AD_WRAP only when AT_ENGL is absent, then for AT_HUGS; the C short-circuit order is preserved. The function reads only the monster attack table and makes no RNG call, output, or state write. The test pins the corresponding C enum values and each positive, negative, and engulfing-wrap result.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_stck",
+                "source": "uhitm.c:mhitm_ad_stck calls sticks(pd) in the hero-to-monster gate at 3316 and monster-to-hero gate at 3324."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-stck-hero-to-monster-large-mimic-forcefight-b99.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_STCK) -> uhitm.c:mhitm_ad_stck; the C boundary records the lichen contact and the monster-to-hero sticking checks."
+              }
+            ],
+            "checkedAt": "15c54d5dfdb36fa7ee75b9e0b582b87a8fb747f3"
+          }
+        ],
+        "entryPointReview": "This is a partial handoff. The complete pure dependency mondata.c:sticks is source-pinned and tested. The changed uhitm.c:mhitm_ad_stck body and AD_STCK dispatcher arm have matching monster-to-hero evidence in the admitted v19 case through segment 0 step 40, and a separate hero-to-monster C recording strictly matches through its complete 52 screen/cursor boundaries. The third active route is monster-to-monster: the exact private C recording from run-KLCWoy reaches mdamagem -> mhitm_adtyping(AD_STCK) -> mhitm_ad_stck at normalized step 127, with a Barbed Devil striking a Giant Mimic. A bounded replay of that immutable recording with frozen/ps_test_runner.mjs (run-JMWA1i) does not match: 3,794/3,893 RNG calls and 125/149 screen/cursor boundaries, with error:null. That runner reports aggregate counts but no first mismatch or stop reason. A prior diff-fresh run-18Doxm is retained separately; its recipe-input identity against the final committed recipe is unproven, so its reported boundary is not attributed to this final private recording. The blocked recipe identifies the C wizard no-death continuation at end.c:done() before its M-to-M attack. No JavaScript stop owner is claimed. The whole mhitm_ad_stck function remains incomplete until an M-to-M route matches; no whole mhitm_adtyping, hitmu, damageum, or mdamagem credit is claimed.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero AD_STCK",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_stck"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_STCK) -> uhitm.c:mhitm_ad_stck; the C boundary records the lichen contact and the monster-to-hero sticking checks."
+              }
+            ]
+          },
+          {
+            "name": "hero-to-monster AD_STCK",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_stck"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-stck-hero-to-monster-large-mimic-forcefight-b99.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-monster AD_STCK",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_stck"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8478541750f8418895057298e9403d2521e31226",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial B99 delivery: mondata.c sticks is verified; complete mhitm_ad_stck remains blocked by unmatched M-to-M runtime evidence. Exact private C run KLCWoy paired replay JMWA1i matches 125/149 screens and 3794/3893 RNG calls. Preserve independent blocked recipe and full planned scope; no whole helper completion or goal-closure score event."
     }
   ]
 }

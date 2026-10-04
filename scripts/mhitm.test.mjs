@@ -1073,7 +1073,7 @@ test('an ordinary blow on an unsolid defender lands', async () => {
 // mhitm.c failed_grab():602-607, the head's two conjuncts. The port stops
 // inside the TRUE arm, above a line that needs do_name.c s_suffix(),
 // mon_nam() and some_mon_nam().
-test('a grab that cannot hold its target stops the attack', async () => {
+test('failed_grab refuses unsolid targets but solid AD_STCK attacks land', async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);
     const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
@@ -1092,39 +1092,45 @@ test('a grab that cannot hold its target stops the attack', async () => {
     };
     const attack = async (defender) => {
         aim(defender);
-        // rnd(20)=1 lands against either defender's armour class, so the
-        // strike is what carries the attack into failed_grab().
-        return mattackm(pet, defender, attackEnv([1, 3, 1, 1]))
-            .then(() => null, (error) => error.message);
+        // The first roll lands; the remaining scripted values pin damage,
+        // AD_STCK negation and knockback order on a solid target.
+        const env = attackEnv([1, 3, 1, 1]);
+        try {
+            return { result: await mattackm(pet, defender, env), env };
+        } catch (error) {
+            return { error: error.message, env };
+        }
     };
 
     // Each of C's three damage types refuses on the same unsolid defender.
     for (const adtyp of [AD_WRAP, AD_STCK, AD_DGST]) {
         holding(adtyp);
-        assert.equal(await attack(cloud),
+        assert.equal((await attack(cloud)).error,
                      'a grab that passes through its target', `adtyp ${adtyp}`);
     }
 
-    // The same attack on a solid defender passes the head and carries on to
-    // its damage type, which is a different stop in a different file.
+    // mhitm.c mattackm():447-452 calls failed_grab() only behind unsolid().
+    // A solid giant ant therefore reaches hitmm()/mdamagem(); mhitm_ad_stck()
+    // keeps the d(1,4)=3 damage because rn2(10)=1 is not negated at MC 0.
     const ant = fixture(PM_GIANT_ANT, dx, y + 1, { mhp: 20, mhpmax: 20 });
     assert.equal(unsolid(ant.data), false);
     holding(AD_STCK);
-    assert.equal(await attack(ant), 'uhitm.c mhitm_ad_stck()');
+    const antHit = await attack(ant);
+    assert.equal(antHit.error, undefined);
+    assert.equal(antHit.result, M_ATTK_HIT);
+    assert.equal(ant.mhp, 17);
+    assert.deepEqual(antHit.env.bounds,
+                     ['rnd(20)', 'd(1,4)', 'rn2(10)', 'rn2(3)', 'rn2(6)', 'rn2(3)']);
 
-    // gn.notonhead is the head's other disjunct, and mattackm() is the one
-    // caller that cannot reach it: C's own unsolid() test short-circuits
-    // ahead of the call for every solid defender, so a holding attack that
-    // landed on a long worm's tail carries on to its damage type here. C's
-    // comment at :447-450 calls that test redundant, which holds for the
-    // first disjunct alone.
+    // A simulated non-head flag does not bypass mattackm()'s leading solid
+    // target guard either. C lands the same attack and retains its damage.
+    const tailEnv = attackEnv([1, 3, 1, 1]);
     aim(ant);
     game.gn.notonhead = true;
-    assert.equal(
-        await mattackm(pet, ant, attackEnv([1, 3, 1, 1]))
-            .then(() => null, (error) => error.message),
-        'uhitm.c mhitm_ad_stck()',
-    );
+    assert.equal(await mattackm(pet, ant, tailEnv), M_ATTK_HIT);
+    assert.equal(ant.mhp, 14);
+    assert.deepEqual(tailEnv.bounds,
+                     ['rnd(20)', 'd(1,4)', 'rn2(10)', 'rn2(3)', 'rn2(6)', 'rn2(3)']);
     game.gn.notonhead = false;
     pet.data = ordinary;
 });

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-directed B99 hero-to-monster candidate. The preceding C-only location probe with this independently selected seed placed the generated newt immediately north of the Wizard, with a kobold farther east. Large mimic has a single AT_CLAW/AD_STCK; its no-eyes form uses the previously observed target direction and force-fight prefix Fk after acknowledging the two source-generated polymorph More prompts. Keep this as passing evidence only if C records the hero's natural AD_STCK attack and the complete JS replay matches.",
+  "segments": [
+    {
+      "seed": 9184221,
+      "datetime": "20360714132900",
+      "nethackrc": "OPTIONS=name:B99LargeMimic,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile newt\n#polyself\nlarge mimic\n  Fk"
+    }
+  ]
+}
