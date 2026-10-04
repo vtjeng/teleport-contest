@@ -332,11 +332,13 @@ function assertSimpleActionState(monster, state) {
         && !monster.mtame
         && !monster.isminion;
     // C monmove.c:341-358 evaluates couldsee(), mdistu(), and Stealth before
-    // any wakeup RNG.  A sleeping killer bee therefore takes dochug()'s
+    // any wakeup RNG. A sleeping killer bee therefore takes dochug()'s
     // ordinary no-op return when it is unseen, farther than ten squares, or
     // the hero is stealthy; the later bee_eat_jelly() branch is unreachable on
-    // those turns.  Keep a visible bee within the wake range without Stealth
-    // behind the existing special-action boundary.
+    // those turns. Keep a sleeping bee that may wake behind the special-action
+    // boundary. Awake bees enter dochug(), whose jelly-at-square condition
+    // already decides whether bee_eat_jelly() consumes the move or normal
+    // movement and attacks continue.
     const sleepingOutOfWakeRangeKillerBee =
         monster.data?.pmidx === PM_KILLER_BEE
         && monster.msleeping
@@ -354,9 +356,10 @@ function assertSimpleActionState(monster, state) {
     // monmove.c m_move() consumes Tengu's natural-teleport roll before
     // tele_restrict() rejects it on a no-teleport level. m_move now admits
     // the permitted relocation path through rloc()/mnexto(); leprechaun,
-    // killer-bee, and digesting-cube actions remain separate boundaries.
+    // sleeping-bee, and digesting-cube actions remain separate boundaries.
     if ((monster.data?.pmidx === PM_LEPRECHAUN && !sleepingLeprechaun)
         || (monster.data?.pmidx === PM_KILLER_BEE
+            && monster.msleeping
             && !sleepingOutOfWakeRangeKillerBee)
         || (monster.data?.pmidx === PM_GELATINOUS_CUBE
             && digestibleGelatinousCube)) {
