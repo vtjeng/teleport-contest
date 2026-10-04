@@ -1,0 +1,59 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/dig.test.mjs",
+      "scripts/dig-pit-flow.test.mjs",
+      "scripts/trap-names.test.mjs",
+      "scripts/apply-break-wand.test.mjs",
+      "scripts/music.test.mjs",
+      "scripts/trap-landmine.test.mjs",
+      "scripts/zap-command.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/tmp/teleport-loop-worker-b-20260925/.cache/B103-logs/focused-run-n1rcQR-passed-stdout.log"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/tmp/teleport-loop-worker-b-20260925/.cache/B103-logs/lint-run-4N9JAG-stdout.log"
+  },
+  {
+    "kind": "fresh",
+    "command": [
+      "node",
+      "frozen/ps_test_runner.mjs",
+      ".cache/B103-logs/b103-do-break-wand-liquid-flow-valkyrie-two-mores-cfirst.session.json"
+    ],
+    "exitCode": 0,
+    "log": "/tmp/teleport-loop-worker-b-20260925/.cache/B103-logs/runner-run-Dx2DEQ-stdout.log"
+  },
+  {
+    "kind": "fresh",
+    "command": [
+      "node",
+      "scripts/diff-fresh.mjs",
+      "--recipe",
+      "recipes/trap.c/b103-blow-up-landmine-moat-three-neighbor-cfirst.session.json"
+    ],
+    "exitCode": 0,
+    "log": "/tmp/teleport-loop-worker-b-20260925/.cache/B103-logs/runner-run-JSCjOn-stdout.log"
+  },
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "scripts/synthetic-range-evidence.mjs",
+      ".cache/task-evidence.json"
+    ],
+    "exitCode": 0,
+    "log": "/tmp/teleport-loop-worker-b-20260925/.cache/B103-logs/synthetic-range-evidence-run.log"
+  }
+]
