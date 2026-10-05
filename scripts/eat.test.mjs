@@ -961,3 +961,37 @@ test('eating a guarding amulet applies its protection effect after More', async 
         'Magic spreads through your body as you digest the amulet.',
     )));
 });
+
+test('a completed royal-jelly meal runs C fpostfx through done_eating',
+    async () => {
+        const cStart = EAT_C.indexOf('fpostfx(struct obj *otmp)\n{');
+        const cEnd = EAT_C.indexOf(
+            '\n#if 0\n/* intended for eating a spellbook', cStart,
+        );
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        const cBody = EAT_C.slice(cStart, cEnd);
+        assert.match(cBody,
+            /case LUMP_OF_ROYAL_JELLY:[\s\S]*?gainstr\(otmp, 1, TRUE\);[\s\S]*?rnd\(20\)[\s\S]*?rn2\(17\)[\s\S]*?heal_legs\(0\);/u);
+        assert.match(cBody,
+            /case EGG:[\s\S]*?flesh_petrifies[\s\S]*?poly_when_stoned[\s\S]*?polymon\(PM_STONE_GOLEM\)/u);
+        const doneStart = EAT_C.indexOf('done_eating(boolean message)\n{');
+        const doneEnd = EAT_C.indexOf('\nvoid\neating_conducts(', doneStart);
+        assert.ok(doneStart >= 0 && doneEnd > doneStart);
+        assert.match(EAT_C.slice(doneStart, doneEnd), /fpostfx\(piece\);/u);
+
+        const recipe = JSON.parse(readFileSync(
+            new URL(
+                '../challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.recipe.session.json',
+                import.meta.url,
+            ),
+            'utf8',
+        ));
+        // The admitted C recording starts at strength 10 and its single
+        // uncursed royal jelly raises strength to 11 through done_eating().
+        const replay = await runSegment(recipe.segments[0]);
+        assert.equal(game.u.acurr.a[A_STR], 11);
+        assert.ok(replay.getScreens().some((screen) => screen.includes('St:11')));
+        // The C recording has 42 screen boundaries, including the later wait
+        // inputs after the completed meal.
+        assert.equal(replay.getScreens().length, 42);
+    });

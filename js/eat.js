@@ -70,6 +70,7 @@ import {
     NOT_HUNGRY,
     PARANOID_EATING,
     POISON_RES,
+    POISONING,
     PROTECTION,
     REGENERATION,
     ROTTEN_TIN,
@@ -121,6 +122,7 @@ import {
     exercise,
     gainstr,
     poison_strdmg,
+    setuhpmax,
     } from './attrib.js';
 import { ART_ORB_OF_DETECTION } from './artifacts.js';
 import {
@@ -142,13 +144,13 @@ import { is_ice,
 } from './dbridge.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
-import { livelog_printf } from './pline.js';
+import { heroDeaf, livelog_printf, verbalize, youHear } from './pline.js';
 import {
     check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
 import { dist2, lcase } from './hacklib.js';
 import {
     INVLET_BASIC, addinv_nomerge, carrying, feel_cockatrice, freeinv, getobj, hands_obj, obj_extract_self, obj_here, stackobj, useup, useupall, useupf, will_feel_cockatrice, } from './invent.js';
-import { dropx, dropy, trycall } from './do.js';
+import { dropx, dropy, heal_legs, trycall } from './do.js';
 import { makeplural } from './fruit.js';
 import { set_ulycn, were_beastie } from './were.js';
 import { staleEgg } from './dogfood.js';
@@ -156,7 +158,8 @@ import { iter_mons_safe, mon_offmap, pm_to_cham, rescham } from './mon.js';
 import {
     acidic, attacktype, attacktype_fordmg, can_teleport, carnivorous, cantvomit, control_teleport, defended, dmgtype, flesh_petrifies, herbivorous, is_giant, is_rider, is_clinger, is_were, metallivorous, poisonous, poly_when_stoned, same_race, slimeproof, telepathic, type_is_pname, your_race, is_undead, olfaction, breathless, perceives, } from './mondata.js';
 import {
-    AD_ACID, AD_DISE, AD_POLY, AT_BREA, PM_KNIGHT, PM_PYROLISK, } from './monsters.js';
+    AD_ACID, AD_BLND, AD_DISE, AD_POLY, AT_BREA, AT_ENGL, PM_KNIGHT,
+    PM_PYROLISK, PM_QUEEN_BEE, PM_STONE_GOLEM, } from './monsters.js';
 import { hcolor, Mgender, pmname, rndmonnam } from './do_name.js';
 import { monflee } from './monmove.js';
 import {
@@ -164,7 +167,7 @@ import {
 import { change_luck } from './moveloop_preamble.js';
 import {
     dopotion, incr_itimeout, make_blinded, make_confused, make_deaf, make_glib, make_hallucinated, make_sick, make_slimed, make_stoned, make_stunned, make_vomiting, self_invis_message, set_itimeout, } from './potion.js';
-import { delayed_killer } from './end.js';
+import { delayed_killer, done } from './end.js';
 import {
     carried, costly_alteration, bcsign, is_flammable, isMetallic, isRustprone, is_rottable, objectType, peek_at_iced_corpse_age, remove_object, set_bknown, splitobj, weight, g_at, mksobj, } from './obj.js';
 import {
@@ -176,12 +179,12 @@ import {
     discover_object, observe_object, objdescr_is, } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import {
-    body_part, change_sex, rehumanize, } from './polyself.js';
+    body_part, change_sex, polymon, rehumanize, } from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { fingers_or_gloves, toggle_displacement } from './do_wear.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
-import { obj_stop_timers } from './timeout.js';
+import { fall_asleep, obj_stop_timers } from './timeout.js';
 import {
     Flying, Levitation, deltrap, float_up, reset_utrap, t_at, unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
@@ -2811,27 +2814,34 @@ async function eatcorpse(otmp, state, env = {}) {
     return retcode;
 }
 
-// C ref: eat.c fpostfx() (2508-2597), the effects that follow a finished
-// non-corpse meal. Arms whose effects are still unported stop rather than
-// silently skipping, because each one changes hero state.
-async function fpostfx(otmp, state, env) {
+// C ref: eat.c fpostfx() (2510-2595), the effects that follow a finished
+// non-corpse meal. The source-discarded were.c you_unwere() call remains an
+// explicit gap; its return is void and no result is used here.
+async function fpostfx(otmp, state, env = {}) {
+    const random = { rn1, rn2, rnd, ...(env.random ?? {}) };
+    const effectEnv = { ...env, random };
+    const message = env.message ?? ttyPline;
     switch (otmp.otyp) {
     case SPRIG_OF_WOLFSBANE:
         if (ismnum(state.u.ulycn) || is_were(state.youmonst.data))
-            throw new UnsupportedEatError('you_unwere()');
+            note_unported('were.c you_unwere');
         break;
     case CARROT:
-        // C ref: eat.c:2518-2520. Clears cream from the hero's face. The
-        // swallow/engulf guard is unreachable: uswallow stops the eat command.
-        if (!state.u.uswallow)
-            await make_blinded(state.u.ucreamed ?? 0, true, state);
+        if (!state.u.uswallow
+            || !attacktype_fordmg(
+                state.u.ustuck?.data, AT_ENGL, AD_BLND,
+            )) {
+            await make_blinded(
+                state.u.ucreamed ?? 0, true, state, effectEnv,
+            );
+        }
         break;
     case FORTUNE_COOKIE:
         await outrumor(
             bcsign(otmp),
             BY_COOKIE,
             state,
-            { message: env.message ?? ttyPline },
+            { message },
         );
         if (!heroIsBlind(state)) {
             const firstLiterate = !(state.u.uconduct.literate ?? 0);
@@ -2847,30 +2857,93 @@ async function fpostfx(otmp, state, env) {
         }
         break;
     case LUMP_OF_ROYAL_JELLY:
-        // gainstr(), the rnd(20) hit points and the rn2(17) maximum increase.
-        throw new UnsupportedEatError('the royal jelly effects');
+        if (state.youmonst.data === state.mons[PM_KILLER_BEE]
+            && !propertyActive(state, UNCHANGING)
+            && await polymon(PM_QUEEN_BEE, state, effectEnv))
+            break;
+
+        await gainstr(otmp, 1, true, state, effectEnv);
+        if (Upolyd(state.u)) {
+            state.u.mh += otmp.cursed ? -random.rnd(20) : random.rnd(20);
+            state.disp.botl = true;
+            if (state.u.mh > state.u.mhmax) {
+                if (!random.rn2(17))
+                    setuhpmax(state.u.mhmax + 1, false, state);
+                state.u.mh = state.u.mhmax;
+            } else if (state.u.mh <= 0) {
+                await rehumanize(state, effectEnv);
+            }
+        } else {
+            state.u.uhp += otmp.cursed
+                ? -random.rnd(20) : random.rnd(20);
+            state.disp.botl = true;
+            if (state.u.uhp > state.u.uhpmax) {
+                if (!random.rn2(17))
+                    setuhpmax(state.u.uhpmax + 1, false, state);
+                state.u.uhp = state.u.uhpmax;
+            } else if (state.u.uhp <= 0) {
+                state.killer ??= { name: '', format: KILLED_BY_AN };
+                state.killer.format = KILLED_BY_AN;
+                state.killer.name = 'rotten lump of royal jelly';
+                await done(POISONING, state);
+                if (state.program_state?.gameover) return;
+            }
+        }
+        if (!otmp.cursed) await heal_legs(state, { message });
+        break;
     case EGG:
-        // A petrifying egg reaches make_stoned() through flesh_petrifies().
-        throw new UnsupportedEatError("fpostfx()'s petrifying egg arm");
+        if (ismnum(otmp.corpsenm)
+            && flesh_petrifies(state.mons[otmp.corpsenm])) {
+            if (!propertyActive(state, STONE_RES)
+                && !(poly_when_stoned(state.youmonst.data, state)
+                    && await polymon(PM_STONE_GOLEM, state, effectEnv))) {
+                if (!hungerProperty(state, STONED).intrinsic) {
+                    const killerName = state.mons[otmp.corpsenm]
+                        .pmnames[NEUTRAL] + ' egg';
+                    state.killer ??= { name: '', format: KILLED_BY_AN };
+                    state.killer.format = KILLED_BY_AN;
+                    state.killer.name = killerName;
+                    await make_stoned(
+                        5, null, KILLED_BY_AN, killerName, state,
+                    );
+                }
+            }
+        }
+        break;
     case EUCALYPTUS_LEAF:
         if (!otmp.cursed) {
             if (hungerProperty(state, SICK).intrinsic)
-                await make_sick(0, null, true, SICK_ALL, state, env);
+                await make_sick(0, null, true, SICK_ALL, state, effectEnv);
             if (hungerProperty(state, VOMITING).intrinsic)
-                await make_vomiting(0, true, state, env);
+                await make_vomiting(0, true, state, effectEnv);
         }
         break;
     case APPLE:
         if (otmp.cursed && !propertyActive(state, SLEEP_RES)) {
-            // The Snow White arm: verbalize() or You_hear() and then
-            // fall_asleep(-rn1(11, 20), TRUE).
-            throw new UnsupportedEatError('fall_asleep() for a cursed apple');
+            if (state.urace?.mnum === PM_DWARF && Hallucination(state)) {
+                await verbalize(
+                    "Heigh-ho, ho-hum, I think I'll skip work today.",
+                    state,
+                    { message },
+                );
+            } else if (heroDeaf(state) || !state.flags?.acoustics) {
+                await message('You fall asleep.', state);
+            } else {
+                // This recorder build compiles Soundeffect() to an empty
+                // macro; C's following You_hear() still owns the text output.
+                const heard = youHear(
+                    'sinister laughter as you fall asleep...', state,
+                );
+                if (heard !== null) await message(heard, state);
+            }
+            await fall_asleep(
+                -random.rn1(11, 20), true, state, effectEnv,
+            );
         }
         break;
     default:
         break;
     }
-    await Promise.resolve();
 }
 
 // C ref: eat.c garlic_breath() (2084-2089). Scare one nearby monster when it
@@ -3050,6 +3123,9 @@ function eatOperations(state, statusRefresh, message = ttyPline) {
             costlyAlteration: () => {},
         },
         message,
+        // C fpostfx()'s gainstr() can reach adjattrib() and then
+        // pickup.c encumber_msg() when strength changes encumbrance.
+        encumberMessage: (target) => encumber_msg(target, { message }),
         endRunning,
         // newuhs() resolves this only when the meal moves the hunger status,
         // which is the one place C's doeat() reaches bot().
