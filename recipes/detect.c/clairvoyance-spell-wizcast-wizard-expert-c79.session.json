@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent detect.c:do_vicinity_map spell entry via spell.c:spelleffects(SPE_CLAIRVOYANCE), frozen from the C menu's SPE_DIG+i order: SPE_CLAIRVOYANCE=385 is offset 19, selected with t on the first a-u page. Wizard starts with P_DIVINATION_SPELL at Expert in u_init.c:Skill_W, so spell.c sets pseudo->blessed and C takes extended detection. The trailing Escape exits getpos if the extended map reports newly detected creatures or objects; if no browse prompt is raised it is a harmless command boundary. Seed/date are new to exercise this entry.",
+  "segments": [
+    {
+      "seed": 79041004,
+      "datetime": "20410316091530",
+      "nethackrc": "OPTIONS=name:C79Expert,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup\n",
+      "moves": " #wizcast\nt\u001b"
+    }
+  ]
+}

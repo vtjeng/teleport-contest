@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v21.json",
   "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
   "recordingSha256": "dde027291c1e4acc27f079abd5b3cc4f131f1fda96821d81ddb78c990948981a",
-  "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
-  "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
-  "remainingScreens": 62,
+  "evaluationPath": "challenges/evaluations/20261004141058-v21.json",
+  "evaluationCommit": "4e033fb45199a762edde85bda9e81c92a13a2740",
+  "remainingScreens": 4,
   "recordedSteps": 62,
-  "status": "complete",
-  "commit": "ee3dc7db5cacad4d18557379dd75b9558de8d421",
+  "status": "partial",
+  "commit": "4e033fb45199a762edde85bda9e81c92a13a2740",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v21",
@@ -24,69 +24,75 @@
     "recordingSha256": "dde027291c1e4acc27f079abd5b3cc4f131f1fda96821d81ddb78c990948981a",
     "recipe": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.recipe.session.json",
     "recipeSha256": "c4d8ef8247fb4565b0fed380512db904aefbe807300ef94486d19bd1a0d38a7f",
-    "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
-    "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
-    "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
-    "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
-    "evaluationUtc": "2026-10-03T18:29:21.226Z",
-    "remainingScreens": 62,
+    "replayInputSha256": "a490525cfacc1d2b3acf2a628c577a56381a82d2cfce862367ab247e597a14fc",
+    "evaluationPath": "challenges/evaluations/20261004141058-v21.json",
+    "evaluationCommit": "4e033fb45199a762edde85bda9e81c92a13a2740",
+    "evaluationArtifact": "challenges/evaluations/20261004141058-v21.json",
+    "evaluationUtc": "2026-10-04T14:12:10.514Z",
+    "remainingScreens": 4,
     "recordedSteps": 62,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 0,
     "regression": false,
     "passed": false,
-    "error": "active clairvoyance requires doVicinityMap",
+    "error": null,
     "metrics": {
       "screens": {
-        "matched": 0,
+        "matched": 58,
         "total": 62
       },
       "rng": {
-        "matched": 0,
+        "matched": 2802,
         "total": 2850
       },
       "cursors": {
-        "matched": 0,
+        "matched": 58,
         "total": 62
       }
     },
     "firstMismatch": {
       "kind": "stop",
-      "message": "Replay error: active clairvoyance requires doVicinityMap",
-      "step": null
+      "message": "simple monster action requires uhitm.c mhitm_ad_samu()",
+      "step": 58
     },
-    "step": null,
+    "step": 58,
     "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "Replay error: active clairvoyance requires doVicinityMap",
-    "cFile": null,
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_samu",
+    "message": "simple monster action requires uhitm.c mhitm_ad_samu()",
+    "cFile": "uhitm.c",
     "luaFile": null,
-    "line": null
+    "line": null,
+    "investigation": {
+      "status": "stale",
+      "path": "investigations/synthetic/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.json",
+      "previousRemainingScreens": 62
+    }
   },
-  "summary": "The saved v21 replay stops before emitting any screen because a cadence-triggered clairvoyance path in allmain.js requires an unprovided doVicinityMap operation. C calls detect.c:do_vicinity_map(NULL) when the hero carries the Amulet or has active Clairvoyance, the seer turn is due, and the hero is outside the endgame without BClairvoyant. Port the complete detect.c helper and wire its timed and SPE_CLAIRVOYANCE callers. The later Wizard of Yendor attack behavior is not reached by this evaluation, so the case title does not establish an AD_SAMU defect.",
+  "summary": "C79 implements the timed clairvoyance path and now matches 58 of 62 screens, all 2802 RNG calls and 58 cursors through normalized segment 0 step57. The next input at step58 reaches the unported uhitm.c:mhitm_ad_samu dispatcher arm. Four screens remain; the whole AD_SAMU closure and current reservations still need review before assigning work.",
   "source": {
-    "file": "detect.c",
-    "branch": "do_vicinity_map() is called with sobj == NULL for timed/random farsight and with the pseudo spellbook for SPE_CLAIRVOYANCE. The timed caller requires svm.moves >= seer_turn, an Amulet or active Clairvoyance, !In_endgame, and !BClairvoyant. The function temporarily exposes the clamped map window, maps terrain and top-level objects, then shows or detects monsters; it restores EDetect_monsters and the saved visibility/swallow state before the final see_monsters()/docrt() updates. A non-null blessed or already-clairvoyant spellbook selects extended detection.",
+    "file": "uhitm.c",
     "functions": [
-      "do_vicinity_map"
+      "mhitm_ad_samu"
     ],
+    "branch": "AD_SAMU: monster-to-hero invokes hitmsg, draws rn2(20), then calls the void stealamulet helper on zero. Both other orientations set damage to zero.",
     "callers": [
-      "C: allmain.c:moveloop_core() calls do_vicinity_map(NULL) at :409-415 on the due seer-turn path. JS: allmain.js:finishHeroTimeEffects() -> applyClairvoyancePlan() has the corresponding timed boundary, but its moveloop_core() call supplies only random and encumberMessage, so env.doVicinityMap is absent and clairvoyancePlan() throws at :477-478.",
-      "C: spell.c:spelleffects(), SPE_CLAIRVOYANCE at :1572-1579, sets pseudo->blessed for skilled-or-better skill and calls do_vicinity_map(pseudo) when !BClairvoyant. JS: spell.js:spelleffects() has no SPE_CLAIRVOYANCE arm and reaches the UnsupportedSpellCastError default; wire this direct source caller to the same helper."
+      "uhitm.c:mhitm_adtyping AD_SAMU dispatch; current JavaScript still refuses this arm."
     ],
     "dependencies": [
-      "detect.c:unconstrain_map() supplies a consumed Boolean and reconstrain_map() restores temporary water, burial, and swallowing state. Existing JavaScript helpers are in js/detect.js; preserve the return value and restore order.",
-      "detect.c:show_map_spot(), map_monst(), and browse_map() already have JavaScript helpers in js/detect.js. browse_map() may suspend for map navigation, so do_vicinity_map() and its allmain.js and spell.js callers must await the map path before advancing seer_turn or continuing the spell.",
-      "display.c:glyph_at(), map_object(), map_invisible(), canspotmon(), see_monsters(), flush_screen(), and docrt() have JavaScript implementations in js/display.js; detect.c calls them while updating remembered and visible map state.",
-      "o_init.c:observe_object() and attrib.c:exercise() have JavaScript implementations and are called for extended object observation and the spell’s Wisdom exercise. The helper has no direct random draw."
+      "hitmsg and stealamulet return void; existing hitmsg and shared dispatcher callers require source review. No whole stealamulet implementation or completion evidence is claimed."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The saved evaluation challenges/evaluations/20261003183000-v21.json at evaluation commit b0fd76f6091376c07bf54e8d3061aa5a9c9957d0 reports 0/62 screens, 0/62 cursors, and 0/2850 RNG calls matched; the queue records a stop with no step index and error “active clairvoyance requires doVicinityMap”. The count is 62 because the replay fails before the first emitted screen.",
-    "In upstream nethack-c/upstream/src/allmain.c:409-415, the due seer-turn condition calls detect.c:do_vicinity_map(NULL) for the Amulet or Clairvoyant property outside the endgame unless BClairvoyant blocks it, then advances seer_turn. In detect.c:1448-1585, do_vicinity_map temporarily changes the visibility and monster-detection state, scans the source-clamped map window, optionally browses it, restores those values, and refreshes visible monsters/display.",
-    "The second active C caller is nethack-c/upstream/src/spell.c:1572-1579: SPE_CLAIRVOYANCE passes its pseudo book, with pseudo->blessed set at skilled-or-better skill. The timed Amulet trigger and the spell entry are distinct impure entry points; the assigned v21 recording covers only the timed route, so the spell route needs its own matching recipe/recording unless another admitted range covers it.",
-    "At examined HEAD ee3dc7db5cacad4d18557379dd75b9558de8d421, js/allmain.js:452-480 throws when clairvoyancePlan() determines a map is required without env.doVicinityMap; finishHeroTimeEffects() prevalidates that plan at :509 and moveloop_core() calls it at :1515 without the operation. js/spell.js:1338-1501 handles implemented spell cases but has no SPE_CLAIRVOYANCE arm and throws in its default. Search `rg -n \"do_vicinity_map|doVicinityMap|clairvoyancePlan\" js nethack-c/upstream/src` finds the C helper and its two C call sites plus only the JavaScript allmain guard/plan, not a do_vicinity_map implementation or wired operation; `rg -n \"SPE_CLAIRVOYANCE\" js/spell.js` finds no spell arm.",
-    "The v21 manifest and immutable recording identify an Amulet wish, followed later by Wizard of Yendor creation and vanish/reappear turns. Those later inputs do not change the present first cause: this saved replay stops at the earlier allmain clairvoyance boundary and provides no current evidence that amulet theft itself mismatches."
-  ]
+    "Accepted C79 candidate 4e033fb45199a762edde85bda9e81c92a13a2740, challenges/evaluations/20261004141058-v21.json: 58/62 screens and cursors,2802/2850 RNG; no runner error.",
+    "C79 preserved full-case replay run-AiM2NY identifies normalized segment0 step58 as the first remaining refusal at mhitm_ad_samu; cited C79 prefix through57 matches completely.",
+    "Read-only source survey at the accepted candidate traces uhitm.c:mhitm_ad_samu4570–4589 and its AD_SAMU arm4823. This is a new residual after the earlier clairvoyance stop; return-value closure is just the whole AD_SAMU function."
+  ],
+  "previousDiagnosis": {
+    "commit": "ee3dc7db5cacad4d18557379dd75b9558de8d421",
+    "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+    "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+    "remainingScreens": 62,
+    "summary": "The saved v21 replay stops before emitting any screen because a cadence-triggered clairvoyance path in allmain.js requires an unprovided doVicinityMap operation. C calls detect.c:do_vicinity_map(NULL) when the hero carries the Amulet or has active Clairvoyance, the seer turn is due, and the hero is outside the endgame without BClairvoyant. Port the complete detect.c helper and wire its timed and SPE_CLAIRVOYANCE callers. The later Wizard of Yendor attack behavior is not reached by this evaluation, so the case title does not establish an AD_SAMU defect."
+  }
 }
