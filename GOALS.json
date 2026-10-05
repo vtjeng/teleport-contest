@@ -171973,7 +171973,7 @@
     {
       "id": "port-uhitm-passive-obj-v18-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete passive combat and polymorph helpers",
       "cFile": "uhitm.c",
       "sessions": [
@@ -171988,22 +171988,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f2ef553a98c1f2d9101cfbd1f187863fa0dce3db",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "passive",
           "line": 5865,
           "endLine": 6126,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "passive_obj",
           "line": 6127,
           "endLine": 6200,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -172017,7 +172020,7 @@
           "endLine": 1076,
           "declared": true,
           "sourceFile": "polyself.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "can_ride",
@@ -172025,7 +172028,7 @@
           "endLine": 177,
           "declared": true,
           "sourceFile": "steed.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "monnear",
@@ -172033,7 +172036,7 @@
           "endLine": 2486,
           "declared": true,
           "sourceFile": "mon.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -172366,7 +172369,278 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "passive",
+            "implementation": "js/uhitm.js",
+            "symbol": "passive",
+            "sourceReview": "Read the complete C body at uhitm.c:5865-6124. The implementation searches the first AT_NONE slot up to NATTK, computes the source damage roll once, then runs the first damage-type switch regardless of whether the monster survived. It preserves attack-hit, cancellation, weapon, attack-type and resistance gates, including passive_obj dispatch and the AD_STON branch that consumes polymon's Boolean result. The second switch is reached only for a living uncancelled monster after rn2(3) returns nonzero, with the source order and final malive|mhit return preserved. The helper's existing discarded-void callees remain named gaps or reuse accepted source-complete units; no returned value is invented. C callers discard passive's return. The JavaScript body replaces the former partial passive refusal and keeps the separate dispatcher arms isolated from C86's mhitm_ad_fire implementation.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hitum",
+                "source": "uhitm.c:hitum calls passive after the first hit at :789 and after the eligible second hit at :810. The independent ordinary recording exercises the first call."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas calls passive at :5827 and :5829. The quiet spotted-jelly recording exercises the first source route."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "kickdmg",
+                "source": "dokick.c:kickdmg calls passive after resolving the ordinary kick at :116."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "kick_monster",
+                "source": "dokick.c:kick_monster calls passive after misses, blocks and polymorphed kick hits at :158, :213-219, :241, :265 and :282."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-passive-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/passive-hero-blue-jelly-b107-west-corrected.session.json",
+              "recordings/uhitm.c/passive-polymorph-spotted-jelly-quiet-b107.session.json",
+              "recordings/uhitm.c/passive-object-hero-melee-rust-monster-b107-northeast-second-attack.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [],
+            "checkedAt": "f2ef553a98c1f2d9101cfbd1f187863fa0dce3db"
+          },
+          {
+            "name": "passive_obj",
+            "implementation": "js/uhitm.js",
+            "symbol": "passive_obj",
+            "sourceReview": "Read the complete C body at uhitm.c:6127-6190. It preserves legacy object selection when obj is null, including the two-weapon draw and AD_ENCH glove fallback; finds the first AT_NONE attack when mattk is null; applies the AD_FIRE and AD_ACID rn2(6) gates in order; applies the cancellation guards for AD_RUST and AD_CORR without adding draws; consumes drain_item's Boolean only in AD_ENCH and preserves its carried/known-or-armor message conditions; leaves other damage types as no-ops; and refreshes inventory for a carried object at the end. The erode_obj results are discarded and use the named source gap where not already ported. The spotted-jelly record reaches passive_obj through passive's AD_ACID object effect.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "passive",
+                "source": "uhitm.c:passive calls passive_obj in the AD_FIRE, AD_ACID, AD_RUST, AD_CORR and AD_ENCH arms at :5903, :5930, :5966, :5977, and :6010."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_obj",
+                "source": "dothrow.c:throw_obj calls passive_obj after a successful object hit at :2226; the existing B88 thrown-object recording covers this route."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "drop_throw",
+                "source": "mthrowu.c:drop_throw calls passive_obj when a thrown object hits an occupant at :189; the existing goblin-thrown-dagger recording covers this route."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-passive-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/passive-polymorph-spotted-jelly-quiet-b107.session.json",
+              "recordings/uhitm.c/passive-object-hero-melee-elf-glove-drain-survival-b88-final5.session.json",
+              "recordings/uhitm.c/passive-object-thrown-dagger-disenchanter-b88-corrected.session.json",
+              "recordings/mthrowu.c/goblin-throws-dagger-fresh.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [],
+            "checkedAt": "f2ef553a98c1f2d9101cfbd1f187863fa0dce3db"
+          },
+          {
+            "name": "polymon",
+            "implementation": "js/polyself.js",
+            "symbol": "polymon",
+            "sourceReview": "Read the complete C body at polyself.c:735-1071 and compared the existing JavaScript body branch by branch. The port preserves the genocided-form return, conduct and exercise order, human-stat save/restore, unmul and mimic cleanup, the pre-transform holder name, form/sex transition, Stoned-to-stone-golem result, timeout and hit-point resets, source-size and home-elemental health calculations, inventory/weapon changes, prior blindness and concealment state, egg learning, swallowing/holder/steed/trap escape order, and the C return value. Boolean dependencies can_ride and monnear are whole-source units in this delivery. Existing whole helpers are reused only where their bodies and evidence match. C-discarded unported void operations remain explicit note_unported gaps, including hideunder(hero), expels' message-only form, instapetrify, dismount_steed, float_up after trap release, buried_ball_to_freedom, retouch_equipment, and selftouch. This does not claim polyself, poly_steed or any outer caller complete.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "polyself",
+                "source": "polyself.c:polyself calls polymon at :694 and :716; the spotted-jelly recording executes the polymon transformation at segment 0 step 84."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "passive",
+                "source": "uhitm.c:passive consumes polymon's return in its AD_STON arm at :5951. The call is awaited and the result gates done_in_by."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "do_stone_u",
+                "source": "uhitm.c:do_stone_u consumes polymon(PM_STONE_GOLEM) at :3928 while deciding whether to begin the delayed stoning effect."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-passive-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/passive-polymorph-spotted-jelly-quiet-b107.session.json"
+            ],
+            "sourceFile": "polyself.c",
+            "synthetic": [],
+            "checkedAt": "f2ef553a98c1f2d9101cfbd1f187863fa0dce3db"
+          },
+          {
+            "name": "can_ride",
+            "implementation": "js/steed.js",
+            "symbol": "can_ride",
+            "sourceReview": "Read the complete C predicate at steed.c:169-174. It returns the conjunction of nonzero tameness, humanoid hero form, not very small, not big, and either not underwater or a swimming mount. It draws no randomness, writes no output, and changes no game state, so it is pure. The JS implementation was unchanged and matches the complete predicate. The separate steed.c:poly_steed caller remains a named outer gap in mon.js and is not claimed as wired by this task.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon tests can_ride(u.usteed) at :963 before its discarded dismount_steed call; this task wires the consumed predicate and retains the unported void dismount gap."
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "mount_steed",
+                "source": "steed.c:mount_steed tests can_ride after can_saddle at :322."
+              },
+              {
+                "path": "js/worn.js",
+                "symbol": "mon_break_armor_effects",
+                "source": "worn.c:mon_break_armor tests can_ride for the hero's steed at :1322."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/uhitm-passive-obj.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "steed.c",
+            "synthetic": [],
+            "checkedAt": "f2ef553a98c1f2d9101cfbd1f187863fa0dce3db"
+          },
+          {
+            "name": "monnear",
+            "implementation": "js/monmove.js",
+            "symbol": "monnear",
+            "sourceReview": "Read the complete C body at mon.c:2476-2484. It computes dist2(mon->mx, mon->my, x, y), rejects exactly squared distance 2 for NODIAG species, then returns distance < 3. No RNG, output or game-state mutation occurs, so it is pure. The JS body uses the same squared-Euclidean dist2 helper and Grid Bug exception; accepted whole dist2 evidence is reused, not re-claimed.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "passive",
+                "source": "uhitm.c:passive calls monnear for the AD_COLD and AD_FIRE follow-up effects at :6067 and :6090."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "distfleeck",
+                "source": "monmove.c:distfleeck calls monnear when the monster is within bolt range at :542."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug uses monnear to decide whether a waiting quest leader can talk at :721."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "steal",
+                "source": "steal.c:steal rejects the theft attempt when monnear is false at :356."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/uhitm-passive-obj.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mon.c",
+            "synthetic": [],
+            "checkedAt": "f2ef553a98c1f2d9101cfbd1f187863fa0dce3db"
+          }
+        ],
+        "entryPointReview": "The selected source units are helpers reached through existing combat and polymorph commands. Two independent recordings provide active runtime evidence: ordinary hero melee enters passive through hitum, and a polymorphed hero's quiet hmonas route executes polymon at segment 0 step 84 followed by passive and passive_obj at step 85. Pure can_ride and monnear are pinned by source-reading tests, and polymon source tests pin its full branch ordering and return. The C hitum_cleave call at uhitm.c:715 remains behind the existing JavaScript UnsupportedCleaver boundary, so B107 does not claim the outer Cleaver route or hitum_cleave completion. passive_obj's separate throw_obj and drop_throw callers remain pre-existing and are evidenced by the named B88 recordings; no outer caller is claimed.",
+        "entryPoints": [
+          {
+            "name": "ordinary hero hit through hitum",
+            "functions": [
+              "passive"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/passive-hero-blue-jelly-b107-west-corrected.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "polymorph followed by hmonas passive attack",
+            "functions": [
+              {
+                "sourceFile": "polyself.c",
+                "name": "polymon"
+              },
+              "passive",
+              "passive_obj"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/passive-polymorph-spotted-jelly-quiet-b107.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "energy-vortex-engulfs-and-drains-energy-c62-more",
+          "session": "synthetic/v19/energy-vortex-engulfs-and-drains-energy-c62-more",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+          "recordingPath": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+          "recordingSha256": "5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62",
+          "recipe": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.recipe.session.json",
+          "recipeSha256": "a12789cc7b7515d1e474e2839b04e744547dd21c27172c4e419616a3ba513ce2",
+          "replayInputSha256": "715d6a1cdd496eb353e34c83ce1241e5c9914696aca430aad9aa14528c8306bb",
+          "evaluationPath": "challenges/evaluations/20261005233406-v19.json",
+          "evaluationCommit": "f2ef553a98c1f2d9101cfbd1f187863fa0dce3db",
+          "evaluationArtifact": "challenges/evaluations/20261005233406-v19.json",
+          "evaluationUtc": "2026-10-05T23:35:03.747Z",
+          "remainingScreens": 2,
+          "recordedSteps": 44,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2713,
+              "total": 2731
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster engulfing the hero",
+            "step": 42
+          },
+          "step": 42,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster engulfing the hero",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v19/energy-vortex-engulfs-and-drains-energy-c62-more.json",
+            "previousRemainingScreens": 9
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "f2ef553a98c1f2d9101cfbd1f187863fa0dce3db",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
