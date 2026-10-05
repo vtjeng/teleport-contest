@@ -170469,6 +170469,347 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-timeout-slime-dialogue-v18-20261005",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port green-slime transformation dialogue and its pure condition helpers",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected"
+      ],
+      "selectionReason": "The current v18 mismatch reaches timeout.c slime_dialogue from nh_timeout while Slimed is active; port the complete dialogue and source-defined pure predicates used by its branches.",
+      "detail": "Implement timeout.c slime_dialogue in source order and wire its active nh_timeout caller. The admitted v18 case provides full runtime evidence through transformation; pure helpers are pinned to their C definitions. Keep makemon.c private pm_to_cham behavior outside this source scope.",
+      "openedAt": "1e3423556e1720f067b698daaa0fcd06fbdf6339",
+      "openStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "slime_dialogue",
+          "line": 389,
+          "endLine": 447,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 389,
+        "to": 447
+      },
+      "requiredFunctions": [
+        {
+          "name": "Popeye",
+          "line": 3920,
+          "endLine": 3960,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "can_reach_floor",
+          "line": 187,
+          "endLine": 217,
+          "declared": true,
+          "sourceFile": "engrave.c",
+          "complete": false
+        },
+        {
+          "name": "pm_to_cham",
+          "line": 535,
+          "endLine": 563,
+          "declared": true,
+          "sourceFile": "mon.c",
+          "complete": false
+        },
+        {
+          "name": "uteetering_at_seen_pit",
+          "line": 6648,
+          "endLine": 6659,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "uescaped_shaft",
+          "line": 6660,
+          "endLine": 6667,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected": {
+          "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+          "evaluationPath": "challenges/evaluations/20261005192202-v18.json",
+          "evaluationCommit": "c00138cce8789366f1ef76d14390861aa1b57068"
+        }
+      },
+      "activeStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+          "recipe": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.recipe.session.json",
+          "recipeSha256": "cd0a01a0fc27e10f7331da0cbb981fa15345d51eb1d04075a00b2fba0d86e8ba",
+          "replayInputSha256": "ce6d01a8a7b5219b68138080de9808d0f871057b700ee621770332f490baa973",
+          "evaluationPath": "challenges/evaluations/20261005192202-v18.json",
+          "evaluationCommit": "c00138cce8789366f1ef76d14390861aa1b57068",
+          "evaluationArtifact": "challenges/evaluations/20261005192202-v18.json",
+          "evaluationUtc": "2026-10-05T19:22:55.010Z",
+          "remainingScreens": 39,
+          "recordedSteps": 107,
+          "previousScreensMatched": 68,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 68,
+              "total": 107
+            },
+            "rng": {
+              "matched": 2540,
+              "total": 2630
+            },
+            "cursors": {
+              "matched": 76,
+              "total": 107
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 64,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 64,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 37,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2531,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(100)=58",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "."
+              },
+              "stepIndex": 62
+            },
+            "cursor": {
+              "index": 76,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": "."
+              },
+              "cCursor": [
+                43,
+                0,
+                1
+              ],
+              "jsCursor": [
+                16,
+                8,
+                1
+              ]
+            }
+          },
+          "step": 62,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.json",
+            "result": {
+              "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+              "remainingScreens": 39,
+              "recordedSteps": 107,
+              "status": "complete",
+              "commit": "c00138cce8789366f1ef76d14390861aa1b57068",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+                "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+                "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+                "recipe": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.recipe.session.json",
+                "recipeSha256": "cd0a01a0fc27e10f7331da0cbb981fa15345d51eb1d04075a00b2fba0d86e8ba",
+                "replayInputSha256": "ce6d01a8a7b5219b68138080de9808d0f871057b700ee621770332f490baa973",
+                "evaluationPath": "challenges/evaluations/20261005192202-v18.json",
+                "evaluationCommit": "c00138cce8789366f1ef76d14390861aa1b57068",
+                "evaluationArtifact": "challenges/evaluations/20261005192202-v18.json",
+                "evaluationUtc": "2026-10-05T19:22:55.010Z",
+                "remainingScreens": 39,
+                "recordedSteps": 107,
+                "previousScreensMatched": 68,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 68,
+                    "total": 107
+                  },
+                  "rng": {
+                    "matched": 2540,
+                    "total": 2630
+                  },
+                  "cursors": {
+                    "matched": 76,
+                    "total": 107
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 64,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 64,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 37,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2531,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(100)=58",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 62,
+                      "key": "."
+                    },
+                    "stepIndex": 62
+                  },
+                  "cursor": {
+                    "index": 76,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      43,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      16,
+                      8,
+                      1
+                    ]
+                  }
+                },
+                "step": 62,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The RNG annotation points to attrib.c:exercise, but the missing caller is timeout.c:slime_dialogue. After the green-slime attack establishes the Slimed timeout, js/timeout.js:nh_timeout records a gap instead of running the source countdown. Port the complete dialogue and its consumed pure predicate closure; the function's unconditional exercise(A_DEX,FALSE) explains the first RNG mismatch and its countdown messages explain the later screen mismatch.",
+              "source": {
+                "file": "timeout.c",
+                "functions": [
+                  "slime_dialogue"
+                ],
+                "branch": "Whole-function scope at timeout.c:389-443. Read Slimed & TIMEOUT, update the final-tick disguise, emit odd-tick countdown text with the source blindness and body-form gates, apply the i==3, i==2 and i==1 state transitions, then call exercise(A_DEX,FALSE) unconditionally. The selected path enters from nh_timeout with Slimed active.",
+                "callers": [
+                  "Direct source caller: timeout.c:nh_timeout:625-626 calls slime_dialogue when Slimed is nonzero. Current js/timeout.js:nh_timeout records note_unported('timeout.c slime_dialogue') at that branch.",
+                  "Runtime entry: allmain.c:moveloop_core calls nh_timeout once per elapsed turn; js/allmain.js:finishElapsedTurn calls js/timeout.js:nh_timeout in the corresponding turn tail."
+                ],
+                "dependencies": [
+                  "attrib.c:exercise is a void state/RNG dependency called unconditionally after the dialogue switch; the JavaScript implementation already exists and must be called in the same position.",
+                  "eat.c:Popeye returns the Boolean consumed by the i==3 occupation branch; its SLIMED path uses include/obj.h:polyfood, mon.c:pm_to_cham, and engrave.c:can_reach_floor for accessible floor tins.",
+                  "engrave.c:can_reach_floor consumes trap.c:uteetering_at_seen_pit and trap.c:uescaped_shaft; these pure Boolean results determine whether a floor tin can prevent occupation interruption.",
+                  "include/youprop.h:Blind includes intrinsic and extrinsic blindness unless blocked; the i==4 message gate must use the canonical effective-blindness predicate."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20261005192202-v18.json records 68/107 screens, 2540/2630 RNG calls, and 76/107 cursors matched. Its first RNG mismatch is C exercise(attrib.c:509) rn2(2) at step 62 while JavaScript has advanced without the timeout dialogue's exercise call; the first screen mismatch is a missing countdown glyph at step 64.",
+                "Upstream timeout.c:slime_dialogue spans lines 389-443 and ends with unconditional exercise(A_DEX,FALSE). timeout.c:nh_timeout calls it at lines 625-626 whenever Slimed is active; current js/timeout.js has a source-named gap in that branch.",
+                "The same admitted case reaches the active Slimed timeout after uhitm.c:mhitm_ad_slim. Source review of the full dialogue identifies eat.c:Popeye as its consumed return-value dependency and the pure can_reach_floor, pm_to_cham, uteetering_at_seen_pit, and uescaped_shaft closure needed by that predicate."
+              ],
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+              "evaluationPath": "challenges/evaluations/20261005192202-v18.json",
+              "evaluationCommit": "c00138cce8789366f1ef76d14390861aa1b57068"
+            }
+          }
+        }
+      ]
     }
   ]
 }
