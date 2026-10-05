@@ -7003,7 +7003,7 @@ export async function shieldeff_mon(mtmp, rawEnv = {}) {
 // display.c flash_glyph_at() resolves the alternating frames and waits after
 // each flush. Its mon_to_glyph() argument is evaluated before the animation,
 // because it can consume display-RNG draws under hallucination.
-export async function flash_mon(mtmp, state = game) {
+export async function flash_mon(mtmp, state = game, env = {}) {
     const mx = mtmp.mx;
     const my = mtmp.my;
     let count = couldsee(mx, my, state) ? 8 : 4;
@@ -7011,7 +7011,7 @@ export async function flash_mon(mtmp, state = game) {
 
     if (!state.flags?.sparkle) count = Math.trunc(count / 2);
     state.viz_array[my][mx] |= IN_SIGHT | COULD_SEE;
-    const glyph = mon_to_glyph(mtmp, state);
+    const glyph = mon_to_glyph(mtmp, state, env.displayRandom);
     await flash_glyph_at(mx, my, glyph, count, state);
     state.viz_array[my][mx] = saveviz;
     // newsym() is a live-game display owner. A planning clone still restores
