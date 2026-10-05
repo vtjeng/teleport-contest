@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7711052,
+      "datetime": "20310415091000",
+      "nethackrc": "OPTIONS=name:SamuRoute,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n",
+      "moves": "\u0007hostile Wizard of Yendor\nym.m.m.m."
+    }
+  ],
+  "comment": "Blocked setup miss preserved from the original recording: after the Wizard potion message opens --More--, the supplied m. keys are ignored by curses_block() (win/curses/cursmesg.c), which accepts only space, Return, newline, or Escape. The original recipe, C bytes, and receipt are archived as .cache/B105-setup-miss-potion-more-ignored-keys.*."
+}

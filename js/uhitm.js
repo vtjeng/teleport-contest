@@ -5756,6 +5756,28 @@ export async function mhitm_ad_pest(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_samu() (4570-4589). The theft operation is void
+// and its result is discarded by C, so retain that source-named gap only
+// after the helper's 1-in-20 gate succeeds.
+export async function mhitm_ad_samu(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    if (magr === state.youmonst) {
+        mhm.damage = 0;
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        const random = env.random ?? { rn2 };
+        if (!random.rn2(20)) note_unported('steal.c stealamulet');
+    } else {
+        mhm.damage = 0;
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_deth() (3837-3893). Death's touch has a separate
 // hero-defender outcome; against another monster it reuses the original hit
 // through mhitm_ad_drli(). Snapshot the target form before the first awaited
@@ -6035,7 +6057,9 @@ export async function mhitm_adtyping(
         break;
     case AD_POLY: unported('mhitm_ad_poly'); break;
     case AD_DISE: unported('mhitm_ad_dise'); break;
-    case AD_SAMU: unported('mhitm_ad_samu'); break;
+    case AD_SAMU:
+        await mhitm_ad_samu(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_DETH:
         await mhitm_ad_deth(magr, mattk, mdef, mhm, state, env);
         break;

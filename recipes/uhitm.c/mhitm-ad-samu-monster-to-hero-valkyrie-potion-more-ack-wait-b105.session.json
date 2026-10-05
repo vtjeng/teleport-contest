@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7711052,
+      "datetime": "20310415091000",
+      "nethackrc": "OPTIONS=name:SamuRoute,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n",
+      "moves": "\u0007hostile Wizard of Yendor\nym.m. m."
+    }
+  ],
+  "comment": "Blocked pre-gate route preserved with its recording in .cache/B105-js-early-more-resume-blocker.*. C step 34 reaches generic mattacku()/hitmu() and stops on a second --More--; the recorded boundary has no rn2(20) from mhitm_ad_samu(), so this is not AD_SAMU runtime evidence. The exact replay first diverges at the earlier space response: C resumes its pending potion turn (grow_up and turn-end calls) while JS has no matching boundary."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7711052,
+      "datetime": "20310415091000",
+      "nethackrc": "OPTIONS=name:SamuRoute,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n",
+      "moves": "\u0007hostile Wizard of Yendor\nym.m."
+    }
+  ],
+  "comment": "Preserved C setup continuation, still before AD_SAMU. read.c creates an awake hostile Wizard; the first m.-forced rest gives it movement because allmain.c runs movemon() before replenishing movement. Its first action in the next forced turn uses a brown potion: C step 31 records tactics(wizard.c:413), distfleeck(monmove.c:538), and a More page, with no mattacku()/hitmu() call. The exact input and recording bytes are archived under .cache/B105-setup-miss-first-wizard-action.*."
+}
