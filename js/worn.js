@@ -471,11 +471,20 @@ export function which_armor(monster, mask, state = game) {
 // C ref: worn.c mon_set_minvis() (474-488). The monster's permanent
 // invisibility is copied to its current visibility unless invisibility is
 // blocked, then the occupied square is redrawn.
-export function mon_set_minvis(monster, cursedPotion, state = game) {
+export function mon_set_minvis(monster, cursedPotion, state = game, rawEnv = {}) {
     monster.perminvis = cursedPotion ? 0 : 1;
     if (!monster.invis_blkd) {
         monster.minvis = monster.perminvis;
-        newsym(monster.mx, monster.my, state);
+        if (state === game) {
+            newsym(monster.mx, monster.my);
+        } else {
+            const noteUnported = rawEnv.noteUnported ?? note_unported;
+            noteUnported('display.c newsym');
+        }
+        if (monster.wormno) {
+            const noteUnported = rawEnv.noteUnported ?? note_unported;
+            noteUnported('worm.c see_wsegs');
+        }
     }
 }
 

@@ -14,6 +14,7 @@ import {
     DISPLACED,
     FIRE_RES,
     FLYING,
+    GPCOORDS_MAP,
     HALF_PHDAM,
     INVIS,
     M_ATTK_HIT,
@@ -1448,7 +1449,7 @@ test('mattacku returns without attacking an invulnerable hero', async () => {
     assert.equal(state.multi, -3);
 });
 
-test('mattacku attempts were summoning before an unported hug arm', async () => {
+test('mattacku reaches hitmu after failed_grab permits a solid hero', async () => {
     const state = await meleeHero();
     // mhitu.c:mattacku() reaches summonmu() for this adjacent wererat. The
     // source draw answers 1 for rn2(30) and rn2(10), so this pins both gates
@@ -1460,16 +1461,15 @@ test('mattacku attempts were summoning before an unported hug arm', async () => 
     assert.ok(wereAttempt.bounds.includes('rn2(30)'));
     assert.ok(wereAttempt.bounds.includes('rn2(10)'));
 
-    // mhitu.c:826-830, AT_HUGS. An owlbear next to the hero reaches the arm
-    // through u.ustuck even when its earlier attacks all missed.
-    // Levelled down to zero so that its two AT_CLAW attacks miss on a roll
-    // of twenty and the loop reaches index two.
+    // mhitu.c:826-830, AT_HUGS. A held owlbear reaches the arm even when its
+    // two claw slots miss; failed_grab returns FALSE for the solid human hero,
+    // so C proceeds into hitmu and mhitm_ad_phys's physical HUGS branch.
     const owlbear = meleeAttacker(state, PM_OWLBEAR, -1, 0, { m_lev: 0 });
     state.u.ustuck = owlbear;
-    await assert.rejects(
-        () => mattacku(owlbear, meleeEnv(state, [20, 20]).env),
-        (error) => error.reason === 'a monster crushing the hero',
-    );
+    const hugsAttempt = meleeEnv(state, [20, 20]);
+    await mattacku(owlbear, hugsAttempt.env);
+    assert.ok(hugsAttempt.lines.includes('You are being crushed.'));
+    assert.equal(state.u.ustuck, owlbear);
     state.u.ustuck = null;
 });
 
@@ -2918,7 +2918,7 @@ test('hitmu reveals a hidden attacker and continues its blow',
 
     // A giant eel qualifies through the S_EEL half alone -- it carries no
     // M1_CONCEAL. With no object, C still clears hidden state and repaints,
-    // but emits no discovery sentence before the AD_WRAP gap.
+    // but emits no discovery sentence before the eel reaches its second-slot AD_WRAP attack.
     const eel = meleeAttacker(state, PM_GIANT_EEL, -1, 0,
         { m_lev: 0, mundetected: 1 });
     state.level.objects[eel.mx][eel.my] = null;
@@ -2927,12 +2927,11 @@ test('hitmu reveals a hidden attacker and continues its blow',
         canSpotMonster: () => false,
         redraw: (x, y) => eelPainted.push([x, y]),
     });
-    await assert.rejects(
-        () => mattacku(eel, eelReveal.env),
-        (error) => error.reason === 'uhitm.c mhitm_ad_wrap()',
-    );
+    const eelResult = await mattacku(eel, eelReveal.env);
+    assert.equal(typeof eelResult, 'boolean');
     assert.equal(eel.mundetected, 0);
-    assert.deepEqual(eelReveal.lines, ['It bites!']);
+    assert.ok(eelReveal.lines.includes('It bites!'));
+    assert.ok(eelReveal.bounds.includes('rn2(10)'));
     assert.deepEqual(eelPainted, [[eel.mx, eel.my]]);
 });
 
@@ -3384,37 +3383,71 @@ test('mhitm_ad_phys keeps remaining special and fatal weapon hits fail-closed',
     }), undefined);
 });
 
-test('mhitm_ad_phys stops on the one arm no ported path reaches',
+test('mhitm_ad_phys applies the monster HUGS arm to a solid hero',
     async () => {
-    // uhitm.c:4023, `mattk->aatyp == AT_HUGS && !sticks(pd)`, is the one
-    // remaining refusal. The hero's own physical arm at :3988 is now reached
-    // by dokick.c's damageum() path. The mhitm arm at :4128 is no longer one
-    // of them:
-    // mhitm.c mdamagem() reaches it on every landed monster-versus-monster
-    // blow, and the rows at the end of this test cover it.
+    // uhitm.c:4021-4037. For a solid human hero, the source HUGS branch
+    // succeeds on rn2(2), calls u_slip_free, then grabs and sets u.ustuck when
+    // the hero has no slippery worn armor.
     const state = await meleeHero();
     const python = meleeAttacker(state, PM_PYTHON, 1, 0);
+    state.a11y ??= {};
+    state.a11y.accessiblemsg = true;
+    state.iflags.getpos_coords = GPCOORDS_MAP;
     const hugs = python.data.mattk[2];
     assert.equal(hugs.aatyp, AT_HUGS);
-    // mondata.h sticks() is the second half of C's condition, and it reads the
-    // defender. No hero this port can build wraps, holds or hugs, so the
-    // condition rests on the aatyp alone.
     assert.equal(sticks(state.youmonst.data), false);
 
-    const refused = async (magr, mattk, mdef) => {
-        const { env } = physEnv(state);
-        return mhitm_ad_phys(magr, mattk, mdef, physMhm(1), state, env)
-            .then(() => null, (error) => error.reason);
-    };
+    const grab = physEnv(state);
+    const grabMhm = physMhm(1);
+    await mhitm_ad_phys(python, hugs, state.youmonst, grabMhm, state, {
+        ...grab.env,
+        random: { rn2: (bound) => {
+            assert.equal(bound, 2); // uhitm.c:4025 selects the grab arm.
+            return 1;
+        } },
+    });
+    assert.deepEqual(grab.lines, [
+        `<${python.mx},${python.my}>: The python grabs you!`,
+    ]);
+    assert.equal(state.u.ustuck, python);
+    assert.equal(grabMhm.hitflags, M_ATTK_MISS | M_ATTK_HIT);
+    state.u.ustuck = null;
 
-    assert.equal(await refused(python, hugs, state.youmonst),
-        'a monster grabbing the hero');
+    // mhitu.c:u_slip_free() selects uarmc before suit/shirt. A greased cloak
+    // protects on the admitted HUGS roll; rn2(2)=0 then removes its grease.
+    const greasyCloak = mksobj(CLOAK_OF_PROTECTION, false, false, { state });
+    greasyCloak.greased = true;
+    greasyCloak.owornmask = W_ARMC;
+    state.uarmc = greasyCloak;
+    const slippery = physEnv(state);
+    const slipperyMhm = physMhm(1);
+    const slipBounds = [];
+    await mhitm_ad_phys(python, hugs, state.youmonst, slipperyMhm, state, {
+        ...slippery.env,
+        random: { rn2: (bound) => {
+            slipBounds.push(bound);
+            return slipBounds.length === 1 ? 1 : 0;
+        } },
+    });
+    assert.deepEqual(slipBounds, [2, 2]);
+    assert.equal(slipperyMhm.damage, 0);
+    assert.equal(slipperyMhm.hitflags, M_ATTK_MISS);
+    assert.match(
+        slippery.lines[0],
+        new RegExp(`^<${python.mx},${python.my}>: The python slips off of your greased .+!$`, 'u'),
+    );
+    assert.equal(slippery.lines[1], 'The grease wears off.');
+    assert.match(MHITU_C,
+        /pline_mon\(mtmp, "%s %s your %s %s!",\s*Monnam\(mtmp\),/u);
+    assert.equal(greasyCloak.greased, false);
+    assert.equal(state.u.ustuck, null);
+    state.uarmc = null;
 
     // The second term decides the arm on its own. A defender that sticks
     // sends C past :4023 to the hand-to-hand arm, which lands the blow and
     // prints hitmsg()'s default verb at :221-222; a bare
-    // `mattk->aatyp == AT_HUGS` test would refuse there instead. No role can
-    // carry an AT_HUGS attack, so the form is fabricated from the hero's own,
+    // `mattk->aatyp == AT_HUGS` test would enter the wrong arm there. No role
+    // can carry an AT_HUGS attack, so the form is fabricated from the hero's own,
     // as the thick-hide and passiveum cases in this file do. mondata.h
     // sticks() answers on the attack list alone, so one slot is enough.
     const ordinary = state.youmonst.data;

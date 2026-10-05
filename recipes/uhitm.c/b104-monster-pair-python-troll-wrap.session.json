@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Bounded B104 M-to-M Conflict setup miss, preserved as a recipe only: C step 90 shows the hostile troll attacking the hero before any Python AT_HUGS/AD_WRAP-versus-monster event. The ring was worn before genesis, so the source first-round rule at mon.c:1306-1320 permits a newly entering monster to swing at the hero. The matching C capture is archived privately; it is not a B104 M-to-M witness.",
+  "segments": [
+    {
+      "seed": 6104109,
+      "datetime": "21110406171900",
+      "nethackrc": "OPTIONS=name:B104Pair,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nring of conflict\n i Po l#wizgenesis\nhostile python\n#wizgenesis\nhostile troll\n. . . . . . . . . ."
+    }
+  ]
+}

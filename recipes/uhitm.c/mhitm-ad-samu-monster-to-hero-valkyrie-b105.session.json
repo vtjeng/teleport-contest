@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7711052,
+      "datetime": "20310415091000",
+      "nethackrc": "OPTIONS=name:SamuRoute,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n",
+      "moves": "\u0007hostile Wizard of Yendor\ny."
+    }
+  ],
+  "comment": "Preserved first setup miss for an independent Wizard-of-Yendor AD_SAMU route. C('g') wizgenesis created the hostile Wizard adjacent to the hero, but the plain '.' wait was stopped before a monster turn: do.c:donull() called cmd_safety_prevention(), which saw the nearby monster and returned ECMD_OK. No attack or mhitm_ad_samu gate was reached. The exact original recipe bytes and C output are archived under .cache/B105-setup-miss-safe-wait.*."
+}

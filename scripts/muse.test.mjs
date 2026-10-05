@@ -4,12 +4,14 @@ import test from 'node:test';
 import {
     BLINDED,
     DEAF,
+    HALLUC,
     HOLE,
     MFAST,
     OBJ_FLOOR,
     OBJ_MINVENT,
     POLY_TRAP,
     TELEP_TRAP,
+    TELEPAT,
     REFLECTING,
     W_ARMG,
     W_ARMS,
@@ -29,6 +31,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { cloneIsaacContext, createCoreRandom } from '../js/rng.js';
 import {
     cures_stoning,
     find_offensive,
@@ -40,6 +43,7 @@ import {
     use_offensive,
     use_defensive,
     use_misc,
+    munslime,
     mcould_eat_tin,
     searches_for_item,
     select_fresh_monster_item_action,
@@ -47,10 +51,13 @@ import {
     ureflects,
 } from '../js/muse.js';
 import { can_blow } from '../js/mondata.js';
+import { canseemon, sensemon } from '../js/display.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
-import { UnsupportedSimpleMonsterActionError }
-    from '../js/unported_monster_actions.js';
+import {
+    planningState,
+    UnsupportedSimpleMonsterActionError,
+} from '../js/unported_monster_actions.js';
 import {
     M1_ANIMAL,
     M1_BREATHLESS,
@@ -999,6 +1006,86 @@ function carried(state, otyp, overrides = {}) {
     return obj;
 }
 
+// Place a source-shaped monster inventory item so planningState() can clone
+// its owning monster and remap the obj.v/ocarry union field.
+function planningUnslimeMonster(state, pmidx, otyp = null, overrides = {}) {
+    const item = otyp === null
+        ? null : carried(state, otyp, { dknown: true });
+    if (item) item.where = OBJ_MINVENT;
+    const offsets = [
+        [1, 0], [-1, 0], [0, -1], [0, 1],
+        [1, -1], [1, 1], [-1, -1], [-1, 1],
+    ];
+    const [mx, my] = offsets
+        .map(([dx, dy]) => [state.u.ux + dx, state.u.uy + dy])
+        .find(([x, y]) => x > 0 && x < COLNO - 1
+            && y > 0 && y < ROWNO - 1
+            && !state.level.monsters[x][y]);
+    assert.ok(Number.isInteger(mx) && Number.isInteger(my),
+        'the initialized starting room has a free adjacent monster square');
+    const monster = offensiveMonster(state, pmidx, item, {
+        mx,
+        my,
+        mhp: 20,
+        mhpmax: 20,
+        movement: 12,
+        mcanmove: true,
+        mcansee: true,
+        ...overrides,
+    });
+    if (item) {
+        item.v = monster;
+        item.ocarry = monster;
+    }
+    monster.nmon = state.level.monlist ?? null;
+    state.level.monlist = monster;
+    place_monster(monster, monster.mx, monster.my, state);
+    return { monster, item };
+}
+
+function cloneUnslineEnv(liveState, planned, displayDraws, coreDraws,
+    messages) {
+    const coreContext = cloneIsaacContext(liveState.coreCtx);
+    const core = createCoreRandom(
+        coreContext,
+        planned,
+    );
+    const display = createCoreRandom(planned.displayCtx, planned);
+    return {
+        coreContext,
+        env: {
+            planning: true,
+            state: planned,
+            random: Object.fromEntries(Object.entries(core).map(
+                ([name, draw]) => [name, (...args) => {
+                    coreDraws.push([name, ...args]);
+                    return draw(...args);
+                }],
+            )),
+            displayRandom: (bound) => {
+                displayDraws.push(bound);
+                return display.rn2(bound);
+            },
+            message: async (text) => { messages.push(text); },
+            redraw: () => {},
+            hooks: { updateInventory: () => {} },
+        },
+    };
+}
+
+function liveDisplaySnapshot(state) {
+    return {
+        screen: state.nhDisplay.serialize(),
+        topMessage: state.nhDisplay.topMessage,
+        toplines: state.nhDisplay.toplines,
+        pendingMessage: state._pending_message,
+        waitEpoch: state.nhDisplay.waitEpoch,
+        inputQueueLength: state.nhDisplay.inputQueueLength,
+        coreCtx: cloneIsaacContext(state.coreCtx),
+        displayCtx: cloneIsaacContext(state.displayCtx),
+    };
+}
+
 test('find_offensive declines above the loop for each guard C names',
     async () => {
     const state = await offensiveHero();
@@ -1630,4 +1717,187 @@ test('mon_likes_objpile_at checks the top 3 items and pile size', async () => {
     assert.equal(mon_likes_objpile_at(mtmp, x, y, { state }), true,
         '4+ stacks always returns true');
     for (const obj of objs) remove_object(obj, state);
+});
+
+test('munslime planning isolates hallucinated names and skips live docall input',
+    async () => {
+    const state = await offensiveHero();
+    // Hallucination makes monster names and the missing-color hcolor arm use
+    // display RNG; the confused, dknown unknown fire scroll reaches docall.
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    state.objects[SCR_FIRE].oc_name_known = 0;
+    state.objects[SCR_FIRE].oc_uname = null;
+    const { monster, item } = planningUnslimeMonster(
+        state,
+        PM_HUMAN,
+        SCR_FIRE,
+        { mconf: 1 },
+    );
+    const before = liveDisplaySnapshot(state);
+    const planned = planningState(state);
+    const plannedMonster = planned.level.monsters[monster.mx][monster.my];
+    const cloneDisplayBefore = cloneIsaacContext(planned.displayCtx);
+    const displayDraws = [];
+    const coreDraws = [];
+    const messages = [];
+    const { env } = cloneUnslineEnv(
+        state,
+        planned,
+        displayDraws,
+        coreDraws,
+        messages,
+    );
+
+    assert.equal(await munslime(plannedMonster, false, planned, env), false,
+        'the confused scroll branch consumes the item but does not cure slime');
+    assert.equal(plannedMonster.minvent, null,
+        'the planned m_useup consumes the cloned scroll');
+    assert.equal(monster.minvent, item,
+        'the live monster keeps its source inventory item');
+    assert.deepEqual(item.where, OBJ_MINVENT,
+        'the live object remains in the monster inventory');
+    assert.ok(game.unported.has('do_name.c docall'),
+        'the discarded planning input branch is recorded by its C owner');
+    assert.ok(messages.some((text) => text.includes('mispronounces')),
+        'the clone reaches muse.c mreadmsg() confused-scroll feedback');
+    assert.ok(displayDraws.length > 0,
+        'hallucinated monster naming advances the clone display stream');
+    assert.notDeepEqual(planned.displayCtx, cloneDisplayBefore,
+        'only the planned display context advances for the names');
+    assert.deepEqual(liveDisplaySnapshot(state), before,
+        'planning neither paints the live screen nor consumes its RNG/input');
+});
+
+test('mreadmsg planning flashes a sensed invisible monster on cloned RNG',
+    async () => {
+    const state = await offensiveHero();
+    // A hallucinating telepath sees an invisible human only through
+    // telepathy, which is the C tp_sensemon() route to flash_mon().
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    state.u.uprops[TELEPAT] = { intrinsic: 0, extrinsic: 1 };
+    state.flags.acoustics = true;
+    // An adjacent square has squared distance 1; this clone range reaches it.
+    state.u.unblind_telepat_range = 2;
+    state.objects[SCR_FIRE].oc_name_known = 0;
+    state.objects[SCR_FIRE].oc_uname = null;
+    const { monster, item } = planningUnslimeMonster(
+        state,
+        PM_HUMAN,
+        SCR_FIRE,
+        { mconf: 1, minvis: true },
+    );
+    assert.equal(canseemon(monster, state), false,
+        'invisibility keeps the monster out of ordinary vision');
+    assert.equal(sensemon(monster, state), true,
+        'extrinsic telepathy senses this non-mindless human');
+
+    const before = liveDisplaySnapshot(state);
+    const planned = planningState(state);
+    const plannedMonster = planned.level.monsters[monster.mx][monster.my];
+    const cloneDisplayBefore = cloneIsaacContext(planned.displayCtx);
+    const displayDraws = [];
+    const coreDraws = [];
+    const messages = [];
+    const { env, coreContext } = cloneUnslineEnv(
+        state,
+        planned,
+        displayDraws,
+        coreDraws,
+        messages,
+    );
+    const cloneCoreBefore = cloneIsaacContext(coreContext);
+
+    await munslime(plannedMonster, false, planned, env);
+    assert.ok(messages.some((text) => text.includes('attempting to incant')),
+        'the source heard-reading branch runs without a visible monster');
+    assert.ok(messages.some((text) => text.includes('Being confused')),
+        'the hallucinatory subject pronoun branch runs');
+    assert.ok(coreDraws.some(([name, bound]) => name === 'rn2' && bound === 4),
+        'mondata.c pronoun_gender() consumes its Hallucination draw');
+    assert.ok(displayDraws.length > 0,
+        'mreadmsg() flashes the sensed monster using the cloned display stream');
+    assert.notDeepEqual(planned.displayCtx, cloneDisplayBefore,
+        'flash_mon/monster naming advances only the planned display context');
+    assert.notDeepEqual(coreContext, cloneCoreBefore,
+        'the hallucinated pronoun advances only the injected core context');
+    assert.equal(monster.minvent, item,
+        'the live monster retains the scroll consumed by its clone');
+    assert.deepEqual(liveDisplaySnapshot(state), before,
+        'the sensed-monster flash does not change live screen, RNG or input');
+});
+
+test('munslime planning routes a fire wand through clone RNG and output',
+    async () => {
+    const state = await offensiveHero();
+    // A human with one charged fire wand takes the source WAN_FIRE cure path;
+    // it is not slimeproof, so munslime reaches mzapwand() and zhitm().
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    const { monster } = planningUnslimeMonster(
+        state,
+        PM_HUMAN,
+        WAN_FIRE,
+        { mcan: false, mspec_used: 0 },
+    );
+    monster.minvent.spe = 1;
+    const before = liveDisplaySnapshot(state);
+    const planned = planningState(state);
+    const plannedMonster = planned.level.monsters[monster.mx][monster.my];
+    const displayDraws = [];
+    const coreDraws = [];
+    const messages = [];
+    const { env } = cloneUnslineEnv(
+        state,
+        planned,
+        displayDraws,
+        coreDraws,
+        messages,
+    );
+
+    assert.equal(await munslime(plannedMonster, false, planned, env), true,
+        'the source fire-wand path reports a successful cure attempt');
+    assert.ok(messages.length > 0,
+        'the fire-wand path routes monster output through the supplied callback');
+    assert.ok(displayDraws.length > 0,
+        'hcolor() and hallucinated names use the cloned display RNG');
+    assert.ok(coreDraws.length > 0,
+        'fire-wand targeting and effects use the cloned core RNG');
+    assert.deepEqual(liveDisplaySnapshot(state), before,
+        'fire-wand preflight leaves live output, input and both RNG streams intact');
+});
+
+test('live confused fire-scroll unslime still reaches the naming prompt',
+    async () => {
+    const state = await offensiveHero();
+    // The live control keeps C's do_name.c docall() behavior: Escape cancels
+    // the actual Call prompt after the preceding source messages are cleared.
+    state.objects[SCR_FIRE].oc_name_known = 0;
+    state.objects[SCR_FIRE].oc_uname = null;
+    const { monster } = planningUnslimeMonster(
+        state,
+        PM_HUMAN,
+        SCR_FIRE,
+        { mconf: 1 },
+    );
+    const display = state.nhDisplay;
+    const oldOnEmptyQueue = display.onEmptyQueue;
+    let prompted = false;
+    let reads = 0;
+    display.onEmptyQueue = () => {
+        ++reads;
+        if (state._ttyPreviousMessage?.startsWith('Call ')) {
+            prompted = true;
+            return 27; // Escape cancels the user's object-name response.
+        }
+        if (reads > 20)
+            throw new Error('live docall did not reach its source prompt');
+        return 32; // Space acknowledges any source message More prompt.
+    };
+    try {
+        assert.equal(await munslime(monster, false, state), false,
+            'the confused fire scroll is used but cannot cure sliming');
+    } finally {
+        display.onEmptyQueue = oldOnEmptyQueue;
+    }
+    assert.equal(prompted, true,
+        'the live confused-scroll branch still calls trycall()/docall()');
 });

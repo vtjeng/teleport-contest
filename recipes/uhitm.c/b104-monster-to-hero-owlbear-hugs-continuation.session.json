@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-matching B104 physical HUGS continuation. The owlbear lands both preceding claws and reaches the AD_PHYS HUGS arm at C step 32, but rn2(2)=0 at uhitm.c:4024 bypasses u_slip_free; the hero dies and the later More input only acknowledges death. The strict pair covers the attack arm and failed gate, not slippery-equipment protection.",
+  "segments": [
+    {
+      "seed": 6104106,
+      "datetime": "21110406171800",
+      "nethackrc": "OPTIONS=name:B104Owlbear,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n#wizgenesis\nhostile owlbear\n. . ."
+    }
+  ]
+}

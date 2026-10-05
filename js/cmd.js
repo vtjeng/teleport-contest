@@ -142,7 +142,8 @@ import {
     UnsupportedLevelChangeError,
 } from './do.js';
 import {
-    doremring, doputon, dotakeoff, dowear, remarm_swapwep, reset_remarm,
+    doremring, doputon, dotakeoff, dowear, ia_dotakeoff, remarm_swapwep,
+    reset_remarm,
     UnsupportedAccessoryOnError,
     UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
@@ -5527,6 +5528,19 @@ export async function rhack(key, state = game) {
         if (queuedExtcmdEntry?.ef_funct === 'dotip') {
             const res = await failClosedCommand(
                 key, state, () => dotip(state),
+            );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        // C ref: iactions.c:231 queues ia_dotakeoff() for IA_TAKEOFF_OBJ;
+        // rhack() invokes the queued function pointer before consuming the
+        // following canned inventory letter inside getobj().
+        if (queuedExtcmdEntry?.ef_funct === 'ia_dotakeoff') {
+            const res = await failClosedCommand(
+                key, state, () => ia_dotakeoff(state),
             );
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)

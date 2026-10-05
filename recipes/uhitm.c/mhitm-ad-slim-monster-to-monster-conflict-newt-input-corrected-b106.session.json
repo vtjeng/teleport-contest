@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Input-corrected B106 M-to-M route. The leading space dismisses the opening --More--; eleven following spaces acknowledge the level-up pages from level 1 to 12. The trace reaches uhitm.c:mhitm_ad_slim at normalized step 109, where the green slime's attack on the newt passes the negation check and misses the 1-in-4 conversion gate (rn2(10)=6, rn2(4)=3). The strict replay matches through boundary 111, then stops in the next planning turn because JS uhitm.c:passive_obj has no AD_SLIM default no-op; C passive_obj's switch default simply breaks. This is a blocked continuation, not a passing recording, and earns no full M-to-M runtime credit.",
+  "segments": [
+    {
+      "seed": 884210,
+      "datetime": "20320410094512",
+      "nethackrc": "OPTIONS=name:SlimePairWitness,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n12\n           #wizintrinsic\n>>h\n \n#wizgenesis\nhostile green slime\n #wizgenesis\nhostile newt\n. . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

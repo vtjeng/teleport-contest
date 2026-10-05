@@ -39,7 +39,15 @@ import {
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { sgn } from './hacklib.js';
-import { shieldeff } from './display.js';
+import { Monnam } from './do_name.js';
+import {
+    canspotmon,
+    canseemon,
+    map_invisible,
+    map_invisible_planning,
+    shieldeff,
+} from './display.js';
+import { messageAt } from './startup_a11y.js';
 import { healmon } from './mon.js';
 import { make_confused } from './potion.js';
 import {
@@ -59,9 +67,9 @@ import { body_part } from './polyself.js';
 import { lined_up } from './mthrowu.js';
 import { rn2, rnd, d } from './rng.js';
 
-import { couldsee } from './vision.js';
+import { cansee, couldsee } from './vision.js';
 import { aggravate, has_aggravatables, nasty } from './wizard.js';
-import { mon_adjust_speed } from './worn.js';
+import { mon_adjust_speed, mon_set_minvis } from './worn.js';
 import { burn_away_slime } from './timeout.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { ignite_items } from './apply_catch_lit.js';
@@ -71,7 +79,6 @@ import { note_unported } from './unported.js';
 import { buzz, flash_str, flashburn } from './zap.js';
 import { verbalize as plineVerbalize } from './pline.js';
 import { ttyPline } from './tty_message.js';
-import { canseemon, canspotmon } from './display.js';
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
 // These must match the C enum values (0-based, order from mcastu.h).
@@ -790,7 +797,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         recordMcastGap('mcastu.c mcast_weaken_you', env);
         break;
     case MCAST_DISAPPEAR:
-        recordMcastGap('mcastu.c mcast_disappear', env);
+        await mcast_disappear(mtmp, env);
         break;
     case MCAST_STUN_YOU:
         recordMcastGap('mcastu.c mcast_stun_you', env);
@@ -838,6 +845,44 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
             throw new TypeError('mcast_spell requires the mdamageu operation');
         }
         await mdamageu(mtmp, resultDmg);
+    }
+}
+
+// C ref: mcastu.c:mcast_disappear() (490-501). The caller has already
+// excluded monsters that are invisible or have invisibility blocked; retain
+// the impossible() guard for a direct invalid call.
+async function mcast_disappear(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (mtmp.minvis || mtmp.invis_blkd) {
+        recordMcastGap('pline.c impossible', rawEnv);
+        return;
+    }
+
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    if (canseemon(mtmp, state)) {
+        // C pline_mon() formats the source name with Monnam() and adds map
+        // coordinates when accessiblemsg is enabled.
+        const monsterName = rawEnv.monsterName?.(mtmp)
+            ?? Monnam(mtmp, state, rawEnv);
+        const verb = heroProperty(state, SEE_INVIS)
+            ? 'becomes transparent' : 'disappears';
+        await message(
+            messageAt(
+                `${monsterName} suddenly ${verb}!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ),
+            state,
+        );
+    }
+
+    mon_set_minvis(mtmp, false, state, rawEnv);
+
+    if (cansee(mtmp.mx, mtmp.my, state) && !canspotmon(mtmp, state)) {
+        if (state === game) map_invisible(mtmp.mx, mtmp.my, state);
+        else map_invisible_planning(mtmp.mx, mtmp.my, state);
     }
 }
 

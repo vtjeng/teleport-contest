@@ -41,9 +41,15 @@ import {
     mon_nam,
     mon_nam_too,
     monsterPossessive,
+    some_mon_nam,
 } from './do_name.js';
 import { game } from './gstate.js';
-import { dist2, distmin, s_suffix } from './hacklib.js';
+import {
+    dist2,
+    distmin,
+    s_suffix,
+    truncateByteString,
+} from './hacklib.js';
 import { grow_up } from './makemon.js';
 import { could_seduce, getmattk, mtrapped_in_pit } from './mhitu.js';
 import {
@@ -612,18 +618,14 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
 // `default` arm, which is where an empty AT_NONE slot lands and where C
 // clears `attk` so passivemm() is skipped.
 //
-// Six arms refuse, each at the `case` label so the stop sits where C's branch
-// begins:
+// The remaining unsupported arms stop at the `case` label so the boundary
+// sits where C's unported branch begins:
 //
 //   AT_WEAP  the adjacent empty-handed arm ports mon_wield_item()'s zero-result
 //            path and possibly_unwield()'s null-MON_WEP return before falling
 //            through to the physical group below it. The distant half still
 //            needs mthrowu.c thrwmm(), and a selected/current weapon still
 //            needs mswingsm() and hitval().
-//   AT_HUGS  both of the functions this arm calls, failed_grab() and hitmm(),
-//            are in this file. It stops because no species this port places
-//            as a pet carries the attack, so porting the arm would add code
-//            no game runs.
 //   AT_GAZE  gazemm().
 //   AT_EXPL  explmm().
 //   AT_ENGL  gulpmm().
@@ -773,7 +775,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
                    checks it too, but is cheap and avoids calling failed_grab
                    for ordinary targets */
                 if (unsolid(mdef.data)
-                    && failed_grab(magr, mdef, mattk, env)) {
+                    && await failed_grab(magr, mdef, mattk, env)) {
                     strike = 0;
                     break;
                 }
@@ -788,7 +790,17 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
             break;
 
         case AT_HUGS: /* automatic if prev two attacks succeed */
-            unsupported('a monster crushing another monster');
+            strike = i >= 2 && res[i - 1] === M_ATTK_HIT
+                && res[i - 2] === M_ATTK_HIT;
+            if (strike) {
+                if (await failed_grab(magr, mdef, mattk, env)) {
+                    strike = 0;
+                } else {
+                    res[i] = await hitmm(
+                        magr, mdef, mattk, null, 0, env,
+                    );
+                }
+            }
             break;
 
         case AT_GAZE:
@@ -849,43 +861,51 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
     return struck ? M_ATTK_HIT : M_ATTK_MISS;
 }
 
-// C ref: mhitm.c failed_grab() (594-640). "can't hold an unsolid target
-// (ghosts, lights, vortices, most elementals) or a long worm tail".
+// C ref: mhitm.c failed_grab() (597-640). "can't hold an unsolid target
+// (ghosts, lights, vortices, most elementals) or a long worm tail". The TRUE
+// arm returns TRUE to suppress the hit, and prints only when gv.vis plus
+// canspotmon(defender), or either combatant being the hero, permits output.
+// It copies both names before formatting because C's suffix helpers share a
+// static buffer; JavaScript strings preserve those copies directly.
 //
-// The head is the whole answer for every attack mattackm()'s physical group
-// admits. None of them is AT_HUGS, and every melee slot a pet carries is
-// AD_PHYS, so the second conjunct is FALSE and an ordinary bite or claw on a
-// fog cloud, a vortex or a will-o-the-wisp lands like any other.
+// mattackm()'s ordinary contact arm skips this helper for a solid target, but
+// its automatic AT_HUGS arm calls it after the preceding attacks succeed. That
+// path can therefore use gn.notonhead to reject a solid long-worm tail.
 //
-// The TRUE arm refuses. Its line needs do_name.c s_suffix(), mon_nam() and
-// some_mon_nam(), and it prints for a mon-vs-mon grab only while the hero can
-// spot the defender; the refusal sits above that test rather than inside it,
-// so the stop does not depend on what the hero can see. Every attack that
-// reaches it belongs to a mattackm() arm that refuses anyway -- AT_HUGS and
-// AT_ENGL -- or to an eel, trapper, mimic or purple worm aggressor, none of
-// which this port places as a pet.
-//
-// The gn.notonhead disjunct is unreachable from mattackm(), which
-// short-circuits on its own unsolid() test before calling here. C's comment
-// there calls that test redundant, which holds for the first disjunct alone: a
-// holding attack that landed on a solid long worm's tail never asks this
-// function. The disjunct is written because C writes it.
-//
-// C declares this one non-static for mhitu.c:808, :827 and :1305 and
-// uhitm.c:5652, :5735 and :5779. mhitu.c's AT_ENGL arm now reaches the
-// ordinary solid-hero result; the unsolid/grab refusal remains fail-closed.
-export function failed_grab(magr, mdef, mattk, env) {
-    const { state } = env;
-    const unsupported = requireAttackOperation(env, 'unsupported');
+// C declares this helper non-static for mhitu.c:808, :827 and :1305 and
+// uhitm.c:5652, :5735 and :5779. Its asynchronous message result is awaited
+// at every currently ported direct caller.
+export async function failed_grab(magr, mdef, mattk, env = {}) {
+    const state = env.state ?? game;
+    const message = env.message ?? (env.planning ? async () => {}
+        : ttyPline);
+    const tailmiss = Boolean(state.gn?.notonhead);
 
-    if ((unsolid(mdef.data) || Boolean(state.gn?.notonhead))
+    if ((unsolid(mdef.data) || tailmiss)
         /* hug attack: most holders (owlbear, python, pit fiend, &c);
            wrap damage: eel grabbing, trapper/lurker-above engulfing;
            stick-to damage: mimic, lichen;
            digestion damage: purple worm swallowing */
         && (mattk.aatyp === AT_HUGS || mattk.adtyp === AD_WRAP
             || mattk.adtyp === AD_STCK || mattk.adtyp === AD_DGST)) {
-        unsupported('a grab that passes through its target');
+        if ((state.gv?.vis && canspotmon(mdef, state))
+            || magr === state.youmonst || mdef === state.youmonst) {
+            const magrnam = magr === state.youmonst
+                ? 'Your' : s_suffix(Monnam(magr, state, env));
+            const mdefnam = !tailmiss
+                ? (mdef === state.youmonst
+                    ? 'you' : mon_nam(mdef, state, env))
+                : `${s_suffix(some_mon_nam(mdef, state, env))} tail`;
+            const verb = mattk.adtyp === AD_DGST ? 'gulp'
+                : mattk.adtyp === AD_STCK ? 'adhere' : 'grab';
+            await message(
+                `${truncateByteString(magrnam, 99)} ${verb} attempt `
+                    + `${tailmiss ? 'fails to hold' : 'passes right through'} `
+                    + `${truncateByteString(mdefnam, 99)}!`,
+                state,
+                env,
+            );
+        }
         return true;
     }
     return false;

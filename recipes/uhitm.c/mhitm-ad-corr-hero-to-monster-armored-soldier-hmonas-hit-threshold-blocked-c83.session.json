@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first H→M Corrosion route. At normalized segment 0 step 87, C uhitm.c:hmonas rolls die20=20, passes the hero-hit threshold and calls damageum, so AD_CORR can dispatch. JavaScript takes missum at the earlier hit decision and does not call damageum or mhitm_ad_corr. This is an upstream hmonas hit-threshold mismatch outside C83; do not count this recipe as matching CORR H→M runtime evidence.",
+  "segments": [
+    {
+      "seed": 83517025,
+      "datetime": "20410605091900",
+      "nethackrc": "OPTIONS=name:C83CorrHero,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na>>h\n #polyself\nblack pudding\n   #wizgenesis\nsleeping hostile soldier\nFy"
+    }
+  ]
+}

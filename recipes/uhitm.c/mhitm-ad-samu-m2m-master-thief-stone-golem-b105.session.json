@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "First bounded independent M-to-M AD_SAMU setup. New seed 6634105, date/time 2034-10-05 09:10:00, and gnome Wizard differ from prior B105 routes. Enable Conflict through the source-observed intrinsic menu, create a hostile Master of Thieves and hostile stone golem, then allow monster turns with explicit blanks for observed More prompts. C include/monsters.h defines the Master of Thieves with two weapon attacks before its AD_SAMU claw, so the recording must show that actor and target remain adjacent/alive through the third attack before it can witness uhitm.c:mhitm_ad_samu. The stone golem supplies a durable target. Preserve any setup or earlier combat blocker; do not treat a monster name or Conflict alone as runtime reachability.",
+  "segments": [
+    {
+      "seed": 6634105,
+      "datetime": "20341005091000",
+      "nethackrc": "OPTIONS=name:SamuPairGnome,role:Wizard,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n>>h\n \n#wizgenesis\nhostile Master of Thieves\n#wizgenesis\nhostile stone golem\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}
