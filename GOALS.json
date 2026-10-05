@@ -167129,7 +167129,7 @@
           "line": 1833,
           "endLine": 1861,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -167141,9 +167141,9 @@
           "name": "ia_dotakeoff",
           "line": 1862,
           "endLine": 1873,
-          "declared": false,
+          "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "equip_ok",
@@ -167151,7 +167151,7 @@
           "endLine": 3450,
           "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "takeoff_ok",
@@ -167159,7 +167159,7 @@
           "endLine": 3479,
           "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -167331,7 +167331,201 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "ia_dotakeoff",
+            "implementation": "js/do_wear.js",
+            "symbol": "ia_dotakeoff",
+            "sourceReview": "Read the complete do_wear.c:ia_dotakeoff() at 1862-1869. C sets gi.item_action_in_progress TRUE, calls dotakeoff(), clears the flag, then returns the command result. The JavaScript keeps the corresponding state.item_action_in_progress field on the same state object and clears it in finally. The new-game FALSE value follows decl.c:417. The function has no RNG or output of its own; its state transition and the selected command are exercised through the queued item-action caller.",
+            "callers": [
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c:230-232, IA_TAKEOFF_OBJ queues ia_dotakeoff and the selected object inventory letter"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack dispatches the queued CQ_CANNED function pointer before the selected inventory letter is consumed by getobj"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/iactions.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "iactions.c:itemactions_pushkeys(IA_TAKEOFF_OBJ) → cmd.c:rhack queued function pointer → do_wear.c:ia_dotakeoff → dotakeoff → invent.c:getobj(takeoff_ok/equip_ok) → armor_or_accessory_off"
+              }
+            ],
+            "checkedAt": "073c3b9ff654c888f76f16ab7ab6df9c08a0899f"
+          },
+          {
+            "name": "dotakeoff",
+            "implementation": "js/do_wear.js",
+            "symbol": "dotakeoff",
+            "sourceReview": "Read the complete do_wear.c:dotakeoff() at 1831-1855. It first counts worn armor/accessories, reports the C uskin-specific dragon-scale versus scale-mail text or the empty-equipment text, prompts through getobj when armor count is not one, paranoid removal is enabled, or gi.item_action_in_progress is set, cancels on no selected object, and returns armor_or_accessory_off() unchanged. JavaScript preserves this branch order and the full source uskin message.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "ia_dotakeoff",
+                "source": "do_wear.c:ia_dotakeoff:1865 calls dotakeoff while gi.item_action_in_progress is TRUE"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:1886-1887 binds T/takeoff to dotakeoff; js/cmd.js:rhack uses runTakeOffCommand for that row"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/iactions.test.mjs",
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "v6-add2-healer-takeoff-gloves",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 3,
+                "source": "cmd.c:rhack T binding → do_wear.c:dotakeoff → armor_or_accessory_off → armoroff delayed ARM_GLOVES completion"
+              },
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "iactions.c:itemactions_pushkeys(IA_TAKEOFF_OBJ) → cmd.c:rhack queued function pointer → do_wear.c:ia_dotakeoff → dotakeoff → invent.c:getobj(takeoff_ok/equip_ok) → armor_or_accessory_off"
+              }
+            ],
+            "checkedAt": "073c3b9ff654c888f76f16ab7ab6df9c08a0899f"
+          },
+          {
+            "name": "equip_ok",
+            "implementation": "js/do_wear.js",
+            "symbol": "equip_ok",
+            "sourceReview": "Read the complete do_wear.c:equip_ok() at 3404-3447. The callback rejects null, mismatched worn status, non-wearable classes and category mismatch in source order; it consults canwearobj only for putting armor on. For removal, inaccessible_equipment is consulted only when gi.item_action_in_progress is FALSE. The port preserves that Boolean condition and keeps the object available to the item-action letter when the flag is TRUE. The full function is impure: its putting-on armor arm calls canwearobj with noisy FALSE, and that helper calls wield.c:welded, which can set the wielded weapon bknown through set_bknown. The removal path skips canwearobj and calls inaccessible_equipment with a NULL verb, so takeoff_ok remains pure. Existing JavaScript preserves this state effect.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "takeoff_ok",
+                "source": "do_wear.c:takeoff_ok:3472-3475 returns equip_ok(obj, TRUE, FALSE)"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "wear_ok",
+                "source": "do_wear.c:wear_ok calls equip_ok(obj, FALSE, FALSE)"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "remove_ok",
+                "source": "do_wear.c:remove_ok calls equip_ok(obj, TRUE, TRUE)"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "puton_ok",
+                "source": "do_wear.c:puton_ok calls equip_ok(obj, FALSE, TRUE)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "iactions.c:itemactions_pushkeys(IA_TAKEOFF_OBJ) → cmd.c:rhack queued function pointer → do_wear.c:ia_dotakeoff → dotakeoff → invent.c:getobj(takeoff_ok/equip_ok) → armor_or_accessory_off"
+              }
+            ],
+            "checkedAt": "073c3b9ff654c888f76f16ab7ab6df9c08a0899f"
+          },
+          {
+            "name": "takeoff_ok",
+            "implementation": "js/do_wear.js",
+            "symbol": "takeoff_ok",
+            "sourceReview": "Read the complete do_wear.c:takeoff_ok() at 3472-3475. It returns equip_ok(obj, TRUE, FALSE) without modifying the object or game state. JavaScript retains the exact callback arguments.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dotakeoff",
+                "source": "do_wear.c:dotakeoff:1849 registers takeoff_ok as getobj callback"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "iactions.c:itemactions_pushkeys(IA_TAKEOFF_OBJ) → cmd.c:rhack queued function pointer → do_wear.c:ia_dotakeoff → dotakeoff → invent.c:getobj(takeoff_ok/equip_ok) → armor_or_accessory_off"
+              }
+            ],
+            "checkedAt": "073c3b9ff654c888f76f16ab7ab6df9c08a0899f"
+          }
+        ],
+        "entryPointReview": "The selected source has two active command entries: direct T/takeoff calls dotakeoff without the transient item-action flag, while inventory IA_TAKEOFF_OBJ queues ia_dotakeoff plus the selected inventory letter. The prior v6 Healer takeoff recording verifies the direct T path through dotakeoff and armoroff; the admitted v20 Nurse case verifies the item-action path through the queued dispatch, flag-controlled getobj prompt, takeoff_ok/equip_ok callback, and armor_or_accessory_off. The v20 trace is cited only through segment 0 step 4; Nurse AD_HEAL is later and outside this source task. Existing count_worn_stuff, getobj, armor_or_accessory_off, inaccessible_equipment, canwearobj, select_off and armoroff bodies were source-reviewed for consumed results but receive no new whole-source credit.",
+        "entryPoints": [
+          {
+            "name": "Direct T takeoff command",
+            "functions": [
+              "dotakeoff"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "v6-add2-healer-takeoff-gloves",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 3,
+                "source": "cmd.c:rhack T binding → do_wear.c:dotakeoff → armor_or_accessory_off → armoroff delayed ARM_GLOVES completion"
+              }
+            ]
+          },
+          {
+            "name": "Inventory IA_TAKEOFF_OBJ action",
+            "functions": [
+              "ia_dotakeoff",
+              "dotakeoff",
+              "equip_ok",
+              "takeoff_ok"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "iactions.c:itemactions_pushkeys(IA_TAKEOFF_OBJ) → cmd.c:rhack queued function pointer → do_wear.c:ia_dotakeoff → dotakeoff → invent.c:getobj(takeoff_ok/equip_ok) → armor_or_accessory_off"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
