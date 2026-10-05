@@ -11,7 +11,8 @@
 //        Armor_off() (908-930), fingers_or_gloves() (59-65),
 //        set_wear() (1537-1568), cancel_doff() (1642-1659),
 //        count_worn_stuff() (1731-1766), armor_or_accessory_off()
-//        (1768-1829), dotakeoff() (1831-1855), doremring() (1874-1892),
+//        (1768-1829), dotakeoff() (1831-1855), ia_dotakeoff() (1862-1869),
+//        doremring() (1874-1892),
 //        cursed() (1891-1917),
 //        armoroff() (1919-2008), already_wearing() (2010-2014), canwearobj()
 //        (2029-2206), accessory_or_armor_on() (2208-2428), dowear()
@@ -299,6 +300,7 @@ import {
     ORANGE_DRAGON_SCALE_MAIL,
     ORCISH_CLOAK,
     ORCISH_HELM,
+    GRAY_DRAGON_SCALES,
     RED_DRAGON_SCALES,
     RED_DRAGON_SCALE_MAIL,
     RING_CLASS,
@@ -2887,10 +2889,10 @@ export async function canwearobj(otmp, noisy, state = game) {
     return { ok: err === 0, mask };
 }
 
-// C ref: do_wear.c equip_ok() (3402-3447). C's `removing && !
-// gi.item_action_in_progress` test at 3439 loses its second term here:
-// ia_dotakeoff() is the only function that raises the flag and it is unported,
-// so gi.item_action_in_progress is always FALSE.
+// C ref: do_wear.c equip_ok() (3404-3447). ia_dotakeoff() raises the state
+// field around dotakeoff(); while it is set, takeoff selection keeps covered
+// worn equipment available so the selected inventory letter reaches the
+// source's specific refusal or removal branch.
 export async function equip_ok(obj, removing, accessory, state = game) {
     if (!obj) return GETOBJ_EXCLUDE;
 
@@ -2921,7 +2923,7 @@ export async function equip_ok(obj, removing, accessory, state = game) {
     }
 
     /* removing inaccessible equipment */
-    if (removing) {
+    if (removing && !state.item_action_in_progress) {
         if (inaccessible_equipment(
             obj, null, obj.oclass === RING_CLASS, state,
         )) {
@@ -3793,29 +3795,47 @@ function ParanoidRemove(state) {
     return (state.flags.paranoia_bits & PARANOID_REMOVE) !== 0;
 }
 
-// C ref: do_wear.c dotakeoff() (1831-1855), the 'T' command. C's prompt test
-// at 1849 loses its `gi.item_action_in_progress` term for the reason
-// equip_ok() above gives.
+// C ref: do_wear.c dotakeoff() (1831-1855), the 'T' command. Item actions set
+// item_action_in_progress before calling this function, which forces the
+// object prompt even when one worn armor piece would otherwise be the default.
 export async function dotakeoff(state = game) {
     const counts = count_worn_stuff(false, state);
     let otmp = counts.which;
 
     if (!counts.Narmorpieces && !counts.Naccessories) {
         if (state.u?.uskin) {
-            // do_wear.c:1838-1843 names the dragon scales merged with a
-            // polymorphed hero's skin; polyself.c owns uskin and nothing in
-            // the port sets it.
-            throw new UnsupportedTakeOffError('dotakeoff() uskin message');
+            // do_wear.c:1838-1843 distinguishes scales from scale mail by
+            // the source object-type boundary before printing the skin line.
+            const description = state.u.uskin.otyp >= GRAY_DRAGON_SCALES
+                ? 'dragon scales are'
+                : 'dragon scale mail is';
+            await ttyPline(
+                `The ${description} merged with your skin!`, state,
+            );
+            return ECMD_OK;
         }
         await ttyPline('Not wearing any armor or accessories.', state);
         return ECMD_OK;
     }
-    if (counts.Narmorpieces !== 1 || ParanoidRemove(state))
+    if (counts.Narmorpieces !== 1 || ParanoidRemove(state)
+        || state.item_action_in_progress)
         otmp = await getobj('take off', takeoff_ok, GETOBJ_NOFLAGS, state);
     if (!otmp)
         return ECMD_CANCEL;
 
     return armor_or_accessory_off(otmp, state);
+}
+
+// C ref: do_wear.c:1862-1869, the function queued for IA_TAKEOFF_OBJ.
+// The transient C gi flag remains on the same game-state object until the
+// selected item's getobj callback and removal attempt have returned.
+export async function ia_dotakeoff(state = game) {
+    state.item_action_in_progress = true;
+    try {
+        return await dotakeoff(state);
+    } finally {
+        state.item_action_in_progress = false;
+    }
 }
 
 // C ref: do_wear.c remove_ok() (3458-3461), the getobj() filter for the R
