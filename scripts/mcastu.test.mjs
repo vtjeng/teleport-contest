@@ -18,11 +18,13 @@ import {
     M_ATTK_MISS,
     M_SEEN_MAGR,
     MFAST,
+    SEE_INVIS,
     STRAT_APPEARMSG,
     STRAT_WAITFORU,
     TELEPAT,
     TIMEOUT,
 } from '../js/const.js';
+import { GLYPH_INVISIBLE } from '../js/display.js';
 import { buzzmu, castmu, mcast_summon_mons } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
 import { AD_CLRC, AD_COLD, AD_FIRE, AD_MAGM, AD_SPEL, AT_MAGC } from '../js/monsters.js';
@@ -1366,3 +1368,107 @@ test('buzzmu returns M_ATTK_MISS when rn2(3) returns 0', async () => {
     assert.equal(result, M_ATTK_MISS,
         'rn2(3)=0 prevents the spell from firing');
 });
+
+test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
+    async () => {
+        const remembered = {};
+        const state = makeState({
+            level: {
+                flags: { hero_memory: true },
+                at: () => remembered,
+            },
+        });
+        const caster = makeCaster({ m_lev: 20, mx: 5, my: 5 });
+        const random = scriptedRandom([4, 45]);
+        const messages = [];
+        const gaps = [];
+
+        // makeState and makeCaster place the hero at (4,5) and the monster at
+        // visible square (5,5). In C's wizard list, spellval 4 selects
+        // MCAST_DISAPPEAR; m_lev=20 makes the fumble limit 20, so rn2(200)=45
+        // lets the effect resolve and exercise its invisible-memory update.
+        const result = await castmu(caster, AD_SPEL_ATTACK, false, false, {
+            state,
+            planning: true,
+            random,
+            unsupported: refuse,
+            monsterName: () => 'The Archon',
+            message: async (text) => messages.push(text),
+            noteUnported: (name) => gaps.push(name),
+        });
+
+        assert.equal(result, M_ATTK_HIT);
+        assert.equal(caster.perminvis, 1);
+        assert.equal(caster.minvis, 1);
+        assert.equal(remembered.remembered_glyph?.glyph, GLYPH_INVISIBLE);
+        assert.deepEqual(random.draws, ['rn2(20)', 'rn2(200)']);
+        assert.deepEqual(messages, [
+            'The Archon casts a spell!',
+            'The Archon suddenly disappears!',
+        ]);
+        assert.deepEqual(gaps, ['display.c newsym'],
+            'planning keeps the discarded live redraw off the cloned state');
+    });
+
+test('MCAST_DISAPPEAR uses the transparent wording with See_invisible',
+    async () => {
+        const state = makeState({
+            level: { flags: { hero_memory: false }, at: () => ({}) },
+        });
+        // intrinsic=1 activates SEE_INVIS and selects C's transparent wording.
+        state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0 };
+        const caster = makeCaster({ m_lev: 20, mx: 5, my: 5 });
+        const messages = [];
+
+        // The same spellval 4 and rn2(200)=45 as the primary case select and
+        // resolve MCAST_DISAPPEAR at the visible (5,5) square.
+        await castmu(caster, AD_SPEL_ATTACK, false, false, {
+            state,
+            planning: true,
+            random: scriptedRandom([4, 45]),
+            unsupported: refuse,
+            monsterName: () => 'The Archon',
+            message: async (text) => messages.push(text),
+            noteUnported: () => {},
+        });
+
+        assert.equal(caster.minvis, 1);
+        assert.deepEqual(messages, [
+            'The Archon casts a spell!',
+            'The Archon suddenly becomes transparent!',
+        ]);
+    });
+
+test('MCAST_DISAPPEAR is not selected when invisibility is already blocked',
+    async () => {
+        // Each pair independently triggers C's useless-spell gate: either
+        // minvis is already true or invis_blkd prevents a new invisible state.
+        for (const overrides of [
+            { minvis: true, invis_blkd: false },
+            { minvis: false, invis_blkd: true },
+        ]) {
+            // Spell value 4 selects MCAST_DISAPPEAR; the fumble draw value 45
+            // remains unused because C rejects the spell before that draw.
+            const caster = makeCaster({ m_lev: 20, ...overrides });
+            const random = scriptedRandom([4, 45]);
+            const result = await castmu(
+                caster,
+                AD_SPEL_ATTACK,
+                false,
+                false,
+                {
+                    state: makeState(),
+                    random,
+                    unsupported: refuse,
+                },
+            );
+
+            // spell_would_be_useless() skips MCAST_DISAPPEAR; the next
+            // directed candidate cannot cast when the monster is not aiming
+            // at the hero, so neither input mutates minvis.
+            assert.equal(result, M_ATTK_MISS);
+            assert.equal(caster.perminvis, undefined);
+            assert.equal(caster.minvis, overrides.minvis);
+            assert.deepEqual(random.draws, ['rn2(20)']);
+        }
+    });
