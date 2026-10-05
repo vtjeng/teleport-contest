@@ -164626,7 +164626,7 @@
     {
       "id": "port-weapon-towel-wet-dry-v21-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port towel wetness changes and canonical object naming helpers",
       "cFile": "weapon.c",
       "sessions": [
@@ -165392,7 +165392,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "472f0792af324ac66408e0aab04a7a9ac68875fa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial C80 delivery: finish_towel_change/dry_a_towel and six canonical object naming units are verified; all existing otense/is_plural caller state arguments are wired. wet_a_towel runtime remains blocked by potion.c:dodip before water_damage. Preserve the whole planned family, blocked recipe and resume condition; no wet_a_towel completion or goal-closure score event."
     }
   ]
 }

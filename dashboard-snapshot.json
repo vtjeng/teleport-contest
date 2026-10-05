@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-05T03:22:43.892Z",
+  "capturedAt": "2026-10-05T03:42:40.019Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -19071,12 +19071,97 @@
         "type": "accepted",
         "at": "2026-10-05T03:22:43.426Z",
         "task": "B103"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B103-published-7d37e0f6",
+        "type": "published",
+        "at": "2026-10-05T03:26:18.285Z",
+        "task": "B103",
+        "commit": "7d37e0f6d5ae3bfc8c8bccc14404ecac8b04df6e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C81-message-source-feedback-0cd727e3",
+        "type": "feedback",
+        "at": "2026-10-05T03:26:53.320Z",
+        "task": "C81",
+        "delivery": "0cd727e32d339345175c6e6b529e1902042caf07"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A97-resume-correction-a7e318ae",
+        "type": "resume",
+        "at": "2026-10-05T03:28:24.771Z",
+        "task": "A97"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C80-integrating-472f0792",
+        "type": "integrating",
+        "at": "2026-10-05T03:29:25.185Z",
+        "task": "C80",
+        "integration": "472f0792af324ac66408e0aab04a7a9ac68875fa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a7e318ae78613f8aa4bc6bd9f86dd6a984989dbc",
+        "type": "ready",
+        "at": "2026-10-05T03:29:56.611Z",
+        "task": "A97",
+        "delivery": "a7e318ae78613f8aa4bc6bd9f86dd6a984989dbc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A97-correction-received-a7e318ae",
+        "type": "received",
+        "at": "2026-10-05T03:30:46.060Z",
+        "task": "A97",
+        "delivery": "a7e318ae78613f8aa4bc6bd9f86dd6a984989dbc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C81-message-source-feedback-20261004",
+        "type": "resume",
+        "at": "2026-10-05T03:32:26.721Z",
+        "task": "C81"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b3bca25ad75107f33a9a8458bf7352cd3c5a228f",
+        "type": "ready",
+        "at": "2026-10-05T03:41:50.578Z",
+        "task": "C81",
+        "delivery": "b3bca25ad75107f33a9a8458bf7352cd3c5a228f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-50f790eca683c31f4be64b553c30efe44fe5782a",
+        "type": "ready",
+        "at": "2026-10-05T03:41:55.668Z",
+        "task": "B104",
+        "delivery": "50f790eca683c31f4be64b553c30efe44fe5782a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C80-validated-472f0792",
+        "type": "validated",
+        "at": "2026-10-05T03:42:37.936Z",
+        "task": "C80",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C80-accepted-472f0792",
+        "type": "accepted",
+        "at": "2026-10-05T03:42:39.583Z",
+        "task": "C80"
       }
     ]
   },
   "development": {
-    "executionCommit": "5c81400022284160a07fddbb1b4870ba159aac2e",
-    "measuredAt": "2026-10-05T03:17:31.854Z",
+    "executionCommit": "472f0792af324ac66408e0aab04a7a9ac68875fa",
+    "measuredAt": "2026-10-05T03:38:19.925Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
