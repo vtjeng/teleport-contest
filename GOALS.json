@@ -171249,14 +171249,14 @@
           "line": 2727,
           "endLine": 2780,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "removed_from_icebox",
           "line": 2781,
           "endLine": 2802,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -171453,7 +171453,130 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "out_container",
+            "implementation": "js/pickup.js",
+            "symbol": "out_container",
+            "sourceReview": "Read the complete pickup.c:out_container definition (2727–2778). It checks the current container, coin weight, artifacts, fatal corpse handling and lift result; splits the selected stack, extracts it, recalculates container weight, resumes icebox age/timer state, then performs floor-container billing, pick-pick feedback, inventory insertion, pickup_prinv and coin status update in source order. The C result from lift_object is consumed; the existing JS implementation consumes its result/count. The new source call to removed_from_icebox is before billing and inventory. No discarded C call is replaced by an invented effect.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "menu_loot",
+                "source": "pickup.c:menu_loot (3265–3394) calls out_container in manual take-out (3376) and autopick; JS menu_loot awaits it in the corresponding branches."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "traditional_loot",
+                "source": "pickup.c:traditional_loot (3228–3261) assigns out_container as the take-out askchain callback; JS traditional_loot passes that callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 82,
+                "source": "cmd.c:rhack -> pickup.c:doloot_core -> menu_loot -> out_container -> removed_from_icebox -> mkobj.c:start_corpse_timeout"
+              }
+            ],
+            "checkedAt": "bfbc741bd5def29d2a81743f3689cb8a8029b0c0"
+          },
+          {
+            "name": "removed_from_icebox",
+            "implementation": "js/pickup.js",
+            "symbol": "removed_from_icebox",
+            "sourceReview": "Read the complete pickup.c:removed_from_icebox definition (2781–2798). The age_is_relative macro preserves its six listed object kinds. Other objects receive absolute age moves - age; corpses resolve saved OMONST traits through get_mtraits, set norevive to 0 only for an ice-troll corpse, then call start_corpse_timeout; globby objects call start_glob_timeout with zero delay. The timer helpers are existing complete implementations and their C return values are discarded. The helper is impure through timer RNG/state changes.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "out_container",
+                "source": "pickup.c:out_container (2759) resumes an ICE_BOX item immediately after extraction and container reweighting."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer",
+                "source": "pickup.c:tipcontainer (3763) resumes each extracted ICE_BOX child before drop placement."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "meatbox",
+                "source": "mon.c:meatbox (1374) calls the helper for ICE_BOX contents; source-pinned caller audit finds no valid production route that feeds an ice box to meatbox."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mloot_container",
+                "source": "muse.c:mloot_container (2355) calls the helper after an ICE_BOX item passes can_carry; this active caller is wired but runtime-unverified."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/a101-tip-icebox-corpse-complete.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 82,
+                "source": "cmd.c:rhack -> pickup.c:doloot_core -> menu_loot -> out_container -> removed_from_icebox -> mkobj.c:start_corpse_timeout"
+              }
+            ],
+            "checkedAt": "bfbc741bd5def29d2a81743f3689cb8a8029b0c0"
+          }
+        ],
+        "entryPointReview": "Active A101 paths are hero #loot take-out through pickup.c:menu_loot/traditional_loot -> out_container -> removed_from_icebox, and hero #tip through pickup.c:dotip -> do_loot_cont -> tipcontainer -> removed_from_icebox. The admitted v20 case matches current JS through zero-based step 82, where the ice-troll corpse is extracted and start_corpse_timeout runs. The independent tip recording strictly matches and executes three helper calls at step 74. The active monster path is muse.c:find_misc selecting MUSE_BAG -> use_misc -> mloot_container -> removed_from_icebox; it is wired but unverified. The retained C-first recipe reaches a floor-box pickup, then find_misc draws rn2(5)=1 at muse.c:2235, so MUSE_BAG is not selected and dog_invent drops the box before mloot_container. One source-directed movement variation failed to preserve the pickup; no further setup search is claimed. The meatbox ICE_BOX arm is excluded from active entry points: objects.h declares ICE_BOX as TOOL_CLASS and PLASTIC; objclass.h is_organic is material <= WOOD and is_metallic requires IRON..MITHRIL. mon.c:meatmetal only consumes metallic objects; meatobj sends non-organic objects to engulf/mpickobj rather than m_consume_obj; meatcorpse scans only CORPSE; monmove.c:gelcube_digests selects only organic objects; dog.c:dogfood classifies an uncursed non-food TOOL_CLASS ice box as APPORT, above dogmove.c:dog_move's dog_eat threshold. The JS meatbox call remains wired, and pickup.test.mjs pins these C gates.",
+        "entryPoints": [
+          {
+            "name": "take an item out of an ice box with #loot",
+            "functions": [
+              "out_container",
+              "removed_from_icebox"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 82,
+                "source": "cmd.c:rhack -> pickup.c:doloot_core -> menu_loot -> out_container -> removed_from_icebox -> mkobj.c:start_corpse_timeout"
+              }
+            ]
+          },
+          {
+            "name": "tip floor ice-box contents with #tip",
+            "functions": [
+              "removed_from_icebox"
+            ],
+            "recordings": [
+              "recordings/pickup.c/a101-tip-icebox-corpse-complete.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster rummages through a carried ice box",
+            "functions": [
+              "removed_from_icebox"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
