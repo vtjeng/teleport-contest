@@ -170005,6 +170005,470 @@
         "rng": 792838
       },
       "parkedReason": "C84 verifies 9 of 10 source units and fully matches the selected v21 mixture plus an independent water-into-towel recording. The source-implemented pool and IA_DIP_OBJ routes remain without matching C runtime evidence; dip_into remains unverified and both blocked recipes are retained."
+    },
+    {
+      "id": "port-eat-fpostfx-completed-meal-effects-v20-20261005",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port completed non-corpse meal effects",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected"
+      ],
+      "selectionReason": "The admitted v20 royal-jelly case first diverges in eat.c:fpostfx after meal completion; port the whole function and preserve its source-ordered effects and consumed returns.",
+      "detail": "Whole eat.c:fpostfx, wired through done_eating. The discarded void were.c:you_unwere call remains a named gap; the selected v20 case supplies runtime evidence for the royal-jelly arm.",
+      "openedAt": "ce9893a9802b70bc2efd178c3ee2553d6ac8415b",
+      "openStanding": {
+        "sha": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "38bd807514852ffcec10562805054affa549ccb9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "fpostfx",
+          "line": 2510,
+          "endLine": 2608,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2510,
+        "to": 2608
+      },
+      "syntheticProvenance": {
+        "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected": {
+          "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+          "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+          "evaluationPath": "challenges/evaluations/20261005175533-v20.json",
+          "evaluationCommit": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+        }
+      },
+      "activeStanding": {
+        "sha": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+          "recordingPath": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+          "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+          "recipe": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.recipe.session.json",
+          "recipeSha256": "abb6e25687eec6fbf3172fd50b0fae0e20f7bfeec9cde90cb608673537232ff3",
+          "replayInputSha256": "7f6f926505cb21763a80aa505b2333c49d199a53465d78313aab0f02ec9c0364",
+          "evaluationPath": "challenges/evaluations/20261005175533-v20.json",
+          "evaluationCommit": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+          "evaluationArtifact": "challenges/evaluations/20261005175533-v20.json",
+          "evaluationUtc": "2026-10-05T17:56:43.586Z",
+          "remainingScreens": 17,
+          "recordedSteps": 42,
+          "previousScreensMatched": 25,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 25,
+              "total": 42
+            },
+            "rng": {
+              "matched": 2082,
+              "total": 2270
+            },
+            "cursors": {
+              "matched": 25,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+            "step": 25
+          },
+          "step": 25,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.json",
+            "result": {
+              "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 17,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+                "recordingPath": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+                "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+                "recipe": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.recipe.session.json",
+                "recipeSha256": "abb6e25687eec6fbf3172fd50b0fae0e20f7bfeec9cde90cb608673537232ff3",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 17,
+                "recordedSteps": 42,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 25,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 2082,
+                    "total": 2270
+                  },
+                  "cursors": {
+                    "matched": 25,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+                  "step": 25
+                },
+                "step": 25,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 25, the current JavaScript completes the royal-jelly meal setup, enters done_eating(), and stops at fpostfx()'s UnsupportedEatError for LUMP_OF_ROYAL_JELLY before applying the source-defined effects. The C owner is the whole eat.c fpostfx() function; done_eating() calls it for a finished non-corpse meal. A whole-function port has a clear source owner and caller.",
+              "source": {
+                "file": "eat.c",
+                "branch": "fpostfx() after a non-corpse meal completes with otmp->otyp == LUMP_OF_ROYAL_JELLY. The branch first allows a Killer Bee hero to become a Queen Bee when not Unchanging; otherwise it adjusts strength and polymorphed or human hit points, potentially increasing maximum hit points or ending the game, and heals legs when the jelly is not cursed.",
+                "functions": [
+                  "fpostfx"
+                ],
+                "callers": [
+                  "done_eating"
+                ],
+                "dependencies": [
+                  "attrib.c:gainstr",
+                  "polyself.c:polymon",
+                  "rng.c:rnd",
+                  "rng.c:rn2",
+                  "attrib.c:setuhpmax",
+                  "polyself.c:rehumanize",
+                  "end.c:done",
+                  "do.c:heal_legs"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/eat.c:2510-2595 defines the whole fpostfx() source unit. Its LUMP_OF_ROYAL_JELLY arm calls gainstr(otmp, 1, TRUE), then draws rnd(20) with a sign selected by otmp->cursed; the Upolyd branch can draw rn2(17), increase u.mhmax, or rehumanize, while the human branch can increase u.uhpmax or call done(POISONING). Uncursed jelly also calls heal_legs(0).",
+                "nethack-c/upstream/src/eat.c:544-573 shows done_eating() as fpostfx()'s direct caller and its non-corpse branch. eat.c:519-541 and :2022-2074 connect a completed meal to done_eating() through eatfood() or start_eating().",
+                "At the examined commit, js/eat.js:3029-3069 contains fpostfx() and throws UnsupportedEatError for LUMP_OF_ROYAL_JELLY; js/eat.js:3322-3364 contains done_eating() and calls fpostfx(piece, state, env) for non-corpse meals. The runtime stop is therefore at the owned C branch, not in meal selection.",
+                "challenges/evaluations/20261003003219-v20.json records this case at 25 of 42 matching screens and 2,082 of 2,270 matching RNG calls; the queue records 17 remaining screens and the same step-25 stop. The older C63 delivery packet .cache/worker-state-loop-20260925.json.deliveries/0630c68d2c093a7132ff6e9db12a5983515863647fd63c01b43348089db91eaf.json reports the C-side fpostfx observation; the current C and JS source reads above confirm its cause at b5bb23ff11504c300f032b10b1e17c99b06fc97e."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "fpostfx",
+            "implementation": "js/eat.js",
+            "symbol": "fpostfx",
+            "sourceReview": "Read the complete eat.c:fpostfx definition (2510–2595) and compared its switch order with js/eat.js:fpostfx. Wolfsbane checks lycan/form then records the discarded void you_unwere call as note_unported; carrot preserves C short-circuit order and the swallowed-engulfer blindness exception; cookie calls bcsign/outrumor before the nonblind literacy conduct; royal jelly checks Killer Bee/Unchanging and consumes polymon’s Boolean, then gainstr, exactly one signed rnd(20), conditional rn2(17) max-HP increase, form/human HP cap or rehumanize/POISONING, and uncursed heal_legs; egg preserves ismnum/flesh_petrifies/Stone resistance and consumes poly_when_stoned and polymon before make_stoned; eucalyptus cures sickness then vomiting only when uncursed; cursed apple preserves dwarf/hallucination, Deaf/acoustics, You_hear and rn1/fall_asleep order. The consumed-return dependencies polymon, poly_when_stoned, bcsign and attacktype_fordmg have accepted whole-source evidence; flesh_petrifies, ismnum, is_were and Race_if are C macros. done_eating awaits fpostfx before consuming the food, as eat.c:565 does before useup/useupf. The eatOperations environment now supplies pickup.c:encumber_msg to gainstr/adjattrib in the royal-jelly arm.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c:done_eating line 565 calls fpostfx(piece) after the meal-completion message and before useup/useupf; JS done_eating awaits fpostfx at line 3214 in that same position."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 25,
+                "source": "eat.c:doeat -> start_eating -> done_eating -> fpostfx; step 25 selects the wished royal jelly and completes the meal. The diagnostic replay matched the whole 42-step segment."
+              }
+            ],
+            "checkedAt": "38bd807514852ffcec10562805054affa549ccb9"
+          }
+        ],
+        "entryPointReview": "fpostfx has one direct C caller, done_eating. The live game reaches that caller from a one-turn meal in eat.c:start_eating and from a completed occupation in eat.c:eatfood; both then call fpostfx before useup/useupf. The admitted v20 input follows the direct eat command through start_eating and reaches the royal-jelly arm. A single-case diagnostic now matches all 42 recorded boundaries, including the meal-completion call; the selected evidence range is the eat command/object selection boundary at steps 24–25. The wolfbane branch still names only the discarded void were.c:you_unwere call as unported.",
+        "entryPoints": [
+          {
+            "name": "eat a non-corpse meal to completion",
+            "functions": [
+              "fpostfx"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 25,
+                "source": "eat.c:doeat -> start_eating -> done_eating -> fpostfx; selected royal jelly completes the one-turn meal."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "38bd807514852ffcec10562805054affa549ccb9",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-apply-doapply-tin-opener-v16-20261005",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Dispatch tin opener application through the existing tin-opening path",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "The admitted v16 tin opener case stops at apply.c:doapply because JavaScript omits the TIN_OPENER arm; repair that bounded branch and verify the consumed eat.c use_tin_opener and tinopen_ok return path.",
+      "detail": "At segment 0 step 30, doapply refuses TIN_OPENER before C assigns use_tin_opener(obj). Scope is the TIN_OPENER branch only, with no whole-doapply or start_tin completion claim.",
+      "openedAt": "8a75798a4b628ecd7820779c089034da07cfad89",
+      "openStanding": {
+        "sha": "38bd807514852ffcec10562805054affa549ccb9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c00138cce8789366f1ef76d14390861aa1b57068",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "doapply",
+      "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+      "step": 30,
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin": {
+          "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+          "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+          "evaluationPath": "challenges/evaluations/20261005185223-v16.json",
+          "evaluationCommit": "38bd807514852ffcec10562805054affa549ccb9"
+        }
+      },
+      "activeStanding": {
+        "sha": "38bd807514852ffcec10562805054affa549ccb9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+          "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+          "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+          "recipe": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.recipe.session.json",
+          "recipeSha256": "2b8404cd7fc04c6ef5548901fd52171b3a88c4b6d6d2f23a65b47ff1e440bfe2",
+          "replayInputSha256": "50e70e0c38e71991a28a5ca17cb7fab666ccbf0b326c1a5e835fb251a07ef1c8",
+          "evaluationPath": "challenges/evaluations/20261005185223-v16.json",
+          "evaluationCommit": "38bd807514852ffcec10562805054affa549ccb9",
+          "evaluationArtifact": "challenges/evaluations/20261005185223-v16.json",
+          "evaluationUtc": "2026-10-05T18:53:01.098Z",
+          "remainingScreens": 3,
+          "recordedSteps": 33,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 33
+            },
+            "rng": {
+              "matched": 3432,
+              "total": 3440
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 239",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 239",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-applies-tin-opener-to-spinach-tin.json",
+            "result": {
+              "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 3,
+              "recordedSteps": 33,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+                "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+                "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+                "recipe": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.recipe.session.json",
+                "recipeSha256": "2b8404cd7fc04c6ef5548901fd52171b3a88c4b6d6d2f23a65b47ff1e440bfe2",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 3,
+                "recordedSteps": 33,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 3432,
+                    "total": 3440
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 239",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 239",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The stop at zero-based step 30 is caused by the missing TIN_OPENER arm in the partially ported apply.c:doapply. C selects the opener and reaches the existing eat.c:use_tin_opener -> start_tin path; this is missing source behavior, not a tin-opening divergence.",
+              "source": {
+                "file": "apply.c",
+                "branch": "With usable hands and capacity, after getobj selects a valid object that survives retouch_object and is not a wand, spellbook, or coin, TIN_OPENER must set doapply’s result from use_tin_opener and then reach the common artifact-speech tail.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "Direct command: C cmd.c extcmdlist's 'a' entry (1677-1678) dispatches to doapply; JS extcmdlist_data.js's apply row is dispatched by cmd.js dispatchHandler -> runApplyCommand -> apply.js doapply (cmd.js 3302-3304, 5150-5151).",
+                  "Queued C callers: cmd.c MCMD_LOCK_DOOR and MCMD_APPLY_SADDLE (4705, 4751); apply.c use_whip, use_pole, and use_grapple (2966, 3442, 3745); dig.c use_pick_axe (1104); iactions.c itemactions_pushkeys (156). These queue the same doapply command handled by the JS command dispatcher."
+                ],
+                "dependencies": [
+                  "eat.c use_tin_opener is already implemented in js/eat.js:1416-1442 and its ECMD result is consumed by doapply. It selects the tin and calls start_tin, whose existing JS implementation is js/eat.js:1260-1367.",
+                  "The whole doapply function also has a missing LUMP_OF_ROYAL_JELLY arm: C calls apply.c use_royal_jelly and consumes its ECMD result (apply.c:4262-4264; definition 3616 onward), while JS doapply falls through to UnsupportedApplyError and js/apply.js dorub still refuses the same helper path (2218-2221). This is a separate arm from the selected case but must be resolved if completing every doapply branch under the callee-return rule.",
+                  "The FLINT, LUCKSTONE, LOADSTONE, and TOUCHSTONE arm is also absent from the JS switch, although js/apply.js already implements use_stone (2041 onward); the doapply fallback currently refuses those named types. TOWEL is present as an explicit arm before the fallback, so its stale membership in DOAPPLY_UNPORTED_NAMED_ARMS does not block it.",
+                  "The selected recording ends on start_tin setting the tin-opening occupation. It does not continue through a later opentin turn or tin consumption; the existing eat.c consume_tin path retains note_unported('eat.c cprefx') in js/eat.js and is beyond these three missing boundaries."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C source apply.c:4214-4424 defines the whole doapply function. Its explicit TIN_OPENER arm at 4364-4366 assigns res = use_tin_opener(obj), then the function reaches its shared artifact tail at 4419-4424. This is the complete source unit selected for a file-port.",
+                "The omission is visible in js/apply.js:4722-4958: no TIN_OPENER case exists; TIN_OPENER is object type 239 (js/objects.js:314), is listed in DOAPPLY_UNPORTED_NAMED_ARMS (js/apply.js:3867-3875), and throws UnsupportedApplyError in the default branch (4947-4950).",
+                "The saved evaluation challenges/evaluations/20261001125731-v16.json and manifest case wizard-applies-tin-opener-to-spinach-tin agree on first mismatch segment 0, step 30: JS stops before C handles the opener. C records 33 screens, 3440 RNG calls; the evaluation matches 30 screens/cursors and 3432 RNG calls, leaving exactly 3 unmatched screens.",
+                "The assigned C recording challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json shows the remaining boundaries: key o (step 30) yields “You now wield a tin opener.”; space (step 31) prompts “What do you want to open?”; p (step 32) yields “Using your tin opener you try to open the tin.” The first RNG call at step 32 is rn2(2)=1 in eat.c:start_tin (1750), so this input schedules the existing opening occupation instead of consuming the tin immediately.",
+                "C continuation is apply.c:4364-4366 -> eat.c:use_tin_opener (3097-3127) -> eat.c:start_tin (1723-1797). JS already wires the latter two at js/eat.js:1416-1442 and 1260-1367. The direct command caller is cmd.c:1677-1678 and js/cmd.js:3302-3304, 5150-5151; queued C entry sites are listed in source.callers.",
+                "nethack-c/patches/README.md describes recorder patches as deterministic runtime, sorting, RNG logging, and screen capture; rg found no doapply or use_tin_opener references in nethack-c/patches. The behavior owner is the upstream apply.c function."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
