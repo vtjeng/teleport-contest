@@ -335,6 +335,91 @@ test('make_hallucinated keeps explicit planning on the live state silent',
     game.iflags.perm_invent = false;
     });
 
+test('make_hallucinated reports clearing an active timeout under resistance',
+    async () => {
+        const c = potionSource();
+        const cStart = c.indexOf('boolean\nmake_hallucinated(');
+        const cEnd = c.indexOf('\n}\n\nRESTORE_WARNING_FORMAT_NONLITERAL', cStart);
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        const cBody = c.slice(cStart, cEnd);
+        assert.match(cBody,
+            /if \(!changed && !HHallucination && old && talk\)/u);
+        assert.match(cBody, /if \(!Hallucination\)\s+eatmupdate\(\);/u);
+
+        const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+        const jsStart = js.indexOf('export async function make_hallucinated(');
+        const jsEnd = js.indexOf('\n}\n\n// C ref: potion.c peffect_restore_ability', jsStart);
+        assert.ok(jsStart >= 0 && jsEnd > jsStart);
+        const jsBody = js.slice(jsStart, jsEnd);
+        assert.match(jsBody,
+            /!changed && !hallucination\.intrinsic && old && talk/u);
+        assert.match(jsBody, /await strange_feeling\(null, null, state\)/u);
+        assert.match(jsBody, /note_unported\('eat\.c eatmupdate'\)/u);
+
+        await startedGame(8460004, 'HallucinationClearWithResistance');
+        clearTopline();
+        // Timeout 8 gives C's active-old-timeout arm; resistance mask 1 keeps
+        // effective Hallucination false while make_hallucinated clears it.
+        game.multi = 0;
+        game.u.uprops[HALLUC].intrinsic = 8;
+        game.u.uprops[HALLUC_RES].intrinsic = 0;
+        game.u.uprops[HALLUC_RES].extrinsic = 1;
+        const changed = await make_hallucinated(0, true, 0, game);
+        assert.equal(changed, false);
+        assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 0);
+        assert.equal(
+            toplines(),
+            'Your vision seems to flatten for a moment but is normal now.',
+        );
+    });
+
+test('make_hallucinated change detection uses extrinsic resistance only',
+    async () => {
+        const c = potionSource();
+        const cStart = c.indexOf('boolean\nmake_hallucinated(');
+        const cEnd = c.indexOf('\n}\n\nRESTORE_WARNING_FORMAT_NONLITERAL', cStart);
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        const cBody = c.slice(cStart, cEnd);
+        assert.match(cBody,
+            /if \(!EHalluc_resistance && \(!!HHallucination != !!xtime\)\)/u);
+        const youprop = readFileSync(new URL(
+            '../nethack-c/upstream/include/youprop.h', import.meta.url,
+        ), 'utf8');
+        assert.match(youprop,
+            /^#define HHalluc_resistance u\.uprops\[HALLUC_RES\]\.intrinsic$/mu);
+        assert.match(youprop,
+            /^#define EHalluc_resistance u\.uprops\[HALLUC_RES\]\.extrinsic$/mu);
+        assert.match(youprop,
+            /^#define Halluc_resistance \(HHalluc_resistance \|\| EHalluc_resistance\)$/mu);
+
+        const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+        const jsStart = js.indexOf('export async function make_hallucinated(');
+        const jsEnd = js.indexOf('\n}\n\n// C ref: potion.c peffect_restore_ability', jsStart);
+        assert.ok(jsStart >= 0 && jsEnd > jsStart);
+        const jsBody = js.slice(jsStart, jsEnd);
+        assert.match(jsBody,
+            /changed = !resistance\.extrinsic\s*&&\s*Boolean\(old\) !== Boolean\(xtime\)/u);
+
+        // This independent seed supplies a fresh initialized hero; the
+        // property values below select the intrinsic-only resistance case.
+        await startedGame(8460005, 'HallucinationIntrinsicResistance');
+        const planned = planningState(game);
+        planned.u.uprops[HALLUC].intrinsic = 0;
+        // FROMOUTSIDE is an intrinsic resistance bit. C tests only the
+        // extrinsic EHalluc_resistance macro when reporting a timeout change.
+        planned.u.uprops[HALLUC_RES].intrinsic = FROMOUTSIDE;
+        planned.u.uprops[HALLUC_RES].extrinsic = 0;
+        const changed = await make_hallucinated(12, false, 0, planned, {
+            planning: true,
+            seeMonsters: () => {},
+            seeObjects: () => {},
+            seeTraps: () => {},
+        });
+        assert.equal(changed, true);
+        assert.equal(planned.u.uprops[HALLUC].intrinsic & TIMEOUT, 12);
+        assert.equal(planned.u.uprops[HALLUC_RES].intrinsic, FROMOUTSIDE);
+    });
+
 test('make_blinded uses injected vision state for planned blindness', async () => {
     const live = {
         u: { uprops: [] },
