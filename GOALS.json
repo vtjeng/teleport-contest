@@ -166677,8 +166677,8 @@
           "name": "mcast_disappear",
           "line": 490,
           "endLine": 503,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -166692,7 +166692,7 @@
           "endLine": 487,
           "declared": true,
           "sourceFile": "worn.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -166981,7 +166981,119 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mcast_disappear",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_disappear",
+            "sourceReview": "Read the complete mcastu.c:mcast_disappear() body at lines 490-501. The !minvis && !invis_blkd gate selects the effect; canseemon controls the message and See_invisible wording; mon_set_minvis(mtmp,FALSE) updates permanent/current invisibility; cansee && !canspotmon selects map_invisible; the else branch calls impossible(). The function makes no RNG calls but outputs and changes monster/map state. JavaScript preserves this order, reuses canseemon/cansee/canspotmon and the existing map_invisible_planning memory seam for cloned planning state, and records the impossible() void call as a named pline.c impossible gap. It does not claim whole predicate or display completion. The C message uses pline_mon, so the corrected JavaScript chooses canonical Monnam(mtmp,state,env) by default and routes the message through messageAt(text,mtmp.mx,mtmp.my,state); the supplied monsterName test seam remains supported.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell case MCAST_DISAPPEAR (lines 844-847) calls mcast_disappear(mtmp); mcastu.c:castmu dispatches the selected wizard spell to mcast_spell."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "segment": 0,
+                "fromStep": 135,
+                "throughStep": 135,
+                "source": "mcastu.c:choose_monster_spell selects MCAST_DISAPPEAR; mcastu.c:castmu accepts the spell and calls mcast_spell; mcastu.c:mcast_spell dispatches to mcast_disappear, which calls worn.c:mon_set_minvis and conditionally display.c:map_invisible."
+              }
+            ],
+            "checkedAt": "87b909715e8c2e2d10063c304220404efdc8c69c"
+          },
+          {
+            "name": "mon_set_minvis",
+            "implementation": "js/worn.js",
+            "symbol": "mon_set_minvis",
+            "sourceReview": "Read the complete worn.c:mon_set_minvis() body at lines 474-488. First set perminvis to the inverse of cursed_potion. Only when invis_blkd is false, copy perminvis to minvis, call newsym(mon->mx,mon->my), then call see_wsegs(mon) when wormno is nonzero. The JavaScript helper keeps this state and call order. In a non-live planning clone it records the discarded-void display.c:newsym call rather than drawing against the module-global game; live calls still use newsym. A nonzero wormno records the discarded-void worm.c:see_wsegs gap. Neither callee receives whole-source completion credit here.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_disappear",
+                "source": "mcastu.c:mcast_disappear calls mon_set_minvis(mtmp,FALSE)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "potionhit",
+                "source": "potion.c:potionhit handles POT_INVISIBILITY by calling mon_set_minvis(mon,cursed_potion)."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm sets monster invisibility after an invisibility wand hit."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "makemon.c:makemon calls mon_set_minvis after place_monster when MM_MINVIS is set."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "use_misc",
+                "source": "muse.c:use_misc sets monster invisibility for a monster-used invisibility item."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mon_givit",
+                "source": "mon.c:mon_givit grants the Stalker invisibility property through mon_set_minvis."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/worn.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "worn.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "segment": 0,
+                "fromStep": 135,
+                "throughStep": 135,
+                "source": "mcastu.c:choose_monster_spell selects MCAST_DISAPPEAR; mcastu.c:castmu accepts the spell and calls mcast_spell; mcastu.c:mcast_spell dispatches to mcast_disappear, which calls worn.c:mon_set_minvis and conditionally display.c:map_invisible."
+              }
+            ],
+            "checkedAt": "87b909715e8c2e2d10063c304220404efdc8c69c"
+          }
+        ],
+        "entryPointReview": "The original C81 delivery recorded an earlier candidate scan at its assigned pre-C79 boundary. That scan is preserved below as historical provenance, not as current parity for this message correction. This correction specifically verifies canonical Monnam naming and the pline_mon accessiblemsg coordinate prefix with focused tests. Root owns a fresh admitted v21 replay against the combined candidate; this packet makes no current full-case match claim.",
+        "entryPoints": [
+          {
+            "name": "Monster spell MCAST_DISAPPEAR through mcastu.c:mcast_spell",
+            "functions": [
+              "mcast_disappear",
+              {
+                "sourceFile": "worn.c",
+                "name": "mon_set_minvis"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+                "segment": 0,
+                "fromStep": 135,
+                "throughStep": 135,
+                "source": "mcastu.c:choose_monster_spell selects MCAST_DISAPPEAR; mcastu.c:castmu accepts the spell and calls mcast_spell; mcastu.c:mcast_spell dispatches to mcast_disappear, which calls worn.c:mon_set_minvis and conditionally display.c:map_invisible."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
