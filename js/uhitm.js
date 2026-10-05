@@ -41,6 +41,9 @@ import {
     DISP_END,
     DISMOUNT_POLY,
     DROWNING,
+    ERODE_CORRODE,
+    ERODE_ROT,
+    ERODE_RUST,
     EF_GREASE,
     EF_VERBOSE,
     ER_NOTHING,
@@ -301,6 +304,8 @@ import {
     mon_hates_light,
     mon_hates_silver,
     hates_silver,
+    completelyrots,
+    completelyrusts,
     monsndx,
     monstseesu,
     monstunseesu,
@@ -5960,6 +5965,169 @@ export async function mhitm_ad_heal(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_rust() (2281-2336). The three direction arms keep
+// their different cancellation, golem-destruction, and damage-result rules.
+export async function mhitm_ad_rust(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const erode = env.erodeArmor ?? erode_armor;
+    const pd = mdef.data;
+
+    if (magr === state.youmonst) {
+        if (completelyrusts(pd)) {
+            const message = requireAttackOperation(env, 'message');
+            await message(
+                `${Monnam(mdef, state, env)} ${mlifesaver(mdef, state)
+                    ? 'starts to fall' : 'falls'} to pieces!`,
+                state,
+                env,
+            );
+            await xkilled(mdef, XKILL_NOMSG, state, env);
+            mhm.hitflags |= M_ATTK_DEF_DIED;
+        }
+        await erode(mdef, ERODE_RUST, state, env);
+        mhm.damage = 0;
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (magr.mcan) return;
+        if (completelyrusts(pd)) {
+            const message = requireAttackOperation(env, 'message');
+            await message('You rust!', state, env);
+            await rehumanize(state, env);
+            return;
+        }
+        await erode(mdef, ERODE_RUST, state, env);
+    } else {
+        if (magr.mcan) return;
+        if (completelyrusts(pd)) {
+            if (state.gv?.vis && canseemon(mdef, state)) {
+                const message = requireAttackOperation(env, 'message');
+                const text = `${Monnam(mdef, state, env)} ${mlifesaver(mdef, state)
+                    ? 'starts to fall' : 'falls'} to pieces!`;
+                await message(
+                    messageAt(text, mdef.mx, mdef.my, state),
+                    state,
+                    env,
+                );
+            }
+            await monkilled(mdef, null, AD_RUST, state, env);
+            if (mdef.mhp >= 1) {
+                mhm.hitflags = M_ATTK_MISS;
+                mhm.done = true;
+                return;
+            }
+            mhm.hitflags = M_ATTK_DEF_DIED
+                | (grow_up(magr, mdef, { ...env, state })
+                    ? 0 : M_ATTK_AGR_DIED);
+            mhm.done = true;
+            return;
+        }
+        await erode(mdef, ERODE_RUST, state, env);
+        mdef.mstrategy &= ~STRAT_WAITFORU;
+        mhm.damage = 0;
+    }
+}
+
+// C ref: uhitm.c mhitm_ad_corr() (2338-2361). Monster cancellation stops
+// both monster attack directions before erosion; only a monster defender
+// loses its wait-for-hero strategy and the attack's physical damage.
+export async function mhitm_ad_corr(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const erode = env.erodeArmor ?? erode_armor;
+
+    if (magr === state.youmonst) {
+        await erode(mdef, ERODE_CORRODE, state, env);
+        mhm.damage = 0;
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (magr.mcan) return;
+        await erode(mdef, ERODE_CORRODE, state, env);
+    } else {
+        if (magr.mcan) return;
+        await erode(mdef, ERODE_CORRODE, state, env);
+        mdef.mstrategy &= ~STRAT_WAITFORU;
+        mhm.damage = 0;
+    }
+}
+
+// C ref: uhitm.c mhitm_ad_dcay() (2363-2421). Wood and leather golems take
+// the special kill path; ordinary targets keep the slot-eroding result.
+export async function mhitm_ad_dcay(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const erode = env.erodeArmor ?? erode_armor;
+    const pd = mdef.data;
+
+    if (magr === state.youmonst) {
+        if (completelyrots(pd)) {
+            const message = requireAttackOperation(env, 'message');
+            await message(
+                `${Monnam(mdef, state, env)} ${mlifesaver(mdef, state)
+                    ? 'starts to fall' : 'falls'} to pieces!`,
+                state,
+                env,
+            );
+            await xkilled(mdef, XKILL_NOMSG, state, env);
+        }
+        await erode(mdef, ERODE_ROT, state, env);
+        mhm.damage = 0;
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (magr.mcan) return;
+        if (completelyrots(pd)) {
+            const message = requireAttackOperation(env, 'message');
+            await message('You rot!', state, env);
+            await rehumanize(state, env);
+            return;
+        }
+        await erode(mdef, ERODE_ROT, state, env);
+    } else {
+        if (magr.mcan) return;
+        if (completelyrots(pd)) {
+            if (state.gv?.vis && canseemon(mdef, state)) {
+                const message = requireAttackOperation(env, 'message');
+                const text = `${Monnam(mdef, state, env)} ${mlifesaver(mdef, state)
+                    ? 'starts to fall' : 'falls'} to pieces!`;
+                await message(
+                    messageAt(text, mdef.mx, mdef.my, state),
+                    state,
+                    env,
+                );
+            }
+            await monkilled(mdef, null, AD_DCAY, state, env);
+            if (mdef.mhp >= 1) {
+                mhm.done = true;
+                mhm.hitflags = M_ATTK_MISS;
+                return;
+            }
+            mhm.done = true;
+            mhm.hitflags = M_ATTK_DEF_DIED
+                | (grow_up(magr, mdef, { ...env, state })
+                    ? 0 : M_ATTK_AGR_DIED);
+            return;
+        }
+        await erode(mdef, ERODE_ROT, state, env);
+        mdef.mstrategy &= ~STRAT_WAITFORU;
+        mhm.damage = 0;
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -6023,9 +6191,15 @@ export async function mhitm_adtyping(
     case AD_DRLI:
         await mhitm_ad_drli(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_RUST: unported('mhitm_ad_rust'); break;
-    case AD_CORR: unported('mhitm_ad_corr'); break;
-    case AD_DCAY: unported('mhitm_ad_dcay'); break;
+    case AD_RUST:
+        await mhitm_ad_rust(magr, mattk, mdef, mhm, state, env);
+        break;
+    case AD_CORR:
+        await mhitm_ad_corr(magr, mattk, mdef, mhm, state, env);
+        break;
+    case AD_DCAY:
+        await mhitm_ad_dcay(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_DREN: unported('mhitm_ad_dren'); break;
     case AD_DRST:
     case AD_DRDX:
