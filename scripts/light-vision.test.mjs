@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import { ART_SUNSWORD } from '../js/artifacts.js';
@@ -39,12 +40,15 @@ import {
     del_light_source,
     light_globals_init,
     new_light_source,
+    obj_is_burning,
     obj_sheds_light,
 } from '../js/light.js';
 import {
+    BRASS_LANTERN,
     BOULDER,
     CANDELABRUM_OF_INVOCATION,
     LONG_SWORD,
+    MAGIC_LAMP,
     OIL_LAMP,
     TALLOW_CANDLE,
 } from '../js/objects.js';
@@ -130,9 +134,9 @@ test('the candelabrum uses its source candle-count light bands', () => {
     }
 });
 
-// light.c obj_sheds_light() is `ignitable(obj) || artifact_light(obj)` behind
-// the lamplit test, so either arm answers on its own. Each case below satisfies
-// exactly one arm, which is what separates the disjunction from a conjunction.
+// light.c obj_sheds_light() delegates to obj_is_burning(), whose C body checks
+// the lamplit flag before the ignitable/artifact disjunction. Each case below
+// reaches exactly one disjunction arm.
 test('obj_sheds_light accepts either burning fuel or an artifact light', () => {
     // objects.h:1053 TOOL("oil lamp", ...) carries no artifact, so a lit lamp
     // reaches only obj.h ignitable()'s otyp list.
@@ -146,6 +150,51 @@ test('obj_sheds_light accepts either burning fuel or an artifact light', () => {
     }), true);
     // Neither arm: a lit long sword with no artifact index sheds nothing.
     assert.equal(obj_sheds_light({ otyp: LONG_SWORD, lamplit: true }), false);
+});
+
+test('obj_is_burning follows light.c and obj.h source predicates', async () => {
+    const cLight = await readFile(
+        new URL('../nethack-c/upstream/src/light.c', import.meta.url), 'utf8',
+    );
+    const objHeader = await readFile(
+        new URL('../nethack-c/upstream/include/obj.h', import.meta.url),
+        'utf8',
+    );
+    const jsLight = await readFile(
+        new URL('../js/light.js', import.meta.url), 'utf8',
+    );
+    const shedsStart = cLight.indexOf('\nobj_sheds_light(');
+    const shedsEnd = cLight.indexOf('\n/* Return TRUE if sheds light AND', shedsStart);
+    const shedsBody = cLight.slice(shedsStart, shedsEnd);
+    assert.ok(shedsStart >= 0 && shedsEnd > shedsStart,
+        'light.c defines the complete obj_sheds_light wrapper');
+    assert.match(shedsBody, /return obj_is_burning\(obj\);/u);
+    assert.match(jsLight,
+        /export function obj_sheds_light\(obj\) \{\s*return obj_is_burning\(obj\);\s*\}/u);
+    const start = cLight.indexOf('\nobj_is_burning(');
+    const end = cLight.indexOf('\n/* copy the light source(s)', start);
+    const cBody = cLight.slice(start, end);
+    assert.ok(start >= 0 && end > start,
+        'light.c defines the complete obj_is_burning body');
+    assert.match(cBody,
+        /obj->lamplit\s*&&\s*\(ignitable\(obj\)\s*\|\|\s*artifact_light\(obj\)\)/u);
+    assert.match(objHeader,
+        /#define ignitable\(otmp\)[\s\\]*\(\(otmp\)->otyp == BRASS_LANTERN/u);
+
+    // OIL_LAMP is in obj.h:ignitable, so a lit fuel lamp burns.
+    assert.equal(obj_is_burning({ otyp: OIL_LAMP, lamplit: true }), true);
+    // BRASS_LANTERN is also ignitable even though another path forbids lighting it with fire.
+    assert.equal(obj_is_burning({ otyp: BRASS_LANTERN, lamplit: true }), true);
+    // A zero-charge MAGIC_LAMP is not ignitable and has no artifact light.
+    assert.equal(obj_is_burning({ otyp: MAGIC_LAMP, spe: 0, lamplit: true }), false);
+    // A lit Sunsword is the artifact_light arm, though a sword is not ignitable.
+    assert.equal(obj_is_burning({
+        otyp: LONG_SWORD,
+        oartifact: ART_SUNSWORD,
+        lamplit: true,
+    }), true);
+    // C short-circuits on lamplit before checking either source predicate.
+    assert.equal(obj_is_burning({ otyp: OIL_LAMP, lamplit: false }), false);
 });
 
 test('vision_recalc marks the hero square seen from every direction', () => {

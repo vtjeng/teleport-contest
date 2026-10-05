@@ -85,7 +85,13 @@ import {
     STONE_RES,
     STUNNED,
     TIMEOUT,
+    OMONST,
     SELL_NORMAL,
+    SELL_DELIBERATE,
+    SELL_DONTSELL,
+    ROT_CORPSE,
+    REVIVE_MON,
+    SHRINK_GLOB,
     SORTLOOT_INVLET,
     SORTLOOT_LOOT,
     SORTLOOT_PACK,
@@ -187,7 +193,7 @@ import {
     unbless,
 } from './obj.js';
 
-import { get_obj_location } from './light.js';
+import { get_obj_location, obj_is_burning } from './light.js';
 import { bagotricks, set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
 import { hornoplenty } from './mkobj_hornoplenty.js';
@@ -198,14 +204,15 @@ import { in_rooms } from './rooms.js';
 import { rn2 } from './rng.js';
 import {
     AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
+    BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION, CAN_OF_GREASE, COIN_CLASS, CORPSE,
     CRAM_RATION, FOOD_RATION, GOLD_PIECE, HORN_OF_PLENTY, ICE_BOX,
     LARGE_BOX, LEMBAS_WAFER, LEASH, LOADSTONE, MAGIC_LAMP, OIL_LAMP,
     POTION_CLASS, POT_OIL, SCR_SCARE_MONSTER, SPE_BOOK_OF_THE_DEAD,
-    STATUE, VENOM_CLASS,
+    STATUE, TALLOW_CANDLE, VENOM_CLASS, WAX_CANDLE,
     WAN_CANCELLATION,
 } from './objects.js';
-import { PM_HOUSECAT, PM_STONE_GOLEM } from './monsters.js';
+import { PM_HOUSECAT, PM_ICE_TROLL, PM_STONE_GOLEM } from './monsters.js';
 import {
     an, ansimpleoname, corpse_xname, Doname2, killer_xname, Tobjnam, Yname2,
     Ysimple_name2, donameFresh, doname_with_price,
@@ -247,6 +254,7 @@ import { setuqwep, setuswapwep, setuwep } from './worn.js';
 import { note_unported } from './unported.js';
 import { d } from './rng.js';
 import { canspotmon } from './display.js';
+import { stop_timer } from './timeout.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,
@@ -2848,13 +2856,12 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
 // in_container / out_container / pickup_prinv / container_gone / ck_bag
 // ---------------------------------------------------------------
 
-// C ref: pickup.c:2558-2712. in_container().
+// C ref: pickup.c:2558-2710. in_container().
 // Returns: 1 item was put in, 0 item was not put in, -1 stop.
-// obj_is_burning/snuff_lit, shop-floor billing (sellobj), and icebox age
-// handling remain guarded at their source sites.
 async function in_container(obj, state) {
     if (!state.gc.current_container) {
-        throw new Error('<in> no gc.current_container?');
+        note_unported('pline.c impossible');
+        return 0;
     }
 
     const floor_container = !carried(state.gc.current_container);
@@ -2893,9 +2900,9 @@ async function in_container(obj, state) {
         return 0;
     } else if (obj === state.uwep) {
         if (welded(obj, state)) {
-            // weldmsg() is not ported; refuse the welded weapon.
-            throw new UnsupportedPickupError(
-                'in_container: welded weapon (weldmsg)');
+            // C discards weldmsg()'s result; its message body remains unported.
+            note_unported('wield.c weldmsg');
+            return 0;
         }
         setuwep(null, setwornEnv(state));
         // Obsolete uwep check from 3.0: life-saving could rewield.
@@ -2921,27 +2928,56 @@ async function in_container(obj, state) {
         return 0;
     }
 
-    // --- Fail-closed guards for unported sub-paths ---
-    if (obj.lamplit) {
-        // obj_is_burning / snuff_lit (C: 2626-2627).
-        throw new UnsupportedPickupError(
-            'in_container: obj_is_burning/snuff_lit');
-    }
-    if (floor_container && costly_spot(state.u.ux, state.u.uy, state)) {
-        // Shop-floor billing via sellobj (C: 2629-2643).
-        throw new UnsupportedPickupError(
-            'in_container: shop floor billing (sellobj)');
-    }
-    if (Icebox) {
-        // Icebox age handling (C: 2644-2657).
-        throw new UnsupportedPickupError(
-            'in_container: icebox age handling');
-    }
     freeinv(obj, { state });
+    if (obj_is_burning(obj)) {
+        // C discards snuff_lit()'s result; preserve the call boundary without
+        // inventing its light/timer effects.
+        note_unported('light.c snuff_lit');
+    }
+
+    let wasUnpaid = false;
+    if (floor_container && costly_spot(state.u.ux, state.u.uy, state)) {
+        if (obj.oclass !== COIN_CLASS) {
+            // C defers gold, but prepares billing mode before sellobj().
+            wasUnpaid = Boolean(obj.unpaid);
+            if (state.gs.sellobj_first) {
+                sellobj_state(
+                    state.gc.current_container.no_charge
+                        ? SELL_DONTSELL : SELL_DELIBERATE,
+                    state,
+                );
+                state.gs.sellobj_first = false;
+            }
+            note_unported('shk.c sellobj');
+        }
+    }
+
+    const ageIsRelative = obj.otyp === BRASS_LANTERN
+        || obj.otyp === OIL_LAMP
+        || obj.otyp === CANDELABRUM_OF_INVOCATION
+        || obj.otyp === TALLOW_CANDLE
+        || obj.otyp === WAX_CANDLE
+        || obj.otyp === POT_OIL;
+    if (Icebox && !ageIsRelative) {
+        // pickup.c:2644-2657 stores relative age while frozen. JavaScript
+        // timeout arguments use the object directly in place of C obj_to_any.
+        obj.age = state.moves - obj.age;
+        if (obj.otyp === CORPSE) {
+            if (obj.timed) {
+                stop_timer(ROT_CORPSE, obj, state);
+                stop_timer(REVIVE_MON, obj, state);
+            }
+            const corpseMonster = OMONST(obj);
+            if (obj.corpsenm === PM_ICE_TROLL && corpseMonster)
+                corpseMonster.mcan = 0;
+        } else if (obj.globby && obj.timed) {
+            stop_timer(SHRINK_GLOB, obj, state);
+        }
+    }
 
     // pickup.c:2658-2694. Test every inserted item before linking it into
     // the bag.
-    if (isMbag(state.gc.current_container)
+    else if (isMbag(state.gc.current_container)
         && mbag_explodes(obj, 0, state)) {
         livelog_printf(
             LL_ACHIEVE,
@@ -2953,6 +2989,8 @@ async function in_container(obj, state) {
             + 'you are blasted by a magical explosion!',
             state,
         );
+        if (wasUnpaid)
+            await addtobill(obj, false, false, true, state);
         if (obj.otyp === BAG_OF_HOLDING)
             await do_boh_explosion(
                 obj,
@@ -2960,6 +2998,17 @@ async function in_container(obj, state) {
                 state,
             );
         obfree(obj, null, { state });
+        if (floor_container && costly_spot(
+            state.gc.current_container.ox,
+            state.gc.current_container.oy,
+            state,
+        )) {
+            const saveNoCharge = state.gc.current_container.no_charge;
+            await addtobill(
+                state.gc.current_container, false, false, false, state,
+            );
+            state.gc.current_container.no_charge = saveNoCharge;
+        }
         await do_boh_explosion(state.gc.current_container, floor_container,
             state);
         if (!floor_container) {
@@ -2995,10 +3044,9 @@ async function in_container(obj, state) {
 
     // Gold in container always needs to be added to credit (C: 2701-2702).
     if (floor_container && obj.oclass === COIN_CLASS) {
-        // sellobj for gold on container's square; guarded above for
-        // non-gold items in shops, but gold is handled after the message.
-        throw new UnsupportedPickupError(
-            'in_container: gold in floor container (sellobj)');
+        // C discards sellobj()'s result and handles shop gold after the put-in
+        // message; retain the source position while its billing body is open.
+        note_unported('shk.c sellobj');
     }
     add_to_container(state.gc.current_container, obj, {
         state,

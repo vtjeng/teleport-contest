@@ -50,6 +50,7 @@ import { mongone } from './mon.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { can_carry } from './moncarry.js';
 import { artifact_light } from './artifacts.js';
+import { obj_is_burning } from './light.js';
 import {
     next_ident,
     obj_attach_mid,
@@ -273,7 +274,7 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
             await obj_no_longer_held(otmp, { state });
         // C: if ((cont || artifact_light(otmp)) && obj_is_burning(otmp))
         //        end_burn(otmp, TRUE);
-        if ((cont || artifact_light(otmp)) && otmp.lamplit)
+        if ((cont || artifact_light(otmp)) && obj_is_burning(otmp))
             await end_burn(otmp, true, { state });
         otmp.owornmask = 0;
 

@@ -383,7 +383,9 @@ import {
     artifact_light,
     is_art,
 } from './artifacts.js';
-import { arti_light_radius, del_light_source } from './light.js';
+import {
+    arti_light_radius, del_light_source, obj_is_burning,
+} from './light.js';
 import { light_hits_gremlin } from './uhitm.js';
 import {
     block_point, cansee, do_clear_area, does_block, unblock_point,
@@ -2063,7 +2065,8 @@ function set_lit(x, y, lit, state, gremlins) {
     for (let source = state.gl?.light_base ?? null; source;) {
         const next = source.next;
         if (source.type === LS_OBJECT && source.x === x && source.y === y
-            && source.id?.lamplit && !artifact_light(source.id)) {
+            && source.id && obj_is_burning(source.id)
+            && !artifact_light(source.id)) {
             try {
                 del_light_source(source.type, source.id, state);
             } catch {
