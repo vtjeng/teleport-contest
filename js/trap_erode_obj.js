@@ -71,8 +71,8 @@ import { which_armor } from './worn.js';
 import { cansee } from './vision.js';
 import { dist2 } from './hacklib.js';
 import { canseemon } from './display.js';
-import { note_unported } from './unported.js';
 import { dry_a_towel } from './weapon.js';
+import { note_unported } from './unported.js';
 
 // C ref: trap.c erode_obj()'s three static tables (177-182), one row per
 // ERODE_* value, together with the `vulnerable` predicate and the `is_primary`
