@@ -170824,7 +170824,7 @@
     {
       "id": "port-pickup-in-container-icebox-v20-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port container insertion with icebox age and timer handling",
       "cFile": "pickup.c",
       "sessions": [
@@ -170838,15 +170838,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "in_container",
           "line": 2558,
           "endLine": 2719,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -170858,9 +170861,9 @@
           "name": "obj_is_burning",
           "line": 771,
           "endLine": 778,
-          "declared": false,
+          "declared": true,
           "sourceFile": "light.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -171035,7 +171038,191 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "in_container",
+            "implementation": "js/pickup.js",
+            "symbol": "in_container",
+            "sourceReview": "Read the complete pickup.c:in_container body (2558-2710) and checked C/JS branch order. Both retain the early rejected-object and fatal-corpse paths, container-fit checks, inventory removal, burning-source test, floor-container billing setup, icebox age_is_relative conversion and ROT_CORPSE/REVIVE_MON/SHRINK_GLOB timer stops, Ice Troll uncancellation, bag-explosion else-if, successful insertion message, coin billing position, add_to_container, weight recalculation and bot refresh. The C-discarded void snuff_lit, sellobj and weldmsg calls remain named with note_unported at their source sites; the impossible diagnostic is also a discarded void gap. stop_timer is implemented and its discarded Boolean is ignored. C macros Is_box, Is_mbag, age_is_relative, has_omonst and OMONST are represented by their source predicates/state reads. The later out_container/removal path is outside this function and remains a separate boundary.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "use_container",
+                "source": "pickup.c:3178; #loot stash-one route calls in_container and consumes its Boolean"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "traditional_loot",
+                "source": "pickup.c:3239-3243 assigns in_container as the put-in actionfunc"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "menu_loot",
+                "source": "pickup.c:3350 just-picked shortcut and 3376 manual selection call in_container"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/a100-icebox-newt-insert.session.json",
+              "recordings/pickup.c/a100-icebox-relative-age-oil-lamp.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "pickup.c:doloot -> doloot_core -> do_loot_cont -> use_container -> in_container; #loot selects the carried ice box and reaches successful corpse insertion at the selected first-mismatch boundary."
+              }
+            ],
+            "checkedAt": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123"
+          },
+          {
+            "name": "obj_is_burning",
+            "implementation": "js/light.js",
+            "symbol": "obj_is_burning",
+            "sourceReview": "Read light.c:obj_is_burning (771-775) and the obj.h ignitable macro. The complete pure predicate is lamplit && (ignitable(obj) || artifact_light(obj)); the C short circuit is preserved. It has no RNG, output or game-state mutation. The selected pickup caller uses the result before icebox handling. bones.c:drop_upon_death and light.c:obj_sheds_light also use the canonical helper. read.c:set_lit delegates to light.c:snuff_light_source, which checks obj_is_burning before preserving artifact lights; read.js:set_lit now calls the same canonical predicate in its corresponding coordinate/object-source loop. steal.c:mpickobj reaches the predicate through obj_sheds_light and the snuff-light operation.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "pickup.c:2626"
+              },
+              {
+                "path": "js/bones.js",
+                "symbol": "drop_upon_death",
+                "source": "bones.c:283"
+              },
+              {
+                "path": "js/light.js",
+                "symbol": "obj_sheds_light",
+                "source": "light.c:766-767"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "set_lit",
+                "source": "read.c:2486 delegates to light.c:snuff_light_source; light.c:742 calls obj_is_burning"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/light-vision.test.mjs",
+              "scripts/bones.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "light.c",
+            "synthetic": [],
+            "checkedAt": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123"
+          }
+        ],
+        "entryPointReview": "The impure selected entry is putting an inventory item into a carried ice box through #loot. C routes doloot/doloot_core through do_loot_cont to use_container, then in_container; the two independent A100 recordings stop on successful insertion and exercise both an ordinary corpse and the age-relative oil-lamp exemption. The selected v20 case reaches the newt-corpse in_container call at zero-based step 72; its later out_container/removal divergence is outside A100. The attempted Ice Troll variation is retained only as a blocked recipe: do_wizwish -> hold_another_object drops the over-burden corpse before the #loot stash selector can reach in_container. obj_is_burning is pure and has direct source-pinned result tests. The read.c:set_lit caller correction is source-pinned in read.test.mjs; no whole read.c:set_lit completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "#loot insertion into a carried ice box",
+            "functions": [
+              "in_container",
+              {
+                "sourceFile": "light.c",
+                "name": "obj_is_burning"
+              }
+            ],
+            "recordings": [
+              "recordings/pickup.c/a100-icebox-newt-insert.session.json",
+              "recordings/pickup.c/a100-icebox-relative-age-oil-lamp.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "pickup.c:doloot -> doloot_core -> do_loot_cont -> use_container -> in_container; #loot stash path reaches icebox insertion."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "session": "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+          "recordingPath": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+          "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
+          "recipe": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.recipe.session.json",
+          "recipeSha256": "33d2301c08fbacc551279890d73d21cd15c49e6b0d7788b7ea00de41a4f44d01",
+          "replayInputSha256": "c97c7c97ab43049d60a3fbb738c4aea104cd3583b0368586f1061f8d98f8bd1c",
+          "evaluationPath": "challenges/evaluations/20261005201650-v20.json",
+          "evaluationCommit": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+          "evaluationArtifact": "challenges/evaluations/20261005201650-v20.json",
+          "evaluationUtc": "2026-10-05T20:17:55.557Z",
+          "remainingScreens": 0,
+          "recordedSteps": 83,
+          "previousScreensMatched": 72,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 83,
+              "total": 83
+            },
+            "rng": {
+              "matched": 2907,
+              "total": 2920
+            },
+            "cursors": {
+              "matched": 83,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2907,
+              "cEntry": "rn2(1000)=876",
+              "cCaller": "start_corpse_timeout(mkobj.c:1413)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 82,
+                "key": "\n"
+              },
+              "stepIndex": 82
+            },
+            "cursor": null
+          },
+          "step": 82,
+          "kind": "rng",
+          "sourceFile": "mkobj.c",
+          "function": "start_corpse_timeout",
+          "message": null,
+          "cFile": "mkobj.c",
+          "luaFile": null,
+          "line": 1413,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.json",
+            "previousRemainingScreens": 11
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
