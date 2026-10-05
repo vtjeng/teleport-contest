@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B103 C-first runtime witness for music.c:do_earthquake -> do_pit -> dig.c:liquid_flow. The level-4 Wizard uses force 2; seven explicitly wished moat tiles border ordinary room cells. The preceding same-seed inventory probe established the charged drum is slot o; this frozen route applies it and drains the resulting pager sequence. The route is independent of the admitted v20 zap case.",
+  "segments": [
+    {
+      "seed": 84513972,
+      "datetime": "20500723112700",
+      "nethackrc": "OPTIONS=name:B103QuakeMoat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".#levelchange\n4\n     \u0017water walking boots\nWnk#wizwish\nmoat\nju#wizwish\nmoat\nbl#wizwish\nmoat\nhn#wizwish\nmoat\nyj#wizwish\nmoat\nkh#wizwish\nmoat\nly#wizwish\nmoat\nn\u0017uncursed drum of earthquake (0:1)\nao                                        "
+    }
+  ]
+}

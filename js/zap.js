@@ -52,7 +52,8 @@ import { get_mtraits } from './corpstat.js';
 import { eaten_stat, fix_petrification, vegetarian } from './eat.js';
 import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
 import {
-    adj_pit_checks, dighole, fillholetyp, watch_dig, } from './dig.js';
+    adj_pit_checks, dighole, fillholetyp, pit_flow, watch_dig,
+} from './dig.js';
 import { dropx, dropy } from './do.js';
 import {
     ceiling, Invocation_lev, surface, surface_typ, update_mapseen_for, } from './dungeon.js';
@@ -5896,11 +5897,10 @@ export async function zapnodir(obj, state = game,
 // C ref: dig.c zap_dig() (1548-1754). The swallowed branch still stops at
 // digests()/expels() because their message and relocation chain is not yet
 // owned here; vertical down-dig calls the ported dighole() but later hole
-// descent remains incomplete; adjacent-pit liquid flow still skips
-// dighole()/pit_flow() after preserving their
-// source predicates and consumed fillholetyp() draw. The normal horizontal
-// and maze arms are complete through their beam animation, source terrain
-// order, vision updates, and discarded shop/watch hooks.
+// descent remains incomplete. The horizontal adjacent-pit arm runs
+// pit_flow()/liquid_flow() in source order. The
+// normal horizontal and maze arms are complete through their beam animation,
+// source terrain order, vision updates, and discarded shop/watch hooks.
 function zapDigHardHelmet(helmet, state) {
     if (!helmet || !is_helmet(helmet, state)) return false;
     const type = objectType(helmet, state);
@@ -6152,7 +6152,8 @@ export async function zap_dig(
         if (flowTrap && is_pit(flowTrap.ttyp)) {
             const filltyp = fillholetyp(flowTrap.tx, flowTrap.ty, true,
                 state, random);
-            if (filltyp !== ROOM) note_unported('dig.c pit_flow');
+            if (filltyp !== ROOM)
+                await pit_flow(flowTrap, filltyp, state, { random });
         }
     }
     if (shopdoor || shopwall)

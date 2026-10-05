@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Bounded B103 source-directed variation for music.c:do_earthquake -> do_pit -> dig.c:liquid_flow. At level 7, drum force is 3 and its scan radius is 6 rather than the level-4 force-2/radius-4 attempt. Keep the same seven explicitly wished moat tiles and observed drum slot o to isolate the source-driven scan expansion; this is the final earthquake setup attempt.",
+  "segments": [
+    {
+      "seed": 84513972,
+      "datetime": "20500723112700",
+      "nethackrc": "OPTIONS=name:B103QuakeMoat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".#levelchange\n7\n     \u0017water walking boots\nWnk#wizwish\nmoat\nju#wizwish\nmoat\nbl#wizwish\nmoat\nhn#wizwish\nmoat\nyj#wizwish\nmoat\nkh#wizwish\nmoat\nly#wizwish\nmoat\nn\u0017uncursed drum of earthquake (0:1)\nao                                        "
+    }
+  ]
+}

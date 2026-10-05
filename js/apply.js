@@ -540,6 +540,7 @@ import { encumber_msg, pickup_object, use_container } from './pickup.js';
 import {
     dig_check,
     fillholetyp,
+    liquid_flow,
     use_pick_axe,
     watch_dig,
 } from './dig.js';
@@ -4634,6 +4635,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
     let damage = obj.spe * 4;
     let affectsObjects = false;
     let shopDamage = false;
+    let fillmsg = false;
 
     switch (obj.otyp) {
     case WAN_OPENING:
@@ -4720,8 +4722,18 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
                 if (terrain !== ROOM) {
                     level.typ = terrain;
                     level.flags = 0;
-                    // dig.c liquid_flow() is a void, source-ordered gap.
-                    note_unported('dig.c liquid_flow');
+                    await liquid_flow(
+                        x,
+                        y,
+                        terrain,
+                        t_at(x, y, state),
+                        fillmsg
+                            ? null
+                            : 'Some holes are quickly filled with %s!',
+                        state,
+                        { ...env, random },
+                    );
+                    fillmsg = true;
                 } else {
                     const makePit = random.rn2(obj.spe) < 3
                         || (!Can_dig_down(state.u.uz, state)

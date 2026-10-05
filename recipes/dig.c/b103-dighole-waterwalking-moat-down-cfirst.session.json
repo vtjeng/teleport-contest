@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B103 dighole→liquid_flow route. The start square is on stairs, so move east once and keep that adjacent room square as the dry dig target. Wear wished water walking boots (actual observed appearance jungle boots, inventory slot n); then use wizterrainwish at each of the eight neighboring squares to make MOAT while returning to the unchanged dry target. Wish the wand of digging (observed at slot o), then zap downward with `>` (u.dz>0). This exercises zap.c downward dighole(FALSE,TRUE)→dig.c:dighole→liquid_flow; the admitted v20 route is separately zap_dig→pit_flow.",
+  "segments": [
+    {
+      "seed": 57310041,
+      "datetime": "20410917091327",
+      "nethackrc": "OPTIONS=name:B103MoatDighole,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017water walking boots\nWnlk#wizwish\nmoat\nju#wizwish\nmoat\nbl#wizwish\nmoat\nhn#wizwish\nmoat\nyj#wizwish\nmoat\nkb#wizwish\nmoat\nuh#wizwish\nmoat\nly#wizwish\nmoat\nn#wizwish\nwand of digging\nz o>"
+    }
+  ]
+}

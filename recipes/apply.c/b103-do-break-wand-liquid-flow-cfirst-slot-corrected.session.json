@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Input-only correction of the preserved selector setup miss. C run-BQR1lr showed the wished copper wand in slot p and the apply prompt offered clmnp; this recipe keeps the same seed, character, terrain setup and command sequence, changing only the wand selector from o to p.",
+  "segments": [
+    {
+      "seed": 80624017,
+      "datetime": "20411205091500",
+      "nethackrc": "OPTIONS=name:B103FlowBreak,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017water walking boots\nWnlk#wizwish\nmoat\nju#wizwish\nmoat\nbl#wizwish\nmoat\nhn#wizwish\nmoat\nyj#wizwish\nmoat\nkb#wizwish\nmoat\nuh#wizwish\nmoat\nly#wizwish\nmoat\nn#wizwish\nwand of digging\nap"
+    }
+  ]
+}

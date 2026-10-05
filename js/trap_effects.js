@@ -3478,10 +3478,9 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
         : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
 }
 
-// C ref: trap.c blow_up_landmine() (3170-3219). The explosion's scatter and
-// liquid-flow item/monster effects belong to explode.c, dig.c and apply.c;
-// this caller owns the terrain, trap, engraving, wake-up and vision effects
-// that follow the discarded calls in C.
+// C ref: trap.c blow_up_landmine() (3170-3219). The explosion's scatter
+// belongs to explode.c; this caller keeps the terrain, trap, engraving,
+// wake-up, liquid-flow and vision effects in C's order.
 export async function blow_up_landmine(trap, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const x = trap.tx;
@@ -3546,14 +3545,19 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
         } else {
             // fillholetyp() is a shared source helper. Keep this lazy import
             // to avoid pulling dig.c's monmove edge into this module cycle.
-            const { fillholetyp } = await import('./dig.js');
+            const { fillholetyp, liquid_flow } = await import('./dig.js');
             const typ = fillholetyp(x, y, false, state, { rn2: random.rn2 });
             if (typ !== ROOM) {
                 location.typ = typ;
-                // liquid_flow()'s return is discarded by C. Its item and
-                // monster damage effects are not ported, so record and skip
-                // that callee without inventing a trap deletion or message.
-                note_unported('dig.c liquid_flow');
+                await liquid_flow(
+                    x,
+                    y,
+                    typ,
+                    remaining,
+                    cansee(x, y, state) ? 'The hole fills with %s!' : null,
+                    state,
+                    { ...env, random },
+                );
             } else {
                 remaining.ttyp = PIT;
                 remaining.madeby_u = false;

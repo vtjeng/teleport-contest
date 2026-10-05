@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B103 C-first inventory/terrain probe for music.c:do_earthquake -> do_pit -> dig.c:liquid_flow. A level-4 Wizard gives the source force 2; water-walking boots allow the route to wish a seven-tile moat neighborhood around ordinary room cells. This probe stops at the drum inventory screen so the final apply command uses the actually observed letter. It does not copy an admitted challenge recording.",
+  "segments": [
+    {
+      "seed": 84513972,
+      "datetime": "20500723112700",
+      "nethackrc": "OPTIONS=name:B103QuakeMoat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".#levelchange\n4\n     \u0017water walking boots\nWnk#wizwish\nmoat\nju#wizwish\nmoat\nbl#wizwish\nmoat\nhn#wizwish\nmoat\nyj#wizwish\nmoat\nkh#wizwish\nmoat\nly#wizwish\nmoat\nn\u0017uncursed drum of earthquake (0:1)\ni"
+    }
+  ]
+}
