@@ -39,6 +39,7 @@ import {
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { sgn } from './hacklib.js';
+import { Monnam } from './do_name.js';
 import {
     canspotmon,
     canseemon,
@@ -46,6 +47,7 @@ import {
     map_invisible_planning,
     shieldeff,
 } from './display.js';
+import { messageAt } from './startup_a11y.js';
 import { healmon } from './mon.js';
 import { make_confused } from './potion.js';
 import {
@@ -859,11 +861,21 @@ async function mcast_disappear(mtmp, rawEnv = {}) {
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
     if (canseemon(mtmp, state)) {
+        // C pline_mon() formats the source name with Monnam() and adds map
+        // coordinates when accessiblemsg is enabled.
         const monsterName = rawEnv.monsterName?.(mtmp)
-            ?? capitalizedMonsterNameFallback(mtmp, state);
+            ?? Monnam(mtmp, state, rawEnv);
         const verb = heroProperty(state, SEE_INVIS)
             ? 'becomes transparent' : 'disappears';
-        await message(`${monsterName} suddenly ${verb}!`, state);
+        await message(
+            messageAt(
+                `${monsterName} suddenly ${verb}!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ),
+            state,
+        );
     }
 
     mon_set_minvis(mtmp, false, state, rawEnv);

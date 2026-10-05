@@ -27,7 +27,16 @@ import {
 import { GLYPH_INVISIBLE } from '../js/display.js';
 import { buzzmu, castmu, mcast_summon_mons } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
-import { AD_CLRC, AD_COLD, AD_FIRE, AD_MAGM, AD_SPEL, AT_MAGC } from '../js/monsters.js';
+import {
+    AD_CLRC,
+    AD_COLD,
+    AD_FIRE,
+    AD_MAGM,
+    AD_SPEL,
+    AT_MAGC,
+    monst_globals_init,
+    PM_KOBOLD_SHAMAN,
+} from '../js/monsters.js';
 import { STRANGE_OBJECT } from '../js/objects.js';
 import { has_aggravatables } from '../js/wizard.js';
 
@@ -1438,6 +1447,63 @@ test('MCAST_DISAPPEAR uses the transparent wording with See_invisible',
             'The Archon suddenly becomes transparent!',
         ]);
     });
+
+test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
+    // PM_KOBOLD_SHAMAN is an ordinary nonunique species, so C Monnam uses a
+    // definite article; this catches the old capitalized-species fallback.
+    const state = makeState();
+    monst_globals_init(state);
+    const caster = makeCaster({
+        m_lev: 20,
+        data: state.mons[PM_KOBOLD_SHAMAN],
+    });
+    const messages = [];
+    const gaps = [];
+
+    // The visible square (5,5) is east of the hero at (4,5); spell value 4
+    // selects MCAST_DISAPPEAR and rn2(200)=45 passes the fumble gate.
+    await castmu(caster, AD_SPEL_ATTACK, false, false, {
+        state,
+        planning: true,
+        random: scriptedRandom([4, 45]),
+        unsupported: refuse,
+        message: async (text) => messages.push(text),
+        noteUnported: (name) => gaps.push(name),
+    });
+
+    assert.equal(
+        messages.at(-1),
+        'The kobold shaman suddenly disappears!',
+        'Monnam supplies the source article for an ordinary species',
+    );
+
+    // accessiblemsg makes pline_mon attach the same monster square; the
+    // fresh caster repeats the source route with location output enabled.
+    const accessibleState = makeState({
+        a11y: { accessiblemsg: true },
+    });
+    monst_globals_init(accessibleState);
+    const accessibleCaster = makeCaster({
+        m_lev: 20,
+        data: accessibleState.mons[PM_KOBOLD_SHAMAN],
+    });
+    const accessibleMessages = [];
+    await castmu(accessibleCaster, AD_SPEL_ATTACK, false, false, {
+        state: accessibleState,
+        planning: true,
+        random: scriptedRandom([4, 45]),
+        unsupported: refuse,
+        message: async (text) => accessibleMessages.push(text),
+        noteUnported: () => {},
+    });
+
+    assert.equal(
+        accessibleMessages.at(-1),
+        '(east): The kobold shaman suddenly disappears!',
+        'messageAt uses pline_mon coordinates when accessiblemsg is enabled',
+    );
+    assert.deepEqual(gaps, ['display.c newsym']);
+});
 
 test('MCAST_DISAPPEAR is not selected when invisibility is already blocked',
     async () => {
