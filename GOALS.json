@@ -170009,7 +170009,7 @@
     {
       "id": "port-eat-fpostfx-completed-meal-effects-v20-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port completed non-corpse meal effects",
       "cFile": "eat.c",
       "sessions": [
@@ -170023,15 +170023,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "38bd807514852ffcec10562805054affa549ccb9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "fpostfx",
           "line": 2510,
           "endLine": 2608,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -170207,7 +170210,66 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "fpostfx",
+            "implementation": "js/eat.js",
+            "symbol": "fpostfx",
+            "sourceReview": "Read the complete eat.c:fpostfx definition (2510–2595) and compared its switch order with js/eat.js:fpostfx. Wolfsbane checks lycan/form then records the discarded void you_unwere call as note_unported; carrot preserves C short-circuit order and the swallowed-engulfer blindness exception; cookie calls bcsign/outrumor before the nonblind literacy conduct; royal jelly checks Killer Bee/Unchanging and consumes polymon’s Boolean, then gainstr, exactly one signed rnd(20), conditional rn2(17) max-HP increase, form/human HP cap or rehumanize/POISONING, and uncursed heal_legs; egg preserves ismnum/flesh_petrifies/Stone resistance and consumes poly_when_stoned and polymon before make_stoned; eucalyptus cures sickness then vomiting only when uncursed; cursed apple preserves dwarf/hallucination, Deaf/acoustics, You_hear and rn1/fall_asleep order. The consumed-return dependencies polymon, poly_when_stoned, bcsign and attacktype_fordmg have accepted whole-source evidence; flesh_petrifies, ismnum, is_were and Race_if are C macros. done_eating awaits fpostfx before consuming the food, as eat.c:565 does before useup/useupf. The eatOperations environment now supplies pickup.c:encumber_msg to gainstr/adjattrib in the royal-jelly arm.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c:done_eating line 565 calls fpostfx(piece) after the meal-completion message and before useup/useupf; JS done_eating awaits fpostfx at line 3214 in that same position."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 25,
+                "source": "eat.c:doeat -> start_eating -> done_eating -> fpostfx; step 25 selects the wished royal jelly and completes the meal. The diagnostic replay matched the whole 42-step segment."
+              }
+            ],
+            "checkedAt": "38bd807514852ffcec10562805054affa549ccb9"
+          }
+        ],
+        "entryPointReview": "fpostfx has one direct C caller, done_eating. The live game reaches that caller from a one-turn meal in eat.c:start_eating and from a completed occupation in eat.c:eatfood; both then call fpostfx before useup/useupf. The admitted v20 input follows the direct eat command through start_eating and reaches the royal-jelly arm. A single-case diagnostic now matches all 42 recorded boundaries, including the meal-completion call; the selected evidence range is the eat command/object selection boundary at steps 24–25. The wolfbane branch still names only the discarded void were.c:you_unwere call as unported.",
+        "entryPoints": [
+          {
+            "name": "eat a non-corpse meal to completion",
+            "functions": [
+              "fpostfx"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 25,
+                "source": "eat.c:doeat -> start_eating -> done_eating -> fpostfx; selected royal jelly completes the one-turn meal."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "38bd807514852ffcec10562805054affa549ccb9",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
