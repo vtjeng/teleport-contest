@@ -163796,7 +163796,7 @@
     {
       "id": "port-detect-do-vicinity-map-v21-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Reveal the nearby map for timed and spell clairvoyance",
       "cFile": "detect.c",
       "sessions": [
@@ -163810,8 +163810,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4e033fb45199a762edde85bda9e81c92a13a2740",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_vicinity_map",
@@ -164116,6 +164119,69 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+          "session": "synthetic/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.session.json",
+          "recordingPath": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.session.json",
+          "recordingSha256": "dde027291c1e4acc27f079abd5b3cc4f131f1fda96821d81ddb78c990948981a",
+          "recipe": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.recipe.session.json",
+          "recipeSha256": "c4d8ef8247fb4565b0fed380512db904aefbe807300ef94486d19bd1a0d38a7f",
+          "replayInputSha256": "a490525cfacc1d2b3acf2a628c577a56381a82d2cfce862367ab247e597a14fc",
+          "evaluationPath": "challenges/evaluations/20261004141058-v21.json",
+          "evaluationCommit": "4e033fb45199a762edde85bda9e81c92a13a2740",
+          "evaluationArtifact": "challenges/evaluations/20261004141058-v21.json",
+          "evaluationUtc": "2026-10-04T14:12:10.514Z",
+          "remainingScreens": 4,
+          "recordedSteps": 62,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 58,
+              "total": 62
+            },
+            "rng": {
+              "matched": 2802,
+              "total": 2850
+            },
+            "cursors": {
+              "matched": 58,
+              "total": 62
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_samu()",
+            "step": 58
+          },
+          "step": 58,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_samu",
+          "message": "simple monster action requires uhitm.c mhitm_ad_samu()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.json",
+            "previousRemainingScreens": 62
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4e033fb45199a762edde85bda9e81c92a13a2740",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
