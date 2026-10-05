@@ -165403,6 +165403,327 @@
         "rng": 792838
       },
       "parkedReason": "Partial C80 delivery: finish_towel_change/dry_a_towel and six canonical object naming units are verified; all existing otense/is_plural caller state arguments are wired. wet_a_towel runtime remains blocked by potion.c:dodip before water_damage. Preserve the whole planned family, blocked recipe and resume condition; no wet_a_towel completion or goal-closure score event."
+    },
+    {
+      "id": "port-uhitm-erode-armor-trap-erode-obj-20261004",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port armor erosion and canonical erosion feedback",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62"
+      ],
+      "selectionReason": "Source-traced armor-corrosion scope includes whole erode_armor and consumed erode_obj. Correct canonical vtense and reuse accepted C80 cxname evidence after dependency acceptance. Four matching fire/burn records verify erode_obj; acid-breath recording reaches caller but misses erode_armor gate, so erode_armor remains incomplete and goal must be parked.",
+      "detail": "",
+      "openedAt": "3ee3de88594946d6963d7307fec98b285a36fd59",
+      "openStanding": {
+        "sha": "472f0792af324ac66408e0aab04a7a9ac68875fa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "erode_armor",
+          "line": 126,
+          "endLine": 188,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 126,
+        "to": 188
+      },
+      "requiredFunctions": [
+        {
+          "name": "erode_obj",
+          "line": 171,
+          "endLine": 359,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62": {
+          "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+          "evaluationPath": "challenges/evaluations/20261005033842-v19.json",
+          "evaluationCommit": "472f0792af324ac66408e0aab04a7a9ac68875fa"
+        }
+      },
+      "activeStanding": {
+        "sha": "472f0792af324ac66408e0aab04a7a9ac68875fa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+          "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+          "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+          "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+          "replayInputSha256": "9cff049745ec05676174c65eb92bedde2d4bcc73a072ce12be68263860613779",
+          "evaluationPath": "challenges/evaluations/20261005033842-v19.json",
+          "evaluationCommit": "472f0792af324ac66408e0aab04a7a9ac68875fa",
+          "evaluationArtifact": "challenges/evaluations/20261005033842-v19.json",
+          "evaluationUtc": "2026-10-05T03:39:46.624Z",
+          "remainingScreens": 5,
+          "recordedSteps": 72,
+          "previousScreensMatched": 67,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 67,
+              "total": 72
+            },
+            "rng": {
+              "matched": 2692,
+              "total": 2698
+            },
+            "cursors": {
+              "matched": 67,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+            "step": 67
+          },
+          "step": 67,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_corr",
+          "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62.json",
+            "result": {
+              "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+              "remainingScreens": 5,
+              "recordedSteps": 72,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+                "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+                "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+                "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 5,
+                "recordedSteps": 72,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 67,
+                    "total": 72
+                  },
+                  "rng": {
+                    "matched": 2692,
+                    "total": 2698
+                  },
+                  "cursors": {
+                    "matched": 67,
+                    "total": 72
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                  "step": 67
+                },
+                "step": 67,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_corr",
+                "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A black pudding bites the hero, but the AD_CORR dispatch refuses mhitm_ad_corr before completing the turn. C corrodes the worn chain mail. Port the whole helper and its required armor-erosion return chain.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A successful AT_BITE/AD_CORR monster-to-hero hit with an uncancelled black pudding and worn chain mail reaches erode_armor(ERODE_CORRODE).",
+                "functions": [
+                  "mhitm_ad_corr",
+                  "erode_armor"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku -> hitmu",
+                  "uhitm.c:mhitm_adtyping AD_CORR"
+                ],
+                "dependencies": [
+                  "worn.c:which_armor",
+                  "trap.c:erode_obj",
+                  "objnam.c:xname",
+                  "mhitu.c:hitmsg"
+                ]
+              },
+              "evidence": [
+                "nethack-c/upstream/src/uhitm.c:2338-2361 defines the whole mhitm_ad_corr helper. Hero-to-monster erodes armor and clears damage; monster-to-hero prints hitmsg and skips erosion when cancelled; monster-to-monster skips when cancelled, otherwise erodes armor, clears STRAT_WAITFORU, and clears damage.",
+                "nethack-c/upstream/src/uhitm.c:126-185 erode_armor retries rn2(5) until an eligible helmet, shield, gloves, or boots target changes, while the body case tries cloak, suit, then shirt and terminates. It consumes which_armor, xname, and erode_obj results. Resolve their complete source-backed return dependencies rather than introducing a fixed target or draw.",
+                "js/uhitm.js:4958 dispatches AD_CORR to unported(mhitm_ad_corr); a search for function erode_armor in js found no body. The admitted baseline stops at zero-based segment 0 step 67 with simple monster action requires uhitm.c mhitm_ad_corr().",
+                "The frozen C recording at segment 0 step 67 contains rnd(20)=5 at mattacku, d(3,8)=17 at hitmu, then rn2(5)=1 at erode_armor and the screen The black pudding bites! Your chain mail corrodes!--More--. These prove the attack and body-slot corrosion route, not just a generic monster-turn RNG annotation.",
+                "The first missing comparator call is distfleeck(monmove.c:538). C makes it before the attack in this turn; the JS preflight refusal prevents the entire turn boundary. It is a reporting symptom, not evidence that distfleeck needs a special draw. Scope includes all three actor combinations of mhitm_ad_corr and required helper/caller wiring; no completion credit for the whole outer mattacku or hitmu functions.",
+                "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "erode_obj",
+            "implementation": "js/trap_erode_obj.js",
+            "symbol": "erode_obj",
+            "sourceReview": "Compared the complete trap.c:erode_obj body (171-359) with js/trap_erode_obj.js:178-390. The implementation selects the hero, monster or floor victim; preserves resistance-before-vulnerability, grease, primary/secondary erosion, proofing, damage, possible destruction, billing and refresh order; and uses canonical objnam.c:vtense for all seven message-verb sites. scripts/trap-erode-obj.test.mjs pins the C vtense calls and named-singular/plural armor outputs. The function discards steal.c:remove_worn_item results, so JS records that void gap with note_unported and skips the effect. Four matching C recordings reach erode_obj through fire/burn production callers. The function’s consumed objnam.c:cxname result is covered by C80’s submitted delivery 2ee0f7d7; root will withhold completion until that dependency is accepted.",
+            "callers": [
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "burnarmor",
+                "source": "C trap.c burnarmor expands burn_dmg (macro at line 111) to erode_obj for carried armor."
+              },
+              {
+                "path": "js/trap_water_damage.js",
+                "symbol": "fire_damage",
+                "source": "C trap.c fire_damage:4537 calls erode_obj for a floor item; JS delegates to the canonical helper."
+              },
+              {
+                "path": "js/trap_water_damage.js",
+                "symbol": "water_damage",
+                "source": "C trap.c water_damage:4849 returns erode_obj for water damage; JS awaits the same helper."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "cursed_book",
+                "source": "C spell.c cursed_book:158 calls erode_obj for corroded gloves; JS awaits it."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "destroy_arm",
+                "source": "C do_wear.c destroy_arm:3303 consumes erode_obj’s result; JS uses the same result."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "breakobj",
+                "source": "C dothrow.c breakobj:2490 returns erode_obj’s crack result; JS returns the corresponding result."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "erode_armor",
+                "source": "C uhitm.c erode_armor:141-179 calls erode_obj for each selected worn-armor slot; JS awaits the same helper, but this task lacks a matching runtime for the parent selector."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-erode-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/melt-ice-boulder-iced-moat-fire-followthrough.session.json",
+              "recordings/zap.c/melt-ice-boulder-pool-fire-followthrough.session.json",
+              "recordings/trap.c/a83-fire-trap-on-cold-ray-iced-moat-recursion-water-walking-ice-melt-cfirst.session.json",
+              "recordings/trap.c/a83-fire-trap-on-cold-ray-ice-recursion-water-walking-ice-melt-cfirst.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "fb98e314e6c91f013bf44386eff8f94939d2abde"
+          }
+        ],
+        "entryPointReview": "Matching runtime reaches trap.c:erode_obj through burnarmor/fire_damage in four independent fire/burn recordings. The canonical vtense correction is source-pinned and its focused suite passed after commit a61b6260. The erode_obj row is proposed complete with an explicit dependency on C80’s submitted cxname evidence; root will withhold final completion until C80 accepts that dependency. erode_armor has active zap.c:zhitu and zap.c:zhitm ZT_ACID gates but no matching recording executes the selected helper: the complete monster breath record misses rn2(6)=2 at the armor gate, and the hero path first diverges at step 120 in the discarded acid_damage/inventory_resistance_check path. Keep trap.c:acid_damage, AD_DCAY and passive attack handlers as active outer gaps, not inactive branches.",
+        "entryPoints": [
+          {
+            "name": "Fire/burn damage through trap.c:burnarmor/fire_damage to erode_obj",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "erode_obj"
+              }
+            ],
+            "recordings": [
+              "recordings/zap.c/melt-ice-boulder-iced-moat-fire-followthrough.session.json",
+              "recordings/zap.c/melt-ice-boulder-pool-fire-followthrough.session.json",
+              "recordings/trap.c/a83-fire-trap-on-cold-ray-iced-moat-recursion-water-walking-ice-melt-cfirst.session.json",
+              "recordings/trap.c/a83-fire-trap-on-cold-ray-ice-recursion-water-walking-ice-melt-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "Hero acid breath zhitu ZT_ACID armor gate",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "erode_armor"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Monster acid breath zhitm ZT_ACID armor gate",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "erode_armor"
+              }
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b453b88e7927377c03d11d2ce1db70fefe35c052",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial A95 delivery: trap.c:erode_obj is verified with canonical vtense and accepted C80 cxname dependency. erode_armor has implemented ZT_ACID caller arms but no matching helper execution: the monster breath recording misses the armor gate and the hero route diverges earlier in acid_damage. Preserve the whole planned scope and blocked recipes; no erode_armor completion or goal-closure score event."
     }
   ]
 }

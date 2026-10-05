@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-directed one-factor geometry correction for the preserved southward miss. In the C setup screen, the Yellow Dragon is at row15/col2 and the hostile sergeant at row16/col3, so the target is southeast (n). C run-4MZ3YW then executes polyself.c:dobreathe→ubuzz→dobuzz→zap.c:zhitm and reports an acid hit. The monster armor gate is rn2(6)=2, so this strict matching record proves the caller branch only; it does not execute erode_armor. Frozen from the recorded C positions, with no seed, placement, or gate search.",
+  "segments": [
+    {
+      "seed": 8712609,
+      "datetime": "20381029101500",
+      "nethackrc": "OPTIONS=name:A95AcidRay,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " w- #levelchange\n30\n                             #polyself\nyellow dragon\n  \u0007hostile sergeant\n#monster\nn"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved failed source probe: C object wish “wand of acid” resolves to platinum wand/WAN_CANCELLATION because this game has no WAN_ACID. The three z-e-east inputs therefore do not exercise zap.c:zhitm ZT_ACID or erode_armor. Keep this attempt outside passing recordings; the correct acid route is dragon breath.",
+  "segments": [
+    {
+      "seed": 4167259,
+      "datetime": "20390515123300",
+      "nethackrc": "OPTIONS=name:A95AcidRay,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " #levelchange\n30\n                             \u0017blessed +7 wand of acid\n\u0007hostile sergeant\nzel zel zel"
+    }
+  ]
+}

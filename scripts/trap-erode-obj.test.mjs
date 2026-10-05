@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -23,6 +24,8 @@ import {
     OBJ_FREE,
     OBJ_INVENT,
     OBJ_MINVENT,
+    W_ARM,
+    W_ARMC,
     W_ARMH,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -30,11 +33,19 @@ import { runSegment } from '../js/jsmain.js';
 import { PM_KOBOLD } from '../js/monsters.js';
 import {
     ARMOR_CLASS,
+    CHAIN_MAIL,
     IRON_SHOES,
+    LEATHER_CLOAK,
     LEATHER_GLOVES,
 } from '../js/objects.js';
 import { erode_obj } from '../js/trap_erode_obj.js';
+import { erode_armor } from '../js/uhitm.js';
 import { water_damage } from '../js/trap_water_damage.js';
+
+const TRAP_C_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
+    'utf8',
+);
 
 async function initializedMonster(seed, name) {
     await runSegment({
@@ -71,6 +82,104 @@ function carried(monster, type, overrides = {}) {
     return obj;
 }
 
+function heroArmor(type, wornMask) {
+    return {
+        blessed: false,
+        dknown: true,
+        greased: false,
+        known: true,
+        nobj: null,
+        oclass: ARMOR_CLASS,
+        oeroded: 0,
+        oeroded2: 0,
+        oerodeproof: false,
+        otyp: type,
+        owornmask: wornMask,
+        quan: 1,
+        rknown: false,
+        spe: 0,
+        where: OBJ_INVENT,
+    };
+}
+
+test('erode_armor retries empty slots and corrodes the chosen body layer',
+    async () => {
+        // Seed 982489 only initializes the live hero; assigning chain mail
+        // directly makes this a source-order test rather than a gear search.
+        await runSegment({
+            seed: 982489,
+            datetime: '20260724120000',
+            nethackrc: 'OPTIONS=name:ArmorChoice,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+            moves: ' ',
+        });
+        for (const field of [
+            'uarm', 'uarmc', 'uarmf', 'uarmg', 'uarmh', 'uarms', 'uarmu',
+        ]) game[field] = null;
+        const chain = heroArmor(CHAIN_MAIL, W_ARM);
+        game.uarm = chain;
+        const answers = [0, 1];
+        const draws = [];
+        const messages = [];
+
+        await erode_armor(game.youmonst, ERODE_CORRODE, game, {
+            message: async (text) => messages.push(text),
+            random: {
+                rn2: (bound) => {
+                    draws.push(bound);
+                    assert.equal(bound, 5);
+                    return answers.shift();
+                },
+                rnl: () => assert.fail('unblessed armor needs no luck draw'),
+            },
+        });
+
+        // uhitm.c:141 and :165. Roll 0 selects the empty helmet and retries;
+        // roll 1 selects the torso, where chain mail is corrodeable.
+        assert.deepEqual(draws, [5, 5]);
+        assert.deepEqual(messages, ['Your chain mail corrodes!']);
+        assert.equal(chain.oeroded2, 1);
+        assert.equal(chain.oeroded, 0);
+    });
+
+test('erode_armor does not fall through a noncorrodeable torso layer',
+    async () => {
+        // This direct state selects the torso arm; the seed is only startup.
+        await runSegment({
+            seed: 982490,
+            datetime: '20260724120000',
+            nethackrc: 'OPTIONS=name:ArmorLayer,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+            moves: ' ',
+        });
+        for (const field of [
+            'uarm', 'uarmc', 'uarmf', 'uarmg', 'uarmh', 'uarms', 'uarmu',
+        ]) game[field] = null;
+        const leatherCloak = heroArmor(LEATHER_CLOAK, W_ARMC);
+        const chain = heroArmor(CHAIN_MAIL, W_ARM);
+        game.uarmc = leatherCloak;
+        game.uarm = chain;
+        const draws = [];
+        const messages = [];
+
+        await erode_armor(game.youmonst, ERODE_CORRODE, game, {
+            message: async (text) => messages.push(text),
+            random: {
+                rn2: (bound) => { draws.push(bound); return 1; },
+                rnl: () => assert.fail('unblessed armor needs no luck draw'),
+            },
+        });
+
+        // trap.c:146-160 selects the cloak before suit and stops even when
+        // erode_obj returns ER_NOTHING for its noncorrodeable leather.
+        assert.deepEqual(draws, [5]);
+        assert.equal(leatherCloak.oeroded2, 0);
+        assert.equal(chain.oeroded2, 0);
+        assert.deepEqual(messages, [
+            'Your leather cloak is not affected by corrosion.',
+        ]);
+    });
+
 test('visible rust damage increments primary erosion after its message',
     async () => {
         const monster = await initializedMonster(982461, 'RustErosion');
@@ -97,6 +206,64 @@ test('visible rust damage increments primary erosion after its message',
         assert.deepEqual(events, [
             ["The kobold's shoes rust!", 0],
         ]);
+        assert.equal(shoes.oeroded, 1);
+    });
+
+test('erode_obj uses C vtense for named and plural armor descriptions',
+    async () => {
+        // trap.c:erode_obj passes ostr to vtense for both predicate verbs and
+        // damage verbs. The naming utility selects the head before "named";
+        // a final-s guess would mistake Aegis for a plural subject.
+        const cStart = TRAP_C_SOURCE.indexOf('int\nerode_obj(');
+        const cEnd = TRAP_C_SOURCE.indexOf(
+            '\n/* Protect an item from erosion with grease.',
+            cStart,
+        );
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        const cErodeObj = TRAP_C_SOURCE.slice(cStart, cEnd);
+        assert.match(cErodeObj, /vtense\(ostr, "are"\)/u);
+        assert.match(cErodeObj, /vtense\(ostr, action\[type\]\)/u);
+
+        const monster = await initializedMonster(982469, 'NamedArmorErosion');
+        const messages = [];
+        const random = {
+            rnl: () => assert.fail('ordinary armor needs no luck draw'),
+            rn2: () => assert.fail('ungreased armor needs no draw'),
+        };
+
+        const namedMail = carried(monster, CHAIN_MAIL);
+        assert.equal(await erode_obj(
+            namedMail,
+            'chain mail named Aegis',
+            ERODE_CORRODE,
+            EF_NONE,
+            {
+                canSeeMonster: () => true,
+                message: (text) => messages.push(text),
+                random,
+                state: game,
+            },
+        ), ER_DAMAGED);
+
+        const shoes = carried(monster, IRON_SHOES);
+        assert.equal(await erode_obj(
+            shoes,
+            'shoes',
+            ERODE_RUST,
+            EF_NONE,
+            {
+                canSeeMonster: () => true,
+                message: (text) => messages.push(text),
+                random,
+                state: game,
+            },
+        ), ER_DAMAGED);
+
+        assert.deepEqual(messages, [
+            "The kobold's chain mail named Aegis corrodes!",
+            "The kobold's shoes rust!",
+        ]);
+        assert.equal(namedMail.oeroded2, 1);
         assert.equal(shoes.oeroded, 1);
     });
 
