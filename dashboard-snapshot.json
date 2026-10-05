@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-05T05:16:42.074Z",
+  "capturedAt": "2026-10-05T05:40:32.559Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -19373,12 +19373,69 @@
         "type": "accepted",
         "at": "2026-10-05T05:16:41.647Z",
         "task": "C81"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C81-published-49d36af0",
+        "type": "published",
+        "at": "2026-10-05T05:17:50.405Z",
+        "task": "C81",
+        "commit": "49d36af0c7d08e402c35f288fae545f827ee13c7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cd43ec7ba9513c9343854b87216cf41cd3fdd2ed",
+        "type": "ready",
+        "at": "2026-10-05T05:18:37.595Z",
+        "task": "B105",
+        "delivery": "cd43ec7ba9513c9343854b87216cf41cd3fdd2ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C82-integrating-9feb834e",
+        "type": "integrating",
+        "at": "2026-10-05T05:20:45.554Z",
+        "task": "C82",
+        "integration": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C83-uhitm-erosion-v19-20261005",
+        "type": "assign",
+        "at": "2026-10-05T05:24:08.169Z",
+        "task": "C83",
+        "worker": "C",
+        "goal": "port-uhitm-mhitm-ad-erosion-v19-20261005",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B105-received-cd43ec7b",
+        "type": "received",
+        "at": "2026-10-05T05:26:45.244Z",
+        "task": "B105",
+        "delivery": "cd43ec7ba9513c9343854b87216cf41cd3fdd2ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C82-validated-9feb834e",
+        "type": "validated",
+        "at": "2026-10-05T05:39:22.120Z",
+        "task": "C82",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C82-accepted-9feb834e",
+        "type": "accepted",
+        "at": "2026-10-05T05:40:31.566Z",
+        "task": "C82"
       }
     ]
   },
   "development": {
-    "executionCommit": "787450ab0fcd7406c1228104b82d513d55888ec8",
-    "measuredAt": "2026-10-05T05:11:20.334Z",
+    "executionCommit": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11",
+    "measuredAt": "2026-10-05T05:31:55.959Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

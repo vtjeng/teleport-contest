@@ -167103,6 +167103,438 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-wear-item-action-takeoff-nurse-v20-20261005",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Implement queued item-action takeoff and source equipment filters",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected"
+      ],
+      "selectionReason": "Whole dotakeoff and the required ia_dotakeoff/equip_ok/takeoff_ok source units preserve the item-action flag, forced getobj selection and removal filtering. The admitted v20 item-action path through step4 and v6 direct command steps2–3 provide runtime entry evidence. Existing consumed helpers were source-reviewed and reused without new whole credit; no Nurse AD_HEAL credit.",
+      "detail": "",
+      "openedAt": "49d36af0c7d08e402c35f288fae545f827ee13c7",
+      "openStanding": {
+        "sha": "787450ab0fcd7406c1228104b82d513d55888ec8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "dotakeoff",
+          "line": 1833,
+          "endLine": 1861,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1833,
+        "to": 1861
+      },
+      "requiredFunctions": [
+        {
+          "name": "ia_dotakeoff",
+          "line": 1862,
+          "endLine": 1873,
+          "declared": true,
+          "sourceFile": "do_wear.c",
+          "complete": true
+        },
+        {
+          "name": "equip_ok",
+          "line": 3404,
+          "endLine": 3450,
+          "declared": true,
+          "sourceFile": "do_wear.c",
+          "complete": true
+        },
+        {
+          "name": "takeoff_ok",
+          "line": 3472,
+          "endLine": 3479,
+          "declared": true,
+          "sourceFile": "do_wear.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected": {
+          "session": "synthetic/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.session.json",
+          "recordingSha256": "98fe537d078f18a8c5aba5af28a5458fe44fbc4161ec4925e3062fe35f5c7b3a",
+          "evaluationPath": "challenges/evaluations/20261005051255-v20.json",
+          "evaluationCommit": "787450ab0fcd7406c1228104b82d513d55888ec8"
+        }
+      },
+      "activeStanding": {
+        "sha": "787450ab0fcd7406c1228104b82d513d55888ec8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+          "session": "synthetic/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.session.json",
+          "recordingPath": "challenges/cases/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.session.json",
+          "recordingSha256": "98fe537d078f18a8c5aba5af28a5458fe44fbc4161ec4925e3062fe35f5c7b3a",
+          "recipe": "challenges/cases/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.recipe.session.json",
+          "recipeSha256": "5f03e326c3eb62e5b1ce618f1d55b64c5f92b9aa331c1fe6b327acfbcde2007d",
+          "replayInputSha256": "fe85122709f9c03ce26235fb41202aaa614bf32f4b68b859f96f0e8fadb1e9d1",
+          "evaluationPath": "challenges/evaluations/20261005051255-v20.json",
+          "evaluationCommit": "787450ab0fcd7406c1228104b82d513d55888ec8",
+          "evaluationArtifact": "challenges/evaluations/20261005051255-v20.json",
+          "evaluationUtc": "2026-10-05T05:14:03.527Z",
+          "remainingScreens": 109,
+          "recordedSteps": 113,
+          "previousScreensMatched": 4,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 4,
+              "total": 113
+            },
+            "rng": {
+              "matched": 2772,
+              "total": 3278
+            },
+            "cursors": {
+              "matched": 4,
+              "total": 113
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+            "step": 4
+          },
+          "step": 4,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.json",
+            "result": {
+              "session": "synthetic/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingPath": "challenges/cases/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.session.json",
+              "recordingSha256": "98fe537d078f18a8c5aba5af28a5458fe44fbc4161ec4925e3062fe35f5c7b3a",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 109,
+              "recordedSteps": 113,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "session": "synthetic/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.session.json",
+                "recordingPath": "challenges/cases/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.session.json",
+                "recordingSha256": "98fe537d078f18a8c5aba5af28a5458fe44fbc4161ec4925e3062fe35f5c7b3a",
+                "recipe": "challenges/cases/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.recipe.session.json",
+                "recipeSha256": "5f03e326c3eb62e5b1ce618f1d55b64c5f92b9aa331c1fe6b327acfbcde2007d",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 109,
+                "recordedSteps": 113,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 4,
+                    "total": 113
+                  },
+                  "rng": {
+                    "matched": 2772,
+                    "total": 3278
+                  },
+                  "cursors": {
+                    "matched": 4,
+                    "total": 113
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                  "step": 4
+                },
+                "step": 4,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first stop is the inventory item-action takeoff at step 4. C queues ia_dotakeoff() with the selected cloak letter; ia_dotakeoff() sets gi.item_action_in_progress around dotakeoff(), which forces getobj() to consume that letter and lets equip_ok() follow its item-action removal branch. JavaScript queues the alttakeoff row but has no ia_dotakeoff() implementation or dispatch and omits the flag checks in dotakeoff() and equip_ok(). The C recording shows the cloak removed at step 4 (AC 9 to 10). The later bare-handed Nurse AD_HEAL attack occurs only after that setup and is downstream of the present stop.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "When itemactions() selects IA_TAKEOFF_OBJ for worn armor, itemactions_pushkeys() queues ia_dotakeoff() and the selected inventory letter. ia_dotakeoff() sets gi.item_action_in_progress while dotakeoff() selects and removes the item; the flag forces the getobj() selection and makes equip_ok() bypass its inaccessible-equipment filter.",
+                "functions": [
+                  "ia_dotakeoff",
+                  "dotakeoff",
+                  "equip_ok"
+                ],
+                "callers": [
+                  "iactions.c:itemactions() -> itemactions_pushkeys(IA_TAKEOFF_OBJ)",
+                  "cmd.c:rhack() dispatches the queued CQ_CANNED function pointer"
+                ],
+                "dependencies": [
+                  "invent.c:getobj()",
+                  "do_wear.c:takeoff_ok()",
+                  "do_wear.c:armor_or_accessory_off()"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C source: nethack-c/upstream/src/iactions.c:230-232 queues ia_dotakeoff and the selected inventory letter for IA_TAKEOFF_OBJ; itemactions():703-707 calls itemactions_pushkeys after menu selection.",
+                "C source: nethack-c/upstream/src/do_wear.c:1831-1854 makes dotakeoff call getobj when gi.item_action_in_progress is true; 1862-1869 shows ia_dotakeoff setting and clearing that flag around dotakeoff; 3439-3442 makes equip_ok bypass inaccessible-equipment filtering while the flag is set.",
+                "Current JavaScript path: js/iactions.js:332-335 queues extcmdRow(\"alttakeoff\") plus the item letter, and js/extcmdlist_data.js:211 binds that row to ia_dotakeoff. js/do_wear.js:2886-2889 and 3792-3812 document that the wrapper is unported and dotakeoff omits the flag condition; `rg -n \"ia_dotakeoff\" js/do_wear.js js/cmd.js` finds no implementation or queued-handler dispatch.",
+                "Saved evaluation challenges/evaluations/20261003003219-v20.json and the queue row report 4 of 113 screens matched, then a stop at step 4 with the repeated-command boundary error. The recorded C segment challenges/cases/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.session.json has input T at segment 0 step 4 and shows the cloak-removal message with AC changing from 9 to 10.",
+                "The prior source clarification in .cache/v20-admission-overlap-review.json places Nurse appearance at step 32 and bare-handed Nurse care hits at step 35, reaching uhitm.c:mhitm_ad_heal. This is a later C effect after cloak removal; it does not own the first stop at step 4."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "ia_dotakeoff",
+            "implementation": "js/do_wear.js",
+            "symbol": "ia_dotakeoff",
+            "sourceReview": "Read the complete do_wear.c:ia_dotakeoff() at 1862-1869. C sets gi.item_action_in_progress TRUE, calls dotakeoff(), clears the flag, then returns the command result. The JavaScript keeps the corresponding state.item_action_in_progress field on the same state object and clears it in finally. The new-game FALSE value follows decl.c:417. The function has no RNG or output of its own; its state transition and the selected command are exercised through the queued item-action caller.",
+            "callers": [
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c:230-232, IA_TAKEOFF_OBJ queues ia_dotakeoff and the selected object inventory letter"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack dispatches the queued CQ_CANNED function pointer before the selected inventory letter is consumed by getobj"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/iactions.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "iactions.c:itemactions_pushkeys(IA_TAKEOFF_OBJ) → cmd.c:rhack queued function pointer → do_wear.c:ia_dotakeoff → dotakeoff → invent.c:getobj(takeoff_ok/equip_ok) → armor_or_accessory_off"
+              }
+            ],
+            "checkedAt": "073c3b9ff654c888f76f16ab7ab6df9c08a0899f"
+          },
+          {
+            "name": "dotakeoff",
+            "implementation": "js/do_wear.js",
+            "symbol": "dotakeoff",
+            "sourceReview": "Read the complete do_wear.c:dotakeoff() at 1831-1855. It first counts worn armor/accessories, reports the C uskin-specific dragon-scale versus scale-mail text or the empty-equipment text, prompts through getobj when armor count is not one, paranoid removal is enabled, or gi.item_action_in_progress is set, cancels on no selected object, and returns armor_or_accessory_off() unchanged. JavaScript preserves this branch order and the full source uskin message.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "ia_dotakeoff",
+                "source": "do_wear.c:ia_dotakeoff:1865 calls dotakeoff while gi.item_action_in_progress is TRUE"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:1886-1887 binds T/takeoff to dotakeoff; js/cmd.js:rhack uses runTakeOffCommand for that row"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/iactions.test.mjs",
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "v6-add2-healer-takeoff-gloves",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 3,
+                "source": "cmd.c:rhack T binding → do_wear.c:dotakeoff → armor_or_accessory_off → armoroff delayed ARM_GLOVES completion"
+              },
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "iactions.c:itemactions_pushkeys(IA_TAKEOFF_OBJ) → cmd.c:rhack queued function pointer → do_wear.c:ia_dotakeoff → dotakeoff → invent.c:getobj(takeoff_ok/equip_ok) → armor_or_accessory_off"
+              }
+            ],
+            "checkedAt": "073c3b9ff654c888f76f16ab7ab6df9c08a0899f"
+          },
+          {
+            "name": "equip_ok",
+            "implementation": "js/do_wear.js",
+            "symbol": "equip_ok",
+            "sourceReview": "Read the complete do_wear.c:equip_ok() at 3404-3447. The callback rejects null, mismatched worn status, non-wearable classes and category mismatch in source order; it consults canwearobj only for putting armor on. For removal, inaccessible_equipment is consulted only when gi.item_action_in_progress is FALSE. The port preserves that Boolean condition and keeps the object available to the item-action letter when the flag is TRUE. The full function is impure: its putting-on armor arm calls canwearobj with noisy FALSE, and that helper calls wield.c:welded, which can set the wielded weapon bknown through set_bknown. The removal path skips canwearobj and calls inaccessible_equipment with a NULL verb, so takeoff_ok remains pure. Existing JavaScript preserves this state effect.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "takeoff_ok",
+                "source": "do_wear.c:takeoff_ok:3472-3475 returns equip_ok(obj, TRUE, FALSE)"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "wear_ok",
+                "source": "do_wear.c:wear_ok calls equip_ok(obj, FALSE, FALSE)"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "remove_ok",
+                "source": "do_wear.c:remove_ok calls equip_ok(obj, TRUE, TRUE)"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "puton_ok",
+                "source": "do_wear.c:puton_ok calls equip_ok(obj, FALSE, TRUE)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "iactions.c:itemactions_pushkeys(IA_TAKEOFF_OBJ) → cmd.c:rhack queued function pointer → do_wear.c:ia_dotakeoff → dotakeoff → invent.c:getobj(takeoff_ok/equip_ok) → armor_or_accessory_off"
+              }
+            ],
+            "checkedAt": "073c3b9ff654c888f76f16ab7ab6df9c08a0899f"
+          },
+          {
+            "name": "takeoff_ok",
+            "implementation": "js/do_wear.js",
+            "symbol": "takeoff_ok",
+            "sourceReview": "Read the complete do_wear.c:takeoff_ok() at 3472-3475. It returns equip_ok(obj, TRUE, FALSE) without modifying the object or game state. JavaScript retains the exact callback arguments.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dotakeoff",
+                "source": "do_wear.c:dotakeoff:1849 registers takeoff_ok as getobj callback"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "iactions.c:itemactions_pushkeys(IA_TAKEOFF_OBJ) → cmd.c:rhack queued function pointer → do_wear.c:ia_dotakeoff → dotakeoff → invent.c:getobj(takeoff_ok/equip_ok) → armor_or_accessory_off"
+              }
+            ],
+            "checkedAt": "073c3b9ff654c888f76f16ab7ab6df9c08a0899f"
+          }
+        ],
+        "entryPointReview": "The selected source has two active command entries: direct T/takeoff calls dotakeoff without the transient item-action flag, while inventory IA_TAKEOFF_OBJ queues ia_dotakeoff plus the selected inventory letter. The prior v6 Healer takeoff recording verifies the direct T path through dotakeoff and armoroff; the admitted v20 Nurse case verifies the item-action path through the queued dispatch, flag-controlled getobj prompt, takeoff_ok/equip_ok callback, and armor_or_accessory_off. The v20 trace is cited only through segment 0 step 4; Nurse AD_HEAL is later and outside this source task. Existing count_worn_stuff, getobj, armor_or_accessory_off, inaccessible_equipment, canwearobj, select_off and armoroff bodies were source-reviewed for consumed results but receive no new whole-source credit.",
+        "entryPoints": [
+          {
+            "name": "Direct T takeoff command",
+            "functions": [
+              "dotakeoff"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "v6-add2-healer-takeoff-gloves",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 3,
+                "source": "cmd.c:rhack T binding → do_wear.c:dotakeoff → armor_or_accessory_off → armoroff delayed ARM_GLOVES completion"
+              }
+            ]
+          },
+          {
+            "name": "Inventory IA_TAKEOFF_OBJ action",
+            "functions": [
+              "ia_dotakeoff",
+              "dotakeoff",
+              "equip_ok",
+              "takeoff_ok"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 4,
+                "source": "iactions.c:itemactions_pushkeys(IA_TAKEOFF_OBJ) → cmd.c:rhack queued function pointer → do_wear.c:ia_dotakeoff → dotakeoff → invent.c:getobj(takeoff_ok/equip_ok) → armor_or_accessory_off"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
