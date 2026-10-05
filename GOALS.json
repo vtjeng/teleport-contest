@@ -164622,6 +164622,787 @@
         "rng": 792838
       },
       "parkedReason": "Partial B103 delivery: dig.c:pit_flow is verified through admitted v20 step34; liquid_flow has matching wand-break and landmine routes but dighole returns in its water-sloshing guard and earthquake diverges at step194. trapname lacks matching Hallucination runtime through a normal caller. Preserve full planned scope, recipes and resume conditions; no liquid_flow/trapname completion or goal-closure score event."
+    },
+    {
+      "id": "port-weapon-towel-wet-dry-v21-20261004",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port towel wetness changes and canonical object naming helpers",
+      "cFile": "weapon.c",
+      "sessions": [
+        "synthetic/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst"
+      ],
+      "selectionReason": "Whole C-order finish_towel_change/wet_a_towel/dry_a_towel family plus consumed canonical naming units. Matching dry routes and naming evidence support verified functions; wet_a_towel remains explicitly incomplete behind potion.c:dodip. Include original delivery and both active-state wiring corrections; park residual without full goal closure.",
+      "detail": "",
+      "openedAt": "7d37e0f6d5ae3bfc8c8bccc14404ecac8b04df6e",
+      "openStanding": {
+        "sha": "5c81400022284160a07fddbb1b4870ba159aac2e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "finish_towel_change",
+          "line": 1020,
+          "endLine": 1037,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "wet_a_towel",
+          "line": 1038,
+          "endLine": 1066,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dry_a_towel",
+          "line": 1067,
+          "endLine": 1091,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1020,
+        "to": 1091
+      },
+      "requiredFunctions": [
+        {
+          "name": "strprepend",
+          "line": 123,
+          "endLine": 141,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": true
+        },
+        {
+          "name": "cxname",
+          "line": 1924,
+          "endLine": 1932,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": true
+        },
+        {
+          "name": "aobjnam",
+          "line": 2244,
+          "endLine": 2261,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": true
+        },
+        {
+          "name": "otense",
+          "line": 2531,
+          "endLine": 2562,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": true
+        },
+        {
+          "name": "yobjnam",
+          "line": 2262,
+          "endLine": 2279,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": true
+        },
+        {
+          "name": "Yobjnam2",
+          "line": 2280,
+          "endLine": 2289,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst": {
+          "session": "synthetic/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.session.json",
+          "recordingSha256": "519cbcc0a68c203238b5c70fc574c8b3758c0e0f0f63c357d69b6f0c43c389cc",
+          "evaluationPath": "challenges/evaluations/20261005031810-v21.json",
+          "evaluationCommit": "5c81400022284160a07fddbb1b4870ba159aac2e"
+        }
+      },
+      "activeStanding": {
+        "sha": "5c81400022284160a07fddbb1b4870ba159aac2e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+          "session": "synthetic/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.session.json",
+          "recordingSha256": "519cbcc0a68c203238b5c70fc574c8b3758c0e0f0f63c357d69b6f0c43c389cc",
+          "recipe": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.recipe.session.json",
+          "recipeSha256": "c558fe9262696faca0291c96c97ded5589f42a8584b5401982178f7c3745ac87",
+          "replayInputSha256": "849aee6769d8664923060fe6260a88ecf8c8212fce5d5a7e6ca4540422849451",
+          "evaluationPath": "challenges/evaluations/20261005031810-v21.json",
+          "evaluationCommit": "5c81400022284160a07fddbb1b4870ba159aac2e",
+          "evaluationArtifact": "challenges/evaluations/20261005031810-v21.json",
+          "evaluationUtc": "2026-10-05T03:19:43.483Z",
+          "remainingScreens": 3,
+          "recordedSteps": 37,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2890,
+              "total": 2890
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 44,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "n"
+              },
+              "cCursor": [
+                52,
+                0,
+                1
+              ],
+              "jsCursor": [
+                75,
+                16,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "519cbcc0a68c203238b5c70fc574c8b3758c0e0f0f63c357d69b6f0c43c389cc",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "remainingScreens": 3,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "4901dd542af51235daa15e837437a78fa6af5787",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "session": "synthetic/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.session.json",
+                "recordingSha256": "519cbcc0a68c203238b5c70fc574c8b3758c0e0f0f63c357d69b6f0c43c389cc",
+                "recipe": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.recipe.session.json",
+                "recipeSha256": "c558fe9262696faca0291c96c97ded5589f42a8584b5401982178f7c3745ac87",
+                "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationUtc": "2026-10-03T18:29:21.226Z",
+                "remainingScreens": 3,
+                "recordedSteps": 37,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2890,
+                    "total": 2890
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 44,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "n"
+                    },
+                    "cCursor": [
+                      52,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      75,
+                      16,
+                      1
+                    ]
+                  }
+                },
+                "step": 33,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first measured v21 mismatch occurs when C reaches weapon.c:dry_a_towel after apply.c:use_towel cleans the hero’s cream-blinded face with a carried wet towel. JavaScript records note_unported('apply.c dry_a_towel') and skips the void call, omitting the towel drying message and the wetness, wielded-state, and inventory updates. The smallest coherent source family is weapon.c:finish_towel_change, wet_a_towel, and dry_a_towel, wired at their existing source callers.",
+              "source": {
+                "file": "weapon.c",
+                "branch": "finish_towel_change clamps changed towel wetness to 0–7, updates obj->spe, changes gu.unweapon when the hero wields the towel, and refreshes inventory for carried towels. wet_a_towel reports only an increase and dry_a_towel reports only a decrease; both finish any changed value through that helper. Feedback depends on verbose and whether the towel is carried or carried by a visible monster. This case reaches the dry branch with amt -1 after use_towel removes u.ucreamed; drying_feedback is true when the towel is uwep.",
+                "functions": [
+                  "finish_towel_change",
+                  "wet_a_towel",
+                  "dry_a_towel"
+                ],
+                "callers": [
+                  "apply.c:use_towel (four wet-towel cleanup branches; assigned case reaches the cream-cleanup branch)",
+                  "uhitm.c:hmon_hitmon (after the hit message when hmd.dryit is set)",
+                  "dothrow.c:throw_obj (before throwing a wet towel, with verbose false)",
+                  "engrave.c:doengrave (when a wet towel wipes an engraving)",
+                  "trap.c:burnarmor (randomly decreases a carried wet towel after fire damage)",
+                  "trap.c:water_damage (increases towel wetness through wet_a_towel)"
+                ],
+                "dependencies": [
+                  "obj.h:is_wet_towel tests towel wetness from obj->spe",
+                  "carried, mcarried, and canseemon select hero and monster feedback paths",
+                  "Yobjnam2, xname, Monnam, s_suffix, and pline construct towel feedback",
+                  "uwep and gu.unweapon preserve the wielded-towel state",
+                  "update_inventory refreshes the carried towel description after obj->spe changes"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry and challenges/evaluations/20261003183000-v21.json identify 3 unmatched screens of 37, 34/37 screens matched, and the first mismatch at segment 0, step 33, key n: C row 0 column 44 is “-” while JavaScript is blank. All 2,890 RNG calls match; the cursor also first diverges at step 33. The evaluation commit is b0fd76f6091376c07bf54e8d3061aa5a9c9957d0.",
+                "The manifest entry for this case says that C applies the cream pie, then applies the wet towel; cleanup reaches dry_a_towel at step 33, followed by the drying line at step 34 and the towel wetness change at step 35. The saved C65 comparison .cache/C65-qualified-current-base-comparisons-v1.json independently names weapon.c:dry_a_towel as the first mismatch behavior and records the JavaScript boundary as unported.",
+                "Upstream nethack-c/upstream/src/apply.c:use_towel (112–197), especially 173–187, removes u.ucreamed and then calls dry_a_towel(obj, -1, drying_feedback) when is_wet_towel(obj). Upstream nethack-c/upstream/src/weapon.c:finish_towel_change (1018–1034), wet_a_towel (1036–1063), and dry_a_towel (1065–1088) form the contiguous source family; dry_a_towel reports a decrease and applies the new spe through the helper.",
+                "At inspected HEAD 4901dd542af51235daa15e837437a78fa6af5787, js/apply.js:4279–4304 substitutes note_unported for the source dry call, including this cream-cleanup branch. The other direct dry callers are similarly skipped in js/uhitm.js:3538–3541, js/dothrow.js:2126–2127, and js/engrave.js:673. The C wet caller is trap.c:water_damage (4712–4852); its JavaScript counterpart js/trap_water_damage.js:230 records note_unported('weapon.c wet_a_towel').",
+                "The direct C caller set also includes trap.c:burnarmor (88–160), which checks carried towels before item erosion and may dry one by a random amount. Its JavaScript counterpart js/trap_erode_obj.js:411–426 currently throws UnsupportedErosionError for a wet towel and otherwise records note_unported('apply.c dry_a_towel'), so the future source port must replace that refusal and wire this caller too. trap.c:water_damage (4712–4852) calls wet_a_towel at :4734; js/trap_water_damage.js:230 currently records note_unported('weapon.c wet_a_towel')."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "finish_towel_change",
+            "implementation": "js/weapon.js",
+            "symbol": "finish_towel_change",
+            "sourceReview": "weapon.c:1018-1034. Checked the full helper: clamp newspe to 0..7, assign obj->spe, set gu.unweapon only when obj is uwep from the resulting is_wet_towel state, then update carried inventory. The JS stores wetness only in spe and calls update_inventory synchronously, discarding its returned value. It is reached from dry_a_towel in all four matching C routes; wet_a_towel is also a source caller but its current C water-dip route is incomplete in JS and is not credited.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "dry_a_towel",
+                "source": "weapon.c:dry_a_towel calls finish_towel_change only when calculated wetness differs."
+              },
+              {
+                "path": "js/weapon.js",
+                "symbol": "wet_a_towel",
+                "source": "weapon.c:wet_a_towel calls finish_towel_change only when calculated wetness differs; the JS production caller remains blocked upstream in potion.c:dodip."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon-towel.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "dry_a_towel",
+            "implementation": "js/weapon.js",
+            "symbol": "dry_a_towel",
+            "sourceReview": "weapon.c:1065-1088. Checked amount semantics (negative subtracts wetness, nonnegative sets it), verbose feedback only when wetness falls, carried-hero versus visible-monster ownership messages, and finish_towel_change only on a changed value. Source order and the dries-out suffix are preserved.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_towel",
+                "source": "apply.c:use_towel cleanup branches call dry_a_towel after use/action messaging."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon",
+                "source": "uhitm.c:hmon_hitmon calls dry_a_towel after the hit message on dryit."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_obj",
+                "source": "dothrow.c:throw_obj calls dry_a_towel(obj,-1,FALSE) before throw resolution."
+              },
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls dry_a_towel when a wet towel wipes a supported engraving."
+              },
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "burnarmor",
+                "source": "trap.c:burnarmor rolls towel drying before armor-slot erosion and continues only if wetness is unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon-towel.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "strprepend",
+            "implementation": "js/objnam.js",
+            "symbol": "strprepend",
+            "sourceReview": "objnam.c:123-135. Checked the byte-counted PREFIX guard, impossible(\"PREFIX too short\") followed by return of the original string, and copynchars prefix insertion/terminator restoration. JS returns an immutable concatenated string, preserves the guard, and names the discarded diagnostic with note_unported. The ordinary count-prefix runtime is covered through the existing inventory display; paydoname and aobjnam callsites are source-aligned, while mshot_xname remains an existing refusal outside this task.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "aobjnam",
+                "source": "objnam.c:aobjnam calls strprepend only when quan != 1."
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "doname_base",
+                "source": "objnam.c:doname_base calls strprepend for the completed article/modifier/count prefix."
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "paydoname",
+                "source": "objnam.c:paydoname calls strprepend for unpaid/owned and contents prefixes."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/cancel-monst-self-inventory-b54.session.json"
+            ],
+            "sourceFile": "objnam.c",
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "cxname",
+            "implementation": "js/objnam.js",
+            "symbol": "cxname",
+            "sourceReview": "objnam.c:1922-1930. Checked the complete corpse/non-corpse branch: CORPSE delegates to corpse_xname(obj,NULL,CXN_NORMAL), otherwise xname(obj). JS preserves xname and corpse_xname identification/knowledge side effects and is not treated as a pure formatter.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "aobjnam",
+                "source": "objnam.c:aobjnam obtains its object name from cxname."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "sourceFile": "objnam.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "aobjnam",
+            "implementation": "js/objnam.js",
+            "symbol": "aobjnam",
+            "sourceReview": "objnam.c:2242-2258. Checked cxname first, count prefix only when quan != 1, then optional space and otense result. JS keeps the C ordering and source-prefixed count path; name-learning effects from cxname are retained. When a caller supplies state, aobjnam passes that same state to otense.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "yobjnam",
+                "source": "objnam.c:yobjnam begins with aobjnam(obj,verb)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "sourceFile": "objnam.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "otense",
+            "implementation": "js/objnam.js",
+            "symbol": "otense",
+            "sourceReview": "objnam.c:2529-2545. Checked singular vtense(NULL,verb) and plural verb passthrough. C is_plural reads the active game discovery list; JS otense accepts that state explicitly and reads it without changing game state, output, or RNG. aobjnam and Tobjnam forward their state, and all 55 direct outer-module calls now pass the active caller state (54 use state; weapon.js:endMonsterArtifactLight uses normalized.state). Source-specific guards remain unchanged; no whole outer function is newly credited. The regression contrasts supplied-state and global-game discovery in both directions.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "aobjnam",
+                "source": "objnam.c:aobjnam calls otense only when verb is non-NULL."
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "Tobjnam",
+                "source": "objnam.c:Tobjnam calls otense(otmp,verb); JS forwards the same active state used to name the object."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "objnam.c",
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "yobjnam",
+            "implementation": "js/objnam.js",
+            "symbol": "yobjnam",
+            "sourceReview": "objnam.c:2262-2276. Checked aobjnam construction followed by the carried/proper-name/artifact condition, shk_your prefix, and BUFSZ-limited concatenation. Existing shk_your/shk_owns/mon_owns source evidence is reused; no whole shop function claim is made.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "Yobjnam2",
+                "source": "objnam.c:Yobjnam2 obtains yobjnam then capitalizes its first character."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "sourceFile": "objnam.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "Yobjnam2",
+            "implementation": "js/objnam.js",
+            "symbol": "Yobjnam2",
+            "sourceReview": "objnam.c:2280-2285. Checked that the helper obtains yobjnam and applies highc to the first character; its reachable towel feedback path is recorded through weapon.c:dry_a_towel. The naming call can transitively preserve cxname identification effects.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "dry_a_towel",
+                "source": "weapon.c:dry_a_towel uses Yobjnam2 for verbose hero/monster feedback."
+              },
+              {
+                "path": "js/weapon.js",
+                "symbol": "wet_a_towel",
+                "source": "weapon.c:wet_a_towel uses Yobjnam2 for verbose hero/monster feedback; its active caller remains blocked at potion.c:dodip."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "sourceFile": "objnam.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          }
+        ],
+        "entryPointReview": "weapon.c:finish_towel_change and dry_a_towel are covered through five active source callers: apply.c:use_towel (admitted v21 through seg0 steps33-35), uhitm.c:hmon_hitmon, dothrow.c:throw_obj, engrave.c:doengrave, and trap.c:burnarmor. Four independent C recordings match completely through dry_a_towel; the admitted range matches the apply cleanup call, drying message, and inventory wetness update. objnam.c:strprepend, cxname, aobjnam, otense, yobjnam, and Yobjnam2 are source-reviewed and wired; the inventory recording covers the counted doname_base -> strprepend path, while the dry-towel recordings cover cxname -> aobjnam -> yobjnam -> Yobjnam2 feedback. No whole doname_base or paydoname completion is claimed. The active trap.c:water_damage -> weapon.c:wet_a_towel route is incomplete: C reaches it in the preserved water-dip output, but JavaScript stops at potion.c:dodip’s unsupported potion-into-potion branch before H2Opotion_dip/water_damage; the C-only capture remains under .cache and the blocked recipe is committed outside recordings/. The pre-existing mshot_xname multishot refusal remains outside this task. The planned water-damage entry remains present with empty matching recording/synthetic evidence and a concrete resume condition; it is intentionally incomplete. The C80 correction also forwards active state through all 55 direct otense calls in 23 JavaScript outer modules, including generic object-name messages and source-guarded specialized routes. This preserves type guards and claims only state flow for objnam.c:otense, not completion of the outer C functions.",
+        "entryPoints": [
+          {
+            "name": "apply.c:use_towel -> weapon.c:dry_a_towel",
+            "functions": [
+              "dry_a_towel",
+              "finish_towel_change"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ]
+          },
+          {
+            "name": "uhitm.c:hmon_hitmon -> weapon.c:dry_a_towel",
+            "functions": [
+              "dry_a_towel",
+              "finish_towel_change"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "dothrow.c:throw_obj -> weapon.c:dry_a_towel",
+            "functions": [
+              "dry_a_towel",
+              "finish_towel_change"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "engrave.c:doengrave -> weapon.c:dry_a_towel",
+            "functions": [
+              "dry_a_towel",
+              "finish_towel_change"
+            ],
+            "recordings": [
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "trap.c:burnarmor -> weapon.c:dry_a_towel",
+            "functions": [
+              "dry_a_towel",
+              "finish_towel_change"
+            ],
+            "recordings": [
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "invent.c:ddoinv -> objnam.c:doname_base -> strprepend",
+            "functions": [
+              {
+                "sourceFile": "objnam.c",
+                "name": "strprepend"
+              }
+            ],
+            "recordings": [
+              "recordings/zap.c/cancel-monst-self-inventory-b54.session.json"
+            ]
+          },
+          {
+            "name": "weapon.c:dry_a_towel feedback -> objnam.c:Yobjnam2 naming chain",
+            "functions": [
+              {
+                "sourceFile": "objnam.c",
+                "name": "cxname"
+              },
+              {
+                "sourceFile": "objnam.c",
+                "name": "aobjnam"
+              },
+              {
+                "sourceFile": "objnam.c",
+                "name": "otense"
+              },
+              {
+                "sourceFile": "objnam.c",
+                "name": "yobjnam"
+              },
+              {
+                "sourceFile": "objnam.c",
+                "name": "Yobjnam2"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ]
+          },
+          {
+            "name": "trap.c:water_damage -> weapon.c:wet_a_towel (incomplete)",
+            "functions": [
+              "wet_a_towel"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "472f0792af324ac66408e0aab04a7a9ac68875fa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial C80 delivery: finish_towel_change/dry_a_towel and six canonical object naming units are verified; all existing otense/is_plural caller state arguments are wired. wet_a_towel runtime remains blocked by potion.c:dodip before water_damage. Preserve the whole planned family, blocked recipe and resume condition; no wet_a_towel completion or goal-closure score event."
     }
   ]
 }
