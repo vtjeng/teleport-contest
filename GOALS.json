@@ -170274,7 +170274,7 @@
     {
       "id": "fix-apply-doapply-tin-opener-v16-20261005",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Dispatch tin opener application through the existing tin-opening path",
       "cFile": "apply.c",
       "sessions": [],
@@ -170286,8 +170286,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c00138cce8789366f1ef76d14390861aa1b57068",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doapply",
       "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
       "step": 30,
@@ -170459,7 +170462,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
