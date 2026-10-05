@@ -89,7 +89,7 @@ test('ok_to_obliterate preserves every C exclusion', () => {
     assert.equal(ok_to_obliterate(ordinary, state), false);
 });
 
-test('elemental_clog obliterates the lowest-level eligible monster', () => {
+test('elemental_clog obliterates the lowest-level eligible monster', async () => {
     const state = monsterState();
     state.astral_level = { dnum: 0, dlevel: 3 };
     state.u.uz = { dnum: 0, dlevel: 2 };
@@ -115,8 +115,15 @@ test('elemental_clog obliterates the lowest-level eligible monster', () => {
     place_monster(low, 11, 10, state);
     linkMonsters(state, [caller, high, low]);
 
-    elemental_clog(caller, state, {
+    await elemental_clog(caller, state, {
         message: () => {},
+        random: {
+            d: () => 1,
+            rn1: () => 1,
+            rn2: () => 0,
+            rnd: () => 0,
+            rne: () => 0,
+        },
     });
 
     assert.equal(low.mhp, 0);
@@ -125,7 +132,7 @@ test('elemental_clog obliterates the lowest-level eligible monster', () => {
     assert.equal(state.level.monsters[11][10], caller);
 });
 
-test('maybe_mnexto relocates only to a visible nearby square', () => {
+test('maybe_mnexto relocates only to a visible nearby square', async () => {
     const state = monsterState();
     openLevel(state);
     state.viz_array = Array.from(
@@ -139,13 +146,13 @@ test('maybe_mnexto relocates only to a visible nearby square', () => {
     place_monster(monster, 12, 10, state);
     state.level.monlist = monster;
 
-    maybe_mnexto(monster, state, { random: { rn2: () => 0 } });
+    await maybe_mnexto(monster, state, { random: { rn2: () => 0 } });
 
     assert.notDeepEqual([monster.mx, monster.my], [12, 10]);
     assert.equal(state.level.monsters[monster.mx][monster.my], monster);
 });
 
-test('maybe_mnexto keeps grid bugs off diagonal destinations', () => {
+test('maybe_mnexto keeps grid bugs off diagonal destinations', async () => {
     const state = monsterState();
     openLevel(state);
     state.viz_array = Array.from(
@@ -159,7 +166,7 @@ test('maybe_mnexto keeps grid bugs off diagonal destinations', () => {
     place_monster(monster, 9, 10, state);
     state.level.monlist = monster;
 
-    maybe_mnexto(monster, state, { random: { rn2: () => 0 } });
+    await maybe_mnexto(monster, state, { random: { rn2: () => 0 } });
 
     // C compares the candidate with the monster's old square, not the hero's
     // square: a same-column move such as (9,10) -> (9,9) is legal.

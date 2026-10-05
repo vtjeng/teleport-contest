@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first A98 monster-versus-monster AD_TLPT route. The seed and timestamp were chosen for this recipe. Set Conflict, create two hostile Quantum mechanics, then take a fixed bounded sequence of turns. The source-valid attack chain is monmove.c monster combat -> mhitm.c:mdamagem -> uhitm.c:mhitm_adtyping(AD_TLPT) -> mhitm_ad_tlpt. Keep the recording even if these first inputs miss or the source gate prevents teleportation; do not adjust the recipe after viewing JavaScript output.",
+  "segments": [
+    {
+      "seed": 93281765,
+      "datetime": "20390114143217",
+      "nethackrc": "OPTIONS=name:A98QMPair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\nhostile quantum mechanic\n #wizgenesis\nhostile quantum mechanic\n . . . . . . . ."
+    }
+  ]
+}

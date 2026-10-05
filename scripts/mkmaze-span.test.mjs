@@ -60,18 +60,15 @@ test('mv_bubble waits for mnearto before its zero-result clog and next contents'
         assert.ok(cMove >= 0 && cMove < cClog && cClog < cNext);
 
         const jsBody = sourceBody(JS_MKMAZE, 'export function mv_bubble(');
-        const jsMove = jsBody.indexOf('const moved = mnearto(');
-        const jsAwait = jsBody.indexOf('return moved.then((result) => {', jsMove);
+        const jsMove = jsBody.indexOf('const moved = await mnearto(');
         const jsClog = jsBody.indexOf(
-            'if (!result) elemental_clog(contents.list, state);', jsAwait,
+            'if (!moved) await elemental_clog(contents.list, state);', jsMove,
         );
-        const jsNext = jsBody.indexOf(
-            'return finishContents(index + 1);', jsClog,
-        );
+        const jsNext = jsBody.indexOf('break;', jsClog);
         const jsCollision = jsBody.indexOf('return finishBubble();', jsNext);
-        assert.ok(jsMove >= 0 && jsMove < jsAwait && jsAwait < jsClog);
+        assert.ok(jsMove >= 0 && jsMove < jsClog);
         assert.ok(jsClog < jsNext && jsNext < jsCollision);
-        assert.match(jsBody, /if \(!moved\) elemental_clog\(contents\.list, state\);/);
+        assert.match(jsBody, /if \(!moved\) await elemental_clog\(contents\.list, state\);/);
 
         const cMoveBubbles = sourceBody(C_MKMAZE, '\nmovebubbles(void)');
         const jsMoveBubbles = sourceBody(JS_MKMAZE,
@@ -182,14 +179,14 @@ test('mkmaze.c movebubbles clears worm wx values before bubble relocation', asyn
         assert.equal(state.level.monsters[segment.x][segment.y], worm);
 });
 
-test('mkmaze.c fixup_special() marks Mine Town before monster setup uses it', () => {
+test('mkmaze.c fixup_special() marks Mine Town before monster setup uses it', async () => {
     const state = mazeState();
     state.specialLevels = [{
         dlevel: { ...state.u.uz },
         flags: { town: true },
     }];
 
-    fixup_special(state);
+    await fixup_special(state);
 
     assert.equal(state.level.flags.has_town, true);
     assert.deepEqual(state.lregions, []);
@@ -241,7 +238,7 @@ test('mkmaze.c okay() checks the square two cardinal steps away', () => {
     assert.equal(okay(9, 9, 2, state, bounds), false);
 });
 
-test('mkmaze.c baalz_fixup() consumes markers and resets its protected area', () => {
+test('mkmaze.c baalz_fixup() consumes markers and resets its protected area', async () => {
     const state = mazeState();
     for (let x = 20; x <= 60; ++x)
         state.level.at(x, Math.trunc(ROWNO / 2)).wall_info = W_NONDIGGABLE;
@@ -256,7 +253,7 @@ test('mkmaze.c baalz_fixup() consumes markers and resets its protected area', ()
     state.level.at(25, 8).typ = VWALL;
     state.level.at(20, 3).typ = VWALL;
 
-    baalz_fixup(state);
+    await baalz_fixup(state);
 
     assert.notEqual(state.level.at(30, 5).typ, POOL);
     assert.notEqual(state.level.at(30, 15).typ, POOL);

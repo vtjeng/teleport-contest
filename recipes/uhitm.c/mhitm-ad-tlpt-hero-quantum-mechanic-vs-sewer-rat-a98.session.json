@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Initial C-first hero-to-monster AD_TLPT setup attempt. Wizard #polyself selects the source-valid Quantum Mechanic form (monsters.h gives it M2_HOSTILE without M2_NOPOLY), then #wizgenesis creates a hostile sewer rat. The final n key is NetHack's southeast movement, not the northward attack needed for the target's observed location, so this preserved miss does not claim the AD_TLPT branch. A companion eastward attempt is also preserved as a miss; the C map shows that the target is actually north, requiring k for the source-directed continuation.",
+  "segments": [
+    {
+      "seed": 89423017,
+      "datetime": "20470611091234",
+      "nethackrc": "OPTIONS=name:A98HeroQM,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #polyself\nquantum mechanic\n #wizgenesis\nhostile sewer rat\nn"
+    }
+  ]
+}

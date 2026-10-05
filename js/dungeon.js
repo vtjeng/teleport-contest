@@ -1232,14 +1232,14 @@ export async function u_on_rndspot(
      */
     if (was_in_W_tower && On_W_tower_level(state.u.uz, state))
         /* Stay inside the Wizard's tower when feasible. */
-        place_lregion(dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
+        await place_lregion(dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
                       0, 0, 0, 0, LR_DOWNTELE, null, state,
                       {
                           earthSenseMessage, preflightPosition,
                           planPositionOnly, randomOneBased,
                       });
     else if (up)
-        place_lregion(updest.lx, updest.ly, updest.hx, updest.hy,
+        await place_lregion(updest.lx, updest.ly, updest.hx, updest.hy,
                       updest.nlx, updest.nly, updest.nhx, updest.nhy,
                       LR_UPTELE, null, state,
                       {
@@ -1247,7 +1247,7 @@ export async function u_on_rndspot(
                           planPositionOnly, randomOneBased,
                       });
     else
-        place_lregion(dndest.lx, dndest.ly, dndest.hx, dndest.hy,
+        await place_lregion(dndest.lx, dndest.ly, dndest.hx, dndest.hy,
                       dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
                       LR_DOWNTELE, null, state,
                       {

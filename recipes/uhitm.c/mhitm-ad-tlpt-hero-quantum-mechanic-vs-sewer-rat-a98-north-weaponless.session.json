@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "One source-derived correction of the frozen H-to-M setup: hmonas converts an AT_CLAW into a weapon attack when uwep is set, so w- clears the wizard's starting weapon and selects the Quantum Mechanic's own claw. The extra wield command changes the C placement outcome: before the final key the rat is west (screen `rQ.`), so k moves away and picks up a sling. This preserves the miss; the subsequent source-observed h correction is in the companion recipe. No new seed, target, or form was tried.",
+  "segments": [
+    {
+      "seed": 89423017,
+      "datetime": "20470611091234",
+      "nethackrc": "OPTIONS=name:A98HeroQM,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "w- #polyself\nquantum mechanic\n #wizgenesis\nhostile sewer rat\nk"
+    }
+  ]
+}

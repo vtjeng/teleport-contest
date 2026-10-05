@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first A98 source-boundary witness derived from the full Quantum Mechanic pair recipe. Preserve seed, timestamp, options, and setup exactly; stop after the first AD_TLPT attack and the input acknowledgment that displays the disappearance result. The full recipe remains a separate retained failure at the later uhitm.c:mhitm_knockback boundary.",
+  "segments": [
+    {
+      "seed": 93281765,
+      "datetime": "20390114143217",
+      "nethackrc": "OPTIONS=name:A98QMPair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\nhostile quantum mechanic\n #wizgenesis\nhostile quantum mechanic\n . . "
+    }
+  ]
+}

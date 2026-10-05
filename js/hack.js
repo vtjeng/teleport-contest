@@ -342,6 +342,7 @@ import {
     curr_mon_load,
     m_in_air,
     minliquid,
+    mnexto,
     maybe_unhide_at,
     seemimic,
     set_ustuck,
@@ -384,7 +385,7 @@ import {
 } from './dbridge.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
-import { enexto, goodpos, mnexto, rloc, rloc_to } from './teleport.js';
+import { enexto, goodpos, rloc, rloc_to } from './teleport.js';
 import { inside_room } from './room_coordinates.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import { Boots_on, hard_helmet } from './do_wear.js';
@@ -501,7 +502,7 @@ export async function revive_nasty(x, y, msg, state = game) {
         if (occupant) {
             const adjacent = enexto(x, y, occupant.data, { state });
             if (adjacent)
-                rloc_to(occupant, adjacent.x, adjacent.y, { state });
+                await rloc_to(occupant, adjacent.x, adjacent.y, { state });
         }
         if (msg) await ttyNorep(msg, state);
         const { revive_corpse } = await import('./do.js');
@@ -514,7 +515,7 @@ export async function revive_nasty(x, y, msg, state = game) {
         if (monster && !goodpos(x, y, monster, 0, { state })) {
             const adjacent = enexto(x, y, monster.data, { state });
             if (adjacent)
-                rloc_to(monster, adjacent.x, adjacent.y, { state });
+                await rloc_to(monster, adjacent.x, adjacent.y, { state });
         }
     }
     return revived;

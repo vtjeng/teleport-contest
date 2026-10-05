@@ -2,8 +2,9 @@
 // own level teleport and within-level teleport.
 // C ref: teleport.c goodpos(), m_blocks_teleporting(), tele_jump_ok(),
 // enexto(), enexto_core(), collect_coords(),
-// teleok(), scrolltele(), tele(), level_tele(), random_teleport_level();
-// mon.c mnexto().
+// teleok(), scrolltele(), tele(), level_tele(), random_teleport_level(),
+// rloc_pos_ok(), stairway_find_forwiz(), rloc_to_core(), rloc_to_flag(),
+// rloc_to(), rloc(), control_mon_tele() and u_teleport_mon().
 
 import {
     ALTAR,
@@ -33,12 +34,15 @@ import {
     MIGR_PORTAL,
     MM_IGNORELAVA,
     MM_IGNOREWATER,
+    NO_MM_FLAGS,
     NO_TRAP,
+    NO_TRAP_FLAGS,
     NO_KILLER_PREFIX,
     OBJ_FREE,
     PASSES_WALLS,
     RLOC_MSG,
     RLOC_NOMSG,
+    RLOC_ERR,
     ROWNO,
     TEMPLE,
     SLT_ENCUMBER,
@@ -67,10 +71,12 @@ import {
     is_hole,
     engulfing_u,
     Upolyd,
+    u_at,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
     In_hell,
+    In_W_tower,
     assign_level,
     On_W_tower_level,
     depth,
@@ -87,11 +93,13 @@ import {
 } from './dungeon.js';
 import {
     Amonnam,
+    Monnam,
     capitalizedMonsterName,
     mon_nam,
     monsterCommonName,
+    noit_mon_nam,
 } from './do_name.js';
-import { newsym, see_monsters, shieldeff } from './display.js';
+import { docrt, newsym, see_monsters, shieldeff } from './display.js';
 import {
     schedule_goto,
     UnsupportedLevelChangeError,
@@ -100,12 +108,20 @@ import { next_to_u } from './apply_next_to_u.js';
 import { sengr_at } from './engrave.js';
 import { is_lava, is_pool, is_waterwall } from './dbridge.js';
 import { is_exclusion_zone } from './mkmaze.js';
-import { accessible, closed_door, onscary } from './monmove.js';
+import {
+    accessible,
+    closed_door,
+    dochugw,
+    onscary,
+    set_apparxy,
+} from './monmove.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import { addinv, prinv, obj_extract_self, sobj_at } from './invent.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { in_rooms } from './rooms.js';
+import { discover_object } from './o_init.js';
+import { stop_occupation } from './allmain.js';
+import { check_special_room, in_rooms } from './rooms.js';
 import { learnscroll } from './read.js';
 import { drag_ball, move_bc, placebc, unplacebc } from './ball.js';
 import {
@@ -139,7 +155,6 @@ import {
     m_at,
     mon_track_clear,
     place_monster,
-    relocate_monster,
     remove_monster,
 } from './monst.js';
 import { place_worm_tail_randomly, remove_worm } from './worm.js';
@@ -159,7 +174,6 @@ import {
     S_VAMPIRE,
 } from './monsters.js';
 import {
-    deal_with_overcrowding,
     get_iter_mons,
     m_in_air,
     maybe_unhide_at,
@@ -174,6 +188,7 @@ import {
     BOULDER,
     CORPSE,
     SCR_SCARE_MONSTER,
+    WAN_TELEPORTATION,
 } from './objects.js';
 import { within_bounded_area } from './rect.js';
 import { update_monster_region, update_player_regions } from './region.js';
@@ -184,12 +199,15 @@ import { in_out_region } from './region.js';
 import { make_blinded } from './potion.js';
 import { mon_has_amulet } from './wizard.js';
 import { verbalize } from './pline.js';
+import { y_n } from './cmd.js';
+import { inhistemple } from './priest.js';
 import { set_voice, yelp } from './sounds.js';
 import {
     addtobill,
     costly_adjacent,
     costly_spot,
     find_objowner,
+    inhishop,
     stolen_value,
     subfrombill,
     u_left_shop,
@@ -197,6 +215,7 @@ import {
 import { note_unported } from './unported.js';
 import { deltrap, fill_pit, Flying, reset_utrap, t_at, unconscious }
     from './trap.js';
+import { mintrap } from './trap_effects.js';
 import { somexyspace } from './mklev.js';
 import { search_special } from './mkroom.js';
 import { settrack } from './track.js';
@@ -226,6 +245,19 @@ function teleportEnv(env = {}) {
     return { ...env, random, state: env.state ?? game };
 }
 
+function teleportInput(env, operation, fallback) {
+    if (typeof env[operation] === 'function') return env[operation];
+    if (env.planning) {
+        if (typeof env.requestPlanningInput !== 'function') {
+            throw new TypeError(
+                `planned teleport requires a ${operation} boundary`,
+            );
+        }
+        return (...args) => env.requestPlanningInput(operation, ...args);
+    }
+    return fallback;
+}
+
 function tele_jump_ok(x1, y1, x2, y2, state) {
     if (!isok(x2, y2)) return false;
     for (const bounds of [state.dndest, state.updest]) {
@@ -251,244 +283,201 @@ function tele_jump_ok(x1, y1, x2, y2, state) {
     return true;
 }
 
-function rlocPositionOk(x, y, monster, env) {
-    if (!goodpos(x, y, monster, GP_CHECKSCARY, env)) return false;
-    return tele_jump_ok(monster.mx, monster.my, x, y, env.state);
-}
-
-function requiredRelocationOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function') {
-        throw new UnsupportedPositionCheckError(
-            `random relocation without ${name}`,
-        );
-    }
-    return operation;
-}
-
-// C ref: teleport.c rloc_to_core() relocation without messaging. Redraws the
-// emptied square before track clearing, placement, and region-cache updates;
-// the destination redraw and apparent-position update come last.
-function relocateMonsterCore(monster, x, y, oldX, oldY, env) {
-    if (oldX) {
-        if (monster.wormno) remove_worm(monster, env);
-        else {
-            remove_monster(oldX, oldY, env.state);
-            env.newsym(oldX, oldY, env);
-        }
-    }
-    mon_track_clear(monster);
-    place_monster(monster, x, y, env.state);
-    update_monster_region(monster, env.state);
-    if (monster.wormno)
-        place_worm_tail_randomly(monster, x, y, env);
-    maybe_unhide_at(x, y, env.state);
-    env.newsym(x, y, env);
-    env.setApparxy(monster, env);
-}
-
-// C ref: teleport.c rloc_to_core() lines 1652-1732, messaging block.
-// Computes vanishmsg/appearmsg/domsg from rlocflags and mstrategy, emits
-// vanish/appear messages around the relocation. Returns a Promise<boolean>.
-async function relocateWithMessages(monster, x, y, oldX, oldY, appearmsgInit,
-    env) {
+// C ref: teleport.c rloc_pos_ok(). Candidate terrain/scary checks happen
+// before migration-boundary and resident-room checks. A migrating monster's
+// old y coordinate carries the up/down and Wizard-tower bits from migrate_to.
+export function rloc_pos_ok(x, y, monster, rawEnv = {}) {
+    const env = teleportEnv(rawEnv);
     const { state } = env;
-    const message = env.message ?? ttyPline;
-    let appearmsg = appearmsgInit;
-    let telemsg = false;
+    if (!goodpos(x, y, monster, GP_CHECKSCARY, env)) return false;
 
-    // C ref: teleport.c:1662-1672 -- pre-move message
-    if (canspotmon(monster, state)) {
-        if (couldsee(x, y, state) || sensemon(monster, state)) {
-            telemsg = true;
-        } else {
-            await message(
-                `${capitalizedMonsterName(monster, state)} vanishes!`,
-                state,
+    const oldx = monster.mx;
+    const oldy = monster.my;
+    if (!oldx) {
+        const dndest = state.dndest ?? {};
+        const updest = state.updest ?? {};
+        if (dndest.nlx && On_W_tower_level(state.u.uz, state)) {
+            const inside = within_bounded_area(
+                x, y, dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
             );
+            return Boolean(oldy & 2) !== !inside;
         }
-        // "avoid 'It suddenly appears!' for a STRAT_APPEARMSG monster
-        //  that has just teleported away if we won't see it after this
-        //  vanishing (the regular appears message will be given if we
-        //  do see it)"
-        appearmsg = false;
-    }
-
-    relocateMonsterCore(monster, x, y, oldX, oldY, env);
-
-    // C ref: teleport.c:1703-1726 -- post-placement messaging.
-    // The u.ustuck condition and its "You and <monster> teleport together."
-    // branch are omitted: preflightOrdinaryRloc() refuses ustuck monsters.
-    if (canspotmon(monster, state) || appearmsg) {
-        const du = dist2(x, y, state.u.ux, state.u.uy);
-        const next = du <= 2 ? ' next to you' : null;
-        const nearu = du <= BOLT_LIM * BOLT_LIM ? ' close by' : null;
-
-        monster.mstrategy &= ~STRAT_APPEARMSG;
-        if (telemsg
-            && (couldsee(x, y, state) || sensemon(monster, state))) {
-            const olddu = dist2(oldX, oldY, state.u.ux, state.u.uy);
-            await message(
-                `${capitalizedMonsterName(monster, state)}`
-                + ' vanishes and reappears'
-                + `${next ?? nearu
-                    ?? (olddu === du ? ''
-                        : du < olddu ? ' closer to you'
-                        : ' farther away')}.`,
-                state,
-            );
-        } else {
-            const name = appearmsg
-                ? Amonnam(monster, { state })
-                : capitalizedMonsterName(monster, state);
-            await message(
-                `${name} `
-                + `${appearmsg ? 'suddenly ' : ''}`
-                + `${heroBlind(state) ? 'arrives' : 'appears'}`
-                + `${next ?? nearu ?? ''}!`,
-                state,
-            );
+        if (updest.lx && (oldy & 1)) {
+            return within_bounded_area(
+                x, y, updest.lx, updest.ly, updest.hx, updest.hy,
+            ) && (!updest.nlx || !within_bounded_area(
+                x, y, updest.nlx, updest.nly, updest.nhx, updest.nhy,
+            ));
         }
-        // C ref: teleport.c:1730-1731 -- wand discovery. Deferred: the
-        // witness path reaches rloc via seduction steal, not wand zap, so
-        // gc.current_wand is null here.
+        if (dndest.lx && !(oldy & 1)) {
+            return within_bounded_area(
+                x, y, dndest.lx, dndest.ly, dndest.hx, dndest.hy,
+            ) && (!dndest.nlx || !within_bounded_area(
+                x, y, dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
+            ));
+        }
+    } else {
+        // A resident keeper/priest may be moved within its room, but the
+        // caller can still use goodpos() as a fallback if no such square exists.
+        const location = state.level?.at?.(x, y);
+        if (monster.isshk && inhishop(monster, state)) {
+            if (location?.roomno !== monster.mextra?.eshk?.shoproom)
+                return false;
+        } else if (monster.ispriest && inhistemple(monster, state)) {
+            if (location?.roomno !== monster.mextra?.epri?.shroom)
+                return false;
+        }
+        if (!tele_jump_ok(oldx, oldy, x, y, state)) return false;
     }
-
     return true;
 }
 
-// C ref: teleport.c rloc_to_core(), bounded ordinary-monster relocation path.
-// Returns true synchronously when no messaging is needed (rlocflags=0 and no
-// STRAT_APPEARMSG). Returns a Promise<true> when messaging fires.
-function finishRandomRelocation(monster, x, y, env) {
-    const { state } = env;
-    const oldX = monster.mx;
-    const oldY = monster.my;
-    if (x === oldX && y === oldY && m_at(x, y, state) === monster)
-        return true;
-
-    // C ref: teleport.c rloc_to_core() lines 1652-1656, messaging flags.
-    const rlocflags = env.rlocflags ?? 0;
-    const preventmsg = (rlocflags & RLOC_NOMSG) !== 0;
-    const vanishmsg = (rlocflags & RLOC_MSG) !== 0;
-    const appearmsg = Boolean(monster.mstrategy & STRAT_APPEARMSG);
-    const domsg = !state.in_mklev && (vanishmsg || appearmsg) && !preventmsg;
-
-    if (!domsg) {
-        relocateMonsterCore(monster, x, y, oldX, oldY, env);
-        return true;
+// C ref: teleport.c stairway_find_forwiz().
+export function stairway_find_forwiz(isladder, up, state = game) {
+    for (let stairway = state.stairs; stairway; stairway = stairway.next) {
+        if (stairway.isladder === isladder
+            && stairway.up === up
+            && stairway.tolev?.dnum === state.u?.uz?.dnum)
+            return stairway;
     }
-
-    return relocateWithMessages(monster, x, y, oldX, oldY, appearmsg, env);
+    return null;
 }
 
-function preflightOrdinaryRloc(monster, rlocflags, rawEnv) {
-    if (!monster || typeof monster !== 'object')
-        throw new TypeError('rloc requires a monster');
+function thenResult(value, continuation) {
+    return value && typeof value.then === 'function'
+        ? value.then(continuation)
+        : continuation(value);
+}
+
+// C ref: teleport.c control_mon_tele(). This helper has two callers: rloc()
+// validates with rloc_pos_ok(), while mon.c mnexto() validates with goodpos().
+export async function control_mon_tele(
+    monster,
+    coordinate,
+    rlocflags,
+    viaRloc,
+    rawEnv = {},
+) {
     const env = teleportEnv(rawEnv);
-    if (typeof env.random.rnd !== 'function')
-        throw new TypeError('rloc random injection requires rnd');
-    if (monster === env.state.u?.usteed) {
-        throw new UnsupportedPositionCheckError(
-            'steed random relocation',
-        );
-    }
-    if (monster.iswiz) {
-        throw new UnsupportedPositionCheckError(
-            'Wizard random relocation',
-        );
-    }
-    if (env.state.iflags?.mon_telecontrol) {
-        throw new UnsupportedPositionCheckError(
-            'controlled random relocation',
-        );
-    }
-    if (!monster.mx)
-        throw new UnsupportedPositionCheckError(
-            'migrating-monster random relocation',
-        );
-    if (!monster.m_id)
-        throw new UnsupportedPositionCheckError(
-            'zero-id live-monster random relocation',
-        );
-    if (monster.isshk || monster.ispriest) {
-        throw new UnsupportedPositionCheckError(
-            'shopkeeper or priest random relocation',
-        );
-    }
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        // rloc_to_core() changes carried shop goods only when no_charge or
-        // billing applies. Ordinary carried objects are source-inert here.
-        if (obj.no_charge || obj.unpaid) {
-            throw new UnsupportedPositionCheckError(
-                'random relocation of carried shop goods',
-            );
+    const { state } = env;
+    if (!isok(coordinate.x, coordinate.y)) {
+        coordinate.x = monster.mx;
+        coordinate.y = monster.my;
+        if (!isok(coordinate.x, coordinate.y)) {
+            coordinate.x = state.u.ux;
+            coordinate.y = state.u.uy;
         }
     }
-    // teleport.c:1761-1762 ends rloc_to_core() with `if (go.occupation)
-    // (void) dochugw(mtmp, FALSE);`, whose stop_occupation() has no port.
-    // cmd.c set_occupation() writes that value to state.go.occupation, so this
-    // names that field rather than a bare one nothing assigns.
-    if (monster === env.state.u?.ustuck
-        || monster.mtrapped
-        || monster.mundetected
-        || env.state.go?.occupation) {
-        throw new UnsupportedPositionCheckError(
-            'extended rloc_to_core side effects',
-        );
-    }
-    return {
-        ...env,
-        rlocflags,
-        newsym: requiredRelocationOperation(env, 'newsym'),
-        onscary: requiredRelocationOperation(env, 'onscary'),
-        setApparxy: requiredRelocationOperation(env, 'setApparxy'),
-    };
-}
+    if (!state.wizard || !state.iflags?.mon_telecontrol) return false;
 
-// C refs: teleport.c rloc() and the ordinary live-monster subset of
-// rloc_to_core(). Random trials and exhaustive fallback shuffling retain their
-// exact source PRNG bounds. Extended placement effects remain explicit seams.
-export function rloc(monster, rlocflags = 0, rawEnv = {}) {
-    const env = preflightOrdinaryRloc(monster, rlocflags, rawEnv);
-
-    // Source makes fifty independent whole-map attempts before its fallback.
-    for (let attempt = 0; attempt < 50; ++attempt) {
-        const x = env.random.rnd(COLNO - 1);
-        const y = env.random.rn2(ROWNO);
-        if (rlocPositionOk(x, y, monster, env))
-            return finishRandomRelocation(monster, x, y, env);
-    }
-
-    let flags = CC_INCL_CENTER | CC_UNSHUFFLED | CC_SKIP_MONS;
-    if (!passes_walls(monster.data)) flags |= CC_SKIP_INACCS;
-    const candidates = collect_coords(
-        Math.trunc(COLNO / 2),
-        Math.trunc(ROWNO / 2),
-        0,
-        flags,
-        null,
+    const promptName = noit_mon_nam(monster, state, env);
+    const message = env.message ?? ttyPline;
+    await message(
+        `Teleport ${promptName} @ <${monster.mx},${monster.my}> where?`,
+        state,
         env,
     );
-    let backup = null;
-    for (let index = 0; index < candidates.length; ++index) {
-        const offset = env.random.rn2(candidates.length - index);
-        if (offset) {
-            const other = index + offset;
-            [candidates[index], candidates[other]] = [
-                candidates[other],
-                candidates[index],
-            ];
+    const goalName = noit_mon_nam(monster, state, env);
+    const goal = `where to teleport ${goalName}`;
+    const selectPosition = teleportInput(env, 'getpos', getpos);
+    const askYesNo = teleportInput(env, 'y_n', y_n);
+    const found = await selectPosition(coordinate, false, goal, state);
+    if (found >= 0 && !u_at(coordinate.x, coordinate.y, state)) {
+        const viable = viaRloc
+            ? rloc_pos_ok(coordinate.x, coordinate.y, monster, env)
+            : goodpos(
+                coordinate.x, coordinate.y, monster, rlocflags, env,
+            );
+        if (viable) return true;
+        if (!state.iflags?.debug_fuzzer) {
+            const query = `<${monster.mx},${monster.my}> is not considered viable; force anyway?`;
+            if (await askYesNo(query, state) === 'y') return true;
         }
-        const { x, y } = candidates[index];
-        if (rlocPositionOk(x, y, monster, env))
-            return finishRandomRelocation(monster, x, y, env);
-        if (!backup && goodpos(x, y, monster, 0, env))
-            backup = { x, y };
     }
-    return backup
-        ? finishRandomRelocation(monster, backup.x, backup.y, env)
-        : false;
+    await message(
+        `${viaRloc ? 'Picking random' : 'Using derived'} destination.`,
+        state,
+        env,
+    );
+    return false;
+}
+
+// C ref: teleport.c rloc(). Preserve the fast Boolean return for ordinary
+// no-message paths; source callees that prompt or emit output return a Promise.
+export function rloc(monster, rlocflags = 0, rawEnv = {}) {
+    const env = teleportEnv(rawEnv);
+    const { state, random } = env;
+    if (!monster || typeof monster !== 'object')
+        throw new TypeError('rloc requires a monster');
+    if (typeof random.rnd !== 'function' || typeof random.rn2 !== 'function')
+        throw new TypeError('rloc random injection requires rnd and rn2');
+
+    const place = (x, y) => thenResult(
+        rloc_to_core(monster, x, y, { ...env, rlocflags }),
+        () => true,
+    );
+    const randomPlace = () => {
+        let x;
+        let y;
+        for (let attempt = 0; attempt < 50; ++attempt) {
+            x = random.rnd(COLNO - 1);
+            y = random.rn2(ROWNO);
+            if (rloc_pos_ok(x, y, monster, env)) return place(x, y);
+        }
+
+        let ccFlags = CC_INCL_CENTER | CC_UNSHUFFLED | CC_SKIP_MONS;
+        if (!passes_walls(monster.data)) ccFlags |= CC_SKIP_INACCS;
+        const candidates = collect_coords(
+            Math.trunc(COLNO / 2), Math.trunc(ROWNO / 2), 0,
+            ccFlags, null, env,
+        );
+        let backup = null;
+        for (let index = 0; index < candidates.length; ++index) {
+            const offset = random.rn2(candidates.length - index);
+            if (offset) {
+                const other = index + offset;
+                [candidates[index], candidates[other]] = [
+                    candidates[other], candidates[index],
+                ];
+            }
+            ({ x, y } = candidates[index]);
+            if (rloc_pos_ok(x, y, monster, env)) return place(x, y);
+            if (!backup && goodpos(x, y, monster, NO_MM_FLAGS, env))
+                backup = { x, y };
+        }
+        if (!backup) {
+            if (rlocflags & RLOC_ERR) note_unported('pline.c impossible');
+            return false;
+        }
+        return place(backup.x, backup.y);
+    };
+
+    if (monster === state.u?.usteed)
+        return tele(state, env).then(() => true);
+
+    if (monster.iswiz && monster.mx) {
+        let stairway;
+        if (!In_W_tower(state.u.ux, state.u.uy, state.u.uz, state)) {
+            stairway = stairway_find_forwiz(false, true, state);
+        } else if (!stairway_find_forwiz(true, false, state)) {
+            stairway = stairway_find_forwiz(true, true, state);
+        } else {
+            stairway = stairway_find_forwiz(true, false, state);
+        }
+        const x = stairway?.sx ?? 0;
+        const y = stairway?.sy ?? 0;
+        if (goodpos(x, y, monster, NO_MM_FLAGS, env)) return place(x, y);
+    }
+
+    if (state.iflags?.mon_telecontrol && monster.mx) {
+        const coordinate = { x: monster.mx, y: monster.my };
+        return control_mon_tele(
+            monster, coordinate, rlocflags, true, env,
+        ).then((accepted) => accepted
+            ? place(coordinate.x, coordinate.y)
+            : randomPlace());
+    }
+    return randomPlace();
 }
 
 // C ref: teleport.c u_teleport_mon(). Its Boolean return is consumed by
@@ -595,109 +584,6 @@ function heroBlind(state) {
         || Boolean(state.u?.uroleplay?.blind);
 }
 
-function fixedRelocationSuffix(monster, oldX, oldY, state) {
-    const distance = dist2(
-        monster.mx,
-        monster.my,
-        state.u.ux,
-        state.u.uy,
-    );
-    if (distance <= 2) return ' next to you';
-    if (distance <= BOLT_LIM * BOLT_LIM) return ' close by';
-    const oldDistance = dist2(oldX, oldY, state.u.ux, state.u.uy);
-    if (oldDistance === distance) return '';
-    return distance < oldDistance
-        ? ' closer to you'
-        : ' farther away';
-}
-
-function fixedArrivalSuffix(monster, state) {
-    const distance = dist2(
-        monster.mx,
-        monster.my,
-        state.u.ux,
-        state.u.uy,
-    );
-    if (distance <= 2) return ' next to you';
-    return distance <= BOLT_LIM * BOLT_LIM ? ' close by' : '';
-}
-
-// C ref: teleport.c rloc_to_core() with RLOC_MSG, bounded to the ordinary
-// fixed-destination monster path reached by a current D:1 teleport trap.
-async function relocateToFixedDestination(monster, x, y, env) {
-    const { state } = env;
-    const redraw = monsterTeleportOperation(env, 'newsym');
-    const setApparxy = monsterTeleportOperation(env, 'setApparxy');
-    const message = env.message ?? ttyPline;
-    if (typeof message !== 'function')
-        throw new TypeError('monster teleport requires a message operation');
-    const oldX = monster.mx;
-    const oldY = monster.my;
-    // C ref: teleport.c rloc_to_core() calls Monnam(mtmp) three times, at 1666
-    // before the move and at 1714 and 1722 after it, rather than once into a
-    // buffer. That matters now that do_name.c x_monnam()'s do_it arm is
-    // ported: the name depends on canspotmon(), and the whole point of this
-    // function is that the monster changes square between the two reads. A
-    // monster the hero cannot spot where it stands but can spot where it
-    // lands is named "It" before the move and by its species after it.
-    let appearMessage = Boolean(monster.mstrategy & STRAT_APPEARMSG);
-    const oldSpotted = canspotmon(monster, state);
-    const sensedAtOldSquare = sensemon(monster, state);
-    let teleportMessage = false;
-
-    if (oldSpotted) {
-        if (couldsee(x, y, state) || sensedAtOldSquare) {
-            teleportMessage = true;
-        } else {
-            await message(
-                `${capitalizedMonsterName(monster, state)} vanishes!`,
-                state,
-            );
-        }
-        appearMessage = false;
-    }
-
-    relocate_monster(monster, x, y, state);
-    redraw(oldX, oldY, env);
-    redraw(monster.mx, monster.my, env);
-    setApparxy(monster, env);
-
-    const newSpotted = canspotmon(monster, state);
-    const sensedAtNewSquare = sensemon(monster, state);
-    if (newSpotted || appearMessage) {
-        monster.mstrategy &= ~STRAT_APPEARMSG;
-        if (teleportMessage
-            && (couldsee(monster.mx, monster.my, state)
-                || sensedAtNewSquare)) {
-            await message(
-                `${capitalizedMonsterName(monster, state)}`
-                + ' vanishes and reappears'
-                + `${fixedRelocationSuffix(
-                    monster,
-                    oldX,
-                    oldY,
-                    state,
-                )}.`,
-                state,
-            );
-        } else {
-            // do_name.c Amonnam() is x_monnam() with ARTICLE_A, and its do_it
-            // term tests only `article != ARTICLE_YOUR`, so an unspottable
-            // monster is "It" under either article and the article swap below
-            // finds no leading "The " to replace.
-            const arrivalName = capitalizedMonsterName(monster, state);
-            await message(
-                `${appearMessage
-                    ? arrivalName.replace(/^The /u, 'A ') : arrivalName}`
-                + `${appearMessage ? ' suddenly' : ''} `
-                + `${heroBlind(state) ? 'arrives' : 'appears'}`
-                + `${fixedArrivalSuffix(monster, state)}!`,
-                state,
-            );
-        }
-    }
-}
-
 // C ref: teleport.c tele_restrict() (1950-1960). Returns true when the
 // level forbids teleportation, printing a message if the hero can see the
 // monster.
@@ -779,10 +665,11 @@ export async function mtele_trap(
         if (!m_at(destinationX, destinationY, state)
             && (state.u.ux !== destinationX
                 || state.u.uy !== destinationY)) {
-            await relocateToFixedDestination(
+            await rloc_to_flag(
                 monster,
                 destinationX,
                 destinationY,
+                RLOC_MSG,
                 env,
             );
         }
@@ -1216,198 +1103,202 @@ export function enexto(xx, yy, species, env = {}) {
 
 // C ref: teleport.c rloc_to(), which is rloc_to_core() with RLOC_NOMSG.
 // Besides an arriving monster with mx == 0, hack.c revive_nasty() moves an
-// ordinary on-map occupant away from a reviving corpse. Worm tails are placed
-// around the new head; shop, trap, occupation, and hero-attachment tails remain bounded.
-//
-// Every message in rloc_to_core() is suppressed by RLOC_NOMSG, and the
-// shopkeeper, shop-goods, occupation and trap tails below the placement each
-// refuse rather than run.
+// ordinary on-map occupant away from a reviving corpse. Worm tails, resident
+// shop accounting, occupation, and the trapped-monster tail follow placement.
+// RLOC_NOMSG suppresses placement messages.
 function rloc_to_core(monster, x, y, rawEnv = {}) {
     const env = teleportEnv(rawEnv);
     const { state } = env;
-    const redraw = env.newsym ?? newsym;
+    const redraw = env.newsym ?? env.redraw ?? newsym;
     const oldx = monster.mx;
     const oldy = monster.my;
+    const residentShk = monster.isshk && inhishop(monster, state);
+    const rlocflags = env.rlocflags ?? RLOC_NOMSG;
+    const preventmsg = Boolean(rlocflags & RLOC_NOMSG);
+    const vanishmsg = Boolean(rlocflags & RLOC_MSG);
+    let appearmsg = Boolean(monster.mstrategy & STRAT_APPEARMSG);
+    const domsg = !state.in_mklev && (vanishmsg || appearmsg)
+        && !preventmsg;
+    const message = env.message ?? ttyPline;
+    let telemsg = false;
+
     if (x === oldx && y === oldy && m_at(x, y, state) === monster)
-        return monster;
-    // The occupation term names state.go.occupation, cmd.c set_occupation()'s
-    // home for C's go.occupation, so the tail at teleport.c:1761-1762 refuses
-    // instead of being skipped by a field nothing assigns.
-    if (monster.isshk || monster === state.u?.ustuck
-        || (monster.mtrapped && !monster.wormno)
-        || state.go?.occupation) {
-        throw new UnsupportedPositionCheckError(
-            'extended rloc_to_core side effects',
-        );
-    }
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        if (obj.no_charge || obj.unpaid) {
-            throw new UnsupportedPositionCheckError(
-                'rloc_to() of carried shop goods',
+        return;
+
+    // Source's departure message is evaluated while the monster still has
+    // its old coordinates. Relocation waits for its output before removing it.
+    let departure = null;
+    if (oldx && domsg && canspotmon(monster, state)) {
+        if (couldsee(x, y, state) || sensemon(monster, state)) {
+            telemsg = true;
+        } else {
+            departure = message(
+                `${Monnam(monster, state, env)} vanishes!`, state, env,
             );
         }
+        // A monster that vanishes out of sight does not get an arrival line.
+        appearmsg = false;
     }
 
-    const wormEnv = { ...env, newsym: redraw };
-    if (oldx) {
-        if (monster.wormno) remove_worm(monster, wormEnv);
-        else {
-            remove_monster(oldx, oldy, state);
-            redraw(oldx, oldy, state);
+    const placeAndFinish = () => {
+        if (oldx) {
+            if (monster.wormno) {
+                remove_worm(monster, { ...env, newsym: redraw });
+            } else {
+                remove_monster(oldx, oldy, state);
+                redraw(oldx, oldy, state);
+            }
         }
-    }
-    mon_track_clear(monster);
-    place_monster(monster, x, y, state);
-    update_monster_region(monster, state);
-    if (monster.wormno)
-        place_worm_tail_randomly(monster, x, y, wormEnv);
-    // maybe_unhide_at(x, y) calls hideunder() for a monster whose mundetected
-    // is set; an arriving follower's is clear, because dog.c relmon() cleared
-    // it as the monster left the level it came from.
-    maybe_unhide_at(x, y, state);
-    redraw(x, y, state);
-    // C ends rloc_to_core() with set_apparxy(). Dog-arrival callers already
-    // have the hero square in mux/muy, but wizard.c tactics can relocate an
-    // ordinary monster with stale apparent coordinates; use the caller's
-    // canonical operation whenever it is supplied. The fallback preserves
-    // the two existing arrival-only callers that intentionally pass a bare
-    // state rather than an operation environment.
-    if (typeof env.setApparxy === 'function')
-        env.setApparxy(monster, { ...env, state });
-    else {
-        monster.mux = state.u.ux;
-        monster.muy = state.u.uy;
-    }
-    return monster;
-}
 
-// C ref: teleport.c rloc_to_flag().  mnearto() uses this flagged entry point
-// so RLOC_MSG remains distinct from the explicitly unflagged rloc_to() used
-// by restoration/arrival callers.  The placement itself is shared with
-// rloc_to_core(); only the source's optional vanish/arrival messages depend
-// on the flag.
-export function rloc_to_flag(monster, x, y, rlocflags = RLOC_NOMSG,
-    rawEnv = {}) {
-    const env = teleportEnv(rawEnv);
-    const { state } = env;
-    const preventmsg = (rlocflags & RLOC_NOMSG) !== 0;
-    const vanishmsg = (rlocflags & RLOC_MSG) !== 0;
-    let appearmsg = Boolean(monster.mstrategy & STRAT_APPEARMSG);
-    const domsg = !state.in_mklev
-        && (vanishmsg || appearmsg) && !preventmsg;
-    if (!domsg) return rloc_to_core(monster, x, y, env);
+        mon_track_clear(monster);
+        place_monster(monster, x, y, state);
+        update_monster_region(monster, state);
+        if (monster.wormno)
+            place_worm_tail_randomly(monster, x, y, {
+                ...env,
+                newsym: redraw,
+            });
 
-    const message = env.message ?? ttyPline;
-    const oldx = monster.mx;
-    const oldy = monster.my;
-    if (x === oldx && y === oldy && m_at(x, y, state) === monster)
-        return monster;
-    let telemsg = false;
-    const oldSpotted = Boolean(oldx) && canspotmon(monster, state);
-    if (oldSpotted) appearmsg = false;
-    const before = oldSpotted
-        ? (couldsee(x, y, state) || sensemon(monster, state)
-            ? (telemsg = true, null)
-            : message(
-                `${capitalizedMonsterName(monster, state, env)} vanishes!`,
-                state,
-                env,
-            ))
-        : null;
-    const finish = () => {
-        rloc_to_core(monster, x, y, env);
-        if (canspotmon(monster, state) || appearmsg) {
+        if (state.u?.ustuck === monster) {
+            if (state.u.uswallow) {
+                u_on_newpos(monster.mx, monster.my, state);
+                const roomCheck = check_special_room(false, state, {
+                    message,
+                    random: env.random.rn2,
+                });
+                return thenResult(roomCheck, () => thenResult(
+                    state === game
+                        ? docrt()
+                        : note_unported('display.c docrt'),
+                    finishPlacement,
+                ));
+            }
+            if (dist2(monster.mx, monster.my, state.u.ux, state.u.uy) > 2) {
+                const release = unstuck(monster, state, env);
+                return thenResult(release, finishPlacement);
+            }
+        }
+
+        return finishPlacement();
+    };
+
+    const finishPlacement = () => {
+        // C's maybe_unhide_at() runs after any swallowed/unstuck transition.
+        maybe_unhide_at(x, y, state);
+        redraw(x, y, state);
+        const setApparxy = env.setApparxy ?? set_apparxy;
+        setApparxy(monster, { ...env, state });
+
+        if (domsg
+            && (canspotmon(monster, state) || appearmsg
+                || monster === state.u?.ustuck)) {
             const distance = dist2(x, y, state.u.ux, state.u.uy);
             const next = distance <= 2 ? ' next to you' : null;
-            const near = distance <= BOLT_LIM * BOLT_LIM
+            const close = distance <= BOLT_LIM * BOLT_LIM
                 ? ' close by' : null;
+            const oldDistance = dist2(oldx, oldy, state.u.ux, state.u.uy);
             monster.mstrategy &= ~STRAT_APPEARMSG;
-            if (telemsg
+            let text;
+            if (monster === state.u?.ustuck && !u_at(state.u.ux0, state.u.uy0, state)) {
+                text = `You and ${mon_nam(monster, state, env)} teleport together.`;
+            } else if (telemsg
                 && (couldsee(x, y, state) || sensemon(monster, state))) {
-                const oldDistance = dist2(oldx, oldy, state.u.ux, state.u.uy);
-                return message(
-                    `${capitalizedMonsterName(monster, state, env)}`
-                    + ' vanishes and reappears'
-                    + `${next ?? near
+                text = `${Monnam(monster, state, env)} vanishes and reappears`
+                    + `${next ?? close
                         ?? (oldDistance === distance ? ''
                             : distance < oldDistance ? ' closer to you'
-                            : ' farther away')}.`,
-                    state,
-                    env,
-                );
+                            : ' farther away')}.`;
+            } else {
+                const name = appearmsg
+                    ? Amonnam(monster, { ...env, state })
+                    : Monnam(monster, state, env);
+                text = `${name} ${appearmsg ? 'suddenly ' : ''}`
+                    + `${heroBlind(state) ? 'arrives' : 'appears'}`
+                    + `${next ?? close ?? ''}!`;
             }
-            const name = appearmsg
-                ? Amonnam(monster, { ...env, state })
-                : capitalizedMonsterName(monster, state, env);
-            return message(
-                `${name} ${appearmsg ? 'suddenly ' : ''}`
-                + `${heroBlind(state) ? 'arrives' : 'appears'}`
-                + `${next ?? near ?? ''}!`,
-                state,
-                env,
-            );
+            const result = message(messageAt(text, x, y, state), state, env);
+            return thenResult(result, () => thenResult(
+                state.current_wand?.otyp === WAN_TELEPORTATION
+                    ? discover_object(
+                        WAN_TELEPORTATION, true, true, true, state, env,
+                    )
+                    : undefined,
+                finishTail,
+            ));
         }
-        return undefined;
+        return finishTail();
     };
-    if (before && typeof before.then === 'function')
-        return before.then(finish);
-    return finish();
-}
 
-// C ref: teleport.c rloc_to(), which is rloc_to_core() with RLOC_NOMSG.
-export function rloc_to(monster, x, y, rawEnv = {}) {
-    return rloc_to_core(monster, x, y, rawEnv);
-}
+    const finishTail = () => {
+        if (residentShk && !inhishop(monster, state))
+            note_unported('shk.c make_angry_shk');
 
-// C ref: mon.c mnexto(). Wizard destination control remains an explicit
-// environment seam; overcrowding now follows mon.c's helper by default.
-export function mnexto(monster, _rlocflags = 0, env = {}) {
-    const normalized = teleportEnv(env);
-    const { state } = normalized;
-    if (monster === state.u?.usteed) {
-        monster.mx = state.u.ux;
-        monster.my = state.u.uy;
-        return monster;
-    }
-    let coordinate = enexto(
-        state.u?.ux,
-        state.u?.uy,
-        monster?.data,
-        normalized,
-    );
-    if (!coordinate) {
-        if (typeof normalized.dealWithOvercrowding === 'function')
-            normalized.dealWithOvercrowding(monster, normalized);
-        else
-            deal_with_overcrowding(monster, state, normalized);
-        return null;
-    }
-    if (state.iflags?.mon_telecontrol) {
-        const controlMonsterTeleport = normalized.controlMonsterTeleport;
-        if (typeof controlMonsterTeleport !== 'function') {
-            throw new UnsupportedPositionCheckError(
-                'montelecontrol without controlMonsterTeleport hook',
-            );
-        }
-        const selected = { ...coordinate };
-        if (controlMonsterTeleport(
-            monster,
-            selected,
-            _rlocflags,
-            false,
-            normalized,
-        )) {
-            if (!Number.isInteger(selected.x) || !Number.isInteger(selected.y)
-                || !isok(selected.x, selected.y)) {
-                throw new RangeError(
-                    'controlMonsterTeleport accepted an invalid coordinate',
-                );
+        return runShopItems();
+    };
+
+    const runShopItems = () => {
+        if (!monster.minvent || costly_spot(x, y, state))
+            return afterShopItems();
+        const owner = find_objowner(monster.minvent, oldx, oldy, state);
+        const peaceful = !owner || owner.mpeaceful;
+        const process = (object) => {
+            while (object) {
+                const next = object.nobj;
+                if (object.no_charge) {
+                    object.no_charge = 0;
+                    object = next;
+                } else if (owner && onshopbill(object, owner, true)) {
+                    return thenResult(stolen_value(
+                        object, oldx, oldy, peaceful, false, state,
+                    ), () => process(next));
+                } else {
+                    object = next;
+                }
             }
-            coordinate = selected;
+            return afterShopItems();
+        };
+        return process(monster.minvent);
+    };
+
+    const afterShopItems = () => {
+        if (state.go?.occupation) {
+            return thenResult(dochugw(monster, false, {
+                ...env,
+                state,
+                canSpotMonster: (subject) => canspotmon(subject, state),
+                couldSee: (targetX, targetY) => couldsee(targetX, targetY, state),
+                stopOccupation: () => stop_occupation(state, env),
+            }), afterOccupation);
         }
-    }
-    return rloc_to_flag(monster, coordinate.x, coordinate.y, _rlocflags,
-        normalized);
+        return afterOccupation();
+    };
+    const afterOccupation = () => {
+        if (monster.mtrapped && !monster.wormno)
+            return thenResult(
+                mintrap(monster, NO_TRAP_FLAGS, { ...env, state }),
+                () => undefined,
+            );
+        return;
+    };
+
+    const result = departure && typeof departure.then === 'function'
+        ? departure.then(placeAndFinish)
+        : placeAndFinish();
+    return thenResult(result, () => undefined);
+}
+
+// C ref: teleport.c rloc_to_flag().
+export function rloc_to_flag(monster, x, y, rlocflags = RLOC_NOMSG,
+    rawEnv = {}) {
+    return rloc_to_core(monster, x, y, { ...rawEnv, rlocflags });
+}
+
+// C ref: teleport.c rloc_to(), which passes RLOC_NOMSG.
+export function rloc_to(monster, x, y, rawEnv = {}) {
+    return rloc_to_core(monster, x, y, {
+        ...rawEnv,
+        rlocflags: RLOC_NOMSG,
+    });
 }
 
 // C ref: teleport.c tele_to_rnd_pet() (814-838). Select a living, tame,
@@ -1442,7 +1333,7 @@ export async function tele_to_rnd_pet(state = game, env = {}) {
 // ── Hero within-level teleport (C ref: teleport.c teleok/scrolltele/tele) ──
 
 // C ref: teleport.c teleok() (420-445).
-export async function teleok(x, y, trapok, state = game) {
+export async function teleok(x, y, trapok, state = game, rawEnv = {}) {
     if (!trapok) {
         const trap = t_at(x, y, state);
         if (!trap)
@@ -1455,7 +1346,7 @@ export async function teleok(x, y, trapok, state = game) {
         if (!trapok)
             return false;
     }
-    if (!goodpos(x, y, state.youmonst, 0, { state }))
+    if (!goodpos(x, y, state.youmonst, 0, { ...rawEnv, state }))
         return false;
     if (!tele_jump_ok(state.u.ux, state.u.uy, x, y, state))
         return false;
@@ -1486,12 +1377,16 @@ function Stunned_prop(state) {
 // C ref: teleport.c safe_teleds() (717-770). After forty random safe squares,
 // C searches a shuffled map-wide ring list, preferring non-trap squares and
 // retaining the first acceptable trap square as a last resort.
-export async function safe_teleds(teleds_flags, state = game) {
+export async function safe_teleds(teleds_flags, state = game, rawEnv = {}) {
+    const env = teleportEnv({ ...rawEnv, state });
+    const random = env.random;
+    if (typeof random.rnd !== 'function')
+        throw new TypeError('safe_teleds random injection requires rnd');
     for (let tcnt = 0; tcnt < 40; ++tcnt) {
-        const nux = rnd(COLNO - 1);
-        const nuy = rn2(ROWNO);
-        if (await teleok(nux, nuy, false, state)) {
-            await teleds(nux, nuy, teleds_flags, state);
+        const nux = random.rnd(COLNO - 1);
+        const nuy = random.rn2(ROWNO);
+        if (await teleok(nux, nuy, false, state, env)) {
+            await teleds(nux, nuy, teleds_flags, state, env);
             return true;
         }
     }
@@ -1506,21 +1401,21 @@ export async function safe_teleds(teleds_flags, state = game) {
         0,
         ccFlags,
         null,
-        { state },
+        env,
     );
     let backupspot = null;
     for (const { x, y } of candidates) {
-        if (await teleok(x, y, false, state)) {
-            await teleds(x, y, teleds_flags, state);
+        if (await teleok(x, y, false, state, env)) {
+            await teleds(x, y, teleds_flags, state, env);
             return true;
         }
         if (!backupspot && t_at(x, y, state)
-            && await teleok(x, y, true, state)) {
+            && await teleok(x, y, true, state, env)) {
             backupspot = { x, y };
         }
     }
     if (backupspot) {
-        await teleds(backupspot.x, backupspot.y, teleds_flags, state);
+        await teleds(backupspot.x, backupspot.y, teleds_flags, state, env);
         return true;
     }
     return false;
@@ -1530,23 +1425,26 @@ export async function safe_teleds(teleds_flags, state = game) {
 // mklev.c makevtele() hides in a niche sends the hero into the level's vault.
 // C's `croom && somexyspace(...) && teleok(...)` short-circuits, so a level
 // with no vault spends no randomness before falling through to tele().
-export async function vault_tele(state = game) {
+export async function vault_tele(state = game, rawEnv = {}) {
+    const env = teleportEnv({ ...rawEnv, state });
     const croom = search_special(VAULT, state);
     const c = { x: 0, y: 0 };
 
     if (croom && somexyspace(croom, c, { state })
-        && await teleok(c.x, c.y, false, state)) {
-        await teleds(c.x, c.y, TELEDS_TELEPORT, state);
+        && await teleok(c.x, c.y, false, state, env)) {
+        await teleds(c.x, c.y, TELEDS_TELEPORT, state, env);
         return;
     }
-    await tele(state);
+    await tele(state, env);
 }
 
 // C ref: teleport.c scrolltele() (849-915). Read.c passes the scroll object;
 // teleport.c:tele() passes null. Keep discovery and the wizard override at
 // their source positions around the controlled destination query.
-export async function scrolltele(scroll, state = game) {
-    const message = ttyPline;
+export async function scrolltele(scroll, state = game, rawEnv = {}) {
+    const env = teleportEnv({ ...rawEnv, state });
+    const { random } = env;
+    const message = env.message ?? ttyPline;
 
     if (noteleport_level(state.youmonst, state) && !state.wizard) {
         await message("A mysterious force prevents you from teleporting!", state);
@@ -1558,12 +1456,12 @@ export async function scrolltele(scroll, state = game) {
         await make_blinded(0, false, state);
 
     if ((state.u?.uhave?.amulet || On_W_tower_level(state.u.uz, state))
-        && !rn2(3)) {
+        && !random.rn2(3)) {
         await message("You feel disoriented for a moment.", state);
         if (!state.wizard)
             return;
-        const { y_n } = await import('./cmd.js');
-        if (await y_n('Override?', state) !== 'y'.charCodeAt(0))
+        const askYesNo = teleportInput(env, 'y_n', y_n);
+        if (await askYesNo('Override?', state) !== 'y'.charCodeAt(0))
             return;
     }
 
@@ -1589,10 +1487,13 @@ export async function scrolltele(scroll, state = game) {
                 cc.x = tcc.x;
                 cc.y = tcc.y;
             }
-            if (await getpos(cc, true, 'the desired position', state) < 0)
+            const selectPosition = teleportInput(env, 'getpos', getpos);
+            if (await selectPosition(
+                cc, true, 'the desired position', state,
+            ) < 0)
                 return;
-            if (await teleok(cc.x, cc.y, false, state)) {
-                await teleds(cc.x, cc.y, TELEDS_TELEPORT, state);
+            if (await teleok(cc.x, cc.y, false, state, env)) {
+                await teleds(cc.x, cc.y, TELEDS_TELEPORT, state, env);
                 if (state.iflags?.travelcc
                     && state.u.ux === state.iflags.travelcc.x
                     && state.u.uy === state.iflags.travelcc.y) {
@@ -1606,14 +1507,14 @@ export async function scrolltele(scroll, state = game) {
     }
 
     if (scroll) learnscroll(scroll, state);
-    await safe_teleds(TELEDS_TELEPORT, state);
+    await safe_teleds(TELEDS_TELEPORT, state, env);
 }
 
 // C ref: teleport.c tele() (841-845). tele_trap()'s fallback arm is its first
 // caller in the running game, which is why scrolltele() now admits a null
 // scroll instead of refusing one.
-export async function tele(state = game) {
-    await scrolltele(null, state);
+export async function tele(state = game, rawEnv = {}) {
+    await scrolltele(null, state, rawEnv);
 }
 
 // ── Hero relocation (C ref: teleport.c teleds()) ──
@@ -1623,7 +1524,12 @@ export async function tele(state = game) {
 // regions and spoteffects(). scrolltele() (controlled teleport) is the newest
 // caller; steed.c mount_steed() and dismount_steed() also call it with
 // TELEDS_ALLOW_DRAG.
-export async function teleds(nux, nuy, teleds_flags, state = game) {
+export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) {
+    const env = teleportEnv({ ...rawEnv, state });
+    if (state !== game && typeof env.redraw !== 'function') {
+        throw new TypeError('teleds on a non-live state requires a redraw callback');
+    }
+    const redraw = env.redraw ?? newsym;
     const u = state.u;
     let allow_drag = (teleds_flags & TELEDS_ALLOW_DRAG) !== 0;
     const is_teleport = (teleds_flags & TELEDS_TELEPORT) !== 0;
@@ -1729,7 +1635,15 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
     }
 
     /* must set u.ux, u.uy after drag_ball() */
-    u_on_newpos(nux, nuy, state);
+    u_on_newpos(nux, nuy, state, {
+        seeNearbyObjectsOptions: env.planning
+            ? {
+                redraw: () => note_unported(
+                    'display.c newsym_force planning',
+                ),
+            }
+            : { redraw },
+    });
     fill_pit(u.ux0, u.uy0, state);
     if (ball_active && state.uchain?.where === OBJ_FREE)
         await placebc(state);
@@ -1738,17 +1652,17 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
      *  Make sure the hero disappears from the old location, and force a full
      *  vision recalculation because the hero is now in a new location.
      */
-    newsym(u.ux0, u.uy0);
-    see_monsters(state);
+    redraw(u.ux0, u.uy0, state);
+    see_monsters(state, { redraw });
     state.vision_full_recalc = 1;
     nomul(0, state);
     notice_mon_off(state);
-    vision_recalc(0, { state }); /* vision before effects */
+    vision_recalc(0, { state, redraw }); /* vision before effects */
 
     // C ref: teleport.c:545-547.
     if (is_teleport && state.flags?.verbose) {
         const same = (nux === u.ux0 && nuy === u.uy0);
-        await ttyPline(
+        await (env.message ?? ttyPline)(
             `You materialize in ${same ? 'the same' : 'a different'} location!`,
             state,
         );
@@ -1756,14 +1670,14 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
     /* if terrain type changes, levitation or flying might become blocked or
        unblocked; do this after map+vision has been updated */
     if (state.level.at(u.ux, u.uy).typ !== state.level.at(u.ux0, u.uy0).typ)
-        await switch_terrain(state);
+        await switch_terrain(state, env);
     /* possible shop entry message comes after guard's shrill whistle */
     // C teleds() does not exclude an occupied destination; spoteffects() owns
     // the resident monster's surprise after the hero has arrived.
-    await spoteffects(true, state);
+    await spoteffects(true, state, env);
     invocation_message(state);
     notice_mon_on(state);
-    await notice_all_mons(true, state);
+    await notice_all_mons(true, state, env);
 }
 
 // youprop.h:57 defines Antimagic as the intrinsic or the extrinsic, with no
@@ -1810,7 +1724,7 @@ export async function tele_trap(trap, state = game) {
                        must be nearly or completely full */
                     await ttyPline('You shudder for a moment.', state);
                 } else {
-                    rloc_to(mtmp, cc.x, cc.y, { state });
+                    await rloc_to(mtmp, cc.x, cc.y, { state });
                     mtmp = null; /* no longer a monster at dest */
                 }
             }

@@ -68,7 +68,7 @@ import { can_saddle, put_saddle_on_mon } from './steed.js';
 import { update_inventory } from './invent.js';
 import { mbirth_limit, rndmonst_adj, set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { minliquid } from './mon.js';
+import { minliquid, mnexto } from './mon.js';
 import {
     attacktype,
     is_covetous,
@@ -121,7 +121,7 @@ import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import { messageAt } from './startup_a11y.js';
 import { night } from './calendar.js';
 import { acurr } from './attrib.js';
-import { mnexto, rloc_to } from './teleport.js';
+import { rloc_to } from './teleport.js';
 import { vision_recalc } from './vision.js';
 import { mon_wield_item } from './weapon.js';
 import { mon_has_amulet } from './wizard.js';
@@ -1034,9 +1034,9 @@ async function mon_arrive(monster, when, env) {
     // then decides which of the two moves off it.
     if (!m_at(u.ux, u.uy, state)
         && !env.random.rn2(monster.mtame ? 10 : monster.mpeaceful ? 5 : 2)) {
-        rloc_to(monster, u.ux, u.uy, env);
+        await rloc_to(monster, u.ux, u.uy, env);
     } else {
-        mnexto(monster, RLOC_NOMSG, env);
+        await mnexto(monster, RLOC_NOMSG, env);
     }
     monster.mstate &= ~MON_STILL_ARRIVING;
 }

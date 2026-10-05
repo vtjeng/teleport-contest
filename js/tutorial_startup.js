@@ -198,7 +198,7 @@ export async function enter_tutorial(target, state = game) {
         vision_reset();
         state.vision_full_recalc = 0;
         const destination = state.dndest;
-        place_lregion(
+        await place_lregion(
             destination.lx,
             destination.ly,
             destination.hx,

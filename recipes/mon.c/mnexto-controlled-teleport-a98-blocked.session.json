@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Unrecorded source-evidence blocker for mon.c:mnexto. Its wizard destination branch is active only when iflags.mon_telecontrol is set, and then it calls teleport.c:control_mon_tele to read a destination before mon.c:rloc_to_flag. The current selected A98 recordings do not reach any direct mnexto caller, so this is retained as a source-trigger plan rather than claimed runtime evidence; a source-traced caller/setup must be established before recording it.",
+  "segments": [
+    {
+      "seed": 89423019,
+      "datetime": "20470611091417",
+      "nethackrc": "OPTIONS=name:A98Mnexto,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,montelecontrol,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": ""
+    }
+  ]
+}

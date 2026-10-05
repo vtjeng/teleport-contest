@@ -46,6 +46,7 @@ import {
     mcalcdistress,
     mcalcmove,
     minliquid,
+    mnexto,
     movemon,
     movemon_singlemon,
     restrap,
@@ -125,7 +126,7 @@ import {
 import { emitGlyphUpdateNotices, emitStartupA11yNotices } from './startup_a11y.js';
 import { u_wipe_engr } from './engrave.js';
 import { check_special_room } from './rooms.js';
-import { mnexto, rloc } from './teleport.js';
+import { rloc } from './teleport.js';
 import {
     block_point,
     cansee,
@@ -258,7 +259,7 @@ export async function newgame() {
     await check_special_room(false, g);
     const stairOccupant = m_at(g.u.ux, g.u.uy, g);
     if (stairOccupant)
-        mnexto(stairOccupant, RLOC_NOMSG, { state: g });
+        await mnexto(stairOccupant, RLOC_NOMSG, { state: g });
     await makedog({ state: g });
 
     const objectHooks = objectGenerationHooks();
@@ -1345,6 +1346,9 @@ async function advanceElapsedTurn(state) {
     // post-scan state. Keep this separate from the movement gate: the
     // preflight's false gate is only the result of the early planning exit.
     let pendingDeathReplan = Boolean(preflight.heroDeath);
+    // The cloned scan stops before a monster asks the player for a choice.
+    // Replay that source path live, then plan from the answer's actual state.
+    let pendingInputReplan = Boolean(preflight.inputBoundary);
     let upkeepCount = 0;
     const replanContinuation = async ({ afterMonsterScan = false } = {}) => {
         const completedUpkeeps = upkeepCount;
@@ -1362,6 +1366,7 @@ async function advanceElapsedTurn(state) {
             upkeepCount: completedUpkeeps + resumed.upkeepCount,
         };
         pendingDeathReplan = Boolean(resumed.heroDeath);
+        pendingInputReplan = Boolean(resumed.inputBoundary);
     };
 
     // C ref: allmain.c moveloop_core().  The outer loop repeats while the hero
@@ -1411,6 +1416,15 @@ async function advanceElapsedTurn(state) {
                         afterMonsterScan: !monstersCanMove
                             || state.u.umovement >= NORMAL_SPEED,
                     });
+                } else if (pendingInputReplan) {
+                    // This live pass completed the scan that contains the
+                    // input request, so later monsters used the actual choice.
+                    // Resume at the next scan or at the completed-scan upkeep
+                    // gate, preserving the source's movement-ration order.
+                    await replanContinuation({
+                        afterMonsterScan: !monstersCanMove
+                            || state.u.umovement >= NORMAL_SPEED,
+                    });
                 } else if (pendingDeathReplan
                     && monstersCanMove
                     && state.u.umovement < NORMAL_SPEED) {
@@ -1454,7 +1468,7 @@ async function advanceElapsedTurn(state) {
 
         const runsOncePerTurnUpkeep =
             !monstersCanMove && state.u.umovement < NORMAL_SPEED;
-        if (!pendingDeathReplan
+        if (!pendingDeathReplan && !pendingInputReplan
             && runsOncePerTurnUpkeep !== preflight.runsOncePerTurnUpkeep) {
             throw new Error(
                 'elapsed-turn preflight disagreed with the live movement gate',
@@ -1503,6 +1517,7 @@ async function advanceElapsedTurn(state) {
                     consumeHeroRation: false,
                 });
                 pendingDeathReplan = Boolean(preflight.heroDeath);
+                pendingInputReplan = Boolean(preflight.inputBoundary);
                 upkeepCount = 0;
             }
             if (pendingDeathReplan && state.u.umovement < NORMAL_SPEED) {
@@ -1510,7 +1525,7 @@ async function advanceElapsedTurn(state) {
             }
         }
     } while (state.u.umovement < NORMAL_SPEED);
-    if (!pendingDeathReplan
+    if (!pendingDeathReplan && !pendingInputReplan
         && preflight.initialCapacity > 0
         && upkeepCount !== preflight.upkeepCount) {
         throw new Error(
