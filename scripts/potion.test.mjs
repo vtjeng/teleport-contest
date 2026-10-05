@@ -30,6 +30,8 @@ import { PM_GREEN_SLIME, PM_GRID_BUG } from '../js/monsters.js';
 import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
 import { addinv } from '../js/invent.js';
+import { dipfountain, dipsink } from '../js/fountain.js';
+import { inaccessible_equipment } from '../js/do_wear.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { mksobj, place_object } from '../js/obj.js';
 import { dist2 } from '../js/hacklib.js';
@@ -93,6 +95,7 @@ import {
     make_vomiting,
     mixtype,
     dopotion,
+    dip_potion_explosion,
     peffects,
     potionbreathe,
     potionhit,
@@ -3811,4 +3814,101 @@ test('blessed ordinary water selects awe and preserves the BUC counter',
         assert.equal(game.gp.potion_unkn, 1);
         assert.ok(getRngLog().every((entry) => /^rn2\(19\)=/u.test(entry)),
             'only exercise() attribute checks draw on this ordinary branch');
+    });
+
+test('potion dip explosion passes the live exercise hook and C Deaf value',
+    async () => {
+        // potion.c:2417-2438 calls exercise(A_STR, FALSE) after the explosion
+        // message. attrib.c requires encumber_msg once moves is positive.
+        const youprop = readFileSync(
+            new URL('../nethack-c/upstream/include/youprop.h', import.meta.url),
+            'utf8',
+        );
+        assert.match(youprop,
+            /#define Deaf \(HDeaf \|\| EDeaf \|\| u\.uroleplay\.deaf\)/u);
+        const cSource = potionSource();
+        const explosionStart = cSource.indexOf(
+            'dip_potion_explosion(struct obj *obj, int dmg)',
+        );
+        const explosionEnd = cSource.indexOf('\n}', explosionStart);
+        assert.ok(explosionStart >= 0 && explosionEnd > explosionStart);
+        assert.match(cSource.slice(explosionStart, explosionEnd),
+            /pline\("%sThey explode!", !Deaf \? "BOOM!  " : ""\)/u);
+
+        await startedGame(84610221, 'DipExplosionLiveHook', 'Wizard');
+        game.moves = 1;
+        game.u.uprops[DEAF] = {
+            intrinsic: FROMOUTSIDE, extrinsic: 0, blocked: 0,
+        };
+        const potion = vaporPotion(POT_FRUIT_JUICE);
+        potion.cursed = true;
+        potion.dknown = false;
+        addinv(potion, { state: game });
+
+        const events = [];
+        const strengthExercise = game.u.aexe[A_STR];
+        const exploded = await dip_potion_explosion(potion, 1, game, {
+            message: async (line) => events.push(['message', line]),
+            random: {
+                rn2(bound) {
+                    const value = bound === 2 ? 1 : 0;
+                    events.push(['rn2', bound, value]);
+                    return value;
+                },
+            },
+            hooks: {
+                encumberMessage: async (state) => {
+                    events.push(['encumber', state.moves]);
+                },
+                updateInventory: () => {},
+            },
+        });
+
+        assert.equal(exploded, true);
+        assert.deepEqual(events[0], ['message', 'They explode!'],
+            'any nonzero intrinsic Deaf flag suppresses the BOOM prefix');
+        const exerciseDraw = events.findIndex((event) =>
+            event[0] === 'rn2' && event[1] === 2);
+        const encumber = events.findIndex((event) => event[0] === 'encumber');
+        assert.ok(exerciseDraw > 0, 'live Strength exercise reaches rn2(2)');
+        assert.ok(encumber > exerciseDraw,
+            'encumber_msg follows the completed source exercise draw');
+        assert.equal(events[encumber][1], 1);
+        assert.equal(game.u.aexe[A_STR], strengthExercise - 1);
+    });
+
+test('dip commands await covered-equipment messages and resolve terrain callees',
+    async () => {
+        const source = readFileSync(
+            new URL('../js/potion.js', import.meta.url), 'utf8',
+        );
+        const dodipStart = source.indexOf('export async function dodip(');
+        const dipIntoStart = source.indexOf('export async function dip_into(');
+        const poofStart = source.indexOf('export async function poof(');
+        assert.ok(dodipStart >= 0 && dipIntoStart > dodipStart
+            && poofStart > dipIntoStart);
+        const dodip = source.slice(dodipStart, dipIntoStart);
+        const dipInto = source.slice(dipIntoStart, poofStart);
+        assert.match(dodip,
+            /if \(await inaccessible_equipment\(obj, 'dip', false, state\)\)/u);
+        assert.match(dipInto,
+            /if \(await inaccessible_equipment\(obj, 'dip', false, state\)\)/u);
+        assert.equal(typeof dipfountain, 'function');
+        assert.equal(typeof dipsink, 'function');
+        assert.match(dodip, /await dipfountain\(obj, state, env\)/u);
+        assert.match(dodip, /await dipsink\(obj, state, env\)/u);
+
+        await startedGame(84610222, 'DipCoveredRefusal', 'Wizard');
+        const inner = vaporPotion(POT_FRUIT_JUICE);
+        inner.owornmask = 1;
+        const outer = vaporPotion(POT_FRUIT_JUICE);
+        outer.cursed = true;
+        outer.bknown = true;
+        game.uarmu = inner;
+        game.uarmc = outer;
+        const refusal = inaccessible_equipment(inner, 'dip', false, game);
+        assert.equal(typeof refusal?.then, 'function',
+            'a verb-bearing refusal returns the asynchronous message result');
+        assert.equal(await refusal, true);
+        assert.match(game._ttyToplines, /take off .* to dip/u);
     });

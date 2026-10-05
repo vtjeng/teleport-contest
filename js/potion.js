@@ -167,7 +167,7 @@ import {
 } from './do_name.js';
 import { tamedog } from './dog.js';
 import { can_reach_floor } from './engrave.js';
-import { drinkfountain, drinksink } from './fountain.js';
+import { dipfountain, dipsink, drinkfountain, drinksink } from './fountain.js';
 import { more_experienced, pluslvl, rndexp } from './exper.js';
 import { unfixable_trouble_count } from './apply.js';
 import { fruitname, makeplural } from './fruit.js';
@@ -3158,7 +3158,7 @@ function Glib(state) {
 
 function Deaf(state) {
     const prop = state.u?.uprops?.[DEAF];
-    return Boolean((prop?.intrinsic & TIMEOUT) || prop?.extrinsic
+    return Boolean(prop?.intrinsic || prop?.extrinsic
         || state.u?.uroleplay?.deaf);
 }
 
@@ -3278,7 +3278,8 @@ export async function dodip(state = game, rawEnv = {}) {
         (candidate) => atHere ? dip_hands_ok(candidate, state)
             : dip_ok(candidate, state), GETOBJ_PROMPT, state);
     if (!obj) return ECMD_CANCEL;
-    if (inaccessible_equipment(obj, 'dip', false, state)) return ECMD_OK;
+    if (await inaccessible_equipment(obj, 'dip', false, state))
+        return ECMD_OK;
 
     const isHands = obj === hands_obj;
     const shortestName = isHands || is_plural(obj, state) || pair_of(obj, state)
@@ -3365,7 +3366,8 @@ export async function dip_into(state = game, rawEnv = {}) {
         (candidate) => dip_ok(candidate, state), GETOBJ_PROMPT, state,
     );
     if (!obj) return ECMD_CANCEL;
-    if (inaccessible_equipment(obj, 'dip', false, state)) return ECMD_OK;
+    if (await inaccessible_equipment(obj, 'dip', false, state))
+        return ECMD_OK;
     return potion_dip(obj, potion, state, env);
 }
 
@@ -3388,7 +3390,9 @@ export async function dip_potion_explosion(obj, dmg, state = game,
         await wake_nearto(
             state.u.ux, state.u.uy, (boltLimit + 1) * (boltLimit + 1), env,
         );
-        await exercise(A_STR, false, state, random);
+        await exercise(A_STR, false, state, random, {
+            encumberMessage: env.hooks.encumberMessage,
+        });
         if (!breathless(state.youmonst.data) || haseyes(state.youmonst.data))
             await potionbreathe(obj, state, env);
         useupall(obj, env);
