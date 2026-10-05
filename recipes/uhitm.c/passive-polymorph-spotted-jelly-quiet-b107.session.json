@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first hmonas runtime route and !verbose option variation. The source C map places the spotted jelly southwest of the Wizard, and hmonas input b attacks that square after polymorphing to a fire giant. !verbose selects the source hmon_hitmon_msg_hit `You hit it.` branch; the preserved C/JS strict comparison passes and exercises passive AD_ACID plus passive_obj. This does not claim whole hmonas completion.",
+  "segments": [
+    {
+      "seed": 10710603,
+      "datetime": "20461005113100",
+      "nethackrc": "OPTIONS=name:PassiveQuiet,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup,!verbose\n",
+      "moves": "#wizintrinsic\n100a\n #wizgenesis\nhostile sleeping spotted jelly\n#polyself\nfire giant\nb"
+    }
+  ]
+}
