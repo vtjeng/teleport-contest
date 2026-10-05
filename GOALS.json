@@ -168916,7 +168916,7 @@
             ],
             "recordings": [],
             "sourceFile": "teleport.c",
-            "checkedAt": "5244c621326f7c4a34568154a5e74da5d70ad097"
+            "checkedAt": "34b07f4a71733baf6d8486f013699d4bb8f3086b"
           },
           {
             "name": "rloc_to_core",
@@ -168954,7 +168954,7 @@
               "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
             ],
             "sourceFile": "teleport.c",
-            "checkedAt": "5244c621326f7c4a34568154a5e74da5d70ad097"
+            "checkedAt": "34b07f4a71733baf6d8486f013699d4bb8f3086b"
           },
           {
             "name": "stairway_find_forwiz",
@@ -168974,7 +168974,7 @@
             ],
             "recordings": [],
             "sourceFile": "teleport.c",
-            "checkedAt": "5244c621326f7c4a34568154a5e74da5d70ad097"
+            "checkedAt": "34b07f4a71733baf6d8486f013699d4bb8f3086b"
           },
           {
             "name": "rloc",
@@ -169007,7 +169007,7 @@
               "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
             ],
             "sourceFile": "teleport.c",
-            "checkedAt": "5244c621326f7c4a34568154a5e74da5d70ad097"
+            "checkedAt": "34b07f4a71733baf6d8486f013699d4bb8f3086b"
           },
           {
             "name": "u_teleport_mon",
@@ -169037,7 +169037,7 @@
               "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
             ],
             "sourceFile": "teleport.c",
-            "checkedAt": "5244c621326f7c4a34568154a5e74da5d70ad097"
+            "checkedAt": "34b07f4a71733baf6d8486f013699d4bb8f3086b"
           }
         ],
         "entryPointReview": "The selected attack has three active directions. Three independent C-first records verify monster-to-monster AD_TLPT through rloc and rloc_to_core. The admitted v19 case verifies monster-to-hero AD_TLPT and the controlled hero-input planning handoff through step 60. The active hero-to-monster setup strictly matches only through an hmonas miss before damageum, so mhitm_ad_tlpt remains incomplete. The accepted A52 wand recording executes u_teleport_mon, rloc and rloc_to_core. Wizard mon_telecontrol through mnexto, control_mon_tele and rloc_to_flag, and the Rider/control-teleport rloc_to wrapper route remain explicitly unrecorded. artifact.c:banish and clone-only display.c:docrt remain named discarded-result gaps outside the credited functions.",
