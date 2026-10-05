@@ -575,7 +575,13 @@ import {
     revive_corpse,
     set_wounded_legs,
 } from './do.js';
-import { floorfood, morehungry, set_tin_variety, vomit } from './eat.js';
+import {
+    floorfood,
+    morehungry,
+    set_tin_variety,
+    use_tin_opener,
+    vomit,
+} from './eat.js';
 import { digests, hurtle, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
 import { makeplural } from './fruit.js';
 import { change_luck } from './moveloop_preamble.js';
@@ -3943,7 +3949,6 @@ async function use_royal_jelly(objp, state = game, rawEnv = {}) {
 
 const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
     TOWEL,
-    TIN_OPENER,
     FLINT,
     LUCKSTONE,
     LOADSTONE,
@@ -4987,6 +4992,13 @@ export async function doapply(state = game, env = {}) {
                 },
             }),
         });
+    case TIN_OPENER: {
+        // apply.c:4364-4366 assigns this ECMD result before the common
+        // artifact-speech tail; use_tin_opener() selects a tin and calls
+        // start_tin() for the source opening effect.
+        const result = await use_tin_opener(obj, state, env);
+        return obj?.oartifact ? result | arti_speak(obj, state) : result;
+    }
     case FIGURINE:
         // apply.c:4367. use_figurine() updates the pointer to NULL after the
         // source consumes the selected object.
