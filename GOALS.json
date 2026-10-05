@@ -165728,7 +165728,7 @@
     {
       "id": "port-mhitu-explmu-potion-make-hallucinated-black-light-v20-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Handle monster explosions and the Black Light hallucination blast",
       "cFile": "mhitu.c",
       "sessions": [
@@ -165996,7 +165996,17 @@
             ]
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "d834b0d9a3d5625fafb5289100c1151636bfc1fa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial A96 delivery: explmu is verified through the fully matching Black Light admitted range. The required make_hallucinated body is source-aligned, but artifact.c:set_artifact_intrinsic HALRES and its asynchronous caller propagation remain incomplete. Preserve the planned helper scope and Grayswandir blocked recipe; no helper completion or goal-closure score event."
     }
   ]
 }
