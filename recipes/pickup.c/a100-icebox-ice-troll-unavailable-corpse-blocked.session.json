@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED A100 setup attempt. This one-factor ice-troll corpse variation drops the wished corpse to the floor in zap.c:do_wizwish -> invent.c:hold_another_object because it exceeds the wizard's pickup burden. The stash selector only accepts inventory items, so the attempt does not reach pickup.c:in_container or its OMONST branch.",
+  "segments": [
+    {
+      "seed": 7341229,
+      "datetime": "20461105110700",
+      "nethackrc": "OPTIONS=name:A100Icebox,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizwish\nuncursed ice box\n#wizwish\nuncursed ice troll corpse\n #loot\nso"
+    }
+  ]
+}

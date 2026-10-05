@@ -50,7 +50,43 @@ const SPELL_C = readFileSync(
 const READ_C = readFileSync(
     new URL('../nethack-c/upstream/src/read.c', import.meta.url), 'utf8',
 );
+const LIGHT_C = readFileSync(
+    new URL('../nethack-c/upstream/src/light.c', import.meta.url), 'utf8',
+);
 const JS_READ = readFileSync(new URL('../js/read.js', import.meta.url), 'utf8');
+const JS_LIGHT = readFileSync(
+    new URL('../js/light.js', import.meta.url), 'utf8',
+);
+
+test('read.c set_lit delegates burning-source checks to obj_is_burning', () => {
+    const cSetLitStart = READ_C.indexOf('set_lit(coordxy x, coordxy y, genericptr_t val)');
+    const cSetLitEnd = READ_C.indexOf('\n}\n', cSetLitStart);
+    assert.ok(cSetLitStart >= 0 && cSetLitEnd > cSetLitStart);
+    const cSetLit = READ_C.slice(cSetLitStart, cSetLitEnd);
+    assert.match(cSetLit, /snuff_light_source\(x, y\);/u);
+
+    const cSnuffStart = LIGHT_C.indexOf('snuff_light_source(coordxy x, coordxy y)');
+    const cSnuffEnd = LIGHT_C.indexOf('\n}\n', cSnuffStart);
+    assert.ok(cSnuffStart >= 0 && cSnuffEnd > cSnuffStart);
+    const cSnuff = LIGHT_C.slice(cSnuffStart, cSnuffEnd);
+    assert.match(cSnuff, /if \(obj_is_burning\(obj\)\)/u);
+    assert.ok(cSnuff.indexOf('obj_is_burning(obj)')
+        < cSnuff.indexOf('if (artifact_light(obj))'));
+
+    const jsSetLitStart = JS_READ.indexOf('function set_lit(');
+    const jsSetLitEnd = JS_READ.indexOf('\n}\n', jsSetLitStart);
+    assert.ok(jsSetLitStart >= 0 && jsSetLitEnd > jsSetLitStart);
+    const jsSetLit = JS_READ.slice(jsSetLitStart, jsSetLitEnd);
+    assert.match(jsSetLit, /obj_is_burning\(source\.id\)/u);
+    assert.ok(jsSetLit.indexOf('obj_is_burning(source.id)')
+        < jsSetLit.indexOf('artifact_light(source.id)'));
+    assert.doesNotMatch(jsSetLit, /source\.id\?\.lamplit/u);
+
+    const jsBurning = JS_LIGHT.slice(
+        JS_LIGHT.indexOf('export function obj_is_burning('),
+    );
+    assert.match(jsBurning, /obj\.lamplit && \(ignitable\(obj\) \|\| artifact_light\(obj\)\)/u);
+});
 
 test('read.c fire scroll awaits burn_away_slime in source order', () => {
     const cStart = READ_C.indexOf('seffect_fire(struct obj **sobjp)');

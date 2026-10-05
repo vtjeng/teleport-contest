@@ -25,16 +25,13 @@ import {
     TEMP_LIT,
 } from './const.js';
 import { artifact_light } from './artifacts.js';
+import { ignitable } from './apply_catch_lit.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import { note_unported } from './unported.js';
 import {
-    BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION,
     GOLD_DRAGON_SCALE_MAIL,
-    MAGIC_LAMP,
-    OIL_LAMP,
-    POT_OIL,
     TALLOW_CANDLE,
     WAX_CANDLE,
 } from './objects.js';
@@ -63,18 +60,16 @@ export function any_light_source(state = game) {
     return Boolean(state.gl?.light_base);
 }
 
-// C refs: obj.h ignitable(), artifact.c artifact_light(), and
-// light.c obj_sheds_light(). Only actively burning objects shed light.
+// C ref: light.c obj_is_burning(). Only lit, fuel-burning sources and artifact
+// lights are extinguished by end_burn(); the shared obj.h ignitable() macro
+// includes brass lanterns even though fire cannot light them.
+export function obj_is_burning(obj) {
+    return Boolean(obj.lamplit && (ignitable(obj) || artifact_light(obj)));
+}
+
+// C ref: light.c obj_sheds_light().
 export function obj_sheds_light(obj) {
-    if (!obj?.lamplit) return false;
-    const ignitable = obj.otyp === BRASS_LANTERN
-        || obj.otyp === OIL_LAMP
-        || (obj.otyp === MAGIC_LAMP && obj.spe > 0)
-        || obj.otyp === CANDELABRUM_OF_INVOCATION
-        || obj.otyp === TALLOW_CANDLE
-        || obj.otyp === WAX_CANDLE
-        || obj.otyp === POT_OIL;
-    return ignitable || artifact_light(obj);
+    return obj_is_burning(obj);
 }
 
 function lightGlobals(state) {

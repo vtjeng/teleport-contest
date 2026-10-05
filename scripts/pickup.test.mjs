@@ -2094,3 +2094,71 @@ test('lift_object passes C youmonst anatomy to body_part for Sokoban boulders', 
     assert.match(jsBody, /body_part\(HAND, state\.youmonst\)/u);
     assert.doesNotMatch(jsBody, /body_part\(HAND, state\)/u);
 });
+
+test('in_container preserves C icebox and discarded-void call order', async () => {
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/pickup.c', import.meta.url),
+        'utf8',
+    );
+    const jsSource = await readFile(
+        new URL('../js/pickup.js', import.meta.url), 'utf8',
+    );
+    const objHeader = await readFile(
+        new URL('../nethack-c/upstream/include/obj.h', import.meta.url),
+        'utf8',
+    );
+    const cStart = cSource.indexOf('\nin_container(struct obj *obj)');
+    const cEnd = cSource.indexOf('\n}\n', cStart) + 2;
+    const jsStart = jsSource.indexOf('async function in_container(');
+    const jsEnd = jsSource.indexOf('\n}', jsStart) + 2;
+    const cBody = cSource.slice(cStart, cEnd);
+    const jsBody = jsSource.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'pickup.c defines the complete in_container body');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart,
+        'pickup.js defines the complete in_container body');
+
+    const cFree = cBody.indexOf('freeinv(obj);');
+    const cBurning = cBody.indexOf('obj_is_burning(obj)');
+    const cBill = cBody.indexOf('costly_spot(u.ux, u.uy)');
+    const cIcebox = cBody.indexOf('if (Icebox && !age_is_relative(obj))');
+    const cBag = cBody.indexOf('else if (Is_mbag(gc.current_container)');
+    assert.ok(cFree < cBurning && cBurning < cBill
+        && cBill < cIcebox && cIcebox < cBag,
+    'C detaches, checks burning and billing, freezes age, then tests bag explosion');
+
+    const jsFree = jsBody.indexOf('freeinv(obj, { state });');
+    const jsBurning = jsBody.indexOf('if (obj_is_burning(obj))');
+    const jsBill = jsBody.indexOf('if (floor_container && costly_spot(');
+    const jsIcebox = jsBody.indexOf('if (Icebox && !ageIsRelative)');
+    const jsBag = jsBody.indexOf('else if (isMbag(state.gc.current_container)');
+    assert.ok(jsFree < jsBurning && jsBurning < jsBill
+        && jsBill < jsIcebox && jsIcebox < jsBag,
+    'JS preserves C order and the icebox/bag else-if relationship');
+    assert.match(cBody,
+        /obj->age = svm\.moves - obj->age;[\s\S]*?stop_timer\(ROT_CORPSE, obj_to_any\(obj\)\);[\s\S]*?stop_timer\(REVIVE_MON, obj_to_any\(obj\)\);/u);
+    assert.match(jsBody,
+        /obj\.age = state\.moves - obj\.age;[\s\S]*?stop_timer\(ROT_CORPSE, obj, state\);[\s\S]*?stop_timer\(REVIVE_MON, obj, state\);/u);
+    assert.match(cBody,
+        /obj->corpsenm == PM_ICE_TROLL && has_omonst\(obj\)\)[\s\S]*?OMONST\(obj\)->mcan = 0/u);
+    assert.match(jsBody,
+        /obj\.corpsenm === PM_ICE_TROLL && corpseMonster\)[\s\S]*?corpseMonster\.mcan = 0/u);
+
+    const ageStart = objHeader.indexOf('#define age_is_relative(otmp)');
+    const ageEnd = objHeader.indexOf('/* object can be ignited', ageStart);
+    const ageMacro = objHeader.slice(ageStart, ageEnd);
+    assert.ok(ageStart >= 0 && ageEnd > ageStart,
+        'obj.h defines the complete age_is_relative macro');
+    // C exempts these six relative-age object types from icebox conversion.
+    for (const objectType of [
+        'BRASS_LANTERN', 'OIL_LAMP', 'CANDELABRUM_OF_INVOCATION',
+        'TALLOW_CANDLE', 'WAX_CANDLE', 'POT_OIL',
+    ]) {
+        assert.ok(ageMacro.includes(objectType),
+            `obj.h:age_is_relative includes ${objectType}`);
+        assert.ok(jsBody.includes(objectType),
+            `pickup.js:in_container preserves ${objectType}`);
+    }
+    assert.doesNotMatch(ageMacro, /MAGIC_LAMP/u);
+    assert.doesNotMatch(jsBody, /UnsupportedPickupError/u);
+});
