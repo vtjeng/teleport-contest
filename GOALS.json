@@ -167803,6 +167803,595 @@
         "rng": 792838
       },
       "parkedReason": "Partial B105 delivery: the admitted v21 range verifies entry into mhitm_ad_samu through its initial hitmsg only. The rn2(20) gate, gated discarded stealamulet call and monster-to-monster entry lack matching runtime evidence; independent recipes preserve their earlier continuation/setup blockers. Keep the whole function incomplete, retain blocked recipes, and record no goal-closure score event."
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-erosion-v19-20261005",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Implement rust, corrosion and decay attack handlers",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date",
+        "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+        "synthetic/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation"
+      ],
+      "selectionReason": "Port the complete three-handler C-order family and three dispatch arms exposed by admitted v19 erosion attacks. Independent C-first hero and monster attack routes verify Rust and Decay, while the Corrosion hero entry is blocked by an earlier hit-threshold discrepancy. Reuse source-reviewed erosion/death helpers without new whole-source credit; preserve the incomplete direction explicitly and park the full goal.",
+      "detail": "",
+      "openedAt": "94330164574bd01aa0ff2f491f4aa8c64e5a10bc",
+      "openStanding": {
+        "sha": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_rust",
+          "line": 2281,
+          "endLine": 2337,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "mhitm_ad_corr",
+          "line": 2338,
+          "endLine": 2362,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "mhitm_ad_dcay",
+          "line": 2363,
+          "endLine": 2417,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2281,
+        "to": 2417
+      },
+      "syntheticProvenance": {
+        "synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date": {
+          "session": "synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+          "recordingSha256": "a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284",
+          "evaluationPath": "challenges/evaluations/20261005055316-v19.json",
+          "evaluationCommit": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0"
+        },
+        "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62": {
+          "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+          "evaluationPath": "challenges/evaluations/20261005055316-v19.json",
+          "evaluationCommit": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0"
+        },
+        "synthetic/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation": {
+          "session": "synthetic/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+          "recordingSha256": "ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484",
+          "evaluationPath": "challenges/evaluations/20261005055316-v19.json",
+          "evaluationCommit": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0"
+        }
+      },
+      "activeStanding": {
+        "sha": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+          "session": "synthetic/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+          "recordingPath": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+          "recordingSha256": "ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484",
+          "recipe": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.recipe.session.json",
+          "recipeSha256": "810a5260638d0f2f7837eaca80820ae44889402ec28e56480bef4dab87f49c1c",
+          "replayInputSha256": "457684125a18172a6ae0cd6b8dc8cbfaf6201814bd724a2270080e98fe5e5dbb",
+          "evaluationPath": "challenges/evaluations/20261005055316-v19.json",
+          "evaluationCommit": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0",
+          "evaluationArtifact": "challenges/evaluations/20261005055316-v19.json",
+          "evaluationUtc": "2026-10-05T05:54:16.404Z",
+          "remainingScreens": 19,
+          "recordedSteps": 91,
+          "previousScreensMatched": 72,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 72,
+              "total": 91
+            },
+            "rng": {
+              "matched": 2646,
+              "total": 2999
+            },
+            "cursors": {
+              "matched": 72,
+              "total": 91
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_dcay()",
+            "step": 72
+          },
+          "step": 72,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_dcay",
+          "message": "simple monster action requires uhitm.c mhitm_ad_dcay()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+              "session": "synthetic/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recording": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+              "recordingPath": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+              "recordingSha256": "ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484",
+              "recipe": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.recipe.session.json",
+              "recipeSha256": "810a5260638d0f2f7837eaca80820ae44889402ec28e56480bef4dab87f49c1c",
+              "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationUtc": "2026-10-02T18:07:42.516Z",
+              "remainingScreens": 19,
+              "recordedSteps": 91,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": null,
+              "metrics": {
+                "screens": {
+                  "matched": 72,
+                  "total": 91
+                },
+                "rng": {
+                  "matched": 2646,
+                  "total": 2999
+                },
+                "cursors": {
+                  "matched": 72,
+                  "total": 91
+                }
+              },
+              "firstMismatch": {
+                "kind": "stop",
+                "message": "simple monster action requires uhitm.c mhitm_ad_dcay()",
+                "step": 72
+              },
+              "step": 72,
+              "kind": "stop",
+              "sourceFile": "uhitm.c",
+              "function": "mhitm_ad_dcay",
+              "message": "simple monster action requires uhitm.c mhitm_ad_dcay()",
+              "cFile": "uhitm.c",
+              "luaFile": null,
+              "line": null,
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "summary": "The v19 stop is caused by the unported AD_DCAY branch in uhitm.c:mhitm_adtyping, which refuses to dispatch to mhitm_ad_dcay during cloned elapsed-turn preflight. For this recorded non-cancelled brown-pudding hit on the human Wizard, mhitm_ad_dcay reaches erode_armor(ERODE_ROT) on worn leather armor. The actionable scope is the complete mhitm_ad_dcay and erode_armor helpers plus wiring the AD_DCAY dispatcher branch and existing shared-helper note sites. The comparator’s missing distfleeck call is a turn-boundary symptom: C calls it before the attack, and the JS preflight refusal prevents that turn from running live.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "The recorded path requires a landed monster-to-hero attack whose attack type is AD_DCAY, with a non-cancelled attacker and a hero form that does not trigger completelyrots; mhitm_ad_dcay then calls hitmsg and erode_armor(mdef, ERODE_ROT). Port the full helper, retaining its hero-attacker, hero-defender, and monster-vs-monster branches, including cancellation, completely-rots/golem, death, and mhitm result updates. erode_armor must preserve the rn2(5) armor-slot retry loop, its distinct retry conditions and grease/verbose flags, and ERODE_ROT effects.",
+                "functions": [
+                  "erode_armor",
+                  "mhitm_ad_dcay",
+                  "mhitm_adtyping (AD_DCAY branch)"
+                ],
+                "callers": [
+                  "mhitu.c:hitmu -> mhitm_adtyping for the recorded monster-to-hero attack",
+                  "mhitm.c:mdamagem and uhitm.c:damageum -> mhitm_adtyping for other combat contexts",
+                  "uhitm.c:mhitm_ad_dcay -> erode_armor(ERODE_ROT)",
+                  "uhitm.c:mhitm_ad_rust, mhitm_ad_corr, mhitm_ad_acid, and passive -> erode_armor",
+                  "mhitu.c:passiveum and mhitm.c:passivemm -> erode_armor",
+                  "zap.c:zhitm and zhitu -> erode_armor"
+                ],
+                "dependencies": [
+                  "trap.c:erode_obj is already ported in js/trap_erode_obj.js and owns ERODE_ROT item-state and message effects; it uses the already ported obj.c:is_rottable behavior.",
+                  "worn.c:which_armor is already ported in js/worn.js and supplies the armor-slot lookups used by the retry loop.",
+                  "The retry loop uses the injected environment RNG for rn2(5); keep its draw order and retry behavior source-equivalent.",
+                  "The non-recorded branches of mhitm_ad_dcay depend on already ported completelyrots, hitmsg, rehumanize, mlifesaver, xkilled, monkilled, and grow_up behavior.",
+                  "The existing shared-helper gaps at js/mhitu.js:2310 and js/zap.js:2277 name uhitm.c:erode_armor with note_unported; redirect those call sites when wiring the helper without expanding this diagnosis to their other unported behavior."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current evaluation challenges/evaluations/20261002180737-v19.json at 8583a972f66a872a8ad73c888a24dd01075481f4 stops after 72/91 screens at zero-based input step 72 with “simple monster action requires uhitm.c mhitm_ad_dcay()”; its RNG and cursor counts stop at 2646/2999 and 72/91. The queue identity is bound to batch v19, case brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation, manifest digest ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007, recording digest ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484, and 91 recorded steps.",
+                "The immutable C62 packet in .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json identifies the causal crosswalk as uhitm.c:mhitm_adtyping(AD_DCAY) -> mhitm_ad_dcay -> erode_armor(ERODE_ROT), and confirms that the hostile pudding is created at step 66 and bites the Wizard at zero-based step 72. Its cited frozen C recording is challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json.",
+                "The C recording’s step-72 sequence is rn2(5)=2 in monmove.c:distfleeck before the attack, rnd(20)=16 in mhitu.c:mattacku, d(0,0)=0 in mhitu.c:hitmu, then erode_armor ERODE_ROT retry draws 3,3,3,1 in uhitm.c:erode_armor. The resulting message is “The brown pudding bites! Your leather armor rots!”; later pudding hits rot armor at steps 80 and 89. This is worn leather armor, not a carried-item route.",
+                "Upstream source confirms Brown pudding’s first attack is AT_BITE/AD_DCAY (include/monsters.h:2092-2102); mhitu.c:hitmu dispatches the landed hit through mhitm_adtyping (mhitu.c:1187-1193), and uhitm.c:mhitm_adtyping selects mhitm_ad_dcay at its AD_DCAY case (uhitm.c:4782-4832). The monster-vs-hero branch in uhitm.c:mhitm_ad_dcay emits the hit message, returns for cancellation or completely-rotting hero forms, and otherwise calls erode_armor with ERODE_ROT (uhitm.c:2363-2415).",
+                "The complete uhitm.c:erode_armor helper (lines 126-183) repeatedly chooses among head, cloak/body/shirt, shield, gloves, and boots via rn2(5); missing armor or ER_NOTHING results retry in cases 0, 2, 3, and 4, while the cloak/body/shirt case exits after its selected target attempt. Port this whole loop so the observed gloves-slot retries and worn-body-armor decay preserve C draw order, target selection, and effects.",
+                "At the examined commit, js/uhitm.js:mhitm_adtyping has AD_DCAY wired only to unported(\"mhitm_ad_dcay\") (line 4959), and no JS erode_armor or mhitm_ad_dcay implementation exists. js/allmain.js:planElapsedTurn invokes cloned-state preflight, whose simple-monster-action path raises the named refusal; this prevents the elapsed turn from reaching live execution. Thus distfleeck is the first missing live comparator RNG call only because C calls it before the attack and the JS turn boundary aborts; it is not the causal source owner.",
+                "The reused C62 bounded comparison is run-GTCVFa, measured at worker HEAD 3b30ca493456d7d79d49c1bf3ca79d9d32addf15 (accepted main 239a521a71a7b303178861b23c55711d6ba8a483), not the current evaluation commit. Its receipt /tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GTCVFa/receipt.json (SHA-256 a910d13af1f5ac45bfb339ed70f660f6967ee1e2848b4a9659789339a4a3cea9) records the focused command; stdout /tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GTCVFa/stdout.log (SHA-256 45a537cb6b88c17972005e8c58c26d02a60de24fa1c72ccafbe55566fc02d0df) shows C’s first unmatched live call as distfleeck at one-based step 73 / zero-based input step 72, with the screen and cursor absent in JS. The packet explicitly diagnoses this as the raw symptom of the earlier AD_DCAY preflight refusal."
+              ],
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+                "session": "synthetic/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+                "recordingPath": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+                "recordingSha256": "ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484",
+                "recipe": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.recipe.session.json",
+                "recipeSha256": "810a5260638d0f2f7837eaca80820ae44889402ec28e56480bef4dab87f49c1c",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 19,
+                "recordedSteps": 91,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 72,
+                    "total": 91
+                  },
+                  "rng": {
+                    "matched": 2646,
+                    "total": 2999
+                  },
+                  "cursors": {
+                    "matched": 72,
+                    "total": 91
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_dcay()",
+                  "step": 72
+                },
+                "step": 72,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_dcay",
+                "message": "simple monster action requires uhitm.c mhitm_ad_dcay()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              }
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+          "session": "synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+          "recordingPath": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+          "recordingSha256": "a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284",
+          "recipe": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.recipe.session.json",
+          "recipeSha256": "1bc12e2f94a9e60e1877f19b0226ea41eda2a0d109ceb117c1d5816133d86173",
+          "replayInputSha256": "457684125a18172a6ae0cd6b8dc8cbfaf6201814bd724a2270080e98fe5e5dbb",
+          "evaluationPath": "challenges/evaluations/20261005055316-v19.json",
+          "evaluationCommit": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0",
+          "evaluationArtifact": "challenges/evaluations/20261005055316-v19.json",
+          "evaluationUtc": "2026-10-05T05:54:16.404Z",
+          "remainingScreens": 7,
+          "recordedSteps": 71,
+          "previousScreensMatched": 64,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 64,
+              "total": 71
+            },
+            "rng": {
+              "matched": 3162,
+              "total": 3170
+            },
+            "cursors": {
+              "matched": 64,
+              "total": 71
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_rust()",
+            "step": 64
+          },
+          "step": 64,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_rust",
+          "message": "simple monster action requires uhitm.c mhitm_ad_rust()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.json",
+            "result": {
+              "session": "synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingPath": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+              "recordingSha256": "a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "remainingScreens": 7,
+              "recordedSteps": 71,
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+                "session": "synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+                "recordingPath": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+                "recordingSha256": "a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284",
+                "recipe": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.recipe.session.json",
+                "recipeSha256": "1bc12e2f94a9e60e1877f19b0226ea41eda2a0d109ceb117c1d5816133d86173",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 7,
+                "recordedSteps": 71,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 64,
+                    "total": 71
+                  },
+                  "rng": {
+                    "matched": 3162,
+                    "total": 3170
+                  },
+                  "cursors": {
+                    "matched": 64,
+                    "total": 71
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_rust()",
+                  "step": 64
+                },
+                "step": 64,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_rust",
+                "message": "simple monster action requires uhitm.c mhitm_ad_rust()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The exact-commit evaluation stops at step 64 because JavaScript refuses the landed AD_RUST attack in uhitm.c:mhitm_adtyping(). The C route reaches uhitm.c:mhitm_ad_rust() for a hostile Rust Monster touching a human Wizard in worn chain mail, then erode_armor() selects the body armor and trap.c:erode_obj() rusts it. The actionable whole-function source group is uhitm.c:erode_armor() and mhitm_ad_rust(), wired through the existing AD_RUST dispatcher. C executes distfleeck before the attack in this turn; the comparator reports it as the first missing draw because the JavaScript preflight refusal aborts the whole turn. That is a stop-boundary symptom, not the source cause. Seven recorded screens remain after the refusal.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "The debug recipe equips the human Wizard with uncursed +0 chain mail and creates a hostile Rust Monster adjacent to the hero. On step 64 the monster lands its touch attack: C records rnd(20)=15 in mattacku() and d(0,0)=0 in hitmu(), but still dispatches mattk->adtyp == AD_RUST. In mhitm_ad_rust(), mdef is the hero, the active monster is not cancelled, and the hero is not a form that completely rusts. C calls erode_armor(&youmonst, ERODE_RUST); its rn2(5)=1 selects the body slot after no cloak is present, and erode_obj() rusts the worn chain mail. The accepted JS dispatcher instead stops at its named mhitm_ad_rust refusal before hitmsg(), armor selection, erosion, knockback, or the recorded step boundary.",
+                "functions": [
+                  "erode_armor",
+                  "mhitm_ad_rust"
+                ],
+                "callers": [
+                  "C monmove.c:dochug() dispatches to mhitu.c:mattacku() (monmove.c:954). A landed close-range attack enters mhitu.c:hitmu() from mattacku() (mhitu.c:812); hitmu() calls uhitm.c:mhitm_adtyping() at mhitu.c:1191, whose AD_RUST arm calls mhitm_ad_rust() at uhitm.c:4805. In the hero-target branch, mhitm_ad_rust() calls erode_armor() at uhitm.c:2311.",
+                  "The accepted JS path follows js/monmove.js dochug() to js/mhitu.js:mattacku()/hitmu(); hitmu() calls js/uhitm.js:mhitm_adtyping() at 1738. Its AD_RUST arm at uhitm.js:4957 invokes the unsupported-action boundary with “uhitm.c mhitm_ad_rust()”, producing the saved stop message.",
+                  "erode_armor() is a shared helper: C also calls it from uhitm.c corrosion/decay/acid effects, mhitu.c:2478, mhitm.c:1346, and zap.c:4382/4545. These callers are outside the recorded AD_RUST path and must remain visible when wiring this whole helper."
+                ],
+                "dependencies": [
+                  "erode_armor() (uhitm.c:126-185) must preserve its rn2(5) loop and armor-slot order. For result 1 it checks W_ARMC first, then W_ARM, then W_ARMU; this recording has no cloak and its worn W_ARM target is chain mail. Cases 0, 2, 3 and 4 consume erode_obj() results to retry when no armor or no erosion was possible.",
+                  "The current JS body at js/trap_erode_obj.js:186-353 handles the ERODE_RUST hero-carried object path and, with EF_GREASE | EF_VERBOSE, the chain-mail mutation and “Your chain mail rusts!” message. Verify whole-source completion evidence for trap.c:erode_obj() before treating that C source function as complete. The current JS body at js/worn.js:457 provides which_armor() for armor selection here; verify whole-source completion evidence for worn.c:which_armor() before treating that source function as closed.",
+                  "mhitm_ad_rust() (uhitm.c:2281-2335) has three source arms (hero hits monster, monster hits hero, monster hits monster); port the whole function. Its hero-target arm calls hitmsg(), returns early for a cancelled attacker, and tests completelyrusts() before erosion. Other arms depend on existing source helpers mlifesaver(), xkilled(), monkilled(), grow_up(), and rehumanize(); preserve their flags and early returns.",
+                  "After mhitm_adtyping() returns, mhitu.c:hitmu() calls mhitm_knockback() before applying damage (1193 onward). This C step records its subsequent rn2(3)=1 and rn2(6)=1 draws; preserve the current JS ordering so the rust call does not replace or bypass knockback.",
+                  "Accepted JS has no erode_armor() implementation. The pinned search `git grep -n -E 'mhitm_ad_rust|erode_armor' 8583a972f66a872a8ad73c888a24dd01075481f4 -- js` finds the AD_RUST refusal at js/uhitm.js:4957 and named erode_armor skips at js/mhitu.js:2310 and js/zap.js:2277, plus comments; it finds no implementation. Reconcile those shared-helper call sites when selecting the implementation extent."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned capsule .cache/v19-investigation-capsules/6.json and its queue entry identify synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date, batch v19, manifest digest ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007, recording digest a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284, evaluation challenges/evaluations/20261002180737-v19.json, and examined/evaluated commit 8583a972f66a872a8ad73c888a24dd01075481f4. The complete saved evaluation reports passed=false, 64/71 screens, 3162/3170 RNG calls, 64/71 cursors, remainingScreens=7, and stop at zero-based step 64: “simple monster action requires uhitm.c mhitm_ad_rust()”.",
+                "The immutable recording challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json (SHA-256 a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284) and input recipe challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.recipe.session.json (SHA-256 1bc12e2f94a9e60e1877f19b0226ea41eda2a0d109ceb117c1d5816133d86173) normalize to 71 recorded steps. The recipe is a Wizard/human/female debug game dated 21111210153000; it wishes uncursed +0 chain mail, creates a hostile Rust Monster next to the hero, then waits. At step 64 (key \".\"), C records rnd(20)=15 @ mattacku(mhitu.c:806), d(0,0)=0 @ hitmu(mhitu.c:1187), rn2(5)=1 @ erode_armor(uhitm.c:137), and then the rn2(3) and rn2(6) knockback draws; its screen says “The rust monster touches you! Your chain mail rusts!”.",
+                "Frozen upstream source is submodule commit 16ff59115315917b93185d026aeefea06db9b0f4, the gitlink in examined commit 8583a972f66a872a8ad73c888a24dd01075481f4. monmove.c:954 reaches mattacku(); mhitu.c:812 calls hitmu() for the landed attack and :1191 dispatches its AD_RUST type through uhitm.c:mhitm_adtyping() to mhitm_ad_rust(). In the hero-target branch at uhitm.c:2299-2312, the uncancelled Rust Monster calls erode_armor(); uhitm.c:126-185 chooses armor with rn2(5).",
+                "C62 source and receipt evidence is immutable: independently replayed C run-Y1CzTl produced a byte-identical recording (reported in the capsule); retained comparison run-MBjKDG uses receipt /tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-MBjKDG/receipt.json (SHA-256 005c8804f7675249cbeee7fe8ff0766c38569531dc49696ced03edf1e79f0718) and stdout.log (SHA-256 13c4c85cb6c8f682b978c5d4907e9b646579991dd3fb943a12da26e709a1b5cb). Its raw comparator reports distfleeck(monmove.c:538) as the first missing draw at the same zero-based input step, although C executes distfleeck before the Rust Monster attack in that turn. The JS preflight refusal aborts the whole turn, so this reported missing draw is a stop-boundary symptom; it does not supersede the exact-commit evaluation’s causal stop at mhitm_ad_rust().",
+                "Accepted JS source at js/uhitm.js:4917-4918 makes unsupported damage-type arms throw the injected refusal; its AD_RUST switch arm at :4957 names mhitm_ad_rust(). js/mhitu.js:1733-1742 confirms that hitmu() dispatches the type before knockback. A pinned `git grep` for `mhitm_ad_rust|erode_armor` in JS finds only this refusal, named erosion skips, and comments, not either source implementation.",
+                "The action differs from the capsule’s nearest prior cases: AD_ENCH drains enchantment, AD_FIRE and AD_DRLI use distinct damage effects, and the v17 drain-life case targets a held dagger through a spell. This case’s first C behavior is AD_RUST eroding worn chain mail in a monster-to-hero touch attack. C’s distfleeck call precedes that attack; the comparator reports it missing because JS preflight refusal aborts the whole turn."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+          "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+          "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+          "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+          "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+          "replayInputSha256": "457684125a18172a6ae0cd6b8dc8cbfaf6201814bd724a2270080e98fe5e5dbb",
+          "evaluationPath": "challenges/evaluations/20261005055316-v19.json",
+          "evaluationCommit": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0",
+          "evaluationArtifact": "challenges/evaluations/20261005055316-v19.json",
+          "evaluationUtc": "2026-10-05T05:54:16.404Z",
+          "remainingScreens": 5,
+          "recordedSteps": 72,
+          "previousScreensMatched": 67,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 67,
+              "total": 72
+            },
+            "rng": {
+              "matched": 2692,
+              "total": 2698
+            },
+            "cursors": {
+              "matched": 67,
+              "total": 72
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+            "step": 67
+          },
+          "step": 67,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_corr",
+          "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62.json",
+            "result": {
+              "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+              "remainingScreens": 5,
+              "recordedSteps": 72,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+                "session": "synthetic/v19/black-pudding-corrosion-on-worn-chain-mail-c62",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingPath": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+                "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+                "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+                "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 5,
+                "recordedSteps": 72,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 67,
+                    "total": 72
+                  },
+                  "rng": {
+                    "matched": 2692,
+                    "total": 2698
+                  },
+                  "cursors": {
+                    "matched": 67,
+                    "total": 72
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                  "step": 67
+                },
+                "step": 67,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_corr",
+                "message": "simple monster action requires uhitm.c mhitm_ad_corr()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A black pudding bites the hero, but the AD_CORR dispatch refuses mhitm_ad_corr before completing the turn. C corrodes the worn chain mail. Port the whole helper and its required armor-erosion return chain.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A successful AT_BITE/AD_CORR monster-to-hero hit with an uncancelled black pudding and worn chain mail reaches erode_armor(ERODE_CORRODE).",
+                "functions": [
+                  "mhitm_ad_corr",
+                  "erode_armor"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku -> hitmu",
+                  "uhitm.c:mhitm_adtyping AD_CORR"
+                ],
+                "dependencies": [
+                  "worn.c:which_armor",
+                  "trap.c:erode_obj",
+                  "objnam.c:xname",
+                  "mhitu.c:hitmsg"
+                ]
+              },
+              "evidence": [
+                "nethack-c/upstream/src/uhitm.c:2338-2361 defines the whole mhitm_ad_corr helper. Hero-to-monster erodes armor and clears damage; monster-to-hero prints hitmsg and skips erosion when cancelled; monster-to-monster skips when cancelled, otherwise erodes armor, clears STRAT_WAITFORU, and clears damage.",
+                "nethack-c/upstream/src/uhitm.c:126-185 erode_armor retries rn2(5) until an eligible helmet, shield, gloves, or boots target changes, while the body case tries cloak, suit, then shirt and terminates. It consumes which_armor, xname, and erode_obj results. Resolve their complete source-backed return dependencies rather than introducing a fixed target or draw.",
+                "js/uhitm.js:4958 dispatches AD_CORR to unported(mhitm_ad_corr); a search for function erode_armor in js found no body. The admitted baseline stops at zero-based segment 0 step 67 with simple monster action requires uhitm.c mhitm_ad_corr().",
+                "The frozen C recording at segment 0 step 67 contains rnd(20)=5 at mattacku, d(3,8)=17 at hitmu, then rn2(5)=1 at erode_armor and the screen The black pudding bites! Your chain mail corrodes!--More--. These prove the attack and body-slot corrosion route, not just a generic monster-turn RNG annotation.",
+                "The first missing comparator call is distfleeck(monmove.c:538). C makes it before the attack in this turn; the JS preflight refusal prevents the entire turn boundary. It is a reporting symptom, not evidence that distfleeck needs a special draw. Scope includes all three actor combinations of mhitm_ad_corr and required helper/caller wiring; no completion credit for the whole outer mattacku or hitmu functions.",
+                "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ]
     }
   ]
 }
