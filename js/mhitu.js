@@ -1,7 +1,7 @@
 // mhitu.js -- Monsters attacking the hero.
 // C ref: mhitu.c -- hitmsg(), missmu(), mswings_verb(), mswings(), getmattk(),
 // calc_mattacku_vars(), mtrapped_in_pit(), mattacku(), magic_negation(),
-// could_seduce(), hitmu(), gazemu(), mdamageu(), ranged_attk_available(),
+// could_seduce(), hitmu(), explmu(), gazemu(), mdamageu(), ranged_attk_available(),
 // passiveum(), and gulp_blnd_check().
 
 import {
@@ -74,6 +74,7 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_waterwall,
 } from './dbridge.js';
 import { acurr, exercise, minuhpmax } from './attrib.js';
 import { encumber_msg } from './pickup.js';
@@ -128,10 +129,12 @@ import {
 import {
     golemeffects,
     killed,
+    mondead,
     mon_to_stone,
     new_were,
     set_ustuck,
     unstuck,
+    wake_nearto,
     xkilled,
 } from './mon.js';
 import {
@@ -166,6 +169,7 @@ import {
     attacktype_fordmg,
     can_blnd,
     flaming,
+    defended,
     resists_blnd,
 } from './mondata.js';
 import { monnear } from './monmove.js';
@@ -222,6 +226,7 @@ import {
 import {
     make_blinded,
     make_confused,
+    make_hallucinated,
     make_sick,
     make_stunned,
 } from './potion.js';
@@ -1308,7 +1313,8 @@ export async function mattacku(monster, rawEnv = {}) {
             break;
 
         case M.AT_EXPL: /* automatic hit if next to, and aimed at you */
-            if (!range2) unsupported('a monster exploding at the hero');
+            if (!range2)
+                sum[i] = await explmu(monster, mattk, foundyou, env);
             break;
 
         case M.AT_ENGL:
@@ -1942,6 +1948,112 @@ async function hitmu(mtmp, mattk, env) {
         res = M_ATTK_HIT;
     await mattackuStopOccupation(env);
     return res;
+}
+
+// C ref: mhitu.c explmu() (1591-1665). Resolve a monster's explosive hit
+// before waking nearby monsters; the hero-targeted AD_HALU arm removes the
+// attacker before changing the hero's hallucination property.
+export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random;
+    if (typeof random?.d !== 'function'
+        || typeof random?.rnd !== 'function') {
+        throw new TypeError('explmu requires d and rnd random operations');
+    }
+    const message = requireMattackuOperation(rawEnv, 'message');
+    let killAgr = true;
+    let notAffected;
+
+    if (mtmp.mcan) return M_ATTK_MISS;
+
+    let tmp = random.d(mattk.damn, mattk.damd);
+    notAffected = defended(mtmp, mattk.adtyp, state);
+
+    if (!ufound) {
+        const name = canseemon(mtmp, state)
+            ? Monnam(mtmp, state, rawEnv) : 'It';
+        const medium = is_waterwall(mtmp.mux, mtmp.muy, state)
+            ? 'empty water' : 'thin air';
+        await message(`${name} explodes at a spot in ${medium}!`, state);
+    } else {
+        await hitmsg(mtmp, mattk, state, rawEnv);
+    }
+
+    switch (mattk.adtyp) {
+    case M.AD_COLD:
+    case M.AD_FIRE:
+    case M.AD_ELEC:
+        // C's mon_explodes() result is discarded. Its full object-destruction
+        // and hero-damage path remains an explicit source boundary here.
+        note_unported('explode.c mon_explodes');
+        if (mtmp.mhp > 0) killAgr = false;
+        break;
+    case M.AD_BLND:
+        notAffected = resists_blnd(state.youmonst, state);
+        if (ufound && !notAffected) {
+            // C places the division inside the right side of ||. A visible
+            // monster skips both that mutation and its random draw.
+            if (mon_visible(mtmp, state)
+                || random.rnd(tmp = Math.trunc(tmp / 2)) > state.u.ulevel) {
+                await message('You are blinded by a blast of light!', state);
+                await make_blinded(tmp, false, state, rawEnv);
+                if (!heroIsBlind(state))
+                    await message('Your vision clears.', state);
+            } else if (state.flags?.verbose) {
+                await message(
+                    'You get the impression it was not terribly bright.',
+                    state,
+                );
+            }
+        }
+        break;
+    case M.AD_HALU: {
+        const hallucination = state.u?.uprops?.[HALLUC];
+        const hallucinationResistance = state.u?.uprops?.[HALLUC_RES];
+        const alreadyHallucinating = Boolean(hallucination?.intrinsic
+            && !(hallucinationResistance?.intrinsic
+                || hallucinationResistance?.extrinsic));
+        notAffected = Boolean(notAffected || heroIsBlind(state)
+            || state.u.umonnum === M.PM_BLACK_LIGHT
+            || state.u.umonnum === M.PM_VIOLET_FUNGUS
+            || dmgtype(state.youmonst.data, M.AD_STUN));
+        if (ufound && !notAffected) {
+            if (!alreadyHallucinating)
+                await message(
+                    'You are caught in a blast of kaleidoscopic light!',
+                    state,
+                );
+            // C removes the exploder before applying Hallucination, so its
+            // own glyph cannot be randomized by the property transition.
+            await mondead(mtmp, state, rawEnv);
+            killAgr = false;
+            const changed = await make_hallucinated(
+                (hallucination?.intrinsic ?? 0) + tmp,
+                false,
+                0,
+                state,
+                rawEnv,
+            );
+            await message(
+                `You ${changed ? 'are freaked out' : 'seem unaffected'}.`,
+                state,
+            );
+        }
+        break;
+    }
+    default:
+        note_unported('pline.c impossible');
+        break;
+    }
+
+    if (notAffected) {
+        await message('You seem unaffected by it.', state);
+        await ugolemeffects(mattk.adtyp, tmp, state);
+    }
+    if (killAgr && mtmp.mhp > 0)
+        await mondead(mtmp, state, rawEnv);
+    await wake_nearto(mtmp.mx, mtmp.my, 7 * 7, rawEnv);
+    return mtmp.mhp > 0 ? M_ATTK_MISS : M_ATTK_AGR_DIED;
 }
 
 // C ref: mhitu.c:gazemu() (1668-1898). The ordinary compiled gaze effects

@@ -19,6 +19,7 @@ import {
     INVIS,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    LS_MONSTER,
     M_SEEN_ACID,
     M_SEEN_COLD,
     M_SEEN_FIRE,
@@ -64,6 +65,7 @@ import { runSegment } from '../js/jsmain.js';
 import {
     could_seduce,
     diseasemu,
+    explmu,
     gazemu,
     getmattk,
     hitmsg,
@@ -80,11 +82,13 @@ import {
     gulp_blnd_check,
     unseenWereSummonMessage,
 } from '../js/mhitu.js';
-import { sticks, thick_skinned } from '../js/mondata.js';
+import { emits_light, sticks, thick_skinned } from '../js/mondata.js';
+import { new_light_source } from '../js/light.js';
 import { newMonster, place_monster, remove_monster } from '../js/monst.js';
 import {
     monst_globals_init,
     AD_CONF,
+    AD_HALU,
     AD_FIRE,
     AD_ACID,
     AD_BLND,
@@ -123,6 +127,7 @@ import {
     PM_ENERGY_VORTEX,
     PM_BARROW_WIGHT,
     PM_BLACK_PUDDING,
+    PM_BLACK_LIGHT,
     PM_BLACK_NAGA,
     PM_CHROMATIC_DRAGON,
     PM_CLERIC,
@@ -559,6 +564,116 @@ function meleeEnv(state, rolls, extra = {}) {
         },
     };
 }
+
+test('explmu handles the compiled AD_HALU attack after the AT_EXPL dispatch',
+    async () => {
+        const cStart = MHITU_C.indexOf('explmu(\n    struct monst *mtmp,');
+        const cEnd = MHITU_C.indexOf('\n/* monster gazes at you */', cStart);
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        const cBody = MHITU_C.slice(cStart, cEnd);
+        assert.match(cBody, /if \(mtmp->mcan\)\s+return M_ATTK_MISS;/u);
+        assert.match(cBody, /tmp = d\(\(int\) mattk->damn, \(int\) mattk->damd\);/u);
+        assert.match(cBody,
+            /case AD_HALU:[\s\S]*?Blind \|\| \(u\.umonnum == PM_BLACK_LIGHT/u);
+        const cBlind = cBody.slice(
+            cBody.indexOf('case AD_BLND:'), cBody.indexOf('case AD_HALU:'),
+        );
+        assert.match(cBlind,
+            /mon_visible\(mtmp\) \|\| \(rnd\(tmp \/= 2\) > u\.ulevel\)/u,
+            'C halves damage only in the invisible-monster right operand');
+        assert.ok(cBody.indexOf('mondead(mtmp);')
+            < cBody.indexOf('make_hallucinated('));
+
+        const jsStart = MHITU_JS.indexOf('export async function explmu(');
+        const jsEnd = MHITU_JS.indexOf('\n// C ref: mhitu.c:gazemu()', jsStart);
+        assert.ok(jsStart >= 0 && jsEnd > jsStart);
+        const jsBody = MHITU_JS.slice(jsStart, jsEnd);
+        assert.match(jsBody, /case M\.AD_HALU:/u);
+        const jsBlind = jsBody.slice(
+            jsBody.indexOf('case M.AD_BLND:'), jsBody.indexOf('case M.AD_HALU:'),
+        );
+        assert.match(jsBlind,
+            /mon_visible\(mtmp, state\)\s*\|\|\s*random\.rnd\(tmp\s*=\s*Math\.trunc\(tmp \/ 2\)\)/u,
+            'JavaScript keeps division and its draw inside the short-circuited operand');
+        assert.ok(jsBody.indexOf('await mondead(mtmp, state, rawEnv)')
+            < jsBody.indexOf('await make_hallucinated('));
+        const cDispatch = MHITU_C.match(
+            /case AT_EXPL:[\s\S]{0,180}?sum\[i\] = explmu\(mtmp, mattk, foundyou\);/u,
+        );
+        assert.ok(cDispatch, 'C mattacku dispatches adjacent AT_EXPL to explmu');
+        const jsMattacku = MHITU_JS.slice(
+            MHITU_JS.indexOf('export async function mattacku('),
+        );
+        assert.match(jsMattacku,
+            /case M\.AT_EXPL:[\s\S]{0,150}?await explmu\(monster, mattk, foundyou, env\)/u);
+
+        // PM_BLACK_LIGHT is an adjacent AD_HALU/AT_EXPL attacker, and a normal
+        // level-one hero is neither blind, hallucination-resistant, nor stunned.
+        const state = await meleeHero();
+        const light = meleeAttacker(state, PM_BLACK_LIGHT, 1, 0);
+        // makemon.c registers the light emitted by black lights; the common
+        // melee fixture places directly, so give this source-backed fixture
+        // the same light owner before mondead() removes the monster.
+        new_light_source(
+            light.mx, light.my, emits_light(light.data), LS_MONSTER, light, state,
+        );
+        const attack = light.data.mattk[0];
+        assert.equal(attack.aatyp, AT_EXPL);
+        assert.equal(attack.adtyp, AD_HALU);
+        const result = meleeEnv(state, []);
+        assert.equal(await mattacku(light, result.env), 1);
+        assert.equal(light.mhp, 0);
+        assert.ok(state.u.uprops[HALLUC].intrinsic & TIMEOUT);
+        assert.deepEqual(result.bounds.slice(0, 1),
+            [`d(${attack.damn},${attack.damd})`]);
+        assert.ok(result.lines.includes('The black light explodes!'));
+        assert.ok(result.lines.includes(
+            'You are caught in a blast of kaleidoscopic light!',
+        ));
+        assert.ok(result.lines.includes('You are freaked out.'));
+    },
+);
+
+test('explmu AD_BLND preserves visible short-circuit and invisible damage order',
+    async () => {
+        // C's source expression skips rnd(tmp /= 2) for a visible attacker;
+        // an invisible one divides five damage to two before rnd(2).
+        for (const scenario of [
+            { invisible: false, expectedDraws: ['d(1,6)'], expectedBlindness: 5 },
+            { invisible: true, expectedDraws: ['d(1,6)', 'rnd(2)'], expectedBlindness: 2 },
+        ]) {
+            const state = await meleeHero();
+            // Level one makes the invisible branch's scripted rnd(2)=2
+            // pass the C comparison; visible attackers bypass it entirely.
+            state.u.ulevel = 1;
+            state.u.uprops[BLINDED] = {
+                intrinsic: 0, extrinsic: 0, blocked: 0,
+            };
+            // The umber hulk is simply a valid placed monster here; explmu
+            // receives the explicit AD_BLND/AT_EXPL attack under test. The
+            // east-adjacent square keeps it on-map in the live fixture.
+            const attacker = meleeAttacker(state, PM_UMBER_HULK, 1, 0, {
+                minvis: scenario.invisible,
+            });
+            // Five deterministic damage is odd so C integer division yields
+            // two; 1d6 identifies the source's initial damage call.
+            const result = meleeEnv(state, [2], { d: () => 5 });
+            await explmu(attacker, {
+                aatyp: AT_EXPL,
+                adtyp: AD_BLND,
+                damn: 1,
+                damd: 6,
+            }, true, result.env);
+
+            assert.deepEqual(result.bounds, scenario.expectedDraws);
+            assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT,
+                scenario.expectedBlindness);
+            assert.ok(result.lines.includes(
+                'You are blinded by a blast of light!',
+            ));
+        }
+    },
+);
 
 test('gazemu keeps cancelled AD_CONF reaction draws in source order', async () => {
     const state = await meleeHero();

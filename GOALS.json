@@ -165724,6 +165724,934 @@
         "rng": 792838
       },
       "parkedReason": "Partial A95 delivery: trap.c:erode_obj is verified with canonical vtense and accepted C80 cxname dependency. erode_armor has implemented ZT_ACID caller arms but no matching helper execution: the monster breath recording misses the armor gate and the hero route diverges earlier in acid_damage. Preserve the whole planned scope and blocked recipes; no erode_armor completion or goal-closure score event."
+    },
+    {
+      "id": "port-mhitu-explmu-potion-make-hallucinated-black-light-v20-20261004",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Handle monster explosions and the Black Light hallucination blast",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "synthetic/v20/black-light-hallucination-blast-v20"
+      ],
+      "selectionReason": "Whole explmu resolves the source-traced Black Light AT_EXPL path. Matching admitted steps34–46 verify explmu. The required make_hallucinated body is corrected against C but artifact HALRES caller propagation remains incomplete; preserve the whole scope and park rather than claiming helper completion.",
+      "detail": "",
+      "openedAt": "e00b7a02a6ed687cda605c802bd9d18bd3b6fc42",
+      "openStanding": {
+        "sha": "b453b88e7927377c03d11d2ce1db70fefe35c052",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "explmu",
+          "line": 1591,
+          "endLine": 1667,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1591,
+        "to": 1667
+      },
+      "requiredFunctions": [
+        {
+          "name": "make_hallucinated",
+          "line": 369,
+          "endLine": 442,
+          "declared": true,
+          "sourceFile": "potion.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v20/black-light-hallucination-blast-v20": {
+          "session": "synthetic/v20/black-light-hallucination-blast-v20",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "black-light-hallucination-blast-v20",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/black-light-hallucination-blast-v20.session.json",
+          "recordingSha256": "ac326b5b910c50d7df7f34deda0271054c080262b29e9c30c10713208e5182b9",
+          "evaluationPath": "challenges/evaluations/20261005035944-v20.json",
+          "evaluationCommit": "b453b88e7927377c03d11d2ce1db70fefe35c052"
+        }
+      },
+      "activeStanding": {
+        "sha": "b453b88e7927377c03d11d2ce1db70fefe35c052",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "black-light-hallucination-blast-v20",
+          "session": "synthetic/v20/black-light-hallucination-blast-v20",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/black-light-hallucination-blast-v20.session.json",
+          "recordingPath": "challenges/cases/v20/black-light-hallucination-blast-v20.session.json",
+          "recordingSha256": "ac326b5b910c50d7df7f34deda0271054c080262b29e9c30c10713208e5182b9",
+          "recipe": "challenges/cases/v20/black-light-hallucination-blast-v20.recipe.session.json",
+          "recipeSha256": "2f01b8a61fdd60f97c16f2b2192423e12f749a4d5da8f7887e7519897398da69",
+          "replayInputSha256": "c45eb6a6a2485db58cac01b2511df21e7e97e36b65979315f2dada71a9248b2a",
+          "evaluationPath": "challenges/evaluations/20261005035944-v20.json",
+          "evaluationCommit": "b453b88e7927377c03d11d2ce1db70fefe35c052",
+          "evaluationArtifact": "challenges/evaluations/20261005035944-v20.json",
+          "evaluationUtc": "2026-10-05T04:00:58.112Z",
+          "remainingScreens": 13,
+          "recordedSteps": 47,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 47
+            },
+            "rng": {
+              "matched": 4247,
+              "total": 4250
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 47
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster exploding at the hero",
+            "step": 34
+          },
+          "step": 34,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster exploding at the hero",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/black-light-hallucination-blast-v20.json",
+            "result": {
+              "session": "synthetic/v20/black-light-hallucination-blast-v20",
+              "remainingScreens": 13,
+              "recordedSteps": 47,
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "black-light-hallucination-blast-v20",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingPath": "challenges/cases/v20/black-light-hallucination-blast-v20.session.json",
+              "recordingSha256": "ac326b5b910c50d7df7f34deda0271054c080262b29e9c30c10713208e5182b9",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "black-light-hallucination-blast-v20",
+                "session": "synthetic/v20/black-light-hallucination-blast-v20",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/black-light-hallucination-blast-v20.session.json",
+                "recordingPath": "challenges/cases/v20/black-light-hallucination-blast-v20.session.json",
+                "recordingSha256": "ac326b5b910c50d7df7f34deda0271054c080262b29e9c30c10713208e5182b9",
+                "recipe": "challenges/cases/v20/black-light-hallucination-blast-v20.recipe.session.json",
+                "recipeSha256": "2f01b8a61fdd60f97c16f2b2192423e12f749a4d5da8f7887e7519897398da69",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 13,
+                "recordedSteps": 47,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 47
+                  },
+                  "rng": {
+                    "matched": 4247,
+                    "total": 4250
+                  },
+                  "cursors": {
+                    "matched": 34,
+                    "total": 47
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a monster exploding at the hero",
+                  "step": 34
+                },
+                "step": 34,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a monster exploding at the hero",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "status": "complete",
+              "summary": "At step 34, C calls explmu() for the Black Light’s AT_EXPL/AD_HALU attack, while JavaScript mattacku() stops at its unsupported AT_EXPL branch. Port the whole mhitu.c explmu() function and wire that existing mattacku() call site to cover the remaining explosion behavior.",
+              "source": {
+                "file": "mhitu.c",
+                "branch": "In mattacku(), getmattk() selects AT_EXPL and range2 is false, so C calls explmu(). explmu() returns a miss if the monster is cancelled; otherwise it rolls damage and checks defended(). For AD_HALU, the hero is unaffected if blind, polymorphed as a Black Light or Violet Fungus, or in a form with AD_STUN. When the hero is found and is not immune, C reports the kaleidoscopic blast, kills the attacker before applying hallucination, then wakes nearby monsters. The saved C observation reaches this effect branch.",
+                "functions": [
+                  "explmu"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku() AT_EXPL branch (839-842), the direct call to explmu() when !range2",
+                  "monmove.c:dochug() PHASE FOUR standard-attack gate (965-972), the runtime entry path into mattacku()"
+                ],
+                "dependencies": [
+                  "d and rnd for explosion damage",
+                  "mondata.c:defended and mondata.c:dmgtype for AD_HALU defenses",
+                  "mhitu.c:hitmsg for a found target",
+                  "explode.c:mon_explodes for AD_COLD, AD_FIRE, and AD_ELEC arms",
+                  "mondata.c:resists_blnd and potion.c:make_blinded for AD_BLND",
+                  "mon.c:mondead and potion.c:make_hallucinated for AD_HALU",
+                  "polyself.c:ugolemeffects for unaffected targets",
+                  "mon.c:wake_nearto for post-explosion wakeup"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/v20-work-queue.json records synthetic/v20/black-light-hallucination-blast-v20 with manifest SHA-256 83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0, recording SHA-256 ac326b5b910c50d7df7f34deda0271054c080262b29e9c30c10713208e5182b9, 13 unmatched screens across 47 recorded steps, and first stop at step 34: “simple monster action requires a monster exploding at the hero.” challenges/evaluations/20261003003219-v20.json confirms 34/47 screens and cursors, 4247/4250 RNG calls, and a failed evaluation at commit b5bb23ff11504c300f032b10b1e17c99b06fc97e.",
+                ".cache/worker-state-loop-20260925.json.deliveries/0630c68d2c093a7132ff6e9db12a5983515863647fd63c01b43348089db91eaf.json records the C observation at step 34: the Black Light reaches AT_EXPL/AD_HALU and C displays the kaleidoscopic-light effect. Its firstMismatch identifies mhitu.c:explmu AD_HALU and says the earlier distfleeck draw is not the owner. The packet also records an independent C replay byte-identical to the committed recording.",
+                "nethack-c/upstream/src/mhitu.c:839-842 shows the direct caller: AT_EXPL invokes explmu() precisely when range2 is false. Lines 1591-1663 contain the whole source function; lines 1636-1650 define AD_HALU immunity, the kaleidoscopic-light message, attacker death, and hallucination order. This makes explmu(), rather than monmove.c:distfleeck, the source owner for the current stop.",
+                "At the examined commit, js/mhitu.js:1234-1236 throws unsupported() in the same !range2 AT_EXPL branch instead of calling explmu(); no explmu() implementation exists in that module. The actionable scope is a whole-function file-port of mhitu.c:explmu plus wiring its existing call site in mattacku().",
+                "The production caller path is nethack-c/upstream/src/monmove.c:965-972, where dochug() calls mattacku() in its standard-attack gate. The committed JavaScript path is js/monmove.js:2763-2770 through the attackHero operation, then js/unported_monster_actions.js:1420-1423 to mhitu.js:mattacku()."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "explmu",
+            "implementation": "js/mhitu.js",
+            "symbol": "explmu",
+            "sourceReview": "Read and compared the full C body at mhitu.c:1591–1665. It returns immediately for cancelled monsters, rolls damage before defended(), selects the visible/hidden location message, and switches on the complete AD_COLD/AD_FIRE/AD_ELEC, AD_BLND, AD_HALU and default arms. In AD_BLND, C evaluates mon_visible(mtmp) first; only an invisible attacker evaluates rnd(tmp /= 2), so visible attacks preserve the full tmp and spend no rnd draw, while invisible attacks halve tmp before the draw and later effects. The AD_HALU arm combines the prior defended result with blindness, Black Light/Violet Fungus form and AD_STUN immunity; when affected it emits the caught message only if not already hallucinating, calls mondead before make_hallucinated, then emits the changed/unaffected result. The common tail applies ugolemeffects only when not_affected, conditionally kills the attacker, wakes nearby monsters, and derives the return from attacker survival. potion.c:make_hallucinated’s timeout changed predicate checks EHalluc_resistance, the extrinsic HALLUC_RES macro; intrinsic resistance suppresses effective Hallucination but does not suppress this changed result. C discards mon_explodes in the elemental arms and impossible in the default arm; those void effects are recorded as named note_unported gaps rather than replacements.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku:839-842 dispatches AT_EXPL to explmu only when !range2."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "black-light-hallucination-blast-v20",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 46,
+                "source": "monmove.c:m_move:954/971 -> mhitu.c:mattacku:839-842 (adjacent AT_EXPL) -> mhitu.c:explmu:1591-1665 -> potion.c:make_hallucinated:369-438"
+              }
+            ],
+            "checkedAt": "8e37a8250d784f12223dcee246000c28e9184c04"
+          }
+        ],
+        "entryPointReview": "The active entry point is an adjacent monster AT_EXPL attack. C mhitu.c:mattacku:839–842 calls explmu only when !range2; JavaScript keeps that guard and awaits explmu. The admitted v20 Black Light recording matches all 47 boundaries through segment 0, zero-based step 46, and reaches AD_HALU and make_hallucinated. The source-pinned AD_BLND test distinguishes visible short-circuit (no rnd, full damage) from invisible handling (integer-halved tmp before rnd). The make_hallucinated body is source-aligned for this route, but receives no whole-function credit while artifact.c:set_artifact_intrinsic’s async caller chain remains unwired. The elemental arms still skip the discarded void explode.c:mon_explodes call with note_unported; the changed-state potion path similarly records discarded eat.c:eatmupdate.",
+        "entryPoints": [
+          {
+            "name": "Adjacent AT_EXPL Black Light route through explmu and make_hallucinated",
+            "functions": [
+              "explmu",
+              {
+                "sourceFile": "potion.c",
+                "name": "make_hallucinated"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "black-light-hallucination-blast-v20",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 46,
+                "source": "monmove.c:m_move:954/971 -> mhitu.c:mattacku:839-842 (adjacent AT_EXPL) -> mhitu.c:explmu:1591-1665 -> potion.c:make_hallucinated:369-438"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "d834b0d9a3d5625fafb5289100c1151636bfc1fa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial A96 delivery: explmu is verified through the fully matching Black Light admitted range. The required make_hallucinated body is source-aligned, but artifact.c:set_artifact_intrinsic HALRES and its asynchronous caller propagation remain incomplete. Preserve the planned helper scope and Grayswandir blocked recipe; no helper completion or goal-closure score event."
+    },
+    {
+      "id": "port-fountain-drinkfountain-fate29-v21-20261004",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete fountain drinking effects and monster fright",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst"
+      ],
+      "selectionReason": "Whole drinkfountain family selected from the source-traced fate29 refusal. Preserve fate24 correction, canonical hliquid and live-monster flee calls. Only drinkfountain earns whole-source credit; existing helpers are reused at their recorded boundaries. Admitted v21 step12 exercises fate29; independent recording exercises ordinary fate3. Hallucination variation remains blocked before quaff.",
+      "detail": "",
+      "openedAt": "8e9cd5bd902b85b55b37d153ca7204975c4bdede",
+      "openStanding": {
+        "sha": "d834b0d9a3d5625fafb5289100c1151636bfc1fa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8254799b188363e1eb284723e8dff1c8492640e3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "drinkfountain",
+          "line": 243,
+          "endLine": 393,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 243,
+        "to": 393
+      },
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst": {
+          "session": "synthetic/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.session.json",
+          "recordingSha256": "9ff9233f2a658ec6d3f37db7b75896a5aaa4cda4fadb9c81072d33acef9c3641",
+          "evaluationPath": "challenges/evaluations/20261005041845-v21.json",
+          "evaluationCommit": "d834b0d9a3d5625fafb5289100c1151636bfc1fa"
+        }
+      },
+      "activeStanding": {
+        "sha": "d834b0d9a3d5625fafb5289100c1151636bfc1fa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+          "session": "synthetic/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.session.json",
+          "recordingSha256": "9ff9233f2a658ec6d3f37db7b75896a5aaa4cda4fadb9c81072d33acef9c3641",
+          "recipe": "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.recipe.session.json",
+          "recipeSha256": "1a0710becbe317a1cd52b916d1d1477ab95df10dc862e85d3e7cbc4c3a1dc568",
+          "replayInputSha256": "3c2ae07cfe6889ba03a877a54383a1ded56c4847c7d23150cf25982f25d9f2cf",
+          "evaluationPath": "challenges/evaluations/20261005041845-v21.json",
+          "evaluationCommit": "d834b0d9a3d5625fafb5289100c1151636bfc1fa",
+          "evaluationArtifact": "challenges/evaluations/20261005041845-v21.json",
+          "evaluationUtc": "2026-10-05T04:19:56.205Z",
+          "remainingScreens": 1,
+          "recordedSteps": 13,
+          "previousScreensMatched": 12,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 12,
+              "total": 13
+            },
+            "rng": {
+              "matched": 2856,
+              "total": 2857
+            },
+            "cursors": {
+              "matched": 12,
+              "total": 13
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: fountain requires scare fountain effect (fate 29)",
+            "step": 12
+          },
+          "step": 12,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: fountain requires scare fountain effect (fate 29)",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "9ff9233f2a658ec6d3f37db7b75896a5aaa4cda4fadb9c81072d33acef9c3641",
+              "recordingPath": "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.session.json",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "remainingScreens": 1,
+              "recordedSteps": 13,
+              "status": "complete",
+              "commit": "4901dd542af51235daa15e837437a78fa6af5787",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+                "session": "synthetic/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.session.json",
+                "recordingSha256": "9ff9233f2a658ec6d3f37db7b75896a5aaa4cda4fadb9c81072d33acef9c3641",
+                "recipe": "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.recipe.session.json",
+                "recipeSha256": "1a0710becbe317a1cd52b916d1d1477ab95df10dc862e85d3e7cbc4c3a1dc568",
+                "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationUtc": "2026-10-03T18:29:21.226Z",
+                "remainingScreens": 1,
+                "recordedSteps": 13,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 12,
+                    "total": 13
+                  },
+                  "rng": {
+                    "matched": 2856,
+                    "total": 2857
+                  },
+                  "cursors": {
+                    "matched": 12,
+                    "total": 13
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: fountain requires scare fountain effect (fate 29)",
+                  "step": 12
+                },
+                "step": 12,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: fountain requires scare fountain effect (fate 29)",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The recipe/title names fate23 Water Demon, but the saved C result and the first stop identify fate29 Scare. At zero-based step 12, C says the water gives the hero bad breath, then its case29 branch calls monflee() for each living monster and reaches drinkfountain()’s common dryup() tail. The current JavaScript case29 throws before the scare loop and tail. The actionable source unit is the whole fountain.c:drinkfountain() function, wired from potion.c:dodrink().",
+              "source": {
+                "file": "fountain.c",
+                "branch": "In drinkfountain(), after rnd(30) selects fate 29 outside the blessed-fountain early-return path, print the bad-breath message, walk the live monster list in source order and call monflee(mtmp, 0, FALSE, FALSE), then return from the switch to the common dryup() tail. Fate 23 is a separate Water Demon case and is not the branch shown by this recording. The source unit is the whole drinkfountain() function; its JavaScript implementation also still refuses fates 24, 25, and 28.",
+                "functions": [
+                  "drinkfountain"
+                ],
+                "callers": [
+                  "potion.c:dodrink() (lines 542-547) calls drinkfountain() after the hero accepts the fountain prompt.",
+                  "js/potion.js:dodrink() (lines 2148-2158) calls js/fountain.js:drinkfountain() on the same accepted prompt path."
+                ],
+                "dependencies": [
+                  "monmove.c:monflee() (lines 461-530) is the direct fate29 effect; it can release a monster holding the hero, update fleeing state and tracking, and for a vrock can consume rn2() and create a gas cloud.",
+                  "monmove.c:release_hero() and mhitu.c:expels()/unstuck() are reached by monflee() when the affected monster is u.ustuck.",
+                  "fountain.c:dryup() (lines 201-239) is the common drinkfountain() tail. When a town fountain dries, dryup() calls mon.c:get_iter_mons() to find a watchman; the current JS tail calls the same imported helper under that condition.",
+                  "The C scare branch walks fmon/nmon directly. JavaScript needs a mutation-safe full monster traversal for that loop; mon.js:iter_mons_async() is the asynchronous counterpart of mon.c:iter_mons(), while get_iter_mons() returns only the first accepted monster.",
+                  "A83 actual reservation relevant to the common tail: source:mon.c:get_iter_mons. A83 also reserves contract:mon-removal-conditional-completion and mon.c:m_detach, m_in_air, mnearto, mon_leaving_level, mondead, mongone, relmon, replmon, and xkilled, plus monmove.c:accessible, closed_door, and onscary; those are not direct owners of the fate29 source branch. A83 has no source:fountain.c:drinkfountain or source:monmove.c:monflee reservation. js/fountain.js and js/monmove.js appear in allowedPaths, which is separate from function reservations."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/v21-first-work-queue.json identifies synthetic/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst with 1 unmatched screen of 13 recorded steps; evaluation challenges/evaluations/20261003183000-v21.json used engine commit b0fd76f6091376c07bf54e8d3061aa5a9c9957d0. The stop is at zero-based step 12 with 12/13 screens, 2856/2857 RNG calls, 12/13 cursors, and message: “unsupported hero command: an unported branch of this command: fountain requires scare fountain effect (fate 29)”.",
+                ".cache/C65-fountain-case29-root-verification.json is specific to this case and recording SHA 9ff9233f2a658ec6d3f37db7b75896a5aaa4cda4fadb9c81072d33acef9c3641. It records the C message at segment 0, step 12 as “This water gives you bad breath!--More--” and attributes the source to potion.c:dodrink() -> fountain.c:drinkfountain() case29 -> monflee() loop -> dryup(). This C trace contradicts the recipe comment’s fate23 target; fate23 is the separate Water Demon case.",
+                "nethack-c/upstream/src/fountain.c:367-389 implements fate29: the bad-breath message, live-monster loop calling monflee(mtmp, 0, FALSE, FALSE), then the common dryup() call. The separate fate23 Water Demon route is at lines 314-315.",
+                "At examined commit 4901dd542af51235daa15e837437a78fa6af5787, js/fountain.js:775-777 throws UnsupportedFountainError for fate29, before the C scare effect; the common dryup() tail at lines 791-792 is therefore not reached. The same function still refuses its C fates 24, 25, and 28 at lines 749-777, so a whole-function source port has a defined scope beyond this one first mismatch.",
+                "nethack-c/upstream/src/potion.c:542-547 is the direct source caller. The corresponding JavaScript caller is js/potion.js:dodrink() at lines 2148-2158. nethack-c/upstream/src/monmove.c:461-530 contains the monflee() callee and its vrock gas-cloud RNG path.",
+                "A83 scope event .cache/A83-mnearto-108-scope-event.json reserves source:mon.c:get_iter_mons, which drinkfountain() can reach through its dryup() common tail when a town fountain dries. The event also reserves contract:mon-removal-conditional-completion; mon.c:m_detach, m_in_air, mnearto, mon_leaving_level, mondead, mongone, relmon, replmon, xkilled; and monmove.c:accessible, closed_door, onscary. It reserves neither fountain.c:drinkfountain nor monmove.c:monflee. Its js/fountain.js and js/monmove.js entries are path grants, not source-function reservations."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "drinkfountain",
+            "implementation": "js/fountain.js",
+            "symbol": "drinkfountain",
+            "sourceReview": "Read the complete C definition fountain.c:243-390 and compared it to js/fountain.js:590-875. The function draws rnd(30) before the Levitation early return; preserves blessed-fountain restoration/early return, cool-draught nutrition, every switch arm, fate-27 fallthrough, and the common dryup tail. The newly wired cases preserve fate-24 inventory/list/RNG order, fate-25 Blind/Invisible messaging then HSee_invisible/newsym/Wisdom order, fate-28 awaited dowaternymph call, and fate-29 hliquid message followed by the live monster-list monflee loop before dryup. hliquid receives the display RNG, not the command core RNG. Source-return dependencies adjattrib, fruitname, monster_detect, and hliquid have accepted whole-source evidence; dryup is an accepted void helper. The case-24 C-discarded curse() result is handled through the existing JS implementation without whole-source credit for mkobj.c:curse. Existing void helpers dowaternymph and monflee are reused without whole-source credit. dowaternymph's blind You_hear/Soundeffect arms and monflee's swallowed mhitu.c:expels arm remain named gaps. No outer helper is claimed as a whole unit. Case 24 now emits “This water's no good!”, then calls morehungry(rn1(20,11)) and exercise(A_CON,FALSE) before the existing inventory scan; the JS awaits the corresponding message, hunger update, and exercise in C order. The focused test source-pins the sequence, checks the hunger and A_CON deltas, and asserts rn1(20,11), rn2(2) for the exercise, rn2(5) for inventory selection, and curse() RNG ordering. The post-C79 independent ordinary-drinking recording (C fate 3) strictly matches on the corrected source. The previous admitted v21 replay passed on the original A97 source; its post-C79 recheck was refused before execution due full-validation slot contention and will be rerun by root on the combined candidate.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink at line 546 calls drinkfountain after the fountain prompt; js/potion.js:2157 awaits drinkfountain(state) in the corresponding !menu_requested fountain arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-fate29-independent-a97.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 12,
+                "source": "The original A97 source replay in run-s6RAFZ matched all 13 boundaries through normalized segment 0, step 12: potion.c:dodrink -> fountain.c:drinkfountain fate 29 -> dryup. The A97 correction adds only fate-24 effects. A post-C79 single-case recheck was refused before execution due the full-validation slot being occupied (run-r0W5ve); root will evaluate the combined candidate."
+              }
+            ],
+            "checkedAt": "dbc3004bb1d44e9e0f51b73597f3518fa5f4d51e"
+          }
+        ],
+        "entryPointReview": "The one active direct entry point for this selected source unit is quaffing while standing on a reachable fountain: potion.c:dodrink calls drinkfountain after the yes answer, mirrored by js/potion.js:dodrink. The matched independent control executes the same production path at C fate 3; the admitted v21 recording supplies the exact fate-29 range at segment 0, step 12. The admitted recording matched 13/13 boundaries on the original source; its range will be checked at combined evidence recording and closure. The Hallucination variation is preserved as a blocked recipe: before quaffing, display.c's map refresh differs at normalized segment 0, step 27 (screen row 16, column 45), so it does not establish hallucinated hliquid execution. No outer C function or reused helper is claimed complete. The correction also source-pins fate 24: its message, rn1 hunger loss, and A_CON exercise precede the curse scan, as fountain.c:321-323 requires. The corrected code strictly matches the independent recipe in run-kcV8iZ; C reaches fate3 at normalized step12. The admitted-case proof run-s6RAFZ predates the correction and C79 merge; the post-merge attempt run-r0W5ve exited 75 before executing because run-m1sDyp occupied the full-validation slot. Root will evaluate the combined candidate.",
+        "entryPoints": [
+          {
+            "name": "#quaff from a fountain",
+            "functions": [
+              "drinkfountain"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-fate29-independent-a97.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 12,
+                "source": "potion.c:dodrink -> fountain.c:drinkfountain fate 29 -> dryup"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8254799b188363e1eb284723e8dff1c8492640e3",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-wrap-python-c62-v19-20261004",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Implement wrap attacks and canonical grab guards",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v19/python-wraps-with-hug-attack-c62"
+      ],
+      "selectionReason": "Whole mhitm_ad_wrap and consumed slip helpers selected from the Python HUGS AD_WRAP refusal. All existing failed_grab callers await the shared source helper. Only failed_grab has current verified runtime completion; wrap direction and slip routes remain explicitly incomplete after bounded setup attempts. Preserve source-owned blocked recipes and park incomplete scope.",
+      "detail": "",
+      "openedAt": "d13045a94ac00969f34e2120cd40fc2ca6e60942",
+      "openStanding": {
+        "sha": "8254799b188363e1eb284723e8dff1c8492640e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_wrap",
+          "line": 3337,
+          "endLine": 3430,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3337,
+        "to": 3430
+      },
+      "requiredFunctions": [
+        {
+          "name": "m_slips_free",
+          "line": 2056,
+          "endLine": 2097,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": false
+        },
+        {
+          "name": "u_slip_free",
+          "line": 1047,
+          "endLine": 1088,
+          "declared": true,
+          "sourceFile": "mhitu.c",
+          "complete": false
+        },
+        {
+          "name": "failed_grab",
+          "line": 597,
+          "endLine": 643,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v19/python-wraps-with-hug-attack-c62": {
+          "session": "synthetic/v19/python-wraps-with-hug-attack-c62",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "python-wraps-with-hug-attack-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+          "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+          "evaluationPath": "challenges/evaluations/20261005043440-v19.json",
+          "evaluationCommit": "8254799b188363e1eb284723e8dff1c8492640e3"
+        }
+      },
+      "activeStanding": {
+        "sha": "8254799b188363e1eb284723e8dff1c8492640e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "python-wraps-with-hug-attack-c62",
+          "session": "synthetic/v19/python-wraps-with-hug-attack-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+          "recordingPath": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+          "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+          "recipe": "challenges/cases/v19/python-wraps-with-hug-attack-c62.recipe.session.json",
+          "recipeSha256": "58386c4a0a8652ec52464ff8a08f270972dd9a1d2bea49e3258a0e216257e2f4",
+          "replayInputSha256": "df3ac011683f304d81544955871ab7027ff46d4b61a58bd0c108dfaf086eeae3",
+          "evaluationPath": "challenges/evaluations/20261005043440-v19.json",
+          "evaluationCommit": "8254799b188363e1eb284723e8dff1c8492640e3",
+          "evaluationArtifact": "challenges/evaluations/20261005043440-v19.json",
+          "evaluationUtc": "2026-10-05T04:35:36.895Z",
+          "remainingScreens": 10,
+          "recordedSteps": 40,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 40
+            },
+            "rng": {
+              "matched": 3736,
+              "total": 3747
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 40
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster crushing the hero",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster crushing the hero",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/python-wraps-with-hug-attack-c62.json",
+            "result": {
+              "session": "synthetic/v19/python-wraps-with-hug-attack-c62",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "python-wraps-with-hug-attack-c62",
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "remainingScreens": 10,
+              "recordedSteps": 40,
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "python-wraps-with-hug-attack-c62",
+                "session": "synthetic/v19/python-wraps-with-hug-attack-c62",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+                "recordingPath": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+                "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+                "recipe": "challenges/cases/v19/python-wraps-with-hug-attack-c62.recipe.session.json",
+                "recipeSha256": "58386c4a0a8652ec52464ff8a08f270972dd9a1d2bea49e3258a0e216257e2f4",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 10,
+                "recordedSteps": 40,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 40
+                  },
+                  "rng": {
+                    "matched": 3736,
+                    "total": 3747
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 40
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a monster crushing the hero",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a monster crushing the hero",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "C62 reaches the Python’s automatic third-slot AT_HUGS after its preceding AT_BITE and AT_TUCH succeed. JS refuses in mhitu.js:mattacku() before hitmu(); restoring that source path then requires the still-unported uhitm.c AD_WRAP helper. The first comparator RNG caller distfleeck is a whole-turn symptom, not the source owner.",
+              "source": {
+                "file": "mhitu.c",
+                "functions": [
+                  "mattacku"
+                ],
+                "branch": "AT_HUGS is eligible when (!range2 && i >= 2 && sum[i - 1] && sum[i - 2]) or the attacker is u.ustuck; after failed_grab() is false, C calls hitmu() and assigns its result to sum[i]. For this Python, the two prior attacks succeed; the human hero is solid, so failed_grab() returns false. The downstream AD_WRAP helper receives an uncancelled Python and non-sticky, unheld hero; rn2(10)=5 fails the wrap gate.",
+                "callers": [
+                  "monmove.c:dochug() standard-attack path -> mhitu.c:mattacku(mtmp)",
+                  "mhitu.c:mattacku() AT_HUGS -> hitmu() -> uhitm.c:mhitm_adtyping() -> uhitm.c:mhitm_ad_wrap()",
+                  "js/unported_monster_actions.js:runSimpleMonsterAction() -> dochug() -> js/mhitu.js:mattacku()"
+                ],
+                "dependencies": [
+                  "mhitm.c:failed_grab(): existing helper; returns false for this solid human hero and permits the AT_HUGS hit.",
+                  "mhitu.c:hitmu(): existing path; its M_ATTK result is stored in the attack-slot sum and it calls uhitm.c:mhitm_adtyping().",
+                  "uhitm.c:mhitm_adtyping() AD_WRAP dispatch and uhitm.c:mhitm_ad_wrap(): required downstream source behavior; js/uhitm.js still refuses this dispatch/helper, so include the complete helper and wire its source call when implementing the selected C62 path."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Upstream mhitu.c:mattacku() AT_HUGS arm (nethack-c/upstream/src/mhitu.c:823-828) dispatches only when the monster is in melee and the prior two attack-slot results are nonzero, or it is already u.ustuck. The C62 Python reaches this third slot after AT_BITE and AT_TUCH succeed. failed_grab() at mhitu.c:827 returns false for the solid human hero, so C calls hitmu() and stores its result in sum[i].",
+                "hitmu() calls uhitm.c:mhitm_adtyping() (nethack-c/upstream/src/mhitu.c:1191), whose AD_WRAP arm calls mhitm_ad_wrap() (nethack-c/upstream/src/uhitm.c:4814). In the monster-attacks-hero branch, an uncancelled Python with a non-sticky hero and no existing hold reaches rn2(10); the frozen C62 evidence records 5 at uhitm.c:3379, so no hold is established and C zeroes the damage (with the verbose brush message when enabled).",
+                "The corresponding JavaScript preflight is js/mhitu.js:mattacku() at lines 1225-1231: its matching AT_HUGS gate throws unsupported(\"a monster crushing the hero\") instead of running failed_grab() and hitmu(). If that source path is restored, js/mhitu.js:1738 reaches js/uhitm.js:mhitm_adtyping(), whose AD_WRAP arm at js/uhitm.js:4968 still calls unported(\"mhitm_ad_wrap\"). Both missing source behaviors are required for C62 to pass this boundary.",
+                "The raw comparator reports C distfleeck(monmove.c:538), but that is a turn-boundary symptom rather than the source owner: C executes that call before the attack in the turn, while the JavaScript simple-action preflight refusal prevents the whole turn boundary from running. Do not select distfleeck as the cause.",
+                "GOALS.json currently marks mhitu.c:mattacku complete under port-mhitu-wildmiss-mattacku-seed0360, while this reached AT_HUGS branch still has an explicit refusal. Reconcile or invalidate that completion evidence before claiming whole-function completion, as AGENTS.md requires when later source tracing shows a completed function claim missed a branch.",
+                "The current v19 evaluation at examined commit 8583a972f66a872a8ad73c888a24dd01075481f4 retains this case's stop at zero-based step 30 with 10 remaining screens. The frozen recording hash is 7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7; C62's independent bounded comparison was run run-EUtuUZ and its receipt/stdout hashes are 2a0dafbe419b44194656e32848359af38cebee46062dedcbe0a9f371b5c267c4 and f6251bb93b30c07d2f0d173a9e16ecc9824c62ac0b9ec8a2f762039b0c941e51. These existing artifacts were reused; no replay or recorder was run."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "failed_grab",
+            "implementation": "js/mhitm.js",
+            "symbol": "failed_grab",
+            "sourceReview": "Read the whole definition at mhitm.c:597-640. It returns TRUE only when the defender is unsolid or gn.notonhead and the attack is AT_HUGS, AD_WRAP, AD_STCK or AD_DGST. On that branch it emits a message only when the source visibility/hero condition permits, chooses “gulp”, “adhere” or “grab” from AD_DGST/AD_STCK/other, and chooses “passes right through” versus “fails to hold” from the tail flag. It copies actor/defender names before pline because s_suffix uses a shared buffer. Otherwise it returns FALSE without output. The JS callers await this boolean in source order. unsolid is the source flag macro; canspotmon, s_suffix, Monnam, mon_nam and some_mon_nam are existing consumed helpers. C formats both copied names with %.99s; JS now applies truncateByteString(name, 99) to each argument before composing pline output. The fixture pins both resulting names at 99 bytes.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm at 451, 485 and 529 calls failed_grab before hitmm for the corresponding monster attack arms."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku at 808 and 827 calls failed_grab before continuing or dispatching hitmu."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu at 1305 rejects the engulf when failed_grab returns TRUE."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas at 5652, 5735 and 5779 calls failed_grab before damageum or gulpum."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-monster-to-hero-python-wrap.session.json",
+              "recordings/uhitm.c/b104-monster-to-hero-owlbear-hugs-continuation.session.json"
+            ],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "python-wraps-with-hug-attack-c62",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 30,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_HUGS -> failed_grab returns FALSE for the solid hero -> hitmu -> uhitm.c:mhitm_adtyping(AD_WRAP) -> mhitm_ad_wrap."
+              }
+            ],
+            "checkedAt": "2f7e6176da78c16f1727c6d13412e4dd8ae8dded"
+          }
+        ],
+        "entryPointReview": "B104 reads and ports the complete AD_WRAP helper and the required caller arms, but this packet verifies only the source paths that produced matching C records. The monster-to-hero Python route and the admitted v19 C62 range execute failed_grab and mhitm_ad_wrap; both fail the rn2(10) wrap gate. The giant-eel hero-to-monster record enters mhitm_ad_wrap, but gn.notonhead=false makes tailmiss=true and skips m_slips_free. The owlbear physical HUGS record reaches the HUGS arm after failed_grab permits a solid hero, but rn2(2)=0 skips u_slip_free. Two bounded M-to-M Conflict records match JavaScript, but neither shows a Python-versus-monster AD_WRAP call: the first Conflict round has the Troll attack a Kobold, and later Python attacks target the hero. No further placement search was made. The slippery-protection helpers and M-to-M entry remain incomplete; AD_DRIN is an existing unported caller and is not included in completion credit. Source-review correction: both names in failed_grab obey C %.99s byte precision. The monster HUGS, slippery-armor, and M-to-H wrap messages produced by C pline_mon retain their monster coordinates through messageAt in accessible-message mode; the grease wear-off pline_The line remains unlocated.",
+        "entryPoints": [
+          {
+            "name": "Monster-to-hero Python AD_WRAP partial path",
+            "functions": [
+              {
+                "sourceFile": "mhitm.c",
+                "name": "failed_grab"
+              },
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_wrap"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-monster-to-hero-python-wrap.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "python-wraps-with-hug-attack-c62",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 30,
+                "source": "mattacku -> failed_grab -> hitmu -> mhitm_adtyping(AD_WRAP) -> mhitm_ad_wrap; rn2(10)=5 misses the wrap gate."
+              }
+            ]
+          },
+          {
+            "name": "Hero-to-monster eel AD_WRAP head-hit path",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_wrap"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-hero-to-monster-wrap-sleeping-newt.session.json"
+            ]
+          },
+          {
+            "name": "Monster physical HUGS against a solid hero",
+            "functions": [
+              {
+                "sourceFile": "mhitm.c",
+                "name": "failed_grab"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-monster-to-hero-owlbear-hugs-continuation.session.json"
+            ]
+          },
+          {
+            "name": "Monster-to-monster AD_WRAP",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_wrap"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Monster slippery armor protection",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "m_slips_free"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Hero slippery armor protection",
+            "functions": [
+              {
+                "sourceFile": "mhitu.c",
+                "name": "u_slip_free"
+              }
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "a975745911d007b5c37c4c50fec172d510132b17",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial B104 delivery: failed_grab is verified with the source-correct name precision and asynchronous caller guards. mhitm_ad_wrap, m_slips_free and u_slip_free remain incomplete because independent routes miss their slip gates and no recorded Python-versus-monster wrap is reached. Preserve full scope and blocked recipes; no goal-closure score event."
     }
   ]
 }
