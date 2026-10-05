@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93580418,
+      "datetime": "20360405091500",
+      "nethackrc": "OPTIONS=name:C84AltDip,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017towel\n\u0017uncursed potion of water\ni pao",
+      "comment": "Unrecorded entry plan for potion.c:dip_into. Seed 93580418 and the 2036-04-05 09:15 timestamp are independent planning inputs, not tuned from a C result. The C route selects the potion in inventory, chooses IA_DIP_OBJ ('a') in iactions.c:itemactions, and queues altdip plus that potion's inventory letter; the final 'o' selects the towel in dip_into's second getobj prompt. No C recording or strict comparison covers this entry in C84, so this recipe is retained as blocked runtime evidence."
+    }
+  ],
+  "comment": "C84 retained source plan for the unverified IA_DIP_OBJ -> altdip -> dip_into route; no C recording is claimed."
+}

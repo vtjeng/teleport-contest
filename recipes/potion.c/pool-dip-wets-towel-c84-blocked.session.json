@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93580419,
+      "datetime": "20360405100000",
+      "nethackrc": "OPTIONS=name:C84PoolDip,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017towel\n\u0017pool\n#dip\no y",
+      "comment": "Blocked pool-entry recipe for potion.c:dodip. Seed 93580419 and the 2036-04-05 10:00 timestamp are independent planning inputs, not tuned from a C result. The source requires a pool under the hero, an accepted pool prompt, and a carried dippee before it calls water_damage(obj, 0, TRUE); this route has not been C-recorded or JS-compared and does not establish pool or water_damage entry coverage."
+    }
+  ],
+  "comment": "C84 retained source plan for the unverified pool branch; see potion.c:dodip and its blocked entry-point evidence."
+}

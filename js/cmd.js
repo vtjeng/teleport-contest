@@ -181,7 +181,7 @@ import { doloot, dotip, UnsupportedPickupError } from './pickup.js';
 import {
     dodrink,
     dodip,
-    UnsupportedDipError,
+    dip_into,
     UnsupportedQuaffError,
 } from './potion.js';
 import { UnsupportedFountainError } from './fountain.js';
@@ -2941,9 +2941,6 @@ export function failClosedCommandRefusals() {
         // and dryup() raise this for the fountain-effect arms this port
         // leaves unported.
         UnsupportedFountainError,
-        // potion.c dodip() still raises this for the pool and
-        // potion-into-potion dipping paths this port leaves unported.
-        UnsupportedDipError,
         // Two paths raise this. invent.c hold_another_object(), which
         // makewish() calls unguarded, raises it from its drop, artifact,
         // Fumbling and autoquiver arms. A wish heavy or numerous enough to
@@ -3382,6 +3379,11 @@ async function runQuaffCommand(key, state) {
 // sets iflags.menu_requested and skips the fountain/sink/pool prompts.
 async function runDipCommand(key, state) {
     return failClosedCommand(key, state, () => dodip(state));
+}
+
+// C ref: potion.c dip_into(), the internal #altdip item-action command.
+async function runDipIntoCommand(key, state) {
+    return failClosedCommand(key, state, () => dip_into(state));
 }
 
 // C ref: read.c doread(). Like dodrink() it returns its own ECMD_* result:
@@ -5262,6 +5264,9 @@ async function doextcmd(key, state) {
     case 'dodip':
         // C ref: potion.c dodip(), which returns its own ECMD_* result.
         return await runDipCommand(key, state);
+    case 'dip_into':
+        // C ref: potion.c dip_into(), queued by itemactions.c IA_DIP_OBJ.
+        return await runDipIntoCommand(key, state);
     case 'donamelevel':
         // C ref: dungeon.c donamelevel(), which returns ECMD_OK.
         return await donamelevel(state);

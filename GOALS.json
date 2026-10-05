@@ -169380,6 +169380,896 @@
         "rng": 792838
       },
       "parkedReason": "Partial B106 delivery: the whole mhitm_ad_slim helper and AD_SLIM dispatcher arm are implemented. Full matching recordings cover hero-to-monster and monster-to-hero, and the selected v18 case advances from step 62 to 68. The independent monster-to-monster trace reaches the helper and matches through boundary 111, but no complete matching monster-to-monster recording exists; a later unrelated planning turn stops at passive_obj. Keep mhitm_ad_slim unverified until a full monster-to-monster recording matches."
+    },
+    {
+      "id": "port-potion-dip-mixture-v21-20261005",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port potion dipping, mixture behavior, and alternate item-action dispatch",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result"
+      ],
+      "selectionReason": "The saved v21 mixture investigation selects the contiguous potion.c mixtype-through-potion_dip family and its required drink_ok callback; C84 keeps pool and #altdip runtime evidence as explicit remaining work.",
+      "detail": "C84 makes the selected v21 mixture case fully match and adds an exact independent water-into-towel replay. The pool and #altdip entry plans remain explicitly blocked, so the source goal will remain partial after integration.",
+      "openedAt": "b1f93e8ec6001c261ded73e420d3653edceb94b5",
+      "openStanding": {
+        "sha": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mixtype",
+          "line": 2122,
+          "endLine": 2213,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "dip_ok",
+          "line": 2214,
+          "endLine": 2230,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "dip_hands_ok",
+          "line": 2231,
+          "endLine": 2242,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "hold_potion",
+          "line": 2243,
+          "endLine": 2266,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "dodip",
+          "line": 2267,
+          "endLine": 2378,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "dip_into",
+          "line": 2379,
+          "endLine": 2407,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "poof",
+          "line": 2408,
+          "endLine": 2416,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "dip_potion_explosion",
+          "line": 2417,
+          "endLine": 2441,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "potion_dip",
+          "line": 2442,
+          "endLine": 2795,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2122,
+        "to": 2795
+      },
+      "requiredFunctions": [
+        {
+          "name": "drink_ok",
+          "line": 505,
+          "endLine": 525,
+          "declared": true,
+          "sourceFile": "potion.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result": {
+          "session": "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+          "recordingSha256": "1da19125d895a4ba98ceaa86db05cc4cc4d3c393390065a6594000330010e1cf",
+          "evaluationPath": "challenges/evaluations/20261005161832-v21.json",
+          "evaluationCommit": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56"
+        }
+      },
+      "activeStanding": {
+        "sha": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+          "session": "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+          "recordingSha256": "1da19125d895a4ba98ceaa86db05cc4cc4d3c393390065a6594000330010e1cf",
+          "recipe": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.recipe.session.json",
+          "recipeSha256": "25f904b2337fb6d7d28cbfda9b546919bfe97cd628308360f572c279afd0df16",
+          "replayInputSha256": "167ca1237ce2928c0c4149edf2da6633b327a568535357d3393cba6ff46f8348",
+          "evaluationPath": "challenges/evaluations/20261005161832-v21.json",
+          "evaluationCommit": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56",
+          "evaluationArtifact": "challenges/evaluations/20261005161832-v21.json",
+          "evaluationUtc": "2026-10-05T16:19:42.392Z",
+          "remainingScreens": 4,
+          "recordedSteps": 66,
+          "previousScreensMatched": 62,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 62,
+              "total": 66
+            },
+            "rng": {
+              "matched": 2703,
+              "total": 2710
+            },
+            "cursors": {
+              "matched": 62,
+              "total": 66
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: dip requires the potion-into-potion path (potion_dip)",
+            "step": 62
+          },
+          "step": 62,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: dip requires the potion-into-potion path (potion_dip)",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.json",
+            "result": {
+              "session": "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+              "remainingScreens": 4,
+              "recordedSteps": 66,
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "1da19125d895a4ba98ceaa86db05cc4cc4d3c393390065a6594000330010e1cf",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "status": "complete",
+              "commit": "4901dd542af51235daa15e837437a78fa6af5787",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "session": "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+                "recordingSha256": "1da19125d895a4ba98ceaa86db05cc4cc4d3c393390065a6594000330010e1cf",
+                "recipe": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.recipe.session.json",
+                "recipeSha256": "25f904b2337fb6d7d28cbfda9b546919bfe97cd628308360f572c279afd0df16",
+                "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationUtc": "2026-10-03T18:29:21.226Z",
+                "remainingScreens": 4,
+                "recordedSteps": 66,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 62,
+                    "total": 66
+                  },
+                  "rng": {
+                    "matched": 2703,
+                    "total": 2710
+                  },
+                  "cursors": {
+                    "matched": 62,
+                    "total": 66
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: dip requires the potion-into-potion path (potion_dip)",
+                  "step": 62
+                },
+                "step": 62,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: dip requires the potion-into-potion path (potion_dip)",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 62, C dodip() has selected the healing potion and asks which potion to dip it into. JavaScript dodip() throws before that second prompt, so the first missing owner is potion.c:dodip(). The C continuation selects a speed potion and produces two diluted extra-healing potions. Port the complete dip route through potion_dip() and its mixture helpers, then wire dip_into() as the other direct caller. A83 reserves objnam.c:simpleonames and hack.c:near_capacity, both reached by the recorded mixture path.",
+              "source": {
+                "file": "potion.c",
+                "branch": "For #dip, after getobj() selects the first item and no fountain, sink, or pool handles the action, dodip() must prompt with getobj(qbuf, drink_ok, GETOBJ_NOFLAGS) for the potion and call potion_dip(obj, potion). In this case the first item is a two-potion healing stack and the second is a speed potion; mixtype() returns POT_EXTRA_HEALING and dip_potion_explosion() returns false.",
+                "functions": [
+                  "dodip",
+                  "potion_dip",
+                  "dip_into",
+                  "mixtype",
+                  "dip_potion_explosion",
+                  "hold_potion",
+                  "poof"
+                ],
+                "callers": [
+                  "cmd.c's #dip external-command entry calls dodip()",
+                  "potion.c:dodip() calls potion_dip() after the second selection",
+                  "potion.c:dip_into() calls potion_dip() for #altdip; js/extcmdlist_data.js maps altdip to dip_into, but js/potion.js has no dip_into implementation"
+                ],
+                "dependencies": [
+                  "getobj(), drink_ok(), dip_ok(), and dip_hands_ok() provide the two object-selection prompts",
+                  "potion.c:H2Opotion_dip() handles the water-potion branch of potion_dip()",
+                  "invent.c:freeinv() and hold_another_object(), reached through hold_potion(), remove and reinsert the changed mixture stack",
+                  "obj.c:useup() and useupall() consume the potion and the affected stack on their respective branches",
+                  "objnam.c:simpleonames() formats the mixture message and is reserved by A83",
+                  "hack.c:near_capacity() is called by hold_potion(); it reaches calc_capacity(), inv_weight(), and weight_cap(), all reserved by A83"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved baseline challenges/evaluations/20261003183000-v21.json and queue entry show 62/66 screens matched, 2703/2710 RNG calls matched, and a stop at step 62 with “dip requires the potion-into-potion path (potion_dip).”",
+                "In the assigned recording challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json, step 62 selects the healing stack and the C screen asks “What do you want to dip 2 uncursed potions of healing into?”. C potion.c:2365-2371 performs this second getobj() and then calls potion_dip(); js/potion.js:3153-3154 throws before the second prompt, identifying dodip() as the first mismatching source owner.",
+                "The same C recording shows step 64 consuming rnd(9)=5 at potion_dip() and rn2(10)=4 at dip_potion_explosion(), so the mixture does not explode. At step 65 the screen reports “The mixture looks puce” and “2 diluted puce potions.” C potion.c:2137-2140 maps POT_HEALING dipped into POT_SPEED to POT_EXTRA_HEALING; potion.c:2503-2593 performs the mixture, consumes the speed potion, sets the result, and reinserts it.",
+                "The actionable source group is potion.c:dodip() (2267-2372), potion_dip() (2442 onward), and its used-result helpers mixtype() (2122), dip_potion_explosion() (2417), and hold_potion() (2242); potion.c:2374-2404 shows dip_into() is the second direct potion_dip() caller. js/potion.js currently throws instead of implementing the second prompt, and a targeted search found no JavaScript definitions for potion_dip, dip_into, mixtype, dip_potion_explosion, hold_potion, or poof.",
+                "A83 scope artifact .cache/A83-vomiting-dialogue-vomit-scope-event.json reserves source:objnam.c:simpleonames and source:hack.c:near_capacity, calc_capacity, inv_weight, and weight_cap, and lists js/potion.js, js/obj.js, js/hack.js, and js/invent.js as allowed paths. The exact mixture path calls simpleonames() at potion.c:2534 and hold_potion() at 2248-2260, which calls near_capacity(); near_capacity() delegates to calc_capacity() at hack.c:4385-4386, and calc_capacity() uses inv_weight() and weight_cap(). A targeted `rg -n 'sobj_at\\s*\\(' nethack-c/upstream/src/potion.c` returned no matches, so A83’s invent.c:sobj_at reservation is not on this potion source path."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "drink_ok",
+            "implementation": "js/potion.js",
+            "symbol": "drink_ok",
+            "sourceReview": "Read potion.c:505-521. The callback reads the shared file-static drink_ok_extra and returns GETOBJ_EXCLUDE or GETOBJ_EXCLUDE_NONINVENT for a null object, GETOBJ_SUGGEST for a potion, and GETOBJ_EXCLUDE for other classes. JS shares the file-static value across dodrink, dodip and dip_into and preserves each source reset/increment site; obsolete local-state substitution is removed.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink resets drink_ok_extra after its strangled refusal and passes drink_ok to getobj."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip resets drink_ok_extra after the first selection, increments it after declined feature prompts, then passes drink_ok to the potion selector."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dip_into",
+                "source": "potion.c:dip_into resets drink_ok_extra after validating CQ_CANNED and passes drink_ok to the potion selector."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "cmd.c dip -> potion.c:dodip -> getobj callback drink_ok"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "mixtype",
+            "implementation": "js/potion.js",
+            "symbol": "mixtype",
+            "sourceReview": "Read potion.c:2122-2210. Preserves the potion-object pair swap, each source switch/fallthrough and STRANGE_OBJECT default, with rn2(3) only for gain-level/energy plus confusion and enlightenment plus levitation. The return type selects the mixture used by potion_dip.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:potion_dip calls mixtype(obj,potion) in the potion-pair branch and uses its result to determine magic, type and dilution."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "potion.c:potion_dip -> mixtype; the resulting potion stack is held after the non-explosion mixture path"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "dip_ok",
+            "implementation": "js/potion.js",
+            "symbol": "dip_ok",
+            "sourceReview": "Read potion.c:2214-2227. A null object returns GETOBJ_DOWNPLAY, coins return GETOBJ_EXCLUDE, inaccessible worn equipment returns GETOBJ_EXCLUDE_INACCESS, and other objects return GETOBJ_SUGGEST. The C call supplies a null message verb, so inaccessible_equipment only reads state and returns a Boolean.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip passes dip_ok to the first getobj outside the slippery-hands feature path."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dip_into",
+                "source": "potion.c:dip_into passes dip_ok when selecting the target object after the queued potion."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "potion.c:dodip first-object getobj callback"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "dip_hands_ok",
+            "implementation": "js/potion.js",
+            "symbol": "dip_hands_ok",
+            "sourceReview": "Read potion.c:2230-2238. A null selector is suggested only when Glib is true and can_reach_floor(FALSE) succeeds; every other case delegates to dip_ok. The callback does not change state or emit output.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip passes dip_hands_ok when the hero stands at a fountain, sink or pool and menu_requested is false."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "hold_potion",
+            "implementation": "js/potion.js",
+            "symbol": "hold_potion",
+            "sourceReview": "Read potion.c:2243-2264. It calculates near_capacity before extracting the transformed potion, temporarily raises pickup_burden only when needed, reinserts through hold_another_object, passes the returned pointer to nhUse (which discards it), restores the saved burden and updates inventory. The JS preserves that mutation order and uses the existing synchronous update_inventory helper.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:potion_dip calls hold_potion after converting and freeing/reinserting a potion stack, and after supported horn/amethyst mixtures."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "potion.c:potion_dip mixture branch -> hold_potion -> hold_another_object"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "dodip",
+            "implementation": "js/potion.js",
+            "symbol": "dodip",
+            "sourceReview": "Read potion.c:2267-2372. Preserves the first getobj callback choice and awaited verb-bearing accessibility refusal, shortest-name/prompt construction, m-prefix bypass, reachable-floor gate, fountain/sink/pool confirmation order, drink_ok_extra increments after declines, pool levitation/riding/hands/object branches, water_damage result and in_use cleanup, then the shared drink_ok potion selection and potion_dip return. Fountain and sink arms resolve and await dipfountain/dipsink. C discards the void steed.c:rider_cant_reach call; JS records it with note_unported and invents no effect.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runDipCommand",
+                "source": "cmd.c's dip command row dispatches dodip; runDipCommand calls the potion.c port."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip calls dipfountain, dipsink, water_damage or potion_dip according to the selected terrain and answer."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dip.test.mjs",
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "cmd.c dip -> potion.c:dodip -> potion_dip"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "poof",
+            "implementation": "js/potion.js",
+            "symbol": "poof",
+            "sourceReview": "Read potion.c:2408-2414. It calls trycall only when dknown, then consumes the potion with useup. The water-on-towel route exercises this source call and its ordering.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:potion_dip calls poof after water-on-towel handling, successful water effects, polymorph consumption and poison effects."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "dip_potion_explosion",
+            "implementation": "js/potion.js",
+            "symbol": "dip_potion_explosion",
+            "sourceReview": "Read potion.c:2417-2438 and youprop.h Deaf. Preserves the unconditional cursed/acid/lit-oil conditions, conditional rn2(30) for an alchemy smock or rn2(10) otherwise, then in_use, Deaf-controlled output, wake radius, Strength exercise with the live encumber_msg hook, breath/eyes gate to the discarded-result potionbreathe call, whole-stack consumption and alchemic-blast damage. Deaf is true for any nonzero intrinsic value, any extrinsic value, or uroleplay.deaf; exercise is awaited before potionbreathe. The regression test exercises a live positive-moves state and non-timeout permanent intrinsic Deaf flag without claiming an independent C recording.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:potion_dip calls dip_potion_explosion after the mixture message and potion consumption, using its Boolean result to return early."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "potion.c:potion_dip -> dip_potion_explosion; rn2(10)=4 returns false and the mixture continues"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "potion_dip",
+            "implementation": "js/potion.js",
+            "symbol": "potion_dip",
+            "sourceReview": "Read potion.c:2442-2804. Preserves self/hands refusals; water through the consumed H2Opotion_dip Boolean and poof; polymorph eligibility, conduct, replacement and consumption; potion mixture amount, explosion result, stack split/type/dilution and reinsertion; acid-on-lichen, water-on-towel, poison, erosion, oil, lamp and horn/amethyst branches; inventory, billing, naming and return order. Reuses source-aligned obj_unpolyable/poly_obj, erode_obj, permapoisoned, splitobj and mkobj implementations with their existing evidence. The discarded potionbreathe/helper results remain explicit; no whole caller credit is claimed.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip returns potion_dip(obj,potion) after the second selector."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dip_into",
+                "source": "potion.c:dip_into returns potion_dip(obj,potion) after consuming the queued inventory action."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "potion.c:dodip -> potion_dip -> mixtype, dip_potion_explosion and hold_potion"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          }
+        ],
+        "entryPointReview": "Two active #dip routes match: ordinary potion selection and mixture in the admitted v21 case, and an independently recorded water potion dipped into a towel through H2Opotion_dip -> accepted water_damage -> wet_a_towel. The matching v21 range is segment 0, zero-based steps 57-65; the scanner reports all 66 recorded steps and input boundaries matched. The water route's existing C recording matches all 2561 RNG calls, 41 screens and 41 cursors in JavaScript. The pool branch is source-implemented but has no matching runtime evidence in C84; its retained recipe remains blocked. The internal IA_DIP_OBJ -> altdip -> dip_into route is also source-wired but lacks a matching recording; the C queue contract is documented in the retained recipe. This evidence claims no complete pool or altdip entry point and no whole dodrink caller. The additive correction also pins the active explosion helper contract in a direct focused test: positive moves invoke the awaited encumberMessage hook after the strength draw, and permanent intrinsic Deaf suppresses the BOOM prefix. This direct helper regression test is not recorded C-play coverage. The same focused source/callee check verifies awaited covered-equipment messages in dodip/dip_into and resolves both fountain/sink dip exports.",
+        "entryPoints": [
+          {
+            "name": "#dip with potion mixture",
+            "functions": [
+              "dodip",
+              "drink_ok",
+              "dip_ok",
+              "mixtype",
+              "dip_potion_explosion",
+              "potion_dip",
+              "hold_potion"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "cmd.c dip -> potion.c:dodip -> potion_dip -> mixtype -> dip_potion_explosion -> hold_potion"
+              }
+            ]
+          },
+          {
+            "name": "#dip water potion into a towel",
+            "functions": [
+              "dodip",
+              "drink_ok",
+              "dip_ok",
+              "potion_dip",
+              "poof"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#dip into a pool",
+            "functions": [
+              "dodip",
+              "dip_hands_ok"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Inventory IA_DIP_OBJ -> altdip -> dip_into",
+            "functions": [
+              "dip_into",
+              "drink_ok",
+              "dip_ok",
+              "potion_dip"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "C84 verifies 9 of 10 source units and fully matches the selected v21 mixture plus an independent water-into-towel recording. The source-implemented pool and IA_DIP_OBJ routes remain without matching C runtime evidence; dip_into remains unverified and both blocked recipes are retained."
+    },
+    {
+      "id": "port-eat-fpostfx-completed-meal-effects-v20-20261005",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port completed non-corpse meal effects",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected"
+      ],
+      "selectionReason": "The admitted v20 royal-jelly case first diverges in eat.c:fpostfx after meal completion; port the whole function and preserve its source-ordered effects and consumed returns.",
+      "detail": "Whole eat.c:fpostfx, wired through done_eating. The discarded void were.c:you_unwere call remains a named gap; the selected v20 case supplies runtime evidence for the royal-jelly arm.",
+      "openedAt": "ce9893a9802b70bc2efd178c3ee2553d6ac8415b",
+      "openStanding": {
+        "sha": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "38bd807514852ffcec10562805054affa549ccb9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "fpostfx",
+          "line": 2510,
+          "endLine": 2608,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2510,
+        "to": 2608
+      },
+      "syntheticProvenance": {
+        "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected": {
+          "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+          "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+          "evaluationPath": "challenges/evaluations/20261005175533-v20.json",
+          "evaluationCommit": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+        }
+      },
+      "activeStanding": {
+        "sha": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+          "recordingPath": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+          "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+          "recipe": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.recipe.session.json",
+          "recipeSha256": "abb6e25687eec6fbf3172fd50b0fae0e20f7bfeec9cde90cb608673537232ff3",
+          "replayInputSha256": "7f6f926505cb21763a80aa505b2333c49d199a53465d78313aab0f02ec9c0364",
+          "evaluationPath": "challenges/evaluations/20261005175533-v20.json",
+          "evaluationCommit": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+          "evaluationArtifact": "challenges/evaluations/20261005175533-v20.json",
+          "evaluationUtc": "2026-10-05T17:56:43.586Z",
+          "remainingScreens": 17,
+          "recordedSteps": 42,
+          "previousScreensMatched": 25,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 25,
+              "total": 42
+            },
+            "rng": {
+              "matched": 2082,
+              "total": 2270
+            },
+            "cursors": {
+              "matched": 25,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+            "step": 25
+          },
+          "step": 25,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.json",
+            "result": {
+              "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 17,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+                "recordingPath": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+                "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+                "recipe": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.recipe.session.json",
+                "recipeSha256": "abb6e25687eec6fbf3172fd50b0fae0e20f7bfeec9cde90cb608673537232ff3",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 17,
+                "recordedSteps": 42,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 25,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 2082,
+                    "total": 2270
+                  },
+                  "cursors": {
+                    "matched": 25,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+                  "step": 25
+                },
+                "step": 25,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 25, the current JavaScript completes the royal-jelly meal setup, enters done_eating(), and stops at fpostfx()'s UnsupportedEatError for LUMP_OF_ROYAL_JELLY before applying the source-defined effects. The C owner is the whole eat.c fpostfx() function; done_eating() calls it for a finished non-corpse meal. A whole-function port has a clear source owner and caller.",
+              "source": {
+                "file": "eat.c",
+                "branch": "fpostfx() after a non-corpse meal completes with otmp->otyp == LUMP_OF_ROYAL_JELLY. The branch first allows a Killer Bee hero to become a Queen Bee when not Unchanging; otherwise it adjusts strength and polymorphed or human hit points, potentially increasing maximum hit points or ending the game, and heals legs when the jelly is not cursed.",
+                "functions": [
+                  "fpostfx"
+                ],
+                "callers": [
+                  "done_eating"
+                ],
+                "dependencies": [
+                  "attrib.c:gainstr",
+                  "polyself.c:polymon",
+                  "rng.c:rnd",
+                  "rng.c:rn2",
+                  "attrib.c:setuhpmax",
+                  "polyself.c:rehumanize",
+                  "end.c:done",
+                  "do.c:heal_legs"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/eat.c:2510-2595 defines the whole fpostfx() source unit. Its LUMP_OF_ROYAL_JELLY arm calls gainstr(otmp, 1, TRUE), then draws rnd(20) with a sign selected by otmp->cursed; the Upolyd branch can draw rn2(17), increase u.mhmax, or rehumanize, while the human branch can increase u.uhpmax or call done(POISONING). Uncursed jelly also calls heal_legs(0).",
+                "nethack-c/upstream/src/eat.c:544-573 shows done_eating() as fpostfx()'s direct caller and its non-corpse branch. eat.c:519-541 and :2022-2074 connect a completed meal to done_eating() through eatfood() or start_eating().",
+                "At the examined commit, js/eat.js:3029-3069 contains fpostfx() and throws UnsupportedEatError for LUMP_OF_ROYAL_JELLY; js/eat.js:3322-3364 contains done_eating() and calls fpostfx(piece, state, env) for non-corpse meals. The runtime stop is therefore at the owned C branch, not in meal selection.",
+                "challenges/evaluations/20261003003219-v20.json records this case at 25 of 42 matching screens and 2,082 of 2,270 matching RNG calls; the queue records 17 remaining screens and the same step-25 stop. The older C63 delivery packet .cache/worker-state-loop-20260925.json.deliveries/0630c68d2c093a7132ff6e9db12a5983515863647fd63c01b43348089db91eaf.json reports the C-side fpostfx observation; the current C and JS source reads above confirm its cause at b5bb23ff11504c300f032b10b1e17c99b06fc97e."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "fpostfx",
+            "implementation": "js/eat.js",
+            "symbol": "fpostfx",
+            "sourceReview": "Read the complete eat.c:fpostfx definition (2510–2595) and compared its switch order with js/eat.js:fpostfx. Wolfsbane checks lycan/form then records the discarded void you_unwere call as note_unported; carrot preserves C short-circuit order and the swallowed-engulfer blindness exception; cookie calls bcsign/outrumor before the nonblind literacy conduct; royal jelly checks Killer Bee/Unchanging and consumes polymon’s Boolean, then gainstr, exactly one signed rnd(20), conditional rn2(17) max-HP increase, form/human HP cap or rehumanize/POISONING, and uncursed heal_legs; egg preserves ismnum/flesh_petrifies/Stone resistance and consumes poly_when_stoned and polymon before make_stoned; eucalyptus cures sickness then vomiting only when uncursed; cursed apple preserves dwarf/hallucination, Deaf/acoustics, You_hear and rn1/fall_asleep order. The consumed-return dependencies polymon, poly_when_stoned, bcsign and attacktype_fordmg have accepted whole-source evidence; flesh_petrifies, ismnum, is_were and Race_if are C macros. done_eating awaits fpostfx before consuming the food, as eat.c:565 does before useup/useupf. The eatOperations environment now supplies pickup.c:encumber_msg to gainstr/adjattrib in the royal-jelly arm.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c:done_eating line 565 calls fpostfx(piece) after the meal-completion message and before useup/useupf; JS done_eating awaits fpostfx at line 3214 in that same position."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 25,
+                "source": "eat.c:doeat -> start_eating -> done_eating -> fpostfx; step 25 selects the wished royal jelly and completes the meal. The diagnostic replay matched the whole 42-step segment."
+              }
+            ],
+            "checkedAt": "38bd807514852ffcec10562805054affa549ccb9"
+          }
+        ],
+        "entryPointReview": "fpostfx has one direct C caller, done_eating. The live game reaches that caller from a one-turn meal in eat.c:start_eating and from a completed occupation in eat.c:eatfood; both then call fpostfx before useup/useupf. The admitted v20 input follows the direct eat command through start_eating and reaches the royal-jelly arm. A single-case diagnostic now matches all 42 recorded boundaries, including the meal-completion call; the selected evidence range is the eat command/object selection boundary at steps 24–25. The wolfbane branch still names only the discarded void were.c:you_unwere call as unported.",
+        "entryPoints": [
+          {
+            "name": "eat a non-corpse meal to completion",
+            "functions": [
+              "fpostfx"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 25,
+                "source": "eat.c:doeat -> start_eating -> done_eating -> fpostfx; selected royal jelly completes the one-turn meal."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "38bd807514852ffcec10562805054affa549ccb9",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
