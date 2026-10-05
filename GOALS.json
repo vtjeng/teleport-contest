@@ -170270,6 +170270,959 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-apply-doapply-tin-opener-v16-20261005",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Dispatch tin opener application through the existing tin-opening path",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "The admitted v16 tin opener case stops at apply.c:doapply because JavaScript omits the TIN_OPENER arm; repair that bounded branch and verify the consumed eat.c use_tin_opener and tinopen_ok return path.",
+      "detail": "At segment 0 step 30, doapply refuses TIN_OPENER before C assigns use_tin_opener(obj). Scope is the TIN_OPENER branch only, with no whole-doapply or start_tin completion claim.",
+      "openedAt": "8a75798a4b628ecd7820779c089034da07cfad89",
+      "openStanding": {
+        "sha": "38bd807514852ffcec10562805054affa549ccb9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c00138cce8789366f1ef76d14390861aa1b57068",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "doapply",
+      "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+      "step": 30,
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin": {
+          "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+          "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+          "evaluationPath": "challenges/evaluations/20261005185223-v16.json",
+          "evaluationCommit": "38bd807514852ffcec10562805054affa549ccb9"
+        }
+      },
+      "activeStanding": {
+        "sha": "38bd807514852ffcec10562805054affa549ccb9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+          "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+          "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+          "recipe": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.recipe.session.json",
+          "recipeSha256": "2b8404cd7fc04c6ef5548901fd52171b3a88c4b6d6d2f23a65b47ff1e440bfe2",
+          "replayInputSha256": "50e70e0c38e71991a28a5ca17cb7fab666ccbf0b326c1a5e835fb251a07ef1c8",
+          "evaluationPath": "challenges/evaluations/20261005185223-v16.json",
+          "evaluationCommit": "38bd807514852ffcec10562805054affa549ccb9",
+          "evaluationArtifact": "challenges/evaluations/20261005185223-v16.json",
+          "evaluationUtc": "2026-10-05T18:53:01.098Z",
+          "remainingScreens": 3,
+          "recordedSteps": 33,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 33
+            },
+            "rng": {
+              "matched": 3432,
+              "total": 3440
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 239",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 239",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-applies-tin-opener-to-spinach-tin.json",
+            "result": {
+              "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 3,
+              "recordedSteps": 33,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+                "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+                "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+                "recipe": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.recipe.session.json",
+                "recipeSha256": "2b8404cd7fc04c6ef5548901fd52171b3a88c4b6d6d2f23a65b47ff1e440bfe2",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 3,
+                "recordedSteps": 33,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 3432,
+                    "total": 3440
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 239",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 239",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The stop at zero-based step 30 is caused by the missing TIN_OPENER arm in the partially ported apply.c:doapply. C selects the opener and reaches the existing eat.c:use_tin_opener -> start_tin path; this is missing source behavior, not a tin-opening divergence.",
+              "source": {
+                "file": "apply.c",
+                "branch": "With usable hands and capacity, after getobj selects a valid object that survives retouch_object and is not a wand, spellbook, or coin, TIN_OPENER must set doapply’s result from use_tin_opener and then reach the common artifact-speech tail.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "Direct command: C cmd.c extcmdlist's 'a' entry (1677-1678) dispatches to doapply; JS extcmdlist_data.js's apply row is dispatched by cmd.js dispatchHandler -> runApplyCommand -> apply.js doapply (cmd.js 3302-3304, 5150-5151).",
+                  "Queued C callers: cmd.c MCMD_LOCK_DOOR and MCMD_APPLY_SADDLE (4705, 4751); apply.c use_whip, use_pole, and use_grapple (2966, 3442, 3745); dig.c use_pick_axe (1104); iactions.c itemactions_pushkeys (156). These queue the same doapply command handled by the JS command dispatcher."
+                ],
+                "dependencies": [
+                  "eat.c use_tin_opener is already implemented in js/eat.js:1416-1442 and its ECMD result is consumed by doapply. It selects the tin and calls start_tin, whose existing JS implementation is js/eat.js:1260-1367.",
+                  "The whole doapply function also has a missing LUMP_OF_ROYAL_JELLY arm: C calls apply.c use_royal_jelly and consumes its ECMD result (apply.c:4262-4264; definition 3616 onward), while JS doapply falls through to UnsupportedApplyError and js/apply.js dorub still refuses the same helper path (2218-2221). This is a separate arm from the selected case but must be resolved if completing every doapply branch under the callee-return rule.",
+                  "The FLINT, LUCKSTONE, LOADSTONE, and TOUCHSTONE arm is also absent from the JS switch, although js/apply.js already implements use_stone (2041 onward); the doapply fallback currently refuses those named types. TOWEL is present as an explicit arm before the fallback, so its stale membership in DOAPPLY_UNPORTED_NAMED_ARMS does not block it.",
+                  "The selected recording ends on start_tin setting the tin-opening occupation. It does not continue through a later opentin turn or tin consumption; the existing eat.c consume_tin path retains note_unported('eat.c cprefx') in js/eat.js and is beyond these three missing boundaries."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C source apply.c:4214-4424 defines the whole doapply function. Its explicit TIN_OPENER arm at 4364-4366 assigns res = use_tin_opener(obj), then the function reaches its shared artifact tail at 4419-4424. This is the complete source unit selected for a file-port.",
+                "The omission is visible in js/apply.js:4722-4958: no TIN_OPENER case exists; TIN_OPENER is object type 239 (js/objects.js:314), is listed in DOAPPLY_UNPORTED_NAMED_ARMS (js/apply.js:3867-3875), and throws UnsupportedApplyError in the default branch (4947-4950).",
+                "The saved evaluation challenges/evaluations/20261001125731-v16.json and manifest case wizard-applies-tin-opener-to-spinach-tin agree on first mismatch segment 0, step 30: JS stops before C handles the opener. C records 33 screens, 3440 RNG calls; the evaluation matches 30 screens/cursors and 3432 RNG calls, leaving exactly 3 unmatched screens.",
+                "The assigned C recording challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json shows the remaining boundaries: key o (step 30) yields “You now wield a tin opener.”; space (step 31) prompts “What do you want to open?”; p (step 32) yields “Using your tin opener you try to open the tin.” The first RNG call at step 32 is rn2(2)=1 in eat.c:start_tin (1750), so this input schedules the existing opening occupation instead of consuming the tin immediately.",
+                "C continuation is apply.c:4364-4366 -> eat.c:use_tin_opener (3097-3127) -> eat.c:start_tin (1723-1797). JS already wires the latter two at js/eat.js:1416-1442 and 1260-1367. The direct command caller is cmd.c:1677-1678 and js/cmd.js:3302-3304, 5150-5151; queued C entry sites are listed in source.callers.",
+                "nethack-c/patches/README.md describes recorder patches as deterministic runtime, sorting, RNG logging, and screen capture; rg found no doapply or use_tin_opener references in nethack-c/patches. The behavior owner is the upstream apply.c function."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-timeout-slime-dialogue-v18-20261005",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port green-slime transformation dialogue and its pure condition helpers",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected"
+      ],
+      "selectionReason": "The current v18 mismatch reaches timeout.c slime_dialogue from nh_timeout while Slimed is active; port the complete dialogue and source-defined pure predicates used by its branches.",
+      "detail": "Implement timeout.c slime_dialogue in source order and wire its active nh_timeout caller. The admitted v18 case provides full runtime evidence through transformation; pure helpers are pinned to their C definitions. Keep makemon.c private pm_to_cham behavior outside this source scope.",
+      "openedAt": "1e3423556e1720f067b698daaa0fcd06fbdf6339",
+      "openStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "slime_dialogue",
+          "line": 389,
+          "endLine": 447,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 389,
+        "to": 447
+      },
+      "requiredFunctions": [
+        {
+          "name": "Popeye",
+          "line": 3920,
+          "endLine": 3960,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "can_reach_floor",
+          "line": 187,
+          "endLine": 217,
+          "declared": true,
+          "sourceFile": "engrave.c",
+          "complete": false
+        },
+        {
+          "name": "pm_to_cham",
+          "line": 535,
+          "endLine": 563,
+          "declared": true,
+          "sourceFile": "mon.c",
+          "complete": false
+        },
+        {
+          "name": "uteetering_at_seen_pit",
+          "line": 6648,
+          "endLine": 6659,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "uescaped_shaft",
+          "line": 6660,
+          "endLine": 6667,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected": {
+          "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+          "evaluationPath": "challenges/evaluations/20261005192202-v18.json",
+          "evaluationCommit": "c00138cce8789366f1ef76d14390861aa1b57068"
+        }
+      },
+      "activeStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+          "recipe": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.recipe.session.json",
+          "recipeSha256": "cd0a01a0fc27e10f7331da0cbb981fa15345d51eb1d04075a00b2fba0d86e8ba",
+          "replayInputSha256": "ce6d01a8a7b5219b68138080de9808d0f871057b700ee621770332f490baa973",
+          "evaluationPath": "challenges/evaluations/20261005192202-v18.json",
+          "evaluationCommit": "c00138cce8789366f1ef76d14390861aa1b57068",
+          "evaluationArtifact": "challenges/evaluations/20261005192202-v18.json",
+          "evaluationUtc": "2026-10-05T19:22:55.010Z",
+          "remainingScreens": 39,
+          "recordedSteps": 107,
+          "previousScreensMatched": 68,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 68,
+              "total": 107
+            },
+            "rng": {
+              "matched": 2540,
+              "total": 2630
+            },
+            "cursors": {
+              "matched": 76,
+              "total": 107
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 64,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 64,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 37,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2531,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(100)=58",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "."
+              },
+              "stepIndex": 62
+            },
+            "cursor": {
+              "index": 76,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": "."
+              },
+              "cCursor": [
+                43,
+                0,
+                1
+              ],
+              "jsCursor": [
+                16,
+                8,
+                1
+              ]
+            }
+          },
+          "step": 62,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.json",
+            "result": {
+              "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+              "remainingScreens": 39,
+              "recordedSteps": 107,
+              "status": "complete",
+              "commit": "c00138cce8789366f1ef76d14390861aa1b57068",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+                "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+                "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+                "recipe": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.recipe.session.json",
+                "recipeSha256": "cd0a01a0fc27e10f7331da0cbb981fa15345d51eb1d04075a00b2fba0d86e8ba",
+                "replayInputSha256": "ce6d01a8a7b5219b68138080de9808d0f871057b700ee621770332f490baa973",
+                "evaluationPath": "challenges/evaluations/20261005192202-v18.json",
+                "evaluationCommit": "c00138cce8789366f1ef76d14390861aa1b57068",
+                "evaluationArtifact": "challenges/evaluations/20261005192202-v18.json",
+                "evaluationUtc": "2026-10-05T19:22:55.010Z",
+                "remainingScreens": 39,
+                "recordedSteps": 107,
+                "previousScreensMatched": 68,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 68,
+                    "total": 107
+                  },
+                  "rng": {
+                    "matched": 2540,
+                    "total": 2630
+                  },
+                  "cursors": {
+                    "matched": 76,
+                    "total": 107
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 64,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 64,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 37,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2531,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(100)=58",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 62,
+                      "key": "."
+                    },
+                    "stepIndex": 62
+                  },
+                  "cursor": {
+                    "index": 76,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 76,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      43,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      16,
+                      8,
+                      1
+                    ]
+                  }
+                },
+                "step": 62,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The RNG annotation points to attrib.c:exercise, but the missing caller is timeout.c:slime_dialogue. After the green-slime attack establishes the Slimed timeout, js/timeout.js:nh_timeout records a gap instead of running the source countdown. Port the complete dialogue and its consumed pure predicate closure; the function's unconditional exercise(A_DEX,FALSE) explains the first RNG mismatch and its countdown messages explain the later screen mismatch.",
+              "source": {
+                "file": "timeout.c",
+                "functions": [
+                  "slime_dialogue"
+                ],
+                "branch": "Whole-function scope at timeout.c:389-443. Read Slimed & TIMEOUT, update the final-tick disguise, emit odd-tick countdown text with the source blindness and body-form gates, apply the i==3, i==2 and i==1 state transitions, then call exercise(A_DEX,FALSE) unconditionally. The selected path enters from nh_timeout with Slimed active.",
+                "callers": [
+                  "Direct source caller: timeout.c:nh_timeout:625-626 calls slime_dialogue when Slimed is nonzero. Current js/timeout.js:nh_timeout records note_unported('timeout.c slime_dialogue') at that branch.",
+                  "Runtime entry: allmain.c:moveloop_core calls nh_timeout once per elapsed turn; js/allmain.js:finishElapsedTurn calls js/timeout.js:nh_timeout in the corresponding turn tail."
+                ],
+                "dependencies": [
+                  "attrib.c:exercise is a void state/RNG dependency called unconditionally after the dialogue switch; the JavaScript implementation already exists and must be called in the same position.",
+                  "eat.c:Popeye returns the Boolean consumed by the i==3 occupation branch; its SLIMED path uses include/obj.h:polyfood, mon.c:pm_to_cham, and engrave.c:can_reach_floor for accessible floor tins.",
+                  "engrave.c:can_reach_floor consumes trap.c:uteetering_at_seen_pit and trap.c:uescaped_shaft; these pure Boolean results determine whether a floor tin can prevent occupation interruption.",
+                  "include/youprop.h:Blind includes intrinsic and extrinsic blindness unless blocked; the i==4 message gate must use the canonical effective-blindness predicate."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20261005192202-v18.json records 68/107 screens, 2540/2630 RNG calls, and 76/107 cursors matched. Its first RNG mismatch is C exercise(attrib.c:509) rn2(2) at step 62 while JavaScript has advanced without the timeout dialogue's exercise call; the first screen mismatch is a missing countdown glyph at step 64.",
+                "Upstream timeout.c:slime_dialogue spans lines 389-443 and ends with unconditional exercise(A_DEX,FALSE). timeout.c:nh_timeout calls it at lines 625-626 whenever Slimed is active; current js/timeout.js has a source-named gap in that branch.",
+                "The same admitted case reaches the active Slimed timeout after uhitm.c:mhitm_ad_slim. Source review of the full dialogue identifies eat.c:Popeye as its consumed return-value dependency and the pure can_reach_floor, pm_to_cham, uteetering_at_seen_pit, and uescaped_shaft closure needed by that predicate."
+              ],
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+              "evaluationPath": "challenges/evaluations/20261005192202-v18.json",
+              "evaluationCommit": "c00138cce8789366f1ef76d14390861aa1b57068"
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The immutable B108 delivery declares parked passive_obj delivery 48c24ad0 as an unaccepted ancestry dependency. Current v19 Energy Vortex and Spotted Jelly mismatches now make the complete uhitm.c passive/passive_obj family actionable; accept that dependency first, then resume this fully matching timeout dialogue delivery."
+    },
+    {
+      "id": "port-pickup-in-container-icebox-v20-20261005",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port container insertion with icebox age and timer handling",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed"
+      ],
+      "selectionReason": "The current v20 mismatch stops in pickup.c in_container while inserting a corpse into an ice box. Port the whole function and its pure light.c obj_is_burning dependency; preserve later out_container removal as separate work.",
+      "detail": "Keep the source order for inventory removal, burning objects, shop billing, icebox relative age and timer conversion, bag explosion, insertion and refresh. Wire every canonical obj_is_burning caller, including the read.c set_lit light-source path. Two independent C-first recordings cover corpse insertion and the age-relative oil-lamp exemption.",
+      "openedAt": "116b937d1b7956ffc28982e466876e98598fc2dd",
+      "openStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "in_container",
+          "line": 2558,
+          "endLine": 2719,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2558,
+        "to": 2719
+      },
+      "requiredFunctions": [
+        {
+          "name": "obj_is_burning",
+          "line": 771,
+          "endLine": 778,
+          "declared": true,
+          "sourceFile": "light.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed": {
+          "session": "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+          "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
+          "evaluationPath": "challenges/evaluations/20261005192202-v20.json",
+          "evaluationCommit": "c00138cce8789366f1ef76d14390861aa1b57068"
+        }
+      },
+      "activeStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "session": "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+          "recordingPath": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+          "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
+          "recipe": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.recipe.session.json",
+          "recipeSha256": "33d2301c08fbacc551279890d73d21cd15c49e6b0d7788b7ea00de41a4f44d01",
+          "replayInputSha256": "c0d25ae7dabe8a42734f221b02125c8dd732e119eeaafedd41b5dde4a9cf60bd",
+          "evaluationPath": "challenges/evaluations/20261005192202-v20.json",
+          "evaluationCommit": "c00138cce8789366f1ef76d14390861aa1b57068",
+          "evaluationArtifact": "challenges/evaluations/20261005192202-v20.json",
+          "evaluationUtc": "2026-10-05T19:23:11.316Z",
+          "remainingScreens": 11,
+          "recordedSteps": 83,
+          "previousScreensMatched": 72,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 72,
+              "total": 83
+            },
+            "rng": {
+              "matched": 2902,
+              "total": 2920
+            },
+            "cursors": {
+              "matched": 72,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported pickup: in_container: icebox age handling",
+            "step": 72
+          },
+          "step": 72,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: in_container: icebox age handling",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.json",
+            "result": {
+              "session": "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 11,
+              "recordedSteps": 83,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "session": "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+                "recordingPath": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+                "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
+                "recipe": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.recipe.session.json",
+                "recipeSha256": "33d2301c08fbacc551279890d73d21cd15c49e6b0d7788b7ea00de41a4f44d01",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 11,
+                "recordedSteps": 83,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 72,
+                    "total": 83
+                  },
+                  "rng": {
+                    "matched": 2902,
+                    "total": 2920
+                  },
+                  "cursors": {
+                    "matched": 72,
+                    "total": 83
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported pickup: in_container: icebox age handling",
+                  "step": 72
+                },
+                "step": 72,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported pickup: in_container: icebox age handling",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch at step 72 is Icebox insertion: the JavaScript in_container() guard throws before freeinv() and the C age/timer updates. C later removes the stored corpse at step 82 through out_container() and removed_from_icebox(), but that is a separate continuation gap. The actionable first owner is the whole pickup.c in_container() function; A83 has reservations on naming helpers and welded() used by other in_container() branches.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "in_container() has passed its early item checks and called freeinv(obj); gc.current_container is an ICE_BOX and age_is_relative(obj) is false. It stores relative age, cancels corpse rot/revive timers, clears mcan for a stored ice troll with OMONST data, or cancels a timed glob shrink timer.",
+                "functions": [
+                  "in_container"
+                ],
+                "callers": [
+                  "use_container",
+                  "menu_loot",
+                  "traditional_loot"
+                ],
+                "dependencies": [
+                  "include/obj.h:age_is_relative macro; its Boolean controls the age conversion branch.",
+                  "invent.c:freeinv; C removes the item from inventory before converting its age.",
+                  "hack.c:obj_to_any and timeout.c:stop_timer; the two stop_timer return values are explicitly discarded, while timer removal mutates the object and timer queue.",
+                  "include/obj.h:has_omonst and OMONST macros; the predicate guards mutation of the cancelled ice troll traits.",
+                  "objnam.c:xname, xname_flags, the and related naming helpers; A83 source reservations cover these names used by other in_container() message branches. Do not treat the reservation as source completion.",
+                  "wield.c:welded; A83 reserves this predicate for the wielded-item branch. Current js/pickup.js still stops at weldmsg when it is true.",
+                  "obj_is_burning() and snuff_lit() at pickup.c:2626-2627; current JS retains a fail-closed guard for burning objects."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/pickup.c:2558-2710 defines the whole in_container() source unit. At :2624-2657, C calls freeinv(obj) before testing Icebox && !age_is_relative(obj); it stores svm.moves - obj->age, stops ROT_CORPSE and REVIVE_MON timers for a timed corpse, clears mcan on an ice troll corpse with has_omonst(obj), or stops SHRINK_GLOB for a timed glob. The return values from stop_timer() are explicitly discarded.",
+                "At examined HEAD b5bb23ff11504c300f032b10b1e17c99b06fc97e, js/pickup.js:2920-2936 checks Icebox and throws before freeinv(obj). This accounts for the step-72 stop; the saved C63 packet .cache/worker-state-loop-20260925.json.deliveries/0630c68d2c093a7132ff6e9db12a5983515863647fd63c01b43348089db91eaf.json independently records step 72 as insertion of an ice-troll corpse.",
+                "C caller sites are pickup.c:3174-3184 in use_container(), :3350 and :3376 in menu_loot(), and :3239-3248 in traditional_loot(), which passes in_container() to askchain(). The JavaScript caller sites are pickup.js:2276-2279, :3239, and :3271-3275; whole-function scope should keep these paths wired to the same in_container() implementation.",
+                "The removal observed later in the same recording is a distinct C path: pickup.c:2727-2776 out_container() calls removed_from_icebox() at :2758-2759, and :2781-2798 restores absolute age and calls start_corpse_timeout() for a corpse. At current HEAD, js/pickup.js:3087-3094 does not call a removal helper. The C63 packet and normalized trace identify this at step 82, after the step-72 insertion mismatch; it is not the owner of the first divergence.",
+                "The saved evaluation challenges/evaluations/20261003003219-v20.json records 72 of 83 screens and 2,902 of 2,920 RNG calls matched. The queue records 11 remaining screens and the step-72 unsupported Icebox age-handling stop. The same packet records a byte-identical independent C replay with run-9WF5zn and recording SHA-256 308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568.",
+                "A83 reservation context in .cache/A83-mnearto-108-scope-event.json and .cache/A83-cmd-ice-scope-event.json names objnam.c:xname, objnam.c:xname_flags, objnam.c:the and related objnam helpers, plus wield.c:welded. These are dependencies of other in_container() branches; the current investigation records the reservation only and does not assert those functions are complete."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "in_container",
+            "implementation": "js/pickup.js",
+            "symbol": "in_container",
+            "sourceReview": "Read the complete pickup.c:in_container body (2558-2710) and checked C/JS branch order. Both retain the early rejected-object and fatal-corpse paths, container-fit checks, inventory removal, burning-source test, floor-container billing setup, icebox age_is_relative conversion and ROT_CORPSE/REVIVE_MON/SHRINK_GLOB timer stops, Ice Troll uncancellation, bag-explosion else-if, successful insertion message, coin billing position, add_to_container, weight recalculation and bot refresh. The C-discarded void snuff_lit, sellobj and weldmsg calls remain named with note_unported at their source sites; the impossible diagnostic is also a discarded void gap. stop_timer is implemented and its discarded Boolean is ignored. C macros Is_box, Is_mbag, age_is_relative, has_omonst and OMONST are represented by their source predicates/state reads. The later out_container/removal path is outside this function and remains a separate boundary.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "use_container",
+                "source": "pickup.c:3178; #loot stash-one route calls in_container and consumes its Boolean"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "traditional_loot",
+                "source": "pickup.c:3239-3243 assigns in_container as the put-in actionfunc"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "menu_loot",
+                "source": "pickup.c:3350 just-picked shortcut and 3376 manual selection call in_container"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/a100-icebox-newt-insert.session.json",
+              "recordings/pickup.c/a100-icebox-relative-age-oil-lamp.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "pickup.c:doloot -> doloot_core -> do_loot_cont -> use_container -> in_container; #loot selects the carried ice box and reaches successful corpse insertion at the selected first-mismatch boundary."
+              }
+            ],
+            "checkedAt": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123"
+          },
+          {
+            "name": "obj_is_burning",
+            "implementation": "js/light.js",
+            "symbol": "obj_is_burning",
+            "sourceReview": "Read light.c:obj_is_burning (771-775) and the obj.h ignitable macro. The complete pure predicate is lamplit && (ignitable(obj) || artifact_light(obj)); the C short circuit is preserved. It has no RNG, output or game-state mutation. The selected pickup caller uses the result before icebox handling. bones.c:drop_upon_death and light.c:obj_sheds_light also use the canonical helper. read.c:set_lit delegates to light.c:snuff_light_source, which checks obj_is_burning before preserving artifact lights; read.js:set_lit now calls the same canonical predicate in its corresponding coordinate/object-source loop. steal.c:mpickobj reaches the predicate through obj_sheds_light and the snuff-light operation.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "pickup.c:2626"
+              },
+              {
+                "path": "js/bones.js",
+                "symbol": "drop_upon_death",
+                "source": "bones.c:283"
+              },
+              {
+                "path": "js/light.js",
+                "symbol": "obj_sheds_light",
+                "source": "light.c:766-767"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "set_lit",
+                "source": "read.c:2486 delegates to light.c:snuff_light_source; light.c:742 calls obj_is_burning"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/light-vision.test.mjs",
+              "scripts/bones.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "light.c",
+            "synthetic": [],
+            "checkedAt": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123"
+          }
+        ],
+        "entryPointReview": "The impure selected entry is putting an inventory item into a carried ice box through #loot. C routes doloot/doloot_core through do_loot_cont to use_container, then in_container; the two independent A100 recordings stop on successful insertion and exercise both an ordinary corpse and the age-relative oil-lamp exemption. The selected v20 case reaches the newt-corpse in_container call at zero-based step 72; its later out_container/removal divergence is outside A100. The attempted Ice Troll variation is retained only as a blocked recipe: do_wizwish -> hold_another_object drops the over-burden corpse before the #loot stash selector can reach in_container. obj_is_burning is pure and has direct source-pinned result tests. The read.c:set_lit caller correction is source-pinned in read.test.mjs; no whole read.c:set_lit completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "#loot insertion into a carried ice box",
+            "functions": [
+              "in_container",
+              {
+                "sourceFile": "light.c",
+                "name": "obj_is_burning"
+              }
+            ],
+            "recordings": [
+              "recordings/pickup.c/a100-icebox-newt-insert.session.json",
+              "recordings/pickup.c/a100-icebox-relative-age-oil-lamp.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 72,
+                "source": "pickup.c:doloot -> doloot_core -> do_loot_cont -> use_container -> in_container; #loot stash path reaches icebox insertion."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "session": "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+          "recordingPath": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+          "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
+          "recipe": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.recipe.session.json",
+          "recipeSha256": "33d2301c08fbacc551279890d73d21cd15c49e6b0d7788b7ea00de41a4f44d01",
+          "replayInputSha256": "c97c7c97ab43049d60a3fbb738c4aea104cd3583b0368586f1061f8d98f8bd1c",
+          "evaluationPath": "challenges/evaluations/20261005201650-v20.json",
+          "evaluationCommit": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+          "evaluationArtifact": "challenges/evaluations/20261005201650-v20.json",
+          "evaluationUtc": "2026-10-05T20:17:55.557Z",
+          "remainingScreens": 0,
+          "recordedSteps": 83,
+          "previousScreensMatched": 72,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 83,
+              "total": 83
+            },
+            "rng": {
+              "matched": 2907,
+              "total": 2920
+            },
+            "cursors": {
+              "matched": 83,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2907,
+              "cEntry": "rn2(1000)=876",
+              "cCaller": "start_corpse_timeout(mkobj.c:1413)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 82,
+                "key": "\n"
+              },
+              "stepIndex": 82
+            },
+            "cursor": null
+          },
+          "step": 82,
+          "kind": "rng",
+          "sourceFile": "mkobj.c",
+          "function": "start_corpse_timeout",
+          "message": null,
+          "cFile": "mkobj.c",
+          "luaFile": null,
+          "line": 1413,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.json",
+            "previousRemainingScreens": 11
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
