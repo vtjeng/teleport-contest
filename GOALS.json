@@ -166281,7 +166281,7 @@
     {
       "id": "port-uhitm-mhitm-ad-wrap-python-c62-v19-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Implement wrap attacks and canonical grab guards",
       "cFile": "uhitm.c",
       "sessions": [
@@ -166641,7 +166641,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "a975745911d007b5c37c4c50fec172d510132b17",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial B104 delivery: failed_grab is verified with the source-correct name precision and asynchronous caller guards. mhitm_ad_wrap, m_slips_free and u_slip_free remain incomplete because independent routes miss their slip gates and no recorded Python-versus-monster wrap is reached. Preserve full scope and blocked recipes; no goal-closure score event."
     }
   ]
 }
