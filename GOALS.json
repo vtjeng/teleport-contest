@@ -170005,6 +170005,209 @@
         "rng": 792838
       },
       "parkedReason": "C84 verifies 9 of 10 source units and fully matches the selected v21 mixture plus an independent water-into-towel recording. The source-implemented pool and IA_DIP_OBJ routes remain without matching C runtime evidence; dip_into remains unverified and both blocked recipes are retained."
+    },
+    {
+      "id": "port-eat-fpostfx-completed-meal-effects-v20-20261005",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port completed non-corpse meal effects",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected"
+      ],
+      "selectionReason": "The admitted v20 royal-jelly case first diverges in eat.c:fpostfx after meal completion; port the whole function and preserve its source-ordered effects and consumed returns.",
+      "detail": "Whole eat.c:fpostfx, wired through done_eating. The discarded void were.c:you_unwere call remains a named gap; the selected v20 case supplies runtime evidence for the royal-jelly arm.",
+      "openedAt": "ce9893a9802b70bc2efd178c3ee2553d6ac8415b",
+      "openStanding": {
+        "sha": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "fpostfx",
+          "line": 2510,
+          "endLine": 2608,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2510,
+        "to": 2608
+      },
+      "syntheticProvenance": {
+        "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected": {
+          "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+          "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+          "evaluationPath": "challenges/evaluations/20261005175533-v20.json",
+          "evaluationCommit": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+        }
+      },
+      "activeStanding": {
+        "sha": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+          "recordingPath": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+          "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+          "recipe": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.recipe.session.json",
+          "recipeSha256": "abb6e25687eec6fbf3172fd50b0fae0e20f7bfeec9cde90cb608673537232ff3",
+          "replayInputSha256": "7f6f926505cb21763a80aa505b2333c49d199a53465d78313aab0f02ec9c0364",
+          "evaluationPath": "challenges/evaluations/20261005175533-v20.json",
+          "evaluationCommit": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+          "evaluationArtifact": "challenges/evaluations/20261005175533-v20.json",
+          "evaluationUtc": "2026-10-05T17:56:43.586Z",
+          "remainingScreens": 17,
+          "recordedSteps": 42,
+          "previousScreensMatched": 25,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 25,
+              "total": 42
+            },
+            "rng": {
+              "matched": 2082,
+              "total": 2270
+            },
+            "cursors": {
+              "matched": 25,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+            "step": 25
+          },
+          "step": 25,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.json",
+            "result": {
+              "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 17,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "session": "synthetic/v20/royal-jelly-consumption-effect-v20-selector-p-corrected",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+                "recordingPath": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+                "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122",
+                "recipe": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.recipe.session.json",
+                "recipeSha256": "abb6e25687eec6fbf3172fd50b0fae0e20f7bfeec9cde90cb608673537232ff3",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 17,
+                "recordedSteps": 42,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 25,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 2082,
+                    "total": 2270
+                  },
+                  "cursors": {
+                    "matched": 25,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+                  "step": 25
+                },
+                "step": 25,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: eating requires the royal jelly effects",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 25, the current JavaScript completes the royal-jelly meal setup, enters done_eating(), and stops at fpostfx()'s UnsupportedEatError for LUMP_OF_ROYAL_JELLY before applying the source-defined effects. The C owner is the whole eat.c fpostfx() function; done_eating() calls it for a finished non-corpse meal. A whole-function port has a clear source owner and caller.",
+              "source": {
+                "file": "eat.c",
+                "branch": "fpostfx() after a non-corpse meal completes with otmp->otyp == LUMP_OF_ROYAL_JELLY. The branch first allows a Killer Bee hero to become a Queen Bee when not Unchanging; otherwise it adjusts strength and polymorphed or human hit points, potentially increasing maximum hit points or ending the game, and heals legs when the jelly is not cursed.",
+                "functions": [
+                  "fpostfx"
+                ],
+                "callers": [
+                  "done_eating"
+                ],
+                "dependencies": [
+                  "attrib.c:gainstr",
+                  "polyself.c:polymon",
+                  "rng.c:rnd",
+                  "rng.c:rn2",
+                  "attrib.c:setuhpmax",
+                  "polyself.c:rehumanize",
+                  "end.c:done",
+                  "do.c:heal_legs"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/eat.c:2510-2595 defines the whole fpostfx() source unit. Its LUMP_OF_ROYAL_JELLY arm calls gainstr(otmp, 1, TRUE), then draws rnd(20) with a sign selected by otmp->cursed; the Upolyd branch can draw rn2(17), increase u.mhmax, or rehumanize, while the human branch can increase u.uhpmax or call done(POISONING). Uncursed jelly also calls heal_legs(0).",
+                "nethack-c/upstream/src/eat.c:544-573 shows done_eating() as fpostfx()'s direct caller and its non-corpse branch. eat.c:519-541 and :2022-2074 connect a completed meal to done_eating() through eatfood() or start_eating().",
+                "At the examined commit, js/eat.js:3029-3069 contains fpostfx() and throws UnsupportedEatError for LUMP_OF_ROYAL_JELLY; js/eat.js:3322-3364 contains done_eating() and calls fpostfx(piece, state, env) for non-corpse meals. The runtime stop is therefore at the owned C branch, not in meal selection.",
+                "challenges/evaluations/20261003003219-v20.json records this case at 25 of 42 matching screens and 2,082 of 2,270 matching RNG calls; the queue records 17 remaining screens and the same step-25 stop. The older C63 delivery packet .cache/worker-state-loop-20260925.json.deliveries/0630c68d2c093a7132ff6e9db12a5983515863647fd63c01b43348089db91eaf.json reports the C-side fpostfx observation; the current C and JS source reads above confirm its cause at b5bb23ff11504c300f032b10b1e17c99b06fc97e."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
