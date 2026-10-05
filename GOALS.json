@@ -164208,8 +164208,8 @@
           "name": "pit_flow",
           "line": 1844,
           "endLine": 1884,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -164221,7 +164221,7 @@
           "name": "liquid_flow",
           "line": 838,
           "endLine": 884,
-          "declared": false,
+          "declared": true,
           "sourceFile": "dig.c",
           "complete": false
         },
@@ -164492,7 +164492,126 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pit_flow",
+            "implementation": "js/dig.js",
+            "symbol": "pit_flow",
+            "sourceReview": "Whole dig.c:pit_flow (1844-1882): guard on trap, filltyp != ROOM and is_pit; copy the trap before liquid_flow deletes it/clears links; update terrain and flags; choose the message from u_at; recurse through copied conjoined bits in N_DIRS order. The liquid_flow return is discarded in C. Existing is_pit/u_at/t_at and xdir/ydir provide the source contracts.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_dig",
+                "source": "C dig.c:zap_dig (1548-1754) calls pit_flow at 1747 when the adjacent pit and fill type qualify."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "pit_flow",
+                "source": "C dig.c:pit_flow recursively calls pit_flow for each copied conjoined direction bit at 1878."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 34,
+                "source": "dig.c:zap_dig→pit_flow→liquid_flow"
+              }
+            ],
+            "checkedAt": "657e04637062ea545e20fc4d6cecbe30eed0bda9"
+          }
+        ],
+        "entryPointReview": "Partial source task. The admitted v20 range matches pit_flow→liquid_flow. Separate independent recordings match do_break_wand→liquid_flow and blow_up_landmine→liquid_flow. dighole stops in its water-sloshing guard before liquid_flow; do_earthquake→do_pit has only a nonmatching step-194 attempt. trapname has no matching Hallucination && !override invocation through a normal caller. Its new blockedRecipe is an unrecorded doup→climb_pit route plan, not runtime evidence; the invalid-terrain sanity diagnostic is not ordinary-play evidence. Caller bodies are not credited as whole functions.",
+        "entryPoints": [
+          {
+            "name": "zap_dig-pit_flow",
+            "functions": [
+              "pit_flow",
+              {
+                "sourceFile": "dig.c",
+                "name": "liquid_flow"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 34,
+                "source": "dig.c:zap_dig→pit_flow→liquid_flow"
+              }
+            ]
+          },
+          {
+            "name": "do_break_wand-liquid_flow",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "liquid_flow"
+              }
+            ],
+            "recordings": [
+              "recordings/apply.c/b103-do-break-wand-liquid-flow-valkyrie-two-mores-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "blow_up_landmine-liquid_flow",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "liquid_flow"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/b103-blow-up-landmine-moat-three-neighbor-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "dighole-liquid_flow",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "liquid_flow"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "do_earthquake-do_pit-liquid_flow",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "liquid_flow"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "climb_pit-trapname-hallucination",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "trapname"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
