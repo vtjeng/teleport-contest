@@ -131,7 +131,11 @@ import {
     TOE,
     TRAPDOOR,
     TT_BURIEDBALL,
+    TT_BEARTRAP,
+    TT_INFLOOR,
+    TT_LAVA,
     TT_PIT,
+    TT_WEB,
     UNCHANGING,
     Ugender,
     Upolyd,
@@ -153,12 +157,14 @@ import {
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
 import {
-    amorphous, attacktype, attacktype_fordmg, breakarm, can_be_strangled, can_breathe, could_twoweap, dmgtype, dmgtype_fromattack, emits_light, has_horns, hides_under, humanoid, infravision, is_animal, is_bat, is_clinger, is_floater, is_flyer, is_hider, is_female, is_male, is_neuter, is_placeholder, is_swimmer, is_vampire, is_vampshifter, is_mind_flayer, is_unicorn, is_were, is_whirly, lays_eggs, eggs_in_water, mindless, Resists_Elem, nohands, nonliving, unsolid, passes_walls, perceives, pm_invisible, polyok, regenerates, resists_drli, sliparm, slithy, sticks, strongmonst, telepathic, touch_petrifies, valid_vampshiftform, verysmall, webmaker, weirdnonliving, can_teleport, control_teleport, defended, your_race, flaming, name_to_monclass, name_to_monplus, num_horns, type_is_pname, } from './mondata.js';
+    amorphous, attacktype, attacktype_fordmg, breakarm, can_be_strangled, can_breathe, could_twoweap, dmgtype, dmgtype_fromattack, emits_light, has_horns, hides_under, humanoid, infravision, is_animal, is_bat, is_clinger, is_floater, is_flyer, is_hider, is_female, is_male, is_neuter, is_placeholder, is_swimmer, is_vampire, is_vampshifter, is_mind_flayer, is_unicorn, is_were, is_whirly, lays_eggs, eggs_in_water, likes_lava, mindless, Resists_Elem, nohands, nonliving, unsolid, passes_walls, perceives, pm_invisible, polyok, regenerates, resists_drli, sliparm, slithy, sticks, strongmonst, telepathic, touch_petrifies, valid_vampshiftform, verysmall, webmaker, weirdnonliving, can_teleport, control_teleport, defended, your_race, flaming, name_to_monclass, name_to_monplus, num_horns, type_is_pname, } from './mondata.js';
 import { character_race, genders } from './roles.js';
 import {
-    capitalizedMonsterName, hliquid, l_monnam, monsterCommonName, pmname, y_monnam, } from './do_name.js';
+    capitalizedMonsterName, hliquid, l_monnam, Monnam, mon_nam,
+    monsterCommonName, pmname, Some_Monnam, y_monnam,
+} from './do_name.js';
 import { set_mon_data } from './mondata.js';
-import { golemhp, mkclass_poly } from './makemon.js';
+import { golemhp, is_home_elemental, mkclass_poly } from './makemon.js';
 import { racial_exception } from './makemon_create.js';
 import {
     cloak_simple_name, cxname, helm_simple_name, otense, simpleonames, an, the, vtense, yname, the_unique_pm, } from './objnam.js';
@@ -172,10 +178,11 @@ import { getlin } from './windows.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import {
-    deltrap, maketrap, set_utrap, t_at, unconscious } from './trap.js';
+    deltrap, maketrap, reset_utrap, set_utrap, t_at, unconscious } from './trap.js';
 import { dotrap, feeltrap } from './trap_effects.js';
 import {
-    make_blinded, make_glib, make_sick, make_slimed, set_itimeout,
+    make_blinded, make_glib, make_sick, make_slimed, make_stoned,
+    set_itimeout,
 } from './potion.js';
 import { cantwield, untwoweapon, uwepgone, uswapwepgone } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
@@ -253,7 +260,8 @@ import { in_rooms } from './rooms.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import {
-    counter_were, egg_type_from_parent, killed, set_ustuck, setmangry, wakeup,
+    counter_were, egg_type_from_parent, killed, set_ustuck,
+    setmangry, wakeup,
 } from './mon.js';
 import { were_beastie, were_summon } from './were.js';
 import { note_unported } from './unported.js';
@@ -964,42 +972,16 @@ async function drop_weapon(alone, state, rawEnv = {}) {
     }
 }
 
-// ---------- retouch_equipment (stub) -----------------------------------
-// C ref: artifact.c retouch_equipment() (2640). Full implementation needs
-// touch_artifact() and the artifact touchability system. For the gnome case,
-// this is a no-op because the wizard has no artifact equipment.
-async function retouch_equipment(_dropflag, state) {
-    // Scan for artifacts that the new form cannot touch. For the gnome
-    // case there are none (the starting wizard has no artifacts), so the
-    // function returns immediately.
-    // A real implementation would iterate worn/wielded artifacts.
-}
-
-// ---------- selftouch (stub) -------------------------------------------
-// C ref: trap.c selftouch() (3882-3915). Check whether the hero is wielding
-// a cockatrice corpse bare-handed. For the gnome case, the wizard's weapon
-// is not a cockatrice corpse.
-async function selftouch(_arg, state) {
-    // If wielding a cockatrice corpse without gloves, petrify. The gnome
-    // case never wields a cockatrice corpse, so this is a no-op.
-    if (state.uwep && state.uwep.otyp === CORPSE
-        && state.mons[state.uwep.corpsenm]
-        && ((state.mons[state.uwep.corpsenm].mflags1 ?? 0) & M.M1_POIS)
-        /* touch_petrifies check would go here */) {
-        // For now, the gnome case never reaches this.
-    }
-}
-
 // ---------- polymon ----------------------------------------------------
 // C ref: polyself.c polymon() (735-1071). Transform the hero into the given
-// monster type. This port covers the ordinary-monster path plus egg-type
-// learning; engulfment, steed, traps, death from petrification/sickness/slime,
-// cockatrice corpse, and artifact equipment still have named gaps.
+// monster type in source order, including prior-form capture, post-form
+// property cleanup, escape from holders/terrain, and the command hints.
 export async function polymon(mntmp, state = game, rawEnv = {}) {
     const random = {
         d,
         rn1,
         rn2,
+        rnl,
         rnd,
         ...(rawEnv.random ?? {}),
     };
@@ -1009,7 +991,12 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         ?? (rawEnv.planning ? () => {} : newsym);
     const env = { ...rawEnv, state, random, message, redraw };
     const u = state.u;
-    const mdat = state.mons[mntmp];
+    let mdat = state.mons[mntmp];
+    const sticking = Boolean(sticks(state.youmonst.data)
+        && u.ustuck && !u.uswallow);
+    const wasBlind = Blind(state);
+    const wasHidingUnder = Boolean(u.uundetected
+        && hides_under(state.youmonst.data));
 
     if ((state.svm.mvitals[mntmp].mvflags & G_GENOD) !== 0) {
         const pm_name = pmname(mdat, state.flags?.female ? FEMALE : MALE);
@@ -1046,12 +1033,22 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         state.flags.female = u.mfemale;
     }
 
-    // if stuck mimicking gold, stop immediately — mimicry not ported
-    // if becoming a non-mimic, stop mimicking anything
+    // polyself.c:778-783. unmul()'s result is discarded; an empty override
+    // runs its state transition without printing the pending movement text.
+    if (state.multi < 0 && M_AP_TYPE(state.youmonst) === M_AP_OBJECT
+        && state.youmonst.data.mlet !== M.S_MIMIC
+        && mdat.mlet !== M.S_MIMIC) {
+        await unmul('', state);
+    }
     if (mdat.mlet !== M.S_MIMIC) {
-        state.youmonst.m_ap_type = 0; // M_AP_NOTHING
+        state.youmonst.m_ap_type = M_AP_NOTHING;
         state.youmonst.mappearance = 0;
     }
+
+    // polyself.c:800-814. Save the old holder's name before set_uasmon() can
+    // change what the hero is able to see or understand.
+    let ustuckName = u.ustuck
+        ? Some_Monnam(u.ustuck, state, env) : '';
 
     // sex change logic — for the gnome case, sex_change_ok is 0 at polyself's
     // call to polymon(). The gnome is not is_male, is_female, or is_neuter,
@@ -1079,8 +1076,16 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     const verb = (u.umonnum !== mntmp) ? 'turn into' : 'feel like';
     await message(`You ${verb} ${an(buf)}!`, state, env);
 
-    // Stoned + poly_when_stoned — not exercised for gnome
-    // make_stoned omitted
+    // polyself.c:823-828. poly_when_stoned() already checks that the stone
+    // golem is not genocided; make_stoned() clears the delayed killer after
+    // the form-change line and emits this second line in source order.
+    if (u.uprops[STONED].intrinsic
+        && poly_when_stoned(mdat, state)) {
+        mntmp = M.PM_STONE_GOLEM;
+        mdat = state.mons[mntmp];
+        await make_stoned(0, null, 0, null, state);
+        await message('You turn to stone!', state, env);
+    }
 
     u.mtimedone = random.rn1(500, 500);
     u.umonnum = mntmp;
@@ -1098,9 +1103,12 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
             u.acurr.a[A_STR] = u.amax.a[A_STR];
     }
 
-    // Stone_resistance && Stoned — not exercised for gnome
     // polyself.c:838-841 and youprop.h:69-70. Sick_resistance includes the
     // form's property plus defended()'s AD_DISE suit check.
+    if (Stone_resistance(state) && u.uprops[STONED].intrinsic) {
+        await make_stoned(0, null, 0, null, state);
+        await message('You no longer seem to be petrifying.', state, env);
+    }
     const sicknessResistance = u.uprops[SICK_RES];
     const sickResistant = Boolean(
         sicknessResistance.intrinsic || sicknessResistance.extrinsic
@@ -1143,7 +1151,8 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
             u.mhmax = random.rnd(4);
         else
             u.mhmax = random.d(mlvl, 8);
-        // is_home_elemental — not exercised for gnome or dragon
+        if (is_home_elemental(mdat, state))
+            u.mhmax *= 3;
     }
     u.mh = u.mhmax;
 
@@ -1158,17 +1167,23 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     // C end.c done() never returns after fatal lava reached by Boots_off.
     // The JS finalizer returns after setting gameover, so stop polymon before
     // drop_weapon(), find_ac(), or later post-transformation effects.
-    if (state.program_state?.gameover) return 0;
+    if (state.program_state?.gameover) return 1;
     await drop_weapon(1, state, env);
     find_ac(state);
 
-    // if hiding under something — not exercised for gnome
-    // was_hiding_under check omitted
+    // polyself.c:887-890. hideunder()'s return is discarded; its hero arm is
+    // not ported, so keep the source call as an explicit gap only when the
+    // old form was actually hiding under something.
+    if (wasHidingUnder)
+        note_unported('mon.c hideunder hero');
 
     if (u.utrap && u.utraptype === TT_PIT) {
         set_utrap(random.rn1(6, 2), TT_PIT, state);
     }
-    // was_blind && !Blind — eyeless revert, not exercised for gnome
+    if (wasBlind && !Blind(state)) {
+        set_itimeout(u.uprops[BLINDED], 1);
+        await make_blinded(0, true, state, env);
+    }
     redraw(u.ux, u.uy, state);
 
     // C polyself.c:907-910. Learn both this form's egg and its ordinary
@@ -1178,26 +1193,138 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         learn_egg_type(egg_type_from_parent(u.umonnum, true), state, env);
     }
 
-    // u.uswallow — not exercised for gnome
-    // u.ustuck — not exercised for gnome
-    // u.usteed — not exercised for gnome
+    let wasExpelled = false;
+    if (u.uswallow) {
+        const engulfer = u.ustuck;
+        const newSize = state.youmonst.data.msize;
+        if (unsolid(state.youmonst.data)
+            || newSize >= M.MZ_HUGE
+            || (engulfer.data.msize < newSize
+                && !is_whirly(engulfer.data))) {
+            let expulsionMessage = true;
+            if (unsolid(state.youmonst.data)) {
+                if (canseemon(engulfer, state))
+                    ustuckName = Monnam(engulfer, state, env);
+                await message(`${ustuckName} can no longer contain you.`,
+                    state, env);
+                expulsionMessage = false;
+            }
+            if (expulsionMessage) {
+                // mhitu.c expels()'s named-message arm is not implemented.
+                // The void result is discarded; record the exact source gap.
+                note_unported('mhitu.c expels named-message arm');
+            } else {
+                const { expels } = await import('./mhitu.js');
+                await expels(engulfer, {
+                    ...env,
+                    state,
+                    expulsionMessage: false,
+                });
+            }
+            wasExpelled = true;
+        }
+    } else if (u.ustuck && !sticking
+        && (sticks(state.youmonst.data) || unsolid(state.youmonst.data))) {
+        if (canseemon(u.ustuck, state))
+            ustuckName = Monnam(u.ustuck, state, env);
+        set_ustuck(null, state);
+        await message(`${ustuckName} loses its grip on you.`, state, env);
+    } else if (sticking && !sticks(state.youmonst.data)) {
+        await uunstick(state, env);
+    }
+
+    if (u.usteed) {
+        if (touch_petrifies(u.usteed.data) && !Stone_resistance(state)
+            && random.rnl(3)) {
+            await message(
+                `No longer petrify-resistant, you touch ${mon_nam(u.usteed, state, env)}.`,
+                state,
+                env,
+            );
+            note_unported('trap.c instapetrify');
+        }
+        const { can_ride } = await import('./steed.js');
+        if (!can_ride(u.usteed, state))
+            note_unported('steed.c dismount_steed');
+    }
 
     find_ac(state);
-    // pool/lava check
-    // Passes_walls trap check — not exercised for gnome
 
-    // C ref: polyself.c:991-999. A new amorphous, whirly, or unsolid form
-    // slips free of punishment; the separate buried-ball cleanup remains in
-    // dig.c and is deliberately recorded as an unported void call.
+    // polyself.c:949-955. Expulsion already calls spoteffects(); otherwise
+    // a changed form can leave the hero in liquid or underwater without a
+    // compatible movement property.
+    const inPoolOrLava = is_pool_or_lava(u.ux, u.uy, state);
+    const inPoolHazard = !Levitation(state) && !u.ustuck
+        && !Flying(state) && inPoolOrLava;
+    const swimming = u.uprops[SWIMMING];
+    const isSwimming = swimming.intrinsic || swimming.extrinsic
+        || (u.usteed && is_swimmer(u.usteed.data));
+    const unsafeUnderwater = u.uinwater && !isSwimming;
+    if ((inPoolHazard || unsafeUnderwater) && !wasExpelled)
+        await spoteffects(true, state, env);
+    if (state.program_state?.gameover) return 1;
+
+    async function resetTrapWithMessage() {
+        if (!rawEnv.planning) {
+            await reset_utrap(true, state);
+            return;
+        }
+        const wasLevitation = Levitation(state);
+        const wasFlight = Flying(state);
+        reset_utrap(false, state);
+        // trap.c reset_utrap()'s only discarded continuation here is
+        // float_up(), which can write terminal output and perform pickup or
+        // terrain effects. Keep that boundary explicit on planning clones.
+        if (!wasLevitation && Levitation(state))
+            note_unported('trap.c float_up after polymon trap release');
+        else if (!wasFlight && Flying(state))
+            await message('You can fly.', state, env);
+    }
+
+    const passesWalls = u.uprops[PASSES_WALLS].intrinsic
+        || u.uprops[PASSES_WALLS].extrinsic;
+    if (passesWalls && u.utrap
+        && (u.utraptype === TT_INFLOOR
+            || u.utraptype === TT_BURIEDBALL)) {
+        if (u.utraptype === TT_INFLOOR) {
+            await message('The rock seems to no longer trap you.', state, env);
+        } else {
+            await message('The buried ball is no longer bound to you.',
+                state, env);
+            note_unported('dig.c buried_ball_to_freedom');
+        }
+        await resetTrapWithMessage();
+    } else if (likes_lava(state.youmonst.data)
+        && u.utrap && u.utraptype === TT_LAVA) {
+        await message(`The ${hliquid('lava', env)} now feels soothing.`,
+            state, env);
+        await resetTrapWithMessage();
+    }
+
     const newForm = state.youmonst.data;
     if (amorphous(newForm) || is_whirly(newForm) || unsolid(newForm)) {
         if (state.uball) {
             await message('You slip out of the iron chain.', state, env);
-            unpunish(state, env);
+            await unpunish(state, env);
         } else if (u.utrap && u.utraptype === TT_BURIEDBALL) {
-            await message('You slip free of the buried ball and chain.', state, env);
+            await message('You slip free of the buried ball and chain.',
+                state, env);
             note_unported('dig.c buried_ball_to_freedom');
         }
+    }
+
+    if (u.utrap && (u.utraptype === TT_WEB
+        || u.utraptype === TT_BEARTRAP)
+        && (amorphous(newForm) || is_whirly(newForm) || unsolid(newForm)
+            || (newForm.msize <= M.MZ_SMALL
+                && u.utraptype === TT_BEARTRAP))) {
+        await message(`You are no longer stuck in the ${u.utraptype === TT_WEB
+            ? 'web' : 'bear trap'}.`, state, env);
+        await resetTrapWithMessage();
+    }
+    if (webmaker(newForm) && u.utrap && u.utraptype === TT_WEB) {
+        await message('You orient yourself on the web.', state, env);
+        await resetTrapWithMessage();
     }
 
     await check_strangling(true, state, env); // maybe start strangling
@@ -1208,9 +1335,9 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     see_monsters(state, { redraw });
     await encumber_msg(state, { message });
 
-    await retouch_equipment(2, state);
+    note_unported('artifact.c retouch_equipment');
     if (!state.uarmg)
-        await selftouch('No longer petrify-resistant, you', state);
+        note_unported('trap.c selftouch');
 
     /* the explanation of '#monster' used to be shown sooner, but there are
        possible fatalities above and it isn't useful unless hero survives */
@@ -1560,9 +1687,9 @@ export async function newman(state = game) {
     see_monsters(state);
     await encumber_msg(state);
 
-    await retouch_equipment(2, state);
+    note_unported('artifact.c retouch_equipment');
     if (!state.uarmg)
-        await selftouch('No longer petrify-resistant, you', state);
+        note_unported('trap.c selftouch');
 }
 
 // ---------- polyself ----------------------------------------------------
@@ -2044,9 +2171,9 @@ export async function rehumanize(state = game, rawEnv = {}) {
             `You and ${monsterCommonName(u.usteed, state, 0, env)} return gently `
             + `to the ${surface(u.ux, u.uy, state)}.`, state, env,
         );
-    await retouch_equipment(2, state);
+    note_unported('artifact.c retouch_equipment');
     if (!state.uarmg)
-        await selftouch('No longer petrify-resistant, you', state);
+        note_unported('trap.c selftouch');
 }
 
 // C ref: polyself.c dobreathe() (1420-1447). The poly'd hero's breath weapon,
@@ -2684,7 +2811,7 @@ export async function domindblast(state = game) {
 // ---------- uunstick ----------------------------------------------------
 // C ref: polyself.c uunstick() (1941-1951). Release the monster the hero was
 // holding, clearing u.ustuck before the message names it.
-export async function uunstick(state = game) {
+export async function uunstick(state = game, rawEnv = {}) {
     const mtmp = state.u.ustuck;
 
     if (!mtmp) {
@@ -2692,9 +2819,12 @@ export async function uunstick(state = game) {
         throw new Error('impossible: uunstick: no ustuck?');
     }
     set_ustuck(null, state); /* before pline() */
-    await ttyPline(
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    await message(
         `${capitalizedMonsterName(mtmp, state)} is no longer in your clutches.`,
         state,
+        rawEnv,
     );
 }
 

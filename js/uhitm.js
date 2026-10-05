@@ -41,9 +41,11 @@ import {
     DISP_END,
     DISMOUNT_POLY,
     DROWNING,
+    ERODE_BURN,
     ERODE_CORRODE,
     ERODE_ROT,
     ERODE_RUST,
+    EF_NONE,
     EF_GREASE,
     EF_VERBOSE,
     ER_NOTHING,
@@ -73,8 +75,10 @@ import {
     RLOC_MSG,
     RLOC_NOMSG,
     M_SEEN_COLD,
+    M_SEEN_ACID,
     M_SEEN_ELEC,
     M_SEEN_FIRE,
+    M_SEEN_MAGR,
     M_SEEN_SLEEP,
     FAST,
     MON_EXPLODE,
@@ -123,6 +127,7 @@ import {
     SUPPRESS_IT,
     SUPPRESS_NAME,
     STONED,
+    STONING,
     STUNNED,
     TIMEOUT,
     MAGICAL_BREATHING,
@@ -172,6 +177,7 @@ import {
     a_monnam,
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
+    hliquid,
     l_monnam,
     mon_nam,
     Monnam,
@@ -241,6 +247,7 @@ import {
     hitmsg,
     m_next2u,
     magic_negation,
+    MonsterDeathPlanningError,
     mpoisons_subj,
     mtrapped_in_pit,
     mdamageu,
@@ -271,6 +278,7 @@ import {
     shieldeff_mon,
     xkilled,
     were_change,
+    healmon,
 } from './mon.js';
 import {
     amorphous,
@@ -340,6 +348,7 @@ import {
 import {
     monflee,
     monfleeMessage,
+    monnear,
     onscary,
     set_apparxy,
     youHear,
@@ -373,6 +382,7 @@ import {
     AD_HALU,
     AD_HEAL,
     AD_LEGS,
+    AD_MAGM,
     AD_PEST,
     AD_SPEL,
     AD_PHYS,
@@ -470,6 +480,7 @@ import {
     paralyze_monst,
     sleep_monst,
     slept_monst,
+    attk_protection,
 } from './mhitm.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
 import { set_ulycn } from './were.js';
@@ -561,6 +572,7 @@ import { set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
 import {
     make_blinded, make_confused, make_sick, make_slimed, make_stunned,
+    split_mon,
     potionhit,
 } from './potion.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
@@ -621,8 +633,10 @@ import { note_unported } from './unported.js';
 import { m_useup } from './mthrowu.js';
 import { explode, adtyp_to_expltype } from './explode.js';
 import { cansee } from './vision.js';
-import { body_part, mbodypart, polymon, rehumanize, uunstick } from './polyself.js';
-import { delayed_killer, done } from './end.js';
+import {
+    body_part, mbodypart, polymon, rehumanize, ugolemeffects, uunstick,
+} from './polyself.js';
+import { delayed_killer, done, done_in_by } from './end.js';
 import { observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import { mhidden_description } from './pager.js';
@@ -6931,16 +6945,10 @@ export async function mhitm_knockback(
     return true;
 }
 
-// C ref: uhitm.c passive() (5863-6120). The target's passive counter-attack
-// against the hero who just swung at it. C's return value is discarded by both
-// of hitum()'s calls, so nothing is returned here.
-//
-// `i` lands on the first empty attack slot, whose damage dice decide `tmp` and
-// whose damage type selects the arms below. A species whose attack list is
-// full has no such slot and returns at 5876-5877.
-//
-// AD_ENCH also reaches passive_obj() under C's attack-type guards. The other
-// nonphysical first-switch and second-switch effects remain source boundaries.
+// C ref: uhitm.c passive() (5865-6124). Resolve the monster's first AT_NONE
+// slot, its one damage roll, the first damage-type switch, then the separate
+// living-monster follow-up gate and switch. C callers discard this bitmask,
+// but each source early return and random call still belongs here.
 export async function passive(
     mon,
     weapon,
@@ -6952,43 +6960,313 @@ export async function passive(
     env = {},
 ) {
     const random = env.random ?? { d, rn2, rnd };
+    const effectEnv = {
+        ...env,
+        state,
+        random,
+        message: env.message
+            ?? (env.planning ? async () => {} : ttyPline),
+    };
     const ptr = mon.data;
     let i = 0;
 
     for (;; i++) {
-        if (i >= NATTK) return; /* no passive attacks */
+        if (i >= NATTK) {
+            const mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
+            const malive = maliveb ? M_ATTK_HIT : M_ATTK_MISS;
+            return malive | mhit; /* no passive attacks */
+        }
         if (ptr.mattk[i].aatyp === AT_NONE) break; /* try this one */
     }
-    /* Note: tmp not always used. Its value feeds only arms that stop, but the
-       draw is C's and has to happen where C makes it. */
-    if (ptr.mattk[i].damn) random.d(ptr.mattk[i].damn, ptr.mattk[i].damd);
-    else if (ptr.mattk[i].damd) random.d(mon.m_lev + 1, ptr.mattk[i].damd);
+    const mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
+    const malive = maliveb ? M_ATTK_HIT : M_ATTK_MISS;
+    const mattk = ptr.mattk[i];
+    let tmp;
+    if (mattk.damn) tmp = random.d(mattk.damn, mattk.damd);
+    else if (mattk.damd) tmp = random.d(mon.m_lev + 1, mattk.damd);
+    else tmp = 0;
 
-    const passiveAttack = ptr.mattk[i];
-    if (passiveAttack.adtyp === AD_ENCH) {
-        if (mhitb) {
-            const weaponlessKick = aatyp === AT_KICK && !weapon;
-            const objectlessAttack = aatyp !== AT_KICK
-                && (aatyp === AT_BITE || aatyp === AT_BUTT
-                    || (aatyp >= AT_STNG && aatyp < AT_WEAP));
-            if (!weaponlessKick && !objectlessAttack) {
-                await passive_obj(mon, weapon, passiveAttack, state, env);
+    // These first-switch effects also apply when the monster just died.
+    switch (mattk.adtyp) {
+    case AD_FIRE:
+        if (mhitb && !mon.mcan && weapon) {
+            if (aatyp === AT_KICK) {
+                if (state.uarmf && !random.rn2(6)) {
+                    await erode_obj(
+                        state.uarmf,
+                        xname(state.uarmf, state),
+                        ERODE_BURN,
+                        EF_GREASE | EF_VERBOSE,
+                        effectEnv,
+                    );
+                }
+            } else if (aatyp === AT_WEAP || aatyp === AT_CLAW
+                || aatyp === AT_MAGC || aatyp === AT_TUCH) {
+                await passive_obj(mon, weapon, mattk, state, effectEnv);
             }
         }
-    } else if (passiveAttack.adtyp !== AD_PHYS) {
-        requireAttackOperation(env, 'unsupported')('passive counter-attack');
+        break;
+    case AD_ACID:
+        if (mhitb && random.rn2(2)) {
+            if (heroIsBlind(state) || !state.flags?.verbose) {
+                await effectEnv.message('You are splashed!', state, effectEnv);
+            } else {
+                await effectEnv.message(
+                    `You are splashed by ${s_suffix(mon_nam(mon, state, effectEnv))} `
+                        + `${hliquid('acid', effectEnv)}!`,
+                    state,
+                    effectEnv,
+                );
+            }
+            if (!propertyPresent(state.u, ACID_RES)) {
+                await mdamageu(mon, tmp, state, effectEnv);
+                monstunseesu(M_SEEN_ACID, state);
+            } else {
+                monstseesu(M_SEEN_ACID, state);
+            }
+            if (!random.rn2(30))
+                await erode_armor(state.youmonst, ERODE_CORRODE, state,
+                    effectEnv);
+        }
+        if (mhitb && weapon) {
+            if (aatyp === AT_KICK) {
+                if (state.uarmf && !random.rn2(6)) {
+                    await erode_obj(
+                        state.uarmf,
+                        xname(state.uarmf, state),
+                        ERODE_CORRODE,
+                        EF_GREASE | EF_VERBOSE,
+                        effectEnv,
+                    );
+                }
+            } else if (aatyp === AT_WEAP || aatyp === AT_CLAW
+                || aatyp === AT_MAGC || aatyp === AT_TUCH) {
+                await passive_obj(mon, weapon, mattk, state, effectEnv);
+            }
+        }
+        await exercise(A_STR, false, state, random);
+        break;
+    case AD_STON:
+        if (mhitb) {
+            let protector = attk_protection(aatyp);
+            // A monster spell used hand-to-hand receives the glove guard.
+            if (aatyp === AT_MAGC) protector = W_ARMG;
+            if (protector === 0
+                || (protector === W_ARMG && !state.uarmg
+                    && !state.uwep && !wep_was_destroyed)
+                || (protector === W_ARMF && !state.uarmf)
+                || (protector === W_ARMH && !state.uarmh)
+                || (protector === (W_ARMC | W_ARMG)
+                    && (!state.uarmc || !state.uarmg))) {
+                if (!propertyPresent(state.u, STONE_RES)
+                    && !(poly_when_stoned(state.youmonst.data, state)
+                        && await polymon(PM_STONE_GOLEM, state, effectEnv))) {
+                    // done_in_by() is a terminal, input-bearing operation.
+                    // Planning stops at this source boundary and replays it
+                    // with the real actor on the live state.
+                    if (env.planning) {
+                        if (typeof env.planningDeath === 'function')
+                            throw env.planningDeath(mon, STONING);
+                        throw new MonsterDeathPlanningError(mon, STONING);
+                    }
+                    await done_in_by(mon, STONING, state);
+                    return M_ATTK_DEF_DIED;
+                }
+            }
+        }
+        break;
+    case AD_RUST:
+    case AD_CORR:
+        if (mhitb && !mon.mcan && weapon) {
+            const erosion = mattk.adtyp === AD_RUST
+                ? ERODE_RUST : ERODE_CORRODE;
+            if (aatyp === AT_KICK) {
+                if (state.uarmf) {
+                    await erode_obj(
+                        state.uarmf,
+                        xname(state.uarmf, state),
+                        erosion,
+                        EF_GREASE | EF_VERBOSE,
+                        effectEnv,
+                    );
+                }
+            } else if (aatyp === AT_WEAP || aatyp === AT_CLAW
+                || aatyp === AT_MAGC || aatyp === AT_TUCH) {
+                await passive_obj(mon, weapon, mattk, state, effectEnv);
+            }
+        }
+        break;
+    case AD_MAGM:
+        if (propertyPresent(state.u, ANTIMAGIC)) {
+            await shieldeff(state.u.ux, state.u.uy, state);
+            monstseesu(M_SEEN_MAGR, state);
+            await effectEnv.message(
+                'A hail of magic missiles narrowly misses you!',
+                state,
+                effectEnv,
+            );
+        } else {
+            await effectEnv.message(
+                'You are hit by magic missiles appearing from thin air!',
+                state,
+                effectEnv,
+            );
+            await mdamageu(mon, tmp, state, effectEnv);
+            monstunseesu(M_SEEN_MAGR, state);
+        }
+        break;
+    case AD_ENCH:
+        if (mhitb) {
+            if (aatyp === AT_KICK) {
+                if (!weapon) break;
+            } else if (aatyp === AT_BITE || aatyp === AT_BUTT
+                || (aatyp >= AT_STNG && aatyp < AT_WEAP)) {
+                break;
+            }
+            await passive_obj(mon, weapon, mattk, state, effectEnv);
+        }
+        break;
+    default:
+        break;
     }
 
-    /* 6013. C's guard is `malive && !mon->mcan && rn2(3)`. Its AD_PHYS and
-       AD_ENCH arms are empty. */
-    if (maliveb && !mon.mcan) random.rn2(3);
+    // These follow-up effects occur only for a living, uncancelled monster
+    // and only when the source's rn2(3) result is nonzero.
+    if (maliveb && !mon.mcan && random.rn2(3)) {
+        switch (mattk.adtyp) {
+        case AD_PLYS:
+            if (ptr === state.mons[PM_FLOATING_EYE]) {
+                if (!canseemon(mon, state)) break;
+                if (mon.mcansee) {
+                    if (await ureflects(
+                        '%s gaze is reflected by your %s.',
+                        s_suffix(Monnam(mon, state, effectEnv)),
+                        state,
+                        effectEnv,
+                    )) {
+                        // Reflection owns its message and identification.
+                    } else if (Hallucination(state) && random.rn2(4)) {
+                        const intensity = !random.rn2(2) ? '' : 'rather ';
+                        const adjective = !random.rn2(2)
+                            ? 'numb' : 'stupefied';
+                        await effectEnv.message(
+                            `${Monnam(mon, state, effectEnv)} looks ${intensity}${adjective}.`,
+                            state,
+                            effectEnv,
+                        );
+                    } else if (state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
+                        await effectEnv.message(
+                            `You momentarily stiffen under ${s_suffix(mon_nam(mon, state, effectEnv))} gaze!`,
+                            state,
+                            effectEnv,
+                        );
+                    } else {
+                        await effectEnv.message(
+                            `You are frozen by ${s_suffix(mon_nam(mon, state, effectEnv))} gaze!`,
+                            state,
+                            effectEnv,
+                        );
+                        await nomul(
+                            (acurr(A_WIS, state) > 12 || random.rn2(4))
+                                ? -tmp : -127,
+                            state,
+                        );
+                        note_unported('uhitm.c dynamic_multi_reason');
+                        state.nomovemsg = null;
+                    }
+                } else {
+                    await effectEnv.message(
+                        `${Adjmonnam(mon, 'blind', state)} cannot defend itself.`,
+                        state,
+                        effectEnv,
+                    );
+                    if (!random.rn2(500)) change_luck(-1, state);
+                }
+            } else if (state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
+                await effectEnv.message('You momentarily stiffen.', state,
+                    effectEnv);
+            } else {
+                await effectEnv.message(
+                    `You are frozen by ${mon_nam(mon, state, effectEnv)}!`,
+                    state,
+                    effectEnv,
+                );
+                state.nomovemsg = You_can_move_again;
+                await nomul(-tmp, state);
+                note_unported('uhitm.c dynamic_multi_reason');
+                await exercise(A_DEX, false, state, random);
+            }
+            break;
+        case AD_COLD:
+            if (monnear(mon, state.u.ux, state.u.uy, state)) {
+                if (Cold_resistance(state)) {
+                    await shieldeff(state.u.ux, state.u.uy, state);
+                    await effectEnv.message('You feel a mild chill.', state,
+                        effectEnv);
+                    monstseesu(M_SEEN_COLD, state);
+                    await ugolemeffects(AD_COLD, tmp, state);
+                    break;
+                }
+                monstunseesu(M_SEEN_COLD, state);
+                await effectEnv.message('You are suddenly very cold!', state,
+                    effectEnv);
+                await mdamageu(mon, tmp, state, effectEnv);
+                healmon(
+                    mon,
+                    Math.trunc((tmp + random.rn2(2)) / 2),
+                    Math.trunc((tmp + 1) / 2),
+                );
+                if (mon.mhpmax > (mon.m_lev + 1) * 8)
+                    await split_mon(mon, state.youmonst, effectEnv);
+            }
+            break;
+        case AD_STUN:
+            if (!intrinsicProperty(state.u, STUNNED))
+                await make_stunned(tmp, true, state, effectEnv);
+            break;
+        case AD_FIRE:
+            if (monnear(mon, state.u.ux, state.u.uy, state)) {
+                if (Fire_resistance(state)) {
+                    await shieldeff(state.u.ux, state.u.uy, state);
+                    await effectEnv.message('You feel mildly warm.', state,
+                        effectEnv);
+                    monstseesu(M_SEEN_FIRE, state);
+                    await ugolemeffects(AD_FIRE, tmp, state);
+                    break;
+                }
+                monstunseesu(M_SEEN_FIRE, state);
+                await effectEnv.message('You are suddenly very hot!', state,
+                    effectEnv);
+                await mdamageu(mon, tmp, state, effectEnv);
+            }
+            break;
+        case AD_ELEC:
+            if (propertyPresent(state.u, SHOCK_RES)) {
+                await shieldeff(state.u.ux, state.u.uy, state);
+                await effectEnv.message('You feel a mild tingle.', state,
+                    effectEnv);
+                monstseesu(M_SEEN_ELEC, state);
+                await ugolemeffects(AD_ELEC, tmp, state);
+                break;
+            }
+            monstunseesu(M_SEEN_ELEC, state);
+            await effectEnv.message('You are jolted with electricity!', state,
+                effectEnv);
+            await mdamageu(mon, tmp, state, effectEnv);
+            break;
+        default:
+            break;
+        }
+    }
+    return malive | mhit;
 }
 
-// C ref: uhitm.c passive_obj() (6122-6190). This handles both an ordinary
-// passive object's no-effect arm and the AD_ENCH drain/message arm. C callers
-// may supply the object and attack or let this helper select them.
+// C ref: uhitm.c passive_obj() (6122-6190). The helper applies the monster's
+// passive damage type to the hero's attack object, then refreshes inventory
+// when the object is carried. Callers may supply the object and attack or let
+// this helper select them.
 export async function passive_obj(mon, obj, mattk, state = game, env = {}) {
-    const random = { rn2, ...(env.random ?? {}) };
+    const random = { rn2, rnl, ...(env.random ?? {}) };
     if (!obj) {
         obj = (state.u?.twoweap && state.uswapwep && !random.rn2(2))
             ? state.uswapwep : state.uwep;
@@ -7004,9 +7282,32 @@ export async function passive_obj(mon, obj, mattk, state = game, env = {}) {
         }
         if (!mattk) return;
     }
-    if (mattk.adtyp === AD_ENCH) {
+    const effectEnv = { ...env, random, state };
+    switch (mattk.adtyp) {
+    case AD_FIRE:
+        if (!random.rn2(6) && !mon.mcan
+            && mon.data !== state.mons[PM_STEAM_VORTEX]) {
+            await erode_obj(obj, null, ERODE_BURN, EF_NONE, effectEnv);
+        }
+        break;
+    case AD_ACID:
+        if (!random.rn2(6)) {
+            await erode_obj(obj, null, ERODE_CORRODE, EF_GREASE, effectEnv);
+        }
+        break;
+    case AD_RUST:
+        if (!mon.mcan) {
+            await erode_obj(obj, null, ERODE_RUST, EF_GREASE, effectEnv);
+        }
+        break;
+    case AD_CORR:
+        if (!mon.mcan) {
+            await erode_obj(obj, null, ERODE_CORRODE, EF_GREASE, effectEnv);
+        }
+        break;
+    case AD_ENCH:
         if (!mon.mcan
-            && drain_item(obj, true, state, env)
+            && drain_item(obj, true, state, effectEnv)
             && carried(obj)
             && (obj.known || obj.oclass === ARMOR_CLASS)) {
             const message = env.message
@@ -7017,10 +7318,9 @@ export async function passive_obj(mon, obj, mattk, state = game, env = {}) {
                 env,
             );
         }
-    } else if (mattk.adtyp !== AD_PHYS) {
-        return requireAttackOperation(env, 'unsupported')(
-            'passive object damage',
-        );
+        break;
+    default:
+        break;
     }
     if (carried(obj)) {
         update_inventory({ ...env, state });

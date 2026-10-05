@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first hero weapon attack on the hostile sleeping Rust Monster. The preceding recording shows the generated monster northeast of the hero at row6/column2 while the hero is at row7/column1, so this route uses the matching u direction. Rust Monster has a third-slot AT_NONE/AD_RUST passive.",
+  "segments": [
+    {
+      "seed": 5082713,
+      "datetime": "20311014091500",
+      "nethackrc": "OPTIONS=name:RustPassiveTrace,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": "#wizgenesis\nhostile sleeping rust monster\nu"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first passive() route through uhitm.c:hitum. A debug Wizard sets a long invulnerability timeout, creates a hostile sleeping blue jelly next to the hero, and attacks west with h. The input direction is based on the source-independent C map observed in the preserved setup-miss attempt; blue jelly supplies AT_NONE/AD_COLD.",
+  "segments": [
+    {
+      "seed": 10710601,
+      "datetime": "20461005112000",
+      "nethackrc": "OPTIONS=name:PassiveCold,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": "#wizintrinsic\n100a\n #wizgenesis\nhostile sleeping blue jelly\nh"
+    }
+  ]
+}
