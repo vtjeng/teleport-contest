@@ -166277,6 +166277,381 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-wrap-python-c62-v19-20261004",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Implement wrap attacks and canonical grab guards",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v19/python-wraps-with-hug-attack-c62"
+      ],
+      "selectionReason": "Whole mhitm_ad_wrap and consumed slip helpers selected from the Python HUGS AD_WRAP refusal. All existing failed_grab callers await the shared source helper. Only failed_grab has current verified runtime completion; wrap direction and slip routes remain explicitly incomplete after bounded setup attempts. Preserve source-owned blocked recipes and park incomplete scope.",
+      "detail": "",
+      "openedAt": "d13045a94ac00969f34e2120cd40fc2ca6e60942",
+      "openStanding": {
+        "sha": "8254799b188363e1eb284723e8dff1c8492640e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_wrap",
+          "line": 3337,
+          "endLine": 3430,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3337,
+        "to": 3430
+      },
+      "requiredFunctions": [
+        {
+          "name": "m_slips_free",
+          "line": 2056,
+          "endLine": 2097,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": false
+        },
+        {
+          "name": "u_slip_free",
+          "line": 1047,
+          "endLine": 1088,
+          "declared": true,
+          "sourceFile": "mhitu.c",
+          "complete": false
+        },
+        {
+          "name": "failed_grab",
+          "line": 597,
+          "endLine": 643,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v19/python-wraps-with-hug-attack-c62": {
+          "session": "synthetic/v19/python-wraps-with-hug-attack-c62",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "python-wraps-with-hug-attack-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+          "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+          "evaluationPath": "challenges/evaluations/20261005043440-v19.json",
+          "evaluationCommit": "8254799b188363e1eb284723e8dff1c8492640e3"
+        }
+      },
+      "activeStanding": {
+        "sha": "8254799b188363e1eb284723e8dff1c8492640e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "python-wraps-with-hug-attack-c62",
+          "session": "synthetic/v19/python-wraps-with-hug-attack-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+          "recordingPath": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+          "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+          "recipe": "challenges/cases/v19/python-wraps-with-hug-attack-c62.recipe.session.json",
+          "recipeSha256": "58386c4a0a8652ec52464ff8a08f270972dd9a1d2bea49e3258a0e216257e2f4",
+          "replayInputSha256": "df3ac011683f304d81544955871ab7027ff46d4b61a58bd0c108dfaf086eeae3",
+          "evaluationPath": "challenges/evaluations/20261005043440-v19.json",
+          "evaluationCommit": "8254799b188363e1eb284723e8dff1c8492640e3",
+          "evaluationArtifact": "challenges/evaluations/20261005043440-v19.json",
+          "evaluationUtc": "2026-10-05T04:35:36.895Z",
+          "remainingScreens": 10,
+          "recordedSteps": 40,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 40
+            },
+            "rng": {
+              "matched": 3736,
+              "total": 3747
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 40
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster crushing the hero",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster crushing the hero",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/python-wraps-with-hug-attack-c62.json",
+            "result": {
+              "session": "synthetic/v19/python-wraps-with-hug-attack-c62",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "python-wraps-with-hug-attack-c62",
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "remainingScreens": 10,
+              "recordedSteps": 40,
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "python-wraps-with-hug-attack-c62",
+                "session": "synthetic/v19/python-wraps-with-hug-attack-c62",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+                "recordingPath": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+                "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+                "recipe": "challenges/cases/v19/python-wraps-with-hug-attack-c62.recipe.session.json",
+                "recipeSha256": "58386c4a0a8652ec52464ff8a08f270972dd9a1d2bea49e3258a0e216257e2f4",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 10,
+                "recordedSteps": 40,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 40
+                  },
+                  "rng": {
+                    "matched": 3736,
+                    "total": 3747
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 40
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a monster crushing the hero",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a monster crushing the hero",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "C62 reaches the Python’s automatic third-slot AT_HUGS after its preceding AT_BITE and AT_TUCH succeed. JS refuses in mhitu.js:mattacku() before hitmu(); restoring that source path then requires the still-unported uhitm.c AD_WRAP helper. The first comparator RNG caller distfleeck is a whole-turn symptom, not the source owner.",
+              "source": {
+                "file": "mhitu.c",
+                "functions": [
+                  "mattacku"
+                ],
+                "branch": "AT_HUGS is eligible when (!range2 && i >= 2 && sum[i - 1] && sum[i - 2]) or the attacker is u.ustuck; after failed_grab() is false, C calls hitmu() and assigns its result to sum[i]. For this Python, the two prior attacks succeed; the human hero is solid, so failed_grab() returns false. The downstream AD_WRAP helper receives an uncancelled Python and non-sticky, unheld hero; rn2(10)=5 fails the wrap gate.",
+                "callers": [
+                  "monmove.c:dochug() standard-attack path -> mhitu.c:mattacku(mtmp)",
+                  "mhitu.c:mattacku() AT_HUGS -> hitmu() -> uhitm.c:mhitm_adtyping() -> uhitm.c:mhitm_ad_wrap()",
+                  "js/unported_monster_actions.js:runSimpleMonsterAction() -> dochug() -> js/mhitu.js:mattacku()"
+                ],
+                "dependencies": [
+                  "mhitm.c:failed_grab(): existing helper; returns false for this solid human hero and permits the AT_HUGS hit.",
+                  "mhitu.c:hitmu(): existing path; its M_ATTK result is stored in the attack-slot sum and it calls uhitm.c:mhitm_adtyping().",
+                  "uhitm.c:mhitm_adtyping() AD_WRAP dispatch and uhitm.c:mhitm_ad_wrap(): required downstream source behavior; js/uhitm.js still refuses this dispatch/helper, so include the complete helper and wire its source call when implementing the selected C62 path."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Upstream mhitu.c:mattacku() AT_HUGS arm (nethack-c/upstream/src/mhitu.c:823-828) dispatches only when the monster is in melee and the prior two attack-slot results are nonzero, or it is already u.ustuck. The C62 Python reaches this third slot after AT_BITE and AT_TUCH succeed. failed_grab() at mhitu.c:827 returns false for the solid human hero, so C calls hitmu() and stores its result in sum[i].",
+                "hitmu() calls uhitm.c:mhitm_adtyping() (nethack-c/upstream/src/mhitu.c:1191), whose AD_WRAP arm calls mhitm_ad_wrap() (nethack-c/upstream/src/uhitm.c:4814). In the monster-attacks-hero branch, an uncancelled Python with a non-sticky hero and no existing hold reaches rn2(10); the frozen C62 evidence records 5 at uhitm.c:3379, so no hold is established and C zeroes the damage (with the verbose brush message when enabled).",
+                "The corresponding JavaScript preflight is js/mhitu.js:mattacku() at lines 1225-1231: its matching AT_HUGS gate throws unsupported(\"a monster crushing the hero\") instead of running failed_grab() and hitmu(). If that source path is restored, js/mhitu.js:1738 reaches js/uhitm.js:mhitm_adtyping(), whose AD_WRAP arm at js/uhitm.js:4968 still calls unported(\"mhitm_ad_wrap\"). Both missing source behaviors are required for C62 to pass this boundary.",
+                "The raw comparator reports C distfleeck(monmove.c:538), but that is a turn-boundary symptom rather than the source owner: C executes that call before the attack in the turn, while the JavaScript simple-action preflight refusal prevents the whole turn boundary from running. Do not select distfleeck as the cause.",
+                "GOALS.json currently marks mhitu.c:mattacku complete under port-mhitu-wildmiss-mattacku-seed0360, while this reached AT_HUGS branch still has an explicit refusal. Reconcile or invalidate that completion evidence before claiming whole-function completion, as AGENTS.md requires when later source tracing shows a completed function claim missed a branch.",
+                "The current v19 evaluation at examined commit 8583a972f66a872a8ad73c888a24dd01075481f4 retains this case's stop at zero-based step 30 with 10 remaining screens. The frozen recording hash is 7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7; C62's independent bounded comparison was run run-EUtuUZ and its receipt/stdout hashes are 2a0dafbe419b44194656e32848359af38cebee46062dedcbe0a9f371b5c267c4 and f6251bb93b30c07d2f0d173a9e16ecc9824c62ac0b9ec8a2f762039b0c941e51. These existing artifacts were reused; no replay or recorder was run."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "failed_grab",
+            "implementation": "js/mhitm.js",
+            "symbol": "failed_grab",
+            "sourceReview": "Read the whole definition at mhitm.c:597-640. It returns TRUE only when the defender is unsolid or gn.notonhead and the attack is AT_HUGS, AD_WRAP, AD_STCK or AD_DGST. On that branch it emits a message only when the source visibility/hero condition permits, chooses “gulp”, “adhere” or “grab” from AD_DGST/AD_STCK/other, and chooses “passes right through” versus “fails to hold” from the tail flag. It copies actor/defender names before pline because s_suffix uses a shared buffer. Otherwise it returns FALSE without output. The JS callers await this boolean in source order. unsolid is the source flag macro; canspotmon, s_suffix, Monnam, mon_nam and some_mon_nam are existing consumed helpers. C formats both copied names with %.99s; JS now applies truncateByteString(name, 99) to each argument before composing pline output. The fixture pins both resulting names at 99 bytes.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm at 451, 485 and 529 calls failed_grab before hitmm for the corresponding monster attack arms."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku at 808 and 827 calls failed_grab before continuing or dispatching hitmu."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu at 1305 rejects the engulf when failed_grab returns TRUE."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas at 5652, 5735 and 5779 calls failed_grab before damageum or gulpum."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-monster-to-hero-python-wrap.session.json",
+              "recordings/uhitm.c/b104-monster-to-hero-owlbear-hugs-continuation.session.json"
+            ],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "python-wraps-with-hug-attack-c62",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 30,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_HUGS -> failed_grab returns FALSE for the solid hero -> hitmu -> uhitm.c:mhitm_adtyping(AD_WRAP) -> mhitm_ad_wrap."
+              }
+            ],
+            "checkedAt": "2f7e6176da78c16f1727c6d13412e4dd8ae8dded"
+          }
+        ],
+        "entryPointReview": "B104 reads and ports the complete AD_WRAP helper and the required caller arms, but this packet verifies only the source paths that produced matching C records. The monster-to-hero Python route and the admitted v19 C62 range execute failed_grab and mhitm_ad_wrap; both fail the rn2(10) wrap gate. The giant-eel hero-to-monster record enters mhitm_ad_wrap, but gn.notonhead=false makes tailmiss=true and skips m_slips_free. The owlbear physical HUGS record reaches the HUGS arm after failed_grab permits a solid hero, but rn2(2)=0 skips u_slip_free. Two bounded M-to-M Conflict records match JavaScript, but neither shows a Python-versus-monster AD_WRAP call: the first Conflict round has the Troll attack a Kobold, and later Python attacks target the hero. No further placement search was made. The slippery-protection helpers and M-to-M entry remain incomplete; AD_DRIN is an existing unported caller and is not included in completion credit. Source-review correction: both names in failed_grab obey C %.99s byte precision. The monster HUGS, slippery-armor, and M-to-H wrap messages produced by C pline_mon retain their monster coordinates through messageAt in accessible-message mode; the grease wear-off pline_The line remains unlocated.",
+        "entryPoints": [
+          {
+            "name": "Monster-to-hero Python AD_WRAP partial path",
+            "functions": [
+              {
+                "sourceFile": "mhitm.c",
+                "name": "failed_grab"
+              },
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_wrap"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-monster-to-hero-python-wrap.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "python-wraps-with-hug-attack-c62",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 30,
+                "source": "mattacku -> failed_grab -> hitmu -> mhitm_adtyping(AD_WRAP) -> mhitm_ad_wrap; rn2(10)=5 misses the wrap gate."
+              }
+            ]
+          },
+          {
+            "name": "Hero-to-monster eel AD_WRAP head-hit path",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_wrap"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-hero-to-monster-wrap-sleeping-newt.session.json"
+            ]
+          },
+          {
+            "name": "Monster physical HUGS against a solid hero",
+            "functions": [
+              {
+                "sourceFile": "mhitm.c",
+                "name": "failed_grab"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-monster-to-hero-owlbear-hugs-continuation.session.json"
+            ]
+          },
+          {
+            "name": "Monster-to-monster AD_WRAP",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_wrap"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Monster slippery armor protection",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "m_slips_free"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Hero slippery armor protection",
+            "functions": [
+              {
+                "sourceFile": "mhitu.c",
+                "name": "u_slip_free"
+              }
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "a975745911d007b5c37c4c50fec172d510132b17",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial B104 delivery: failed_grab is verified with the source-correct name precision and asynchronous caller guards. mhitm_ad_wrap, m_slips_free and u_slip_free remain incomplete because independent routes miss their slip gates and no recorded Python-versus-monster wrap is reached. Preserve full scope and blocked recipes; no goal-closure score event."
     }
   ]
 }

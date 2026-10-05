@@ -56,7 +56,11 @@ import {
     W_AMUL,
     W_ACCESSORY,
     W_ARMOR,
+    W_ARM,
+    W_ARMC,
     W_ARMG,
+    W_ARMH,
+    W_ARMU,
     XKILL_NOMSG,
     W_WEP,
     Upolyd,
@@ -174,17 +178,23 @@ import { find_offensive } from './muse.js';
 import { mon_reflects, ureflects } from './muse.js';
 import { makeplural } from './fruit.js';
 import { is_weptool, is_wet_towel, objectType } from './obj.js';
-import { sobj_at } from './invent.js';
+import { sobj_at, update_inventory } from './invent.js';
 import { place_monster, remove_monster } from './monst.js';
 import {
     AMULET_OF_GUARDING,
     BOULDER,
     CORPSE,
+    OILSKIN_CLOAK,
     PIERCE,
     WEAPON_CLASS,
     getObjects,
 } from './objects.js';
-import { an, donameFresh, xnameFresh } from './objnam.js';
+import {
+    an,
+    cloak_simple_name,
+    donameFresh,
+    xnameFresh,
+} from './objnam.js';
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rn2_on_display_rng } from './rng.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
@@ -204,7 +214,7 @@ import {
 import { Cold_resistance, Fire_resistance, drain_item } from './zap.js';
 import { cansee, couldsee, m_canseeu, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
-import { is_pole } from './worn.js';
+import { is_pole, which_armor } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
 import { mnexto } from './teleport.js';
 import {
@@ -245,6 +255,51 @@ export async function u_slow_down(
     else
         await message('Your quickness feels less natural.', state);
     await exercise(A_DEX, false, state, random);
+}
+
+// C ref: mhitu.c u_slip_free() (1047-1085). AT_ENGL excludes this escape;
+// other grabbing attacks inspect cloak, suit, shirt, or the AD_DRIN helmet.
+export async function u_slip_free(mtmp, mattk, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message ?? (rawEnv.planning ? async () => {}
+        : ttyPline);
+
+    if (mattk.aatyp === M.AT_ENGL) return false;
+
+    let obj = which_armor(state.youmonst, W_ARMC, state)
+        || which_armor(state.youmonst, W_ARM, state);
+    if (!obj) obj = which_armor(state.youmonst, W_ARMU, state);
+    if (mattk.adtyp === M.AD_DRIN)
+        obj = which_armor(state.youmonst, W_ARMH, state);
+
+    if (obj && (obj.greased || obj.otyp === OILSKIN_CLOAK)
+        && (!obj.cursed || random.rn2(3))) {
+        const name = obj.greased || objectType(obj, state).oc_name_known
+            ? xnameFresh(obj, state)
+            : cloak_simple_name(obj, state);
+        await message(
+            messageAt(
+                `${Monnam(mtmp, state, rawEnv)} `
+                    + `${mattk.adtyp === M.AD_WRAP ? 'slips off of'
+                        : 'grabs you, but cannot hold onto'} your `
+                    + `${obj.greased ? 'greased' : 'slippery'} ${name}!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ),
+            state,
+            rawEnv,
+        );
+
+        if (obj.greased && !random.rn2(2)) {
+            await message('The grease wears off.', state, rawEnv);
+            obj.greased = false;
+            update_inventory({ ...rawEnv, state });
+        }
+        return true;
+    }
+    return false;
 }
 
 // Planning cannot call end.c done_in_by() on its cloned state: the ordinary
@@ -1216,12 +1271,10 @@ export async function mattacku(monster, rawEnv = {}) {
                 if (foundyou) {
                     const j = random.rnd(20 + i);
                     if (tmp > j) {
-                        if (unsolid(state.youmonst.data)) {
-                            // uhitm.c failed_grab() decides whether an attack
-                            // on an unsolid defender connects at all, and
-                            // spends a draw of its own doing it.
-                            unsupported('an attack on an unsolid hero');
-                        }
+                        if (unsolid(state.youmonst.data)
+                            && await failed_grab(
+                                monster, state.youmonst, mattk, env,
+                            )) continue;
                         if (mattk.aatyp !== M.AT_KICK
                             || !thick_skinned(state.youmonst.data)) {
                             sum[i] = await hitmu(monster, mattk, env);
@@ -1244,7 +1297,11 @@ export async function mattacku(monster, rawEnv = {}) {
             /* Note: if displaced, prev attacks never succeeded */
             if ((!range2 && i >= 2 && sum[i - 1] && sum[i - 2])
                 || monster === u.ustuck) {
-                unsupported('a monster crushing the hero');
+                if (!await failed_grab(
+                    monster, state.youmonst, mattk, env,
+                )) {
+                    sum[i] = await hitmu(monster, mattk, env);
+                }
             }
             break;
 
@@ -1531,7 +1588,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
             && sobj_at(BOULDER, u.ux, u.uy, state)) {
             return M_ATTK_MISS;
         }
-        if (failed_grab(mtmp, state.youmonst, mattk, rawEnv))
+        if (await failed_grab(mtmp, state.youmonst, mattk, rawEnv))
             return M_ATTK_MISS;
 
         // These source branches are outside this exact ordinary, untrapped,

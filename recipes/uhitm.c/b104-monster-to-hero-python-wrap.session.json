@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-matching B104 Python-to-hero AD_WRAP route. C step 31 reaches mhitm_ad_wrap but rn2(10)=3 at uhitm.c:3379, so the source gate skips u_slip_free. The strict pair covers the M-to-H wrap gate miss; it is not slippery-equipment coverage.",
+  "segments": [
+    {
+      "seed": 6104105,
+      "datetime": "21110405161700",
+      "nethackrc": "OPTIONS=name:B104Python,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile python\n............"
+    }
+  ]
+}
