@@ -167830,22 +167830,22 @@
           "name": "mhitm_ad_rust",
           "line": 2281,
           "endLine": 2337,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "mhitm_ad_corr",
           "line": 2338,
           "endLine": 2362,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "mhitm_ad_dcay",
           "line": 2363,
           "endLine": 2417,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -168391,7 +168391,217 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_rust",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_rust",
+            "sourceReview": "Whole-source comparison: uhitm.c:mhitm_ad_rust() lines 2281-2336. Preserves the hero-attacker golem destruction then ERODE_RUST and zero damage; the hero-defender hitmsg/cancellation/re-humanization order; and the monster-defender cancellation, visible destruction message, monkilled/lifesaving result flags, makemon.c:grow_up result, ERODE_RUST, wait-strategy clearing and zero damage. Uses source-defined completelyrusts; the calls to xkilled and monkilled discard their return values, and the grow_up result determines the attack flags as C specifies. Reuses partial uhitm.c:erode_armor, accepted worn.c:which_armor and accepted trap.c:erode_obj without claiming erode_armor as whole-source complete. The removed AD_RUST refusal is replaced by the isolated dispatcher arm.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping:4782-4832 dispatches AD_RUST, AD_CORR and AD_DCAY to the corresponding implemented handler."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum:4842-4854 dispatches a hero attack against a monster through mhitm_adtyping."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu:1191 dispatches a monster attack against the hero through mhitm_adtyping."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem:1059 dispatches a monster attack against another monster through mhitm_adtyping."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-erosion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-rust-hero-to-monster-iron-golem-east-corrected-c83.session.json",
+              "recordings/uhitm.c/mhitm-ad-rust-monster-to-monster-seven-newts-level-pager-corrected-c83.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+                "segment": 0,
+                "fromStep": 64,
+                "throughStep": 64,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_rust -> erode_armor(ERODE_RUST)"
+              }
+            ],
+            "checkedAt": "0a765b744806a7895c442774002165b401ef0bf4"
+          },
+          {
+            "name": "mhitm_ad_dcay",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_dcay",
+            "sourceReview": "Whole-source comparison: uhitm.c:mhitm_ad_dcay() lines 2363-2421. Preserves the hero-attacker completely-rots kill before ERODE_ROT and zero damage; the hero-defender hitmsg/cancellation/re-humanization path; and monster-defender cancellation, visible destruction, monkilled/lifesaving flags, makemon.c:grow_up consumption, ERODE_ROT and strategy/damage result. In particular the hero-attacker arm does not add M_ATTK_DEF_DIED after xkilled, while the monster-attacker arm does set defender/attacker death flags after monkilled. Reuses partial uhitm.c:erode_armor and accepted trap.c:erode_obj; does not claim whole erode_armor. The removed AD_DCAY refusal is replaced by the isolated dispatcher arm.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping:4782-4832 dispatches AD_RUST, AD_CORR and AD_DCAY to the corresponding implemented handler."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum:4842-4854 dispatches a hero attack against a monster through mhitm_adtyping."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu:1191 dispatches a monster attack against the hero through mhitm_adtyping."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem:1059 dispatches a monster attack against another monster through mhitm_adtyping."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-erosion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dcay-hero-to-monster-wood-golem-effect-through-step85-c83.session.json",
+              "recordings/uhitm.c/mhitm-ad-dcay-monster-to-monster-seven-wood-golems-cfirst-c83.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+                "segment": 0,
+                "fromStep": 72,
+                "throughStep": 72,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_dcay -> erode_armor(ERODE_ROT)"
+              }
+            ],
+            "checkedAt": "0a765b744806a7895c442774002165b401ef0bf4"
+          }
+        ],
+        "entryPointReview": "The three active combat directions enter through uhitm.c:damageum (hero→monster), mhitu.c:hitmu (monster→hero), or mhitm.c:mdamagem (monster→monster), each calling uhitm.c:mhitm_adtyping and its corresponding AD_RUST/AD_CORR/AD_DCAY arm. Current-code v19 range replay verifies the M→H handlers at their source steps; the independent C routes verify Rust H→M/M→M, DCAY H→M/M→M, and CORR M→M. CORR H→M is explicitly blocked before damageum by the earlier hmonas hit-threshold mismatch. CORR M→M is compared through the source-complete bite/erosion at normalized step 145; the longer continuation has a later resist_conflict divergence outside these handlers. DCAY H→M is compared through the source-complete Wood Golem decay at normalized step 85; the longer continuation has a later passive AD_ELEC divergence. Neither later divergence is credited to these handlers. This task claims no whole mhitm_adtyping, damageum, hitmu, mattacku, mdamagem, or mattackm unit.",
+        "entryPoints": [
+          {
+            "name": "Hero attacks monster with AD_RUST",
+            "functions": [
+              "mhitm_ad_rust"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-rust-hero-to-monster-iron-golem-east-corrected-c83.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster attacks hero with AD_RUST",
+            "functions": [
+              "mhitm_ad_rust"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+                "segment": 0,
+                "fromStep": 64,
+                "throughStep": 64,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_rust -> erode_armor(ERODE_RUST)"
+              }
+            ]
+          },
+          {
+            "name": "Monster attacks monster with AD_RUST",
+            "functions": [
+              "mhitm_ad_rust"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-rust-monster-to-monster-seven-newts-level-pager-corrected-c83.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero attacks monster with AD_CORR",
+            "functions": [
+              "mhitm_ad_corr"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Monster attacks hero with AD_CORR",
+            "functions": [
+              "mhitm_ad_corr"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+                "segment": 0,
+                "fromStep": 67,
+                "throughStep": 67,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_corr -> erode_armor(ERODE_CORRODE)"
+              }
+            ]
+          },
+          {
+            "name": "Monster attacks monster with AD_CORR",
+            "functions": [
+              "mhitm_ad_corr"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-corr-monster-to-monster-three-soldiers-effect-through-step145-c83.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero attacks monster with AD_DCAY",
+            "functions": [
+              "mhitm_ad_dcay"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dcay-hero-to-monster-wood-golem-effect-through-step85-c83.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster attacks hero with AD_DCAY",
+            "functions": [
+              "mhitm_ad_dcay"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+                "segment": 0,
+                "fromStep": 72,
+                "throughStep": 72,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_dcay -> erode_armor(ERODE_ROT)"
+              }
+            ]
+          },
+          {
+            "name": "Monster attacks monster with AD_DCAY",
+            "functions": [
+              "mhitm_ad_dcay"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-dcay-monster-to-monster-seven-wood-golems-cfirst-c83.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
