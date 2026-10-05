@@ -43,6 +43,7 @@ import {
     KILLED_BY_AN,
     MELT_ICE_AWAY,
     MAGICAL_BREATHING,
+    M_AP_MONSTER,
     NECK,
     NEUTRAL,
     PLNMSG_ONE_ITEM_HERE,
@@ -106,7 +107,7 @@ import { confdir } from './cmd.js';
 import { Stone_resistance, artifact_light } from './artifacts.js';
 import { acurr, adjattrib, exercise, stone_luck } from './attrib.js';
 import { newsym, see_monsters, vobj_at } from './display.js';
-import { hcolor, Monnam, x_monnam } from './do_name.js';
+import { hcolor, Monnam, rndmonnam, x_monnam } from './do_name.js';
 import { hurtle } from './dothrow.js';
 import { toggle_displacement } from './do_wear.js';
 import {
@@ -117,11 +118,12 @@ import { heal_legs } from './do.js';
 import { makeplural } from './fruit.js';
 import { carrying, sobj_at, update_inventory, useup } from './invent.js';
 import { game } from './gstate.js';
+import { heroIsBlind } from './startup_a11y.js';
 import {
     inv_weight, NODIAG, You_can_move_again, nomul, spoteffects, } from './hack.js';
-import { highc, upstart } from './hacklib.js';
+import { highc, strstri, strsubst, upstart } from './hacklib.js';
 import {
-    incr_itimeout, make_blinded, make_confused, make_deaf, make_glib, make_hallucinated, make_sick, make_slimed, make_stunned, make_vomiting, set_itimeout, } from './potion.js';
+    incr_itimeout, make_blinded, make_confused, make_deaf, make_glib, make_hallucinated, make_sick, make_slimed, make_stoned, make_stunned, make_vomiting, set_itimeout, } from './potion.js';
 import { deferred_decor, encumber_msg } from './pickup.js';
 import { stuck_in_wall } from './pray.js';
 import { region_danger } from './region.js';
@@ -130,7 +132,7 @@ import {
     candle_light_range, arti_light_radius, del_light_source, get_obj_location, new_light_source, } from './light.js';
 import {
     breathless, cantvomit, is_flyer, is_rider, is_were, name_to_mon,
-    mhe, touch_petrifies, type_is_pname, little_to_big,
+    mhe, nolimbs, touch_petrifies, type_is_pname, little_to_big,
 } from './mondata.js';
 import { body_part, rehumanize } from './polyself.js';
 import { restartcham, wake_nearby, zombie_form } from './mon.js';
@@ -145,6 +147,7 @@ import {
     PM_ARCHEOLOGIST,
     PM_LICHEN,
     PM_LIZARD,
+    PM_GREEN_SLIME,
     S_TROLL,
     G_UNIQ,
     LOW_PM,
@@ -711,6 +714,84 @@ async function sleep_dialogue(state, env = {}) {
         await (env.message ?? ttyPline)('You yawn.', state);
 }
 
+// C ref: timeout.c slime_texts[] and slime_dialogue() (389-443). The
+// countdown message and its attribute/effect calls run before nh_timeout()
+// decrements Slimed. Display and output callbacks keep planner clones isolated.
+const slimeTexts = Object.freeze([
+    'You are turning a little %s.',
+    'Your limbs are getting oozy.',
+    'Your skin begins to peel away.',
+    'You are turning into %s.',
+    'You have become %s.',
+]);
+
+async function slime_dialogue(state = game, env = {}) {
+    const random = env.random ?? { d, rn2, rnd };
+    const displayRandom = env.displayRandom
+        ?? (state === game
+            ? rn2_on_display_rng
+            : createCoreRandom(state.displayCtx, state).rn2);
+    const displayEnv = { ...env, state, displayRandom };
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
+    const urgentMessage = env.urgentMessage
+        ?? (env.planning ? message : ttyUrgentPline);
+    const u = state.u;
+    const timeout = Math.trunc(u.uprops?.[SLIMED]?.intrinsic ?? 0) & TIMEOUT;
+    const index = Math.trunc(timeout / 2);
+
+    if (timeout === 1) {
+        state.youmonst.m_ap_type = M_AP_MONSTER;
+        state.youmonst.mappearance = PM_GREEN_SLIME;
+        (env.newsym ?? newsym)(u.ux, u.uy, state);
+    }
+
+    if ((timeout % 2) !== 0 && index >= 0 && index < slimeTexts.length) {
+        let text = slimeTexts[slimeTexts.length - index - 1];
+        if (nolimbs(state.youmonst.data) && strstri(text, 'limbs') >= 0)
+            text = strsubst(text, 'limbs', 'extremities');
+
+        if (text.includes('%')) {
+            if (index === 4) {
+                if (!heroIsBlind(state)) {
+                    text = text.replace('%s', hcolor('green', state, displayEnv));
+                    await urgentMessage(text, state);
+                }
+            } else {
+                const monster = hallucinating(state)
+                    ? rndmonnam({ state, random: displayRandom })
+                    : 'green slime';
+                await urgentMessage(text.replace('%s', an(monster)), state);
+            }
+        } else {
+            await urgentMessage(text, state);
+        }
+    }
+
+    switch (index) {
+    case 3:
+        u.uprops[FAST].intrinsic = 0;
+        if (!Popeye(SLIMED, state))
+            await stop_occupation(state, { ...displayEnv, random, message });
+        if ((state.multi ?? 0) > 0)
+            nomul(0, state);
+        break;
+    case 2: {
+        const deafTimeout = Math.trunc(u.uprops[DEAF]?.intrinsic ?? 0)
+            & TIMEOUT;
+        if (deafTimeout > 0 && deafTimeout < 5)
+            set_itimeout(u.uprops[DEAF], 5);
+        break;
+    }
+    case 1:
+        if (u.uprops[STONED]?.intrinsic)
+            await make_stoned(0, null, KILLED_BY_AN, null, state);
+        break;
+    }
+
+    await exercise(A_DEX, false, state, random);
+}
+
 // C ref: timeout.c sickness_texts[] and sickness_dialogue() (315-345).
 // The SICK timeout is read before nh_timeout() decrements it. Its trailing
 // exercise(A_CON, FALSE) is unconditional, even on turns without a message.
@@ -1207,8 +1288,18 @@ export async function nh_timeout(state = game, env = {}) {
     if (u.uinvulnerable) return;
     if (u.uprops?.[STONED]?.intrinsic && !env.planning)
         note_unported('timeout.c stoned_dialogue');
-    if (u.uprops?.[SLIMED]?.intrinsic && !env.planning)
-        note_unported('timeout.c slime_dialogue');
+    if (u.uprops?.[SLIMED]?.intrinsic) {
+        const slimeMessage = env.message
+            ?? (env.planning ? async () => {} : ttyPline);
+        await slime_dialogue(state, {
+            ...displayEnv,
+            state,
+            random,
+            message: slimeMessage,
+            urgentMessage: env.urgentMessage
+                ?? (env.planning ? slimeMessage : ttyUrgentPline),
+        });
+    }
     if (u.uprops?.[VOMITING]?.intrinsic && !env.planning)
         await vomiting_dialogue(state, { ...env, random, message });
     if (u.uprops?.[STRANGLED]?.intrinsic && !env.planning)
