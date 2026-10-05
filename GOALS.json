@@ -167107,7 +167107,7 @@
     {
       "id": "port-do-wear-item-action-takeoff-nurse-v20-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Implement queued item-action takeoff and source equipment filters",
       "cFile": "do_wear.c",
       "sessions": [
@@ -167121,8 +167121,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dotakeoff",
@@ -167525,6 +167528,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
