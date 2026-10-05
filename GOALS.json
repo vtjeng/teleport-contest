@@ -164187,7 +164187,7 @@
     {
       "id": "port-dig-pit-flow-liquid-flow-trapname-v20-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port conjoined-pit liquid flow and wire existing liquid callers",
       "cFile": "dig.c",
       "sessions": [
@@ -164611,7 +164611,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "5c81400022284160a07fddbb1b4870ba159aac2e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial B103 delivery: dig.c:pit_flow is verified through admitted v20 step34; liquid_flow has matching wand-break and landmine routes but dighole returns in its water-sloshing guard and earthquake diverges at step194. trapname lacks matching Hallucination runtime through a normal caller. Preserve full planned scope, recipes and resume conditions; no liquid_flow/trapname completion or goal-closure score event."
     }
   ]
 }
