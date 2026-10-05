@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Second and final bounded M-to-M setup attempt. This independent C record confirms the forced unique monster at step 60 and the stone golem at step 93, but their displayed positions are not adjacent. C mhitm.c:fightm requires monnear(mtmp, mon->mx, mon->my), so the Conflict turns only produce resist_conflict/m_move activity and no mattackm or uhitm.c:mhitm_ad_samu call in this input. The spaces between waits also appear as unknown-command inputs when no More page is pending. Preserve the exact source-directed miss; no M-to-M runtime evidence is claimed.",
+  "segments": [
+    {
+      "seed": 6634106,
+      "datetime": "20341005092000",
+      "nethackrc": "OPTIONS=name:SamuPairGnome,role:Wizard,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n>>h\n \n#wizgenesis\npeaceful Master of Thieves\ny#wizgenesis\npeaceful stone golem\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

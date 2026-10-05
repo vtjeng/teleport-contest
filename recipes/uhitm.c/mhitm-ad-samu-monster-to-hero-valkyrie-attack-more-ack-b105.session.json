@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7711052,
+      "datetime": "20310415091000",
+      "nethackrc": "OPTIONS=name:SamuRoute,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n",
+      "moves": "\u0007hostile Wizard of Yendor\nym.m. m. "
+    }
+  ],
+  "comment": "Blocked strict route archived under .cache/B105-js-more-resume-gate-witness.*. The independent C record reaches rn2(20)=8 at uhitm.c:mhitm_ad_samu step 35 after the attack More is acknowledged, but JS first diverges earlier at the preceding space: C resumes the Wizard potion turn and logs grow_up(makemon.c:2103), while JS has no matching boundary. This record is not admitted as a passing recording."
+}

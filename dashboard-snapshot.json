@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-05T05:40:32.559Z",
+  "capturedAt": "2026-10-05T05:56:57.959Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -19430,12 +19430,53 @@
         "type": "accepted",
         "at": "2026-10-05T05:40:31.566Z",
         "task": "C82"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C82-published-118707a7",
+        "type": "published",
+        "at": "2026-10-05T05:41:00.430Z",
+        "task": "C82",
+        "commit": "118707a77fb75cd5ec652870d9bbc41c4167c2d9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B105-integrating-dad675ba",
+        "type": "integrating",
+        "at": "2026-10-05T05:43:58.483Z",
+        "task": "B105",
+        "integration": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B106-mhitm-ad-slim-20261005",
+        "type": "assign",
+        "at": "2026-10-05T05:52:16.800Z",
+        "task": "B106",
+        "worker": "B",
+        "goal": "port-uhitm-mhitm-ad-slim-v18-20261005",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B105-validated-dad675ba",
+        "type": "validated",
+        "at": "2026-10-05T05:56:55.913Z",
+        "task": "B105",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B105-accepted-dad675ba",
+        "type": "accepted",
+        "at": "2026-10-05T05:56:57.517Z",
+        "task": "B105"
       }
     ]
   },
   "development": {
-    "executionCommit": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11",
-    "measuredAt": "2026-10-05T05:31:55.959Z",
+    "executionCommit": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0",
+    "measuredAt": "2026-10-05T05:52:14.218Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
