@@ -169167,7 +169167,7 @@
     {
       "id": "port-uhitm-mhitm-ad-slim-v18-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port uhitm.c mhitm_ad_slim and its AD_SLIM dispatcher arm",
       "cFile": "uhitm.c",
       "sessions": [
@@ -169369,7 +169369,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial B106 delivery: the whole mhitm_ad_slim helper and AD_SLIM dispatcher arm are implemented. Full matching recordings cover hero-to-monster and monster-to-hero, and the selected v18 case advances from step 62 to 68. The independent monster-to-monster trace reaches the helper and matches through boundary 111, but no complete matching monster-to-monster recording exists; a later unrelated planning turn stops at passive_obj. Keep mhitm_ad_slim unverified until a full monster-to-monster recording matches."
     }
   ]
 }
