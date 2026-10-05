@@ -62,6 +62,7 @@ import {
     extract_from_minvent,
     find_mac,
     mon_adjust_speed,
+    mon_set_minvis,
     setuwep,
     wearslot,
     which_armor,
@@ -830,3 +831,40 @@ test('setuwep ends an old artifact light only when that weapon burns', () => {
         /worn requires endArtifactLight/u,
     );
 });
+
+test('mon_set_minvis preserves blocked state and names discarded display gaps',
+    () => {
+        const gaps = [];
+        const planning = { noteUnported: (name) => gaps.push(name) };
+        const worm = {
+            perminvis: 0,
+            minvis: 0,
+            invis_blkd: false,
+            wormno: 1,
+            mx: 5,
+            my: 5,
+        };
+
+        // worn.c stores permanent invisibility before copying it to minvis;
+        // the live newsym and worm-tail redraw are void callees in this clone.
+        mon_set_minvis(worm, false, {}, planning);
+        assert.equal(worm.perminvis, 1);
+        assert.equal(worm.minvis, 1);
+        assert.deepEqual(gaps, ['display.c newsym', 'worm.c see_wsegs']);
+
+        const blocked = {
+            perminvis: 1,
+            minvis: 0,
+            invis_blkd: true,
+            wormno: 0,
+            mx: 5,
+            my: 5,
+        };
+        gaps.length = 0;
+        mon_set_minvis(blocked, true, {}, planning);
+        assert.equal(blocked.perminvis, 0);
+        assert.equal(blocked.minvis, 0,
+            'invis_blkd prevents copying perminvis into current minvis');
+        assert.deepEqual(gaps, [],
+            'blocked invisibility skips both redraw calls');
+    });
