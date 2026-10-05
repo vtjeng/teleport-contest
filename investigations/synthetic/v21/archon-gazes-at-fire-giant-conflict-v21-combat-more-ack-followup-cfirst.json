@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v21.json",
   "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
   "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
-  "evaluationPath": "challenges/evaluations/20261004124607-v21.json",
-  "evaluationCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
-  "status": "partial",
-  "commit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+  "evaluationPath": "challenges/evaluations/20261005043440-v21.json",
+  "evaluationCommit": "8254799b188363e1eb284723e8dff1c8492640e3",
+  "status": "complete",
+  "commit": "8254799b188363e1eb284723e8dff1c8492640e3",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v21",
@@ -24,14 +24,14 @@
     "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
     "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
     "recipeSha256": "8dea77e7dc328c539b10c7b1e01b2cf2d78dc314b2d3b1b8838e154395bcdb74",
-    "replayInputSha256": "523eda35187d23f558edc23a3a0b6cbf7fd446cadd7b69fe82270f0338d3453c",
-    "evaluationPath": "challenges/evaluations/20261004124607-v21.json",
-    "evaluationCommit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
-    "evaluationArtifact": "challenges/evaluations/20261004124607-v21.json",
-    "evaluationUtc": "2026-10-04T12:47:35.624Z",
+    "replayInputSha256": "ccbce2d27ef6feb4bc4353235cf02386598891ef3f7f1178d9a42e787dbdfa4b",
+    "evaluationPath": "challenges/evaluations/20261005043440-v21.json",
+    "evaluationCommit": "8254799b188363e1eb284723e8dff1c8492640e3",
+    "evaluationArtifact": "challenges/evaluations/20261005043440-v21.json",
+    "evaluationUtc": "2026-10-05T04:35:50.777Z",
     "remainingScreens": 3,
     "recordedSteps": 138,
-    "previousScreensMatched": 134,
+    "previousScreensMatched": 135,
     "regression": false,
     "passed": false,
     "error": null,
@@ -113,23 +113,49 @@
     "luaFile": null,
     "line": 1612
   },
-  "summary": "Complete quest text now matches the Archon taunt through step134. At step135 JavaScript emits another angel taunt and pager RNG draw, while C proceeds to resist_conflict and a melee message. The caller predicate or actor causing this extra invocation remains unresolved; three cursor mismatches follow the same divergence.",
+  "summary": "The case still matches through normalized segment 0 step134. The missing MCAST_DISAPPEAR effect leaves monster invisibility state unchanged: mcastu.c:mcast_disappear calls worn.c:mon_set_minvis, while the current JavaScript spell arm records a gap. Port the complete spell helper and canonical invisibility setter, including naming, location output and the invisible-map marker. Three screens remain; the corrected source still needs combined validation.",
   "source": {
-    "file": "monmove.c",
-    "branch": "After the matching angel cuss at step134, the next recorded dot reaches C resist_conflict without another com_pager_core call; JS instead enters the common angel_cuss pager again.",
+    "file": "mcastu.c",
     "functions": [
-      "dochug"
+      "mcast_disappear",
+      "worn.c:mon_set_minvis"
     ],
+    "branch": "An accepted MCAST_DISAPPEAR spell requires !minvis && !invis_blkd. It emits the visible-monster message, sets permanent/current invisibility through mon_set_minvis(FALSE), then marks the square when cansee && !canspotmon. A blocked or already invisible caster takes the impossible diagnostic branch.",
     "callers": [
-      "wizard.c:cuss calls questpgr.c:com_pager for angel_cuss; JS extra invocation at step135 is observed, but the exact actor and dochug caller predicate still need attribution."
+      "mcastu.c:castmu -> mcast_spell MCAST_DISAPPEAR arm -> mcast_disappear; js/mcastu.js:mcast_spell currently calls recordMcastGap instead.",
+      "mcastu.c:mcast_disappear -> worn.c:mon_set_minvis. Existing setter callers in potionhit, bhitm, makemon(MM_MINVIS), use_misc and mon_givit must retain the canonical state update."
     ],
-    "dependencies": []
+    "dependencies": [
+      "Existing canseemon, cansee, canspotmon and Monnam supply consumed predicates/text. Match pline_mon location output through the existing messageAt helper.",
+      "mon_set_minvis sets perminvis=!cursed_potion, then only when !invis_blkd copies perminvis to minvis, calls newsym and optionally see_wsegs. The discarded void display/worm diagnostics remain explicit where unported; they earn no separate completion credit."
+    ]
   },
   "evidence": [
     "Whole dat/quest.lua and its common pager route were ported at f3b1ff3ac670e168e558ab641d1cfbfd229f5382. The frozen recording and matching prefix through normalized segment0 step134 show the source quote and pager RNG/output; this does not establish full monster caller completion.",
     "Complete evaluation challenges/evaluations/20261004124607-v21.json records 135/138 screens, 2752/2820 RNG calls and 135/138 cursors. The previous accepted evaluation had 134/138 screens, 2741/2820 RNG and 138/138 cursors. These measured cursor losses remain visible.",
     "Pinned read-only replays run-AveZf2 and run-m7TPs9 establish candidate matching screen/cursor prefix0–134. Both C and JS step134 display the repent taunt followed by It hits!, cursor[69,16,1]. Baseline5346c19 already diverged at134 because it omitted the common pager text/RNG.",
     "At normalized step135 C draws rnd(20)=19 in mondata.c:resist_conflict and displays It hits! You feel a bit steadier now. JS instead enters another common angel-cuss pager initialization, starts rn2(3)=2 and displays the thou-shalt-meet-thy-maker taunt followed by It hits!--More--. JS cursor[67,0,1] differs from C[69,16,1] at135–137; no cursor-only defect precedes the output/RNG divergence.",
-    "Next source-backed probe: identify the JS cuss caller and monster at step135, then compare monmove.c:dochug MS_CUSS and action/Conflict gates with C preconditions. The earlier rn2(3) minvis attribution was only a guess and is superseded by the observed pager initialization. Do not infer the actor solely from RNG annotations."
-  ]
+    "Next source-backed probe: identify the JS cuss caller and monster at step135, then compare monmove.c:dochug MS_CUSS and action/Conflict gates with C preconditions. The earlier rn2(3) minvis attribution was only a guess and is superseded by the observed pager initialization. Do not infer the actor solely from RNG annotations.",
+    "Whole source bodies read: mcastu.c:mcast_disappear490–501 and its MCAST_DISAPPEAR caller844–847; worn.c:mon_set_minvis474–488. Current js/mcastu.js MCAST_DISAPPEAR arm records mcastu.c mcast_disappear without applying its state changes.",
+    "The preserved original C81 scan run-lDCMb0 matched138/138 boundaries after the helper/setter implementation at the earlier pre-C79 boundary. This is historical reproduction evidence; the later Monnam/pline_mon correction is source-pinned and has no current full-case parity claim.",
+    "Root compared the complete corrected spell and setter bodies, all setter callers and the naming/location correction at b3bca25ad75107f33a9a8458bf7352cd3c5a228f. The cited source route is normalized segment0 step135, choose_monster_spell -> castmu -> mcast_spell -> mcast_disappear -> mon_set_minvis. No outer castmu/dochug/display completion is claimed.",
+    "Current combined evaluation challenges/evaluations/20261005043440-v21.json still measures135/138 screens and cursors,2752/2820 RNG. Its extra pager draw remains observed counter-evidence, but the missing spell effect is now source-traced. No gameplay gain or helper runtime completion is claimed by this investigation update."
+  ],
+  "previousDiagnosis": {
+    "status": "partial",
+    "commit": "f3b1ff3ac670e168e558ab641d1cfbfd229f5382",
+    "summary": "Complete quest text now matches the Archon taunt through step134. At step135 JavaScript emits another angel taunt and pager RNG draw, while C proceeds to resist_conflict and a melee message. The caller predicate or actor causing this extra invocation remains unresolved; three cursor mismatches follow the same divergence.",
+    "source": {
+      "file": "monmove.c",
+      "branch": "After the matching angel cuss at step134, the next recorded dot reaches C resist_conflict without another com_pager_core call; JS instead enters the common angel_cuss pager again.",
+      "functions": [
+        "dochug"
+      ],
+      "callers": [
+        "wizard.c:cuss calls questpgr.c:com_pager for angel_cuss; JS extra invocation at step135 is observed, but the exact actor and dochug caller predicate still need attribution."
+      ],
+      "dependencies": []
+    }
+  },
+  "goalKind": "file-port"
 }
