@@ -92,7 +92,7 @@ test('earthquake ports whole source scans and caps force at thirteen', async () 
     const jsQuake = js.match(/export async function do_earthquake\([\s\S]*?^\}/mu)?.[0];
     assert.ok(jsPit, 'JavaScript do_pit definition');
     assert.ok(jsQuake, 'JavaScript do_earthquake definition');
-    assert.match(jsPit, /await maketrap\(x, y, PIT[\s\S]*?note_unported\('dig\.c liquid_flow'\);\s*if \(!t_at\(x, y, state\)\) return;/u);
+    assert.match(jsPit, /const fillType = fillholetyp\(x, y, false, state, random\);[\s\S]*?if \(fillType !== ROOM\) \{\s*set_levltyp\(x, y, fillType, \{ state \}\);\s*await liquid_flow\(x, y, fillType, chasm, null, state, \{ \.\.\.env, random \}\);\s*if \(!t_at\(x, y, state\)\) return;/u);
     assert.match(jsPit, /note_unported\('trap\.c mselftouch'\);[\s\S]*?random\.rnd\(alreadyTrapped \? 4 : 6\)/u);
     assert.match(jsQuake, /if \(force > 13\) force = 13;/u);
     assert.match(jsQuake, /for \(let x = startX; x <= endX; x\+\+\)\s*\{\s*for \(let y = startY; y <= endY; y\+\+\)/u);

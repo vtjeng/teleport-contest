@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Same-seed confirmation continuation of the frozen Valkyrie route. C run-Jbc8ud showed the `f` selector reached apply.c:do_break_wand and opened its [yn] confirmation; this recipe adds only the observed yes response to execute the break effect on the same recorded moat terrain.",
+  "segments": [
+    {
+      "seed": 80944261,
+      "datetime": "20420203092400",
+      "nethackrc": "OPTIONS=name:B103ValkBreak,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017water walking boots\nWelk#wizwish\nmoat\nju#wizwish\nmoat\nbl#wizwish\nmoat\nhn#wizwish\nmoat\nyj#wizwish\nmoat\nkb#wizwish\nmoat\nuh#wizwish\nmoat\nly#wizwish\nmoat\nn#wizwish\nwand of digging\nafy"
+    }
+  ]
+}

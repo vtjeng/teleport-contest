@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Final C-first input correction for the bounded B103 landmine route. The saved prior C screen showed five level-up More pages, a wished pair of snow boots at slot o, and a wall immediately east of the moat tile; the prior keys therefore failed to equip protection and never left the moat. This version acknowledges five pages, wears the observed boots slot, uses the visible south room cell for a trapped land mine, then returns north onto the moat and south to trigger it. It retains the same single-moat neighbor geometry and its source-defined fillholetyp ROOM possibility; no third geometry or seed search is performed.",
+  "segments": [
+    {
+      "seed": 18409357,
+      "datetime": "20510416092718",
+      "nethackrc": "OPTIONS=name:B103MineFlow,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#levelchange\n7\n     \u0017water walking boots\nWo\u0017moat\nj#wizwish\ntrapped land mine\nkj"
+    }
+  ]
+}

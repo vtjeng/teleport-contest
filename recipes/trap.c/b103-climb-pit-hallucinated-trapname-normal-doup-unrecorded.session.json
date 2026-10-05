@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED AS RUNTIME EVIDENCE: this input-only route is a source-based plan for the unverified Hallucination && !override arm of trap.c:trapname through the normal do.c:doup caller. The debug Wizard steps east, wishes a pit on that square, steps west, and re-enters it. #wizintrinsic h enables Hallucination; the following space dismisses its message. The final < command reaches doup() while u.utraptype is TT_PIT, and doup() calls climb_pit(), which invokes trapname(PIT,FALSE) before its branch tests. The existing B62 pit recipe confirms the same pit-creation/movement shape, but this recipe has no C recording or strict replay; it is a route plan, not runtime evidence. It avoids liquid_flow's invalid-terrain sanity diagnostic, which calls trapname with override TRUE.",
+  "segments": [
+    {
+      "seed": 68420173,
+      "datetime": "20321011092317",
+      "nethackrc": "OPTIONS=name:B103PitName,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+      "moves": "l\u0017pit\nhl#wizintrinsic\nh\n <"
+    }
+  ]
+}
