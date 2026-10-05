@@ -169380,6 +169380,282 @@
         "rng": 792838
       },
       "parkedReason": "Partial B106 delivery: the whole mhitm_ad_slim helper and AD_SLIM dispatcher arm are implemented. Full matching recordings cover hero-to-monster and monster-to-hero, and the selected v18 case advances from step 62 to 68. The independent monster-to-monster trace reaches the helper and matches through boundary 111, but no complete matching monster-to-monster recording exists; a later unrelated planning turn stops at passive_obj. Keep mhitm_ad_slim unverified until a full monster-to-monster recording matches."
+    },
+    {
+      "id": "port-potion-dip-mixture-v21-20261005",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port potion dipping, mixture behavior, and alternate item-action dispatch",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result"
+      ],
+      "selectionReason": "The saved v21 mixture investigation selects the contiguous potion.c mixtype-through-potion_dip family and its required drink_ok callback; C84 keeps pool and #altdip runtime evidence as explicit remaining work.",
+      "detail": "C84 makes the selected v21 mixture case fully match and adds an exact independent water-into-towel replay. The pool and #altdip entry plans remain explicitly blocked, so the source goal will remain partial after integration.",
+      "openedAt": "b1f93e8ec6001c261ded73e420d3653edceb94b5",
+      "openStanding": {
+        "sha": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mixtype",
+          "line": 2122,
+          "endLine": 2213,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dip_ok",
+          "line": 2214,
+          "endLine": 2230,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dip_hands_ok",
+          "line": 2231,
+          "endLine": 2242,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "hold_potion",
+          "line": 2243,
+          "endLine": 2266,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dodip",
+          "line": 2267,
+          "endLine": 2378,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dip_into",
+          "line": 2379,
+          "endLine": 2407,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "poof",
+          "line": 2408,
+          "endLine": 2416,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dip_potion_explosion",
+          "line": 2417,
+          "endLine": 2441,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "potion_dip",
+          "line": 2442,
+          "endLine": 2795,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2122,
+        "to": 2795
+      },
+      "requiredFunctions": [
+        {
+          "name": "drink_ok",
+          "line": 505,
+          "endLine": 525,
+          "declared": true,
+          "sourceFile": "potion.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result": {
+          "session": "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+          "recordingSha256": "1da19125d895a4ba98ceaa86db05cc4cc4d3c393390065a6594000330010e1cf",
+          "evaluationPath": "challenges/evaluations/20261005161832-v21.json",
+          "evaluationCommit": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56"
+        }
+      },
+      "activeStanding": {
+        "sha": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+          "session": "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+          "recordingSha256": "1da19125d895a4ba98ceaa86db05cc4cc4d3c393390065a6594000330010e1cf",
+          "recipe": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.recipe.session.json",
+          "recipeSha256": "25f904b2337fb6d7d28cbfda9b546919bfe97cd628308360f572c279afd0df16",
+          "replayInputSha256": "167ca1237ce2928c0c4149edf2da6633b327a568535357d3393cba6ff46f8348",
+          "evaluationPath": "challenges/evaluations/20261005161832-v21.json",
+          "evaluationCommit": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56",
+          "evaluationArtifact": "challenges/evaluations/20261005161832-v21.json",
+          "evaluationUtc": "2026-10-05T16:19:42.392Z",
+          "remainingScreens": 4,
+          "recordedSteps": 66,
+          "previousScreensMatched": 62,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 62,
+              "total": 66
+            },
+            "rng": {
+              "matched": 2703,
+              "total": 2710
+            },
+            "cursors": {
+              "matched": 62,
+              "total": 66
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: dip requires the potion-into-potion path (potion_dip)",
+            "step": 62
+          },
+          "step": 62,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: dip requires the potion-into-potion path (potion_dip)",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.json",
+            "result": {
+              "session": "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+              "remainingScreens": 4,
+              "recordedSteps": 66,
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "1da19125d895a4ba98ceaa86db05cc4cc4d3c393390065a6594000330010e1cf",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "status": "complete",
+              "commit": "4901dd542af51235daa15e837437a78fa6af5787",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "session": "synthetic/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+                "recordingSha256": "1da19125d895a4ba98ceaa86db05cc4cc4d3c393390065a6594000330010e1cf",
+                "recipe": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.recipe.session.json",
+                "recipeSha256": "25f904b2337fb6d7d28cbfda9b546919bfe97cd628308360f572c279afd0df16",
+                "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationUtc": "2026-10-03T18:29:21.226Z",
+                "remainingScreens": 4,
+                "recordedSteps": 66,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 62,
+                    "total": 66
+                  },
+                  "rng": {
+                    "matched": 2703,
+                    "total": 2710
+                  },
+                  "cursors": {
+                    "matched": 62,
+                    "total": 66
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: dip requires the potion-into-potion path (potion_dip)",
+                  "step": 62
+                },
+                "step": 62,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: dip requires the potion-into-potion path (potion_dip)",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 62, C dodip() has selected the healing potion and asks which potion to dip it into. JavaScript dodip() throws before that second prompt, so the first missing owner is potion.c:dodip(). The C continuation selects a speed potion and produces two diluted extra-healing potions. Port the complete dip route through potion_dip() and its mixture helpers, then wire dip_into() as the other direct caller. A83 reserves objnam.c:simpleonames and hack.c:near_capacity, both reached by the recorded mixture path.",
+              "source": {
+                "file": "potion.c",
+                "branch": "For #dip, after getobj() selects the first item and no fountain, sink, or pool handles the action, dodip() must prompt with getobj(qbuf, drink_ok, GETOBJ_NOFLAGS) for the potion and call potion_dip(obj, potion). In this case the first item is a two-potion healing stack and the second is a speed potion; mixtype() returns POT_EXTRA_HEALING and dip_potion_explosion() returns false.",
+                "functions": [
+                  "dodip",
+                  "potion_dip",
+                  "dip_into",
+                  "mixtype",
+                  "dip_potion_explosion",
+                  "hold_potion",
+                  "poof"
+                ],
+                "callers": [
+                  "cmd.c's #dip external-command entry calls dodip()",
+                  "potion.c:dodip() calls potion_dip() after the second selection",
+                  "potion.c:dip_into() calls potion_dip() for #altdip; js/extcmdlist_data.js maps altdip to dip_into, but js/potion.js has no dip_into implementation"
+                ],
+                "dependencies": [
+                  "getobj(), drink_ok(), dip_ok(), and dip_hands_ok() provide the two object-selection prompts",
+                  "potion.c:H2Opotion_dip() handles the water-potion branch of potion_dip()",
+                  "invent.c:freeinv() and hold_another_object(), reached through hold_potion(), remove and reinsert the changed mixture stack",
+                  "obj.c:useup() and useupall() consume the potion and the affected stack on their respective branches",
+                  "objnam.c:simpleonames() formats the mixture message and is reserved by A83",
+                  "hack.c:near_capacity() is called by hold_potion(); it reaches calc_capacity(), inv_weight(), and weight_cap(), all reserved by A83"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved baseline challenges/evaluations/20261003183000-v21.json and queue entry show 62/66 screens matched, 2703/2710 RNG calls matched, and a stop at step 62 with “dip requires the potion-into-potion path (potion_dip).”",
+                "In the assigned recording challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json, step 62 selects the healing stack and the C screen asks “What do you want to dip 2 uncursed potions of healing into?”. C potion.c:2365-2371 performs this second getobj() and then calls potion_dip(); js/potion.js:3153-3154 throws before the second prompt, identifying dodip() as the first mismatching source owner.",
+                "The same C recording shows step 64 consuming rnd(9)=5 at potion_dip() and rn2(10)=4 at dip_potion_explosion(), so the mixture does not explode. At step 65 the screen reports “The mixture looks puce” and “2 diluted puce potions.” C potion.c:2137-2140 maps POT_HEALING dipped into POT_SPEED to POT_EXTRA_HEALING; potion.c:2503-2593 performs the mixture, consumes the speed potion, sets the result, and reinserts it.",
+                "The actionable source group is potion.c:dodip() (2267-2372), potion_dip() (2442 onward), and its used-result helpers mixtype() (2122), dip_potion_explosion() (2417), and hold_potion() (2242); potion.c:2374-2404 shows dip_into() is the second direct potion_dip() caller. js/potion.js currently throws instead of implementing the second prompt, and a targeted search found no JavaScript definitions for potion_dip, dip_into, mixtype, dip_potion_explosion, hold_potion, or poof.",
+                "A83 scope artifact .cache/A83-vomiting-dialogue-vomit-scope-event.json reserves source:objnam.c:simpleonames and source:hack.c:near_capacity, calc_capacity, inv_weight, and weight_cap, and lists js/potion.js, js/obj.js, js/hack.js, and js/invent.js as allowed paths. The exact mixture path calls simpleonames() at potion.c:2534 and hold_potion() at 2248-2260, which calls near_capacity(); near_capacity() delegates to calc_capacity() at hack.c:4385-4386, and calc_capacity() uses inv_weight() and weight_cap(). A targeted `rg -n 'sobj_at\\s*\\(' nethack-c/upstream/src/potion.c` returned no matches, so A83’s invent.c:sobj_at reservation is not on this potion source path."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
