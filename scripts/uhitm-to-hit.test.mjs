@@ -897,12 +897,13 @@ test('passive draws once for a live ordinary target and never for a corpse',
         assert.deepEqual(draws, []);
     });
 
-test('passive rolls the empty slot dice and stops on a real counter-attack',
+test('passive rolls the empty slot dice before live-target effects',
     async () => {
         await hero();
         const draws = [];
         const env = {
             ...REFUSING,
+            encumberMessage: async () => {},
             random: {
                 d(n, x) { draws.push(`d(${n},${x})`); return n; },
                 rn2(bound) { draws.push(`rn2(${bound})`); return 1; },
@@ -911,13 +912,11 @@ test('passive rolls the empty slot dice and stops on a real counter-attack',
 
         // A brown mold's first slot is ATTK(AT_NONE, AD_COLD, 0, 6), so
         // uhitm.c:5883-5884 rolls d(m_lev + 1, 6) before the damage type is
-        // read, and the type then stops.
+        // read.  A dead target isolates that unconditional roll from the
+        // live-target effects handled by the second switch.
         const mold = target(PM_BROWN_MOLD, { m_lev: 1 });
         assert.equal(mold.data.mattk[0].adtyp, AD_COLD);
-        await refusesAsync(
-            () => passive(mold, null, false, true, AT_WEAP, false, game, env),
-            'passive counter-attack',
-        );
+        await passive(mold, null, false, false, AT_WEAP, false, game, env);
         assert.deepEqual(draws, ['d(2,6)']);
 
         // An acid blob's slot carries its own dice, which take the other arm
@@ -926,11 +925,11 @@ test('passive rolls the empty slot dice and stops on a real counter-attack',
         const blob = target(PM_ACID_BLOB);
         const slot = blob.data.mattk[0];
         assert.equal(slot.aatyp, AT_NONE);
-        await refusesAsync(
-            () => passive(blob, null, false, true, AT_WEAP, false, game, env),
-            'passive counter-attack',
-        );
-        assert.deepEqual(draws, [`d(${slot.damn},${slot.damd})`]);
+        await passive(blob, null, false, false, AT_WEAP, false, game, env);
+        assert.deepEqual(draws, [
+            `d(${slot.damn},${slot.damd})`,
+            'rn2(2)', // uhitm.c:5923 exercise(A_STR, FALSE)
+        ]);
     });
 
 // do_attack()'s hostile arm and the two functions under it, driven directly so

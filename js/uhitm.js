@@ -7044,7 +7044,9 @@ export async function passive(
                 await passive_obj(mon, weapon, mattk, state, effectEnv);
             }
         }
-        await exercise(A_STR, false, state, random);
+        await exercise(A_STR, false, state, random, {
+            encumberMessage: env.encumberMessage ?? encumber_msg,
+        });
         break;
     case AD_STON:
         if (mhitb) {
