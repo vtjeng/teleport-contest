@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v20.json",
   "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
   "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
-  "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
-  "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
-  "remainingScreens": 11,
+  "evaluationPath": "challenges/evaluations/20261005201650-v20.json",
+  "evaluationCommit": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+  "remainingScreens": 0,
   "recordedSteps": 83,
   "status": "complete",
-  "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "commit": "70a2be1ee36c69b080d618ece22c5dc04a5976d2",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v20",
@@ -24,74 +24,82 @@
     "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
     "recipe": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.recipe.session.json",
     "recipeSha256": "33d2301c08fbacc551279890d73d21cd15c49e6b0d7788b7ea00de41a4f44d01",
-    "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
-    "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
-    "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
-    "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
-    "evaluationUtc": "2026-10-03T00:32:52.762Z",
-    "remainingScreens": 11,
+    "replayInputSha256": "c97c7c97ab43049d60a3fbb738c4aea104cd3583b0368586f1061f8d98f8bd1c",
+    "evaluationPath": "challenges/evaluations/20261005201650-v20.json",
+    "evaluationCommit": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+    "evaluationArtifact": "challenges/evaluations/20261005201650-v20.json",
+    "evaluationUtc": "2026-10-05T20:17:55.557Z",
+    "remainingScreens": 0,
     "recordedSteps": 83,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 72,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 72,
+        "matched": 83,
         "total": 83
       },
       "rng": {
-        "matched": 2902,
+        "matched": 2907,
         "total": 2920
       },
       "cursors": {
-        "matched": 72,
+        "matched": 83,
         "total": 83
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: unsupported pickup: in_container: icebox age handling",
-      "step": 72
+      "screen": null,
+      "rng": {
+        "index": 2907,
+        "cEntry": "rn2(1000)=876",
+        "cCaller": "start_corpse_timeout(mkobj.c:1413)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 82,
+          "key": "\n"
+        },
+        "stepIndex": 82
+      },
+      "cursor": null
     },
-    "step": 72,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "unsupported hero command: an unported branch of this command: unsupported pickup: in_container: icebox age handling",
-    "cFile": null,
+    "step": 82,
+    "kind": "rng",
+    "sourceFile": "mkobj.c",
+    "function": "start_corpse_timeout",
+    "message": null,
+    "cFile": "mkobj.c",
     "luaFile": null,
-    "line": null
+    "line": 1413
   },
-  "summary": "The first mismatch at step 72 is Icebox insertion: the JavaScript in_container() guard throws before freeinv() and the C age/timer updates. C later removes the stored corpse at step 82 through out_container() and removed_from_icebox(), but that is a separate continuation gap. The actionable first owner is the whole pickup.c in_container() function; A83 has reservations on naming helpers and welded() used by other in_container() branches.",
+  "summary": "The historical v20 evaluation first diverged in RNG at step 82 because the JS take-out path did not resume icebox timers. A101 now wires out_container to removed_from_icebox; a fresh source-range replay matches the admitted case through zero-based step 82, including start_corpse_timeout. Independent #tip runtime also fully matches. The separate active monster MUSE_BAG removal caller remains unverified; its retained blocked recipe reaches find_misc with rn2(5)=1 before dog_invent drops the box.",
   "source": {
     "file": "pickup.c",
-    "branch": "in_container() has passed its early item checks and called freeinv(obj); gc.current_container is an ICE_BOX and age_is_relative(obj) is false. It stores relative age, cancels corpse rot/revive timers, clears mcan for a stored ice troll with OMONST data, or cancels a timed glob shrink timer.",
+    "branch": "out_container() has passed its artifact, fatal-corpse and lift checks, split the selected stack if needed, extracted the selected object and recalculated the container weight. When gc.current_container is an ICE_BOX, it must call removed_from_icebox() before floor-container billing, pick_pick(), addinv(), and inventory feedback. For a corpse whose age is absolute, removed_from_icebox() computes svm.moves - obj->age, obtains OMONST traits with get_mtraits(obj, FALSE), sets norevive according to whether the saved or base species is an ice troll, then calls start_corpse_timeout().",
     "functions": [
-      "in_container"
+      "out_container",
+      "removed_from_icebox"
     ],
     "callers": [
-      "use_container",
-      "menu_loot",
-      "traditional_loot"
+      "pickup.c:menu_loot calls out_container for manual/autopick take-out; pickup.c:traditional_loot passes it as the askchain callback.",
+      "pickup.c:tipcontainer calls removed_from_icebox while extracting ICE_BOX contents.",
+      "mon.c:meatbox calls removed_from_icebox, but source material/consumer gates prevent ICE_BOX from reaching meatbox through valid production callers.",
+      "muse.c:mloot_container calls removed_from_icebox after an ICE_BOX item passes can_carry; its runtime entry remains blocked by find_misc selection."
     ],
     "dependencies": [
-      "include/obj.h:age_is_relative macro; its Boolean controls the age conversion branch.",
-      "invent.c:freeinv; C removes the item from inventory before converting its age.",
-      "hack.c:obj_to_any and timeout.c:stop_timer; the two stop_timer return values are explicitly discarded, while timer removal mutates the object and timer queue.",
-      "include/obj.h:has_omonst and OMONST macros; the predicate guards mutation of the cancelled ice troll traits.",
-      "objnam.c:xname, xname_flags, the and related naming helpers; A83 source reservations cover these names used by other in_container() message branches. Do not treat the reservation as source completion.",
-      "wield.c:welded; A83 reserves this predicate for the wielded-item branch. Current js/pickup.js still stops at weldmsg when it is true.",
-      "obj_is_burning() and snuff_lit() at pickup.c:2626-2627; current JS retains a fail-closed guard for burning objects."
+      "include/obj.h:age_is_relative is a macro that keeps the six relative-age object kinds unchanged.",
+      "mkobj.c:get_mtraits, start_corpse_timeout and start_glob_timeout are existing complete implementations; the last two contain timer RNG/state behavior consumed by this impure helper.",
+      "ICE_BOX is TOOL_CLASS and PLASTIC (objects.h:903–904); is_organic/is_metallic material thresholds and all direct m_consume_obj consumers show the meatbox ICE_BOX arm is not production-reachable.",
+      "The active mloot_container route remains unverified: the committed blocked recipe reaches find_misc at muse.c:2235 but rn2(5)=1 prevents MUSE_BAG selection."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "nethack-c/upstream/src/pickup.c:2558-2710 defines the whole in_container() source unit. At :2624-2657, C calls freeinv(obj) before testing Icebox && !age_is_relative(obj); it stores svm.moves - obj->age, stops ROT_CORPSE and REVIVE_MON timers for a timed corpse, clears mcan on an ice troll corpse with has_omonst(obj), or stops SHRINK_GLOB for a timed glob. The return values from stop_timer() are explicitly discarded.",
-    "At examined HEAD b5bb23ff11504c300f032b10b1e17c99b06fc97e, js/pickup.js:2920-2936 checks Icebox and throws before freeinv(obj). This accounts for the step-72 stop; the saved C63 packet .cache/worker-state-loop-20260925.json.deliveries/0630c68d2c093a7132ff6e9db12a5983515863647fd63c01b43348089db91eaf.json independently records step 72 as insertion of an ice-troll corpse.",
-    "C caller sites are pickup.c:3174-3184 in use_container(), :3350 and :3376 in menu_loot(), and :3239-3248 in traditional_loot(), which passes in_container() to askchain(). The JavaScript caller sites are pickup.js:2276-2279, :3239, and :3271-3275; whole-function scope should keep these paths wired to the same in_container() implementation.",
-    "The removal observed later in the same recording is a distinct C path: pickup.c:2727-2776 out_container() calls removed_from_icebox() at :2758-2759, and :2781-2798 restores absolute age and calls start_corpse_timeout() for a corpse. At current HEAD, js/pickup.js:3087-3094 does not call a removal helper. The C63 packet and normalized trace identify this at step 82, after the step-72 insertion mismatch; it is not the owner of the first divergence.",
-    "The saved evaluation challenges/evaluations/20261003003219-v20.json records 72 of 83 screens and 2,902 of 2,920 RNG calls matched. The queue records 11 remaining screens and the step-72 unsupported Icebox age-handling stop. The same packet records a byte-identical independent C replay with run-9WF5zn and recording SHA-256 308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568.",
-    "A83 reservation context in .cache/A83-mnearto-108-scope-event.json and .cache/A83-cmd-ice-scope-event.json names objnam.c:xname, objnam.c:xname_flags, objnam.c:the and related objnam helpers, plus wield.c:welded. These are dependencies of other in_container() branches; the current investigation records the reservation only and does not assert those functions are complete."
+    "Historical evaluation challenges/evaluations/20261005201650-v20.json at c976c27ef3f988a4f139c5f4a2b440f6f3d41123 recorded its first RNG mismatch at segment 0, step 82: rn2(1000)=876 from mkobj.c:start_corpse_timeout. Evaluation metrics are retained as provenance, not current-code parity.",
+    "Fresh current-code source-range validation in A101 matched the admitted case through zero-based step 82. C reaches pickup.c:menu_loot -> out_container, extracts the selected ice-troll corpse from the carried ICE_BOX, and calls removed_from_icebox -> start_corpse_timeout during that boundary.",
+    "Independent recipe recipes/pickup.c/a101-tip-icebox-corpse-complete.session.json and recording recordings/pickup.c/a101-tip-icebox-corpse-complete.session.json strictly match: step 74 chooses the floor target and runs three start_corpse_timeout calls through pickup.c:dotip -> do_loot_cont -> tipcontainer -> removed_from_icebox.",
+    "The direct removed_from_icebox callers at pickup.c:2759, :3763, mon.c:1374 and muse.c:2355 are source-wired. The meatbox ICE_BOX arm is unreachable through its direct production consumers because ICE_BOX is TOOL_CLASS/PLASTIC and is neither organic nor metallic; scripts/pickup.test.mjs pins each caller gate.",
+    "The active muse.c:mloot_container caller remains runtime-incomplete. The retained C-first blocked recipe reaches a box pickup, but find_misc draws rn2(5)=1 at muse.c:2235, so MUSE_BAG is skipped and dog_invent drops the box before mloot_container. A single direction variation did not retain pickup and is excluded from passing recordings."
   ]
 }

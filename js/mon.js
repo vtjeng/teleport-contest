@@ -227,6 +227,7 @@ import { adjalign, ALIGNLIM } from './attrib.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
 import { growl, maybe_gasp } from './sounds.js';
 import { game } from './gstate.js';
+import { removed_from_icebox } from './pickup.js';
 import {
     disturb_buried_zombies,
     losehp,
@@ -1422,7 +1423,7 @@ export async function meatbox(mon, obj, rawEnv = {}) {
         const child = obj.cobj;
         obj_extract_self(child, objectGenerationEnv({ ...rawEnv, state }));
         if (obj.otyp === ICE_BOX)
-            note_unported('mkobj.c removed_from_icebox');
+            removed_from_icebox(child, state);
         if (engulfContents) {
             mpickobj(mon, child, rawEnv);
         } else if (!await flooreffects(

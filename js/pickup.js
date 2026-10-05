@@ -189,7 +189,7 @@ import {
 import { m_at } from './monst.js';
 import {
     carried, hasContents, isBox, isCandle, isContainer, obj_no_longer_held,
-    remove_object, set_bknown, set_corpsenm, splitobj, unsplitobj, weight,
+    is_pick, remove_object, set_bknown, set_corpsenm, splitobj, unsplitobj, weight,
     unbless,
 } from './obj.js';
 
@@ -254,7 +254,10 @@ import { setuqwep, setuswapwep, setuwep } from './worn.js';
 import { note_unported } from './unported.js';
 import { d } from './rng.js';
 import { canspotmon } from './display.js';
-import { stop_timer } from './timeout.js';
+import {
+    start_corpse_timeout, start_glob_timeout, stop_timer,
+} from './timeout.js';
+import { get_mtraits } from './corpstat.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,
@@ -3141,9 +3144,17 @@ async function out_container(obj, state) {
     state.gc.current_container.owt =
         weight(state.gc.current_container, { state });
 
-    // Icebox removal is not ported (age_is_relative, removed_from_icebox).
-    // Shop billing for floor containers is not ported (addtobill).
-    await pick_pick(otmp, state);
+    if (state.gc.current_container.otyp === ICE_BOX)
+        removed_from_icebox(otmp, state);
+
+    const container = state.gc.current_container;
+    if (!otmp.unpaid && !carried(container)
+        && costly_spot(container.ox, container.oy, state)) {
+        otmp.ox = container.ox;
+        otmp.oy = container.oy;
+        await addtobill(otmp, false, false, false, state);
+    }
+    if (is_pick(otmp, state)) await pick_pick(otmp, state);
 
     const result = await addinv_runtime(otmp, { state });
     await pickup_prinv(result, count, 'removing', state);
@@ -3152,6 +3163,30 @@ async function out_container(obj, state) {
         await bot();
     }
     return 1;
+}
+
+// C ref: pickup.c removed_from_icebox() (2781-2798). Convert the saved
+// relative age and restart the object timer after it leaves an icebox.
+export function removed_from_icebox(obj, state = game) {
+    const ageIsRelative = obj.otyp === BRASS_LANTERN
+        || obj.otyp === OIL_LAMP
+        || obj.otyp === CANDELABRUM_OF_INVOCATION
+        || obj.otyp === TALLOW_CANDLE
+        || obj.otyp === WAX_CANDLE
+        || obj.otyp === POT_OIL;
+    if (ageIsRelative) return;
+
+    obj.age = state.moves - obj.age;
+    if (obj.otyp === CORPSE) {
+        const monster = get_mtraits(obj, false, state);
+        const iceTroll = monster
+            ? monster.data === state.mons[PM_ICE_TROLL]
+            : obj.corpsenm === PM_ICE_TROLL;
+        obj.norevive = iceTroll ? 0 : 1;
+        start_corpse_timeout(obj, { state });
+    } else if (obj.globby) {
+        start_glob_timeout(obj, 0, { state });
+    }
 }
 
 // ---------------------------------------------------------------
@@ -3828,7 +3863,7 @@ async function tipcontainer(box, state) {
         otmp.oy = box.oy;
 
         if (box.otyp === ICE_BOX) {
-            note_unported('pickup.c removed_from_icebox');
+            removed_from_icebox(otmp, state);
         } else if (cursed_mbag && is_boh_item_gone(state)) {
             loss += await mbag_item_gone(srcheld, otmp, false, state);
             terse = false;

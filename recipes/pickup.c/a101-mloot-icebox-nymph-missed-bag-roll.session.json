@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93701155,
+      "datetime": "20490901102800",
+      "nethackrc": "OPTIONS=name:IceboxMlootProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizwish\nuncursed ice box\n#wizwish\nuncursed newt corpse\n #loot\nsp#wizgenesis\ntame water nymph\nlm.m.m.m."
+    }
+  ],
+  "comment": "BLOCKED runtime entry for muse.c:mloot_container(). This C-first tame-nymph setup picks up the floor ice box at normalized step 99, then find_misc() draws rn2(5)=1 at muse.c:2235, so it does not select MUSE_BAG; dog_invent() drops the box before mloot_container() is called. Keep as the source-observed blocker; it has no matching recording."
+}

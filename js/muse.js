@@ -184,7 +184,7 @@ import { an, ansimpleoname, distant_name, donameFresh, is_plural,
 import { discover_object, objdescr_is, observe_object } from './o_init.js';
 import { accessible, monflee, mon_would_take_item, monnear, onscary, youHear } from './monmove.js';
 import { lined_up, linedup_callback, m_useup } from './mthrowu.js';
-import { encumber_msg } from './pickup.js';
+import { encumber_msg, removed_from_icebox } from './pickup.js';
 import { in_your_sanctuary } from './priest.js';
 import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
@@ -1438,7 +1438,7 @@ export async function mloot_container(mon, container, vismon, rawEnv = {}) {
                     );
             }
             if (container.otyp === O.ICE_BOX)
-                note_unported('pickup.c removed_from_icebox');
+                removed_from_icebox(xobj, state);
             // obj_extract_self(xobj) -- already done above
             mpickobj(mon, xobj, { state });
             res = 2;
