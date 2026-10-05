@@ -215,7 +215,7 @@ import { mklev } from './mklev.js';
 import { makemon } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
 import {
-    healmon, m_in_air, m_into_limbo, mondied, newcham, pm_to_cham, set_ustuck,
+    healmon, m_in_air, m_into_limbo, mnexto, mondied, newcham, pm_to_cham, set_ustuck,
     wake_nearto,
 } from './mon.js';
 import { m_at } from './monst.js';
@@ -321,7 +321,7 @@ import {
     u_on_sstairs,
 } from './stairs.js';
 import { Punished, dismount_steed, stucksteed } from './steed.js';
-import { enexto, mnexto, safe_teleds } from './teleport.js';
+import { enexto, safe_teleds } from './teleport.js';
 import { burn_away_slime, run_timers } from './timeout.js';
 import {
     climb_pit,
@@ -2875,7 +2875,7 @@ async function u_collide_m(mtmp, state = game) {
     if (cc && next2u(cc.x, cc.y, state)) {
         u_on_newpos(cc.x, cc.y, state);
     } else {
-        mnexto(mtmp, RLOC_NOMSG, { state });
+        await mnexto(mtmp, RLOC_NOMSG, { state });
     }
 
     if (m_at(state.u.ux, state.u.uy, state)) {

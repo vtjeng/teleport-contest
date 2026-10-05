@@ -2266,7 +2266,7 @@ async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
                         `${capitalizedMonsterName(mtmp, state)} resists the magic!`,
                         state);
             } else if (!(await tele_restrict(mtmp, state)))
-                rloc(mtmp, RLOC_MSG, { state });
+                await rloc(mtmp, RLOC_MSG, { state });
         }
         break;
     case O.WAN_CANCELLATION:

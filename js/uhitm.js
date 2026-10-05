@@ -46,6 +46,7 @@ import {
     HALLUC,
     HALLUC_RES,
     FUMBLING,
+    HALF_PHDAM,
     HMON_APPLIED,
     HMON_MELEE,
     HMON_KICKED,
@@ -115,6 +116,7 @@ import {
     STONED,
     STUNNED,
     TIMEOUT,
+    TELEPORT_CONTROL,
     FIRE_RES,
     FREE_ACTION,
     TEST_MOVE,
@@ -571,7 +573,7 @@ import {
     which_armor,
 } from './worn.js';
 import { steal } from './steal.js';
-import { rloc, tele_restrict } from './teleport.js';
+import { rloc, tele, tele_restrict, u_teleport_mon } from './teleport.js';
 import {
     Flying,
     Levitation,
@@ -5656,6 +5658,119 @@ export async function mhitm_ad_heal(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_tlpt() (2859-2954). Each attack direction keeps
+// its source order: the hero-hit arm names before relocation, the incoming
+// arm reports the hit before magic cancellation and teleports before capping
+// damage, and the monster duel clears WAITFORU before rloc().
+export async function mhitm_ad_tlpt(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    if (magr === state.youmonst) {
+        if (mhm.damage <= 0) mhm.damage = 1;
+        if (await mhitm_mgc_atk_negated(
+            magr, mdef, true, state, env,
+        )) {
+            await (env.message ?? ttyPline)(
+                `${Monnam(mdef, state, env)} is not affected.`, state,
+            );
+        } else {
+            const sawMonster = canseemon(mdef, state)
+                || engulfing_u(mdef, state);
+            const name = Monnam(mdef, state, env);
+            if (await u_teleport_mon(mdef, false, { ...env, state })
+                && sawMonster
+                && !(canseemon(mdef, state) || engulfing_u(mdef, state))) {
+                await (env.message ?? ttyPline)(
+                    `${name} suddenly disappears!`, state,
+                );
+            }
+            if (mhm.damage >= mdef.mhp) {
+                if (mdef.mhp === 1) ++mdef.mhp;
+                mhm.damage = mdef.mhp - 1;
+            }
+        }
+        return;
+    }
+
+    if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (await mhitm_mgc_atk_negated(
+            magr, mdef, false, state, env,
+        )) {
+            await (env.message ?? ttyPline)('You are not affected.', state);
+        } else {
+            if (state.flags?.verbose) {
+                const controlled = propertyPresent(state.u, TELEPORT_CONTROL)
+                    && !intrinsicProperty(state.u, STUNNED)
+                    && !unconscious(state);
+                await (env.message ?? ttyPline)(
+                    `Your position suddenly seems ${controlled ? '' : 'very '}`
+                        + 'uncertain!',
+                    state,
+                );
+            }
+            await tele(state, env);
+            const halfPhysical = propertyPresent(state.u, HALF_PHDAM);
+            const effectiveDamage = halfPhysical
+                ? Math.trunc((mhm.damage - 1) / 2) : mhm.damage;
+            const currentHp = Upolyd(state.u) ? state.u.mh : state.u.uhp;
+            if (effectiveDamage >= currentHp) {
+                mhm.damage = currentHp - 1;
+                if (halfPhysical) mhm.damage *= 2;
+                if (mhm.damage < 1) {
+                    mhm.damage = 1;
+                    if (Upolyd(state.u) && state.u.mh === 1)
+                        ++state.u.mh;
+                    else if (!Upolyd(state.u) && state.u.uhp === 1)
+                        ++state.u.uhp;
+                }
+            }
+        }
+        return;
+    }
+
+    if (magr.mcan || mhm.damage >= mdef.mhp
+        || await tele_restrict(mdef, state, env)) return;
+    if (await mhitm_mgc_atk_negated(
+        magr, mdef, true, state, env,
+    )) {
+        if (state.gv?.vis) {
+            await (env.message ?? ttyPline)(
+                messageAt(
+                    `${Monnam(mdef, state, env)} is not affected.`,
+                    mdef.mx,
+                    mdef.my,
+                    state,
+                ),
+                state,
+            );
+        }
+        return;
+    }
+
+    const wasSeen = canspotmon(mdef, state);
+    const name = state.gv?.vis && wasSeen
+        ? Monnam(mdef, state, env) : null;
+    mdef.mstrategy &= ~STRAT_WAITFORU;
+    await rloc(mdef, RLOC_NOMSG, { ...env, state });
+    if (state.gv?.vis && wasSeen
+        && !canspotmon(mdef, state)
+        && mdef !== state.u.usteed) {
+        await (env.message ?? ttyPline)(
+            `${name} suddenly disappears!`, state,
+        );
+    }
+    if (mhm.damage >= mdef.mhp) {
+        if (mdef.mhp === 1) ++mdef.mhp;
+        mhm.damage = mdef.mhp - 1;
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -5709,7 +5824,9 @@ export async function mhitm_adtyping(
         await mhitm_ad_sedu(magr, mattk, mdef, mhm, state, env);
         break;
     case AD_SGLD: unported('mhitm_ad_sgld'); break;
-    case AD_TLPT: unported('mhitm_ad_tlpt'); break;
+    case AD_TLPT:
+        await mhitm_ad_tlpt(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_BLND:
         await mhitm_ad_blnd(magr, mattk, mdef, mhm, state, env);
         break;

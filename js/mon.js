@@ -676,6 +676,7 @@ import {
 } from './steal.js';
 import { replshk, shkgone } from './shk.js';
 import {
+    control_mon_tele,
     enexto,
     goodpos,
     noteleport_level,
@@ -3472,7 +3473,7 @@ export async function decide_to_shapeshift(monster, rawEnv = {}) {
             { ...shapeEnv, state },
         );
         if (destination) {
-            rloc_to(monster, destination.x, destination.y, {
+            await rloc_to(monster, destination.x, destination.y, {
                 ...shapeEnv,
                 state,
             });
@@ -4667,8 +4668,12 @@ export function mnearto(
         if (!goodpos(x, y, monster, 0, env)) {
             destination = enexto(x, y, monster.data, env);
             if (!destination || !isok(destination.x, destination.y)) {
-                if (other) deal_with_overcrowding(other, state, env);
-                return 0;
+                return other
+                    ? thenResult(
+                        deal_with_overcrowding(other, state, env),
+                        () => 0,
+                    )
+                    : 0;
             }
         }
         const placement = rloc_to_flag(monster, destination.x, destination.y,
@@ -4682,13 +4687,19 @@ export function mnearto(
             if (!(moveOther && other)) return 1;
             const nested = mnearto(other, x, y, false, rlocflags, env);
             if (nested && typeof nested.then === 'function') {
-                return nested.then((result) => {
-                    if (!result) deal_with_overcrowding(other, state, env);
-                    return 2;
-                });
+                return nested.then((result) => result
+                    ? 2
+                    : thenResult(
+                        deal_with_overcrowding(other, state, env),
+                        () => 2,
+                    ));
             }
-            if (!nested) deal_with_overcrowding(other, state, env);
-            return 2;
+            return nested
+                ? 2
+                : thenResult(
+                    deal_with_overcrowding(other, state, env),
+                    () => 2,
+                );
         };
         if (placement && typeof placement.then === 'function')
             return placement.then(finish);
@@ -6175,7 +6186,8 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
                 await expels(mtmp, { ...env, state, expulsionMessage: false });
             if (amorphous(mtmp.data) && closed_door(x, y, state)) {
                 const newXY = enexto(x, y, state.mons[mndx], { state });
-                if (newXY) rloc_to(mtmp, newXY.x, newXY.y, { ...env, state });
+                if (newXY)
+                    await rloc_to(mtmp, newXY.x, newXY.y, { ...env, state });
             }
             if (canspotmon(mtmp, state)) {
                 await message(
@@ -6277,11 +6289,10 @@ export function ok_to_obliterate(mtmp, state = game) {
     return true;
 }
 
-// C ref: mon.c elemental_clog() (3877-3952). This is deliberately kept
-// synchronous because mnexto() and the level-arrival callers are synchronous
-// in the port. C's You_feel() is a pline.c boundary; callers may provide a
-// synchronous message hook for tests, while ordinary gameplay records the
-// unported call rather than starting an un-awaited tty promise.
+// C ref: mon.c elemental_clog() (3877-3952). C's You_feel() is a pline.c
+// boundary; callers may provide a synchronous message hook for tests, while
+// ordinary gameplay records the unported call. The source relocation itself
+// is awaited by mnexto() when overcrowding reaches this path.
 let elementalClogMessageMove = 0;
 
 export function elemental_clog(mon, state = game, env = {}) {
@@ -6340,7 +6351,7 @@ export function elemental_clog(mon, state = game, env = {}) {
         target.mstate = (target.mstate ?? 0) | MON_OBLITERATE;
         mongone(target, { ...env, state });
         // C intentionally relocates `mon`, not the monster just obliterated.
-        rloc_to(mon, mx, my, { ...env, state });
+        return rloc_to(mon, mx, my, { ...env, state });
     } else if (!Is_astralevel(state.u?.uz)) {
         const destination = {
             ...state.u.uz,
@@ -6362,10 +6373,55 @@ export function deal_with_overcrowding(mtmp, state = game, env = {}) {
         return m_into_limbo(mtmp, state, env);
 }
 
+// C ref: mon.c mnexto(). The source's mon_telecontrol path may prompt, so its
+// relocation and overcrowding continuations are awaited before this returns.
+export async function mnexto(mtmp, rlocflags = 0, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
+    if (mtmp === state.u?.usteed) {
+        mtmp.mx = state.u.ux;
+        mtmp.my = state.u.uy;
+        return;
+    }
+
+    let coordinate = enexto(
+        state.u.ux,
+        state.u.uy,
+        mtmp.data,
+        env,
+    );
+    if (!coordinate || !isok(coordinate.x, coordinate.y)) {
+        await deal_with_overcrowding(mtmp, state, env);
+        return;
+    }
+
+    if (state.iflags?.mon_telecontrol) {
+        const saved = { ...coordinate };
+        if (!await control_mon_tele(
+            mtmp,
+            coordinate,
+            rlocflags,
+            false,
+            env,
+        )) {
+            coordinate = saved;
+        }
+    }
+
+    await rloc_to_flag(
+        mtmp,
+        coordinate.x,
+        coordinate.y,
+        rlocflags,
+        env,
+    );
+    return;
+}
+
 // C ref: mon.c maybe_mnexto() (3997-4016). Unlike mnexto(), this helper
 // accepts only a square that is currently visible and preserves the grid bug's
 // no-diagonal restriction. The twenty attempts intentionally remain bounded.
-export function maybe_mnexto(mtmp, state = game, env = {}) {
+export async function maybe_mnexto(mtmp, state = game, env = {}) {
     const ptr = mtmp.data;
     const diagok = !NODIAG(monsndx(ptr));
     let tryct = 20;
@@ -6382,7 +6438,7 @@ export function maybe_mnexto(mtmp, state = game, env = {}) {
             && (diagok
                 || coordinate.x === mtmp.mx
                 || coordinate.y === mtmp.my)) {
-            rloc_to(mtmp, coordinate.x, coordinate.y, { ...env, state });
+            await rloc_to(mtmp, coordinate.x, coordinate.y, { ...env, state });
             return;
         }
     } while (--tryct > 0);

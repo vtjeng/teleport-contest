@@ -328,7 +328,7 @@ test('u_on_rndspot retries trap and monster squares in exact PRNG order', async 
 });
 
 test('a one-dimensional arrival region is not treated as a one-shot square',
-    () => {
+    async () => {
         const state = placementState();
         state.level.at(7, 14).typ = ROOM;
         state.level.at(7, 15).typ = ROOM;
@@ -336,33 +336,33 @@ test('a one-dimensional arrival region is not treated as a one-shot square',
         state.level.traps.push(trap);
 
         initRng(1);
-        place_lregion(7, 14, 7, 15, 0, 0, 0, 0,
+        await place_lregion(7, 14, 7, 15, 0, 0, 0, 0,
                       LR_DOWNTELE, null, state);
 
         assert.deepEqual([state.u.ux, state.u.uy], [7, 15]);
         assert.equal(state.level.traps[0], trap);
     });
 
-test('the deterministic placement sweep includes both upper bounds', () => {
+test('the deterministic placement sweep includes both upper bounds', async () => {
     const state = placementState();
     // Leave exactly the last square usable. Seed 1 does not choose it during
     // the 200 random attempts, so mkmaze.c's deterministic sweep must reach it.
     state.level.at(79, 20).typ = ROOM;
 
     initRng(1);
-    place_lregion(1, 0, 79, 20, 0, 0, 0, 0,
+    await place_lregion(1, 0, 79, 20, 0, 0, 0, 0,
                   LR_DOWNTELE, null, state);
 
     assert.deepEqual([state.u.ux, state.u.uy], [79, 20]);
 });
 
 test('unbounded branch placement is refused only for a level with rooms',
-    () => {
+    async () => {
         const state = placementState();
         state.level.nroom = 0;
-        assert.throws(
-            () => place_lregion(0, 0, 0, 0, 0, 0, 0, 0,
-                                LR_BRANCH, null, state),
+        await assert.rejects(
+            place_lregion(0, 0, 0, 0, 0, 0, 0, 0,
+                          LR_BRANCH, null, state),
             (error) => !(error instanceof UnsupportedRegionPlacementError)
                 && error.message === `Couldn't place lregion type ${LR_BRANCH}!`,
         );

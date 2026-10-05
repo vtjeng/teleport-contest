@@ -69,7 +69,7 @@ import { vtense } from './objnam.js';
 import { note_unported } from './unported.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canspotmon } from './display.js';
-import { wake_nearto } from './mon.js';
+import { mnexto as moveMonsterNextTo, wake_nearto } from './mon.js';
 import { verbalize } from './pline.js';
 
 // monflag.h M3_WANTS* values. They are kept here with wizard.c's consumers
@@ -679,7 +679,7 @@ export async function tactics(monster, rawEnv = {}) {
     const mnearto = wizardOperation(rawEnv, 'mnearto');
     const rlocTo = wizardOperation(rawEnv, 'rlocTo');
     const rloc = wizardOperation(rawEnv, 'rloc');
-    const mnexto = wizardOperation(rawEnv, 'mnexto');
+    const mnexto = rawEnv.mnexto ?? moveMonsterNextTo;
     const healmon = wizardOperation(rawEnv, 'healmon');
     const message = rawEnv.message ?? ttyPline;
     const mstrategy = strategy(monster, state, rawEnv);

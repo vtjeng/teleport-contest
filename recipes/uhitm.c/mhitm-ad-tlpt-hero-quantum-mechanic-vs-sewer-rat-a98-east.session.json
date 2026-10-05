@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Second C-first hero-to-monster AD_TLPT setup attempt, preserved as a miss. The first C map shows the created sewer rat north of the Quantum Mechanic; this eastward l key moves away from it and never reaches uhitm.c:damageum -> mhitm_adtyping(AD_TLPT) -> mhitm_ad_tlpt. The source/key map identifies k as the needed northward attack, but this recipe does not contain that unattempted input.",
+  "segments": [
+    {
+      "seed": 89423017,
+      "datetime": "20470611091234",
+      "nethackrc": "OPTIONS=name:A98HeroQM,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #polyself\nquantum mechanic\n #wizgenesis\nhostile sewer rat\nl"
+    }
+  ]
+}

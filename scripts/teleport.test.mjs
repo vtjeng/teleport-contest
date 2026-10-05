@@ -30,6 +30,7 @@ import {
     ROOM,
     ROWNO,
     SWIMMING,
+    TELEPORT_CONTROL,
     WWALKING,
     OBJ_FREE,
     STONE,
@@ -60,11 +61,11 @@ import {
     add_region,
     create_region,
 } from '../js/region.js';
+import { mnexto } from '../js/mon.js';
 import {
     collect_coords,
     enexto_core,
     goodpos,
-    mnexto,
     noteleport_level,
     random_teleport_level,
     rloco,
@@ -72,9 +73,12 @@ import {
     rloc_to,
     rloc_to_flag,
     scrolltele,
+    stairway_find_forwiz,
+    tele,
     tele_restrict,
     u_teleport_mon,
 } from '../js/teleport.js';
+import { planningState } from '../js/unported_monster_actions.js';
 import { resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { BOULDER, ROCK, SCR_SCARE_MONSTER } from '../js/objects.js';
@@ -87,6 +91,12 @@ const C_TELEPORT_SOURCE = readFileSync(
 );
 const JS_TELEPORT_SOURCE = readFileSync(
     new URL('../js/teleport.js', import.meta.url), 'utf8',
+);
+const C_MON_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8',
+);
+const JS_MON_SOURCE = readFileSync(
+    new URL('../js/mon.js', import.meta.url), 'utf8',
 );
 
 function sourceScrolltele(source, start, end) {
@@ -151,6 +161,26 @@ function descending(from) {
     return Array.from({ length: from - 1 }, (_, index) => from - index);
 }
 
+test('decide_to_shapeshift awaits closed-door vampire relocation in C order', () => {
+    const cShift = sourceScrolltele(
+        C_MON_SOURCE,
+        'void\ndecide_to_shapeshift(struct monst *mon)',
+        'staticfn int\npickvampshape',
+    );
+    const jsShift = sourceScrolltele(
+        JS_MON_SOURCE,
+        'export async function decide_to_shapeshift(',
+        '// C ref: were.c counter_were().',
+    );
+
+    // C relocates an amorphous shifted vampire before calling newcham(); the
+    // async port must finish that same-square change before its form change.
+    assert.ok(cShift.indexOf('rloc_to(mon, new_xy.x, new_xy.y)')
+        < cShift.indexOf('newcham(mon, ptr, NC_SHOW_MSG)'));
+    assert.ok(jsShift.indexOf('await rloc_to(monster, destination.x, destination.y')
+        < jsShift.indexOf('await newcham_distress(monster, target, shapeEnv)'));
+});
+
 test('scrolltele keeps C discovery and control decisions in source order', () => {
     const cScrolltele = sourceScrolltele(
         C_TELEPORT_SOURCE,
@@ -159,7 +189,7 @@ test('scrolltele keeps C discovery and control decisions in source order', () =>
     );
     const jsScrolltele = sourceScrolltele(
         JS_TELEPORT_SOURCE,
-        'export async function scrolltele(scroll, state = game)',
+        'export async function scrolltele(scroll, state = game, rawEnv = {})',
         '// C ref: teleport.c tele()',
     );
 
@@ -176,7 +206,8 @@ test('scrolltele keeps C discovery and control decisions in source order', () =>
     assert.match(cScrolltele, /!wizard\s*\|\|\s*y_n\("Override\?"\) != 'y'/u);
     assert.match(cScrolltele,
         /Teleport_control\s*\|\|\s*\(scroll\s*&&\s*scroll->blessed\)/u);
-    assert.match(jsScrolltele, /y_n\('Override\?'[\s\S]*?'y'\.charCodeAt\(0\)/u);
+    assert.match(jsScrolltele,
+        /teleportInput\(env,\s*'y_n',\s*y_n\)[\s\S]*?askYesNo\('Override\?'[\s\S]*?'y'\.charCodeAt\(0\)/u);
     assert.match(jsScrolltele,
         /Teleport_control_prop\(state\)\s*\|\|\s*Boolean\(scroll\?\.blessed\)/u);
 
@@ -187,13 +218,175 @@ test('scrolltele keeps C discovery and control decisions in source order', () =>
     );
     const cGetpos = cScrolltele.indexOf('getpos(&cc');
     const jsControlledLearn = jsScrolltele.indexOf(
-        'learnscroll(scroll, state)', jsScrolltele.indexOf('Where do ${whobuf}'),
+        'learnscroll(scroll, state)', jsScrolltele.indexOf('`Where do ${whobuf}'),
     );
-    const jsGetpos = jsScrolltele.indexOf('await getpos(');
+    const jsGetpos = jsScrolltele.indexOf('await selectPosition(');
     assert.ok(cControlledLearn < cGetpos);
     assert.ok(jsControlledLearn < jsGetpos);
     assert.ok(jsGetpos < jsScrolltele.lastIndexOf('learnscroll(scroll, state)'));
 });
+
+test('planned teleport uses its cloned RNG and map redraw seams', async () => {
+    // This independently chosen initialized game supplies a real map; the
+    // cloned amulet forces C's rn2(3) gate before safe_teleds uses rnd/rn2.
+    await runSegment({
+        seed: 29,
+        datetime: '20420101090000',
+        nethackrc: 'OPTIONS=name:PlannedTeleport,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n',
+        moves: '',
+        storage: new InMemoryStorage(),
+    });
+    const livePosition = { x: game.u.ux, y: game.u.uy };
+    const liveCoreContext = structuredClone(game.coreCtx);
+    const liveScreen = game.nhDisplay.serialize();
+    const planned = planningState(game);
+    planned.u.uhave.amulet = true;
+
+    const sourceType = planned.level.at(planned.u.ux, planned.u.uy).typ;
+    let destination = null;
+    for (let x = 1; x < COLNO && !destination; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const location = planned.level.at(x, y);
+            if ((x === planned.u.ux && y === planned.u.uy)
+                || location.typ !== sourceType
+                || planned.level.monsters[x][y]
+                || planned.level.traps.some(
+                    (trap) => trap.tx === x && trap.ty === y,
+                )
+                || !goodpos(x, y, planned.youmonst, 0, { state: planned }))
+                continue;
+            destination = { x, y };
+            break;
+        }
+    }
+    assert.ok(destination, 'the map has a free same-terrain square');
+
+    const randomCalls = [];
+    const redrawCalls = [];
+    const messages = [];
+    await tele(planned, {
+        state: planned,
+        planning: true,
+        random: {
+            rn2(bound) {
+                randomCalls.push(['rn2', bound]);
+                if (bound === 3) return 1; // Decline C's disorientation branch.
+                if (bound === ROWNO) return destination.y;
+                return 0;
+            },
+            rnd(bound) {
+                randomCalls.push(['rnd', bound]);
+                if (bound === COLNO - 1) return destination.x;
+                return 1;
+            },
+            d: () => 1,
+        },
+        message: async (line) => messages.push(line),
+        redraw: (x, y) => redrawCalls.push([x, y]),
+        displayRandom: () => 0,
+    });
+
+    assert.deepEqual(randomCalls.slice(0, 3), [
+        ['rn2', 3],
+        ['rnd', COLNO - 1],
+        ['rn2', ROWNO],
+    ]);
+    assert.deepEqual([planned.u.ux, planned.u.uy], [
+        destination.x, destination.y,
+    ]);
+    assert.deepEqual([game.u.ux, game.u.uy], [livePosition.x, livePosition.y]);
+    assert.deepEqual(game.coreCtx, liveCoreContext,
+        'the planning pass leaves live gameplay RNG unchanged');
+    assert.equal(game.nhDisplay.serialize(), liveScreen,
+        'the planning redraw seam does not paint the live terminal');
+    assert.ok(redrawCalls.length > 0,
+        'the cloned teleds path uses the caller-owned redraw seam');
+    assert.ok(messages.includes('You materialize in the same location!'),
+        'the clone message is captured by its caller-owned message seam');
+
+    // Controlled teleport takes getpos from the same planning environment.
+    planned.u.uprops[TELEPORT_CONTROL] = { intrinsic: 1, extrinsic: 0 };
+    const controlledMessages = [];
+    const selected = { ...livePosition };
+    let getposCalls = 0;
+    await scrolltele(null, planned, {
+        state: planned,
+        planning: true,
+        random: { rn2: () => 1, rnd: () => 1, d: () => 1 },
+        message: async (line) => controlledMessages.push(line),
+        getpos: async (coordinate) => {
+            getposCalls++;
+            coordinate.x = selected.x;
+            coordinate.y = selected.y;
+            return 0;
+        },
+        redraw: (x, y) => redrawCalls.push([x, y]),
+        displayRandom: () => 0,
+    });
+    assert.equal(getposCalls, 1);
+    assert.ok(controlledMessages.some((line) =>
+        line.startsWith('Where do you want to be teleported?')));
+    assert.deepEqual([game.u.ux, game.u.uy], [livePosition.x, livePosition.y]);
+    assert.deepEqual(game.coreCtx, liveCoreContext);
+    assert.equal(game.nhDisplay.serialize(), liveScreen);
+});
+
+test('planning relocation records the discarded swallowed-map redraw gap',
+    async () => {
+        await runSegment({
+            seed: 29,
+            datetime: '20420101090000',
+            nethackrc: 'OPTIONS=name:SwallowedRelocation,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n',
+            moves: '',
+            storage: new InMemoryStorage(),
+        });
+        const liveScreen = game.nhDisplay.serialize();
+        const priorUnported = new Set(game.unported ?? []);
+        const state = planningState(game);
+        const oldx = state.u.ux + 1;
+        const oldy = state.u.uy;
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mnum: PM_SEWER_RAT,
+            m_id: 98765,
+            mx: oldx,
+            my: oldy,
+            mhp: 8,
+            mhpmax: 8,
+        });
+        place_monster(monster, oldx, oldy, state);
+        state.u.ustuck = monster;
+        state.u.uswallow = true;
+        let destination = null;
+        for (let x = 1; x < COLNO && !destination; ++x) {
+            for (let y = 0; y < ROWNO; ++y) {
+                if (goodpos(x, y, monster, 0, { state })
+                    && !(x === oldx && y === oldy)) {
+                    destination = { x, y };
+                    break;
+                }
+            }
+        }
+        assert.ok(destination);
+        const redraws = [];
+        const result = rloc_to(monster, destination.x, destination.y, {
+            state,
+            planning: true,
+            random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
+            redraw: (x, y) => redraws.push([x, y]),
+            message: async () => {},
+            setApparxy: () => {},
+        });
+        if (result && typeof result.then === 'function') await result;
+
+        assert.equal(game.nhDisplay.serialize(), liveScreen,
+            'the clone does not call global docrt or paint the live display');
+        assert.ok(redraws.length > 0,
+            'the clone still performs its owned monster redraws');
+        assert.ok(game.unported.has('display.c docrt'),
+            'the discarded C redraw is named instead of running live docrt');
+        game.unported = priorUnported;
+    });
 
 test('wizard can decline scrolltele disorientation after the C rn2(3) gate',
     async () => {
@@ -318,6 +511,24 @@ test('tele_restrict returns the C block result and only messages when seen', asy
     state.level.flags.noteleport = false;
     assert.equal(await tele_restrict(monster, state, env), false);
     assert.deepEqual(messages, []);
+});
+
+test('mtele_trap uses the canonical RLOC_MSG relocation caller', () => {
+    const cTrap = sourceScrolltele(
+        C_TELEPORT_SOURCE,
+        'void\nmtele_trap(struct monst *mtmp, struct trap *trap, int in_sight)',
+        'int\nmlevel_tele_trap(',
+    );
+    const jsTrap = sourceScrolltele(
+        JS_TELEPORT_SOURCE,
+        'export async function mtele_trap(',
+        '// C ref: teleport.c mlevel_tele_trap()',
+    );
+    assert.match(cTrap,
+        /rloc_to_core\(mtmp, trap->teledest\.x, trap->teledest\.y,\s*RLOC_MSG\)/u);
+    assert.match(jsTrap,
+        /await rloc_to_flag\([\s\S]*?destinationX,[\s\S]*?destinationY,\s*RLOC_MSG,\s*env,\s*\)/u);
+    assert.doesNotMatch(jsTrap, /relocateToFixedDestination/u);
 });
 
 test('level_tele evaluates next_to_u before a forced wizard destination', () => {
@@ -456,7 +667,9 @@ test('rloc enforces inclusive down and up destination bounds', () => {
     assert.match(cTeleJump, /within_bounded_area\(/u);
 
     const jsStart = JS_TELEPORT_SOURCE.indexOf('function tele_jump_ok(');
-    const jsEnd = JS_TELEPORT_SOURCE.indexOf('\nfunction rlocPositionOk(', jsStart);
+    const jsEnd = JS_TELEPORT_SOURCE.indexOf(
+        '\n\n// C ref: teleport.c rloc_pos_ok()', jsStart,
+    );
     assert.notEqual(jsStart, -1);
     assert.notEqual(jsEnd, -1);
     const jsTeleJump = JS_TELEPORT_SOURCE.slice(jsStart, jsEnd);
@@ -684,7 +897,7 @@ test('goodpos wires C-owned scary, air, and exclusion checks directly', () => {
         /sengr_at\("Elbereth", x, y, TRUE\)/u);
     assert.match(JS_TELEPORT_SOURCE, /import \{ sengr_at \} from '\.\/engrave\.js'/u);
     assert.match(JS_TELEPORT_SOURCE,
-        /import \{ accessible, closed_door, onscary \} from '\.\/monmove\.js'/u);
+        /import \{[\s\S]*?accessible,[\s\S]*?closed_door,[\s\S]*?onscary,[\s\S]*?\} from '\.\/monmove\.js'/u);
     assert.match(jsGoodpos, /sengr_at\('Elbereth', x, y, true, state\)/u);
     assert.match(cGoodpos, /m_in_air\(mtmp\)/u);
     assert.match(jsGoodpos, /m_in_air\(monster, state\)/u);
@@ -723,11 +936,11 @@ test('teleds awaits spoteffects on an occupied destination', () => {
     assert.match(cTeleds, /u_on_newpos\(nux, nuy\)/u);
     assert.match(cTeleds, /spoteffects\(TRUE\)/u);
     assert.doesNotMatch(cTeleds, /m_at\(nux, nuy\)/u);
-    assert.match(jsTeleds, /u_on_newpos\(nux, nuy, state\)/u);
-    assert.match(jsTeleds, /await spoteffects\(true, state\)/u);
+    assert.match(jsTeleds, /u_on_newpos\(nux, nuy, state, \{/u);
+    assert.match(jsTeleds, /await spoteffects\(true, state, env\)/u);
     assert.doesNotMatch(jsTeleds, /m_at\(nux, nuy, state\)/u);
-    assert.ok(jsTeleds.indexOf('u_on_newpos(')
-        < jsTeleds.indexOf('await spoteffects(true, state)'),
+    assert.ok(jsTeleds.indexOf('u_on_newpos(nux, nuy, state, {')
+        < jsTeleds.indexOf('await spoteffects(true, state, env)'),
     'the hero arrives before the surprise effects are awaited');
 });
 
@@ -808,7 +1021,61 @@ test('goodpos uses canonical scary owners for both fake and live monsters', () =
     assert.equal(goodpos(x, y, live, GP_CHECKSCARY | GP_ALLOW_U, env), true);
 });
 
-test('mnexto preserves monster identity and list linkage while relocating', () => {
+test('stairway_find_forwiz returns the first matching stair on this dungeon', () => {
+    // C teleport.c:1786-1798 scans the linked list in order and requires an
+    // exact ladder/upward/dungeon match. These nodes isolate each predicate.
+    const cHelper = sourceScrolltele(
+        C_TELEPORT_SOURCE,
+        'staticfn stairway *\nstairway_find_forwiz(boolean isladder, boolean up)',
+        '\n/* place a monster at a random location',
+    );
+    const jsHelper = sourceScrolltele(
+        JS_TELEPORT_SOURCE,
+        'export function stairway_find_forwiz(',
+        '\n\nfunction thenResult(',
+    );
+    assert.match(cHelper,
+        /stway->isladder == isladder[\s\S]*stway->up == up[\s\S]*stway->tolev\.dnum == u\.uz\.dnum/u);
+    assert.match(jsHelper,
+        /stairway\.isladder === isladder[\s\S]*stairway\.up === up[\s\S]*stairway\.tolev\?\.dnum === state\.u\?\.uz\?\.dnum/u);
+
+    const state = positionState();
+    const wrongDungeon = {
+        isladder: false, // C compares this flag before accepting a stair.
+        up: true,
+        tolev: { dnum: 1 }, // The current dungeon in positionState is 0.
+        next: null,
+    };
+    const wrongDirection = {
+        isladder: false,
+        up: false, // A down stair does not match the requested up stair.
+        tolev: { dnum: 0 },
+        next: null,
+    };
+    const firstMatch = {
+        isladder: false,
+        up: true,
+        tolev: { dnum: 0 },
+        sx: 7, // The returned pointer must be the first matching stair.
+        next: null,
+    };
+    const laterMatch = {
+        isladder: false,
+        up: true,
+        tolev: { dnum: 0 },
+        sx: 8,
+        next: null,
+    };
+    wrongDungeon.next = wrongDirection;
+    wrongDirection.next = firstMatch;
+    firstMatch.next = laterMatch;
+    state.stairs = wrongDungeon;
+
+    assert.equal(stairway_find_forwiz(false, true, state), firstMatch);
+    assert.equal(stairway_find_forwiz(true, true, state), null);
+});
+
+test('mnexto preserves monster identity and list linkage while relocating', async () => {
     const state = positionState();
     for (let x = 1; x < 80; ++x)
         for (let y = 0; y < 21; ++y) state.level.at(x, y).typ = ROOM;
@@ -826,11 +1093,11 @@ test('mnexto preserves monster identity and list linkage while relocating', () =
     place_monster(monster, state.u.ux, state.u.uy, state);
     const draws = boundsRandom();
 
-    const relocated = mnexto(monster, 0, {
+    const relocated = await mnexto(monster, 0, {
         state,
         random: draws.random,
     });
-    assert.equal(relocated, monster);
+    assert.equal(relocated, undefined);
     assert.equal(state.level.monlist, monster);
     assert.equal(state.level.monsters[10][10], null);
     assert.equal(state.level.monsters[9][9], monster);
@@ -840,11 +1107,14 @@ test('mnexto preserves monster identity and list linkage while relocating', () =
         monster.mtrack,
         Array.from({ length: 4 }, () => ({ x: 0, y: 0 })),
     );
-    assert.equal(draws.bounds.length, 45);
+    // enexto's 45 candidate draws are followed by set_apparxy's C-source
+    // displacement roll for a monster that cannot see the hero.
+    assert.equal(draws.bounds.length, 46);
+    assert.equal(draws.bounds.at(-1), 3);
 });
 
 test('rloc keeps random coordinate and relocation side effects in source order',
-    () => {
+    async () => {
         const state = positionState();
         const monster = newMonster({
             data: state.mons[PM_SEWER_RAT],
@@ -857,7 +1127,7 @@ test('rloc keeps random coordinate and relocation side effects in source order',
         place_monster(monster, 10, 11, state);
         const calls = [];
 
-        assert.equal(rloc(monster, 0, {
+        assert.equal(await rloc(monster, 0, {
             state,
             random: {
                 rnd(bound) {
@@ -928,11 +1198,11 @@ test('rloc returns immediately when random selection finds the current square',
         assert.equal(state.level.monsters[12][9], monster);
     });
 
-test('rloc carries ordinary inventory without invoking shop side effects',
-    () => {
+test('rloc carries ordinary inventory and clears no-charge status after placement',
+    async () => {
         const state = positionState();
         const carried = {
-            no_charge: false,
+            no_charge: true,
             unpaid: false,
             nobj: null,
         };
@@ -947,7 +1217,7 @@ test('rloc carries ordinary inventory without invoking shop side effects',
         state.level.at(12, 9).typ = ROOM;
         place_monster(monster, 10, 11, state);
 
-        assert.equal(rloc(monster, 0, {
+        assert.equal(await rloc(monster, 0, {
             state,
             random: {
                 rnd: () => 12, // The prepared accessible destination column.
@@ -960,13 +1230,12 @@ test('rloc carries ordinary inventory without invoking shop side effects',
 
         assert.deepEqual([monster.mx, monster.my], [12, 9]);
         assert.equal(monster.minvent, carried);
-        assert.deepEqual(
-            [carried.no_charge, carried.unpaid],
-            [false, false],
-        );
+        assert.equal(carried.no_charge, 0);
+        assert.equal(carried.unpaid, false);
     });
 
-test('rloc rejects carried shop state before its first destination draw', () => {
+test('rloc clears no-charge status but preserves unpaid status without a bill owner',
+    async () => {
     for (const property of ['no_charge', 'unpaid']) {
         const state = positionState();
         const carried = {
@@ -983,68 +1252,54 @@ test('rloc rejects carried shop state before its first destination draw', () => 
             minvent: carried,
         });
         state.level.at(10, 11).typ = ROOM;
+        state.level.at(12, 9).typ = ROOM;
         place_monster(monster, 10, 11, state);
         let draws = 0;
 
-        assert.throws(() => rloc(monster, 0, {
+        assert.equal(await rloc(monster, 0, {
             state,
             random: {
-                rnd: () => ++draws,
-                rn2: () => ++draws,
+                rnd: () => { ++draws; return 12; },
+                rn2: () => { ++draws; return 9; },
             },
             newsym: () => {},
             onscary: () => false,
             setApparxy: () => {},
-        }), /random relocation of carried shop goods/u);
-        assert.equal(draws, 0);
-        assert.deepEqual([monster.mx, monster.my], [10, 11]);
+        }), true);
+        assert.equal(draws, 2);
+        assert.deepEqual([monster.mx, monster.my], [12, 9]);
+        assert.equal(carried.no_charge, property === 'no_charge' ? 0 : false);
+        assert.equal(carried.unpaid, property === 'unpaid');
     }
 });
 
-test('rloc keeps its preflight refusals while core worm placement is wired', () => {
-    // The randomized rloc() wrapper still refuses the unported ustuck,
-    // mtrapped, hidden-monster, and occupation preflight paths. These are not
-    // rloc_to_core()'s worm or maybe_unhide_at() behavior: direct rloc_to()
-    // now runs those source-wired arms, with its separate remaining tail
-    // guards covered below. Each preflight state is set alone so a guard
-    // joining any two of them would let that state through.
-    //
-    // STRAT_APPEARMSG is now admitted: the messaging block that reads it is
-    // ported.
-    //
-    // The occupation term names state.go.occupation, cmd.c set_occupation()'s
-    // home for C's go.occupation. It used to name a bare state.occupation that
-    // nothing in js/ assigns, so it refused nothing.
-    for (const [name, set] of [
-        ['ustuck', (mon, state) => { state.u.ustuck = mon; }],
-        ['mtrapped', (mon) => { mon.mtrapped = 1; }],
-        ['mundetected', (mon) => { mon.mundetected = 1; }],
-        ['occupation', (mon, state) => { state.go.occupation = () => 0; }],
-    ]) {
-        const state = positionState();
-        state.go = {};
-        state.level.at(10, 11).typ = ROOM;
-        const monster = newMonster({
-            data: state.mons[PM_SEWER_RAT],
-            mhp: 2, // A live monster selects the ordinary relocation path.
-            mhpmax: 2,
-            m_id: 89, // A nonzero id selects live-monster scary checks.
-        });
-        place_monster(monster, 10, 11, state);
-        let draws = 0;
-        set(monster, state);
-
-        assert.throws(() => rloc(monster, 0, {
-            state,
-            random: { rnd: () => ++draws, rn2: () => ++draws },
-            newsym: () => {},
-            onscary: () => false,
-            setApparxy: () => {},
-        }), /extended rloc_to_core side effects/u, name);
-        // The guard precedes every destination draw, so the refusal is atomic.
-        assert.equal(draws, 0, name);
-        assert.deepEqual([monster.mx, monster.my], [10, 11], name);
+test('rloc_to_core follows C placement, shop, occupation, and trap tail order', () => {
+    const cStart = C_TELEPORT_SOURCE.indexOf('rloc_to_core(\n',
+        C_TELEPORT_SOURCE.indexOf('/*\n * rloc_to()'));
+    const cEnd = C_TELEPORT_SOURCE.indexOf('\nvoid\nrloc_to(', cStart);
+    const jsStart = JS_TELEPORT_SOURCE.indexOf('function rloc_to_core(');
+    const jsEnd = JS_TELEPORT_SOURCE.indexOf('\n// C ref: teleport.c rloc_to_flag()', jsStart);
+    const cBody = C_TELEPORT_SOURCE.slice(cStart, cEnd);
+    const jsBody = JS_TELEPORT_SOURCE.slice(jsStart, jsEnd);
+    assert.notEqual(cStart, -1);
+    assert.notEqual(cEnd, -1);
+    assert.notEqual(jsStart, -1);
+    assert.notEqual(jsEnd, -1);
+    for (const [source, body] of [['C', cBody], ['JS', jsBody]]) {
+        const unhide = body.indexOf('maybe_unhide_at');
+        const redraw = body.indexOf(
+            source === 'C' ? 'newsym' : 'redraw(', unhide,
+        );
+        const apparent = body.indexOf('set_apparxy', redraw);
+        const occupation = body.indexOf('occupation', apparent);
+        const trapped = body.indexOf('mtrapped', occupation);
+        assert.ok(unhide >= 0 && redraw > unhide && apparent > redraw,
+            `${source} redraws after placement and before apparent-position update`);
+        assert.ok(occupation > apparent && trapped > occupation,
+            `${source} runs occupation before the trapped-monster tail`);
     }
+    assert.match(cBody, /stolen_value\(/u);
+    assert.match(jsBody, /stolen_value\(/u);
 });
 
 test('rloc exhausts fifty trials before its unshuffled fallback and backup',
@@ -1111,7 +1366,8 @@ test('rloc exhausts fifty trials before its unshuffled fallback and backup',
         assert.deepEqual([monster.mx, monster.my], [safeX, safeY]);
     });
 
-test('rloc preflights live relocation operations before its first draw', () => {
+test('rloc uses canonical relocation display operations when hooks are omitted',
+    async () => {
     const state = positionState();
     const monster = newMonster({
         data: state.mons[PM_SEWER_RAT],
@@ -1120,10 +1376,11 @@ test('rloc preflights live relocation operations before its first draw', () => {
         m_id: 87, // A nonzero id selects live-monster scary checks.
     });
     state.level.at(10, 11).typ = ROOM;
+    state.level.at(12, 9).typ = ROOM;
     place_monster(monster, 10, 11, state);
     let draws = 0;
 
-    assert.throws(() => rloc(monster, 0, {
+    assert.equal(await rloc(monster, 0, {
         state,
         random: {
             rnd() {
@@ -1135,12 +1392,13 @@ test('rloc preflights live relocation operations before its first draw', () => {
                 return 9;
             },
         },
-        // Omit newsym to exercise atomic dependency validation.
+        // The canonical source operation supplies the omitted redraw hook.
         onscary: () => false,
         setApparxy: () => {},
-    }), /random relocation without newsym/u);
-    assert.equal(draws, 0);
-    assert.equal(state.level.monsters[10][11], monster);
+    }), true);
+    assert.equal(draws, 2);
+    assert.equal(state.level.monsters[10][11], null);
+    assert.equal(state.level.monsters[12][9], monster);
 });
 
 // C ref: teleport.c rloc_to_core() lines 1652-1732 -- messaging block.
@@ -1322,18 +1580,36 @@ function arrivingMonster(state) {
     return monster;
 }
 
-test('rloc_to places a monster that holds no square', () => {
+test('rloc_to places a monster that holds no square and ignores flag overrides', async () => {
     const state = positionState();
     state.level.at(10, 11).typ = ROOM;
     const monster = arrivingMonster(state);
 
-    assert.equal(rloc_to(monster, 10, 11, { state, newsym: () => {} }),
-        monster);
+    const messages = [];
+    assert.equal(await rloc_to(monster, 10, 11, {
+        state,
+        rlocflags: RLOC_MSG, // C rloc_to() hard-codes RLOC_NOMSG.
+        newsym: () => {},
+        message: async (line) => messages.push(line),
+    }), undefined);
     assert.deepEqual([monster.mx, monster.my], [10, 11]);
     assert.equal(state.level.monsters[10][11], monster);
     // set_apparxy() answers the hero's own square for the tame followers
     // mon_arrive() admits.
     assert.deepEqual([monster.mux, monster.muy], [state.u.ux, state.u.uy]);
+    assert.deepEqual(messages, [], 'the rloc_to wrapper always suppresses messages');
+
+    // This on-map move would emit a vanish/reappear line if the wrapper
+    // allowed a caller-supplied RLOC_MSG to override C's RLOC_NOMSG.
+    state.level.at(12, 11).typ = ROOM;
+    setupVision(state);
+    await rloc_to(monster, 12, 11, {
+        state,
+        rlocflags: RLOC_MSG,
+        newsym: () => {},
+        message: async (line) => messages.push(line),
+    });
+    assert.deepEqual(messages, []);
 });
 
 test('rloc_to_flag keeps RLOC_MSG separate from unflagged arrival placement',
@@ -1400,8 +1676,8 @@ test('planned hallucinated flagged relocation uses its display RNG seam',
         assert.equal(messages.length, 1);
     });
 
-test('rloc_to moves ordinary and worm monsters and refuses remaining tails',
-    () => {
+test('rloc_to moves ordinary and worm monsters in source draw order',
+    async () => {
     const state = positionState();
     state.level.at(10, 11).typ = ROOM;
 
@@ -1411,7 +1687,7 @@ test('rloc_to moves ordinary and worm monsters and refuses remaining tails',
     place_monster(placed, 10, 11, state);
     const redraws = [];
     assert.equal(
-        rloc_to(placed, 12, 11, {
+        await rloc_to(placed, 12, 11, {
             state,
             newsym(x, y) {
                 redraws.push([x, y]);
@@ -1423,7 +1699,7 @@ test('rloc_to moves ordinary and worm monsters and refuses remaining tails',
                 }
             },
         }),
-        placed,
+        undefined,
     );
     assert.deepEqual(redraws, [[10, 11], [12, 11]]);
     assert.equal(state.level.monsters[10][11], null);
@@ -1451,7 +1727,7 @@ test('rloc_to moves ordinary and worm monsters and refuses remaining tails',
     place_monster(worm, 10, 11, state);
     state.level.monsters[9][11] = worm;
     const wormDraws = [];
-    assert.equal(rloc_to(worm, 12, 11, {
+    assert.equal(await rloc_to(worm, 12, 11, {
         state,
         random: {
             rn2(bound) {
@@ -1461,7 +1737,8 @@ test('rloc_to moves ordinary and worm monsters and refuses remaining tails',
             rnd: () => 1,
         },
         newsym: () => {},
-    }), worm);
+        setApparxy: () => {},
+    }), undefined);
     assert.deepEqual([worm.mx, worm.my], [12, 11]);
     assert.equal(state.level.monsters[9][11], null,
         'the original tail square is cleared before relocation');
@@ -1473,43 +1750,9 @@ test('rloc_to moves ordinary and worm monsters and refuses remaining tails',
     assert.equal(state.level.monsters[visibleTail.x][visibleTail.y], worm,
         'the new visible segment is occupied by the worm');
 
-    // Each remaining term of the side-effect guard on its own. The occupation term names
-    // state.go.occupation, where cmd.c set_occupation() puts C's
-    // go.occupation; it used to name a bare state.occupation that nothing in
-    // js/ assigns, so it refused nothing.
-    state.go = {};
-    for (const set of [
-        (mon) => { mon.isshk = true; },
-        (mon) => { state.u.ustuck = mon; },
-        (mon) => { mon.mtrapped = 1; },
-        () => { state.go.occupation = () => 0; },
-    ]) {
-        const monster = arrivingMonster(state);
-        state.u.ustuck = null;
-        state.go.occupation = null;
-        set(monster);
-        assert.throws(
-            () => rloc_to(monster, 10, 11, { state, newsym: () => {} }),
-            /extended rloc_to_core side effects/u,
-        );
-        assert.equal(state.level.monsters[10][11] ?? null, null);
-    }
-    state.u.ustuck = null;
-    state.go.occupation = null;
-
-    // Carried shop goods reach stolen_value() and make_angry_shk(); either
-    // field on any carried object is enough.
-    for (const field of ['no_charge', 'unpaid']) {
-        const monster = arrivingMonster(state);
-        monster.minvent = { nobj: { nobj: null, [field]: 1 } };
-        assert.throws(
-            () => rloc_to(monster, 10, 11, { state, newsym: () => {} }),
-            /carried shop goods/u,
-        );
-    }
 });
 
-test('mnexto refreshes every gas-region monster membership after relocation', () => {
+test('mnexto refreshes every gas-region monster membership after relocation', async () => {
     const state = positionState();
     for (let x = 1; x < 80; ++x)
         for (let y = 0; y < 21; ++y) state.level.at(x, y).typ = ROOM;
@@ -1551,7 +1794,7 @@ test('mnexto refreshes every gas-region monster membership after relocation', ()
         [[monster.m_id, second.m_id, third.m_id], [], [monster.m_id]],
     );
 
-    mnexto(monster, 0, {
+    await mnexto(monster, 0, {
         state,
         random: boundsRandom().random,
     });
@@ -1563,9 +1806,26 @@ test('mnexto refreshes every gas-region monster membership after relocation', ()
     );
 });
 
-test('mnexto honors wizard monster-teleport control before relocation', () => {
+test('mnexto repeats its hallucinatory name after the prompt', async () => {
+    const cControl = sourceScrolltele(
+        C_TELEPORT_SOURCE,
+        'boolean\ncontrol_mon_tele(',
+        'staticfn void\nmvault_tele(',
+    );
+    const jsControl = sourceScrolltele(
+        JS_TELEPORT_SOURCE,
+        'export async function control_mon_tele(',
+        '// C ref: teleport.c rloc().',
+    );
+    assert.equal((cControl.match(/noit_mon_nam\(mon\)/gu) ?? []).length, 2);
+    assert.equal((jsControl.match(/noit_mon_nam\(monster, state, env\)/gu) ?? []).length, 2);
+
     const state = positionState();
+    state.wizard = true;
     state.iflags = { mon_telecontrol: true };
+    state.u.uprops = [];
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
     for (let x = 1; x < 80; ++x)
         for (let y = 0; y < 21; ++y) state.level.at(x, y).typ = ROOM;
     const monster = newMonster({
@@ -1578,25 +1838,42 @@ test('mnexto honors wizard monster-teleport control before relocation', () => {
     place_monster(monster, state.u.ux, state.u.uy, state);
     const draws = boundsRandom();
     const calls = [];
+    const events = [];
+    const displayBounds = [];
 
-    const relocated = mnexto(monster, 37, {
+    const relocated = await mnexto(monster, 37, {
         state,
         random: draws.random,
-        controlMonsterTeleport(controlled, coordinate, flags, viaRloc) {
-            calls.push([controlled, { ...coordinate }, flags, viaRloc]);
+        message: async (line) => events.push(['message', line]),
+        displayRandom(bound) {
+            displayBounds.push(bound);
+            // The first two values select a killer bee name; the next two
+            // select a soldier ant name for C's second noit_mon_nam call.
+            if (displayBounds.length === 1) return 1;
+            if (displayBounds.length === 2) return 0;
+            if (displayBounds.length === 3) return 2;
+            return 1;
+        },
+        getpos: async (coordinate, force, goal, currentState) => {
+            calls.push([force, goal]);
+            events.push(['getpos', goal]);
             coordinate.x = 12;
             coordinate.y = 10;
-            return true;
+            return 0;
         },
     });
-    assert.equal(relocated, monster);
+    assert.equal(relocated, undefined);
     assert.deepEqual([monster.mx, monster.my], [12, 10]);
     assert.equal(state.level.monsters[10][10], null);
     assert.equal(state.level.monsters[12][10], monster);
-    assert.deepEqual(calls, [[monster, { x: 9, y: 9 }, 37, false]]);
+    assert.equal(displayBounds.length, 4,
+        'both noit_mon_nam calls draw name and gender from display RNG');
+    assert.match(events[0][1], /Teleport the killer bee @ <10,10> where\?/u);
+    assert.deepEqual(calls, [[false, 'where to teleport the soldier ant']]);
+    assert.deepEqual(events.map(([kind]) => kind), ['message', 'getpos']);
 });
 
-test('mnexto fails before relocation when wizard control is unavailable', () => {
+test('mnexto keeps the derived square when wizard control is unavailable', async () => {
     const state = positionState();
     state.iflags = { mon_telecontrol: true };
     for (let x = 1; x < 80; ++x)
@@ -1610,15 +1887,12 @@ test('mnexto fails before relocation when wizard control is unavailable', () => 
     state.level.monlist = monster;
     place_monster(monster, state.u.ux, state.u.uy, state);
 
-    assert.throws(
-        () => mnexto(monster, 0, {
-            state,
-            random: boundsRandom().random,
-        }),
-        /montelecontrol/,
-    );
-    assert.deepEqual([monster.mx, monster.my], [10, 10]);
-    assert.equal(state.level.monsters[10][10], monster);
+    await mnexto(monster, 0, {
+        state,
+        random: boundsRandom().random,
+    });
+    assert.deepEqual([monster.mx, monster.my], [9, 9]);
+    assert.equal(state.level.monsters[9][9], monster);
 });
 
 // ── random_teleport_level ──

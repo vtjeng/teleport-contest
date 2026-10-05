@@ -206,7 +206,7 @@ import { cansee, couldsee, m_canseeu, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
-import { mnexto } from './teleport.js';
+import { mnexto } from './mon.js';
 import {
     polymon,
     poly_gender,
@@ -1407,10 +1407,9 @@ export async function mattacku(monster, rawEnv = {}) {
 }
 
 // C ref: mhitu.c expels() (264-306). This is the non-digestive expulsion arm
-// reached by the ordinary ice-vortex slice below. mnexto()'s overcrowding and
-// monster-telecontrol outcomes remain outside the boundary; the caller binds
-// the overcrowding hook so either pass stops before silently losing the
-// engulfer.
+// reached by the ordinary ice-vortex slice below. mon.c:mnexto() owns its
+// overcrowding and optional monster-telecontrol continuations; expels waits
+// for that source-ordered work before it redraws or applies terrain effects.
 export async function expels(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
@@ -1438,14 +1437,11 @@ export async function expels(mtmp, rawEnv = {}) {
     const redraw = rawEnv.planning
         ? () => {}
         : (rawEnv.newsym ?? rawEnv.redraw ?? newsym);
-    const relocated = mnexto(mtmp, RLOC_NOMSG, {
+    await mnexto(mtmp, RLOC_NOMSG, {
         ...rawEnv,
         state,
         newsym: redraw,
-        dealWithOvercrowding: () =>
-            unsupported('expulsion with no adjacent monster square'),
     });
-    if (!relocated) return;
 
     // mhitu.c redraws only the hero's former stomach square after mnexto().
     // The relocation core has already painted the monster's old and new

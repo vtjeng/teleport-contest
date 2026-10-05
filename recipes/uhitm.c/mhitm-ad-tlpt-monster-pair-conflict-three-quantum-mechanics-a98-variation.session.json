@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-relevant A98 cheap variation frozen before recording or JavaScript comparison. It changes the same hostile defender class to three Quantum mechanics, increasing independent monster-turn opportunities while preserving the level-30 Conflict route into mdamagem -> mhitm_ad_tlpt. This variation does not predict which attacker lands the source call or whether relocation succeeds.",
+  "segments": [
+    {
+      "seed": 93281765,
+      "datetime": "20390114143217",
+      "nethackrc": "OPTIONS=name:A98QMPair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n3 hostile quantum mechanic\n . . . . . . . ."
+    }
+  ]
+}
