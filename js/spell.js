@@ -10,9 +10,11 @@ import {
     A_WIS,
     EYE,
     FACE,
+    HEAD,
     ACH_INVK,
     ACH_NOVL,
     ANTIMAGIC,
+    CLAIRVOYANT,
     CMDQ_KEY,
     CONFUSION,
     BLINDED,
@@ -91,6 +93,7 @@ import {
     SMALL_SHIELD,
     SPE_CAUSE_FEAR,
     SPE_CANCELLATION,
+    SPE_CLAIRVOYANCE,
     SPE_CONE_OF_COLD,
     SPE_CURE_BLINDNESS,
     SPE_CURE_SICKNESS,
@@ -130,6 +133,7 @@ import {
     SPE_TELEPORT_AWAY,
     SPE_TURN_UNDEAD,
     SPE_WIZARD_LOCK,
+    CORNUTHAUM,
     SPE_NOVEL,
     LENSES,
 } from './objects.js';
@@ -147,6 +151,7 @@ import {
     healup, make_blinded, make_confused, make_slimed, peffects,
 } from './potion.js';
 import { discover_object, observe_object } from './o_init.js';
+import { do_vicinity_map } from './detect.js';
 import { use_skill } from './weapon.js';
 import { zapyourself, weffects } from './zap.js';
 import { fall_asleep } from './timeout.js';
@@ -1466,6 +1471,24 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     case SPE_MAGIC_MAPPING:
     case SPE_CREATE_MONSTER:
         await seffects(pseudo, state, env);
+        break;
+
+    // C spell.c:spelleffects() (1572-1579). Skilled divination makes this
+    // temporary spellbook blessed for the map scan; BClairvoyant blocks only
+    // the effect, with the Cornuthaum message retained from the source.
+    case SPE_CLAIRVOYANCE:
+        if (!state.u.uprops?.[CLAIRVOYANT]?.blocked) {
+            if (role_skill >= P_SKILLED) pseudo.blessed = 1;
+            await do_vicinity_map(pseudo, state, env);
+        } else if (state.uarmh?.otyp === CORNUTHAUM) {
+            const message = env.message ?? ttyPline;
+            await message(
+                `You sense a pointy hat on top of your ${body_part(
+                    HEAD, state.youmonst,
+                )}.`,
+                state,
+            );
+        }
         break;
 
     // C spell.c:spelleffects() calls dog.c:make_familiar() directly; its

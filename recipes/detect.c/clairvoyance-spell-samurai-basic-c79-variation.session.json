@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap source-directed variation of the C79 clairvoyance spell route: Samurai starts with P_DIVINATION_SPELL at Basic in u_init.c:Skill_S, below P_SKILLED, so spell.c leaves the pseudo spellbook unblessed and do_vicinity_map uses non-extended detection unless Clairvoyant is already active. The source menu order is unchanged (SPE_CLAIRVOYANCE offset 19 => t). New seed/date and Samurai role exercise the basic-skill branch without changing the caller. Escape closes any getpos browse opened by the spell.",
+  "segments": [
+    {
+      "seed": 79041005,
+      "datetime": "20410317092745",
+      "nethackrc": "OPTIONS=name:C79Basic,role:Samurai,race:human,gender=female,align:lawful,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup\n",
+      "moves": " #wizcast\nt\u001b"
+    }
+  ]
+}

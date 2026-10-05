@@ -183,7 +183,11 @@ import {
     preflight_nh_timeout_elapsed_turn,
 } from './timeout.js';
 import { regen_hp, regen_pw } from './regen.js';
-import { automatic_search, warnreveal } from './detect.js';
+import {
+    automatic_search,
+    do_vicinity_map,
+    warnreveal,
+} from './detect.js';
 import { age_spells } from './spell.js';
 import { settrack } from './track.js';
 import { clear_splitobjs } from './obj.js';
@@ -480,17 +484,17 @@ function clairvoyancePlan(state, env) {
     return { due: true, mapRequired, moves, random };
 }
 
-function applyClairvoyancePlan(plan, state, env) {
+async function applyClairvoyancePlan(plan, state, env) {
     if (!plan.due) return false;
     if (plan.mapRequired)
-        env.doVicinityMap(null, { state });
+        await env.doVicinityMap(null, { state });
     state.context.seer_turn = plan.moves + plan.random.rn1(31, 15);
     return true;
 }
 
 // C ref: allmain.c moveloop_core()'s once-per-hero-took-time clairvoyance
 // block. The cadence advances even when the hero cannot currently map.
-export function maybeRunClairvoyance(state = game, env = {}) {
+export async function maybeRunClairvoyance(state = game, env = {}) {
     return applyClairvoyancePlan(clairvoyancePlan(state, env), state, env);
 }
 
@@ -509,7 +513,7 @@ export async function finishHeroTimeEffects(state = game, env = {}) {
     const plan = clairvoyancePlan(state, env);
     state.hero_seq++;
     await env.encumberMessage(state);
-    applyClairvoyancePlan(plan, state, env);
+    await applyClairvoyancePlan(plan, state, env);
     if (!state.u.utrap || state.u.utraptype !== TT_LAVA) {
         if (!state.u.umoved) await pooleffects(false, state);
     }
@@ -1518,6 +1522,8 @@ async function advanceElapsedTurn(state) {
     await finishHeroTimeEffects(state, {
         random,
         encumberMessage: encumber_msg,
+        doVicinityMap: (sobj, { state: mapState } = {}) =>
+            do_vicinity_map(sobj, mapState ?? state, { random }),
     });
     see_nearby_monsters(state);
 }

@@ -557,9 +557,9 @@ test('runtime interruption preserves stop_occupation status invalidation',
         assert.equal(state.multi, -1);
     });
 
-test('clairvoyance cadence preserves gating, mapping, and update order', () => {
+test('clairvoyance cadence preserves gating, mapping, and update order', async () => {
     const early = clairvoyanceTurnState({ moves: 19, seerTurn: 20 });
-    assert.equal(maybeRunClairvoyance(early, {
+    assert.equal(await maybeRunClairvoyance(early, {
         random: { rn1: () => assert.fail('early cadence must not draw') },
     }), false);
     assert.equal(early.context.seer_turn, 20);
@@ -567,7 +567,7 @@ test('clairvoyance cadence preserves gating, mapping, and update order', () => {
     const due = clairvoyanceTurnState();
     const events = [];
     due.u.uhave.amulet = true;
-    assert.equal(maybeRunClairvoyance(due, {
+    assert.equal(await maybeRunClairvoyance(due, {
         doVicinityMap(object, context) {
             assert.equal(object, null);
             assert.deepEqual(context, { state: due });
@@ -588,7 +588,7 @@ test('clairvoyance cadence preserves gating, mapping, and update order', () => {
         const propertyOnly = clairvoyanceTurnState();
         propertyOnly.u.uprops[CLAIRVOYANT][source] = 1;
         const propertyEvents = [];
-        assert.equal(maybeRunClairvoyance(propertyOnly, {
+        assert.equal(await maybeRunClairvoyance(propertyOnly, {
             doVicinityMap: () => propertyEvents.push('map'),
             random: {
                 rn1: () => { propertyEvents.push('schedule'); return 15; },
@@ -610,13 +610,49 @@ test('clairvoyance cadence preserves gating, mapping, and update order', () => {
         ['blocked', blocked],
         ['endgame', endgame],
     ]) {
-        assert.equal(maybeRunClairvoyance(state, {
+        assert.equal(await maybeRunClairvoyance(state, {
             doVicinityMap: () => assert.fail(`${name} must not map`),
             random: { rn1: () => 15 },
         }), true, name);
         assert.equal(state.context.seer_turn, 35, name);
     }
 });
+
+test('clairvoyance awaits the source map browser before advancing seer_turn',
+    async () => {
+        const state = clairvoyanceTurnState();
+        state.u.uhave.amulet = true;
+        const order = [];
+        let releaseMap;
+        const mapStarted = new Promise((resolve) => {
+            releaseMap = resolve;
+        });
+        let started = false;
+        const running = maybeRunClairvoyance(state, {
+            async doVicinityMap(object, context) {
+                assert.equal(object, null);
+                assert.deepEqual(context, { state });
+                started = true;
+                order.push('map');
+                await mapStarted;
+            },
+            random: {
+                rn1(bound, base) {
+                    order.push('schedule');
+                    assert.deepEqual([bound, base], [31, 15]);
+                    return 20;
+                },
+            },
+        });
+        await Promise.resolve();
+        assert.equal(started, true);
+        assert.deepEqual(order, ['map']);
+        assert.equal(state.context.seer_turn, 20);
+        releaseMap();
+        assert.equal(await running, true);
+        assert.deepEqual(order, ['map', 'schedule']);
+        assert.equal(state.context.seer_turn, 40);
+    });
 
 test('hero time effects order sequence, encumbrance, then seer cadence',
     async () => {
