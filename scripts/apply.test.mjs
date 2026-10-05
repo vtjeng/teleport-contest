@@ -325,6 +325,21 @@ test('apply.c dorub reaches use_stone through the independent #rub recording',
         assert.equal(result.passed, true, JSON.stringify(result));
     });
 
+test('apply.c doapply dispatches TIN_OPENER through use_tin_opener', async () => {
+    // This admitted v16 case chooses the Tin Opener at step 30, then selects
+    // spinach at step 32 so the complete apply.c -> eat.c path is exercised.
+    assert.match(APPLY_C,
+        /case TIN_OPENER:\s*res = use_tin_opener\(obj\);\s*break;/u);
+    const recording = JSON.parse(readFileSync(
+        new URL('../challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
+});
+
 test('apply.c use_towel matches the selected v8 caller replay', async () => {
     const recording = JSON.parse(readFileSync(
         new URL('../challenges/cases/v8/towel-clean-face.session.json',
