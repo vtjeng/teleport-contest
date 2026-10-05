@@ -171612,8 +171612,8 @@
           "name": "mhitm_ad_fire",
           "line": 2521,
           "endLine": 2625,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -171627,7 +171627,7 @@
           "endLine": 2180,
           "declared": true,
           "sourceFile": "makemon.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -171802,7 +171802,164 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_fire",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_fire",
+            "sourceReview": "Compared the complete uhitm.c:mhitm_ad_fire source function and preserved its branch order, RNG and return-flag effects for fire resistance, target type, death/growth and fire-damage item handling. The AD_FIRE arm is wired in uhitm.c:mhitm_adtyping; no whole dispatcher or outer combat function is claimed. Existing consumed helpers are reused only where their source-aligned implementations were verified; discarded void gaps stay named in the implementation.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping AD_FIRE switch arm dispatches to mhitm_ad_fire."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum carries the polymorphed hero→monster attack into the AD_FIRE dispatcher."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem carries monster→monster attack effects into the AD_FIRE dispatcher."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu is the monster→hero combat route; no new outer-function completion is claimed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-fire.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-fire-hero-to-monster-fire-elemental-c86-force-fight-cfirst.session.json",
+              "recordings/uhitm.c/mhitm-ad-fire-monster-to-monster-straw-golem-c86-pager-ack2-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-fire-ant-ad-fire-c59",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 33,
+                "source": "mhitu.c:hitmu dispatches AD_FIRE to uhitm.c:mhitm_ad_fire at step 31; the complete case matches through step 33"
+              }
+            ],
+            "checkedAt": "15154a8ed12fbd5c6c4e45e23d1279b634743a65"
+          },
+          {
+            "name": "grow_up",
+            "implementation": "js/makemon.js",
+            "symbol": "grow_up",
+            "sourceReview": "Compared the full makemon.c:grow_up function, including its attacker/victim return semantics, level and HP caps, polymorph/form transition, property updates, message order, side effects, and every branch. All direct existing JavaScript calls in uhitm.js, mhitm.js, monmove.js, muse.js and do.js await the result in C order. No outer caller is claimed whole.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sedu",
+                "source": "uhitm.c:mhitm_ad_sedu consumes grow_up(magr,mdef)."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_fire",
+                "source": "uhitm.c:mhitm_ad_fire consumes grow_up(magr,mdef) in the monster-target branch."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_curs",
+                "source": "uhitm.c:mhitm_ad_curs consumes grow_up(magr,mdef)."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_rust",
+                "source": "uhitm.c:mhitm_ad_rust consumes grow_up(magr,mdef)."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_dcay",
+                "source": "uhitm.c:mhitm_ad_dcay consumes grow_up(magr,mdef)."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem consumes grow_up(magr,mdef)."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "bee_eat_jelly",
+                "source": "monmove.c:bee_eat_jelly consumes grow_up(mon,NULL)."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "use_misc",
+                "source": "muse.c:use_misc consumes grow_up(mtmp,NULL)."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "engulfer_digests_food",
+                "source": "do.c:engulfer_digests_food discards the returned pointer but consumes the state changes; the placeholder was replaced with awaited grow_up."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-fire-monster-to-monster-straw-golem-c86-pager-ack2-cfirst.session.json"
+            ],
+            "sourceFile": "makemon.c",
+            "checkedAt": "15154a8ed12fbd5c6c4e45e23d1279b634743a65"
+          }
+        ],
+        "entryPointReview": "The implemented active AD_FIRE recordings cover both authorized combat routes: polymorphed hero→monster and Fire Elemental→monster. The M→M recording confirms the wizard #wizintrinsic menu was actually completed and Conflict is active before the Fire Elemental hits the Straw Golem. The M→M source path reaches grow_up at normalized step 168. The existing C83 Wood Golem range is retained as prior growth evidence: its source-traced grow_up draws are normalized step 150 (rnd(11)=4 at makemon.c:2095; rn2(4)=1 at makemon.c:2098); it is cited without adding exploratory C83 recordings to this delivery. No whole dispatchers or outer combat callers are claimed.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero attacks monster with AD_FIRE",
+            "functions": [
+              "mhitm_ad_fire"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-fire-hero-to-monster-fire-elemental-c86-force-fight-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Fire Elemental attacks Straw Golem with AD_FIRE",
+            "functions": [
+              "mhitm_ad_fire",
+              {
+                "sourceFile": "makemon.c",
+                "name": "grow_up"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-fire-monster-to-monster-straw-golem-c86-pager-ack2-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Fire Ant attacks hero with AD_FIRE",
+            "functions": [
+              "mhitm_ad_fire"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-fire-ant-ad-fire-c59",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 33,
+                "source": "mhitu.c:hitmu dispatches AD_FIRE to uhitm.c:mhitm_ad_fire at step 31; the complete case matches through step 33"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
