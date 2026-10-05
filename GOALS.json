@@ -164647,22 +164647,22 @@
           "name": "finish_towel_change",
           "line": 1020,
           "endLine": 1037,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "wet_a_towel",
           "line": 1038,
           "endLine": 1066,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "dry_a_towel",
           "line": 1067,
           "endLine": 1091,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -164674,9 +164674,9 @@
           "name": "strprepend",
           "line": 123,
           "endLine": 141,
-          "declared": false,
+          "declared": true,
           "sourceFile": "objnam.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "cxname",
@@ -164684,7 +164684,7 @@
           "endLine": 1932,
           "declared": true,
           "sourceFile": "objnam.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "aobjnam",
@@ -164692,7 +164692,7 @@
           "endLine": 2261,
           "declared": true,
           "sourceFile": "objnam.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "otense",
@@ -164700,7 +164700,7 @@
           "endLine": 2562,
           "declared": true,
           "sourceFile": "objnam.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "yobjnam",
@@ -164708,7 +164708,7 @@
           "endLine": 2279,
           "declared": true,
           "sourceFile": "objnam.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "Yobjnam2",
@@ -164716,7 +164716,7 @@
           "endLine": 2289,
           "declared": true,
           "sourceFile": "objnam.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -164971,7 +164971,428 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "finish_towel_change",
+            "implementation": "js/weapon.js",
+            "symbol": "finish_towel_change",
+            "sourceReview": "weapon.c:1018-1034. Checked the full helper: clamp newspe to 0..7, assign obj->spe, set gu.unweapon only when obj is uwep from the resulting is_wet_towel state, then update carried inventory. The JS stores wetness only in spe and calls update_inventory synchronously, discarding its returned value. It is reached from dry_a_towel in all four matching C routes; wet_a_towel is also a source caller but its current C water-dip route is incomplete in JS and is not credited.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "dry_a_towel",
+                "source": "weapon.c:dry_a_towel calls finish_towel_change only when calculated wetness differs."
+              },
+              {
+                "path": "js/weapon.js",
+                "symbol": "wet_a_towel",
+                "source": "weapon.c:wet_a_towel calls finish_towel_change only when calculated wetness differs; the JS production caller remains blocked upstream in potion.c:dodip."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon-towel.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "dry_a_towel",
+            "implementation": "js/weapon.js",
+            "symbol": "dry_a_towel",
+            "sourceReview": "weapon.c:1065-1088. Checked amount semantics (negative subtracts wetness, nonnegative sets it), verbose feedback only when wetness falls, carried-hero versus visible-monster ownership messages, and finish_towel_change only on a changed value. Source order and the dries-out suffix are preserved.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_towel",
+                "source": "apply.c:use_towel cleanup branches call dry_a_towel after use/action messaging."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon",
+                "source": "uhitm.c:hmon_hitmon calls dry_a_towel after the hit message on dryit."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_obj",
+                "source": "dothrow.c:throw_obj calls dry_a_towel(obj,-1,FALSE) before throw resolution."
+              },
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls dry_a_towel when a wet towel wipes a supported engraving."
+              },
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "burnarmor",
+                "source": "trap.c:burnarmor rolls towel drying before armor-slot erosion and continues only if wetness is unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon-towel.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "strprepend",
+            "implementation": "js/objnam.js",
+            "symbol": "strprepend",
+            "sourceReview": "objnam.c:123-135. Checked the byte-counted PREFIX guard, impossible(\"PREFIX too short\") followed by return of the original string, and copynchars prefix insertion/terminator restoration. JS returns an immutable concatenated string, preserves the guard, and names the discarded diagnostic with note_unported. The ordinary count-prefix runtime is covered through the existing inventory display; paydoname and aobjnam callsites are source-aligned, while mshot_xname remains an existing refusal outside this task.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "aobjnam",
+                "source": "objnam.c:aobjnam calls strprepend only when quan != 1."
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "doname_base",
+                "source": "objnam.c:doname_base calls strprepend for the completed article/modifier/count prefix."
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "paydoname",
+                "source": "objnam.c:paydoname calls strprepend for unpaid/owned and contents prefixes."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/cancel-monst-self-inventory-b54.session.json"
+            ],
+            "sourceFile": "objnam.c",
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "cxname",
+            "implementation": "js/objnam.js",
+            "symbol": "cxname",
+            "sourceReview": "objnam.c:1922-1930. Checked the complete corpse/non-corpse branch: CORPSE delegates to corpse_xname(obj,NULL,CXN_NORMAL), otherwise xname(obj). JS preserves xname and corpse_xname identification/knowledge side effects and is not treated as a pure formatter.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "aobjnam",
+                "source": "objnam.c:aobjnam obtains its object name from cxname."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "sourceFile": "objnam.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "aobjnam",
+            "implementation": "js/objnam.js",
+            "symbol": "aobjnam",
+            "sourceReview": "objnam.c:2242-2258. Checked cxname first, count prefix only when quan != 1, then optional space and otense result. JS keeps the C ordering and source-prefixed count path; name-learning effects from cxname are retained. When a caller supplies state, aobjnam passes that same state to otense.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "yobjnam",
+                "source": "objnam.c:yobjnam begins with aobjnam(obj,verb)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "sourceFile": "objnam.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "otense",
+            "implementation": "js/objnam.js",
+            "symbol": "otense",
+            "sourceReview": "objnam.c:2529-2545. Checked singular vtense(NULL,verb) and plural verb passthrough. C is_plural reads the active game discovery list; JS otense accepts that state explicitly and reads it without changing game state, output, or RNG. aobjnam and Tobjnam forward their state, and all 55 direct outer-module calls now pass the active caller state (54 use state; weapon.js:endMonsterArtifactLight uses normalized.state). Source-specific guards remain unchanged; no whole outer function is newly credited. The regression contrasts supplied-state and global-game discovery in both directions.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "aobjnam",
+                "source": "objnam.c:aobjnam calls otense only when verb is non-NULL."
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "Tobjnam",
+                "source": "objnam.c:Tobjnam calls otense(otmp,verb); JS forwards the same active state used to name the object."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "objnam.c",
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "yobjnam",
+            "implementation": "js/objnam.js",
+            "symbol": "yobjnam",
+            "sourceReview": "objnam.c:2262-2276. Checked aobjnam construction followed by the carried/proper-name/artifact condition, shk_your prefix, and BUFSZ-limited concatenation. Existing shk_your/shk_owns/mon_owns source evidence is reused; no whole shop function claim is made.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "Yobjnam2",
+                "source": "objnam.c:Yobjnam2 obtains yobjnam then capitalizes its first character."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "sourceFile": "objnam.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          },
+          {
+            "name": "Yobjnam2",
+            "implementation": "js/objnam.js",
+            "symbol": "Yobjnam2",
+            "sourceReview": "objnam.c:2280-2285. Checked that the helper obtains yobjnam and applies highc to the first character; its reachable towel feedback path is recorded through weapon.c:dry_a_towel. The naming call can transitively preserve cxname identification effects.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "dry_a_towel",
+                "source": "weapon.c:dry_a_towel uses Yobjnam2 for verbose hero/monster feedback."
+              },
+              {
+                "path": "js/weapon.js",
+                "symbol": "wet_a_towel",
+                "source": "weapon.c:wet_a_towel uses Yobjnam2 for verbose hero/monster feedback; its active caller remains blocked at potion.c:dodip."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "sourceFile": "objnam.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ],
+            "checkedAt": "4ddc41fde352b9a62a4d1fe86cd0cbf2e4527265"
+          }
+        ],
+        "entryPointReview": "weapon.c:finish_towel_change and dry_a_towel are covered through five active source callers: apply.c:use_towel (admitted v21 through seg0 steps33-35), uhitm.c:hmon_hitmon, dothrow.c:throw_obj, engrave.c:doengrave, and trap.c:burnarmor. Four independent C recordings match completely through dry_a_towel; the admitted range matches the apply cleanup call, drying message, and inventory wetness update. objnam.c:strprepend, cxname, aobjnam, otense, yobjnam, and Yobjnam2 are source-reviewed and wired; the inventory recording covers the counted doname_base -> strprepend path, while the dry-towel recordings cover cxname -> aobjnam -> yobjnam -> Yobjnam2 feedback. No whole doname_base or paydoname completion is claimed. The active trap.c:water_damage -> weapon.c:wet_a_towel route is incomplete: C reaches it in the preserved water-dip output, but JavaScript stops at potion.c:dodip’s unsupported potion-into-potion branch before H2Opotion_dip/water_damage; the C-only capture remains under .cache and the blocked recipe is committed outside recordings/. The pre-existing mshot_xname multishot refusal remains outside this task. The planned water-damage entry remains present with empty matching recording/synthetic evidence and a concrete resume condition; it is intentionally incomplete. The C80 correction also forwards active state through all 55 direct otense calls in 23 JavaScript outer modules, including generic object-name messages and source-guarded specialized routes. This preserves type guards and claims only state flow for objnam.c:otense, not completion of the outer C functions.",
+        "entryPoints": [
+          {
+            "name": "apply.c:use_towel -> weapon.c:dry_a_towel",
+            "functions": [
+              "dry_a_towel",
+              "finish_towel_change"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ]
+          },
+          {
+            "name": "uhitm.c:hmon_hitmon -> weapon.c:dry_a_towel",
+            "functions": [
+              "dry_a_towel",
+              "finish_towel_change"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "dothrow.c:throw_obj -> weapon.c:dry_a_towel",
+            "functions": [
+              "dry_a_towel",
+              "finish_towel_change"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "engrave.c:doengrave -> weapon.c:dry_a_towel",
+            "functions": [
+              "dry_a_towel",
+              "finish_towel_change"
+            ],
+            "recordings": [
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "trap.c:burnarmor -> weapon.c:dry_a_towel",
+            "functions": [
+              "dry_a_towel",
+              "finish_towel_change"
+            ],
+            "recordings": [
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ]
+          },
+          {
+            "name": "invent.c:ddoinv -> objnam.c:doname_base -> strprepend",
+            "functions": [
+              {
+                "sourceFile": "objnam.c",
+                "name": "strprepend"
+              }
+            ],
+            "recordings": [
+              "recordings/zap.c/cancel-monst-self-inventory-b54.session.json"
+            ]
+          },
+          {
+            "name": "weapon.c:dry_a_towel feedback -> objnam.c:Yobjnam2 naming chain",
+            "functions": [
+              {
+                "sourceFile": "objnam.c",
+                "name": "cxname"
+              },
+              {
+                "sourceFile": "objnam.c",
+                "name": "aobjnam"
+              },
+              {
+                "sourceFile": "objnam.c",
+                "name": "otense"
+              },
+              {
+                "sourceFile": "objnam.c",
+                "name": "yobjnam"
+              },
+              {
+                "sourceFile": "objnam.c",
+                "name": "Yobjnam2"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/wet-towel-hits-adjacent-goblin-c80-cfirst.session.json",
+              "recordings/dothrow.c/wet-towel-throw-c80-cfirst.session.json",
+              "recordings/engrave.c/wet-towel-wipes-dust-c80-n-slot-cfirst.session.json",
+              "recordings/trap.c/burnarmor-dries-wet-towel-fire-trap-c80-welcome-corrected-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 35,
+                "source": "apply.c:use_towel -> weapon.c:dry_a_towel -> finish_towel_change; towel naming passes through objnam.c:Yobjnam2/yobjnam/aobjnam/cxname"
+              }
+            ]
+          },
+          {
+            "name": "trap.c:water_damage -> weapon.c:wet_a_towel (incomplete)",
+            "functions": [
+              "wet_a_towel"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
