@@ -167807,7 +167807,7 @@
     {
       "id": "port-uhitm-mhitm-ad-erosion-v19-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Implement rust, corrosion and decay attack handlers",
       "cFile": "uhitm.c",
       "sessions": [
@@ -168601,7 +168601,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8669cd3600f138de5c12b795e9352f96969a238b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial C83 delivery: mhitm_ad_rust and mhitm_ad_dcay have whole-source, caller and runtime evidence. mhitm_ad_corr remains incomplete because the independent hero attack takes missum in JavaScript while C hits and calls damageum at the same roll. Preserve all nine planned direction entries and blocked recipes; no goal-closure score event."
     }
   ]
 }
