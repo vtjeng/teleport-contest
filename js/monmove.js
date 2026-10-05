@@ -1960,7 +1960,7 @@ export async function bee_eat_jelly(mon, obj, env = {}) {
         if (mon.m_lev < (state.mons?.[PM_QUEEN_BEE]?.mlevel ?? 0) - 1)
             mon.m_lev = (state.mons?.[PM_QUEEN_BEE]?.mlevel ?? 0) - 1;
         // Transform immediately; delay comes after.
-        grow_up(mon, null, env);
+        await grow_up(mon, null, env);
 
         if (mon.mhp < 1) return 1; /* DEADMONSTER */
         mon.mfrozen = m_delay;

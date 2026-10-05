@@ -1521,7 +1521,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         if (oseen)
             discover_object(O.POT_GAIN_LEVEL, true, true, true, state);
         await m_useup(mtmp, otmp, { state });
-        if (!grow_up(mtmp, null, { state, ...env }))
+        if (!await grow_up(mtmp, null, { state, ...env }))
             return 1; /* grew into genocided monster */
         return 2;
     }

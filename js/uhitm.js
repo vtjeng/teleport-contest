@@ -74,6 +74,7 @@ import {
     RLOC_NOMSG,
     M_SEEN_COLD,
     M_SEEN_ELEC,
+    M_SEEN_FIRE,
     M_SEEN_SLEEP,
     FAST,
     MON_EXPLODE,
@@ -308,11 +309,13 @@ import {
     mon_hates_light,
     mon_hates_silver,
     hates_silver,
+    completelyburns,
     completelyrots,
     completelyrusts,
     monsndx,
     monstseesu,
     monstunseesu,
+    on_fire,
     noncorporeal,
     nonliving,
     resists_drli,
@@ -430,6 +433,7 @@ import {
     PM_FLOATING_EYE,
     PM_IRON_GOLEM,
     PM_MEDUSA,
+    PM_PAPER_GOLEM,
     PM_PYROLISK,
     PM_PURPLE_WORM,
     PM_ROPE_GOLEM,
@@ -438,6 +442,7 @@ import {
     PM_SHADE,
     PM_SHRIEKER,
     PM_STONE_GOLEM,
+    PM_STRAW_GOLEM,
     PM_STEAM_VORTEX,
     NON_PM,
     S_LIGHT,
@@ -466,7 +471,7 @@ import {
     sleep_monst,
     slept_monst,
 } from './mhitm.js';
-import { fall_asleep } from './timeout.js';
+import { burn_away_slime, fall_asleep } from './timeout.js';
 import { set_ulycn } from './were.js';
 import {
     carried,
@@ -605,8 +610,9 @@ import { mintrap } from './trap_effects.js';
 import { mselftouch } from './trap_effects.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { destroy_items } from './zap_destroy_items.js';
+import { ignite_items } from './apply_catch_lit.js';
 import {
-    Cold_resistance, drain_item, exclam, hit, resist,
+    Cold_resistance, Fire_resistance, drain_item, exclam, hit, resist,
 } from './zap.js';
 import {
     Finish_digestion, eating_conducts, is_fainted, morehungry, newuhs,
@@ -3962,7 +3968,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         mselftouch(mdef, null, false, { ...env, state });
 
         if (mdef.mhp < 1) {
-            const grew = grow_up(magr, mdef, { ...env, state });
+            const grew = await grow_up(magr, mdef, { ...env, state });
             mhm.hitflags = M_ATTK_DEF_DIED
                 | (grew ? 0 : M_ATTK_AGR_DIED);
             mhm.done = true;
@@ -3989,6 +3995,156 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         }
     }
     mhm.damage = 0;
+}
+
+// C ref: uhitm.c mhitm_ad_fire() (2521-2623). Handles fire damage in all
+// three combat directions, including completely flammable golems, resistance
+// observations, inventory damage and fire's slime cure.
+export async function mhitm_ad_fire(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+    const effectEnv = { ...env, state, random };
+    const orig_dmg = mhm.damage;
+    const pd = mdef.data;
+
+    if (magr === state.youmonst) {
+        if (await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
+            mhm.damage = 0;
+            return;
+        }
+        if (!heroIsBlind(state))
+            await message(`${Monnam(mdef, state, env)} is ${on_fire(pd, mattk)}!`,
+                state, env);
+        if (completelyburns(pd)) {
+            if (!heroIsBlind(state)) {
+                await message(
+                    `${Monnam(mdef, state, env)} ${mlifesaver(mdef, state)
+                        ? 'is totally engulfed in flames'
+                        : 'burns completely'}!`,
+                    state,
+                    env,
+                );
+            } else {
+                const material = pd === state.mons[PM_PAPER_GOLEM] ? ' paper'
+                    : pd === state.mons[PM_STRAW_GOLEM] ? ' straw' : '';
+                await message(`You smell burning${material}.`, state, env);
+            }
+            await xkilled(mdef, XKILL_NOMSG | XKILL_NOCORPSE, state, env);
+            mhm.damage = 0;
+            return;
+        }
+        if (Resists_Elem(mdef, FIRE_RES, state)
+            || defended(mdef, AD_FIRE, state)) {
+            if (!heroIsBlind(state))
+                await message(`The fire doesn't heat ${mon_nam(mdef, state, env)}!`,
+                    state, env);
+            await golemeffects(mdef, AD_FIRE, mhm.damage, { ...env, state });
+            await shieldeff(mdef.mx, mdef.my, state);
+            mhm.damage = 0;
+        }
+        mhm.damage += await destroy_items(mdef, AD_FIRE, orig_dmg, effectEnv);
+        await ignite_items(mdef.minvent, effectEnv);
+        return;
+    }
+
+    if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (!await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
+            await message(`You're ${on_fire(pd, mattk)}!`, state, env);
+            if (completelyburns(pd)) {
+                await message('You go up in flames!', state, env);
+                monstunseesu(M_SEEN_FIRE, state);
+                await rehumanize(state, env);
+                return;
+            }
+            if (Fire_resistance(state)) {
+                await message("The fire doesn't feel hot!", state, env);
+                monstseesu(M_SEEN_FIRE, state);
+                mhm.damage = 0;
+            } else {
+                monstunseesu(M_SEEN_FIRE, state);
+            }
+            if (magr.m_lev > random.rn2(20)) {
+                await destroy_items(state.youmonst, AD_FIRE, orig_dmg, effectEnv);
+                await (env.igniteItems ?? ignite_items)(state.invent, effectEnv);
+            }
+            await burn_away_slime(state, env);
+        } else {
+            mhm.damage = 0;
+        }
+        return;
+    }
+
+    if (await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
+        mhm.damage = 0;
+        return;
+    }
+    if (state.gv?.vis && canseemon(mdef, state)) {
+        await message(
+            messageAt(
+                `${Monnam(mdef, state, env)} is ${on_fire(pd, mattk)}!`,
+                mdef.mx,
+                mdef.my,
+                state,
+            ),
+            state,
+            env,
+        );
+    }
+    if (completelyburns(pd)) {
+        if (state.gv?.vis && canseemon(mdef, state)) {
+            await message(
+                messageAt(
+                    `${Monnam(mdef, state, env)} ${mlifesaver(mdef, state)
+                        ? 'is totally engulfed in flames'
+                        : 'burns completely'}!`,
+                    mdef.mx,
+                    mdef.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+        await monkilled(mdef, null, AD_FIRE, state, env);
+        if (mdef.mhp >= 1) {
+            mhm.hitflags = M_ATTK_MISS;
+            mhm.done = true;
+            return;
+        }
+        mhm.hitflags = M_ATTK_DEF_DIED
+            | (await grow_up(magr, mdef, { ...env, state })
+                ? 0 : M_ATTK_AGR_DIED);
+        mhm.done = true;
+        return;
+    }
+    if (Resists_Elem(mdef, FIRE_RES, state)
+        || defended(mdef, AD_FIRE, state)) {
+        if (state.gv?.vis && canseemon(mdef, state)) {
+            await message(
+                messageAt(
+                    `The fire doesn't seem to burn ${mon_nam(mdef, state, env)}!`,
+                    mdef.mx,
+                    mdef.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+        await shieldeff(mdef.mx, mdef.my, state);
+        await golemeffects(mdef, AD_FIRE, mhm.damage, { ...env, state });
+        mhm.damage = 0;
+    }
+    mhm.damage += await destroy_items(mdef, AD_FIRE, orig_dmg, effectEnv);
+    await ignite_items(mdef.minvent, effectEnv);
 }
 
 // C ref: uhitm.c mhitm_ad_cold() (2625-2681). A cold-damage attack across
@@ -4947,7 +5103,7 @@ export async function mhitm_ad_curs(
                     );
                 }
                 mhm.hitflags = M_ATTK_DEF_DIED
-                    | (grow_up(magr, mdef, { ...env, state })
+                    | (await grow_up(magr, mdef, { ...env, state })
                         ? 0 : M_ATTK_AGR_DIED);
                 mhm.done = true;
                 return;
@@ -6131,7 +6287,7 @@ export async function mhitm_ad_rust(
                 return;
             }
             mhm.hitflags = M_ATTK_DEF_DIED
-                | (grow_up(magr, mdef, { ...env, state })
+                | (await grow_up(magr, mdef, { ...env, state })
                     ? 0 : M_ATTK_AGR_DIED);
             mhm.done = true;
             return;
@@ -6227,7 +6383,7 @@ export async function mhitm_ad_dcay(
             }
             mhm.done = true;
             mhm.hitflags = M_ATTK_DEF_DIED
-                | (grow_up(magr, mdef, { ...env, state })
+                | (await grow_up(magr, mdef, { ...env, state })
                     ? 0 : M_ATTK_AGR_DIED);
             return;
         }
@@ -6386,7 +6542,9 @@ export async function mhitm_adtyping(
     case AD_PHYS:
         await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_FIRE: unported('mhitm_ad_fire'); break;
+    case AD_FIRE:
+        await mhitm_ad_fire(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_COLD:
         await mhitm_ad_cold(magr, mattk, mdef, mhm, state, env);
         break;

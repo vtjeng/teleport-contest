@@ -48,6 +48,7 @@ import {
     PM_ARCHEOLOGIST,
     PM_BAT,
     PM_DEATH,
+    PM_DOG,
     PM_EARTH_ELEMENTAL,
     PM_ELF,
     PM_ERINYS,
@@ -715,21 +716,20 @@ function growEnv(state, rolls = []) {
             rn2: (b) => take(`rn2(${b})`),
             rnd: (b) => take(`rnd(${b})`),
         },
-        unsupported: (reason) => { throw new Error(reason); },
     };
 }
 
 // makemon.c:2095, `max_increase = rnd((int) victim->m_lev + 1)`, and the two
 // writes at :2098-2099. rnd.c:163 is `x = RND(x) + 1`, so a level-zero victim
 // still spends a draw and always answers 1.
-test('grow_up banks its hit points from the victim level', () => {
+test('grow_up banks its hit points from the victim level', async () => {
     const state = growState();
     // A jackal is level 0, so the roll is rnd(1); a giant ant is level 2, so
     // it is rnd(3).
     const dog = grower(state, PM_FOX, { m_lev: 1, mhp: 4, mhpmax: 4 });
     const jackalEnv = growEnv(state, [1]);
     assert.equal(
-        grow_up(dog, grower(state, PM_JACKAL, { m_lev: 0 }), jackalEnv),
+        await grow_up(dog, grower(state, PM_JACKAL, { m_lev: 0 }), jackalEnv),
         dog.data,
     );
     assert.deepEqual(jackalEnv.bounds, ['rnd(1)']);
@@ -740,7 +740,7 @@ test('grow_up banks its hit points from the victim level', () => {
 
     // A larger max_increase adds rn2(max_increase) to current hit points.
     const antEnv = growEnv(state, [3, 2]);
-    grow_up(dog, grower(state, PM_FIRE_ANT, { m_lev: 3 }), antEnv);
+    await grow_up(dog, grower(state, PM_FIRE_ANT, { m_lev: 3 }), antEnv);
     assert.deepEqual(antEnv.bounds, ['rnd(4)', 'rn2(3)']);
     assert.equal(dog.mhpmax, 8);
     assert.equal(dog.mhp, 6);
@@ -751,13 +751,13 @@ test('grow_up banks its hit points from the victim level', () => {
 // the limit sits "at the bottom of the next level rather than the top", so a
 // clamped gain always crosses the threshold and the level gain below it reads
 // the clamped value.
-test('grow_up clamps the gain to one point past the level ceiling', () => {
+test('grow_up clamps the gain to one point past the level ceiling', async () => {
     const state = growState();
     // A level-zero monster uses the fixed threshold of 4 rather than
     // `m_lev * 8`, so a roll of 8 against a maximum of 4 is cut to 1.
     const cub = grower(state, PM_FOX, { m_lev: 0, mhp: 2, mhpmax: 4 });
     const env = growEnv(state, [8]);
-    assert.equal(grow_up(cub, grower(state, PM_FIRE_ANT, { m_lev: 7 }), env),
+    assert.equal(await grow_up(cub, grower(state, PM_FIRE_ANT, { m_lev: 7 }), env),
                  cub.data);
     // The clamped max_increase is 1, not the 8 the die returned, and it is
     // not greater than 1, so no rn2() follows it.
@@ -772,7 +772,7 @@ test('grow_up clamps the gain to one point past the level ceiling', () => {
     // negative, so the maximum does not move at all -- and the level still
     // rises, because the unchanged maximum is already past the threshold.
     const swollen = grower(state, PM_FOX, { m_lev: 0, mhp: 9, mhpmax: 9 });
-    assert.equal(grow_up(swollen, grower(state, PM_JACKAL, { m_lev: 0 }),
+    assert.equal(await grow_up(swollen, grower(state, PM_JACKAL, { m_lev: 0 }),
                          growEnv(state, [1])), swollen.data);
     assert.equal(swollen.mhpmax, 9);
     assert.equal(swollen.m_lev, 1);
@@ -781,7 +781,7 @@ test('grow_up clamps the gain to one point past the level ceiling', () => {
     // the clamp is shown to be a clamp and not the only path.
     const grown = grower(state, PM_FOX, { m_lev: 2, mhp: 4, mhpmax: 4 });
     const room = growEnv(state, [8, 5]);
-    assert.equal(grow_up(grown, grower(state, PM_FIRE_ANT, { m_lev: 7 }), room),
+    assert.equal(await grow_up(grown, grower(state, PM_FIRE_ANT, { m_lev: 7 }), room),
                  grown.data);
     assert.deepEqual(room.bounds, ['rnd(8)', 'rn2(8)']);
     assert.equal(grown.mhpmax, 12);
@@ -790,7 +790,7 @@ test('grow_up clamps the gain to one point past the level ceiling', () => {
 
 // makemon.c:2087-2088. A golem's threshold is derived from its own maximum
 // rather than from its level.
-test('grow_up gives a golem a threshold of its own', () => {
+test('grow_up gives a golem a threshold of its own', async () => {
     const state = growState();
     // ((25 / 10) + 1) * 10 - 1 is 29 and `m_lev * 8` is 24, so a maximum of 25
     // raised by one lands between the two thresholds. That is what makes the
@@ -799,7 +799,7 @@ test('grow_up gives a golem a threshold of its own', () => {
     const golem = grower(state, PM_STRAW_GOLEM,
                          { m_lev: 3, mhp: 25, mhpmax: 25 });
     const env = growEnv(state, [1]);
-    assert.equal(grow_up(golem, grower(state, PM_JACKAL, { m_lev: 0 }), env),
+    assert.equal(await grow_up(golem, grower(state, PM_JACKAL, { m_lev: 0 }), env),
                  golem.data);
     // The clamp at :2096-2097 leaves the roll alone, because 26 is below the
     // golem threshold; against 24 it would have cut the gain to zero.
@@ -810,14 +810,14 @@ test('grow_up gives a golem a threshold of its own', () => {
 // makemon.c:2120, `(int) ++mtmp->m_lev >= mons[newtype].mlevel && newtype !=
 // oldtype`. C increments in the left conjunct, so the level rises for every
 // grower, including one whose species little_to_big() does not map.
-test('grow_up raises the level of a species with no bigger form', () => {
+test('grow_up raises the level of a species with no bigger form', async () => {
     const state = growState();
     // A fox is absent from mondata.c grownups[], so newtype == oldtype and
     // only the increment survives the condition. A threshold of 8 with a
     // maximum of 8: one more point crosses it.
     const fox = grower(state, PM_FOX, { m_lev: 1, mhp: 8, mhpmax: 8 });
     const env = growEnv(state, [1]);
-    assert.equal(grow_up(fox, grower(state, PM_JACKAL, { m_lev: 0 }), env),
+    assert.equal(await grow_up(fox, grower(state, PM_JACKAL, { m_lev: 0 }), env),
                  fox.data);
     assert.deepEqual(env.bounds, ['rnd(1)']);
     assert.equal(fox.m_lev, 2);
@@ -832,44 +832,43 @@ test('grow_up raises the level of a species with no bigger form', () => {
     // the gain stands; 2 is short of a dog's level, so the form does not
     // change.
     const puppy = grower(state, PM_LITTLE_DOG, { m_lev: 1, mhp: 6, mhpmax: 8 });
-    assert.equal(grow_up(puppy, grower(state, PM_SEWER_RAT, { m_lev: 0 }),
+    assert.equal(await grow_up(puppy, grower(state, PM_SEWER_RAT, { m_lev: 0 }),
                          growEnv(state, [1])), puppy.data);
     assert.equal(puppy.m_lev, 2);
     assert.equal(puppy.mhpmax, 9);
     assert.equal(puppy.mhp, 6);
 });
 
-// makemon.c:2121-2163, the form change, and :2099-2106, the `!victim` arm.
-// Both are outside this port.
-test('grow_up stops at a form change, with the level already raised', () => {
+// makemon.c:2121-2163, the source changes form after the increment reaches
+// the new species level; no-victim advancement instead spends rnd(8) at :2100.
+test('grow_up changes species and supports level gain without a victim', async () => {
     const state = growState();
-    // A little dog at m_lev 3 reaches a dog's level of 4 on the increment, and
-    // a dog is its little_to_big() form, so both conjuncts hold. A threshold
-    // of 24 with a maximum of 24: one more point crosses it.
+    // Little dog at level 3 reaches the dog's level 4 after one rnd(1) point;
+    // the target species is not genocided, so set_mon_data() installs it.
     const puppy = grower(state, PM_LITTLE_DOG,
                          { m_lev: 3, mhp: 24, mhpmax: 24 });
-    assert.throws(
-        () => grow_up(puppy, grower(state, PM_JACKAL, { m_lev: 0 }),
-                      growEnv(state, [1])),
-        /a monster growing into a bigger form/u,
-    );
-    // C increments before it tests either conjunct, so the raised level and
-    // the banked point both survive the stop.
+    const kill = growEnv(state, [1]);
+    assert.equal(await grow_up(
+        puppy, grower(state, PM_JACKAL, { m_lev: 0 }), kill,
+    ), state.mons[PM_DOG]);
+    assert.equal(puppy.data, state.mons[PM_DOG]);
     assert.equal(puppy.m_lev, 4);
     assert.equal(puppy.mhpmax, 25);
 
-    const potion = growEnv(state);
-    assert.throws(
-        () => grow_up(grower(state, PM_FOX), null, potion),
-        /a monster gaining a level from no victim/u,
-    );
-    // The stop precedes that arm's own rnd(8).
-    assert.deepEqual(potion.bounds, []);
+    // A no-victim level gain (as from a gain-level potion) rolls rnd(8),
+    // sets hp_threshold to zero and uses the hard level limit of 50.
+    const fox = grower(state, PM_FOX, { m_lev: 1, mhp: 4, mhpmax: 8 });
+    const potion = growEnv(state, [6]);
+    assert.equal(await grow_up(fox, null, potion), fox.data);
+    assert.deepEqual(potion.bounds, ['rnd(8)']);
+    assert.equal(fox.mhpmax, 14);
+    assert.equal(fox.mhp, 10); // C assigns rnd(8) to both HP increases.
+    assert.equal(fox.m_lev, 2);
 });
 
 // makemon.c:2089-2092, the crude upper limit and the raise that makes room for
 // the bigger form, both computed above the early return at :2110-2111.
-test('grow_up raises the level limit to reach the bigger form', () => {
+test('grow_up raises the level limit to reach the bigger form', async () => {
     const state = growState();
     // A hell hound pup's species level is 7, so the crude limit is 10; a hell
     // hound is level 12, which raises it to 12. At m_lev 10 the increment
@@ -877,7 +876,7 @@ test('grow_up raises the level limit to reach the bigger form', () => {
     // of 80 with a maximum of 80 crosses on one point.
     const pup = grower(state, PM_HELL_HOUND_PUP,
                        { m_lev: 10, mhp: 80, mhpmax: 80 });
-    assert.equal(grow_up(pup, grower(state, PM_JACKAL, { m_lev: 0 }),
+    assert.equal(await grow_up(pup, grower(state, PM_JACKAL, { m_lev: 0 }),
                          growEnv(state, [1])), pup.data);
     // 11 is short of a hell hound's 12, so the form does not change and the
     // sanity check at :2166-2170 leaves both the level and the maximum alone.
@@ -888,21 +887,21 @@ test('grow_up raises the level limit to reach the bigger form', () => {
 
 // makemon.c:2089, `3 * (int) ptr->mlevel / 2`. C truncates the product, so an
 // odd species level keeps the extra half-step.
-test('grow_up truncates the level limit after tripling, not before', () => {
+test('grow_up truncates the level limit after tripling, not before', async () => {
     const state = growState();
     // A wolf's species level is 5: 3 * 5 / 2 is 7, while halving first gives
     // 6. At m_lev 6 the increment lands on 7, which the correct limit allows
     // and the halved-first one would undo. A threshold of 48 with a maximum
     // of 48 crosses on one point.
     const wolf = grower(state, PM_WOLF, { m_lev: 6, mhp: 48, mhpmax: 48 });
-    assert.equal(grow_up(wolf, grower(state, PM_JACKAL, { m_lev: 0 }),
+    assert.equal(await grow_up(wolf, grower(state, PM_JACKAL, { m_lev: 0 }),
                          growEnv(state, [1])), wolf.data);
     assert.equal(wolf.m_lev, 7);
     assert.equal(wolf.mhpmax, 49);
 });
 
 // makemon.c:2165-2175, the closing sanity checks.
-test('grow_up undoes an increment past the level limit', () => {
+test('grow_up undoes an increment past the level limit', async () => {
     const state = growState();
     // A wolf at m_lev 7 is already at its limit of 7, so the increment to 8 is
     // undone. A threshold of 56 with a maximum of 56 crosses on one point, and
@@ -910,7 +909,7 @@ test('grow_up undoes an increment past the level limit', () => {
     // kill leaves the wolf where it started, having spent a draw.
     const wolf = grower(state, PM_WOLF, { m_lev: 7, mhp: 56, mhpmax: 56 });
     const env = growEnv(state, [1]);
-    assert.equal(grow_up(wolf, grower(state, PM_JACKAL, { m_lev: 0 }), env),
+    assert.equal(await grow_up(wolf, grower(state, PM_JACKAL, { m_lev: 0 }), env),
                  wolf.data);
     assert.deepEqual(env.bounds, ['rnd(1)']);
     assert.equal(wolf.m_lev, 7);
@@ -921,14 +920,14 @@ test('grow_up undoes an increment past the level limit', () => {
     // 100 is far past the threshold of 56, so :2096-2097 banks nothing and
     // :2169-2170 gives nothing back.
     const stout = grower(state, PM_WOLF, { m_lev: 7, mhp: 100, mhpmax: 100 });
-    assert.equal(grow_up(stout, grower(state, PM_JACKAL, { m_lev: 0 }),
+    assert.equal(await grow_up(stout, grower(state, PM_JACKAL, { m_lev: 0 }),
                          growEnv(state, [1])), stout.data);
     assert.equal(stout.m_lev, 7);
     assert.equal(stout.mhpmax, 100);
 
     // 50 * 8 caps the maximum, and the current hit points then follow it down.
     const swollen = grower(state, PM_WOLF, { m_lev: 7, mhp: 500, mhpmax: 500 });
-    assert.equal(grow_up(swollen, grower(state, PM_JACKAL, { m_lev: 0 }),
+    assert.equal(await grow_up(swollen, grower(state, PM_JACKAL, { m_lev: 0 }),
                          growEnv(state, [1])), swollen.data);
     assert.equal(swollen.m_lev, 7);
     assert.equal(swollen.mhpmax, 400);
@@ -938,7 +937,7 @@ test('grow_up undoes an increment past the level limit', () => {
 // makemon.c:2113-2118, the three limit clamps between the threshold test and
 // the increment.
 test('grow_up clamps the level limit for a player monster and a demon lord',
-     () => {
+     async () => {
     const state = growState();
     // An archeologist's species level is 10, so the crude limit is 15;
     // is_mplayer() replaces it with 30. At m_lev 20 the increment lands on 21,
@@ -946,7 +945,7 @@ test('grow_up clamps the level limit for a player monster and a demon lord',
     // 160 crosses on one point.
     const player = grower(state, PM_ARCHEOLOGIST,
                           { m_lev: 20, mhp: 160, mhpmax: 160 });
-    assert.equal(grow_up(player, grower(state, PM_JACKAL, { m_lev: 0 }),
+    assert.equal(await grow_up(player, grower(state, PM_JACKAL, { m_lev: 0 }),
                          growEnv(state, [1])), player.data);
     assert.equal(player.m_lev, 21);
     assert.equal(player.mhpmax, 161);
@@ -956,7 +955,7 @@ test('grow_up clamps the level limit for a player monster and a demon lord',
     // therefore undone, and the point that carried it is given back. A
     // threshold of 400 with a maximum of 400 crosses on one point.
     const lord = grower(state, PM_JUIBLEX, { m_lev: 50, mhp: 400, mhpmax: 400 });
-    assert.equal(grow_up(lord, grower(state, PM_JACKAL, { m_lev: 0 }),
+    assert.equal(await grow_up(lord, grower(state, PM_JACKAL, { m_lev: 0 }),
                          growEnv(state, [1])), lord.data);
     assert.equal(lord.m_lev, 50);
     assert.equal(lord.mhpmax, 400);
@@ -971,7 +970,7 @@ test('grow_up clamps the level limit for a player monster and a demon lord',
     adj_erinys(42, state);
     assert.equal(state.mons[PM_ERINYS].mlevel, 49);
     const fury = grower(state, PM_ERINYS, { m_lev: 49, mhp: 392, mhpmax: 392 });
-    assert.equal(grow_up(fury, grower(state, PM_JACKAL, { m_lev: 0 }),
+    assert.equal(await grow_up(fury, grower(state, PM_JACKAL, { m_lev: 0 }),
                          growEnv(state, [1])), fury.data);
     assert.equal(fury.m_lev, 49);
     assert.equal(fury.mhpmax, 392);
@@ -981,14 +980,14 @@ test('grow_up clamps the level limit for a player monster and a demon lord',
 // queen bee by just killing things", which is what the `!victim` conjunct
 // enforces: the pair is absent from grownups[], so a kill leaves newtype at
 // PM_KILLER_BEE and the queen's level never raises lev_limit.
-test('grow_up keeps a killer bee that killed something a killer bee', () => {
+test('grow_up keeps a killer bee that killed something a killer bee', async () => {
     const state = growState();
     // A killer bee's species level is 1, so the crude limit is 1 and the
     // arbitrary floor lifts it to 5. Reading the queen's level of 9 instead
     // would lift it to 9 and let the increment to 6 stand. A threshold of 40
     // with a maximum of 40 crosses on one point.
     const bee = grower(state, PM_KILLER_BEE, { m_lev: 5, mhp: 40, mhpmax: 40 });
-    assert.equal(grow_up(bee, grower(state, PM_JACKAL, { m_lev: 0 }),
+    assert.equal(await grow_up(bee, grower(state, PM_JACKAL, { m_lev: 0 }),
                          growEnv(state, [1])), bee.data);
     assert.equal(bee.m_lev, 5);
     assert.equal(bee.mhpmax, 40);
@@ -997,11 +996,11 @@ test('grow_up keeps a killer bee that killed something a killer bee', () => {
 
 // makemon.c:2060-2061. "monster died after killing enemy but before calling
 // this function"; mdamagem() reads the answer as the M_ATTK_AGR_DIED bit.
-test('grow_up answers nothing for a killer that is already dead', () => {
+test('grow_up answers nothing for a killer that is already dead', async () => {
     const state = growState();
     const dead = grower(state, PM_FOX, { mhp: 0 });
     const env = growEnv(state, [1]);
-    assert.equal(grow_up(dead, grower(state, PM_JACKAL, { m_lev: 0 }), env),
+    assert.equal(await grow_up(dead, grower(state, PM_JACKAL, { m_lev: 0 }), env),
                  null);
     assert.deepEqual(env.bounds, []);
     assert.equal(dead.mhpmax, 4);
@@ -1010,7 +1009,7 @@ test('grow_up answers nothing for a killer that is already dead', () => {
     const wounded = grower(state, PM_FOX, { m_lev: 1, mhp: 1, mhpmax: 4 });
     const alive = growEnv(state, [1]);
     assert.equal(
-        grow_up(wounded, grower(state, PM_JACKAL, { m_lev: 0 }), alive),
+        await grow_up(wounded, grower(state, PM_JACKAL, { m_lev: 0 }), alive),
         wounded.data,
     );
     assert.deepEqual(alive.bounds, ['rnd(1)']);

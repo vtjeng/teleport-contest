@@ -1142,7 +1142,7 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
         }
 
         return M_ATTK_DEF_DIED
-            | (grow_up(magr, mdef, env) ? 0 : M_ATTK_AGR_DIED);
+            | (await grow_up(magr, mdef, env) ? 0 : M_ATTK_AGR_DIED);
     }
     return (mhm.hitflags === M_ATTK_AGR_DIED) ? M_ATTK_AGR_DIED : M_ATTK_HIT;
 }

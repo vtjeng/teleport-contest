@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8675310,
+      "datetime": "20421224143000",
+      "nethackrc": "OPTIONS=name:C86FirePair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": "#levelchange\n30\n                             #wizintrinsic\n>i>h\n \n#wizgenesis\nhostile fire elemental\n#wizgenesis\n7 hostile straw golem\n . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

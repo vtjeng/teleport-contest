@@ -36,8 +36,14 @@ import {
     nothing_seems_to_happen,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { newsym } from './display.js';
-import { christen_monst } from './do_name.js';
+import { canseemon, canspotmon, newsym } from './display.js';
+import {
+    christen_monst,
+    Mgender,
+    mon_nam,
+    pmname,
+    YMonnam,
+} from './do_name.js';
 import { tamedog } from './dog.js';
 import { level_difficulty, on_level } from './dungeon.js';
 import { sgn } from './hacklib.js';
@@ -48,18 +54,25 @@ import {
     makemon,
     makemon_runtime,
 } from './makemon_create.js';
-import { mongone } from './mon.js';
+import { mondied, mongone } from './mon.js';
 import { newemin } from './minion.js';
 import {
     always_hostile,
     always_peaceful,
     emits_light,
+    humanoid,
     is_golem,
+    is_female,
+    is_male,
     is_mplayer,
     is_placeholder,
+    is_shapeshifter,
     little_to_big,
     monsndx,
+    mhe,
+    nonliving,
     pm_resistance,
+    set_mon_data,
 } from './mondata.js';
 import { mon_track_clear, place_monster } from './monst.js';
 import { next_ident } from './obj.js';
@@ -131,10 +144,12 @@ import {
 import { MAXMCLASSES } from './symbols.js';
 import { enexto } from './teleport.js';
 import { ttyPline } from './tty_message.js';
+import { messageAt } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { consume_obj_charge, update_inventory } from './invent.js';
+import { an } from './objnam.js';
 
-import { canseemon, sensemon } from './display.js';
+import { sensemon } from './display.js';
 
 function generationState(env = {}) {
     const state = env.state ?? game;
@@ -348,38 +363,14 @@ export function adj_lev(monster, state = game) {
     return Math.min(Math.max(adjusted, 0), upperLimit);
 }
 
-// C ref: makemon.c grow_up() (2049-2179). "monster earned experience and will
-// gain some hit points; it might also grow into a bigger monster (baby to
-// adult, soldier to officer, etc)".
-//
-// Partial: the `victim` arm, including the level gain at 2120 and the closing
-// sanity limits. A monster whose raised maximum still fits inside its current
-// level's hit-point ceiling returns at 2111, which is where an ordinary
-// starting pet killing a level-0 monster lands; rnd() calls RND() even for
-// x == 1 (rnd.c:163), so such a kill still spends a draw and records rnd(1)=1.
-//
-// C raises mhpmax before it tests the threshold, and its own comment at
-// 2078-2081 calls the resulting level gain without a hit-point gain a possible
-// bug. The write therefore sits above the threshold test, not below it.
-//
-// Two arms refuse:
-//
-//   2099-2106  the `!victim` arm, reached from a gain-level potion, a wraith
-//              corpse and mdamagem()'s AD_DGST wraith case. It sets
-//              hp_threshold to 0, so it always continues into the level gain
-//              below; the refusal sits ahead of its own rnd(8).
-//   2121-2163  the form change, entered only when the raised level reaches the
-//              bigger species: set_mon_data(), the "grows up into" line, the
-//              G_GENOD arm's mondied(), newsym() and the leashed-inventory
-//              refresh. The level itself is already raised when this refuses,
-//              because C increments inside the condition at 2120.
-export function grow_up(mtmp, victim, env = {}) {
+// C ref: makemon.c grow_up() (2049-2179). Applies earned HP, level-limit,
+// evolution, genocided-form and naming effects in source order. `victim` is
+// null for a gain-level potion, killer-bee jelly and wraith-corpse growth.
+export async function grow_up(mtmp, victim, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2, rnd };
-    const unsupported = env.unsupported;
-    if (typeof unsupported !== 'function')
-        throw new TypeError('grow_up requires an unsupported operation');
-    const ptr = mtmp.data;
+    const message = env.message ?? ttyPline;
+    let ptr = mtmp.data;
 
     /* monster died after killing enemy but before calling this function */
     /* currently possible if killing a gas spore */
@@ -393,30 +384,35 @@ export function grow_up(mtmp, victim, env = {}) {
         ? PM_QUEEN_BEE
         : little_to_big(oldtype);
 
-    /* growth limits differ depending on method of advancement */
-    if (!victim) unsupported('a monster gaining a level from no victim');
+    /* Growth limits differ depending on why the monster advances. */
+    let hp_threshold;
+    let lev_limit;
+    let max_increase;
+    let cur_increase;
+    if (victim) {
+        /* The threshold is the current level's maximum HP. C intentionally
+         * banks HP before testing it, even when that causes a level gain. */
+        hp_threshold = mtmp.m_lev * 8;
+        if (!mtmp.m_lev) hp_threshold = 4;
+        else if (is_golem(ptr))
+            hp_threshold = (Math.trunc(mtmp.mhpmax / 10) + 1) * 10 - 1;
+        else if (is_home_elemental(ptr, state)) hp_threshold *= 3;
 
-    /*
-     * The HP threshold is the maximum number of hit points for the
-     * current level; once exceeded, a level will be gained.
-     */
-    let hp_threshold = mtmp.m_lev * 8; /* normal limit */
-    if (!mtmp.m_lev) hp_threshold = 4;
-    else if (is_golem(ptr)) /* strange creatures */
-        hp_threshold = (Math.trunc(mtmp.mhpmax / 10) + 1) * 10 - 1;
-    else if (is_home_elemental(ptr, state)) hp_threshold *= 3;
-    /* C truncates the product, not the halved level, so an odd species level
-       keeps the extra half-step: 3 * 3 / 2 is 4 and not 3. */
-    let lev_limit = Math.trunc(3 * ptr.mlevel / 2); /* same as adj_lev() */
-    /* If they can grow up, be sure the level is high enough for that */
-    if (oldtype !== newtype && state.mons[newtype].mlevel > lev_limit)
-        lev_limit = state.mons[newtype].mlevel;
-    /* number of hit points to gain; unlike for the player, we put
-       the limit at the bottom of the next level rather than the top */
-    let max_increase = random.rnd(victim.m_lev + 1);
-    if (mtmp.mhpmax + max_increase > hp_threshold + 1)
-        max_increase = Math.max((hp_threshold + 1) - mtmp.mhpmax, 0);
-    const cur_increase = (max_increase > 1) ? random.rn2(max_increase) : 0;
+        lev_limit = Math.trunc(3 * ptr.mlevel / 2);
+        if (oldtype !== newtype && state.mons[newtype].mlevel > lev_limit)
+            lev_limit = state.mons[newtype].mlevel;
+
+        max_increase = random.rnd(victim.m_lev + 1);
+        if (mtmp.mhpmax + max_increase > hp_threshold + 1)
+            max_increase = Math.max((hp_threshold + 1) - mtmp.mhpmax, 0);
+        cur_increase = max_increase > 1 ? random.rn2(max_increase) : 0;
+    } else {
+        /* A level potion or wraith corpse always rolls rnd(8); it uses zero
+         * as the threshold and the hard 50-level ceiling below. */
+        max_increase = cur_increase = random.rnd(8);
+        hp_threshold = 0;
+        lev_limit = 50;
+    }
 
     mtmp.mhpmax += max_increase;
     mtmp.mhp += cur_increase;
@@ -427,10 +423,49 @@ export function grow_up(mtmp, victim, env = {}) {
     else if (lev_limit < 5) lev_limit = 5; /* arbitrary */
     else if (lev_limit > 49) lev_limit = (ptr.mlevel > 49 ? 50 : 49);
 
-    /* C evaluates the increment first, so every grower's level rises here,
-       including one whose species has no bigger form. */
-    if (++mtmp.m_lev >= state.mons[newtype].mlevel && newtype !== oldtype)
-        unsupported('a monster growing into a bigger form');
+    if ((++mtmp.m_lev) >= state.mons[newtype].mlevel && newtype !== oldtype) {
+        ptr = state.mons[newtype];
+        const fem = is_male(ptr) ? 0 : is_female(ptr) ? 1 : mtmp.female;
+
+        if (state.mvitals[newtype].mvflags & G_GENOD) {
+            if (canspotmon(mtmp, state)) {
+                const text = `As ${mon_nam(mtmp, state, env)} grows up into `
+                    + `${an(pmname(ptr, Mgender(mtmp, state)))}, `
+                    + `${mhe(mtmp, { ...env, state })} `
+                    + `${nonliving(ptr) ? 'expires' : 'dies'}!`;
+                await message(text, state, env);
+            }
+            set_mon_data(mtmp, ptr, state);
+            await mondied(mtmp, state, env);
+            return null;
+        }
+
+        if (canspotmon(mtmp, state)) {
+            const prefix = (mtmp.female && !fem) ? 'male '
+                : (fem && !mtmp.female) ? 'female ' : '';
+            const buf = `${prefix}${pmname(ptr, fem)}`;
+            const verb = fem !== mtmp.female ? 'changes into'
+                : humanoid(ptr) ? 'becomes' : 'grows up into';
+            await message(
+                messageAt(
+                    `${YMonnam(mtmp, state, env)} ${verb} ${an(buf)}.`,
+                    mtmp.mx,
+                    mtmp.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+
+        set_mon_data(mtmp, ptr, state);
+        if (mtmp.cham === oldtype && is_shapeshifter(ptr))
+            mtmp.cham = newtype;
+        newsym(mtmp.mx, mtmp.my);
+        lev_limit = mtmp.m_lev; /* never undo an evolution's increment */
+        mtmp.female = fem;
+        if (mtmp.mleashed) update_inventory();
+    }
 
     /* sanity checks */
     if (mtmp.m_lev > lev_limit) {
