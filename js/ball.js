@@ -226,7 +226,7 @@ async function litter(state) {
             await ttyPline(
                 `You drop ${yname(obj, state)} and `
                     + `${obj.quan === 1 ? 'it' : 'they'} `
-                    + `${otense(obj, 'fall')} down the stairs with you.`,
+                    + `${otense(obj, 'fall', state)} down the stairs with you.`,
                 state,
             );
             setnotworn(obj, { state });

@@ -2003,7 +2003,7 @@ export async function pleased(g_align, state = game) {
                 || is_weptool(weapon, state))) {
                 let repair_buf = '';
                 if (weapon.oeroded || weapon.oeroded2)
-                    repair_buf = ` and ${otense(weapon, 'are')} now as good as new`;
+                    repair_buf = ` and ${otense(weapon, 'are', state)} now as good as new`;
 
                 if (weapon.cursed) {
                     if (!heroIsBlind(state)) {
@@ -2046,7 +2046,7 @@ export async function pleased(g_align, state = game) {
                     if (repair_buf)
                         await ttyPline(
                             `${Yobjnam2(weapon, null, state)} ${otense(
-                                weapon, heroIsBlind(state) ? 'feel' : 'look',
+                                weapon, heroIsBlind(state) ? 'feel' : 'look', state,
                             )} as good as new!`, state,
                         );
                 }

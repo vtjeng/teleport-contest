@@ -68,6 +68,7 @@ import {
 } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
+import { newObject } from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
 import { find_delayed_killer } from '../js/end.js';
 import { make_stoned } from '../js/potion.js';
@@ -1115,11 +1116,11 @@ test('burnarmor rolls again for a slot the hero has nothing in', async () => {
     assert.deepEqual(drawn, [5, 5, 5, 5]);
 });
 
-test('burnarmor supports monster victims and stops for a wet towel', async () => {
+test('burnarmor dries one towel before selecting an armor slot', async () => {
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
     });
-    const env = {
+    const monsterEnv = {
         state: game,
         message: async () => {},
         random: { rn2: () => 1, rnl: () => 1 },
@@ -1127,17 +1128,43 @@ test('burnarmor supports monster victims and stops for a wet towel', async () =>
     // trap.c:87-160. which_armor() picks a monster's five slots, and the
     // empty torso slot answers TRUE after trying the monster's cloak, suit,
     // and shirt.
-    assert.equal(await burnarmor({ minvent: null }, env), true);
-    // trap.c:99-109. A dry towel leaves the scan walking; a wet one reaches
-    // apply.c dry_a_towel(), which is unported.
-    const towel = { otyp: TOWEL, spe: 0, nobj: game.invent };
+    assert.equal(await burnarmor({ minvent: null }, monsterEnv), true);
+    // trap.c:99-109. This wet towel's amount roll selects spe=2 from spe=3;
+    // the next roll chooses the source branch that returns TRUE after checking
+    // the cloak, suit and shirt slots, even when all three are empty.
+    const towel = newObject({
+        otyp: TOWEL,
+        oclass: TOOL_CLASS,
+        quan: 1,
+        spe: 3,
+        where: OBJ_INVENT,
+        nobj: game.invent,
+    });
     game.invent = towel;
-    assert.equal(await burnarmor(game.youmonst, env), true);
-    towel.spe = 1;
-    await assert.rejects(
-        () => burnarmor(game.youmonst, env),
-        /dry_a_towel\(\) for a wet towel/u,
-    );
+    const lines = [];
+    const bounds = [];
+    const rolls = [2, 1];
+    const towelEnv = {
+        state: game,
+        message: async (line) => lines.push(line),
+        random: {
+            rn2: (bound) => {
+                bounds.push(bound);
+                const roll = rolls.shift();
+                assert.ok(roll < bound, 'the frozen C roll fits its draw bound');
+                return roll;
+            },
+            rnl: () => 1,
+        },
+    };
+    assert.equal(await burnarmor(game.youmonst, towelEnv), true);
+    assert.equal(towel.spe, 2);
+    assert.deepEqual(bounds, [4, 5]);
+    assert.deepEqual(lines, [
+        'Your wet towel (3) dries.',
+        'Your cloak smoulders!',
+    ]);
+    assert.deepEqual(rolls, []);
     game.invent = towel.nobj;
 });
 

@@ -112,7 +112,7 @@ export async function catch_lit(obj, rawEnv = {}) {
             note_unported('pline.c set_msg_xy');
         }
         await message(
-            `${Yname2(obj, state)} ${otense(obj, blind ? 'feel' : 'catch')} `
+            `${Yname2(obj, state)} ${otense(obj, blind ? 'feel' : 'catch', state)} `
                 + `${blind ? 'warm.' : 'light!'}`,
             state,
         );

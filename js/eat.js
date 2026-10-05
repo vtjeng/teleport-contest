@@ -3409,7 +3409,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
                     return null;
                 }
                 const one = (otmp.quan ?? 1) === 1;
-                const prefix = `There ${otense(otmp, 'are')} `;
+                const prefix = `There ${otense(otmp, 'are', state)} `;
                 const suffix = ` here; ${verb} ${one ? 'it' : 'one'}?`;
                 const qbuf = safe_qbuf(
                     prefix, suffix, otmp, donameFresh, ansimpleoname,
