@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved B106 M-to-M setup miss. The first '#' is consumed by the startup --More-- because this input omits the opening acknowledgement; cmd.c:rhack therefore never dispatches #levelchange. The following levelchange text is read as ordinary commands, leaving the Wizard at level 1, and the planned Conflict/monster matchup is not reached. The input-corrected route is preserved separately.",
+  "segments": [
+    {
+      "seed": 884210,
+      "datetime": "20320410094512",
+      "nethackrc": "OPTIONS=name:SlimePairWitness,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n12\n                              \n#wizintrinsic\n>>h\n \n#wizgenesis\nhostile green slime\n #wizgenesis\nhostile newt\n. . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

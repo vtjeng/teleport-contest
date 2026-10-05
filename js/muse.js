@@ -115,6 +115,7 @@ import { end_running, losehp, nomul } from './hack.js';
 import { dirtocoord, xytodir } from './cmd.js';
 import {
     cls, display_self, docrt, flush_screen, map_invisible,
+    map_invisible_planning,
     map_monster_glyph_info, newsym, show_glyph_cell,
     shieldeff,
 } from './display.js';
@@ -125,6 +126,7 @@ import {
     Some_Monnam,
     a_monnam,
     capitalizedMonsterName,
+    hcolor,
     monsterCommonName,
     monverbself,
     rndmonnam,
@@ -146,7 +148,7 @@ import { m_next2u } from './mhitu.js';
 import { paralyze_monst } from './mhitm.js';
 import {
     healmon, m_carrying, maybe_unhide_at, mon_offmap, mondead, mongone, monkilled,
-    seemimic, wakeup, xkilled, is_Vlad, flash_mon,
+    seemimic, wakeup, xkilled, is_Vlad, flash_mon, m_in_air,
 } from './mon.js';
 import {
     acidic, amorphous, attacktype, attacktype_fordmg, can_blow, dmgtype,
@@ -184,8 +186,7 @@ import { accessible, monflee, mon_would_take_item, monnear, onscary, youHear } f
 import { lined_up, linedup_callback, m_useup } from './mthrowu.js';
 import { encumber_msg } from './pickup.js';
 import { in_your_sanctuary } from './priest.js';
-import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnz } from './rng.js';
-import { HCOLORS } from './random_text_data.js';
+import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
@@ -291,8 +292,9 @@ function Deaf(state) {
 // C ref: pline.c pline_mon() (138-150). Set the message location to the
 // monster's square and output the message. The JS port prefixes an accessible
 // location through messageAt().
-async function pline_mon(mon, text, state) {
-    await ttyPline(messageAt(text, mon.mx, mon.my, state), state);
+async function pline_mon(mon, text, state, env = {}) {
+    const message = env.message ?? ttyPline;
+    await message(messageAt(text, mon.mx, mon.my, state), state, env);
 }
 
 function activeHeroProperty(state, property) {
@@ -449,21 +451,24 @@ async function mzapwand(mtmp, otmp, self, state, rawEnv = {}) {
         const heardZap = youHear(`a ${
             (mdistu(mtmp, state) <= range * range)
                 ? 'nearby' : 'distant'} zap.`, state);
-        if (heardZap) await ttyPline(heardZap, state);
+        if (heardZap) await message(heardZap, state, rawEnv);
         unknow_object(otmp, state);
     } else if (self) {
-        await ttyPline(
-            `${monverbself(mtmp, capitalizedMonsterName(mtmp, state), 'zap', null, state)} with ${donameFresh(otmp, state)}!`,
-            state);
+        await message(
+            `${monverbself(mtmp, capitalizedMonsterName(mtmp, state, rawEnv), 'zap', null, state, rawEnv)} with ${donameFresh(otmp, state)}!`,
+            state,
+            rawEnv,
+        );
     } else {
         await message(
             messageAt(
-                `${capitalizedMonsterName(mtmp, state)} zaps ${an(xnameFresh(otmp, state))}!`,
+                `${capitalizedMonsterName(mtmp, state, rawEnv)} zaps ${an(xnameFresh(otmp, state))}!`,
                 mtmp.mx,
                 mtmp.my,
                 state,
             ),
             state,
+            rawEnv,
         );
         await stopOccupation(state);
     }
@@ -472,7 +477,8 @@ async function mzapwand(mtmp, otmp, self, state, rawEnv = {}) {
 
 // C ref: muse.c mplayhorn() (195-234). Similar to mzapwand() but for magical
 // horns (the only instrument monsters play).
-async function mplayhorn(mtmp, otmp, self, state) {
+async function mplayhorn(mtmp, otmp, self, state, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
     if (!canseemon(mtmp, state)) {
         const range = couldsee(mtmp.mx, mtmp.my, state)
             ? (BOLT_LIM + 1) : (BOLT_LIM - 3);
@@ -480,7 +486,7 @@ async function mplayhorn(mtmp, otmp, self, state) {
         const heardHorn = youHear(`a horn being played ${
             (mdistu(mtmp, state) <= range * range)
                 ? 'nearby' : 'in the distance'}.`, state);
-        if (heardHorn) await ttyPline(heardHorn, state);
+        if (heardHorn) await message(heardHorn, state, rawEnv);
         unknow_object(otmp, state);
     } else if (self) {
         observe_object(otmp, state);
@@ -488,20 +494,24 @@ async function mplayhorn(mtmp, otmp, self, state) {
         if (objnamp.length >= 128 /* QBUFSZ */)
             objnamp = simpleonames(otmp, state);
         const objbuf = `a ${objnamp} directed at`;
-        await ttyPline(
-            `${monverbself(mtmp, capitalizedMonsterName(mtmp, state), 'play', objbuf, state)}!`,
-            state);
-        discover_object(otmp.otyp, true, true, true, state); /* makeknown */
+        await message(
+            `${monverbself(mtmp, capitalizedMonsterName(mtmp, state, rawEnv), 'play', objbuf, state, rawEnv)}!`,
+            state,
+            rawEnv,
+        );
+        discover_object(otmp.otyp, true, true, true, state, rawEnv); /* makeknown */
     } else {
         observe_object(otmp, state);
         let objnamp = xnameFresh(otmp, state);
         if (objnamp.length >= 128 /* QBUFSZ */)
             objnamp = simpleonames(otmp, state);
-        await ttyPline(
-            `${capitalizedMonsterName(mtmp, state)} plays `
+        await message(
+            `${capitalizedMonsterName(mtmp, state, rawEnv)} plays `
             + `${an(objnamp)} directed at you!`,
-            state);
-        discover_object(otmp.otyp, true, true, true, state); /* makeknown */
+            state,
+            rawEnv,
+        );
+        discover_object(otmp.otyp, true, true, true, state, rawEnv); /* makeknown */
         await stop_occupation(state);
     }
     otmp.spe -= 1; /* use a charge */
@@ -510,7 +520,8 @@ async function mplayhorn(mtmp, otmp, self, state) {
 // C ref: muse.c mreadmsg() (238-292). Message when a monster reads a scroll;
 // if the scroll hasn't been seen, its label is revealed unless the hero is
 // deaf.
-async function mreadmsg(mtmp, otmp, state) {
+async function mreadmsg(mtmp, otmp, state, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
     const vismon = canseemon(mtmp, state);
     let tpindicator = !vismon && sensemon(mtmp, state);
 
@@ -523,8 +534,10 @@ async function mreadmsg(mtmp, otmp, state) {
 
     if (vismon) {
         await pline_mon(mtmp,
-            `${capitalizedMonsterName(mtmp, state)} reads ${onambuf}!`,
-            state);
+            `${capitalizedMonsterName(mtmp, state, rawEnv)} reads ${onambuf}!`,
+            state,
+            rawEnv,
+        );
     } else { /* !Deaf, otherwise we wouldn't reach here */
         const similar = same_race(state.youmonst?.data, mtmp.data, state);
         const uniqmon = ((mtmp.data?.geno & M.G_UNIQ) !== 0
@@ -538,23 +551,28 @@ async function mreadmsg(mtmp, otmp, state) {
             tpindicator = true;
         } else if (couldsee(mtmp.mx, mtmp.my, state)
             && mdistu(mtmp, state) <= 10 * 10) {
-            map_invisible(mtmp.mx, mtmp.my, state);
+            const markInvisible = rawEnv.markInvisible
+                ?? (state === game ? map_invisible : map_invisible_planning);
+            markInvisible(mtmp.mx, mtmp.my, state);
         }
 
         let blindbuf = `reading ${onambuf}`;
         blindbuf = strsubst(blindbuf, 'reading a scroll labeled',
             mtmp.mconf ? 'attempting to incant' : 'incant');
         const heardRead = youHear(
-            `${x_monnam(mtmp, ARTICLE_A, null, mflags, false, state)} `
+            `${x_monnam(mtmp, ARTICLE_A, null, mflags, false, state, rawEnv)} `
             + `${blindbuf}.`, state);
-        if (heardRead) await ttyPline(heardRead, state);
-        if (tpindicator) await flash_mon(mtmp, state);
+        if (heardRead) await message(heardRead, state, rawEnv);
+        if (tpindicator) await flash_mon(mtmp, state, rawEnv);
     }
     if (mtmp.mconf) /* (note: won't get if not seen and hero can't hear) */
-        await ttyPline(
-            `Being confused, ${
-                vismon ? monsterCommonName(mtmp, state) : mhe(mtmp, state)
-            } mispronounces the magic words...`, state);
+        await message(
+                `Being confused, ${
+                vismon ? monsterCommonName(mtmp, state, 0, rawEnv) : mhe(mtmp, rawEnv)
+            } mispronounces the magic words...`,
+            state,
+            rawEnv,
+        );
 }
 
 // C ref: muse.c mquaffmsg() (293-303). Message when a monster quaffs a
@@ -3193,7 +3211,36 @@ export async function munslime(mon, by_you, state = game, env = {}) {
 /* C ref: muse.c muse_unslime() (3104-3219). A monster uses an item or trap
    selected by munslime() to burn away incipient slime. */
 async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
-    const random = env.random ?? { rn1, rn2, d };
+    const random = {
+        d, rn1, rn2, rnd, rne, rnl,
+        ...(env.random ?? {}),
+    };
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
+    const redraw = env.planning || state !== game
+        ? () => {}
+        : env.redraw ?? ((x, y) => newsym(x, y));
+    const actionEnv = {
+        ...env,
+        state,
+        random,
+        message,
+        redraw,
+        mInAir: env.mInAir ?? m_in_air,
+        heroDeaf: env.heroDeaf ?? Deaf,
+        youHear: env.youHear ?? youHear,
+        unsupported: env.unsupported ?? ((reason) => {
+            throw new TypeError(`unslime trap requires ${reason}`);
+        }),
+        displayRandom: env.displayRandom
+            ?? ((bound) => rn2_on_display_rng(bound, state)),
+    };
+    actionEnv.hooks = {
+        ...(env.hooks ?? {}),
+        updateInventory: env.planning
+            ? () => {}
+            : env.hooks?.updateInventory ?? state.hooks?.updateInventory,
+    };
     const otyp = obj.otyp;
     let dmg = 0;
     let vis = canseemon(mon, state);
@@ -3201,56 +3248,83 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
 
     if (vis)
         await pline_mon(mon,
-            `${capitalizedMonsterName(mon, state)} starts turning ${green_mon(mon, state) ? 'into ooze' : hcolor('green', state)}.`,
-            state);
+            `${capitalizedMonsterName(mon, state, actionEnv)} starts turning ${green_mon(mon, state) ? 'into ooze' : hcolor('green', state, actionEnv)}.`,
+            state,
+            actionEnv,
+        );
     /* -4 => sliming, causes quiet loss of enhanced speed */
-    await mon_adjust_speed(mon, -4, null, state, env);
+    await mon_adjust_speed(mon, -4, null, state, actionEnv);
 
     if (trap) {
-        const Mnam = vis ? capitalizedMonsterName(mon, state) : null;
+        const Mnam = vis ? capitalizedMonsterName(mon, state, actionEnv) : null;
 
         if (mon.mx === trap.tx && mon.my === trap.ty) {
             if (vis)
                 await pline_mon(mon,
                     `${Mnam} triggers ${trap.tseen ? 'the' : 'a'} fire trap!`,
-                    state);
+                    state,
+                    actionEnv,
+                );
         } else {
             remove_monster(mon.mx, mon.my, state);
-            newsym(mon.mx, mon.my, state);
+            redraw(mon.mx, mon.my, state);
             place_monster(mon, trap.tx, trap.ty, state);
             if (mon.wormno) /* won't happen; worms don't MUSE to unslime */
                 note_unported('worm.c worm_move');
-            newsym(mon.mx, mon.my, state);
+            redraw(mon.mx, mon.my, state);
             if (vis)
                 await pline_mon(mon,
                     `${Mnam} ${vtense('mon', locomotion(mon.data, 'move'))} ${is_floater(mon.data) ? 'over' : 'onto'} ${trap.tseen ? 'the' : 'a'} fire trap!`,
-                    state);
+                    state,
+                    actionEnv,
+                );
         }
-        await mintrap(mon, FORCETRAP, { state });
+        await mintrap(mon, FORCETRAP, actionEnv);
     } else if (otyp === O.STRANGE_OBJECT) {
         /* monster is using fire breath on self */
         if (vis)
             await pline_mon(mon,
-                `${monverbself(mon, capitalizedMonsterName(mon, state), 'breath', 'fire on', state)}.`,
-                state);
+                `${monverbself(mon, capitalizedMonsterName(mon, state, actionEnv), 'breath', 'fire on', state, actionEnv)}.`,
+                state,
+                actionEnv,
+            );
         if (!random.rn2(3))
             mon.mspec_used = random.rn1(10, 5);
         /* -21 => monster's fire breath; 1 => # of damage dice */
-        const result = await zhitm(mon, by_you ? 21 : -21, 1, state, random);
+        const result = await zhitm(
+            mon,
+            by_you ? 21 : -21,
+            1,
+            state,
+            random,
+            actionEnv,
+        );
         dmg = result.damage;
     } else if (otyp === O.SCR_FIRE) {
-        await mreadmsg(mon, obj, state);
+        await mreadmsg(mon, obj, state, actionEnv);
         if (mon.mconf) {
             if (cansee(mon.mx, mon.my, state))
-                await pline_mon(mon, 'Oh, what a pretty fire!', state);
-            if (vis)
-                await trycall(obj, state);
-            await m_useup(mon, obj, { state });
+                await pline_mon(mon, 'Oh, what a pretty fire!', state,
+                    actionEnv);
+            if (vis) {
+                const type = objectType(obj, state);
+                if (actionEnv.planning && obj.dknown
+                    && !type.oc_name_known && !type.oc_uname) {
+                    // The live trycall() asks for an object name. The cloned
+                    // pass has no player input; that discarded docall result
+                    // cannot affect combat, movement, or randomness, and the
+                    // clone is discarded before the live action prompts.
+                    note_unported('do_name.c docall');
+                } else {
+                    await trycall(obj, state);
+                }
+            }
+            await m_useup(mon, obj, actionEnv);
             vis = false;    /* skip makeknown() below */
             res = false;    /* failed to cure sliming */
         } else {
             dmg = Math.trunc((2 * (random.rn1(3, 3) + 2 * bcsign(obj)) + 1) / 3);
-            await m_useup(mon, obj, { state });
+            await m_useup(mon, obj, actionEnv);
             /* -11 => monster's fireball */
             note_unported('explode.c explode');
             dmg = 0; /* damage has been applied by explode() */
@@ -3263,29 +3337,40 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
             obj = splitobj(obj, 1, { state });
         if (vis && !was_lit) {
             await pline_mon(mon,
-                `${capitalizedMonsterName(mon, state)} ignites ${ansimpleoname(obj, state)}.`,
-                state);
+                `${capitalizedMonsterName(mon, state, actionEnv)} ignites ${ansimpleoname(obj, state)}.`,
+                state,
+                actionEnv,
+            );
             saw_lit = true;
         }
-        begin_burn(obj, was_lit, { state });
+        begin_burn(obj, was_lit, actionEnv);
         vis |= canseemon(mon, state); /* burning potion may improve visibility */
         if (vis) {
             if (!Unaware(state))
                 observe_object(obj, state); /* hero is watching mon drink obj */
             await pline_mon(mon,
-                `${saw_lit ? upstart(mhe(mon)) : capitalizedMonsterName(mon, state)} quaffs a burning ${simpleonames(obj, state)}`,
-                state);
-            discover_object(O.POT_OIL, true, true, true, state); /* makeknown */
+                `${saw_lit ? upstart(mhe(mon, actionEnv)) : capitalizedMonsterName(mon, state, actionEnv)} quaffs a burning ${simpleonames(obj, state)}`,
+                state,
+                actionEnv,
+            );
+            discover_object(O.POT_OIL, true, true, true, state, actionEnv); /* makeknown */
         }
         dmg = random.d(3, 4); /* [**TEMP** (different from hero)] */
-        await m_useup(mon, obj, { state });
+        await m_useup(mon, obj, actionEnv);
     } else { /* wand/horn of fire w/ positive charge count */
         if (obj.otyp === O.FIRE_HORN)
-            await mplayhorn(mon, obj, true, state);
+            await mplayhorn(mon, obj, true, state, actionEnv);
         else
-            await mzapwand(mon, obj, true, state);
+            await mzapwand(mon, obj, true, state, actionEnv);
         /* -1 => monster's wand of fire; 2 => # of damage dice */
-        const result = await zhitm(mon, by_you ? 1 : -1, 2, state, random);
+        const result = await zhitm(
+            mon,
+            by_you ? 1 : -1,
+            2,
+            state,
+            random,
+            actionEnv,
+        );
         dmg = result.damage;
     }
 
@@ -3295,26 +3380,33 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
             if (by_you) {
                 if (vis)
                     await pline_mon(mon,
-                        `${capitalizedMonsterName(mon, state)} is ${nonliving(mon.data) ? 'destroyed' : 'killed'} by the fire!`,
-                        state);
-                await xkilled(mon, XKILL_NOMSG | XKILL_NOCONDUCT, state, env);
+                        `${capitalizedMonsterName(mon, state, actionEnv)} is ${nonliving(mon.data) ? 'destroyed' : 'killed'} by the fire!`,
+                        state,
+                        actionEnv,
+                    );
+                await xkilled(mon, XKILL_NOMSG | XKILL_NOCONDUCT,
+                    state, actionEnv);
             } else
-                await monkilled(mon, 'fire', M.AD_FIRE, state, env);
+                await monkilled(mon, 'fire', M.AD_FIRE, state, actionEnv);
         } else {
             /* non-fatal damage occurred */
             if (vis)
                 await pline_mon(mon,
-                    `${capitalizedMonsterName(mon, state)} is burned${exclam(dmg)}`,
-                    state);
+                    `${capitalizedMonsterName(mon, state, actionEnv)} is burned${exclam(dmg)}`,
+                    state,
+                    actionEnv,
+                );
         }
     }
     if (vis) {
         if (res && mon.mhp >= 1) /* !DEADMONSTER */
             await pline_mon(mon,
-                `${s_suffix(capitalizedMonsterName(mon, state))} slime is burned away!`,
-                state);
+                `${s_suffix(capitalizedMonsterName(mon, state, actionEnv))} slime is burned away!`,
+                state,
+                actionEnv,
+            );
         if (otyp !== O.STRANGE_OBJECT)
-            discover_object(otyp, true, true, true, state); /* makeknown */
+            discover_object(otyp, true, true, true, state, actionEnv); /* makeknown */
     }
     /* use up monster's next move */
     mon.movement -= NORMAL_SPEED;
@@ -3347,17 +3439,6 @@ export function green_mon(mon, state = game) {
         return false;
     return mon.data.mcolor === CLR_GREEN
         || mon.data.mcolor === CLR_BRIGHT_GREEN;
-}
-
-/* Hallucination color table for hcolor(), matching do_name.c hcolor()
-   (1461-1466). Returns the color name, or a random hallucinated one. */
-const hcolors = HCOLORS;
-
-/* C ref: do_name.c hcolor(). Local copy for muse_unslime. */
-function hcolor(colorpref, state) {
-    return (Hallucination(state) || !colorpref)
-        ? hcolors[rn2_on_display_rng(hcolors.length)]
-        : colorpref;
 }
 
 /* C ref: youprop.h Unaware. Local copy for muse_unslime. */

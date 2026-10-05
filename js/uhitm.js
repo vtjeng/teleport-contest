@@ -65,6 +65,7 @@ import {
     M_ATTK_DEF_DIED,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    NC_SHOW_MSG,
     RLOC_MSG,
     RLOC_NOMSG,
     M_SEEN_COLD,
@@ -108,6 +109,7 @@ import {
     SICK,
     SICK_RES,
     SLEEP_RES,
+    SLIMED,
     SLOW_DIGESTION,
     STOMACH,
     STRAT_WAITFORU,
@@ -313,6 +315,7 @@ import {
     passes_rocks,
     resists_blnd,
     resists_blnd_by_arti,
+    slimeproof,
     stagger,
     sticks,
     thick_skinned,
@@ -606,7 +609,7 @@ import { m_useup } from './mthrowu.js';
 import { explode, adtyp_to_expltype } from './explode.js';
 import { cansee } from './vision.js';
 import { body_part, mbodypart, polymon, rehumanize, uunstick } from './polyself.js';
-import { done } from './end.js';
+import { delayed_killer, done } from './end.js';
 import { observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import { mhidden_description } from './pager.js';
@@ -5420,6 +5423,110 @@ export async function mhitm_ad_slee(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_slim() (3526-3600). Preserve the negation
+// draw before selecting an attacker/defender direction and before hitmsg() in
+// the monster-to-hero arm. munslime() may itself cure the target or kill
+// either monster; its Boolean controls whether newcham() is attempted.
+export async function mhitm_ad_slim(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = { d, rn1, rn2, rnd, ...(env.random ?? {}) };
+    const message = env.message ?? (env.planning ? async () => {}
+        : ttyPline);
+    const effectEnv = { ...env, state, random, message };
+    const negated = await mhitm_mgc_atk_negated(
+        magr, mdef, false, state, effectEnv,
+    );
+    let pd = mdef.data;
+
+    if (magr === state.youmonst) {
+        /* uhitm */
+        if (negated) return; /* physical damage only */
+        if (!random.rn2(4) && !slimeproof(pd)) {
+            const { munslime } = await import('./muse.js');
+            if (!await munslime(mdef, true, state, effectEnv)
+                && mdef.mhp >= 1) {
+                await message(
+                    `You turn ${mon_nam(mdef, state, effectEnv)} into slime.`,
+                    state,
+                    effectEnv,
+                );
+                if (await newcham(
+                    mdef,
+                    state.mons?.[PM_GREEN_SLIME],
+                    { ...effectEnv, ncflags: NO_NC_FLAGS },
+                )) {
+                    pd = mdef.data;
+                }
+            }
+            /* munslime attempt could have been fatal */
+            if (mdef.mhp < 1) {
+                mhm.hitflags = M_ATTK_DEF_DIED;
+                mhm.done = true;
+                return;
+            }
+            mhm.damage = 0;
+        }
+    } else if (mdef === state.youmonst) {
+        /* mhitu */
+        await hitmsg(magr, mattk, state, effectEnv);
+        if (negated) {
+            if (!magr.mcan)
+                await message('You escape harm.', state, effectEnv);
+            return;
+        }
+        if (flaming(pd)) {
+            await message('The slime burns away!', state, effectEnv);
+            mhm.damage = 0;
+        } else if (heroUnchanging(state) || noncorporeal(pd)
+            || pd === state.mons?.[PM_GREEN_SLIME]) {
+            await message('You are unaffected.', state, effectEnv);
+            mhm.damage = 0;
+        } else if (!(state.u?.uprops?.[SLIMED]?.intrinsic ?? 0)) {
+            await message("You don't feel very well.", state, effectEnv);
+            await make_slimed(10, null, state, effectEnv);
+            delayed_killer(
+                SLIMED,
+                KILLED_BY_AN,
+                pmname(magr.data, Mgender(magr, state)),
+                state,
+            );
+        } else {
+            await message('Yuck!', state, effectEnv);
+        }
+    } else {
+        /* mhitm */
+        if (negated) return; /* physical damage only */
+        if (!random.rn2(4) && !slimeproof(pd)) {
+            const { munslime } = await import('./muse.js');
+            if (!await munslime(mdef, false, state, effectEnv)
+                && mdef.mhp >= 1) {
+                let ncflags = NO_NC_FLAGS;
+                if (state.gv?.vis && canseemon(mdef, state))
+                    ncflags |= NC_SHOW_MSG;
+                if (await newcham(
+                    mdef,
+                    state.mons?.[PM_GREEN_SLIME],
+                    { ...effectEnv, ncflags },
+                )) {
+                    pd = mdef.data;
+                }
+                mdef.mstrategy &= ~STRAT_WAITFORU;
+                mhm.hitflags = M_ATTK_HIT;
+            }
+            /* munslime attempt could have killed either monster */
+            if (magr.mhp < 1) mhm.hitflags |= M_ATTK_AGR_DIED;
+            if (mdef.mhp < 1) mhm.hitflags |= M_ATTK_DEF_DIED;
+            mhm.damage = 0;
+        }
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_ench() (3602-3649). A disenchanter's blow has no
 // effect on the hero attacker or another monster. Against the hero, preserve
 // the magic-cancellation check, hit message, worn-armor selection, fallback
@@ -6045,7 +6152,9 @@ export async function mhitm_adtyping(
     case AD_SLEE:
         await mhitm_ad_slee(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_SLIM: unported('mhitm_ad_slim'); break;
+    case AD_SLIM:
+        await mhitm_ad_slim(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_ENCH:
         await mhitm_ad_ench(magr, mattk, mdef, mhm, state, env);
         break;
