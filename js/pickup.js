@@ -1296,7 +1296,7 @@ export async function pickup_object(
             obj.spe = 1;
         } else {
             await ttyPline(
-                `The scroll${plur(obj.quan)} ${otense(obj, 'turn')} to dust `
+                `The scroll${plur(obj.quan)} ${otense(obj, 'turn', state)} to dust `
                     + `as you ${telekinesis ? 'raise' : 'pick'} `
                     + `${obj.quan === 1 ? 'it' : 'them'} up.`,
                 state,
@@ -2396,7 +2396,7 @@ async function mbag_item_gone(held, item, silent, state) {
     if (!silent) {
         if (item.dknown) {
             await ttyPline(
-                `${Doname2(item, state)} ${otense(item, 'have')} vanished!`,
+                `${Doname2(item, state)} ${otense(item, 'have', state)} vanished!`,
                 state,
             );
         } else {
@@ -3800,7 +3800,7 @@ async function tipcontainer(box, state) {
                 );
                 await ttyUrgentPline(
                     `As ${donameFresh(otmp, state)} `
-                    + `${otense(otmp, 'tumble')} inside, you are blasted `
+                    + `${otense(otmp, 'tumble', state)} inside, you are blasted `
                     + `by a magical explosion!`,
                     state,
                 );
@@ -3830,7 +3830,7 @@ async function tipcontainer(box, state) {
             } else if (!terse) {
                 await ttyPline(
                     `${upstart(donameFresh(otmp, state))} `
-                    + `${otense(otmp, 'drop')} to the `
+                    + `${otense(otmp, 'drop', state)} to the `
                     + `${surface(ox, oy, state)}.`,
                     state,
                 );
@@ -4022,7 +4022,7 @@ export async function dotip(state = game) {
     if (cobj.oclass === POTION_CLASS) {
         await ttyPline(
             `${The(xnameFresh(cobj, state), state)} `
-            + `${otense(cobj, 'are')} securely sealed.`,
+            + `${otense(cobj, 'are', state)} securely sealed.`,
             state,
         );
     } else if (state.uarmh && cobj === state.uarmh) {

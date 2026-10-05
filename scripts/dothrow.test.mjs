@@ -1786,7 +1786,7 @@ test('throw_obj() preserves the corpse message before discarded instapetrify',
 // Source order has canletgo() before throw_obj()'s later welded() branch;
 // canletgo() rejects the same wielded-and-cursed item, so weldmsg() is a C
 // source branch but is not reachable from a valid throw_obj caller state.
-test('throw_obj keeps wet-towel drying as a named void gap and continues',
+test('throw_obj dries a wet towel before continuing the throw',
     async () => {
         const sourceStart = DOTHROW_C.indexOf('\nthrow_obj(');
         const sourceEnd = DOTHROW_C.indexOf('\n/* common to dothrow()', sourceStart);
@@ -1819,16 +1819,16 @@ test('throw_obj keeps wet-towel drying as a named void gap and continues',
             assert.equal(stuck.invent, dagger);
 
             // is_wet_towel() reads positive spe as wetness; one is its minimal
-            // wet value. dry_a_towel(obj,-1,FALSE) is a discarded void call.
+            // wet value. C calls the void drying helper before the throw.
             const state = arena();
             const towel = item(state, TOWEL, { spe: 1 });
             carry(state, towel);
             state.uquiver = towel;
             aimEast(state);
             assert.equal(await throw_obj(towel, 0, state), ECMD_TIME);
-            assert.equal(towel.spe, 1,
-                'the unported discarded helper leaves wetness unchanged');
-            assert.equal(game.unported.has('weapon.c dry_a_towel'), true);
+            assert.equal(towel.spe, 0,
+                'weapon.c dry_a_towel removes one unit of wetness');
+            assert.equal(game.unported.has('weapon.c dry_a_towel'), false);
             assert.equal(towel.where, OBJ_FLOOR,
                 'the source continues to throw after dry_a_towel');
         } finally {

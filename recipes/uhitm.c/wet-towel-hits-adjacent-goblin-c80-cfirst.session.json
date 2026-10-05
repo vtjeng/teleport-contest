@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93581427,
+      "datetime": "20370506110000",
+      "nethackrc": "OPTIONS=name:C80TowelHit,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017wet towel\nwo#wizgenesis\nhostile goblin\nh"
+    }
+  ],
+  "comment": "Source-observed continuation of the preserved C80 hmon setup probe: C confirmed the wet towel is wielded in slot o and placed a hostile goblin directly west of the hero. The final westward move is frozen from that displayed C map to enter hero melee and hmon_hitmon; do not infer the hit or drying until this C output is recorded. No JavaScript comparison is made before the complete C attack output is captured."
+}

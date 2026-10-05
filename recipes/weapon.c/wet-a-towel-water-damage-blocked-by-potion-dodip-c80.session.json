@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93580417,
+      "datetime": "20360405090000",
+      "nethackrc": "OPTIONS=name:C80WaterDip,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017towel\n\u0017uncursed potion of water\n#dip\nop"
+    }
+  ],
+  "comment": "Blocked C80 water-damage caller recipe for weapon.c:wet_a_towel. The C input reaches trap.c:water_damage through potion.c:H2Opotion_dip, but the JavaScript route stops in potion.c:dodip at the unported potion-into-potion (potion_dip) branch before water_damage. Keep this recipe as source-planned history; do not add a recording to the passing corpus until that caller prerequisite is ported."
+}

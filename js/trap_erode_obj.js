@@ -51,11 +51,11 @@ import {
     isCorrodeable,
     isCrackable,
     is_flammable,
+    is_wet_towel,
     is_rottable,
     isRustprone,
     objectType,
 } from './obj.js';
-import { TOWEL } from './objects.js';
 import {
     cloak_simple_name,
     cxname,
@@ -70,6 +70,7 @@ import { which_armor } from './worn.js';
 import { cansee } from './vision.js';
 import { dist2 } from './hacklib.js';
 import { canseemon } from './display.js';
+import { dry_a_towel } from './weapon.js';
 
 // C ref: trap.c erode_obj()'s three static tables (177-182), one row per
 // ERODE_* value, together with the `vulnerable` predicate and the `is_primary`
@@ -155,17 +156,6 @@ function currentErosion(obj, primary) {
 function setErosion(obj, primary, amount) {
     if (primary) obj.oeroded = amount;
     else obj.oeroded2 = amount;
-}
-
-// A refusal this file raises where trap.c acts. js/cmd.js
-// failClosedCommandRefusals() lists it, so a segment ends at the branch
-// instead of discarding every frame the command already matched.
-export class UnsupportedErosionError extends Error {
-    constructor(branch) {
-        super(`trap.c item erosion reached ${branch}`);
-        this.name = 'UnsupportedErosionError';
-        this.branch = branch;
-    }
 }
 
 // C ref: trap.c erode_obj() (170-353), "Generic erode-item function".
@@ -416,14 +406,12 @@ export async function burnarmor(victim, env) {
     /* burning damage may dry wet towel */
     const inventory = victim === state.youmonst ? state.invent : victim.minvent;
     for (let item = inventory; item; item = item.nobj) {
-        // obj.h:256 is_wet_towel(). apply.c dry_a_towel() remains outside
-        // this span, so keep the existing fail-closed boundary before the
-        // armor slot draw. A dry towel leaves the scan walking as C's does.
-        if (item.otyp === TOWEL && (item.spe ?? 0) > 0) {
-            if (victim === state.youmonst)
-                throw new UnsupportedErosionError('dry_a_towel() for a wet towel');
-            random.rn2((item.spe ?? 0) + 1);
-            note_unported('apply.c dry_a_towel');
+        if (is_wet_towel(item)) {
+            const oldSpe = item.spe;
+            await dry_a_towel(item, random.rn2(oldSpe + 1), true, state, env);
+            // C tries the next towel only when this roll left the current one
+            // unchanged; it stops at the first towel whose wetness changed.
+            if (item.spe !== oldSpe) break;
         }
     }
 

@@ -96,10 +96,12 @@ import {
     is_plural,
     not_fully_identified,
     obj_typename,
+    paydoname,
     shield_simple_name,
     shirt_simple_name,
     simpleonames,
     simple_typename,
+    strprepend,
     suit_simple_name,
     donameFresh,
     concatFormatNameBody,
@@ -170,6 +172,7 @@ import {
     SLIME_MOLD,
     STATUE,
     TALLOW_CANDLE,
+    TOWEL,
     WAN_SLEEP,
     objects_globals_init,
     RIN_PROTECTION,
@@ -205,6 +208,7 @@ import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
 
 const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
+const OBJ_HEADER_SOURCE = readFileSync('nethack-c/upstream/include/obj.h', 'utf8');
 const OBJNAM_JS_SOURCE = readFileSync('js/objnam.js', 'utf8');
 const OBJ_H_SOURCE = readFileSync('nethack-c/upstream/include/obj.h', 'utf8');
 const ARTIFACT_SOURCE = readFileSync('nethack-c/upstream/src/artifact.c', 'utf8');
@@ -2077,6 +2081,53 @@ test('artifact identification uses the discovery list, not artiexist.found', () 
     assert.equal(is_plural(eyes, state), true);
 });
 
+test('otense and naming wrappers use the active artifact discovery state', () => {
+    assert.match(
+        OBJ_HEADER_SOURCE,
+        /#define is_plural\(o\)[\s\S]*?\(o\)->quan != 1L[\s\S]*?\(o\)->oartifact == ART_EYES_OF_THE_OVERWORLD[\s\S]*?!undiscovered_artifact\(ART_EYES_OF_THE_OVERWORLD\)/u,
+    );
+    assert.match(
+        OBJNAM_SOURCE,
+        /otense\(struct obj \*otmp, const char \*verb\)[\s\S]*?if \(!is_plural\(otmp\)\)/u,
+    );
+
+    const state = namingState();
+    const eyes = objectOf(state, LENSES, {
+        oartifact: ART_EYES_OF_THE_OVERWORLD,
+    });
+    // C treats this wished artifact as extant and already found; discovery is
+    // still controlled separately by artidisco for the is_plural check.
+    state.artiexist[ART_EYES_OF_THE_OVERWORLD].exists = 1;
+    state.artiexist[ART_EYES_OF_THE_OVERWORLD].found = 1;
+    const previousGlobalDiscovery = game.artidisco;
+    game.artidisco = state.artidisco.slice();
+
+    try {
+        // C reads artidisco in the active game state. Make it disagree with
+        // the global singleton in both directions to catch a dropped state.
+        game.artidisco.fill(0);
+        // C's search starts at slot 0, so the first entry marks discovery.
+        state.artidisco[0] = ART_EYES_OF_THE_OVERWORLD;
+        // C's otense returns the supplied verb unchanged when is_plural holds.
+        assert.equal(otense(eyes, 'are', state), 'are');
+        assert.ok(aobjnam(eyes, 'are', state).endsWith(' are'));
+        assert.ok(Tobjnam(eyes, 'are', state).endsWith(' are'));
+
+        // The first global discovery slot creates the opposing singleton case.
+        game.artidisco[0] = ART_EYES_OF_THE_OVERWORLD;
+        state.artidisco.fill(0);
+        // An undiscovered Eyes object follows vtense(NULL, "are") and yields "is".
+        assert.equal(otense(eyes, 'are', state), 'is');
+        assert.ok(aobjnam(eyes, 'are', state).endsWith(' is'));
+        assert.ok(Tobjnam(eyes, 'are', state).endsWith(' is'));
+    } finally {
+        if (previousGlobalDiscovery === undefined)
+            delete game.artidisco;
+        else
+            game.artidisco = previousGlobalDiscovery;
+    }
+});
+
 test('BUC, poison, erosion, and enchantment prefixes retain source order', () => {
     const state = namingState();
     const unknownUncursed = objectOf(state, DART, {
@@ -3036,6 +3087,68 @@ test('aobjnam names the object and agrees the verb with it', () => {
     assert.equal(cxname(corpse, state), 'newt corpse');
     corpse.quan = 2;
     assert.equal(cxname(corpse, state), 'newt corpses');
+
+    // C80's towel feedback reaches cxname() through Yobjnam2→yobjnam→aobjnam;
+    // C's non-corpse arm returns xname(), which describes positive spe as wet.
+    const towel = objectOf(state, TOWEL, { dknown: true, spe: 3 });
+    assert.equal(cxname(towel, state), 'wet towel');
+    assert.match(
+        OBJNAM_SOURCE,
+        /cxname\(struct obj \*obj\)\s*\{\s*if \(obj->otyp == CORPSE\)\s*return corpse_xname\(obj,\s*\(const char \*\) 0, CXN_NORMAL\);\s*return xname\(obj\);/u,
+    );
+});
+
+test('strprepend preserves C prefix bounds and the impossible fallback', () => {
+    // objnam.c:123-135 permits at most PREFIX bytes and returns the original
+    // name after the discarded impossible() diagnostic when the prefix is longer.
+    assert.match(OBJNAM_SOURCE, /if \(i > PREFIX\) \{\s*impossible\("PREFIX too short/);
+    assert.equal(strprepend('towel', '3 '), '3 towel');
+
+    // PREFIX is 80 bytes in objnam.c; exactly this boundary remains accepted.
+    const atLimit = 'p'.repeat(80);
+    assert.equal(strprepend('towel', atLimit), `${atLimit}towel`);
+
+    // One extra byte exercises C's guard path and returns the original name.
+    const overLimit = 'p'.repeat(81);
+    assert.equal(strprepend('towel', overLimit), 'towel');
+
+    // C's doname_base() and paydoname() also consume strprepend()'s returned
+    // prefix. The recorded inventory menu exercises doname_base(); the
+    // contained sack pins paydoname()'s two prefix branches here.
+    const donameStart = OBJNAM_SOURCE.indexOf(
+        'doname_base(\n    struct obj *obj,',
+    );
+    const paydonameStart = OBJNAM_SOURCE.indexOf(
+        'paydoname(struct obj *obj)',
+    );
+    assert.notEqual(donameStart, -1);
+    assert.notEqual(paydonameStart, -1);
+    assert.ok(OBJNAM_SOURCE.indexOf(
+        'bp = strprepend(bp, prefix);', donameStart,
+    ) > donameStart);
+    assert.ok(OBJNAM_SOURCE.indexOf(
+        'p = strprepend(p, obj->unpaid ? "an unpaid " : "your ");',
+        paydonameStart,
+    ) > paydonameStart);
+    assert.ok(OBJNAM_SOURCE.indexOf(
+        'p = strprepend(p, "the contents of ");', paydonameStart,
+    ) > paydonameStart);
+    assert.match(OBJNAM_JS_SOURCE, /words = strprepend\(unprefixedWords, `\$\{count\} `\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /name = strprepend\(name, obj\.unpaid \? 'an unpaid ' : 'your '\)/u);
+
+    const state = namingState();
+    const stack = objectOf(state, POT_WATER, { quan: 2 });
+    assert.match(donameFresh(stack, state), /^2 /u);
+    const sack = objectOf(state, SACK, {
+        where: OBJ_INVENT,
+        bknown: true,
+        cknown: true,
+    });
+    sack.cobj = objectOf(state, DART, {
+        where: OBJ_CONTAINED,
+        ocontainer: sack,
+    });
+    assert.match(paydoname(sack, state), /^the contents of your /u);
 });
 
 // C refs: objnam.c corpse_xname() (1823-1919) and cxname_singular()

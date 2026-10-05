@@ -627,7 +627,7 @@ export async function recharge(obj, curseBless, state = game) {
         if (explodes) {
             await ttyPline(
                 `${Yobjnam2(obj, 'pulsate', state)} momentarily, then `
-                + `${otense(obj, 'explode')}!`, state,
+                + `${otense(obj, 'explode', state)}!`, state,
             );
             if (isOn) await Ring_gone(obj, state);
             n = rnd(3 * Math.abs(obj.spe));
@@ -1612,11 +1612,11 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
     let s = scursed ? -otmp.spe : otmp.spe;
     if (s > (specialArmor ? 5 : 3) && random.rn2(s)) {
         otmp.in_use = true;
-        const verb = otense(otmp, blind ? 'vibrate' : 'glow');
+        const verb = otense(otmp, blind ? 'vibrate' : 'glow', state);
         const separator = !blind && !sameColor ? ' ' : '';
         const color = blind || sameColor
             ? '' : hcolor(scursed ? 'black' : 'silver', state);
-        const evaporate = otense(otmp, 'evaporate');
+        const evaporate = otense(otmp, 'evaporate', state);
         await ttyPline(
             `${Yname2(otmp, state)} violently ${verb}${separator}${color} `
             + `for a while, then ${evaporate}.`,
@@ -1666,7 +1666,7 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
         return false;
     }
 
-    const glowVerb = otense(otmp, blind ? 'vibrate' : 'glow');
+    const glowVerb = otense(otmp, blind ? 'vibrate' : 'glow', state);
     const separator = !blind && !sameColor ? ' ' : '';
     const color = blind || sameColor
         ? '' : hcolor(scursed ? 'black' : 'silver', state);

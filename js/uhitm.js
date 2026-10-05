@@ -537,6 +537,7 @@ import {
     abon,
     dbon,
     dmgval,
+    dry_a_towel,
     hitval,
     martial_bonus,
     special_dmgval,
@@ -895,8 +896,8 @@ async function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
             const otyp = glyph_to_obj(glyph);
             const otmp = mksobj(otyp, false, false, { state });
             const otmp_name = simpleonames(otmp, state);
-            const those = is_plural(otmp) ? 'Those' : 'That';
-            const verb = otense(otmp, 'are');
+            const those = is_plural(otmp, state) ? 'Those' : 'That';
+            const verb = otense(otmp, 'are', state);
             fmtbuf = `${those} ${otmp_name} ${verb} %s!`;
         } else if (glyph_is_monster(glyph)) {
             const mndx = glyph_to_mon(glyph);
@@ -3543,10 +3544,8 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     await hmon_hitmon_msg_hit(hmd, mon, obj, state, env);
 
     if (hmd.dryit) {
-        /* apply.c dry_a_towel() changes wetness after the hit message.  The
-           consumed result is void and that owner remains outside this span;
-           retain the source call boundary without inventing a state update. */
-        note_unported('apply.c dry_a_towel');
+        /* C reaches weapon.c dry_a_towel() after its hit message. */
+        await dry_a_towel(obj, -1, true, state, env);
     }
 
     if (hmd.silvermsg)

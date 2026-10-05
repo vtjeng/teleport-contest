@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 19830471,
+      "datetime": "20310917091422",
+      "nethackrc": "OPTIONS=name:C80TowelFire,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": " l\u0017wet towel\n\u0017fire trap\nhl"
+    }
+  ],
+  "comment": "C-first trap.c:burnarmor towel-scan route. The preserved first recording showed all original command bytes blocked by the opening welcome --More--; this source-observed continuation begins with the accepted space, then leaves the upstairs square, wishes a wet towel and fire trap on ordinary floor, and re-enters. The first recording is retained under .cache/C80-logs as a setup miss; the corrected input is frozen before recording and JavaScript comparison."
+}
