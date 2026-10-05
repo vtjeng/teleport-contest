@@ -14,6 +14,7 @@ import {
     DISPLACED,
     FIRE_RES,
     FLYING,
+    GPCOORDS_MAP,
     HALF_PHDAM,
     INVIS,
     M_ATTK_HIT,
@@ -3274,6 +3275,9 @@ test('mhitm_ad_phys applies the monster HUGS arm to a solid hero',
     // the hero has no slippery worn armor.
     const state = await meleeHero();
     const python = meleeAttacker(state, PM_PYTHON, 1, 0);
+    state.a11y ??= {};
+    state.a11y.accessiblemsg = true;
+    state.iflags.getpos_coords = GPCOORDS_MAP;
     const hugs = python.data.mattk[2];
     assert.equal(hugs.aatyp, AT_HUGS);
     assert.equal(sticks(state.youmonst.data), false);
@@ -3287,7 +3291,9 @@ test('mhitm_ad_phys applies the monster HUGS arm to a solid hero',
             return 1;
         } },
     });
-    assert.deepEqual(grab.lines, ['The python grabs you!']);
+    assert.deepEqual(grab.lines, [
+        `<${python.mx},${python.my}>: The python grabs you!`,
+    ]);
     assert.equal(state.u.ustuck, python);
     assert.equal(grabMhm.hitflags, M_ATTK_MISS | M_ATTK_HIT);
     state.u.ustuck = null;
@@ -3311,8 +3317,13 @@ test('mhitm_ad_phys applies the monster HUGS arm to a solid hero',
     assert.deepEqual(slipBounds, [2, 2]);
     assert.equal(slipperyMhm.damage, 0);
     assert.equal(slipperyMhm.hitflags, M_ATTK_MISS);
-    assert.match(slippery.lines[0], /^The python slips off of your greased .+!$/u);
+    assert.match(
+        slippery.lines[0],
+        new RegExp(`^<${python.mx},${python.my}>: The python slips off of your greased .+!$`, 'u'),
+    );
     assert.equal(slippery.lines[1], 'The grease wears off.');
+    assert.match(MHITU_C,
+        /pline_mon\(mtmp, "%s %s your %s %s!",\s*Monnam\(mtmp\),/u);
     assert.equal(greasyCloak.greased, false);
     assert.equal(state.u.ustuck, null);
     state.uarmc = null;

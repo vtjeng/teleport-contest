@@ -44,7 +44,12 @@ import {
     some_mon_nam,
 } from './do_name.js';
 import { game } from './gstate.js';
-import { dist2, distmin, s_suffix } from './hacklib.js';
+import {
+    dist2,
+    distmin,
+    s_suffix,
+    truncateByteString,
+} from './hacklib.js';
 import { grow_up } from './makemon.js';
 import { could_seduce, getmattk, mtrapped_in_pit } from './mhitu.js';
 import {
@@ -863,11 +868,9 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
 // It copies both names before formatting because C's suffix helpers share a
 // static buffer; JavaScript strings preserve those copies directly.
 //
-// The gn.notonhead disjunct is unreachable from mattackm(), which
-// short-circuits on its own unsolid() test before calling here. C's comment
-// there calls that test redundant, which holds for the first disjunct alone: a
-// holding attack that landed on a solid long worm's tail never asks this
-// function. The disjunct is written because C writes it.
+// mattackm()'s ordinary contact arm skips this helper for a solid target, but
+// its automatic AT_HUGS arm calls it after the preceding attacks succeed. That
+// path can therefore use gn.notonhead to reject a solid long-worm tail.
 //
 // C declares this helper non-static for mhitu.c:808, :827 and :1305 and
 // uhitm.c:5652, :5735 and :5779. Its asynchronous message result is awaited
@@ -896,9 +899,9 @@ export async function failed_grab(magr, mdef, mattk, env = {}) {
             const verb = mattk.adtyp === AD_DGST ? 'gulp'
                 : mattk.adtyp === AD_STCK ? 'adhere' : 'grab';
             await message(
-                `${magrnam} ${verb} attempt `
+                `${truncateByteString(magrnam, 99)} ${verb} attempt `
                     + `${tailmiss ? 'fails to hold' : 'passes right through'} `
-                    + `${mdefnam}!`,
+                    + `${truncateByteString(mdefnam, 99)}!`,
                 state,
                 env,
             );

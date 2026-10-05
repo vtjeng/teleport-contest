@@ -4181,7 +4181,12 @@ export async function mhitm_ad_phys(
                     const message = env.message ?? (env.planning
                         ? async () => {} : ttyPline);
                     await message(
-                        `${Monnam(magr, state, env)} grabs you!`,
+                        messageAt(
+                            `${Monnam(magr, state, env)} grabs you!`,
+                            magr.mx,
+                            magr.my,
+                            state,
+                        ),
                         state,
                         env,
                     );
@@ -5212,14 +5217,24 @@ export async function mhitm_ad_wrap(
                 if (state.flags?.verbose) {
                     if (coil) {
                         await message(
-                            `${Monnam(magr, state, env)} brushes against you.`,
+                            messageAt(
+                                `${Monnam(magr, state, env)} brushes against you.`,
+                                magr.mx,
+                                magr.my,
+                                state,
+                            ),
                             state,
                             env,
                         );
                     } else {
                         await message(
-                            `${Monnam(magr, state, env)} brushes against `
-                                + `your ${body_part(LEG, state.youmonst)}.`,
+                            messageAt(
+                                `${Monnam(magr, state, env)} brushes against `
+                                    + `your ${body_part(LEG, state.youmonst)}.`,
+                                magr.mx,
+                                magr.my,
+                                state,
+                            ),
                             state,
                             env,
                         );

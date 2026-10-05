@@ -14,6 +14,7 @@ import {
     FREE_ACTION,
     FROMFORM,
     FOUNTAIN,
+    GPCOORDS_MAP,
     GRAVE,
     ICE,
     KILLED_BY_AN,
@@ -975,6 +976,82 @@ test('mhitm_ad_wrap dispatches slippery and planned drowning source arms', async
     assert.equal(game.killer, liveKiller);
     assert.equal(game.u.ustuck, null);
     assert.notEqual(game.level.at(game.u.ux, game.u.uy).typ, POOL);
+});
+
+test('mhitm_ad_wrap locates both monster-to-hero brush messages', async () => {
+    // uhitm.c:3389-3394 uses pline_mon() for both monster-to-hero messages.
+    assert.match(UHITM_C,
+        /pline_mon\(magr, "%s brushes against you\.",\s*Monnam\(magr\)\)/u);
+    assert.match(UHITM_C,
+        /pline_mon\(magr, "%s brushes against your %s\."/u);
+    await runSegment({
+        seed: 8806415, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.a11y ??= {};
+    game.a11y.accessiblemsg = true;
+    game.iflags.getpos_coords = GPCOORDS_MAP;
+    game.flags.verbose = true;
+
+    // A Python's automatic HUGS/AD_WRAP arm reaches the coil wording; its
+    // failed rn2(10) gate takes the first pline_mon branch.
+    const python = {
+        data: game.mons[PM_PYTHON], m_id: 93201,
+        mx: game.u.ux + 1, my: game.u.uy, mcan: false,
+    };
+    const coilLines = [];
+    const coilRolls = [];
+    await mhitm_adtyping(
+        python,
+        python.data.mattk[2],
+        game.youmonst,
+        { damage: 4, specialdmg: 0, done: false, hitflags: 0 },
+        game,
+        {
+            random: { rn2: (bound) => {
+                coilRolls.push(bound);
+                assert.equal(bound, 10);
+                return 9;
+            } },
+            message: async (line) => { coilLines.push(line); },
+            unsupported: (reason) => assert.fail(reason),
+        },
+    );
+    assert.deepEqual(coilRolls, [10]);
+    assert.deepEqual(coilLines, [
+        `<${python.mx},${python.my}>: The python brushes against you.`,
+    ]);
+
+    // A giant eel's actual AT_TUCH/AD_WRAP slot takes the body-part wording.
+    const eel = {
+        data: game.mons[PM_GIANT_EEL], m_id: 93202,
+        mx: game.u.ux - 1, my: game.u.uy, mcan: false,
+    };
+    const eelWrap = eel.data.mattk[1];
+    assert.equal(eelWrap.aatyp, AT_TUCH);
+    assert.equal(eelWrap.adtyp, AD_WRAP);
+    const bodyLines = [];
+    await mhitm_adtyping(
+        eel,
+        eelWrap,
+        game.youmonst,
+        { damage: 4, specialdmg: 0, done: false, hitflags: 0 },
+        game,
+        {
+            random: { rn2: (bound) => {
+                assert.equal(bound, 10);
+                return 9;
+            } },
+            message: async (line) => { bodyLines.push(line); },
+            unsupported: (reason) => assert.fail(reason),
+        },
+    );
+    assert.match(
+        bodyLines[0],
+        new RegExp(
+            `^<${eel.mx},${eel.my}>: The giant eel brushes against your .+\\.$`,
+            'u',
+        ),
+    );
 });
 
 function plysTestEnv(plan, events) {

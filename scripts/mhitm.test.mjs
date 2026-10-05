@@ -1115,9 +1115,10 @@ test('failed_grab returns the source grab miss for an unsolid target', async () 
         assert.deepEqual(env.bounds, ['rnd(20)', 'rn2(3)'], `adtyp ${adtyp}`);
     }
 
-    // mhitm.c mattackm():447-452 calls failed_grab() only behind unsolid().
-    // A solid giant ant therefore reaches hitmm()/mdamagem(); mhitm_ad_stck()
-    // keeps the d(1,4)=3 damage because rn2(10)=1 is not negated at MC 0.
+    // This AT_TUCH contact arm skips failed_grab() for a solid target, then
+    // reaches hitmm()/mdamagem(); mhitm_ad_stck() keeps d(1,4)=3 because
+    // rn2(10)=1 is not negated at MC 0. mattackm's separate automatic HUGS
+    // arm calls failed_grab without that unsolid precheck.
     const ant = fixture(PM_GIANT_ANT, dx, y + 1, { mhp: 20, mhpmax: 20 });
     assert.equal(unsolid(ant.data), false);
     holding(AD_STCK);
@@ -1140,6 +1141,36 @@ test('failed_grab returns the source grab miss for an unsolid target', async () 
                      ['rnd(20)', 'd(1,4)', 'rn2(10)', 'rn2(3)', 'rn2(6)', 'rn2(3)']);
     game.gn.notonhead = false;
     pet.data = ordinary;
+});
+
+test('failed_grab keeps C pline precision for both monster names', async () => {
+    // mhitm.c:631-633 uses %.99s for both copied names. A 120-byte fixture
+    // crosses that source precision for the attacker and defender separately.
+    assert.match(MHITM_C,
+        /pline\("%\.99s %s attempt %s %\.99s!",\s*magrnam,\s*verb,/u);
+    await hero();
+    const { ax, dx, y } = battlefield(1);
+    const longName = 'x'.repeat(120);
+    const attacker = fixture(PM_KITTEN, ax, y);
+    const cloud = fixture(PM_FOG_CLOUD, dx, y);
+    attacker.data = { ...attacker.data, pmnames: [longName, longName, longName] };
+    cloud.data = { ...cloud.data, pmnames: [longName, longName, longName] };
+    game.gv ??= {};
+    game.gv.vis = true;
+
+    const env = attackEnv([]);
+    assert.equal(await failed_grab(
+        attacker,
+        cloud,
+        { aatyp: AT_HUGS, adtyp: AD_WRAP },
+        env,
+    ), true);
+    const match = env.lines[0].match(
+        /^(.*?) grab attempt passes right through (.*?)!$/u,
+    );
+    assert.ok(match, env.lines[0]);
+    assert.equal(Buffer.byteLength(match[1]), 99);
+    assert.equal(Buffer.byteLength(match[2]), 99);
 });
 
 test('engulf_target admits a fitting vortex and rejects a huge defender',

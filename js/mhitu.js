@@ -274,10 +274,15 @@ export async function u_slip_free(mtmp, mattk, rawEnv = {}) {
             ? xnameFresh(obj, state)
             : cloak_simple_name(obj, state);
         await message(
-            `${Monnam(mtmp, state, rawEnv)} `
-                + `${mattk.adtyp === M.AD_WRAP ? 'slips off of'
-                    : 'grabs you, but cannot hold onto'} your `
-                + `${obj.greased ? 'greased' : 'slippery'} ${name}!`,
+            messageAt(
+                `${Monnam(mtmp, state, rawEnv)} `
+                    + `${mattk.adtyp === M.AD_WRAP ? 'slips off of'
+                        : 'grabs you, but cannot hold onto'} your `
+                    + `${obj.greased ? 'greased' : 'slippery'} ${name}!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ),
             state,
             rawEnv,
         );
