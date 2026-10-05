@@ -165407,7 +165407,7 @@
     {
       "id": "port-uhitm-erode-armor-trap-erode-obj-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port armor erosion and canonical erosion feedback",
       "cFile": "uhitm.c",
       "sessions": [
@@ -165713,7 +165713,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b453b88e7927377c03d11d2ce1db70fefe35c052",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial A95 delivery: trap.c:erode_obj is verified with canonical vtense and accepted C80 cxname dependency. erode_armor has implemented ZT_ACID caller arms but no matching helper execution: the monster breath recording misses the armor gate and the hero route diverges earlier in acid_damage. Preserve the whole planned scope and blocked recipes; no erode_armor completion or goal-closure score event."
     }
   ]
 }
