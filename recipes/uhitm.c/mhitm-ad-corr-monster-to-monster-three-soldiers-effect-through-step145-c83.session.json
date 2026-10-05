@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C83 exact-endpoint companion for the frozen three-Soldier M→M AD_CORR route. It keeps the same seed, date, options and input prefix, ending at normalized step 145 after C mattackm→mhitm_ad_corr→erode_armor and the resulting More acknowledgment. The source recording has one initial empty-key screen, so this prefix is 145 input bytes. The longer route and first endpoint attempt remain preserved separately; this endpoint was selected from normalized C steps, not JavaScript output.",
+  "segments": [
+    {
+      "seed": 83517027,
+      "datetime": "20410605092100",
+      "nethackrc": "OPTIONS=name:C83CorrPair,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n #wizgenesis\n3 sleeping hostile soldier\n #wizgenesis\nhostile black pudding\n . . "
+    }
+  ]
+}
