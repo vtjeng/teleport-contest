@@ -167560,7 +167560,7 @@
           "name": "mhitm_ad_samu",
           "line": 4570,
           "endLine": 4592,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -167744,7 +167744,55 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [],
+        "entryPointReview": "B105 ports the whole source body of uhitm.c:mhitm_ad_samu and only its AD_SAMU dispatch arm. The function remains runtime-incomplete: an admitted v21 replay verifies the M-to-H caller through its initial hitmsg, while no matching replay reaches rn2(20), the discarded stealamulet call, or an M-to-M helper entry. The unported theft callee remains a named gap; no theft effects are invented. C source uhitm.c:4570-4589 calls hitmsg before rn2(20); the v21 range proves the call through hitmsg only. The independent M-to-H gate witness diverges earlier at step 32, and two M-to-M setup attempts fail before mattackm. The active hero-to-monster route is unavailable because all AD_SAMU forms are M2_NOPOLY.",
+        "entryPoints": [
+          {
+            "name": "Wizard attacks hero with AD_SAMU through initial hitmsg (partial entry evidence)",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_samu"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+                "segment": 0,
+                "fromStep": 58,
+                "throughStep": 58,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku/hitmu -> uhitm.c:mhitm_adtyping(AD_SAMU) -> uhitm.c:mhitm_ad_samu -> mhitu.c:hitmsg"
+              }
+            ]
+          },
+          {
+            "name": "AD_SAMU monster attacks another monster",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_samu"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Hero attacks using an AD_SAMU polymorph form",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_samu"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
