@@ -171223,6 +171223,56 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pickup-icebox-removal-v20-20261005",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port icebox removal and container extraction",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed"
+      ],
+      "selectionReason": "Current v20 replay matches all screens and first diverges in RNG at zero-based step 82 when pickup.c:out_container skips removed_from_icebox and therefore does not call mkobj.c:start_corpse_timeout.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "out_container",
+          "line": 2727,
+          "endLine": 2780,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "removed_from_icebox",
+          "line": 2781,
+          "endLine": 2802,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2727,
+        "to": 2802
+      },
+      "syntheticProvenance": {
+        "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed": {
+          "session": "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+          "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
+          "evaluationPath": "challenges/evaluations/20261005201650-v20.json",
+          "evaluationCommit": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123"
+        }
+      }
     }
   ]
 }
