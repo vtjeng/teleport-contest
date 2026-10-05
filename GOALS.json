@@ -169384,7 +169384,7 @@
     {
       "id": "port-potion-dip-mixture-v21-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port potion dipping, mixture behavior, and alternate item-action dispatch",
       "cFile": "potion.c",
       "sessions": [
@@ -169405,64 +169405,64 @@
           "name": "mixtype",
           "line": 2122,
           "endLine": 2213,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dip_ok",
           "line": 2214,
           "endLine": 2230,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dip_hands_ok",
           "line": 2231,
           "endLine": 2242,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "hold_potion",
           "line": 2243,
           "endLine": 2266,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dodip",
           "line": 2267,
           "endLine": 2378,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dip_into",
           "line": 2379,
           "endLine": 2407,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "poof",
           "line": 2408,
           "endLine": 2416,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dip_potion_explosion",
           "line": 2417,
           "endLine": 2441,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "potion_dip",
           "line": 2442,
           "endLine": 2795,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -169476,7 +169476,7 @@
           "endLine": 525,
           "declared": true,
           "sourceFile": "potion.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -169655,7 +169655,356 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "drink_ok",
+            "implementation": "js/potion.js",
+            "symbol": "drink_ok",
+            "sourceReview": "Read potion.c:505-521. The callback reads the shared file-static drink_ok_extra and returns GETOBJ_EXCLUDE or GETOBJ_EXCLUDE_NONINVENT for a null object, GETOBJ_SUGGEST for a potion, and GETOBJ_EXCLUDE for other classes. JS shares the file-static value across dodrink, dodip and dip_into and preserves each source reset/increment site; obsolete local-state substitution is removed.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink resets drink_ok_extra after its strangled refusal and passes drink_ok to getobj."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip resets drink_ok_extra after the first selection, increments it after declined feature prompts, then passes drink_ok to the potion selector."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dip_into",
+                "source": "potion.c:dip_into resets drink_ok_extra after validating CQ_CANNED and passes drink_ok to the potion selector."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "cmd.c dip -> potion.c:dodip -> getobj callback drink_ok"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "mixtype",
+            "implementation": "js/potion.js",
+            "symbol": "mixtype",
+            "sourceReview": "Read potion.c:2122-2210. Preserves the potion-object pair swap, each source switch/fallthrough and STRANGE_OBJECT default, with rn2(3) only for gain-level/energy plus confusion and enlightenment plus levitation. The return type selects the mixture used by potion_dip.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:potion_dip calls mixtype(obj,potion) in the potion-pair branch and uses its result to determine magic, type and dilution."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "potion.c:potion_dip -> mixtype; the resulting potion stack is held after the non-explosion mixture path"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "dip_ok",
+            "implementation": "js/potion.js",
+            "symbol": "dip_ok",
+            "sourceReview": "Read potion.c:2214-2227. A null object returns GETOBJ_DOWNPLAY, coins return GETOBJ_EXCLUDE, inaccessible worn equipment returns GETOBJ_EXCLUDE_INACCESS, and other objects return GETOBJ_SUGGEST. The C call supplies a null message verb, so inaccessible_equipment only reads state and returns a Boolean.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip passes dip_ok to the first getobj outside the slippery-hands feature path."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dip_into",
+                "source": "potion.c:dip_into passes dip_ok when selecting the target object after the queued potion."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "potion.c:dodip first-object getobj callback"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "dip_hands_ok",
+            "implementation": "js/potion.js",
+            "symbol": "dip_hands_ok",
+            "sourceReview": "Read potion.c:2230-2238. A null selector is suggested only when Glib is true and can_reach_floor(FALSE) succeeds; every other case delegates to dip_ok. The callback does not change state or emit output.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip passes dip_hands_ok when the hero stands at a fountain, sink or pool and menu_requested is false."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "hold_potion",
+            "implementation": "js/potion.js",
+            "symbol": "hold_potion",
+            "sourceReview": "Read potion.c:2243-2264. It calculates near_capacity before extracting the transformed potion, temporarily raises pickup_burden only when needed, reinserts through hold_another_object, passes the returned pointer to nhUse (which discards it), restores the saved burden and updates inventory. The JS preserves that mutation order and uses the existing synchronous update_inventory helper.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:potion_dip calls hold_potion after converting and freeing/reinserting a potion stack, and after supported horn/amethyst mixtures."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "potion.c:potion_dip mixture branch -> hold_potion -> hold_another_object"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "dodip",
+            "implementation": "js/potion.js",
+            "symbol": "dodip",
+            "sourceReview": "Read potion.c:2267-2372. Preserves the first getobj callback choice and awaited verb-bearing accessibility refusal, shortest-name/prompt construction, m-prefix bypass, reachable-floor gate, fountain/sink/pool confirmation order, drink_ok_extra increments after declines, pool levitation/riding/hands/object branches, water_damage result and in_use cleanup, then the shared drink_ok potion selection and potion_dip return. Fountain and sink arms resolve and await dipfountain/dipsink. C discards the void steed.c:rider_cant_reach call; JS records it with note_unported and invents no effect.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runDipCommand",
+                "source": "cmd.c's dip command row dispatches dodip; runDipCommand calls the potion.c port."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip calls dipfountain, dipsink, water_damage or potion_dip according to the selected terrain and answer."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dip.test.mjs",
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "cmd.c dip -> potion.c:dodip -> potion_dip"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "poof",
+            "implementation": "js/potion.js",
+            "symbol": "poof",
+            "sourceReview": "Read potion.c:2408-2414. It calls trycall only when dknown, then consumes the potion with useup. The water-on-towel route exercises this source call and its ordering.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:potion_dip calls poof after water-on-towel handling, successful water effects, polymorph consumption and poison effects."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "dip_potion_explosion",
+            "implementation": "js/potion.js",
+            "symbol": "dip_potion_explosion",
+            "sourceReview": "Read potion.c:2417-2438 and youprop.h Deaf. Preserves the unconditional cursed/acid/lit-oil conditions, conditional rn2(30) for an alchemy smock or rn2(10) otherwise, then in_use, Deaf-controlled output, wake radius, Strength exercise with the live encumber_msg hook, breath/eyes gate to the discarded-result potionbreathe call, whole-stack consumption and alchemic-blast damage. Deaf is true for any nonzero intrinsic value, any extrinsic value, or uroleplay.deaf; exercise is awaited before potionbreathe. The regression test exercises a live positive-moves state and non-timeout permanent intrinsic Deaf flag without claiming an independent C recording.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:potion_dip calls dip_potion_explosion after the mixture message and potion consumption, using its Boolean result to return early."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "potion.c:potion_dip -> dip_potion_explosion; rn2(10)=4 returns false and the mixture continues"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          },
+          {
+            "name": "potion_dip",
+            "implementation": "js/potion.js",
+            "symbol": "potion_dip",
+            "sourceReview": "Read potion.c:2442-2804. Preserves self/hands refusals; water through the consumed H2Opotion_dip Boolean and poof; polymorph eligibility, conduct, replacement and consumption; potion mixture amount, explosion result, stack split/type/dilution and reinsertion; acid-on-lichen, water-on-towel, poison, erosion, oil, lamp and horn/amethyst branches; inventory, billing, naming and return order. Reuses source-aligned obj_unpolyable/poly_obj, erode_obj, permapoisoned, splitobj and mkobj implementations with their existing evidence. The discarded potionbreathe/helper results remain explicit; no whole caller credit is claimed.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip returns potion_dip(obj,potion) after the second selector."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dip_into",
+                "source": "potion.c:dip_into returns potion_dip(obj,potion) after consuming the queued inventory action."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "potion.c:dodip -> potion_dip -> mixtype, dip_potion_explosion and hold_potion"
+              }
+            ],
+            "checkedAt": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+          }
+        ],
+        "entryPointReview": "Two active #dip routes match: ordinary potion selection and mixture in the admitted v21 case, and an independently recorded water potion dipped into a towel through H2Opotion_dip -> accepted water_damage -> wet_a_towel. The matching v21 range is segment 0, zero-based steps 57-65; the scanner reports all 66 recorded steps and input boundaries matched. The water route's existing C recording matches all 2561 RNG calls, 41 screens and 41 cursors in JavaScript. The pool branch is source-implemented but has no matching runtime evidence in C84; its retained recipe remains blocked. The internal IA_DIP_OBJ -> altdip -> dip_into route is also source-wired but lacks a matching recording; the C queue contract is documented in the retained recipe. This evidence claims no complete pool or altdip entry point and no whole dodrink caller. The additive correction also pins the active explosion helper contract in a direct focused test: positive moves invoke the awaited encumberMessage hook after the strength draw, and permanent intrinsic Deaf suppresses the BOOM prefix. This direct helper regression test is not recorded C-play coverage. The same focused source/callee check verifies awaited covered-equipment messages in dodip/dip_into and resolves both fountain/sink dip exports.",
+        "entryPoints": [
+          {
+            "name": "#dip with potion mixture",
+            "functions": [
+              "dodip",
+              "drink_ok",
+              "dip_ok",
+              "mixtype",
+              "dip_potion_explosion",
+              "potion_dip",
+              "hold_potion"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 65,
+                "source": "cmd.c dip -> potion.c:dodip -> potion_dip -> mixtype -> dip_potion_explosion -> hold_potion"
+              }
+            ]
+          },
+          {
+            "name": "#dip water potion into a towel",
+            "functions": [
+              "dodip",
+              "drink_ok",
+              "dip_ok",
+              "potion_dip",
+              "poof"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-dip-wets-towel-c84-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#dip into a pool",
+            "functions": [
+              "dodip",
+              "dip_hands_ok"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Inventory IA_DIP_OBJ -> altdip -> dip_into",
+            "functions": [
+              "dip_into",
+              "drink_ok",
+              "dip_ok",
+              "potion_dip"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "C84 verifies 9 of 10 source units and fully matches the selected v21 mixture plus an independent water-into-towel recording. The source-implemented pool and IA_DIP_OBJ routes remain without matching C runtime evidence; dip_into remains unverified and both blocked recipes are retained."
     }
   ]
 }
