@@ -171227,7 +171227,7 @@
     {
       "id": "port-pickup-icebox-removal-v20-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port icebox removal and container extraction",
       "cFile": "pickup.c",
       "sessions": [
@@ -171576,7 +171576,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "bfbc741bd5def29d2a81743f3689cb8a8029b0c0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "A101 verified both planned pickup.c source functions through #loot and #tip, and source-pinned the inactive meatbox route. The active muse.c:mloot_container caller remains runtime-incomplete: the committed blocked recipe reaches find_misc, but rn2(5)=1 skips MUSE_BAG and dog_invent drops the ice box before mloot_container runs."
     }
   ]
 }
