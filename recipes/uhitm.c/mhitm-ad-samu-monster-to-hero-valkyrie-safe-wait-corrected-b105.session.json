@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7711052,
+      "datetime": "20310415091000",
+      "nethackrc": "OPTIONS=name:SamuRoute,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n",
+      "moves": "\u0007hostile Wizard of Yendor\nym."
+    }
+  ],
+  "comment": "Preserved C setup miss after correcting the wait prefix. C('g') wizgenesis creates the hostile Wizard and m. bypasses do.c:cmd_safety_prevention(), but the one recorded wait produces no mattacku() or hitmu() call; the ending step contains only monster-movement calculation, a random-monster check, hunger and moveloop draws. No AD_SAMU attack or 1-in-20 gate is reached. The exact original recipe and C bytes are archived under .cache/B105-setup-miss-one-wait.*."
+}
