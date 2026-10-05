@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B106 exact C endpoint for the independently frozen Wraith M-to-H setup. Wraith is S_WRAITH, not S_GHOST, so the source helper takes the ordinary first-infection branch rather than noncorporeal(). Three post-creation waits end at normalized C step 53, where the green slime first prints “You don't feel very well.” and sets Slimed. The longer full replay first differs at normalized step 54 on a separate map cell; that later mismatch stays outside this endpoint.",
+  "segments": [
+    {
+      "seed": 884207,
+      "datetime": "20320407094512",
+      "nethackrc": "OPTIONS=name:WraithWitness,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#polyself\nwraith\n #wizgenesis\nhostile green slime\n..."
+    }
+  ]
+}
