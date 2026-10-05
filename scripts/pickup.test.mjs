@@ -2162,3 +2162,133 @@ test('in_container preserves C icebox and discarded-void call order', async () =
     assert.doesNotMatch(ageMacro, /MAGIC_LAMP/u);
     assert.doesNotMatch(jsBody, /UnsupportedPickupError/u);
 });
+
+test('out_container resumes icebox timers before billing and inventory', async () => {
+    const [pickupC, monC, museC, monmoveC, dogC, dogmoveC,
+        pickupJs, monJs, museJs, objectsHeader, objclassHeader] =
+        await Promise.all([
+            readFile(new URL('../nethack-c/upstream/src/pickup.c', import.meta.url), 'utf8'),
+            readFile(new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8'),
+            readFile(new URL('../nethack-c/upstream/src/muse.c', import.meta.url), 'utf8'),
+            readFile(new URL('../nethack-c/upstream/src/monmove.c', import.meta.url), 'utf8'),
+            readFile(new URL('../nethack-c/upstream/src/dog.c', import.meta.url), 'utf8'),
+            readFile(new URL('../nethack-c/upstream/src/dogmove.c', import.meta.url), 'utf8'),
+            readFile(new URL('../js/pickup.js', import.meta.url), 'utf8'),
+            readFile(new URL('../js/mon.js', import.meta.url), 'utf8'),
+            readFile(new URL('../js/muse.js', import.meta.url), 'utf8'),
+            readFile(new URL('../nethack-c/upstream/include/objects.h', import.meta.url), 'utf8'),
+            readFile(new URL('../nethack-c/upstream/include/objclass.h', import.meta.url), 'utf8'),
+        ]);
+    const body = (source, marker) => {
+        const start = source.indexOf(marker);
+        const end = source.indexOf('\n}\n', start) + 2;
+        assert.ok(start >= 0 && end > start, `source defines ${marker}`);
+        return source.slice(start, end);
+    };
+
+    const cOut = body(pickupC, '\nout_container(struct obj *obj)');
+    const jsOut = body(pickupJs, 'async function out_container(');
+    const cExtract = cOut.indexOf('obj_extract_self(obj);');
+    const cWeight = cOut.indexOf('gc.current_container->owt = weight(gc.current_container);');
+    const cIcebox = cOut.indexOf('if (Icebox)\n        removed_from_icebox(obj);');
+    const cBill = cOut.indexOf('if (!obj->unpaid && !carried(gc.current_container)');
+    const cPick = cOut.indexOf('if (is_pick(obj))');
+    const cInventory = cOut.indexOf('otmp = addinv(obj);');
+    assert.ok(cExtract < cWeight && cWeight < cIcebox && cIcebox < cBill
+        && cBill < cPick && cPick < cInventory,
+    'C extracts, adjusts container weight, resumes the icebox timer, bills, then adds inventory');
+
+    const jsExtract = jsOut.indexOf('obj_extract_self(otmp, { state });');
+    const jsWeight = jsOut.indexOf('weight(state.gc.current_container, { state });');
+    const jsIcebox = jsOut.indexOf('removed_from_icebox(otmp, state);');
+    const jsBill = jsOut.indexOf('if (!otmp.unpaid && !carried(container)');
+    const jsPick = jsOut.indexOf('if (is_pick(otmp, state))');
+    const jsInventory = jsOut.indexOf('addinv_runtime(otmp, { state })');
+    assert.ok(jsExtract < jsWeight && jsWeight < jsIcebox && jsIcebox < jsBill
+        && jsBill < jsPick && jsPick < jsInventory,
+    'JS preserves C extraction, timer, billing, shop-feedback and inventory order');
+
+    const cRemoved = body(pickupC, '\nremoved_from_icebox(struct obj *obj)');
+    const jsRemoved = body(pickupJs, 'export function removed_from_icebox(');
+    assert.match(cRemoved,
+        /if \(!age_is_relative\(obj\)\)[\s\S]*?obj->age = svm\.moves - obj->age;[\s\S]*?get_mtraits\(obj, FALSE\)[\s\S]*?obj->norevive = iceT \? 0 : 1;[\s\S]*?start_corpse_timeout\(obj\);[\s\S]*?else if \(obj->globby\)[\s\S]*?start_glob_timeout\(obj, 0L\);/u);
+    assert.match(jsRemoved,
+        /if \(ageIsRelative\) return;[\s\S]*?obj\.age = state\.moves - obj\.age;[\s\S]*?get_mtraits\(obj, false, state\)[\s\S]*?obj\.norevive = iceTroll \? 0 : 1;[\s\S]*?start_corpse_timeout\(obj, \{ state \}\);[\s\S]*?else if \(obj\.globby\)[\s\S]*?start_glob_timeout\(obj, 0, \{ state \}\);/u);
+
+    const iceboxDecl = objectsHeader.match(
+        /CONTAINER\("ice box"[^\n]*\n\s*ICE_BOX\),/u,
+    )?.[0];
+    assert.ok(iceboxDecl, 'objects.h declares ICE_BOX');
+    assert.match(iceboxDecl, /PLASTIC/u,
+        'the ice box is plastic, so it is neither organic nor metallic');
+    assert.match(objclassHeader,
+        /#define is_organic\(otmp\) \(objects\[otmp->otyp\]\.oc_material <= WOOD\)/u);
+    assert.match(objclassHeader,
+        /#define is_metallic\(otmp\)[\s\S]*?oc_material >= IRON[\s\S]*?oc_material <= MITHRIL/u);
+
+    // The meatbox ICE_BOX arm is source-correct but no production consumer
+    // can pass one: metallic eaters reject plastic, organic eaters engulf
+    // non-organic items without m_consume_obj(), and pets classify this
+    // non-food TOOL_CLASS as APPORT rather than eating it.
+    const meatmetal = body(monC, '\nmeatmetal(struct monst *mtmp)');
+    const meatobj = body(monC, '\nmeatobj(struct monst *mtmp)');
+    const meatcorpse = body(monC, '\nmeatcorpse(');
+    const gelcubeDigests = body(monmoveC, '\ngelcube_digests(struct monst *mtmp)');
+    const dogfood = body(dogC, '\ndogfood(struct monst *mon, struct obj *obj)');
+    assert.match(meatmetal,
+        /is_metallic\(otmp\)[\s\S]*?m_consume_obj\(mtmp, otmp\)/u);
+    assert.match(meatobj,
+        /else if \(!is_organic\(otmp\)[\s\S]*?mpickobj\(mtmp, otmp\)[\s\S]*?m_consume_obj\(mtmp, otmp\)/u);
+    assert.match(meatcorpse, /sobj_at\(CORPSE, x, y\)/u);
+    assert.match(gelcubeDigests,
+        /if \(is_organic\(otmp\)[\s\S]*?m_consume_obj\(mtmp, otmp\)/u);
+    assert.match(dogfood,
+        /default:[\s\S]*?return APPORT;/u);
+    assert.match(objectsHeader,
+        /#define CONTAINER\([\s\S]*?0, TOOL_CLASS,[\s\S]*?CONTAINER\("ice box"/u);
+    assert.match(dogmoveC,
+        /int edible = dogfood\(mtmp, obj\);[\s\S]{0,300}?edible <= CADAVER[\s\S]{0,300}?return dog_eat\(mtmp, obj/u);
+    assert.match(dogfood, /obj->oclass != BALL_CLASS/u);
+    assert.match(meatobj, /!is_organic\(otmp\)/u);
+
+    // C keeps these six object ages relative while frozen in an icebox.
+    const objHeader = await readFile(
+        new URL('../nethack-c/upstream/include/obj.h', import.meta.url), 'utf8');
+    const ageStart = objHeader.indexOf('#define age_is_relative(otmp)');
+    const ageEnd = objHeader.indexOf('/* object can be ignited', ageStart);
+    const ageMacro = objHeader.slice(ageStart, ageEnd);
+    for (const type of [
+        'BRASS_LANTERN', 'OIL_LAMP', 'CANDELABRUM_OF_INVOCATION',
+        'TALLOW_CANDLE', 'WAX_CANDLE', 'POT_OIL',
+    ]) {
+        assert.ok(ageMacro.includes(type), `obj.h:age_is_relative includes ${type}`);
+        assert.ok(jsRemoved.includes(type), `pickup.js:removed_from_icebox preserves ${type}`);
+    }
+    assert.doesNotMatch(ageMacro, /MAGIC_LAMP/u);
+
+    const callers = [
+        {
+            c: body(pickupC, '\ntipcontainer(struct obj *box)'),
+            js: body(pickupJs, 'async function tipcontainer(box'),
+            cCall: 'removed_from_icebox(otmp);',
+            jsCall: 'removed_from_icebox(otmp, state);',
+        },
+        {
+            c: body(monC, '\nmeatbox(struct monst *mon, struct obj *otmp)'),
+            js: body(monJs, 'export async function meatbox('),
+            cCall: 'removed_from_icebox(cobj);',
+            jsCall: 'removed_from_icebox(child, state);',
+        },
+        {
+            c: body(museC, '\nmloot_container('),
+            js: body(museJs, 'export async function mloot_container('),
+            cCall: 'removed_from_icebox(xobj);',
+            jsCall: 'removed_from_icebox(xobj, state);',
+        },
+    ];
+    for (const [index, caller] of callers.entries()) {
+        assert.ok(caller.c.includes(caller.cCall), `C direct caller ${index + 1}`);
+        assert.ok(caller.js.includes(caller.jsCall), `JS direct caller ${index + 1}`);
+        assert.doesNotMatch(caller.js, /note_unported\([^)]*removed_from_icebox/u);
+    }
+});

@@ -73,7 +73,7 @@
     "luaFile": null,
     "line": 1413
   },
-  "summary": "The earlier step-72 insertion path is now source-aligned. The current case matches every screen and cursor and first diverges only in RNG at zero-based step 82, when the selected corpse is removed from the carried ice box. C out_container() calls removed_from_icebox() immediately after extracting the corpse and recalculating the container weight; that helper restores absolute age, checks the saved corpse traits, updates norevive, and starts the corpse timer. The JS out_container() omits this call, so it skips start_corpse_timeout() and its first rnz draw.",
+  "summary": "The historical v20 evaluation first diverged in RNG at step 82 because the JS take-out path did not resume icebox timers. A101 now wires out_container to removed_from_icebox; a fresh source-range replay matches the admitted case through zero-based step 82, including start_corpse_timeout. Independent #tip runtime also fully matches. The separate active monster MUSE_BAG removal caller remains unverified; its retained blocked recipe reaches find_misc with rn2(5)=1 before dog_invent drops the box.",
   "source": {
     "file": "pickup.c",
     "branch": "out_container() has passed its artifact, fatal-corpse and lift checks, split the selected stack if needed, extracted the selected object and recalculated the container weight. When gc.current_container is an ICE_BOX, it must call removed_from_icebox() before floor-container billing, pick_pick(), addinv(), and inventory feedback. For a corpse whose age is absolute, removed_from_icebox() computes svm.moves - obj->age, obtains OMONST traits with get_mtraits(obj, FALSE), sets norevive according to whether the saved or base species is an ice troll, then calls start_corpse_timeout().",
@@ -82,24 +82,24 @@
       "removed_from_icebox"
     ],
     "callers": [
-      "pickup.c:use_container(), traditional_loot(), and menu_loot() dispatch out_container().",
-      "pickup.c:tipcontainer() calls removed_from_icebox() for each extracted ICE_BOX content.",
-      "mon.c:meatbox() calls removed_from_icebox() before engulfing or dropping an ICE_BOX content.",
-      "muse.c:mloot_container() calls removed_from_icebox() after an ICE_BOX item passes can_carry()."
+      "pickup.c:menu_loot calls out_container for manual/autopick take-out; pickup.c:traditional_loot passes it as the askchain callback.",
+      "pickup.c:tipcontainer calls removed_from_icebox while extracting ICE_BOX contents.",
+      "mon.c:meatbox calls removed_from_icebox, but source material/consumer gates prevent ICE_BOX from reaching meatbox through valid production callers.",
+      "muse.c:mloot_container calls removed_from_icebox after an ICE_BOX item passes can_carry; its runtime entry remains blocked by find_misc selection."
     ],
     "dependencies": [
-      "include/obj.h:age_is_relative(obj) is a macro; its six-object exemption is already implemented in in_container().",
-      "mkobj.c:get_mtraits() returns the saved corpse monster record used to distinguish a polymorphed ice troll from other corpses; mkobj-c is closed.",
-      "mkobj.c:start_corpse_timeout() consumes RNG and inserts ROT_CORPSE, REVIVE_MON, or ZOMBIFY_MON timer state; mkobj-c is closed and its current JS implementation is in timeout.js.",
-      "mkobj.c:start_glob_timeout() handles non-frozen glob shrink timers; mkobj-c is closed.",
-      "The selected out_container() caller must preserve pickup.c floor-container billing order; costly_spot() and addtobill() are existing helpers, and addtobill() is a C-void call."
+      "include/obj.h:age_is_relative is a macro that keeps the six relative-age object kinds unchanged.",
+      "mkobj.c:get_mtraits, start_corpse_timeout and start_glob_timeout are existing complete implementations; the last two contain timer RNG/state behavior consumed by this impure helper.",
+      "ICE_BOX is TOOL_CLASS and PLASTIC (objects.h:903–904); is_organic/is_metallic material thresholds and all direct m_consume_obj consumers show the meatbox ICE_BOX arm is not production-reachable.",
+      "The active mloot_container route remains unverified: the committed blocked recipe reaches find_misc at muse.c:2235 but rn2(5)=1 prevents MUSE_BAG selection."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Current queue entry .cache/A100-synthetic-mismatch-queue.json reports remainingScreens=0, screens/cursors 83/83, RNG 2907/2920, and first mismatch at segment 0, step 82, key newline: rn2(1000)=876 @ start_corpse_timeout(mkobj.c:1413). The entry is tied to challenges/evaluations/20261005201650-v20.json and evaluation commit c976c27ef3f988a4f139c5f4a2b440f6f3d41123.",
-    "In nethack-c/upstream/src/pickup.c:2727-2778, out_container() calls obj_extract_self(), recalculates current_container->owt, then calls removed_from_icebox(obj) at :2759 when Icebox, before billing, pick_pick(), addinv(), and pickup_prinv(). In js/pickup.js:3114-3154, out_container() currently extracts and recalculates weight but omits that Icebox call.",
-    "In pickup.c:2781-2798, removed_from_icebox() skips relative-age objects, converts absolute age as svm.moves - obj->age, obtains saved traits with get_mtraits(obj, FALSE), sets norevive for ice trolls, and starts corpse or glob timers. GOALS.json marks mkobj-c closed with whole-source rows for get_mtraits, start_corpse_timeout, and start_glob_timeout.",
-    "A current direct-call search finds removed_from_icebox() at pickup.c:2759, :3763, mon.c:1374, and muse.c:2355. Current js/pickup.js, js/mon.js, and js/muse.js retain named unported gaps at the other three call sites; these will be caller-only wiring, without whole tipcontainer/meatbox/mloot_container credit."
+    "Historical evaluation challenges/evaluations/20261005201650-v20.json at c976c27ef3f988a4f139c5f4a2b440f6f3d41123 recorded its first RNG mismatch at segment 0, step 82: rn2(1000)=876 from mkobj.c:start_corpse_timeout. Evaluation metrics are retained as provenance, not current-code parity.",
+    "Fresh current-code source-range validation in A101 matched the admitted case through zero-based step 82. C reaches pickup.c:menu_loot -> out_container, extracts the selected ice-troll corpse from the carried ICE_BOX, and calls removed_from_icebox -> start_corpse_timeout during that boundary.",
+    "Independent recipe recipes/pickup.c/a101-tip-icebox-corpse-complete.session.json and recording recordings/pickup.c/a101-tip-icebox-corpse-complete.session.json strictly match: step 74 chooses the floor target and runs three start_corpse_timeout calls through pickup.c:dotip -> do_loot_cont -> tipcontainer -> removed_from_icebox.",
+    "The direct removed_from_icebox callers at pickup.c:2759, :3763, mon.c:1374 and muse.c:2355 are source-wired. The meatbox ICE_BOX arm is unreachable through its direct production consumers because ICE_BOX is TOOL_CLASS/PLASTIC and is neither organic nor metallic; scripts/pickup.test.mjs pins each caller gate.",
+    "The active muse.c:mloot_container caller remains runtime-incomplete. The retained C-first blocked recipe reaches a box pickup, but find_misc draws rn2(5)=1 at muse.c:2235, so MUSE_BAG is skipped and dog_invent drops the box before mloot_container. A single direction variation did not retain pickup and is excluded from passing recordings."
   ]
 }

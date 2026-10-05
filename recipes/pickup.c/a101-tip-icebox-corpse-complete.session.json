@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8234172,
+      "datetime": "20410501090230",
+      "nethackrc": "OPTIONS=name:IceboxTipWitness,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizwish\nuncursed ice box\n#wizwish\nuncursed newt corpse\n #loot\nsq#tip\ny-"
+    }
+  ],
+  "comment": "Complete C-first pickup.c:dotip to tipcontainer route. The independently chosen setup stashes the wished newt corpse in the floor ice box, accepts the yes/no prompt, then chooses the floor destination (`-`). The source path extracts the children and calls removed_from_icebox for corpse contents."
+}
