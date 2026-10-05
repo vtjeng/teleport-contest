@@ -166210,7 +166210,64 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "drinkfountain",
+            "implementation": "js/fountain.js",
+            "symbol": "drinkfountain",
+            "sourceReview": "Read the complete C definition fountain.c:243-390 and compared it to js/fountain.js:590-875. The function draws rnd(30) before the Levitation early return; preserves blessed-fountain restoration/early return, cool-draught nutrition, every switch arm, fate-27 fallthrough, and the common dryup tail. The newly wired cases preserve fate-24 inventory/list/RNG order, fate-25 Blind/Invisible messaging then HSee_invisible/newsym/Wisdom order, fate-28 awaited dowaternymph call, and fate-29 hliquid message followed by the live monster-list monflee loop before dryup. hliquid receives the display RNG, not the command core RNG. Source-return dependencies adjattrib, fruitname, monster_detect, and hliquid have accepted whole-source evidence; dryup is an accepted void helper. The case-24 C-discarded curse() result is handled through the existing JS implementation without whole-source credit for mkobj.c:curse. Existing void helpers dowaternymph and monflee are reused without whole-source credit. dowaternymph's blind You_hear/Soundeffect arms and monflee's swallowed mhitu.c:expels arm remain named gaps. No outer helper is claimed as a whole unit. Case 24 now emits “This water's no good!”, then calls morehungry(rn1(20,11)) and exercise(A_CON,FALSE) before the existing inventory scan; the JS awaits the corresponding message, hunger update, and exercise in C order. The focused test source-pins the sequence, checks the hunger and A_CON deltas, and asserts rn1(20,11), rn2(2) for the exercise, rn2(5) for inventory selection, and curse() RNG ordering. The post-C79 independent ordinary-drinking recording (C fate 3) strictly matches on the corrected source. The previous admitted v21 replay passed on the original A97 source; its post-C79 recheck was refused before execution due full-validation slot contention and will be rerun by root on the combined candidate.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink at line 546 calls drinkfountain after the fountain prompt; js/potion.js:2157 awaits drinkfountain(state) in the corresponding !menu_requested fountain arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-fate29-independent-a97.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 12,
+                "source": "The original A97 source replay in run-s6RAFZ matched all 13 boundaries through normalized segment 0, step 12: potion.c:dodrink -> fountain.c:drinkfountain fate 29 -> dryup. The A97 correction adds only fate-24 effects. A post-C79 single-case recheck was refused before execution due the full-validation slot being occupied (run-r0W5ve); root will evaluate the combined candidate."
+              }
+            ],
+            "checkedAt": "dbc3004bb1d44e9e0f51b73597f3518fa5f4d51e"
+          }
+        ],
+        "entryPointReview": "The one active direct entry point for this selected source unit is quaffing while standing on a reachable fountain: potion.c:dodrink calls drinkfountain after the yes answer, mirrored by js/potion.js:dodrink. The matched independent control executes the same production path at C fate 3; the admitted v21 recording supplies the exact fate-29 range at segment 0, step 12. The admitted recording matched 13/13 boundaries on the original source; its range will be checked at combined evidence recording and closure. The Hallucination variation is preserved as a blocked recipe: before quaffing, display.c's map refresh differs at normalized segment 0, step 27 (screen row 16, column 45), so it does not establish hallucinated hliquid execution. No outer C function or reused helper is claimed complete. The correction also source-pins fate 24: its message, rn1 hunger loss, and A_CON exercise precede the curse scan, as fountain.c:321-323 requires. The corrected code strictly matches the independent recipe in run-kcV8iZ; C reaches fate3 at normalized step12. The admitted-case proof run-s6RAFZ predates the correction and C79 merge; the post-merge attempt run-r0W5ve exited 75 before executing because run-m1sDyp occupied the full-validation slot. Root will evaluate the combined candidate.",
+        "entryPoints": [
+          {
+            "name": "#quaff from a fountain",
+            "functions": [
+              "drinkfountain"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-fate29-independent-a97.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 12,
+                "source": "potion.c:dodrink -> fountain.c:drinkfountain fate 29 -> dryup"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
