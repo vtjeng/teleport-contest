@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-matching B104 H-to-M head-hit route. C step 59 wakes the adjacent newt and reaches mhitm_ad_wrap, but hmonas set gn.notonhead=FALSE at uhitm.c:621; mhitm_ad_wrap therefore takes tailmiss and never calls m_slips_free. The strict C/JS pair is useful helper/caller evidence, not slippery-body protection coverage.",
+  "segments": [
+    {
+      "seed": 6104104,
+      "datetime": "21110404151600",
+      "nethackrc": "OPTIONS=name:B104Eel,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#polyself\ngiant eel\n   #wizgenesis\nhostile sleeping newt\nFn"
+    }
+  ]
+}
