@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:do_break_wand(WAN_DIGGING) route. Same-seed C slot probe run-79Vwnw observed starting STR 17, water-walking boots at e, and the wished wand at f; this recipe applies f and reaches the break effect on the recorded moat terrain.",
+  "segments": [
+    {
+      "seed": 80944261,
+      "datetime": "20420203092400",
+      "nethackrc": "OPTIONS=name:B103ValkBreak,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017water walking boots\nWelk#wizwish\nmoat\nju#wizwish\nmoat\nbl#wizwish\nmoat\nhn#wizwish\nmoat\nyj#wizwish\nmoat\nkb#wizwish\nmoat\nuh#wizwish\nmoat\nly#wizwish\nmoat\nn#wizwish\nwand of digging\naf"
+    }
+  ]
+}

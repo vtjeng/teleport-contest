@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first inventory and strength probe for the second B103 do_break_wand setup. A Valkyrie has source-defined minimum Strength 10; this recording freezes the independent seed and reads the water-walking boots letter from the wizard-wish acknowledgement before the full caller recipe.",
+  "segments": [
+    {
+      "seed": 80944261,
+      "datetime": "20420203092400",
+      "nethackrc": "OPTIONS=name:B103ValkProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017water walking boots\n"
+    }
+  ]
+}

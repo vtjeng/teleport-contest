@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Second and final materially distinct B103 landmine geometry. The one-neighbor C route reached trapeffect_landmine but fillholetyp returned ROOM on rn2(2)=0. This independent recipe uses the same observed open room and dry landmine square, but wishes three neighboring moat cells (north, northwest and west) before placing the mine. C then uses rn2(4) to choose the moat outcome when nonzero. The hero wears the observed wished water-walking boots at slot o and triggers the mine by leaving east onto dry room and returning west, avoiding the ParanoidSwim edge guard. No further landmine setup search follows.",
+  "segments": [
+    {
+      "seed": 18409357,
+      "datetime": "20510416092718",
+      "nethackrc": "OPTIONS=name:B103MineFlow,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#levelchange\n7\n     \u0017water walking boots\nWo\u0017moat\nh#wizwish\nmoat\nj#wizwish\nmoat\nl#wizwish\ntrapped land mine\nlh"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Input correction to the first bounded B103 landmine setup. The initial recording showed that '.' was an ordinary wait and that level 1→7 emitted a sequence of More pages, consuming the later setup keys before any wished terrain or trap was created. This version removes the wait, explicitly acknowledges the six level-up pages, and uses the already observed Wizard water-walking-boots slot n. It then wishes one moat underfoot, steps east, wishes a trapped land mine on dry floor, and re-enters it from the moat. One adjacent moat leaves the documented fillholetyp ROOM possibility.",
+  "segments": [
+    {
+      "seed": 18409357,
+      "datetime": "20510416092718",
+      "nethackrc": "OPTIONS=name:B103MineFlow,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#levelchange\n7\n      \u0017water walking boots\nWn\u0017moat\nl#wizwish\ntrapped land mine\nhl"
+    }
+  ]
+}

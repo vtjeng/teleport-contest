@@ -18,7 +18,7 @@ import { getdir, yn_function } from './cmd.js';
 import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
 import { cvt_sdoor_to_door } from './detect.js';
 import { newsym } from './display.js';
-import { fillholetyp } from './dig.js';
+import { fillholetyp, liquid_flow } from './dig.js';
 import { game } from './gstate.js';
 import { losehp } from './hack.js';
 import { dist2, highc, mungspaces } from './hacklib.js';
@@ -251,8 +251,8 @@ export function musicMaybeHalfPhys(damage, state) {
 }
 
 // C ref: music.c do_pit() (221-338). This file owns the earthquake pit call
-// path; its discarded floor/liquid/touch/kill effects remain named gaps at
-// their C call sites until those source units are ported.
+// path; discarded floor/touch/kill effects remain named gaps at their C call
+// sites until those source units are ported.
 export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
     const random = env.random ?? musicRandom;
@@ -277,12 +277,12 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
         return;
     }
 
-    // Keep the source order: fill the hole, change its terrain, skip the
+    // Keep the source order: fill the hole, change its terrain, resolve the
     // discarded liquid-flow result, then re-read the possibly deleted trap.
     const fillType = fillholetyp(x, y, false, state, random);
     if (fillType !== ROOM) {
         set_levltyp(x, y, fillType, { state });
-        note_unported('dig.c liquid_flow');
+        await liquid_flow(x, y, fillType, chasm, null, state, { ...env, random });
         if (!t_at(x, y, state)) return;
     }
 

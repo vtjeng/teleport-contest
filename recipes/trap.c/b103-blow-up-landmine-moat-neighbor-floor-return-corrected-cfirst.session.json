@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Final bounded B103 landmine input correction. Prior C screens show the landmine was successfully created on the open south room tile; the attempted return stepped north into a known moat, where hack.c:swim_move_danger correctly stopped it under ParanoidSwim. This version wears the observed wished water-walking boots at slot o, acknowledges the five level-up pages, wishes the same moat underfoot, moves south to the same dry target, creates the trapped land mine, then uses the visible east room cell and returns west to trigger it without crossing the moat. This is the same single-neighbor setup; no further landmine geometry search follows.",
+  "segments": [
+    {
+      "seed": 18409357,
+      "datetime": "20510416092718",
+      "nethackrc": "OPTIONS=name:B103MineFlow,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#levelchange\n7\n     \u0017water walking boots\nWo\u0017moat\nj#wizwish\ntrapped land mine\nlh"
+    }
+  ]
+}

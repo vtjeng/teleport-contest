@@ -52,6 +52,7 @@ import {
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    N_DIRS,
     FOOT,
     FUMBLING,
     FORCETRAP,
@@ -116,6 +117,8 @@ import {
     RIGHT_SIDE,
     TAINT_AGE,
     Amask2align,
+    xdir,
+    ydir,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
@@ -123,7 +126,7 @@ import { objectGenerationEnv } from './object_generation.js';
 // js/hack.js imports dig_typ(); both crossings occur only inside function
 // bodies, so the source-owned in_town() remains safe across the cycle.
 import {
-    in_town, losehp, may_dig, nomul, spot_checks, switch_terrain,
+    in_town, losehp, may_dig, nomul, pooleffects, spot_checks, switch_terrain,
 } from './hack.js';
 import {
     can_reach_floor,
@@ -145,7 +148,7 @@ import {
 } from './cmd.js';
 import { delobj, obfree, obj_extract_self, sobj_at } from './invent.js';
 import { hides_under, is_watch } from './mondata.js';
-import { angry_guards, get_iter_mons, wake_nearby } from './mon.js';
+import { angry_guards, get_iter_mons, minliquid, wake_nearby } from './mon.js';
 import { closed_door, youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import {
@@ -169,11 +172,12 @@ import {
     is_axe,
     is_pick,
     mksobj_at,
+    obj_ice_effects,
     place_object,
     remove_object,
 } from './obj.js';
 import { cansee, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
-import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
+import { d, rn1, rn2, rn2_on_display_rng, rne, rnl, rnd, rnz } from './rng.js';
 import { set_voice } from './sounds.js';
 import {
     Flying,
@@ -1154,6 +1158,119 @@ export function fillholetyp(x, y, fillIfAny, state = game, random = { rn2 }) {
     return ROOM;
 }
 
+// C ref: dig.c liquid_flow() (838-880). This is a void terrain effect: it
+// removes the trap, releases ice and buried objects, handles the floor pile,
+// then applies liquid effects to the hero or monster at the square.
+export async function liquid_flow(
+    x, y, typ, trap, fillmsg = null, state = game, rawEnv = {},
+) {
+    const random = {
+        d, rn1, rn2, rn2_on_display_rng, rnz, rnd, rne, rnl,
+        ...(rawEnv.random ?? {}),
+    };
+    const env = { ...rawEnv, state, random };
+    const uSpot = u_at(x, y, state);
+
+    // C expects POOL, MOAT or LAVA to have been installed by its caller.
+    if (!is_pool_or_lava(x, y, state)) {
+        if (state.iflags?.sanity_check) {
+            const trapName = trap
+                ? trapname(trap.ttyp, true, state, random)
+                : 'no trap';
+            const diagnostic = `Insane liquid_flow(${x},${y},${trapName},${fillmsg ?? 'no mesg'}).`;
+            if (typeof env.impossible === 'function')
+                await env.impossible(diagnostic, state, env);
+            else
+                note_unported('pline.c impossible');
+        }
+        return;
+    }
+
+    if (trap) await delfloortrap(trap, state);
+    obj_ice_effects(x, y, true, env);
+
+    // dig.c unearth_objs() redraws the square after exposing the buried list.
+    // Its JS adapter takes that redraw through a hook to avoid a module cycle.
+    const { unearth_objs } = await import('./bury.js');
+    const redraw = rawEnv.newsym ?? rawEnv.redraw
+        ?? ((rx, ry) => newsym(rx, ry, state));
+    unearth_objs(x, y, {
+        ...env,
+        hooks: {
+            ...(rawEnv.hooks ?? {}),
+            newsym: rawEnv.hooks?.newsym
+                ?? ((rx, ry, hookEnv) => redraw(rx, ry, state, hookEnv)),
+        },
+    });
+
+    if (fillmsg) {
+        const liquid = hliquid(typ === LAVAPOOL ? 'lava' : 'water', {
+            ...env,
+            random,
+        });
+        await (env.message ?? ttyPline)(
+            fillmsg.replace('%s', liquid), state, env,
+        );
+    }
+
+    // Handle exposed floor objects before the occupant, as dig.c does. The
+    // lava chain is still unported; water_damage_chain is the existing owner.
+    const objects = state.level.objects[x][y];
+    if (objects) {
+        if (typ === LAVAPOOL) {
+            note_unported('trap.c fire_damage_chain');
+        } else {
+            const { water_damage_chain } = await import(
+                './trap_water_damage.js'
+            );
+            await water_damage_chain(objects, true, { ...env, random });
+        }
+    }
+
+    if (uSpot) {
+        await pooleffects(false, state, env);
+    } else {
+        const monster = m_at(x, y, state);
+        if (monster) await minliquid(monster, { ...env, random });
+    }
+}
+
+// C ref: dig.c pit_flow() (1844-1882). Save the fields the recursive walk
+// reads before liquid_flow can delete this trap and clear both link masks.
+export async function pit_flow(
+    trap, filltyp, state = game, rawEnv = {},
+) {
+    if (!trap || filltyp === ROOM || !is_pit(trap.ttyp)) return;
+
+    const saved = {
+        tx: trap.tx,
+        ty: trap.ty,
+        conjoined: trap.conjoined ?? 0,
+    };
+    const location = state.level.at(saved.tx, saved.ty);
+    location.typ = filltyp;
+    location.flags = 0;
+    await liquid_flow(
+        saved.tx,
+        saved.ty,
+        filltyp,
+        trap,
+        u_at(saved.tx, saved.ty, state)
+            ? 'Suddenly %s flows in from the adjacent pit!'
+            : null,
+        state,
+        rawEnv,
+    );
+
+    for (let direction = 0; direction < N_DIRS; ++direction) {
+        if (!(saved.conjoined & (1 << direction))) continue;
+        const x = saved.tx + xdir[direction];
+        const y = saved.ty + ydir[direction];
+        const neighbor = t_at(x, y, state);
+        await pit_flow(neighbor, filltyp, state, rawEnv);
+    }
+}
+
 // C ref: dig.c furniture_handled() (570-594). Its Boolean is consumed by
 // dighole() and digactualhole(); the bridge destroyer is a void dependency and
 // remains an explicit gap after the coordinate lookup.
@@ -1456,7 +1573,12 @@ export async function dighole(
             location.flags &= ~DB_UNDER;
             location.flags |= liquidType === LAVAPOOL
                 ? DB_LAVA : DB_MOAT;
-            note_unported('dig.c liquid_flow');
+            await liquid_flow(
+                x, y, liquidType, trap,
+                'As you dig, the hole fills with %s!',
+                state,
+                { ...rawEnv, random, message },
+            );
             retval = true;
         }
     } else if (IS_THRONE(oldType)) {
@@ -1469,7 +1591,12 @@ export async function dighole(
         if (liquidType !== ROOM) {
             if (!await furniture_handled(x, y, true, state, rawEnv)) {
                 location.typ = liquidType;
-                note_unported('dig.c liquid_flow');
+                await liquid_flow(
+                    x, y, liquidType, trap,
+                    'As you dig, the hole fills with %s!',
+                    state,
+                    { ...rawEnv, random, message },
+                );
             }
             retval = true;
         } else {
