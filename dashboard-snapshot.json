@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-05T22:34:20.644Z",
+  "capturedAt": "2026-10-05T23:14:55.355Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -20098,12 +20098,93 @@
         "type": "accepted",
         "at": "2026-10-05T22:32:00.539Z",
         "task": "A101"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-published-A101-9f456276",
+        "type": "published",
+        "at": "2026-10-05T22:35:09.689Z",
+        "task": "A101",
+        "commit": "9f456276a4ec044d57bf7de00a1cf90a3f820b25"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-eb104e8378f07e9f9f1e8e4793a6522823949488",
+        "type": "ready",
+        "at": "2026-10-05T22:41:57.044Z",
+        "task": "C86",
+        "delivery": "eb104e8378f07e9f9f1e8e4793a6522823949488"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C86-received-eb104e83",
+        "type": "received",
+        "at": "2026-10-05T22:44:07.256Z",
+        "task": "C86",
+        "delivery": "eb104e8378f07e9f9f1e8e4793a6522823949488"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C86-integrating-c1b316e6",
+        "type": "integrating",
+        "at": "2026-10-05T22:44:31.443Z",
+        "task": "C86",
+        "integration": "c1b316e6eaca16f7c5beaf54c92be4a28d02f940"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A102-gulpmu-digestion-v21-20261005",
+        "type": "assign",
+        "at": "2026-10-05T22:49:31.712Z",
+        "task": "A102",
+        "worker": "A2",
+        "goal": "port-mhitu-gulpmu-purple-worm-digestion-v21-20261005",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C86-integrating-15154a8e",
+        "type": "integrating",
+        "at": "2026-10-05T22:55:57.713Z",
+        "task": "C86",
+        "integration": "15154a8ed12fbd5c6c4e45e23d1279b634743a65"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C86-validated-15154a8e",
+        "type": "validated",
+        "at": "2026-10-05T22:56:03.246Z",
+        "task": "C86",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fca21ce2b235325f872da02ab39a788073143b46",
+        "type": "ready",
+        "at": "2026-10-05T22:59:20.731Z",
+        "task": "B107",
+        "delivery": "fca21ce2b235325f872da02ab39a788073143b46"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B107-received-fca21ce2",
+        "type": "received",
+        "at": "2026-10-05T22:59:49.786Z",
+        "task": "B107",
+        "delivery": "fca21ce2b235325f872da02ab39a788073143b46"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C86-accepted-fa6345b4",
+        "type": "accepted",
+        "at": "2026-10-05T23:12:53.201Z",
+        "task": "C86"
       }
     ]
   },
   "development": {
-    "executionCommit": "bfbc741bd5def29d2a81743f3689cb8a8029b0c0",
-    "measuredAt": "2026-10-05T22:26:37.810Z",
+    "executionCommit": "473d1a87fab026c31c1359e3750150f53355dc9e",
+    "measuredAt": "2026-10-05T23:05:31.103Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
