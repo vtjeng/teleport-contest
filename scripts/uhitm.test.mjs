@@ -14,13 +14,16 @@ import {
     FREE_ACTION,
     FROMFORM,
     FOUNTAIN,
+    GPCOORDS_MAP,
     GRAVE,
     ICE,
+    KILLED_BY_AN,
     INTRINSIC,
     LADDER,
     DOOR,
     OBJ_INVENT,
     POISON_RES,
+    POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
     SINK,
@@ -33,6 +36,7 @@ import {
     STONED,
     TIMEOUT,
     W_ARM,
+    W_ARMC,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import {
@@ -49,10 +53,13 @@ import {
     AD_STON,
     AD_DRST,
     AD_WERE,
+    AD_WRAP,
     AT_BITE,
     AT_CLAW,
     AT_WEAP,
+    AT_TUCH,
     PM_GELATINOUS_CUBE,
+    PM_GIANT_EEL,
     PM_GHOUL,
     PM_GREMLIN,
     PM_COCKATRICE,
@@ -64,6 +71,7 @@ import {
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_PONY,
+    PM_PYTHON,
     PM_RAVEN,
     PM_SEWER_RAT,
     PM_SHADE,
@@ -75,6 +83,7 @@ import { mksobj, mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     MIRROR,
+    CLOAK_OF_PROTECTION,
     CORPSE,
     ORCISH_DAGGER,
     SCR_ENCHANT_ARMOR,
@@ -101,6 +110,7 @@ import {
     loadPetSwapArrivalRecipe,
 } from './run-pet-swap-arrival-autopickup.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
+import { planningState } from '../js/unported_monster_actions.js';
 
 const DATETIME = '20300102030405';
 const UHITM_C = readFileSync(
@@ -874,6 +884,174 @@ test('mhitm_ad_were preserves all three source direction arms and infection orde
     assert.equal(game.u.ulycn, PM_WEREJACKAL);
     assert.equal(game.u.uprops[DRAIN_RES].intrinsic & FROMFORM, FROMFORM);
     assert.ok(game.unported.has('artifact.c retouch_equipment'));
+});
+
+test('mhitm_ad_wrap dispatches slippery and planned drowning source arms', async () => {
+    // uhitm.c:3337-3426. The giant eel's second slot is AT_TUCH/AD_WRAP;
+    // C's head/body flag selects the unheld wrap roll, then its worn-cloak
+    // branch makes the greased item protect the target and wear off.
+    assert.match(UHITM_C,
+        /mhitm_ad_wrap\(\s*struct monst \*magr, struct attack \*mattk,\s*struct monst \*mdef, struct mhitm_data \*mhm\)[\s\S]*?case AD_WRAP: mhitm_ad_wrap\(magr, mattk, mdef, mhm\); break;/u);
+    await runSegment({
+        // Seed 8806414 starts a human hero; the test changes only the hero's
+        // form to the source giant eel to select its AT_TUCH/AD_WRAP slot.
+        seed: 8806414, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const originalForm = game.youmonst.data;
+    game.youmonst.data = game.mons[PM_GIANT_EEL];
+    const wrap = game.youmonst.data.mattk[1];
+    assert.equal(wrap.aatyp, AT_TUCH);
+    assert.equal(wrap.adtyp, AD_WRAP);
+
+    const cloak = mksobj(CLOAK_OF_PROTECTION, false, false, { state: game });
+    cloak.greased = true;
+    cloak.owornmask = W_ARMC;
+    const defender = {
+        data: game.mons[PM_SEWER_RAT], m_id: 93141,
+        mx: game.u.ux + 1, my: game.u.uy, mhp: 12, mhpmax: 12,
+        minvent: cloak,
+    };
+    // uhitm.c assigns this flag when a body segment, rather than the head,
+    // receives the attack; it makes mhitm_ad_wrap() take the C grab branch.
+    game.gn.notonhead = true;
+    const bounds = [];
+    const lines = [];
+    const mhm = { damage: 3, specialdmg: 0, done: false, hitflags: 0 };
+    await mhitm_adtyping(game.youmonst, wrap, defender, mhm, game, {
+        random: { rn2: (bound) => {
+            bounds.push(bound);
+            return 0;
+        } },
+        message: async (line) => { lines.push(line); },
+        unsupported: (reason) => assert.fail(reason),
+    });
+    assert.deepEqual(bounds, [10, 2]);
+    assert.equal(mhm.damage, 0);
+    assert.equal(cloak.greased, false);
+    assert.match(lines[0], /^You slip off of .* greased .+!$/u);
+    assert.equal(lines[1], 'The grease wears off.');
+    assert.equal(game.u.ustuck, null);
+    game.youmonst.data = originalForm;
+    game.gn.notonhead = false;
+
+    // C's already-held monster-versus-hero arm drowns only on a pool cell
+    // without the hero's source protection. Planning must stop at its supplied
+    // death marker before done(DROWNING) can enter live terminal recovery.
+    const python = {
+        data: game.mons[PM_PYTHON], m_id: 93142,
+        mx: game.u.ux, my: game.u.uy, mcan: false, mhp: 20, mhpmax: 20,
+        nmon: null, minvent: null,
+    };
+    game.level.monlist = python;
+    const plan = planningState(game);
+    const plannedPython = plan.level.monlist;
+    plan.u.ustuck = plannedPython;
+    plan.level.at(plan.u.ux, plan.u.uy).typ = POOL;
+    const marker = new Error('planned drowning boundary');
+    const urgent = [];
+    const plannedBounds = [];
+    const liveKiller = game.killer;
+    await assert.rejects(mhitm_adtyping(
+        plannedPython,
+        plannedPython.data.mattk[2],
+        plan.youmonst,
+        { damage: 4, specialdmg: 0, done: false, hitflags: 0 },
+        plan,
+        {
+            planning: true,
+            random: { rn2: (bound) => {
+                plannedBounds.push(bound);
+                return 1;
+            } },
+            message: async () => assert.fail('C uses urgent_pline for drowning'),
+            urgentMessage: async (line) => { urgent.push(line); },
+            planningDeath: () => marker,
+            unsupported: (reason) => assert.fail(reason),
+        },
+    ), (error) => error === marker);
+    assert.deepEqual(plannedBounds, []);
+    assert.deepEqual(urgent, ['The python drowns you...']);
+    assert.equal(plan.killer.format, KILLED_BY_AN);
+    assert.equal(plan.killer.name, 'pool of water by a python');
+    assert.equal(game.killer, liveKiller);
+    assert.equal(game.u.ustuck, null);
+    assert.notEqual(game.level.at(game.u.ux, game.u.uy).typ, POOL);
+});
+
+test('mhitm_ad_wrap locates both monster-to-hero brush messages', async () => {
+    // uhitm.c:3389-3394 uses pline_mon() for both monster-to-hero messages.
+    assert.match(UHITM_C,
+        /pline_mon\(magr, "%s brushes against you\.",\s*Monnam\(magr\)\)/u);
+    assert.match(UHITM_C,
+        /pline_mon\(magr, "%s brushes against your %s\."/u);
+    await runSegment({
+        seed: 8806415, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.a11y ??= {};
+    game.a11y.accessiblemsg = true;
+    game.iflags.getpos_coords = GPCOORDS_MAP;
+    game.flags.verbose = true;
+
+    // A Python's automatic HUGS/AD_WRAP arm reaches the coil wording; its
+    // failed rn2(10) gate takes the first pline_mon branch.
+    const python = {
+        data: game.mons[PM_PYTHON], m_id: 93201,
+        mx: game.u.ux + 1, my: game.u.uy, mcan: false,
+    };
+    const coilLines = [];
+    const coilRolls = [];
+    await mhitm_adtyping(
+        python,
+        python.data.mattk[2],
+        game.youmonst,
+        { damage: 4, specialdmg: 0, done: false, hitflags: 0 },
+        game,
+        {
+            random: { rn2: (bound) => {
+                coilRolls.push(bound);
+                assert.equal(bound, 10);
+                return 9;
+            } },
+            message: async (line) => { coilLines.push(line); },
+            unsupported: (reason) => assert.fail(reason),
+        },
+    );
+    assert.deepEqual(coilRolls, [10]);
+    assert.deepEqual(coilLines, [
+        `<${python.mx},${python.my}>: The python brushes against you.`,
+    ]);
+
+    // A giant eel's actual AT_TUCH/AD_WRAP slot takes the body-part wording.
+    const eel = {
+        data: game.mons[PM_GIANT_EEL], m_id: 93202,
+        mx: game.u.ux - 1, my: game.u.uy, mcan: false,
+    };
+    const eelWrap = eel.data.mattk[1];
+    assert.equal(eelWrap.aatyp, AT_TUCH);
+    assert.equal(eelWrap.adtyp, AD_WRAP);
+    const bodyLines = [];
+    await mhitm_adtyping(
+        eel,
+        eelWrap,
+        game.youmonst,
+        { damage: 4, specialdmg: 0, done: false, hitflags: 0 },
+        game,
+        {
+            random: { rn2: (bound) => {
+                assert.equal(bound, 10);
+                return 9;
+            } },
+            message: async (line) => { bodyLines.push(line); },
+            unsupported: (reason) => assert.fail(reason),
+        },
+    );
+    assert.match(
+        bodyLines[0],
+        new RegExp(
+            `^<${eel.mx},${eel.my}>: The giant eel brushes against your .+\\.$`,
+            'u',
+        ),
+    );
 });
 
 function plysTestEnv(plan, events) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Second and final B104 M-to-M setup, preserved as a blocked recipe. C step 114 has the hostile troll attack a randomly generated kobold; later the Python still attacks the hero at steps 119, 141 and 147. The only mhitm_ad_wrap RNG calls, rn2(10) at 119/141/147, are M-to-H gates, not a Python-versus-monster AD_WRAP call. Strict replay matches, but this setup supplies no M-to-M runtime credit; no further placement search is planned.",
+  "segments": [
+    {
+      "seed": 6104110,
+      "datetime": "21110406172000",
+      "nethackrc": "OPTIONS=name:B104Pair,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n12\n          #wizgenesis\nhostile python\n#wizgenesis\nhostile troll\n.          #wizintrinsic\n>>h\n \n \n. . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

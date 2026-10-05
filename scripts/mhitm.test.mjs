@@ -27,6 +27,7 @@ import { runSegment } from '../js/jsmain.js';
 import {
     attk_protection,
     engulf_target,
+    failed_grab,
     fightm,
     mattackm,
     mdisplacem,
@@ -1070,17 +1071,17 @@ test('an ordinary blow on an unsolid defender lands', async () => {
     assert.equal(cloud.mhp, 17);
 });
 
-// mhitm.c failed_grab():602-607, the head's two conjuncts. The port stops
-// inside the TRUE arm, above a line that needs do_name.c s_suffix(),
-// mon_nam() and some_mon_nam().
-test('failed_grab refuses unsolid targets but solid AD_STCK attacks land', async () => {
+// mhitm.c failed_grab():597-640. The TRUE arm returns a miss to its caller;
+// it is not an unsupported path. It names a visible unsolid target only when
+// the C gv.vis/hero identity condition permits output.
+test('failed_grab returns the source grab miss for an unsolid target', async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);
     const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
     const cloud = fixture(PM_FOG_CLOUD, dx, y, { mhp: 20, mhpmax: 20 });
     const ordinary = pet.data;
-    // No pet carries a holding attack, so the record is fabricated the way
-    // this file's other structural cases are.
+    // No pet carries a holding attack; the fabricated slot selects the
+    // source AD_WRAP predicate while preserving the fixture's other attacks.
     const holding = (adtyp) => {
         pet.data = {
             ...ordinary,
@@ -1090,33 +1091,40 @@ test('failed_grab refuses unsolid targets but solid AD_STCK attacks land', async
             ],
         };
     };
-    const attack = async (defender) => {
-        aim(defender);
-        // The first roll lands; the remaining scripted values pin damage,
-        // AD_STCK negation and knockback order on a solid target.
-        const env = attackEnv([1, 3, 1, 1]);
-        try {
-            return { result: await mattackm(pet, defender, env), env };
-        } catch (error) {
-            return { error: error.message, env };
-        }
-    };
 
-    // Each of C's three damage types refuses on the same unsolid defender.
+    // C names the attacker as "Your" for a hero attack, which makes the
+    // source visibility disjunction true without fabricating gv.vis.
+    holding(AD_WRAP);
+    const heroMessageEnv = attackEnv([]);
+    assert.equal(await failed_grab(
+        game.youmonst, cloud, pet.data.mattk[0], heroMessageEnv,
+    ), true);
+    assert.deepEqual(heroMessageEnv.lines, [
+        'Your grab attempt passes right through the fog cloud!',
+    ]);
+
+    // The live monster-vs-monster caller still spends its hit roll before
+    // failed_grab returns TRUE; it skips hitmm and leaves the defender intact.
     for (const adtyp of [AD_WRAP, AD_STCK, AD_DGST]) {
         holding(adtyp);
-        assert.equal((await attack(cloud)).error,
-                     'a grab that passes through its target', `adtyp ${adtyp}`);
+        aim(cloud);
+        const env = attackEnv([1]);
+        assert.equal(await mattackm(pet, cloud, env), M_ATTK_MISS,
+                     `adtyp ${adtyp}`);
+        assert.equal(cloud.mhp, 20, `adtyp ${adtyp}`);
+        assert.deepEqual(env.bounds, ['rnd(20)', 'rn2(3)'], `adtyp ${adtyp}`);
     }
 
-    // mhitm.c mattackm():447-452 calls failed_grab() only behind unsolid().
-    // A solid giant ant therefore reaches hitmm()/mdamagem(); mhitm_ad_stck()
-    // keeps the d(1,4)=3 damage because rn2(10)=1 is not negated at MC 0.
+    // This AT_TUCH contact arm skips failed_grab() for a solid target, then
+    // reaches hitmm()/mdamagem(); mhitm_ad_stck() keeps d(1,4)=3 because
+    // rn2(10)=1 is not negated at MC 0. mattackm's separate automatic HUGS
+    // arm calls failed_grab without that unsolid precheck.
     const ant = fixture(PM_GIANT_ANT, dx, y + 1, { mhp: 20, mhpmax: 20 });
     assert.equal(unsolid(ant.data), false);
     holding(AD_STCK);
-    const antHit = await attack(ant);
-    assert.equal(antHit.error, undefined);
+    aim(ant);
+    const antEnv = attackEnv([1, 3, 1, 1]);
+    const antHit = { result: await mattackm(pet, ant, antEnv), env: antEnv };
     assert.equal(antHit.result, M_ATTK_HIT);
     assert.equal(ant.mhp, 17);
     assert.deepEqual(antHit.env.bounds,
@@ -1133,6 +1141,36 @@ test('failed_grab refuses unsolid targets but solid AD_STCK attacks land', async
                      ['rnd(20)', 'd(1,4)', 'rn2(10)', 'rn2(3)', 'rn2(6)', 'rn2(3)']);
     game.gn.notonhead = false;
     pet.data = ordinary;
+});
+
+test('failed_grab keeps C pline precision for both monster names', async () => {
+    // mhitm.c:631-633 uses %.99s for both copied names. A 120-byte fixture
+    // crosses that source precision for the attacker and defender separately.
+    assert.match(MHITM_C,
+        /pline\("%\.99s %s attempt %s %\.99s!",\s*magrnam,\s*verb,/u);
+    await hero();
+    const { ax, dx, y } = battlefield(1);
+    const longName = 'x'.repeat(120);
+    const attacker = fixture(PM_KITTEN, ax, y);
+    const cloud = fixture(PM_FOG_CLOUD, dx, y);
+    attacker.data = { ...attacker.data, pmnames: [longName, longName, longName] };
+    cloud.data = { ...cloud.data, pmnames: [longName, longName, longName] };
+    game.gv ??= {};
+    game.gv.vis = true;
+
+    const env = attackEnv([]);
+    assert.equal(await failed_grab(
+        attacker,
+        cloud,
+        { aatyp: AT_HUGS, adtyp: AD_WRAP },
+        env,
+    ), true);
+    const match = env.lines[0].match(
+        /^(.*?) grab attempt passes right through (.*?)!$/u,
+    );
+    assert.ok(match, env.lines[0]);
+    assert.equal(Buffer.byteLength(match[1]), 99);
+    assert.equal(Buffer.byteLength(match[2]), 99);
 });
 
 test('engulf_target admits a fitting vortex and rejects a huge defender',
@@ -1264,16 +1302,15 @@ test('mattackm keeps every continuation past the wield turn closed',
 // attack records are fabricated because no species this port can place carries
 // one of them beside a pet's melee slot; mondata.h reads the list off the
 // species record, so replacing that record is enough.
-test('mattackm stops at every attack type outside the physical group',
+test('mattackm keeps unsupported arms closed and gates HUGS by prior hits',
     async () => {
         await hero();
         const { ax, dx, y } = battlefield(1);
         const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
         const ant = fixture(PM_GIANT_ANT, dx, y);
         aim(ant);
-        // These four still refuse with unsupported().
+        // These three arms still refuse with unsupported().
         const refusingRows = [
-            [AT_HUGS, 'a monster crushing another monster'],
             [AT_GAZE, 'a monster gazing at another monster'],
             [AT_EXPL, 'a monster exploding at another monster'],
             [AT_ENGL, 'a monster engulfing another monster'],
@@ -1295,6 +1332,22 @@ test('mattackm stops at every attack type outside the physical group',
                 },
             );
         }
+        // C's AT_HUGS gate needs two prior successful attack slots. With
+        // this fabricated slot at index zero, mattackm returns a miss without
+        // an attack roll or calling failed_grab/hitmm. The ordinary passive
+        // response still follows the attempted adjacent slot and spends its
+        // source rn2(3) draw.
+        pet.data = {
+            ...ordinary,
+            mattk: [
+                { aatyp: AT_HUGS, adtyp: AD_PHYS, damn: 1, damd: 4 },
+                ...ordinary.mattk.slice(1),
+            ],
+        };
+        const firstSlotHug = attackEnv([]);
+        assert.equal(await mattackm(pet, ant, firstSlotHug), M_ATTK_MISS);
+        assert.deepEqual(firstSlotHug.bounds, ['rn2(3)']);
+
         // AT_BREA and AT_SPIT at point-blank range take the monnear
         // else-branch and return normally (strike=0, no attack).
         for (const aatyp of [AT_BREA, AT_SPIT]) {
