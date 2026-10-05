@@ -168616,7 +168616,7 @@
     {
       "id": "port-uhitm-mhitm-ad-tlpt-teleport-closure-v19-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Implement teleport attack and required monster relocation functions",
       "cFile": "uhitm.c",
       "sessions": [
@@ -169152,7 +169152,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f97abc39f418d0734256e64e16cf404c935bff0b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial A98 delivery: credit only functions with verified source, caller and runtime evidence. Controlled monster relocation through mnexto, control_mon_tele and rloc_to_flag and the dedicated rloc_to wrapper entry remain incomplete. Preserve every planned entry and source-specific blocked recipe; no goal-closure score event."
     }
   ]
 }
