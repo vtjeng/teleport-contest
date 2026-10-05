@@ -166011,7 +166011,7 @@
     {
       "id": "port-fountain-drinkfountain-fate29-v21-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete fountain drinking effects and monster fright",
       "cFile": "fountain.c",
       "sessions": [
@@ -166025,8 +166025,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8254799b188363e1eb284723e8dff1c8492640e3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "drinkfountain",
@@ -166267,6 +166270,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8254799b188363e1eb284723e8dff1c8492640e3",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

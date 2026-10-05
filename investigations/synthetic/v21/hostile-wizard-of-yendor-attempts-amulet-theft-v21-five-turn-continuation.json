@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The admitted Wizard continuation matches through normalized segment 0 step57, then refuses at step58 in uhitm.c:mhitm_ad_samu. The whole source handler and its AD_SAMU dispatcher are traced; it has no consumed-return callee. B105 owns this remaining handler. The absent discarded-void stealamulet callee remains an explicit source gap, without invented theft behavior.",
+  "summary": "The admitted Wizard continuation matches through normalized segment 0 step57, then refuses at step58 in uhitm.c:mhitm_ad_samu. The whole source handler and its AD_SAMU dispatcher are traced; it has no consumed-return callee. The absent discarded-void stealamulet callee remains an explicit source gap, without invented theft behavior.",
   "source": {
     "file": "uhitm.c",
     "functions": [
