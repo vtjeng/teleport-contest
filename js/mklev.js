@@ -4667,7 +4667,7 @@ function createSpecialLevelApi(state) {
                 solidify_map(state);
             }
 
-            finishFixupSpecial(state);
+            await finishFixupSpecial(state);
 
             // C ref: sp_lev.c:6052-6053. Reveal the entire map for
             // premapped levels (Sokoban).

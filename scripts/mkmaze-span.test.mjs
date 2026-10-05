@@ -42,13 +42,33 @@ import {
 import { initworm } from '../js/worm.js';
 
 const C_MKMAZE = readFileSync('nethack-c/upstream/src/mkmaze.c', 'utf8');
+const C_SPLEV = readFileSync('nethack-c/upstream/src/sp_lev.c', 'utf8');
 const JS_MKMAZE = readFileSync('js/mkmaze.js', 'utf8');
+const JS_MKLEV = readFileSync('js/mklev.js', 'utf8');
 
 function sourceBody(source, signature) {
     const start = source.indexOf(signature);
     assert.ok(start >= 0, `${signature} is present`);
     return source.slice(start);
 }
+
+test('load_special awaits fixup before premapping and room post-processing', () => {
+    const cBody = sourceBody(C_SPLEV, '\nboolean\nload_special(');
+    const cFixup = cBody.indexOf('fixup_special();');
+    const cPremap = cBody.indexOf('premap_detect();', cFixup);
+    assert.ok(cFixup >= 0 && cPremap > cFixup);
+
+    const jsApi = sourceBody(JS_MKLEV,
+        'function createSpecialLevelApi(state) {');
+    const jsFinish = jsApi.slice(jsApi.indexOf('async finish() {'));
+    const jsFixup = jsFinish.indexOf('await finishFixupSpecial(state);');
+    const jsPremap = jsFinish.indexOf('premap_detect(state);', jsFixup);
+    const jsRoomFill = jsFinish.indexOf('await fill_special_room(', jsPremap);
+    assert.ok(jsFixup >= 0 && jsPremap > jsFixup && jsRoomFill > jsPremap);
+
+    const jsLoader = sourceBody(JS_MKLEV, 'export async function load_special(');
+    assert.match(jsLoader, /await specialLevelApi\.finish\(\);/);
+});
 
 test('mv_bubble waits for mnearto before its zero-result clog and next contents',
     () => {
