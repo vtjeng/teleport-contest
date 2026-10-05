@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-05T20:25:48.481Z",
+  "capturedAt": "2026-10-05T22:34:20.644Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -20031,12 +20031,79 @@
         "type": "accepted",
         "at": "2026-10-05T20:25:26.190Z",
         "task": "A100"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C86-mhitm-ad-fire-v18-20261005",
+        "type": "assign",
+        "at": "2026-10-05T20:26:30.106Z",
+        "task": "C86",
+        "worker": "C",
+        "goal": "port-uhitm-mhitm-ad-fire-v18-20261005",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A100-fd899cfe-20261005",
+        "type": "published",
+        "at": "2026-10-05T20:28:16.838Z",
+        "task": "A100",
+        "commit": "fd899cfe66799c179c3740b9d369e93c0e9500db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A101-icebox-removal-20261005",
+        "type": "assign",
+        "at": "2026-10-05T20:57:47.766Z",
+        "task": "A101",
+        "worker": "A2",
+        "goal": "port-pickup-icebox-removal-v20-20261005",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2232b3d710f437af23b2696acf5b266dbd7d339a",
+        "type": "ready",
+        "at": "2026-10-05T22:14:33.461Z",
+        "task": "A101",
+        "delivery": "2232b3d710f437af23b2696acf5b266dbd7d339a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-A101-2232b3d7",
+        "type": "received",
+        "at": "2026-10-05T22:15:06.159Z",
+        "task": "A101",
+        "delivery": "2232b3d710f437af23b2696acf5b266dbd7d339a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-A101-bfbc741b",
+        "type": "integrating",
+        "at": "2026-10-05T22:18:31.490Z",
+        "task": "A101",
+        "integration": "bfbc741bd5def29d2a81743f3689cb8a8029b0c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-validated-A101-bfbc741b",
+        "type": "validated",
+        "at": "2026-10-05T22:27:03.935Z",
+        "task": "A101",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-accepted-A101-bfbc741b",
+        "type": "accepted",
+        "at": "2026-10-05T22:32:00.539Z",
+        "task": "A101"
       }
     ]
   },
   "development": {
-    "executionCommit": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
-    "measuredAt": "2026-10-05T20:16:02.546Z",
+    "executionCommit": "bfbc741bd5def29d2a81743f3689cb8a8029b0c0",
+    "measuredAt": "2026-10-05T22:26:37.810Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
