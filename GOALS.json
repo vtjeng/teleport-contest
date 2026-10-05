@@ -166302,7 +166302,7 @@
           "name": "mhitm_ad_wrap",
           "line": 3337,
           "endLine": 3430,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -166315,7 +166315,7 @@
           "name": "m_slips_free",
           "line": 2056,
           "endLine": 2097,
-          "declared": false,
+          "declared": true,
           "sourceFile": "uhitm.c",
           "complete": false
         },
@@ -166323,7 +166323,7 @@
           "name": "u_slip_free",
           "line": 1047,
           "endLine": 1088,
-          "declared": false,
+          "declared": true,
           "sourceFile": "mhitu.c",
           "complete": false
         },
@@ -166333,7 +166333,7 @@
           "endLine": 643,
           "declared": true,
           "sourceFile": "mhitm.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -166504,7 +166504,144 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "failed_grab",
+            "implementation": "js/mhitm.js",
+            "symbol": "failed_grab",
+            "sourceReview": "Read the whole definition at mhitm.c:597-640. It returns TRUE only when the defender is unsolid or gn.notonhead and the attack is AT_HUGS, AD_WRAP, AD_STCK or AD_DGST. On that branch it emits a message only when the source visibility/hero condition permits, chooses “gulp”, “adhere” or “grab” from AD_DGST/AD_STCK/other, and chooses “passes right through” versus “fails to hold” from the tail flag. It copies actor/defender names before pline because s_suffix uses a shared buffer. Otherwise it returns FALSE without output. The JS callers await this boolean in source order. unsolid is the source flag macro; canspotmon, s_suffix, Monnam, mon_nam and some_mon_nam are existing consumed helpers. C formats both copied names with %.99s; JS now applies truncateByteString(name, 99) to each argument before composing pline output. The fixture pins both resulting names at 99 bytes.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm at 451, 485 and 529 calls failed_grab before hitmm for the corresponding monster attack arms."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku at 808 and 827 calls failed_grab before continuing or dispatching hitmu."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu at 1305 rejects the engulf when failed_grab returns TRUE."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas at 5652, 5735 and 5779 calls failed_grab before damageum or gulpum."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-monster-to-hero-python-wrap.session.json",
+              "recordings/uhitm.c/b104-monster-to-hero-owlbear-hugs-continuation.session.json"
+            ],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "python-wraps-with-hug-attack-c62",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 30,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_HUGS -> failed_grab returns FALSE for the solid hero -> hitmu -> uhitm.c:mhitm_adtyping(AD_WRAP) -> mhitm_ad_wrap."
+              }
+            ],
+            "checkedAt": "2f7e6176da78c16f1727c6d13412e4dd8ae8dded"
+          }
+        ],
+        "entryPointReview": "B104 reads and ports the complete AD_WRAP helper and the required caller arms, but this packet verifies only the source paths that produced matching C records. The monster-to-hero Python route and the admitted v19 C62 range execute failed_grab and mhitm_ad_wrap; both fail the rn2(10) wrap gate. The giant-eel hero-to-monster record enters mhitm_ad_wrap, but gn.notonhead=false makes tailmiss=true and skips m_slips_free. The owlbear physical HUGS record reaches the HUGS arm after failed_grab permits a solid hero, but rn2(2)=0 skips u_slip_free. Two bounded M-to-M Conflict records match JavaScript, but neither shows a Python-versus-monster AD_WRAP call: the first Conflict round has the Troll attack a Kobold, and later Python attacks target the hero. No further placement search was made. The slippery-protection helpers and M-to-M entry remain incomplete; AD_DRIN is an existing unported caller and is not included in completion credit. Source-review correction: both names in failed_grab obey C %.99s byte precision. The monster HUGS, slippery-armor, and M-to-H wrap messages produced by C pline_mon retain their monster coordinates through messageAt in accessible-message mode; the grease wear-off pline_The line remains unlocated.",
+        "entryPoints": [
+          {
+            "name": "Monster-to-hero Python AD_WRAP partial path",
+            "functions": [
+              {
+                "sourceFile": "mhitm.c",
+                "name": "failed_grab"
+              },
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_wrap"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-monster-to-hero-python-wrap.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "python-wraps-with-hug-attack-c62",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 30,
+                "source": "mattacku -> failed_grab -> hitmu -> mhitm_adtyping(AD_WRAP) -> mhitm_ad_wrap; rn2(10)=5 misses the wrap gate."
+              }
+            ]
+          },
+          {
+            "name": "Hero-to-monster eel AD_WRAP head-hit path",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_wrap"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-hero-to-monster-wrap-sleeping-newt.session.json"
+            ]
+          },
+          {
+            "name": "Monster physical HUGS against a solid hero",
+            "functions": [
+              {
+                "sourceFile": "mhitm.c",
+                "name": "failed_grab"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b104-monster-to-hero-owlbear-hugs-continuation.session.json"
+            ]
+          },
+          {
+            "name": "Monster-to-monster AD_WRAP",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_wrap"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Monster slippery armor protection",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "m_slips_free"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Hero slippery armor protection",
+            "functions": [
+              {
+                "sourceFile": "mhitu.c",
+                "name": "u_slip_free"
+              }
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
