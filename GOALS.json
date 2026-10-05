@@ -168637,7 +168637,7 @@
           "name": "mhitm_ad_tlpt",
           "line": 2859,
           "endLine": 2957,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -168650,9 +168650,9 @@
           "name": "rloc_pos_ok",
           "line": 1575,
           "endLine": 1644,
-          "declared": false,
+          "declared": true,
           "sourceFile": "teleport.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "rloc_to_core",
@@ -168660,7 +168660,7 @@
           "endLine": 1770,
           "declared": true,
           "sourceFile": "teleport.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "rloc_to",
@@ -168682,9 +168682,9 @@
           "name": "stairway_find_forwiz",
           "line": 1786,
           "endLine": 1798,
-          "declared": false,
+          "declared": true,
           "sourceFile": "teleport.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "rloc",
@@ -168692,13 +168692,13 @@
           "endLine": 1898,
           "declared": true,
           "sourceFile": "teleport.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "control_mon_tele",
           "line": 1899,
           "endLine": 1936,
-          "declared": false,
+          "declared": true,
           "sourceFile": "teleport.c",
           "complete": false
         },
@@ -168708,7 +168708,7 @@
           "endLine": 2295,
           "declared": true,
           "sourceFile": "teleport.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "mnexto",
@@ -168890,7 +168890,269 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rloc_pos_ok",
+            "implementation": "js/teleport.js",
+            "symbol": "rloc_pos_ok",
+            "sourceReview": "Compared the complete teleport.c:rloc_pos_ok body. The JavaScript preserves goodpos(GP_CHECKSCARY), migrating dndest/updest and Wizard-tower restrictions, shopkeeper and priest room affinity, and tele_jump_ok in source order. The function performs no gameplay RNG, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc",
+                "source": "teleport.c:rloc candidate checks"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "control_mon_tele",
+                "source": "teleport.c:control_mon_tele viable destination check"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "teleport.c",
+            "checkedAt": "5244c621326f7c4a34568154a5e74da5d70ad097"
+          },
+          {
+            "name": "rloc_to_core",
+            "implementation": "js/teleport.js",
+            "symbol": "rloc_to_core",
+            "sourceReview": "Compared the complete static teleport.c:rloc_to_core body. The port preserves departure messages and redraw order, monster removal and placement, region and worm updates, swallowed and unstuck handling, arrival display and wand discovery, shopkeeper billing, occupation interruption, and trapped-monster handling. Its C result is void and every caller discards it. The clone-only swallowed display refresh retains the named discarded display.c:docrt gap.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc",
+                "source": "teleport.c:rloc"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc_to",
+                "source": "teleport.c:rloc_to"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc_to_flag",
+                "source": "teleport.c:rloc_to_flag"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "mtele_trap",
+                "source": "teleport.c:mtele_trap"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98-source-boundary.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-three-quantum-mechanics-a98-variation.session.json",
+              "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
+            ],
+            "sourceFile": "teleport.c",
+            "checkedAt": "5244c621326f7c4a34568154a5e74da5d70ad097"
+          },
+          {
+            "name": "stairway_find_forwiz",
+            "implementation": "js/teleport.js",
+            "symbol": "stairway_find_forwiz",
+            "sourceReview": "Compared the complete static teleport.c:stairway_find_forwiz body. It walks stairway records in source order and returns the first record matching dungeon, ladder type, and direction, or null. It performs no gameplay RNG, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc",
+                "source": "teleport.c:rloc Wizard relocation path"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "teleport.c",
+            "checkedAt": "5244c621326f7c4a34568154a5e74da5d70ad097"
+          },
+          {
+            "name": "rloc",
+            "implementation": "js/teleport.js",
+            "symbol": "rloc",
+            "sourceReview": "Compared the complete teleport.c:rloc body. The port preserves steed handling, Wizard stair selection, optional controlled destination, 50 random coordinate attempts, randomized exhaustive fallback, goodpos backup, error reporting, and the final rloc_to_core call. It preserves the consumed Boolean result and awaits only source-void relocation work.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_tlpt",
+                "source": "uhitm.c:mhitm_ad_tlpt monster-to-monster arm"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "u_teleport_mon",
+                "source": "teleport.c:u_teleport_mon"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm through u_teleport_mon"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98-source-boundary.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-three-quantum-mechanics-a98-variation.session.json",
+              "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
+            ],
+            "sourceFile": "teleport.c",
+            "checkedAt": "5244c621326f7c4a34568154a5e74da5d70ad097"
+          },
+          {
+            "name": "u_teleport_mon",
+            "implementation": "js/teleport.js",
+            "symbol": "u_teleport_mon",
+            "sourceReview": "Compared the complete teleport.c:u_teleport_mon body. The port preserves stasis and temple-priest refusals, engulfing escape and consumed rloc result, Rider or control-teleport adjacent placement through rloc_to, and ordinary random relocation with its consumed success result. The wand recording verifies the ordinary relocation entry; the fixed-destination wrapper remains an explicit incomplete entry below.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm wand teleport effect"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_tlpt",
+                "source": "uhitm.c:mhitm_ad_tlpt hero-to-monster arm"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_banish",
+                "source": "artifact.c:banish remains a named discarded caller gap outside A98"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
+            ],
+            "sourceFile": "teleport.c",
+            "checkedAt": "5244c621326f7c4a34568154a5e74da5d70ad097"
+          }
+        ],
+        "entryPointReview": "The selected attack has three active directions. Three independent C-first records verify monster-to-monster AD_TLPT through rloc and rloc_to_core. The admitted v19 case verifies monster-to-hero AD_TLPT and the controlled hero-input planning handoff through step 60. The active hero-to-monster setup strictly matches only through an hmonas miss before damageum, so mhitm_ad_tlpt remains incomplete. The accepted A52 wand recording executes u_teleport_mon, rloc and rloc_to_core. Wizard mon_telecontrol through mnexto, control_mon_tele and rloc_to_flag, and the Rider/control-teleport rloc_to wrapper route remain explicitly unrecorded. artifact.c:banish and clone-only display.c:docrt remain named discarded-result gaps outside the credited functions.",
+        "entryPoints": [
+          {
+            "name": "Monster-to-monster Quantum Mechanic AD_TLPT",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_tlpt"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc_to_core"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98-source-boundary.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-three-quantum-mechanics-a98-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster-to-hero Quantum Mechanic AD_TLPT controlled teleport",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_tlpt"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "quantum-mechanic-teleports-hero-c62",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 60,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku/hitmu -> uhitm.c:mhitm_adtyping(AD_TLPT) -> uhitm.c:mhitm_ad_tlpt M-to-H -> teleport.c:tele/teleds and the controlled input planning handoff"
+              }
+            ]
+          },
+          {
+            "name": "Wand monster teleport through u_teleport_mon",
+            "functions": [
+              {
+                "sourceFile": "teleport.c",
+                "name": "u_teleport_mon"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc_to_core"
+              }
+            ],
+            "recordings": [
+              "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero-to-monster Quantum Mechanic AD_TLPT",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_tlpt"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard controlled monster destination through mnexto",
+            "functions": [
+              {
+                "sourceFile": "mon.c",
+                "name": "mnexto"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "control_mon_tele"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc_to_flag"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Rider or control-tele fixed monster destination",
+            "functions": [
+              {
+                "sourceFile": "teleport.c",
+                "name": "u_teleport_mon"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc_to"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
