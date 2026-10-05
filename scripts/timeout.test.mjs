@@ -8,6 +8,7 @@ import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
     ACID_RES,
     A_CON,
+    A_DEX,
     BLINDED,
     BURN_OBJECT,
     CONFUSION,
@@ -30,6 +31,7 @@ import {
     LAST_PROP,
     LS_OBJECT,
     MAGICAL_BREATHING,
+    M_AP_MONSTER,
     MELT_ICE_AWAY,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
@@ -55,6 +57,7 @@ import {
     SLEEP_RES,
     SICK,
     SICK_NONVOMITABLE,
+    SLIMED,
     TIMEOUT,
     TIMER_NONE,
     TIMER_LEVEL,
@@ -65,6 +68,7 @@ import {
     UNCHANGING,
     VOMITING,
     WARN_OF_MON,
+    W_TOOL,
     WWALKING,
     WOUNDED_LEGS,
     ZOMBIFY_MON,
@@ -74,6 +78,7 @@ import { eatfood } from '../js/eat.js';
 import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import { HCOLORS } from '../js/random_text_data.js';
+import { heroIsBlind } from '../js/startup_a11y.js';
 import {
     PM_BABY_CROCODILE,
     PM_CROCODILE,
@@ -88,6 +93,10 @@ import {
     PM_LICHEN,
     PM_LIZARD,
     PM_TROLL,
+    PM_GREEN_SLIME,
+    LOW_PM,
+    SPECIAL_PM,
+    M1_NOLIMBS,
     M1_HUMANOID,
     monst_globals_init,
     S_HUMAN,
@@ -131,6 +140,12 @@ import {
 } from '../js/timeout.js';
 
 const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
+const C_EAT = readFileSync('nethack-c/upstream/src/eat.c', 'utf8');
+const C_ENGRAVE = readFileSync('nethack-c/upstream/src/engrave.c', 'utf8');
+const C_MON = readFileSync('nethack-c/upstream/src/mon.c', 'utf8');
+const C_TRAP = readFileSync('nethack-c/upstream/src/trap.c', 'utf8');
+const C_MONDATA_H = readFileSync('nethack-c/upstream/include/mondata.h', 'utf8');
+const C_YOUPROP_H = readFileSync('nethack-c/upstream/include/youprop.h', 'utf8');
 const C_ALLMAIN = readFileSync('nethack-c/upstream/src/allmain.c', 'utf8');
 const JS_TIMEOUT = readFileSync('js/timeout.js', 'utf8');
 const JS_ALLMAIN = readFileSync('js/allmain.js', 'utf8');
@@ -313,6 +328,8 @@ function vomitingTimeoutState(countdown) {
     state.u.uprops[FUMBLING].extrinsic = 0;
     state.u.uprops[VOMITING].intrinsic = countdown;
     // Keep morehungry(20) in the same NOT_HUNGRY band for the case-zero test.
+    // These non-hungry values keep the unrelated hunger clock silent; move 0
+    // keeps the fixture at the initial turn for timeout ordering assertions.
     state.u.uhunger = 900;
     state.u.uhs = NOT_HUNGRY;
     state.moves = 0;
@@ -3048,4 +3065,266 @@ test('admitted v14 strangulation recording matches through choke_dialogue caller
             JSON.stringify(comparison, null, 2));
         assert.equal(segment.steps.length, 45,
             'the admitted trace contains boundaries through step 44');
+    });
+
+function slimeTimeoutState(countdown) {
+    const state = propertyTimeoutState();
+    // The shared hero-timeout fixture starts with Fumbling set. Disable that
+    // unrelated clock so each observed draw and message belongs to Slimed.
+    state.u.uprops[FUMBLING].intrinsic = 0;
+    state.u.uprops[FUMBLING].extrinsic = 0;
+    state.u.uprops[SLIMED].intrinsic = countdown;
+    state.u.uhunger = 900;
+    state.u.uhs = NOT_HUNGRY;
+    state.moves = 0;
+    state._pending_message = '';
+    return state;
+}
+
+test('slime_dialogue follows timeout.c countdown order through nh_timeout',
+    async () => {
+        const cStart = C_TIMEOUT.indexOf('slime_dialogue(void)\n{');
+        const cEnd = C_TIMEOUT.indexOf('\n}', cStart) + 2;
+        const cBody = C_TIMEOUT.slice(cStart, cEnd);
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        assert.match(C_TIMEOUT,
+            /slime_texts\[\][\s\S]*?"You are turning a little %s\."[\s\S]*?"Your limbs are getting oozy\."[\s\S]*?"Your skin begins to peel away\."[\s\S]*?"You are turning into %s\."[\s\S]*?"You have become %s\."/u);
+        assert.match(cBody,
+            /long t = \(Slimed & TIMEOUT\), i = t \/ 2L;[\s\S]*?if \(t == 1L\)[\s\S]*?mappearance = PM_GREEN_SLIME;[\s\S]*?newsym\(u\.ux, u\.uy\);/u);
+        assert.match(cBody,
+            /nolimbs\(gy\.youmonst\.data\) && strstri\(buf, "limbs"\)[\s\S]*?strsubst\(buf, "limbs", "extremities"\)/u);
+        assert.match(cBody, /if \(!Blind\)[\s\S]*?urgent_pline\(buf, hcolor\(NH_GREEN\)\)/u);
+        assert.match(C_YOUPROP_H,
+            /#define Blind \(\(HBlinded \|\| EBlinded\) && !BBlinded\)/u);
+        assert.match(cBody,
+            /case 3L:[\s\S]*?HFast = 0L;[\s\S]*?Popeye\(SLIMED\)[\s\S]*?stop_occupation\(\);[\s\S]*?gm\.multi > 0[\s\S]*?nomul\(0\);[\s\S]*?case 2L:[\s\S]*?set_itimeout\(&HDeaf, 5L\);[\s\S]*?case 1L:[\s\S]*?make_stoned\(0L[\s\S]*?exercise\(A_DEX, FALSE\);/u);
+        assert.match(C_EAT,
+            /Popeye\(int threat\)[\s\S]*?case SLIMED:[\s\S]*?return \(boolean\) polyfood\(otin\);/u);
+        assert.match(C_ENGRAVE,
+            /can_reach_floor\(boolean check_pit\)[\s\S]*?!sticks\(gy\.youmonst\.data\)[\s\S]*?attacktype\(u\.ustuck->data, AT_HUGS\)[\s\S]*?uteetering_at_seen_pit\(t\) \|\| uescaped_shaft\(t\)/u);
+        assert.match(C_MON,
+            /pm_to_cham\(int mndx\)[\s\S]*?int mcham = NON_PM;[\s\S]*?if \(ismnum\(mndx\) && is_shapeshifter\(&mons\[mndx\]\)\)[\s\S]*?mcham = mndx;[\s\S]*?return mcham;/u);
+        assert.match(C_TRAP,
+            /uteetering_at_seen_pit\(struct trap \*trap\)[\s\S]*?trap->tseen[\s\S]*?uescaped_shaft\(struct trap \*trap\)[\s\S]*?trap->tseen/u);
+        assert.match(C_MONDATA_H,
+            /#define nolimbs\(ptr\) \(\(\(ptr\)->mflags1 & M1_NOLIMBS\) == M1_NOLIMBS\)/u);
+        assert.match(C_TIMEOUT,
+            /if \(Slimed\)\s+slime_dialogue\(\);[\s\S]*?for \(upp = u\.uprops;/u);
+
+        const jsStart = JS_TIMEOUT.indexOf('async function slime_dialogue(');
+        const jsEnd = JS_TIMEOUT.indexOf('\n}', jsStart) + 2;
+        const jsBody = JS_TIMEOUT.slice(jsStart, jsEnd);
+        assert.ok(jsStart >= 0 && jsEnd > jsStart);
+        assert.ok(jsBody.includes(
+            'const timeout = Math.trunc(u.uprops?.[SLIMED]?.intrinsic ?? 0) & TIMEOUT;',
+        ));
+        assert.ok(jsBody.includes('const index = Math.trunc(timeout / 2);'));
+        assert.ok(jsBody.includes('(env.newsym ?? newsym)(u.ux, u.uy, state);'));
+        assert.match(jsBody,
+            /nolimbs\(state\.youmonst\.data\) && strstri\(text, 'limbs'\) >= 0\)\s*text = strsubst\(text, 'limbs', 'extremities'\)/u);
+        assert.match(jsBody,
+            /if \(index === 4\) \{\s*if \(!heroIsBlind\(state\)\)/u);
+        assert.match(jsBody,
+            /case 3:[\s\S]*?u\.uprops\[FAST\]\.intrinsic = 0;[\s\S]*?Popeye\(SLIMED, state\)[\s\S]*?case 2:[\s\S]*?set_itimeout\(u\.uprops\[DEAF\], 5\);[\s\S]*?case 1:[\s\S]*?make_stoned\(0, null, KILLED_BY_AN, null, state\)[\s\S]*?exercise\(A_DEX, false, state, random\);/u);
+        assert.match(JS_TIMEOUT,
+            /if \(u\.uprops\?\.\[SLIMED\]\?\.intrinsic\)\s*\{[\s\S]*?await slime_dialogue\(state,[\s\S]*?urgentMessage:[\s\S]*?\}\);/u);
+        assert.doesNotMatch(JS_TIMEOUT,
+            /note_unported\('timeout\.c slime_dialogue'\)/u);
+
+        // Odd C TIMEOUT values select the four visible dialogue indices; 7
+        // also enters the Popeye/occupation branch, while 5 enters deafness.
+        const cases = [
+            [9, 'You are turning a little green.'], // C i=4, blinded check.
+            [7, 'Your limbs are getting oozy.'], // C i=3, HFast/Popeye/multi.
+            [5, 'Your skin begins to peel away.'], // C i=2, HDeaf extension.
+            [3, 'You are turning into a green slime.'], // C i=1, make_stoned check.
+        ];
+        for (const [countdown, expected] of cases) {
+            const state = slimeTimeoutState(countdown);
+            const events = [];
+            const random = {
+                rn2(bound) {
+                    assert.equal(bound, 2,
+                        'the source-ordered unconditional DEX exercise draws rn2(2)');
+                    events.push(`core rn2(${bound})`);
+                    // rn2(2)=1 is C's decrement branch for A_DEX exercise.
+                    return 1;
+                },
+                rnd(bound) {
+                    assert.fail(`slime_dialogue unexpectedly called rnd(${bound})`);
+                },
+                d(number, sides) {
+                    assert.fail(`slime_dialogue unexpectedly called d(${number}, ${sides})`);
+                },
+            };
+            const urgentMessages = [];
+            await nh_timeout(state, {
+                planning: true,
+                random,
+                message: async (line) => events.push(`message ${line}`),
+                urgentMessage: async (line) => {
+                    events.push(`urgent ${line}`);
+                    urgentMessages.push(line);
+                },
+                displayRandom() {
+                    assert.fail('ordinary green-slime names do not draw display RNG');
+                },
+            });
+
+            assert.deepEqual(urgentMessages, [expected],
+                `Slimed=${countdown} selects C index ${Math.trunc(countdown / 2)}`);
+            assert.deepEqual(events, [`urgent ${expected}`, 'core rn2(2)'],
+                'the line precedes unconditional exercise(A_DEX, FALSE)');
+            assert.equal(state.u.aexe[A_DEX], -1);
+            assert.equal(state.u.uprops[SLIMED].intrinsic, countdown - 1,
+                'nh_timeout decrements the active timeout after the helper');
+            assert.equal(state._pending_message, '',
+                'the planning clone receives no terminal output');
+        }
+
+        // EBlinded from a worn blindfold is enough for C Blind even when
+        // HBlinded is zero. This pins the non-intrinsic blindness branch.
+        const blindfolded = slimeTimeoutState(9);
+        blindfolded.u.uprops[BLINDED].intrinsic = 0;
+        blindfolded.u.uprops[BLINDED].extrinsic = W_TOOL;
+        blindfolded.u.uprops[BLINDED].blocked = 0;
+        assert.equal(heroIsBlind(blindfolded), true,
+            'W_TOOL extrinsic represents the worn blindfold EBlinded bit');
+        const blindMessages = [];
+        const blindDraws = [];
+        await nh_timeout(blindfolded, {
+            planning: true,
+            random: {
+                rn2(bound) {
+                    assert.equal(bound, 2,
+                        'slime_dialogue still exercises DEX while blind');
+                    blindDraws.push(bound);
+                    return 1;
+                },
+                rnd: () => 1,
+                d: () => 1,
+            },
+            displayRandom() {
+                assert.fail('C suppresses hcolor when Blind is true');
+            },
+            message: async () => {},
+            urgentMessage: async (line) => blindMessages.push(line),
+        });
+        assert.deepEqual(blindMessages, [],
+            'C !Blind suppresses the index-four green-color message');
+        assert.deepEqual(blindDraws, [2],
+            'the unconditional exercise follows the suppressed message');
+        assert.equal(blindfolded.u.uprops[SLIMED].intrinsic, 8,
+            'nh_timeout decrements Slimed after blind slime_dialogue');
+
+        // C replaces the single “limbs” occurrence for a form without limbs.
+        const noLimbs = slimeTimeoutState(7);
+        noLimbs.youmonst.data = {
+            ...noLimbs.youmonst.data,
+            mflags1: noLimbs.youmonst.data.mflags1 | M1_NOLIMBS,
+        };
+        const noLimbsMessages = [];
+        await nh_timeout(noLimbs, {
+            planning: true,
+            random: { rn2: () => 1, rnd: () => 1, d: () => 1 },
+            message: async () => {},
+            urgentMessage: async (line) => noLimbsMessages.push(line),
+        });
+        assert.deepEqual(noLimbsMessages,
+            ['Your extremities are getting oozy.']);
+
+        // This is the C HFast/Popeye/occupation/multi branch. A non-tin
+        // occupation makes Popeye false, so source order clears speed, stops
+        // reading, then applies the positive-multi stop.
+        const limbs = slimeTimeoutState(7);
+        // Nonzero HFast proves case 3 clears it; any positive multi enters nomul.
+        limbs.u.uprops[FAST].intrinsic = FROMOUTSIDE | 8;
+        limbs.multi = 2;
+        const reading = () => 1;
+        reading.cSourceFunction = 'read.c:read';
+        limbs.go = { occupation: reading, occtxt: 'reading' };
+        const limbEvents = [];
+        await nh_timeout(limbs, {
+            planning: true,
+            random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
+            message: async (line) => limbEvents.push(line),
+            urgentMessage: async () => {},
+        });
+        assert.deepEqual(limbEvents, ['You stop reading.']);
+        assert.equal(limbs.u.uprops[FAST].intrinsic, 0);
+        assert.equal(limbs.go.occupation, null);
+        assert.equal(limbs.multi, 0);
+
+        // C extends a short deafness timeout to five before the common
+        // timeout decrement, leaving four turns (plus FROMOUTSIDE).
+        const deaf = slimeTimeoutState(5);
+        // Timeout 2 is below C's five-turn floor; nh_timeout then decrements it.
+        deaf.u.uprops[DEAF].intrinsic = FROMOUTSIDE | 2;
+        await nh_timeout(deaf, {
+            planning: true,
+            random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
+            urgentMessage: async () => {},
+            message: async () => {},
+        });
+        assert.equal(deaf.u.uprops[DEAF].intrinsic, FROMOUTSIDE | 4);
+
+        // When petrification is also active, C cancels only its timeout and
+        // leaves the independent FROMOUTSIDE source bit intact.
+        const stoned = slimeTimeoutState(3);
+        // A live petrification timeout is cleared while FROMOUTSIDE survives.
+        stoned.u.uprops[STONED].intrinsic = FROMOUTSIDE | 8;
+        await nh_timeout(stoned, {
+            planning: true,
+            random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
+            urgentMessage: async () => {},
+            message: async () => {},
+        });
+        assert.equal(stoned.u.uprops[STONED].intrinsic, FROMOUTSIDE);
+
+        // At the last Slimed tick C updates the self glyph before its final
+        // dialogue. Hallucination selects rndmonnam on display RNG; the DEX
+        // exercise remains on the gameplay stream afterward.
+        const final = slimeTimeoutState(1);
+        // C's final tick has i=0: it reveals the self glyph and hallucinates.
+        final.u.uprops[HALLUC].intrinsic = FROMOUTSIDE;
+        const events = [];
+        let displayDraw = 0;
+        const coreCalls = [];
+        await nh_timeout(final, {
+            planning: true,
+            random: {
+                rn2(bound) {
+                    coreCalls.push(bound);
+                    assert.equal(bound, 2);
+                    return 1;
+                },
+                rnd: () => 1,
+                d: () => 1,
+            },
+            displayRandom(bound) {
+                const expected = displayDraw === 0
+                    ? (SPECIAL_PM + 100 - LOW_PM) : 2;
+                assert.equal(bound, expected,
+                    'rndmonnam consumes its source-selected display draws');
+                displayDraw++;
+                // Select gnome on the first bounded species draw; the next
+                // source draw is the article's rn2(2).
+                return displayDraw === 1 ? PM_GNOME - LOW_PM : 0;
+            },
+            newsym(x, y, state) {
+                events.push(['newsym', x, y, state]);
+            },
+            urgentMessage: async (line) => events.push(['urgent', line]),
+            message: async () => {},
+        });
+        assert.deepEqual(events, [
+            ['newsym', 10, 10, final],
+            ['urgent', 'You have become a gnome.'],
+        ]);
+        assert.equal(displayDraw, 2);
+        assert.deepEqual(coreCalls, [2]);
+        assert.equal(final.youmonst.m_ap_type, M_AP_MONSTER);
+        assert.equal(final.youmonst.mappearance, PM_GREEN_SLIME);
+        assert.equal(final.u.aexe[A_DEX], -1);
+        assert.equal(final.u.uprops[SLIMED].intrinsic, 0);
     });

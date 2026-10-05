@@ -1142,9 +1142,9 @@ async function start_tin(otmp, state = game, env = {}) {
 }
 
 // C ref: eat.c Popeye() (3920-3955), the pure return-valued tin-occupation
-// check consumed by timeout.c:vomiting_dialogue(). The occupation callback's
-// source marker represents C's function pointer; the tin itself stays in its
-// existing svc.context.tin/state.context.tin owner.
+// check consumed by timeout.c:stoned_dialogue(), vomiting_dialogue(), and
+// slime_dialogue(). The occupation callback's source marker represents C's
+// function pointer; the tin stays in its existing context owner.
 export function Popeye(threat, state = game) {
     if (state.go?.occupation?.cSourceFunction !== 'eat.c:opentin')
         return false;
