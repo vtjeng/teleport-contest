@@ -171227,16 +171227,20 @@
     {
       "id": "port-pickup-icebox-removal-v20-20261005",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port icebox removal and container extraction",
       "cFile": "pickup.c",
       "sessions": [
         "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed"
       ],
-      "selectionReason": "Current v20 replay matches all screens and first diverges in RNG at zero-based step 82 when pickup.c:out_container skips removed_from_icebox and therefore does not call mkobj.c:start_corpse_timeout.",
+      "selectionReason": "A101 implements whole pickup.c out_container and removed_from_icebox from the selected v20 mismatch; active monster-looting caller remains separately blocked and will keep the goal parked after partial acceptance.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "6d2a7725d734ae023a83d52495f9d860b52b90cf",
+      "openStanding": {
+        "sha": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -171272,7 +171276,184 @@
           "evaluationPath": "challenges/evaluations/20261005201650-v20.json",
           "evaluationCommit": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "session": "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+          "recordingPath": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+          "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
+          "recipe": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.recipe.session.json",
+          "recipeSha256": "33d2301c08fbacc551279890d73d21cd15c49e6b0d7788b7ea00de41a4f44d01",
+          "replayInputSha256": "c97c7c97ab43049d60a3fbb738c4aea104cd3583b0368586f1061f8d98f8bd1c",
+          "evaluationPath": "challenges/evaluations/20261005201650-v20.json",
+          "evaluationCommit": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+          "evaluationArtifact": "challenges/evaluations/20261005201650-v20.json",
+          "evaluationUtc": "2026-10-05T20:17:55.557Z",
+          "remainingScreens": 0,
+          "recordedSteps": 83,
+          "previousScreensMatched": 72,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 83,
+              "total": 83
+            },
+            "rng": {
+              "matched": 2907,
+              "total": 2920
+            },
+            "cursors": {
+              "matched": 83,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2907,
+              "cEntry": "rn2(1000)=876",
+              "cCaller": "start_corpse_timeout(mkobj.c:1413)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 82,
+                "key": "\n"
+              },
+              "stepIndex": 82
+            },
+            "cursor": null
+          },
+          "step": 82,
+          "kind": "rng",
+          "sourceFile": "mkobj.c",
+          "function": "start_corpse_timeout",
+          "message": null,
+          "cFile": "mkobj.c",
+          "luaFile": null,
+          "line": 1413,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.json",
+            "result": {
+              "session": "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
+              "evaluationPath": "challenges/evaluations/20261005201650-v20.json",
+              "evaluationCommit": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+              "remainingScreens": 0,
+              "recordedSteps": 83,
+              "status": "complete",
+              "commit": "fd899cfe66799c179c3740b9d369e93c0e9500db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "session": "synthetic/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+                "recordingPath": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+                "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568",
+                "recipe": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.recipe.session.json",
+                "recipeSha256": "33d2301c08fbacc551279890d73d21cd15c49e6b0d7788b7ea00de41a4f44d01",
+                "replayInputSha256": "c97c7c97ab43049d60a3fbb738c4aea104cd3583b0368586f1061f8d98f8bd1c",
+                "evaluationPath": "challenges/evaluations/20261005201650-v20.json",
+                "evaluationCommit": "c976c27ef3f988a4f139c5f4a2b440f6f3d41123",
+                "evaluationArtifact": "challenges/evaluations/20261005201650-v20.json",
+                "evaluationUtc": "2026-10-05T20:17:55.557Z",
+                "remainingScreens": 0,
+                "recordedSteps": 83,
+                "previousScreensMatched": 72,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 83,
+                    "total": 83
+                  },
+                  "rng": {
+                    "matched": 2907,
+                    "total": 2920
+                  },
+                  "cursors": {
+                    "matched": 83,
+                    "total": 83
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2907,
+                    "cEntry": "rn2(1000)=876",
+                    "cCaller": "start_corpse_timeout(mkobj.c:1413)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 82,
+                      "key": "\n"
+                    },
+                    "stepIndex": 82
+                  },
+                  "cursor": null
+                },
+                "step": 82,
+                "kind": "rng",
+                "sourceFile": "mkobj.c",
+                "function": "start_corpse_timeout",
+                "message": null,
+                "cFile": "mkobj.c",
+                "luaFile": null,
+                "line": 1413
+              },
+              "summary": "The earlier step-72 insertion path is now source-aligned. The current case matches every screen and cursor and first diverges only in RNG at zero-based step 82, when the selected corpse is removed from the carried ice box. C out_container() calls removed_from_icebox() immediately after extracting the corpse and recalculating the container weight; that helper restores absolute age, checks the saved corpse traits, updates norevive, and starts the corpse timer. The JS out_container() omits this call, so it skips start_corpse_timeout() and its first rnz draw.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "out_container() has passed its artifact, fatal-corpse and lift checks, split the selected stack if needed, extracted the selected object and recalculated the container weight. When gc.current_container is an ICE_BOX, it must call removed_from_icebox() before floor-container billing, pick_pick(), addinv(), and inventory feedback. For a corpse whose age is absolute, removed_from_icebox() computes svm.moves - obj->age, obtains OMONST traits with get_mtraits(obj, FALSE), sets norevive according to whether the saved or base species is an ice troll, then calls start_corpse_timeout().",
+                "functions": [
+                  "out_container",
+                  "removed_from_icebox"
+                ],
+                "callers": [
+                  "pickup.c:use_container(), traditional_loot(), and menu_loot() dispatch out_container().",
+                  "pickup.c:tipcontainer() calls removed_from_icebox() for each extracted ICE_BOX content.",
+                  "mon.c:meatbox() calls removed_from_icebox() before engulfing or dropping an ICE_BOX content.",
+                  "muse.c:mloot_container() calls removed_from_icebox() after an ICE_BOX item passes can_carry()."
+                ],
+                "dependencies": [
+                  "include/obj.h:age_is_relative(obj) is a macro; its six-object exemption is already implemented in in_container().",
+                  "mkobj.c:get_mtraits() returns the saved corpse monster record used to distinguish a polymorphed ice troll from other corpses; mkobj-c is closed.",
+                  "mkobj.c:start_corpse_timeout() consumes RNG and inserts ROT_CORPSE, REVIVE_MON, or ZOMBIFY_MON timer state; mkobj-c is closed and its current JS implementation is in timeout.js.",
+                  "mkobj.c:start_glob_timeout() handles non-frozen glob shrink timers; mkobj-c is closed.",
+                  "The selected out_container() caller must preserve pickup.c floor-container billing order; costly_spot() and addtobill() are existing helpers, and addtobill() is a C-void call."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current queue entry .cache/A100-synthetic-mismatch-queue.json reports remainingScreens=0, screens/cursors 83/83, RNG 2907/2920, and first mismatch at segment 0, step 82, key newline: rn2(1000)=876 @ start_corpse_timeout(mkobj.c:1413). The entry is tied to challenges/evaluations/20261005201650-v20.json and evaluation commit c976c27ef3f988a4f139c5f4a2b440f6f3d41123.",
+                "In nethack-c/upstream/src/pickup.c:2727-2778, out_container() calls obj_extract_self(), recalculates current_container->owt, then calls removed_from_icebox(obj) at :2759 when Icebox, before billing, pick_pick(), addinv(), and pickup_prinv(). In js/pickup.js:3114-3154, out_container() currently extracts and recalculates weight but omits that Icebox call.",
+                "In pickup.c:2781-2798, removed_from_icebox() skips relative-age objects, converts absolute age as svm.moves - obj->age, obtains saved traits with get_mtraits(obj, FALSE), sets norevive for ice trolls, and starts corpse or glob timers. GOALS.json marks mkobj-c closed with whole-source rows for get_mtraits, start_corpse_timeout, and start_glob_timeout.",
+                "A current direct-call search finds removed_from_icebox() at pickup.c:2759, :3763, mon.c:1374, and muse.c:2355. Current js/pickup.js, js/mon.js, and js/muse.js retain named unported gaps at the other three call sites; these will be caller-only wiring, without whole tipcontainer/meatbox/mloot_container credit."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
