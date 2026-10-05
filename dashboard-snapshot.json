@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-05T16:27:34.992Z",
+  "capturedAt": "2026-10-05T18:05:24.997Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -19695,12 +19695,149 @@
         "type": "accepted",
         "at": "2026-10-05T16:26:51.375Z",
         "task": "B106"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-published-B106-b1f93e8e",
+        "type": "published",
+        "at": "2026-10-05T16:33:53.177Z",
+        "task": "B106",
+        "commit": "b1f93e8ec6001c261ded73e420d3653edceb94b5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-C84-bc605f0a",
+        "type": "received",
+        "at": "2026-10-05T16:35:04.890Z",
+        "task": "C84",
+        "delivery": "bc605f0ac0bbf9e58b4a5eedb22bae55f29d1027"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C84-bc605f0a-exercise-hook",
+        "type": "feedback",
+        "at": "2026-10-05T16:42:20.232Z",
+        "task": "C84",
+        "delivery": "bc605f0ac0bbf9e58b4a5eedb22bae55f29d1027"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C84-bc605f0a-deaf-intrinsic",
+        "type": "feedback",
+        "at": "2026-10-05T16:44:24.313Z",
+        "task": "C84",
+        "delivery": "bc605f0ac0bbf9e58b4a5eedb22bae55f29d1027"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C84-bc605f0a-inaccessible-await",
+        "type": "feedback",
+        "at": "2026-10-05T16:49:25.813Z",
+        "task": "C84",
+        "delivery": "bc605f0ac0bbf9e58b4a5eedb22bae55f29d1027"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C84-bc605f0a-missing-terrain-imports",
+        "type": "feedback",
+        "at": "2026-10-05T16:55:25.059Z",
+        "task": "C84",
+        "delivery": "bc605f0ac0bbf9e58b4a5eedb22bae55f29d1027"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-48c24ad078e2140e23394a1fc8e63b8bef168f71",
+        "type": "ready",
+        "at": "2026-10-05T16:56:06.883Z",
+        "task": "B107",
+        "delivery": "48c24ad078e2140e23394a1fc8e63b8bef168f71"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-B107-48c24ad0",
+        "type": "received",
+        "at": "2026-10-05T16:57:37.540Z",
+        "task": "B107",
+        "delivery": "48c24ad078e2140e23394a1fc8e63b8bef168f71"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B107-after-B106-selection-recheck",
+        "type": "park",
+        "at": "2026-10-05T17:06:23.180Z",
+        "task": "B107"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C84-correction-72f6c595",
+        "type": "resume",
+        "at": "2026-10-05T17:36:09.824Z",
+        "task": "C84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-72f6c5958d10df8b227615ef00d0450c94a24a7d",
+        "type": "ready",
+        "at": "2026-10-05T17:37:59.613Z",
+        "task": "C84",
+        "delivery": "72f6c5958d10df8b227615ef00d0450c94a24a7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C84-correction-72f6c595",
+        "type": "received",
+        "at": "2026-10-05T17:41:09.492Z",
+        "task": "C84",
+        "delivery": "72f6c5958d10df8b227615ef00d0450c94a24a7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A99-fpostfx-20261005",
+        "type": "assign",
+        "at": "2026-10-05T17:41:16.292Z",
+        "task": "A99",
+        "worker": "A2",
+        "goal": "port-eat-fpostfx-completed-meal-effects-v20-20261005",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C84-4607d3c064e9",
+        "type": "integrating",
+        "at": "2026-10-05T17:43:52.435Z",
+        "task": "C84",
+        "integration": "4607d3c064e904755e85ae5c04db9c68c1f770b5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C84-4607d3c0",
+        "type": "validated",
+        "at": "2026-10-05T17:54:58.148Z",
+        "task": "C84",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B108-timeout-slime-dialogue-v18-20261005",
+        "type": "assign",
+        "at": "2026-10-05T18:03:14.245Z",
+        "task": "B108",
+        "worker": "B",
+        "goal": "port-timeout-slime-dialogue-v18-20261005",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C84-4607d3c0",
+        "type": "accepted",
+        "at": "2026-10-05T18:05:16.709Z",
+        "task": "C84"
       }
     ]
   },
   "development": {
-    "executionCommit": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56",
-    "measuredAt": "2026-10-05T16:16:23.957Z",
+    "executionCommit": "4607d3c064e904755e85ae5c04db9c68c1f770b5",
+    "measuredAt": "2026-10-05T17:54:19.649Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
