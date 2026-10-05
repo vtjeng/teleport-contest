@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "One-factor A100 variation of a100-icebox-newt-insert: keep the seed, date and Wizard setup fixed, but stash an unlit oil lamp. Oil lamps are age-relative in obj.h:age_is_relative(), so C should skip the corpse-age conversion while still reaching in_container insertion.",
+  "segments": [
+    {
+      "seed": 7341229,
+      "datetime": "20461105110700",
+      "nethackrc": "OPTIONS=name:A100Icebox,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizwish\nuncursed ice box\n#wizwish\nuncursed oil lamp\n #loot\nsp"
+    }
+  ]
+}

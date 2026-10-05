@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent A100 C-first recipe. The new seed, date and Wizard identity were chosen for this run. Wish a carried ice box and newt corpse, open #loot, choose the stash option, and submit the C-observed corpse letter p. Stop at the successful in_container insertion pager before an out_container action.",
+  "segments": [
+    {
+      "seed": 7341229,
+      "datetime": "20461105110700",
+      "nethackrc": "OPTIONS=name:A100Icebox,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizwish\nuncursed ice box\n#wizwish\nuncursed newt corpse\n #loot\nsp"
+    }
+  ]
+}
