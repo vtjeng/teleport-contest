@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8675309,
+      "datetime": "20421224101530",
+      "nethackrc": "OPTIONS=name:C86FireHero,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": " #polyself\nfire elemental\n #wizgenesis\n8 hostile orc\nFh"
+    }
+  ]
+}

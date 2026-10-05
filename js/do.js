@@ -1955,9 +1955,9 @@ async function engulfer_digests_food(obj, state = game) {
     } else if (couldPetrify) {
         note_unported('trap.c minstapetrify');
     } else if (couldGrow) {
-        // makemon.c:grow_up() is a void-discarded effect here, but its JS
-        // implementation still refuses several source branches.
-        note_unported('makemon.c grow_up');
+        // C discards grow_up()'s pointer here, but the HP, level and form
+        // changes still finish before the swallowed object is deleted.
+        await grow_up(swallower, null, { state });
     } else if (couldHeal) {
         healmon(swallower, swallower.mhpmax, 0);
         // C's source call is mcureblindness(mon, FALSE); it is void and the
