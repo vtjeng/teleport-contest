@@ -165749,8 +165749,8 @@
           "name": "explmu",
           "line": 1591,
           "endLine": 1667,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -165939,7 +165939,64 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "explmu",
+            "implementation": "js/mhitu.js",
+            "symbol": "explmu",
+            "sourceReview": "Read and compared the full C body at mhitu.c:1591–1665. It returns immediately for cancelled monsters, rolls damage before defended(), selects the visible/hidden location message, and switches on the complete AD_COLD/AD_FIRE/AD_ELEC, AD_BLND, AD_HALU and default arms. In AD_BLND, C evaluates mon_visible(mtmp) first; only an invisible attacker evaluates rnd(tmp /= 2), so visible attacks preserve the full tmp and spend no rnd draw, while invisible attacks halve tmp before the draw and later effects. The AD_HALU arm combines the prior defended result with blindness, Black Light/Violet Fungus form and AD_STUN immunity; when affected it emits the caught message only if not already hallucinating, calls mondead before make_hallucinated, then emits the changed/unaffected result. The common tail applies ugolemeffects only when not_affected, conditionally kills the attacker, wakes nearby monsters, and derives the return from attacker survival. potion.c:make_hallucinated’s timeout changed predicate checks EHalluc_resistance, the extrinsic HALLUC_RES macro; intrinsic resistance suppresses effective Hallucination but does not suppress this changed result. C discards mon_explodes in the elemental arms and impossible in the default arm; those void effects are recorded as named note_unported gaps rather than replacements.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku:839-842 dispatches AT_EXPL to explmu only when !range2."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "black-light-hallucination-blast-v20",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 46,
+                "source": "monmove.c:m_move:954/971 -> mhitu.c:mattacku:839-842 (adjacent AT_EXPL) -> mhitu.c:explmu:1591-1665 -> potion.c:make_hallucinated:369-438"
+              }
+            ],
+            "checkedAt": "8e37a8250d784f12223dcee246000c28e9184c04"
+          }
+        ],
+        "entryPointReview": "The active entry point is an adjacent monster AT_EXPL attack. C mhitu.c:mattacku:839–842 calls explmu only when !range2; JavaScript keeps that guard and awaits explmu. The admitted v20 Black Light recording matches all 47 boundaries through segment 0, zero-based step 46, and reaches AD_HALU and make_hallucinated. The source-pinned AD_BLND test distinguishes visible short-circuit (no rnd, full damage) from invisible handling (integer-halved tmp before rnd). The make_hallucinated body is source-aligned for this route, but receives no whole-function credit while artifact.c:set_artifact_intrinsic’s async caller chain remains unwired. The elemental arms still skip the discarded void explode.c:mon_explodes call with note_unported; the changed-state potion path similarly records discarded eat.c:eatmupdate.",
+        "entryPoints": [
+          {
+            "name": "Adjacent AT_EXPL Black Light route through explmu and make_hallucinated",
+            "functions": [
+              "explmu",
+              {
+                "sourceFile": "potion.c",
+                "name": "make_hallucinated"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "black-light-hallucination-blast-v20",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 46,
+                "source": "monmove.c:m_move:954/971 -> mhitu.c:mattacku:839-842 (adjacent AT_EXPL) -> mhitu.c:explmu:1591-1665 -> potion.c:make_hallucinated:369-438"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
