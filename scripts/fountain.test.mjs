@@ -12,6 +12,7 @@ import test from 'node:test';
 import {
     ALTAR,
     Align2amask,
+    A_CON,
     A_DEX,
     A_MAX,
     BLINDED,
@@ -248,9 +249,11 @@ test('drinkfountain dispatches fate 30 to gushing before dryup', async () => {
 });
 
 test('drinkfountain fate 24 curses eligible items in inventory order', async () => {
-    const { c } = await drinkfountainSource();
+    const { c, js } = await drinkfountainSource();
     assert.match(c,
-        /for \(obj = gi\.invent; obj; obj = nextobj\)[\s\S]*?nextobj = obj->nobj;[\s\S]*?obj->oclass != COIN_CLASS && !obj->cursed && !rn2\(5\)[\s\S]*?curse\(obj\);[\s\S]*?if \(buc_changed\)[\s\S]*?update_inventory\(\);/u);
+        /case 24:[\s\S]*?pline\("This water's no good!"\);[\s\S]*?morehungry\(rn1\(20, 11\)\);[\s\S]*?exercise\(A_CON, FALSE\);[\s\S]*?for \(obj = gi\.invent; obj; obj = nextobj\)[\s\S]*?nextobj = obj->nobj;[\s\S]*?obj->oclass != COIN_CLASS && !obj->cursed && !rn2\(5\)[\s\S]*?curse\(obj\);[\s\S]*?if \(buc_changed\)[\s\S]*?update_inventory\(\);/u);
+    assert.match(js,
+        /case 24:[\s\S]*?message\("This water's no good!", state\);[\s\S]*?morehungry\(random\.rn1\(20, 11\), state, hungerEnv\);[\s\S]*?exercise\(A_CON, false, state, random,[\s\S]*?for \(let obj = state\.invent; obj;\)/u);
 
     await startedGame();
     const location = game.level.at(game.u.ux, game.u.uy);
@@ -258,6 +261,9 @@ test('drinkfountain fate 24 curses eligible items in inventory order', async () 
     location.horizontal = 0;
     location.flags = 0;
     game.invent = null; // Keep the source scan to the three items below.
+    game.moves = 1; // The first elapsed turn enables exercise's encumber_msg hook.
+    const hungerBefore = game.u.uhunger;
+    const exerciseBefore = game.u.aexe[A_CON];
 
     const changed = mksobj(POT_SPEED, false, false, { state: game });
     changed.blessed = true;
@@ -271,26 +277,50 @@ test('drinkfountain fate 24 curses eligible items in inventory order', async () 
     addinv(coin, { state: game });
 
     const draws = [];
-    const queuedBucDraws = [[5, 0], [3, 1]];
+    const events = [];
+    const queuedBucDraws = [
+        [2, 1], // A_CON decrease uses rn2(2); one means a one-point exercise loss.
+        [5, 0], // The uncursed non-coin is selected for curse().
+        [3, 1], // curse() uses blessorcurse's rn2(3) result.
+    ];
     await drinkfountain(game, {
-        message: () => {},
+        message: (line) => events.push(`message:${line}`),
+        endRunning: () => {},
+        statusRefresh: () => {},
+        encumberMessage: () => events.push('encumber_msg'),
         random: {
             rnd(bound) {
                 assert.equal(bound, 30); // C chooses one of thirty fates.
+                draws.push(`rnd(${bound})`);
                 return 24; // This reaches fountain.c's item-curse branch.
+            },
+            rn1(bound, base) {
+                assert.equal(bound, 20); // C uses rn1(20, 11) for hunger.
+                assert.equal(base, 11);
+                draws.push(`rn1(${bound},${base})`);
+                return base; // Minimum hunger loss isolates source ordering.
             },
             rn2(bound) {
                 const expected = queuedBucDraws.shift();
                 assert.ok(expected, `unexpected rn2(${bound})`);
                 assert.equal(bound, expected[0]);
                 draws.push([bound, expected[1]]);
+                events.push(`rn2(${bound})`);
                 return expected[1];
             },
         },
     });
 
-    assert.deepEqual(draws, [[5, 0], [3, 1]]);
+    assert.deepEqual(draws, [
+        'rnd(30)', 'rn1(20,11)', [2, 1], [5, 0], [3, 1],
+    ]);
     assert.deepEqual(queuedBucDraws, []);
+    assert.equal(events[0], "message:This water's no good!");
+    assert.deepEqual(events.slice(1, 4), [
+        'rn2(2)', 'encumber_msg', 'rn2(5)',
+    ]);
+    assert.equal(game.u.uhunger, hungerBefore - 11);
+    assert.equal(game.u.aexe[A_CON], exerciseBefore - 1);
     assert.equal(changed.cursed, true);
     assert.equal(changed.blessed, false);
     assert.equal(alreadyCursed.cursed, true);

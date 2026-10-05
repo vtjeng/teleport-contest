@@ -774,6 +774,25 @@ export async function drinkfountain(state = game, env = {}) {
             await dowaterdemon(state, env);
             break;
         case 24: { // Maybe curse some items
+            await message("This water's no good!", state);
+            // C ref: fountain.c:321-323. Charge for the bad water before the
+            // Constitution exercise and before scanning inventory for curses.
+            const { morehungry } = await import('./eat.js');
+            const { endRunning } = await import('./hack.js');
+            const { encumber_msg } = await import('./pickup.js');
+            const hungerEnv = {
+                ...env,
+                message,
+                endRunning: env.endRunning
+                    ?? ((currentState) => endRunning(currentState)),
+                statusRefresh: env.statusRefresh ?? (() => bot()),
+            };
+            await morehungry(random.rn1(20, 11), state, hungerEnv);
+            await exercise(A_CON, false, state, random, {
+                encumberMessage: env.encumberMessage
+                    ?? ((currentState) => encumber_msg(currentState, { message })),
+            });
+
             let bucChanged = 0;
             for (let obj = state.invent; obj;) {
                 const nextObj = obj.nobj;
