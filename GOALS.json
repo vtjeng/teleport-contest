@@ -170473,7 +170473,7 @@
     {
       "id": "port-timeout-slime-dialogue-v18-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port green-slime transformation dialogue and its pure condition helpers",
       "cFile": "timeout.c",
       "sessions": [
@@ -170809,7 +170809,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The immutable B108 delivery declares parked passive_obj delivery 48c24ad0 as an unaccepted ancestry dependency. Current v19 Energy Vortex and Spotted Jelly mismatches now make the complete uhitm.c passive/passive_obj family actionable; accept that dependency first, then resume this fully matching timeout dialogue delivery."
     }
   ]
 }
