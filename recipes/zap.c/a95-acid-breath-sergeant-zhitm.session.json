@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved setup miss. The C screen after creation places the sergeant diagonally southeast of the Yellow Dragon, but this attempt aims south with j; its acid beams miss/bounce back to the acid-resistant hero. See the separate diagonal-correction recipe for the source-observed direction.",
+  "segments": [
+    {
+      "seed": 8712609,
+      "datetime": "20381029101500",
+      "nethackrc": "OPTIONS=name:A95AcidRay,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " w- #levelchange\n30\n                             #polyself\nyellow dragon\n  \u0007hostile sergeant\n#monster\nj #monster\nj #monster\nj"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved setup miss, not completion evidence: debug Genesis creates a hostile Yellow Dragon, and westward movement reaches dobuzz's hero-hit message pager. The captured C boundary has not yet resumed into zhitu(), so this input does not establish acid damage or armor erosion. The independent seed/date/name and observed hit page are retained as the source-backed starting point for the continued recipe.",
+  "segments": [
+    {
+      "seed": 9135702,
+      "datetime": "20341024093612",
+      "nethackrc": "OPTIONS=name:A95Corrode,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " \u0007hostile yellow dragon\nhhhhh."
+    }
+  ]
+}
