@@ -171591,7 +171591,7 @@
     {
       "id": "port-uhitm-mhitm-ad-fire-v18-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port fire attacks and monster growth from source",
       "cFile": "uhitm.c",
       "sessions": [
@@ -171605,8 +171605,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "473d1a87fab026c31c1359e3750150f53355dc9e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_fire",
@@ -171959,6 +171962,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "473d1a87fab026c31c1359e3750150f53355dc9e",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
