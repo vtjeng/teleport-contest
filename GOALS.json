@@ -167539,7 +167539,7 @@
     {
       "id": "port-uhitm-mhitm-ad-samu-v21-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Implement the source-ordered amulet-theft attack dispatcher",
       "cFile": "uhitm.c",
       "sessions": [
@@ -167792,7 +167792,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "dad675bac60bc60a239e5c7a71d7cf20748bf3f0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial B105 delivery: the admitted v21 range verifies entry into mhitm_ad_samu through its initial hitmsg only. The rn2(20) gate, gated discarded stealamulet call and monster-to-monster entry lack matching runtime evidence; independent recipes preserve their earlier continuation/setup blockers. Keep the whole function incomplete, retain blocked recipes, and record no goal-closure score event."
     }
   ]
 }
