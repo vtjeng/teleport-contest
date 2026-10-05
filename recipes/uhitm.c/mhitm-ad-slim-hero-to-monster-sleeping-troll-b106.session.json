@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B106 C-first hero-to-monster AD_SLIM route: a debug Wizard polymorphs into the source-listed, polyable Green Slime and force-fights an adjacent hostile sleeping troll to the west. The target is non-slimeproof and has enough hit points to survive a gate miss; inspect the C 1-in-4 result and transformation/status before claiming effect coverage.",
+  "segments": [
+    {
+      "seed": 884208,
+      "datetime": "20320408094512",
+      "nethackrc": "OPTIONS=name:SlimeAttacker,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#polyself\ngreen slime\n #wizgenesis\nhostile sleeping troll\nFh"
+    }
+  ]
+}

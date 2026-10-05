@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B106 C-first monster-to-hero AD_SLIM setup miss: use wizard #polyself to become a green slime, then create a hostile green slime at the hero square. The recording reaches an unseen electrical monster first: C step 38 says “It bites! You get zapped!” and JS planning stops in uhitm.c:mhitm_ad_elec() because the green-slime hero has SHOCK_RES. This is before the intended AD_SLIM witness and earns no AD_SLIM runtime credit.",
+  "segments": [
+    {
+      "seed": 884206,
+      "datetime": "20330407094512",
+      "nethackrc": "OPTIONS=name:SlimeHeroWitness,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#polyself\ngreen slime\n #wizgenesis\nhostile green slime\n........"
+    }
+  ]
+}

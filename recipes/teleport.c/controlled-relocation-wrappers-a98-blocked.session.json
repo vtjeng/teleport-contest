@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Unrecorded source-evidence blocker for teleport.c:control_mon_tele, rloc_to, and rloc_to_flag. C reaches the controlled getpos/force-y-n path only from an active caller with Wizard mode and mon_telecontrol; u_teleport_mon reaches rloc_to only for a Rider or control-teleport target after rn2(13), while mnexto reaches rloc_to_flag after its control prompt. The current strict records cover random rloc relocation instead. This file records the missing source-trigger plan, not a failed C attempt or runtime proof.",
+  "segments": [
+    {
+      "seed": 89423021,
+      "datetime": "20470611091529",
+      "nethackrc": "OPTIONS=name:A98Relocation,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,montelecontrol,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": ""
+    }
+  ]
+}

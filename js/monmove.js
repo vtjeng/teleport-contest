@@ -238,6 +238,7 @@ import {
     mondied,
     mon_offmap,
     monkilled,
+    mnexto,
     mpickstuff,
     unstuck,
     wake_nearto,
@@ -442,7 +443,6 @@ import {
     mintrap,
 } from './trap_effects.js';
 import {
-    mnexto,
     noteleport_level,
     rloc,
     rloc_to,

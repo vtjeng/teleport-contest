@@ -218,6 +218,18 @@ export class UnsupportedSimpleMonsterActionError extends Error {
     }
 }
 
+// A dry-run scan must stop before a monster action asks the player for a
+// choice. js/allmain.js replays the source-ordered action on the live state,
+// then plans the remaining allocation from the result. This is control flow
+// for the planner, not an unsupported gameplay boundary.
+class MonsterInputPlanningBoundaryError extends Error {
+    constructor(operation) {
+        super(`planned monster action requests ${operation}`);
+        this.name = 'MonsterInputPlanningBoundaryError';
+        this.operation = operation;
+    }
+}
+
 function unsupported(reason) {
     throw new UnsupportedSimpleMonsterActionError(reason);
 }
@@ -1654,6 +1666,9 @@ async function planningEveryTurnEffect(monster, env) {
 async function planSimpleMonsterScan(monster, env) {
     return movemon_singlemon(monster, {
         ...env,
+        requestPlanningInput(operation) {
+            throw new MonsterInputPlanningBoundaryError(operation);
+        },
         everyTurnEffect: planningEveryTurnEffect,
         // C ref: mon.c:1258-1259. movemon()'s tail sets vision_full_recalc
         // whenever a light source exists (mon.c:1332-1333), and the next
@@ -1797,6 +1812,7 @@ export async function preflightSimpleMonsterActions(
     let upkeepCount = 0;
     let deferredGoto = false;
     let heroDeath = null;
+    let inputBoundary = null;
     let beforeUnmul = false;
     let beforeTimeout = false;
     try {
@@ -1815,25 +1831,28 @@ export async function preflightSimpleMonsterActions(
             upkeepCount = scan.upkeepCount;
             deferredGoto = scan.deferredGoto;
         } catch (error) {
-            if (!(error instanceof MonsterDeathPlanningError)
+            if (error instanceof MonsterInputPlanningBoundaryError) {
+                inputBoundary = { operation: error.operation };
+            } else if (!(error instanceof MonsterDeathPlanningError)
                 && !(error instanceof HeroDeathPlanningError)) {
                 throw error;
+            } else {
+                // The live pass must replay the source path against the real
+                // state. Monster attacks retain their attacker identity;
+                // losehp() carries its source killer record for planned
+                // elapsed-turn damage reached by advanceRound().
+                heroDeath = {
+                    monsterId: error.monsterId ?? null,
+                    how: error.how,
+                    ...(error instanceof HeroDeathPlanningError
+                        ? {
+                            killerName: error.killerName,
+                            killerFormat: error.killerFormat,
+                            fromMonster: error.fromMonster,
+                        }
+                        : {}),
+                };
             }
-            // The live pass must replay the source path against the real
-            // state. Monster attacks retain their attacker identity; losehp()
-            // carries its source killer record for planned elapsed-turn damage
-            // reached by advanceRound().
-            heroDeath = {
-                monsterId: error.monsterId ?? null,
-                how: error.how,
-                ...(error instanceof HeroDeathPlanningError
-                    ? {
-                        killerName: error.killerName,
-                        killerFormat: error.killerFormat,
-                        fromMonster: error.fromMonster,
-                    }
-                    : {}),
-            };
         }
     } finally {
         // A planned door opening or blocking mimic disguise rebuilt
@@ -1862,6 +1881,7 @@ export async function preflightSimpleMonsterActions(
         deferredGoto,
         beforeUnmul,
         beforeTimeout,
+        inputBoundary,
     };
 }
 

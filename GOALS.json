@@ -168612,6 +168612,774 @@
         "rng": 792838
       },
       "parkedReason": "Partial C83 delivery: mhitm_ad_rust and mhitm_ad_dcay have whole-source, caller and runtime evidence. mhitm_ad_corr remains incomplete because the independent hero attack takes missum in JavaScript while C hits and calls damageum at the same roll. Preserve all nine planned direction entries and blocked recipes; no goal-closure score event."
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-tlpt-teleport-closure-v19-20261005",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Implement teleport attack and required monster relocation functions",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v19/quantum-mechanic-teleports-hero-c62"
+      ],
+      "selectionReason": "Port the whole AD_TLPT handler and its source-defined relocation family, including caller awaits and planning environment propagation. A source-traced controlled-input defect requires a non-refusal pre-input handoff and continuation planning from the live answer. Credit only reserved whole functions supported by source, caller and runtime evidence.",
+      "detail": "",
+      "openedAt": "f83fe9e815901e3952a81edcc59b2a4cd58e553a",
+      "openStanding": {
+        "sha": "8669cd3600f138de5c12b795e9352f96969a238b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_tlpt",
+          "line": 2859,
+          "endLine": 2957,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2859,
+        "to": 2957
+      },
+      "requiredFunctions": [
+        {
+          "name": "rloc_pos_ok",
+          "line": 1575,
+          "endLine": 1644,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": true
+        },
+        {
+          "name": "rloc_to_core",
+          "line": 1645,
+          "endLine": 1770,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": true
+        },
+        {
+          "name": "rloc_to",
+          "line": 1771,
+          "endLine": 1776,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "rloc_to_flag",
+          "line": 1777,
+          "endLine": 1785,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "stairway_find_forwiz",
+          "line": 1786,
+          "endLine": 1798,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": true
+        },
+        {
+          "name": "rloc",
+          "line": 1799,
+          "endLine": 1898,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": true
+        },
+        {
+          "name": "control_mon_tele",
+          "line": 1899,
+          "endLine": 1936,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "u_teleport_mon",
+          "line": 2263,
+          "endLine": 2295,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": true
+        },
+        {
+          "name": "mnexto",
+          "line": 3955,
+          "endLine": 3985,
+          "declared": true,
+          "sourceFile": "mon.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v19/quantum-mechanic-teleports-hero-c62": {
+          "session": "synthetic/v19/quantum-mechanic-teleports-hero-c62",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "quantum-mechanic-teleports-hero-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.session.json",
+          "recordingSha256": "bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922",
+          "evaluationPath": "challenges/evaluations/20261005071047-v19.json",
+          "evaluationCommit": "8669cd3600f138de5c12b795e9352f96969a238b"
+        }
+      },
+      "activeStanding": {
+        "sha": "8669cd3600f138de5c12b795e9352f96969a238b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "quantum-mechanic-teleports-hero-c62",
+          "session": "synthetic/v19/quantum-mechanic-teleports-hero-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.session.json",
+          "recordingPath": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.session.json",
+          "recordingSha256": "bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922",
+          "recipe": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.recipe.session.json",
+          "recipeSha256": "1040cc28ed417e38c3b3ee1a5320c27ddc1533f2e9ff38008332cd3a6a4154d3",
+          "replayInputSha256": "21cf04dcbbfee6673e6478d95651e098c606301a503a87ec1aa31f2f3092dd85",
+          "evaluationPath": "challenges/evaluations/20261005071047-v19.json",
+          "evaluationCommit": "8669cd3600f138de5c12b795e9352f96969a238b",
+          "evaluationArtifact": "challenges/evaluations/20261005071047-v19.json",
+          "evaluationUtc": "2026-10-05T07:11:49.910Z",
+          "remainingScreens": 21,
+          "recordedSteps": 61,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 61
+            },
+            "rng": {
+              "matched": 6259,
+              "total": 6297
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 61
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_tlpt()",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_tlpt",
+          "message": "simple monster action requires uhitm.c mhitm_ad_tlpt()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/quantum-mechanic-teleports-hero-c62.json",
+            "result": {
+              "session": "synthetic/v19/quantum-mechanic-teleports-hero-c62",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "quantum-mechanic-teleports-hero-c62",
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "remainingScreens": 21,
+              "recordedSteps": 61,
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "quantum-mechanic-teleports-hero-c62",
+                "session": "synthetic/v19/quantum-mechanic-teleports-hero-c62",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.session.json",
+                "recordingPath": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.session.json",
+                "recordingSha256": "bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922",
+                "recipe": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.recipe.session.json",
+                "recipeSha256": "1040cc28ed417e38c3b3ee1a5320c27ddc1533f2e9ff38008332cd3a6a4154d3",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 21,
+                "recordedSteps": 61,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 61
+                  },
+                  "rng": {
+                    "matched": 6259,
+                    "total": 6297
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 61
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_tlpt()",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_tlpt",
+                "message": "simple monster action requires uhitm.c mhitm_ad_tlpt()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The source owner is the whole uhitm.c:mhitm_ad_tlpt() helper, including all three attacker/defender identity branches, dispatched by the AD_TLPT arm of mhitm_adtyping(). In this case a landed hostile Quantum Mechanic attack reaches the monster-to-hero arm. JS refuses that AD_TLPT arm during cloned turn preflight, which becomes a turn-boundary stop before the live monster scan. The comparator’s earlier distfleeck RNG absence is a consequence of that preflight stop, not the source owner. The debug-wizard recording selects the hero’s current square, so it exercises the controlled teleport selector without claiming relocation.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "Port the complete mhitm_ad_tlpt() identity dispatch: magr == &youmonst (hero-to-monster), mdef == &youmonst (monster-to-hero), and otherwise monster-to-monster. This recording reaches the monster-to-hero arm only after the hostile AT_CLAW attack is in range, not skipped or missed by mattacku() hit gating, hitmu() rolls damage, AD_TLPT dispatches, and mhitm_mgc_atk_negated() permits the effect. The arm then calls tele(); wizard mode admits a controlled destination and the recorded selector chooses the current square. Preserve all arm conditions and damage caps; do not infer that the hero moved.",
+                "functions": [
+                  "mhitm_ad_tlpt"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_adtyping() case AD_TLPT is the direct dispatch; its JavaScript counterpart is js/uhitm.js:4949, currently unported.",
+                  "mhitu.c:mattacku() -> hitmu() -> mhitm_adtyping() is the reached monster-to-hero route; the claw hit gate is at mhitu.c:793-814 and hitmu dispatches after damage at mhitu.c:1187-1191.",
+                  "mhitm.c:mdamagem() -> mhitm_adtyping() reaches the helper’s monster-to-monster arm at mhitm.c:1059.",
+                  "uhitm.c:damageum() -> mhitm_adtyping() reaches the helper’s hero-to-monster arm at uhitm.c:4854."
+                ],
+                "dependencies": [
+                  "Direct shared dependency uhitm.c:mhitm_mgc_atk_negated(); a JavaScript implementation exists at js/uhitm.js:785.",
+                  "Monster-to-hero dependency mhitu.c:hitmsg(); a JavaScript implementation exists at js/mhitu.js:654.",
+                  "Monster-to-hero teleport dependency teleport.c:tele() -> scrolltele(), getpos(), teleok(), teleds(); JavaScript implementations are in js/teleport.js, including tele() at :1671 and scrolltele() at :1604. Audit this return closure during implementation.",
+                  "The other complete-helper arms call teleport.c:u_teleport_mon(), tele_restrict(), and rloc(); JavaScript implementations exist in js/teleport.js at :508, :757, and :462. Audit their return closure during implementation.",
+                  "Other AD_* arms in uhitm.c:mhitm_adtyping() remain separate unported attack-type paths; only its AD_TLPT arm is in this helper’s dispatch scope."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The immutable queue capsule `.cache/v19-investigation-capsules/0.json` records the exact evaluated commit 8583a972f66a872a8ad73c888a24dd01075481f4, manifest identity, recording SHA-256 bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922, 61 steps, 21 remaining screens, and the stop `simple monster action requires uhitm.c mhitm_ad_tlpt()` at step 40. The v19 evaluation artifact for that commit reports 40/61 screens and cursors and 6259/6297 RNG calls.",
+                "The source definition `nethack-c/upstream/include/monsters.h:2127-2133` gives Quantum Mechanic one `AT_CLAW/AD_TLPT` attack with 1d4 damage. In `mhitu.c:mattacku()` at :793-814, the physical attack is omitted on its explicit gates or reaches `hitmu()` only on `tmp > rnd(20+i)`; a miss calls `missmu()`. `mhitu.c:hitmu()` rolls damage then calls `mhitm_adtyping()` at :1187-1191. The frozen C trace records “The quantum mechanic hits!”, `rnd(20)=8`, `d(1,4)=4`, and `rn2(10)=7` at `mhitm_mgc_atk_negated`, establishing this case passed target-miss and magic-negation gates.",
+                "The whole C helper is `nethack-c/upstream/src/uhitm.c:mhitm_ad_tlpt()` at :2859-2955; `mhitm_adtyping()` dispatches AD_TLPT to it at :4782-4802. The monster-to-hero arm at :2884-2927 calls `hitmsg()`, checks magic negation, messages uncertainty, calls `tele()`, then caps damage against polymorph HP or hero HP while preserving at least one HP. The helper also has hero-to-monster and monster-to-monster arms, so the source goal is the full helper, with only its AD_TLPT caller arm wired—not all attack types in `mhitm_adtyping()`.",
+                "For this debug-wizard input, `teleport.c:scrolltele()` allows controlled destination selection when `wizard` is set even without Teleport_control (`:872-892`); C then accepts the recorded current-square choice and reports “You materialize in the same location!” at step 48. This proves the selector path is reached but does not prove relocation; coordinates remain unchanged.",
+                "The JavaScript sequence is `allmain.js:1334-1336` calling `planElapsedTurn()` before its live `movemon()` loop at :1373-1377. `planElapsedTurn()` calls `preflightSimpleMonsterActions()` at :1242-1260; that function clones state and ISAAC (`js/unported_monster_actions.js:1780-1786`, `:364-367`). During the clone scan the JS `mhitm_adtyping()` AD_TLPT arm calls `unported()` (`js/uhitm.js:4949`), raising `UnsupportedSimpleMonsterActionError`; the preflight catch converts it to `UnsupportedTurnBoundaryError` (`js/allmain.js:1261-1276`). The live scan therefore never runs for this step.",
+                "Counter-evidence against treating `distfleeck` as owner: the older C62 raw comparator receipt in the capsule (run-ppCadc, measured worker head 3b30ca493456d7d79d49c1bf3ca79d9d32addf15; receipt SHA-256 f8ab7945d23fa41a51df2457f2c1912fbff0753971dbbcf23affcd95611b1cb2) reports C’s first absent-from-JS raw call as `rn2(5)=1` at `monmove.c:538`, input step 40. That is the live scan’s earlier call; the cloned preflight RNG is discarded after the AD_TLPT refusal, before live `movemon()`. The receipt’s measured commit is older than this investigation’s evaluation commit, so it supports the raw symptom only; source and current evaluation establish the cause."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rloc_pos_ok",
+            "implementation": "js/teleport.js",
+            "symbol": "rloc_pos_ok",
+            "sourceReview": "Compared the complete teleport.c:rloc_pos_ok body. The JavaScript preserves goodpos(GP_CHECKSCARY), migrating dndest/updest and Wizard-tower restrictions, shopkeeper and priest room affinity, and tele_jump_ok in source order. The function performs no gameplay RNG, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc",
+                "source": "teleport.c:rloc candidate checks"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "control_mon_tele",
+                "source": "teleport.c:control_mon_tele viable destination check"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "teleport.c",
+            "checkedAt": "34b07f4a71733baf6d8486f013699d4bb8f3086b"
+          },
+          {
+            "name": "rloc_to_core",
+            "implementation": "js/teleport.js",
+            "symbol": "rloc_to_core",
+            "sourceReview": "Compared the complete static teleport.c:rloc_to_core body. The port preserves departure messages and redraw order, monster removal and placement, region and worm updates, swallowed and unstuck handling, arrival display and wand discovery, shopkeeper billing, occupation interruption, and trapped-monster handling. Its C result is void and every caller discards it. The clone-only swallowed display refresh retains the named discarded display.c:docrt gap.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc",
+                "source": "teleport.c:rloc"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc_to",
+                "source": "teleport.c:rloc_to"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc_to_flag",
+                "source": "teleport.c:rloc_to_flag"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "mtele_trap",
+                "source": "teleport.c:mtele_trap"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98-source-boundary.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-three-quantum-mechanics-a98-variation.session.json",
+              "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
+            ],
+            "sourceFile": "teleport.c",
+            "checkedAt": "34b07f4a71733baf6d8486f013699d4bb8f3086b"
+          },
+          {
+            "name": "stairway_find_forwiz",
+            "implementation": "js/teleport.js",
+            "symbol": "stairway_find_forwiz",
+            "sourceReview": "Compared the complete static teleport.c:stairway_find_forwiz body. It walks stairway records in source order and returns the first record matching dungeon, ladder type, and direction, or null. It performs no gameplay RNG, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc",
+                "source": "teleport.c:rloc Wizard relocation path"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "teleport.c",
+            "checkedAt": "34b07f4a71733baf6d8486f013699d4bb8f3086b"
+          },
+          {
+            "name": "rloc",
+            "implementation": "js/teleport.js",
+            "symbol": "rloc",
+            "sourceReview": "Compared the complete teleport.c:rloc body. The port preserves steed handling, Wizard stair selection, optional controlled destination, 50 random coordinate attempts, randomized exhaustive fallback, goodpos backup, error reporting, and the final rloc_to_core call. It preserves the consumed Boolean result and awaits only source-void relocation work.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_tlpt",
+                "source": "uhitm.c:mhitm_ad_tlpt monster-to-monster arm"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "u_teleport_mon",
+                "source": "teleport.c:u_teleport_mon"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm through u_teleport_mon"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98-source-boundary.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-three-quantum-mechanics-a98-variation.session.json",
+              "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
+            ],
+            "sourceFile": "teleport.c",
+            "checkedAt": "34b07f4a71733baf6d8486f013699d4bb8f3086b"
+          },
+          {
+            "name": "u_teleport_mon",
+            "implementation": "js/teleport.js",
+            "symbol": "u_teleport_mon",
+            "sourceReview": "Compared the complete teleport.c:u_teleport_mon body. The port preserves stasis and temple-priest refusals, engulfing escape and consumed rloc result, Rider or control-teleport adjacent placement through rloc_to, and ordinary random relocation with its consumed success result. The wand recording verifies the ordinary relocation entry; the fixed-destination wrapper remains an explicit incomplete entry below.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm wand teleport effect"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_tlpt",
+                "source": "uhitm.c:mhitm_ad_tlpt hero-to-monster arm"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_banish",
+                "source": "artifact.c:banish remains a named discarded caller gap outside A98"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
+            ],
+            "sourceFile": "teleport.c",
+            "checkedAt": "34b07f4a71733baf6d8486f013699d4bb8f3086b"
+          }
+        ],
+        "entryPointReview": "The selected attack has three active directions. Three independent C-first records verify monster-to-monster AD_TLPT through rloc and rloc_to_core. The admitted v19 case verifies monster-to-hero AD_TLPT and the controlled hero-input planning handoff through step 60. The active hero-to-monster setup strictly matches only through an hmonas miss before damageum, so mhitm_ad_tlpt remains incomplete. The accepted A52 wand recording executes u_teleport_mon, rloc and rloc_to_core. Wizard mon_telecontrol through mnexto, control_mon_tele and rloc_to_flag, and the Rider/control-teleport rloc_to wrapper route remain explicitly unrecorded. artifact.c:banish and clone-only display.c:docrt remain named discarded-result gaps outside the credited functions.",
+        "entryPoints": [
+          {
+            "name": "Monster-to-monster Quantum Mechanic AD_TLPT",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_tlpt"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc_to_core"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-quantum-mechanic-a98-source-boundary.session.json",
+              "recordings/uhitm.c/mhitm-ad-tlpt-monster-pair-conflict-three-quantum-mechanics-a98-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster-to-hero Quantum Mechanic AD_TLPT controlled teleport",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_tlpt"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "quantum-mechanic-teleports-hero-c62",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 60,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku/hitmu -> uhitm.c:mhitm_adtyping(AD_TLPT) -> uhitm.c:mhitm_ad_tlpt M-to-H -> teleport.c:tele/teleds and the controlled input planning handoff"
+              }
+            ]
+          },
+          {
+            "name": "Wand monster teleport through u_teleport_mon",
+            "functions": [
+              {
+                "sourceFile": "teleport.c",
+                "name": "u_teleport_mon"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc_to_core"
+              }
+            ],
+            "recordings": [
+              "recordings/worm.c/wand-teleports-long-worm-independent-a52.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero-to-monster Quantum Mechanic AD_TLPT",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_tlpt"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard controlled monster destination through mnexto",
+            "functions": [
+              {
+                "sourceFile": "mon.c",
+                "name": "mnexto"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "control_mon_tele"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc_to_flag"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Rider or control-tele fixed monster destination",
+            "functions": [
+              {
+                "sourceFile": "teleport.c",
+                "name": "u_teleport_mon"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "rloc_to"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f97abc39f418d0734256e64e16cf404c935bff0b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial A98 delivery: credit only functions with verified source, caller and runtime evidence. Controlled monster relocation through mnexto, control_mon_tele and rloc_to_flag and the dedicated rloc_to wrapper entry remain incomplete. Preserve every planned entry and source-specific blocked recipe; no goal-closure score event."
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-slim-v18-20261005",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port uhitm.c mhitm_ad_slim and its AD_SLIM dispatcher arm",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected"
+      ],
+      "selectionReason": "The current v18 evaluation and complete investigation trace the green-slime attack stop to uhitm.c:mhitm_ad_slim; this goal ports the whole helper and only its AD_SLIM dispatcher arm.",
+      "detail": "Implement all hero-to-monster, monster-to-hero, and monster-to-monster branches. The selected case is challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json in challenges/evaluations/20261005154432-v18.json.",
+      "openedAt": "2c3d518c5380bf7733a99f661793cff8c1d66b2c",
+      "openStanding": {
+        "sha": "f97abc39f418d0734256e64e16cf404c935bff0b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_slim",
+          "line": 3526,
+          "endLine": 3602,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3526,
+        "to": 3602
+      },
+      "syntheticProvenance": {
+        "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected": {
+          "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+          "evaluationPath": "challenges/evaluations/20261005154432-v18.json",
+          "evaluationCommit": "f97abc39f418d0734256e64e16cf404c935bff0b"
+        }
+      },
+      "activeStanding": {
+        "sha": "f97abc39f418d0734256e64e16cf404c935bff0b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+          "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+          "recipe": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.recipe.session.json",
+          "recipeSha256": "cd0a01a0fc27e10f7331da0cbb981fa15345d51eb1d04075a00b2fba0d86e8ba",
+          "replayInputSha256": "0e807a00c3ffe50c1c697373dc7cabc984718113e2b0185be10fcf0c447fc549",
+          "evaluationPath": "challenges/evaluations/20261005154432-v18.json",
+          "evaluationCommit": "f97abc39f418d0734256e64e16cf404c935bff0b",
+          "evaluationArtifact": "challenges/evaluations/20261005154432-v18.json",
+          "evaluationUtc": "2026-10-05T15:45:22.860Z",
+          "remainingScreens": 45,
+          "recordedSteps": 107,
+          "previousScreensMatched": 62,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 62,
+              "total": 107
+            },
+            "rng": {
+              "matched": 2519,
+              "total": 2630
+            },
+            "cursors": {
+              "matched": 62,
+              "total": 107
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_slim()",
+            "step": 62
+          },
+          "step": 62,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_slim",
+          "message": "simple monster action requires uhitm.c mhitm_ad_slim()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.json",
+            "result": {
+              "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+              "remainingScreens": 45,
+              "recordedSteps": 107,
+              "status": "complete",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "session": "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+                "recordingPath": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+                "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+                "recipe": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.recipe.session.json",
+                "recipeSha256": "cd0a01a0fc27e10f7331da0cbb981fa15345d51eb1d04075a00b2fba0d86e8ba",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 45,
+                "recordedSteps": 107,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 62,
+                    "total": 107
+                  },
+                  "rng": {
+                    "matched": 2519,
+                    "total": 2630
+                  },
+                  "cursors": {
+                    "matched": 62,
+                    "total": 107
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_slim()",
+                  "step": 62
+                },
+                "step": 62,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_slim",
+                "message": "simple monster action requires uhitm.c mhitm_ad_slim()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the examined commit, js/uhitm.js:mhitm_adtyping stops at its AD_SLIM refusal instead of executing uhitm.c:mhitm_ad_slim. Port the whole source function in js/uhitm.js and wire the existing dispatcher across hero-to-monster, monster-to-hero, and monster-to-monster branches. The case follows the monster-to-hero branch. Preserve the source gates, RNG order, messages, slime transformation, death flags, and damage updates. In the monster-to-hero first-infection branch, potion.c:make_slimed() is a void, discarded-return helper with no full JS implementation; the source-gap rule permits note_unported('potion.c make_slimed'), but that leaves timed sliming and later behavior unresolved and may cause a later mismatch.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "mhitm_ad_slim"
+                ],
+                "branch": "Whole-function scope at uhitm.c:3526-3600. When magr == &gy.youmonst, handle hero-to-monster slime attacks: magic negation returns early; otherwise a 1-in-4 roll and !slimeproof(pd) enter munslime/newcham/death-flag handling and zero damage. When mdef == &gy.youmonst, handle monster-to-hero attacks: hitmsg first, then negation; otherwise flaming attackers burn slime away, Unchanging/noncorporeal/green-slime heroes are unaffected, and a not-yet-Slimed hero gets the infection message, make_slimed(10L,NULL), and delayed killer. The remaining branch handles monster-to-monster attacks with the same negation and 1-in-4/slimeproof gates, visibility-sensitive transformation messages, strategy/flag updates, and zero damage.",
+                "callers": [
+                  "Direct C dispatch: uhitm.c:mhitm_adtyping AD_SLIM at :4817. Current JS dispatcher is js/uhitm.js:mhitm_adtyping at :4776, whose AD_SLIM arm at :4838 refuses with the exact missing-function message.",
+                  "Monster-to-hero route exercised by this case: monmove.c:dochug at :971 -> mhitu.c:mattacku -> mhitu.c:hitmu at :1144, which calls uhitm.c:mhitm_adtyping at :1191 -> mhitm_ad_slim. JS route: js/mhitu.js:hitmu at :1650 calls the dispatcher at :1707.",
+                  "Hero-to-monster production route: uhitm.c:damageum at :4835 calls mhitm_adtyping at :4854; hmonas calls damageum at :5546, :5587, :5664, :5727, :5745, and :5757, and dokick.c calls it at :212. JS dispatch is js/uhitm.js:damageum at :4858 -> mhitm_adtyping at :4886; js/dokick.js calls damageum at :419.",
+                  "Monster-to-monster production route: mhitm.c:mdamagem at :1016 calls mhitm_adtyping at :1059. JS dispatch is js/mhitm.js:mdamagem at :1037 -> mhitm_adtyping at :1057."
+                ],
+                "dependencies": [
+                  "uhitm.c:mhitm_mgc_atk_negated() returns the Boolean used by the negation gates; preserve its branch and RNG/message ordering.",
+                  "rnd.c:rn2(4) returns the value used by the 1-in-4 conversion gates in the hero-to-monster and monster-to-monster branches.",
+                  "include/mondata.h:slimeproof(), flaming(), and noncorporeal() are Boolean macros whose source predicates control slime immunity, burning, and hero immunity branches.",
+                  "muse.c:munslime() returns whether the target took action; its result controls whether newcham() is attempted, and its effects may kill either monster.",
+                  "mon.c:newcham() returns a Boolean tested by the source while changing the target form to PM_GREEN_SLIME.",
+                  "display.c:canseemon() returns the visibility predicate used to select NC_SHOW_MSG in the monster-to-monster branch.",
+                  "do_name.c:mon_nam() and pmname() return text consumed by the hero-to-monster message and delayed killer name respectively.",
+                  "potion.c:make_slimed() is void and its result is discarded. If left unported, record note_unported('potion.c make_slimed') and skip the call; this gap leaves the hero sliming timeout/status unresolved.",
+                  "end.c:delayed_killer() is void; the monster-to-hero first-infection branch uses it to store the SLIMED killer after make_slimed()."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20261002065911-v18.json records 62/107 screens, 2519/2630 RNG calls, and 62/107 cursors matched, then stops at zero-based step 62 with “simple monster action requires uhitm.c mhitm_ad_slim()”. This is a missing source branch, not a completed-behavior divergence.",
+                "challenges/manifests/v18.json identifies the case route as monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_slim and records an independent patched-C replay byte-identical to the recording. Its historical comparison locates the next C-only RNG draw at index 2519 in distfleeck(monmove.c:538), step 62; that later boundary/draw is downstream evidence, not the attack source owner.",
+                "Upstream uhitm.c:mhitm_ad_slim is the whole source unit at :3526-3600; uhitm.c:mhitm_adtyping dispatches AD_SLIM to it at :4817. Its three parameter modes implement hero-to-monster, monster-to-hero, and monster-to-monster behavior. The current implementation refusal is js/uhitm.js:mhitm_adtyping AD_SLIM at :4838.",
+                "The monster-to-hero infection calls potion.c:make_slimed(10L,NULL) and end.c:delayed_killer(...) at uhitm.c:3568-3572. make_slimed changes the Slimed timeout and related hero state at potion.c:195-217; it has no full JS implementation, so this remains a declared downstream gap if the outer function records note_unported and skips it."
+              ],
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d"
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b7e4d0e01a4e314c5b90468ee1bfcacfef9e0f56",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial B106 delivery: the whole mhitm_ad_slim helper and AD_SLIM dispatcher arm are implemented. Full matching recordings cover hero-to-monster and monster-to-hero, and the selected v18 case advances from step 62 to 68. The independent monster-to-monster trace reaches the helper and matches through boundary 111, but no complete matching monster-to-monster recording exists; a later unrelated planning turn stops at passive_obj. Keep mhitm_ad_slim unverified until a full monster-to-monster recording matches."
     }
   ]
 }

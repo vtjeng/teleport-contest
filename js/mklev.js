@@ -4321,7 +4321,7 @@ export async function lspo_finalize_level(args, env) {
 
     /* This must be done before premap_detect(),
      * otherwise branch stairs won't be premapped. */
-    finishFixupSpecial(state);
+    await finishFixupSpecial(state);
 
     if (coder.premapped)
         premap_detect(state);
@@ -4339,8 +4339,8 @@ export async function lspo_finalize_level(args, env) {
 }
 
 
-function finishFixupSpecial(state) {
-    fixup_special(state, {
+async function finishFixupSpecial(state) {
+    await fixup_special(state, {
         findLevel: find_level,
         isMedusaLevel: Is_medusa_level,
         somex: (room) => somex(room),
@@ -4667,7 +4667,7 @@ function createSpecialLevelApi(state) {
                 solidify_map(state);
             }
 
-            finishFixupSpecial(state);
+            await finishFixupSpecial(state);
 
             // C ref: sp_lev.c:6052-6053. Reveal the entire map for
             // premapped levels (Sokoban).

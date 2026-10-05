@@ -42,13 +42,33 @@ import {
 import { initworm } from '../js/worm.js';
 
 const C_MKMAZE = readFileSync('nethack-c/upstream/src/mkmaze.c', 'utf8');
+const C_SPLEV = readFileSync('nethack-c/upstream/src/sp_lev.c', 'utf8');
 const JS_MKMAZE = readFileSync('js/mkmaze.js', 'utf8');
+const JS_MKLEV = readFileSync('js/mklev.js', 'utf8');
 
 function sourceBody(source, signature) {
     const start = source.indexOf(signature);
     assert.ok(start >= 0, `${signature} is present`);
     return source.slice(start);
 }
+
+test('load_special awaits fixup before premapping and room post-processing', () => {
+    const cBody = sourceBody(C_SPLEV, '\nboolean\nload_special(');
+    const cFixup = cBody.indexOf('fixup_special();');
+    const cPremap = cBody.indexOf('premap_detect();', cFixup);
+    assert.ok(cFixup >= 0 && cPremap > cFixup);
+
+    const jsApi = sourceBody(JS_MKLEV,
+        'function createSpecialLevelApi(state) {');
+    const jsFinish = jsApi.slice(jsApi.indexOf('async finish() {'));
+    const jsFixup = jsFinish.indexOf('await finishFixupSpecial(state);');
+    const jsPremap = jsFinish.indexOf('premap_detect(state);', jsFixup);
+    const jsRoomFill = jsFinish.indexOf('await fill_special_room(', jsPremap);
+    assert.ok(jsFixup >= 0 && jsPremap > jsFixup && jsRoomFill > jsPremap);
+
+    const jsLoader = sourceBody(JS_MKLEV, 'export async function load_special(');
+    assert.match(jsLoader, /await specialLevelApi\.finish\(\);/);
+});
 
 test('mv_bubble waits for mnearto before its zero-result clog and next contents',
     () => {
@@ -60,18 +80,15 @@ test('mv_bubble waits for mnearto before its zero-result clog and next contents'
         assert.ok(cMove >= 0 && cMove < cClog && cClog < cNext);
 
         const jsBody = sourceBody(JS_MKMAZE, 'export function mv_bubble(');
-        const jsMove = jsBody.indexOf('const moved = mnearto(');
-        const jsAwait = jsBody.indexOf('return moved.then((result) => {', jsMove);
+        const jsMove = jsBody.indexOf('const moved = await mnearto(');
         const jsClog = jsBody.indexOf(
-            'if (!result) elemental_clog(contents.list, state);', jsAwait,
+            'if (!moved) await elemental_clog(contents.list, state);', jsMove,
         );
-        const jsNext = jsBody.indexOf(
-            'return finishContents(index + 1);', jsClog,
-        );
+        const jsNext = jsBody.indexOf('break;', jsClog);
         const jsCollision = jsBody.indexOf('return finishBubble();', jsNext);
-        assert.ok(jsMove >= 0 && jsMove < jsAwait && jsAwait < jsClog);
+        assert.ok(jsMove >= 0 && jsMove < jsClog);
         assert.ok(jsClog < jsNext && jsNext < jsCollision);
-        assert.match(jsBody, /if \(!moved\) elemental_clog\(contents\.list, state\);/);
+        assert.match(jsBody, /if \(!moved\) await elemental_clog\(contents\.list, state\);/);
 
         const cMoveBubbles = sourceBody(C_MKMAZE, '\nmovebubbles(void)');
         const jsMoveBubbles = sourceBody(JS_MKMAZE,
@@ -182,14 +199,14 @@ test('mkmaze.c movebubbles clears worm wx values before bubble relocation', asyn
         assert.equal(state.level.monsters[segment.x][segment.y], worm);
 });
 
-test('mkmaze.c fixup_special() marks Mine Town before monster setup uses it', () => {
+test('mkmaze.c fixup_special() marks Mine Town before monster setup uses it', async () => {
     const state = mazeState();
     state.specialLevels = [{
         dlevel: { ...state.u.uz },
         flags: { town: true },
     }];
 
-    fixup_special(state);
+    await fixup_special(state);
 
     assert.equal(state.level.flags.has_town, true);
     assert.deepEqual(state.lregions, []);
@@ -241,7 +258,7 @@ test('mkmaze.c okay() checks the square two cardinal steps away', () => {
     assert.equal(okay(9, 9, 2, state, bounds), false);
 });
 
-test('mkmaze.c baalz_fixup() consumes markers and resets its protected area', () => {
+test('mkmaze.c baalz_fixup() consumes markers and resets its protected area', async () => {
     const state = mazeState();
     for (let x = 20; x <= 60; ++x)
         state.level.at(x, Math.trunc(ROWNO / 2)).wall_info = W_NONDIGGABLE;
@@ -256,7 +273,7 @@ test('mkmaze.c baalz_fixup() consumes markers and resets its protected area', ()
     state.level.at(25, 8).typ = VWALL;
     state.level.at(20, 3).typ = VWALL;
 
-    baalz_fixup(state);
+    await baalz_fixup(state);
 
     assert.notEqual(state.level.at(30, 5).typ, POOL);
     assert.notEqual(state.level.at(30, 15).typ, POOL);

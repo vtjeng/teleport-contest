@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B106 inexpensive H-to-M target-species variation: repeat the same Wizard-to-Green-Slime force-fight geometry against a hostile sleeping orc instead of the troll. This keeps the source AD_SLIM caller fixed while changing the ordinary non-slimeproof defender; record the actual gate draw and matching result rather than assuming a transformation.",
+  "segments": [
+    {
+      "seed": 884208,
+      "datetime": "20320408094512",
+      "nethackrc": "OPTIONS=name:SlimeAttacker,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#polyself\ngreen slime\n #wizgenesis\nhostile sleeping orc\nFh"
+    }
+  ]
+}

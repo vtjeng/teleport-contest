@@ -72,7 +72,7 @@ import { dist2, upstart } from './hacklib.js';
 import { add_to_minv, stackobj } from './invent.js';
 import { set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
-import { elemental_clog, m_into_limbo, mnearto } from './mon.js';
+import { elemental_clog, m_into_limbo, mnearto, mnexto } from './mon.js';
 import { mkstairs, place_branch, walkfrom, wallification } from './mklev.js';
 import { mktrap, occupied } from './mktrap.js';
 import { is_orc, is_swimmer } from './mondata.js';
@@ -145,7 +145,7 @@ import {
 import { christen_monst, christen_orc, new_oname, rndorcname } from './do_name.js';
 import { fruitadd } from './fruit.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { mnexto, rloc } from './teleport.js';
+import { rloc } from './teleport.js';
 import { remove_worm } from './worm.js';
 import { onscary, set_apparxy } from './monmove.js';
 
@@ -366,7 +366,7 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
         }
     };
 
-    const finishContents = (start = 0) => {
+    const finishContents = async (start = 0) => {
         for (let index = start; index < bubble.cons.length; ++index) {
             const contents = bubble.cons[index];
             contents.x += dx;
@@ -386,15 +386,9 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                 // holder can make its JS release asynchronous; finish the
                 // relocation and the zero-result fallback before moving on to
                 // the next saved bubble content or collision effect.
-                const moved = mnearto(contents.list, contents.x, contents.y,
+                const moved = await mnearto(contents.list, contents.x, contents.y,
                     true, RLOC_NOMSG, state);
-                if (moved && typeof moved.then === 'function') {
-                    return moved.then((result) => {
-                        if (!result) elemental_clog(contents.list, state);
-                        return finishContents(index + 1);
-                    });
-                }
-                if (!moved) elemental_clog(contents.list, state);
+                if (!moved) await elemental_clog(contents.list, state);
                 break;
             }
             case 'hero': {
@@ -403,7 +397,8 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                 const oldy = state.u.uy;
                 u_on_newpos(contents.x, contents.y, state);
                 newsym(oldx, oldy);
-                if (occupying) mnexto(occupying, RLOC_NOMSG, { state });
+                if (occupying)
+                    await mnexto(occupying, RLOC_NOMSG, { state });
                 break;
             }
             case 'trap':
@@ -747,7 +742,7 @@ export function bad_location(x, y, nlx, nly, nhx, nhy, state = game) {
 // candidates with `randomOneBased`, calls the required `preflightPosition`
 // for the selected square instead of committing it, and must leave every
 // selection input unchanged so the caller can replay the traversal live.
-export function place_lregion(
+export async function place_lregion(
     lx, ly, hx, hy,
     nlx, nly, nhx, nhy,
     rtype,
@@ -790,8 +785,8 @@ export function place_lregion(
     for (let trycnt = 0; trycnt < 200; trycnt++) {
         const x = randomOneBased((hx - lx) + 1, lx);
         const y = randomOneBased((hy - ly) + 1, ly);
-        if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, oneshot, lev,
-                             state, options)) {
+        if (await put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, oneshot,
+            lev, state, options)) {
             return;
         }
     }
@@ -800,8 +795,8 @@ export function place_lregion(
 
     for (let x = lx; x <= hx; x++)
         for (let y = ly; y <= hy; y++)
-            if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, true, lev,
-                                 state, options))
+            if (await put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, true,
+                lev, state, options))
                 return;
 
     // C's impossible() prints "Couldn't place lregion type %d!" and returns,
@@ -822,7 +817,7 @@ export function place_lregion(
 // hero is placed. Thus a monster found here cannot be the current holder, so
 // the m_into_limbo() call stays synchronous under the conditional cleanup
 // contract in mon.c.
-function put_lregion_here(
+async function put_lregion_here(
     x, y,
     nlx, nly, nhx, nhy,
     rtype,
@@ -860,7 +855,7 @@ function put_lregion_here(
             /* move the monster if no choice, or just try again */
             if (oneshot) {
                 // mkmaze.c:449-450, rloc() and then mon.c m_into_limbo().
-                if (!rloc(mtmp, RLOC_NOMSG, { state }))
+                if (!await rloc(mtmp, RLOC_NOMSG, { state }))
                     m_into_limbo(mtmp, state);
             }
             return false;
@@ -907,7 +902,7 @@ function put_lregion_here(
 
 // C ref: mkmaze.c baalz_fixup(). Preserve the level-sized beetle's wall legs
 // while wallification cleans the surrounding nondiggable region.
-export function baalz_fixup(state = game) {
+export async function baalz_fixup(state = game) {
     const bughack = state.bughack ??= {
         inarea: { x1: COLNO, y1: ROWNO, x2: 0, y2: 0 },
         delarea: { x1: COLNO, y1: ROWNO, x2: 0, y2: 0 },
@@ -984,7 +979,7 @@ export function baalz_fixup(state = game) {
         state.level.at(x, y + 1).typ = HWALL;
         const monster = m_at(x, y, state);
         if (monster) {
-            rloc(monster, RLOC_ERR | RLOC_NOMSG, {
+            await rloc(monster, RLOC_ERR | RLOC_NOMSG, {
                 state,
                 newsym,
                 onscary: (nx, ny, mon, env) =>
@@ -1006,7 +1001,7 @@ export function baalz_fixup(state = game) {
         state.level.at(x, y - 1).typ = HWALL;
         const monster = m_at(x, y, state);
         if (monster) {
-            rloc(monster, RLOC_ERR | RLOC_NOMSG, {
+            await rloc(monster, RLOC_ERR | RLOC_NOMSG, {
                 state,
                 newsym,
                 onscary: (nx, ny, mon, env) =>
@@ -1026,7 +1021,7 @@ export function baalz_fixup(state = game) {
 // the object-generation environment, so it supplies the few mklev-local
 // operations used by the Medusa branch.  All region, topology, and level-flag
 // state remains owned here, where the corresponding C function lives.
-export function fixup_special(state = game, env = {}) {
+export async function fixup_special(state = game, env = {}) {
     if (on_level(state.u?.uz, state.water_level)
         || on_level(state.u?.uz, state.air_level)) {
         state.level.flags.hero_memory = false;
@@ -1039,7 +1034,7 @@ export function fixup_special(state = game, env = {}) {
         switch (region.rtype) {
         case LR_BRANCH:
             addedBranch = true;
-            place_lregion(
+            await place_lregion(
                 region.inarea.x1, region.inarea.y1,
                 region.inarea.x2, region.inarea.y2,
                 region.delarea.x1, region.delarea.y1,
@@ -1056,7 +1051,7 @@ export function fixup_special(state = game, env = {}) {
             } else {
                 destination = env.findLevel(region.rname, state).dlevel;
             }
-            place_lregion(
+            await place_lregion(
                 region.inarea.x1, region.inarea.y1,
                 region.inarea.x2, region.inarea.y2,
                 region.delarea.x1, region.delarea.y1,
@@ -1066,7 +1061,7 @@ export function fixup_special(state = game, env = {}) {
             break;
         case LR_UPSTAIR:
         case LR_DOWNSTAIR:
-            place_lregion(
+            await place_lregion(
                 region.inarea.x1, region.inarea.y1,
                 region.inarea.x2, region.inarea.y2,
                 region.delarea.x1, region.delarea.y1,
@@ -1098,7 +1093,7 @@ export function fixup_special(state = game, env = {}) {
     }
 
     if (!addedBranch && Is_branchlev(state.u.uz, state)) {
-        place_lregion(0, 0, 0, 0, 0, 0, 0, 0,
+        await place_lregion(0, 0, 0, 0, 0, 0, 0, 0,
                       LR_BRANCH, null, state);
     }
 
@@ -1136,7 +1131,7 @@ export function fixup_special(state = game, env = {}) {
     } else if (on_level(state.u.uz, state.stronghold_level)) {
         state.level.flags.graveyard = true;
     } else if (on_level(state.u.uz, state.baalzebub_level)) {
-        baalz_fixup(state);
+        await baalz_fixup(state);
     } else if (state.u.uz.dnum === state.mines_dnum && state.ransacked) {
         stolen_booty(state);
     }

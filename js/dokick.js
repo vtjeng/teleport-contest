@@ -484,7 +484,7 @@ export async function kick_monster(mon, x, y, state = game) {
             await passive(mon, state.uarmf, false, true, AT_KICK, false, state, env);
             return;
         }
-        maybe_mnexto(mon, state, env);
+        await maybe_mnexto(mon, state, env);
         if (mon.mx !== x || mon.my !== y) {
             unmap_invisible(x, y, state);
             const movement = can_teleport(mon.data) && !noteleport_level(mon, state)

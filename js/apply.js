@@ -280,7 +280,7 @@ import { pick_lock } from './lock.js';
 import { bagotricks, mkclass } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
-    m_in_air, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto,
+    m_in_air, mnexto, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto,
 } from './mon.js';
 import {
     can_blow,
@@ -559,7 +559,7 @@ import { wield_tool } from './wield.js';
 import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { stucksteed, use_saddle } from './steed.js';
-import { enexto, mnexto, rloc, rloc_to, tele_restrict, tele_to_rnd_pet, teleds } from './teleport.js';
+import { enexto, rloc, rloc_to, tele_restrict, tele_to_rnd_pet, teleds } from './teleport.js';
 import { mpickobj } from './steal.js';
 import {
     _doWearInternals,
@@ -1398,7 +1398,7 @@ export async function use_grapple(obj, state = game, env = {}) {
                 monster.mundetected = 0;
                 // apply.c discards rloc_to()'s return; its ordinary monster
                 // relocation path is already available to this caller.
-                rloc_to(monster, cc.x, cc.y, { ...env, state, random });
+                await rloc_to(monster, cc.x, cc.y, { ...env, state, random });
                 return ECMD_TIME;
             }
             if ((!bigmonst(monster.data) && !strongmonst(monster.data))
