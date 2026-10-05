@@ -63,6 +63,8 @@ import {
     FAKE_AMULET_OF_YENDOR,
     GOLD_DRAGON_SCALE_MAIL,
     KATANA,
+    LEATHER_ARMOR,
+    LEATHER_CLOAK,
     LEATHER_GLOVES,
     LOW_BOOTS,
     ORCISH_HELM,
@@ -81,6 +83,7 @@ import {
 } from '../js/objects.js';
 import { monst_globals_init, PM_HUMAN } from '../js/monsters.js';
 import { GameDisplay } from '../js/game_display.js';
+import { resetGame } from '../js/gstate.js';
 import {
     armor_simple_name,
     boots_simple_name,
@@ -180,6 +183,57 @@ test('itemactions queues the selected action and inventory letter', async () => 
     assert.equal(key.typ, CMDQ_KEY);
     assert.equal(key.key, 'a');
 });
+
+test('new game clears the transient item-action takeoff flag', () => {
+    // decl.c:417 initializes gi.item_action_in_progress to FALSE; a prior
+    // queued takeoff must not make the next game skip accessibility filtering.
+    assert.equal(resetGame().item_action_in_progress, false);
+});
+
+test('the queued takeoff item action reaches the covered-suit refusal',
+    async () => {
+        const state = catalogState();
+        const cloak = fakeObj(LEATHER_CLOAK, {
+            // W_ARMC marks the outer piece that blocks the suit below it.
+            invlet: 'a', oclass: ARMOR_CLASS, owornmask: W_ARMC,
+        });
+        const suit = fakeObj(LEATHER_ARMOR, {
+            // W_ARM marks the selected inner piece; its letter is queued by
+            // iactions.c after the alttakeoff function pointer.
+            invlet: 'b', oclass: ARMOR_CLASS, owornmask: W_ARM,
+        });
+        cloak.nobj = suit;
+        state.invent = cloak;
+        state.uarmc = cloak;
+        state.uarm = suit;
+        // decl.c:417's new-game value; ia_dotakeoff() must restore it after
+        // the queued callback finishes.
+        state.item_action_in_progress = false;
+        state.context = { move: 0 };
+        state.nhDisplay = new GameDisplay(null);
+        state.program_state = {};
+
+        // iactions.c:589-596 offers T for worn armor. Selecting that row
+        // queues alttakeoff and the suit's canned letter, then rhack() runs
+        // ia_dotakeoff() through getobj() and armor_or_accessory_off().
+        await itemactions(suit, state, {
+            selectMenu: async (_state, spec) =>
+                spec.items.find(item => item.selector === 'T').value,
+        });
+        // Zero supplies no fresh command byte, so rhack() must pop the
+        // queued alttakeoff and its inventory letter.
+        await rhack(0, state);
+
+        assert.equal(state.item_action_in_progress, false);
+        assert.equal(state.uarmc, cloak);
+        assert.equal(state.uarm, suit);
+        // armor_or_accessory_off() returns ECMD_OK for this covered-item
+        // explanation, so C leaves context.move false and spends no turn.
+        assert.equal(state.context.move, 0);
+        assert.match(state._pending_message,
+            /can't take that off without taking off your/i);
+        assert.equal(cmdq_pop(state), null);
+    });
 
 test('remarm_swapwep validates the queued hands key before changing state',
     async () => {

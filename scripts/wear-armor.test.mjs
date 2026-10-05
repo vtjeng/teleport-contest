@@ -71,11 +71,13 @@ import {
     _doWearInternals,
     adj_abon,
     canwearobj,
+    dotakeoff,
     dowear,
     equip_ok,
     hard_helmet,
     select_off,
     set_wear,
+    takeoff_ok,
     wear_ok,
 } from '../js/do_wear.js';
 import { acurr } from '../js/attrib.js';
@@ -2992,6 +2994,49 @@ test('wear_ok classifies what the W prompt may offer', async () => {
             `the prompt filter stays silent for ${field}`);
         game[field] = savedSlot;
     }
+});
+
+test('takeoff_ok keeps covered armor selectable during an item action',
+    async () => {
+    // do_wear.c:3404-3447 skips inaccessible_equipment() only while
+    // ia_dotakeoff() has set gi.item_action_in_progress. The same suit is
+    // therefore excluded from ordinary takeoff but suggested for queued T.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    const cloak = armor(LEATHER_CLOAK, { owornmask: W_ARMC, dknown: 1 });
+    const suit = armor(LEATHER_ARMOR, { owornmask: W_ARM, dknown: 1 });
+    game.uarmc = cloak;
+    game.uarm = suit;
+
+    // FALSE models the ordinary #takeoff path, which filters a suit under a
+    // cloak as inaccessible.
+    game.item_action_in_progress = false;
+    assert.equal(await takeoff_ok(suit, game), GETOBJ_EXCLUDE_INACCESS);
+    // TRUE models ia_dotakeoff()'s queued inventory action, which must allow
+    // the letter through so armor_or_accessory_off() can give C's exact cause.
+    game.item_action_in_progress = true;
+    assert.equal(await takeoff_ok(suit, game), GETOBJ_SUGGEST);
+
+    game.item_action_in_progress = false;
+    game.uarmc = null;
+    game.uarm = null;
+});
+
+test('dotakeoff reports the source uskin scale name', async () => {
+    // do_wear.c:1836-1843 uses the source object-type boundary at
+    // GRAY_DRAGON_SCALES to distinguish scales from scale mail when no worn
+    // armor or accessory is removable.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    for (const [otyp, expected] of [
+        [GRAY_DRAGON_SCALES, 'The dragon scales are merged with your skin!'],
+        [GRAY_DRAGON_SCALE_MAIL, 'The dragon scale mail is merged with your skin!'],
+    ]) {
+        game.u.uskin = armor(otyp);
+        await dotakeoff(game);
+        assert.equal(takePendingTopLine(), expected, `otyp ${otyp}`);
+    }
+    game.u.uskin = null;
 });
 
 test('the obj.h armor macros answer for exactly one category each',
