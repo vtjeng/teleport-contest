@@ -167535,6 +167535,216 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-samu-v21-20261005",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Implement the source-ordered amulet-theft attack dispatcher",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation"
+      ],
+      "selectionReason": "Whole mhitm_ad_samu and its isolated AD_SAMU arm remove the selected source refusal. The admitted v21 step58 verifies M→H entry through hitmsg only, before the random gate. Preserve the gate and M→M runtime gaps with independent blocked recipes, park the full function without completion credit, and skip only the exact discarded-void stealamulet call when its gate succeeds.",
+      "detail": "",
+      "openedAt": "118707a77fb75cd5ec652870d9bbc41c4167c2d9",
+      "openStanding": {
+        "sha": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_samu",
+          "line": 4570,
+          "endLine": 4592,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4570,
+        "to": 4592
+      },
+      "syntheticProvenance": {
+        "synthetic/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation": {
+          "session": "synthetic/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.session.json",
+          "recordingSha256": "dde027291c1e4acc27f079abd5b3cc4f131f1fda96821d81ddb78c990948981a",
+          "evaluationPath": "challenges/evaluations/20261005053526-v21.json",
+          "evaluationCommit": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11"
+        }
+      },
+      "activeStanding": {
+        "sha": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+          "session": "synthetic/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.session.json",
+          "recordingPath": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.session.json",
+          "recordingSha256": "dde027291c1e4acc27f079abd5b3cc4f131f1fda96821d81ddb78c990948981a",
+          "recipe": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.recipe.session.json",
+          "recipeSha256": "c4d8ef8247fb4565b0fed380512db904aefbe807300ef94486d19bd1a0d38a7f",
+          "replayInputSha256": "a2147a6da6cdd33801a6e744de126ebe9e9fad6e8712d55ef9fb6e17dcdf4bd2",
+          "evaluationPath": "challenges/evaluations/20261005053526-v21.json",
+          "evaluationCommit": "9feb834edd013ae0b7e0ab3a51c7a058fb82fb11",
+          "evaluationArtifact": "challenges/evaluations/20261005053526-v21.json",
+          "evaluationUtc": "2026-10-05T05:36:42.904Z",
+          "remainingScreens": 4,
+          "recordedSteps": 62,
+          "previousScreensMatched": 58,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 58,
+              "total": 62
+            },
+            "rng": {
+              "matched": 2802,
+              "total": 2850
+            },
+            "cursors": {
+              "matched": 58,
+              "total": 62
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_samu()",
+            "step": 58
+          },
+          "step": 58,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_samu",
+          "message": "simple monster action requires uhitm.c mhitm_ad_samu()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.json",
+            "result": {
+              "session": "synthetic/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "dde027291c1e4acc27f079abd5b3cc4f131f1fda96821d81ddb78c990948981a",
+              "evaluationPath": "challenges/evaluations/20261005035944-v21.json",
+              "evaluationCommit": "b453b88e7927377c03d11d2ce1db70fefe35c052",
+              "remainingScreens": 4,
+              "recordedSteps": 62,
+              "status": "complete",
+              "commit": "b453b88e7927377c03d11d2ce1db70fefe35c052",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+                "session": "synthetic/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.session.json",
+                "recordingPath": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.session.json",
+                "recordingSha256": "dde027291c1e4acc27f079abd5b3cc4f131f1fda96821d81ddb78c990948981a",
+                "recipe": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.recipe.session.json",
+                "recipeSha256": "c4d8ef8247fb4565b0fed380512db904aefbe807300ef94486d19bd1a0d38a7f",
+                "replayInputSha256": "b83bf42bf21cd1cab2a443f275653d329de1aed2df492e53a81a097c21b50bb5",
+                "evaluationPath": "challenges/evaluations/20261005035944-v21.json",
+                "evaluationCommit": "b453b88e7927377c03d11d2ce1db70fefe35c052",
+                "evaluationArtifact": "challenges/evaluations/20261005035944-v21.json",
+                "evaluationUtc": "2026-10-05T04:01:02.937Z",
+                "remainingScreens": 4,
+                "recordedSteps": 62,
+                "previousScreensMatched": 58,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 58,
+                    "total": 62
+                  },
+                  "rng": {
+                    "matched": 2802,
+                    "total": 2850
+                  },
+                  "cursors": {
+                    "matched": 58,
+                    "total": 62
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_samu()",
+                  "step": 58
+                },
+                "step": 58,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_samu",
+                "message": "simple monster action requires uhitm.c mhitm_ad_samu()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The admitted Wizard continuation matches through normalized segment 0 step57, then refuses at step58 in uhitm.c:mhitm_ad_samu. The whole source handler and its AD_SAMU dispatcher are traced; it has no consumed-return callee. The absent discarded-void stealamulet callee remains an explicit source gap, without invented theft behavior.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "mhitm_ad_samu"
+                ],
+                "branch": "Hero attacker and monster-versus-monster set mhm damage to zero. Monster-versus-hero preserves damage, emits hitmsg, draws rn2(20), then calls stealamulet on zero.",
+                "callers": [
+                  "uhitm.c:mhitm_adtyping AD_SAMU arm; JavaScript js/uhitm.js:mhitm_adtyping still refuses at the accepted candidate."
+                ],
+                "dependencies": [
+                  "Existing mhitu.js:hitmsg body can be reused after source review; AD_SAMU does not select its seduction branch. Its C result is void.",
+                  "C steal.c:stealamulet returns void and has no current JavaScript owner; its missing effect must stay a named discarded-void gap unless ported separately. No consumed result may be invented."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Accepted C79 candidate 4e033fb45199a762edde85bda9e81c92a13a2740, challenges/evaluations/20261004141058-v21.json: 58/62 screens and cursors,2802/2850 RNG; no runner error.",
+                "C79 preserved full-case replay run-AiM2NY identifies normalized segment0 step58 as the first remaining refusal at mhitm_ad_samu; cited C79 prefix through57 matches completely.",
+                "Read-only source survey at the accepted candidate traces uhitm.c:mhitm_ad_samu4570–4589 and its AD_SAMU arm4823. This is a new residual after the earlier clairvoyance stop; return-value closure is just the whole AD_SAMU function.",
+                "Root compared complete uhitm.c:mhitm_ad_samu4570–4589 and AD_SAMU dispatch4823 against current refusal. B105 worker independently confirmed the whole three-direction body, existing hitmsg, absent stealamulet, and exact reservations before claiming.",
+                "Current A95 fresh evaluation challenges/evaluations/20261005035944-v21.json retains 58/62 screens and normalized first refusal58. This updates the source diagnosis, not the measured gameplay result."
+              ],
+              "previousDiagnosis": {
+                "commit": "ee3dc7db5cacad4d18557379dd75b9558de8d421",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "remainingScreens": 62,
+                "summary": "The saved v21 replay stops before emitting any screen because a cadence-triggered clairvoyance path in allmain.js requires an unprovided doVicinityMap operation. C calls detect.c:do_vicinity_map(NULL) when the hero carries the Amulet or has active Clairvoyance, the seer turn is due, and the hero is outside the endgame without BClairvoyant. Port the complete detect.c helper and wire its timed and SPE_CLAIRVOYANCE callers. The later Wizard of Yendor attack behavior is not reached by this evaluation, so the case title does not establish an AD_SAMU defect."
+              },
+              "sourceAuditHistory": {
+                "status": "partial",
+                "commit": "4e033fb45199a762edde85bda9e81c92a13a2740",
+                "summary": "C79 implements the timed clairvoyance path and now matches 58 of 62 screens, all 2802 RNG calls and 58 cursors through normalized segment 0 step57. The next input at step58 reaches the unported uhitm.c:mhitm_ad_samu dispatcher arm. Four screens remain; the whole AD_SAMU closure and current reservations still need review before assigning work."
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
