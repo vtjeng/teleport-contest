@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source setup probe for a rejected monster-target acid-wand idea. NetHack has no WAN_ACID entry in objects.h; wish of “wand of acid” resolved to an unidentified platinum wand (WAN_CANCELLATION). The adjacent sergeant is armored by makemon.c:m_initinv, and the inventory frame recorded slot e, but this invalid wand does not produce ZT_ACID. Probe run-YFEvns is preserved as a setup miss, not runtime evidence.",
+  "segments": [
+    {
+      "seed": 4167259,
+      "datetime": "20390515123300",
+      "nethackrc": "OPTIONS=name:A95AcidRay,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " #levelchange\n30\n                             \u0017blessed +7 wand of acid\n\u0007hostile sergeant\ni"
+    }
+  ]
+}

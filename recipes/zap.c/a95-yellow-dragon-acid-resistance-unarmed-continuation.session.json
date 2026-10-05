@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved setup miss. Although the hero is unarmed, this C route never reaches zap.c:zhitu or the acid-breath arm; the Dragon instead uses ordinary melee during the continuation. It provides no erode_armor evidence. Keep these fixed inputs as the attempted setup, not as runtime coverage.",
+  "segments": [
+    {
+      "seed": 3701425,
+      "datetime": "20450206151200",
+      "nethackrc": "OPTIONS=name:A95AcidRoute,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " #levelchange\n30\n                             \u0017blessed +3 yellow dragon scale mail\nWe w-\u0007hostile yellow dragon\nhhhhh . . . . . ."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent source-directed monster-target route for zap.c:zhitm: create eight hostile sleeping soldiers so the adjacent ring is occupied, then create a hostile Yellow Dragon outside that ring. Its acid breath aimed at the hero should strike the first soldier along the beam and exercise zhitm's ZT_ACID armor call. The count, seed, date and commands are newly chosen; retain the recording only if its C map/RNG proves the line and target armor.",
+  "segments": [
+    {
+      "seed": 1985607,
+      "datetime": "20340608112345",
+      "nethackrc": "OPTIONS=name:A95Intercept,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " \u00078 sleeping hostile soldier\n\u0007hostile yellow dragon\n."
+    }
+  ]
+}

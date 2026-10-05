@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first corrected setup probe for zap.c:ubuzz→dobuzz→zhitm ZT_ACID. It explicitly clears 29 level-up pages after #levelchange and un-wields before Yellow Dragon form. The prior capture then showed two distinct post-polymorph More messages (#monster breath and #sit egg), so this input supplies two spaces before the hostile-sergeant creation. Inspect the resulting map before freezing the #monster breath direction. makemon.c:m_initinv equips mercenary sergeants with body armor. Setup only, not completion evidence.",
+  "segments": [
+    {
+      "seed": 8712609,
+      "datetime": "20381029101500",
+      "nethackrc": "OPTIONS=name:A95AcidRay,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " w- #levelchange\n30\n                             #polyself\nyellow dragon\n  \u0007hostile sergeant\ni"
+    }
+  ]
+}

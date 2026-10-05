@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved strict-failure attempt. C reaches zap.c:zhitu and later logs an erode_armor draw, but strict JS replay first diverges at zero-based segment 0 step 120: the equipped spear sends C through discarded trap.c:acid_damage and inventory_resistance_check, which this task leaves unported. Because the replay has already diverged before the armor draw, that later C call is not matching runtime evidence. The unarmed follow-ups are retained setup misses; they do not reach zhitu.",
+  "segments": [
+    {
+      "seed": 3701425,
+      "datetime": "20450206151200",
+      "nethackrc": "OPTIONS=name:A95AcidRoute,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " #levelchange\n30\n                             \u0017blessed +3 yellow dragon scale mail\nWe\u0007hostile yellow dragon\nhhhhh . . . . . ."
+    }
+  ]
+}

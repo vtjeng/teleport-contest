@@ -39,6 +39,9 @@ import {
     DISP_ALWAYS,
     DISP_END,
     DISMOUNT_POLY,
+    EF_GREASE,
+    EF_VERBOSE,
+    ER_NOTHING,
     FACE,
     HALLUC,
     HALLUC_RES,
@@ -125,6 +128,7 @@ import {
     W_ARMF,
     W_ARMG,
     W_ARMH,
+    W_ARMS,
     W_RINGL,
     W_RINGR,
     W_SADDLE,
@@ -482,6 +486,7 @@ import {
     yname,
     Yobjnam2,
     ysimple_name as ysimpleName,
+    xname,
     mshot_xname,
     isPoisonable,
     the,
@@ -592,6 +597,7 @@ import { obj_resists } from './bury.js';
 import { mhidden_description } from './pager.js';
 import { cutworm } from './worm.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
+import { erode_obj } from './trap_erode_obj.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
@@ -617,6 +623,85 @@ function Hallucination(state) {
 function Deaf(state) {
     return propertyPresent(state?.u, DEAF)
         || Boolean(state?.u?.uroleplay?.deaf);
+}
+
+// C ref: uhitm.c erode_armor() (126-183). Rust, acid and decay effects keep
+// selecting a random worn slot until a head, shield, gloves or boots target
+// actually changes; the cloak/suit/shirt torso arm always ends the search.
+export async function erode_armor(
+    mdef,
+    hurt,
+    state = game,
+    rawEnv = {},
+) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { rn2 };
+    if (typeof random.rn2 !== 'function')
+        throw new TypeError('erode_armor random injection requires rn2');
+
+    while (true) {
+        let target;
+        switch (random.rn2(5)) {
+        case 0:
+            target = which_armor(mdef, W_ARMH, state);
+            if (!target || await erode_obj(
+                target, xname(target, state), hurt, EF_GREASE,
+                { ...env, random },
+            ) === ER_NOTHING)
+                continue;
+            break;
+        case 1:
+            target = which_armor(mdef, W_ARMC, state);
+            if (target) {
+                await erode_obj(
+                    target, xname(target, state), hurt,
+                    EF_GREASE | EF_VERBOSE, { ...env, random },
+                );
+                break;
+            }
+            target = which_armor(mdef, W_ARM, state);
+            if (target) {
+                await erode_obj(
+                    target, xname(target, state), hurt,
+                    EF_GREASE | EF_VERBOSE, { ...env, random },
+                );
+            } else if ((target = which_armor(mdef, W_ARMU, state))) {
+                await erode_obj(
+                    target, xname(target, state), hurt,
+                    EF_GREASE | EF_VERBOSE, { ...env, random },
+                );
+            }
+            break;
+        case 2:
+            target = which_armor(mdef, W_ARMS, state);
+            if (!target || await erode_obj(
+                target, xname(target, state), hurt, EF_GREASE,
+                { ...env, random },
+            ) === ER_NOTHING)
+                continue;
+            break;
+        case 3:
+            target = which_armor(mdef, W_ARMG, state);
+            if (!target || await erode_obj(
+                target, xname(target, state), hurt, EF_GREASE,
+                { ...env, random },
+            ) === ER_NOTHING)
+                continue;
+            break;
+        case 4:
+            target = which_armor(mdef, W_ARMF, state);
+            if (!target || await erode_obj(
+                target, xname(target, state), hurt, EF_GREASE,
+                { ...env, random },
+            ) === ER_NOTHING)
+                continue;
+            break;
+        default:
+            // rn2(5) is bounded to 0..4, so C's switch has no default arm.
+            continue;
+        }
+        break;
+    }
 }
 
 // C ref: uhitm.c flash_hits_mon(). The result is consumed by zap.c:bhitm()

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup probe for the source-valid hero-breath route into zap.c:zhitm: level the hero, polymorph into a Yellow Dragon, create a hostile sergeant, and inspect the C line before selecting #monster's breath direction. The sergeant's m_initinv path equips body armor. This probe records placement only and is not completion evidence.",
+  "segments": [
+    {
+      "seed": 8712609,
+      "datetime": "20381029101500",
+      "nethackrc": "OPTIONS=name:A95AcidRay,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " #levelchange\n30\n#polyself\nyellow dragon\n\u0007hostile sergeant\ni"
+    }
+  ]
+}
