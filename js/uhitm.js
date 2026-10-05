@@ -41,9 +41,11 @@ import {
     DISP_END,
     DISMOUNT_POLY,
     DROWNING,
+    ERODE_BURN,
     ERODE_CORRODE,
     ERODE_ROT,
     ERODE_RUST,
+    EF_NONE,
     EF_GREASE,
     EF_VERBOSE,
     ER_NOTHING,
@@ -6664,8 +6666,9 @@ export async function mhitm_knockback(
 // whose damage type selects the arms below. A species whose attack list is
 // full has no such slot and returns at 5876-5877.
 //
-// AD_ENCH also reaches passive_obj() under C's attack-type guards. The other
-// nonphysical first-switch and second-switch effects remain source boundaries.
+// AD_ENCH, AD_RUST and AD_CORR reach passive_obj() under C's attack-type
+// guards. The earlier AD_ACID splash and later AD_FIRE damage remain source
+// boundaries; AD_RUST/AD_CORR kick armor erosion also remains unported.
 export async function passive(
     mon,
     weapon,
@@ -6700,20 +6703,35 @@ export async function passive(
                 await passive_obj(mon, weapon, passiveAttack, state, env);
             }
         }
+    } else if (passiveAttack.adtyp === AD_RUST
+        || passiveAttack.adtyp === AD_CORR) {
+        if (mhitb && !mon.mcan && weapon) {
+            if (aatyp === AT_KICK && state.uarmf) {
+                // C directly erodes boots here; keep this unported caller
+                // boundary instead of skipping its source effect.
+                requireAttackOperation(env, 'unsupported')(
+                    'passive kick armor erosion',
+                );
+            } else if (aatyp === AT_WEAP || aatyp === AT_CLAW
+                || aatyp === AT_MAGC || aatyp === AT_TUCH) {
+                await passive_obj(mon, weapon, passiveAttack, state, env);
+            }
+        }
     } else if (passiveAttack.adtyp !== AD_PHYS) {
         requireAttackOperation(env, 'unsupported')('passive counter-attack');
     }
 
-    /* 6013. C's guard is `malive && !mon->mcan && rn2(3)`. Its AD_PHYS and
-       AD_ENCH arms are empty. */
+    /* 6013. C's guard is `malive && !mon->mcan && rn2(3)`. Its
+       AD_PHYS, AD_ENCH, AD_RUST and AD_CORR follow-up arms are empty. */
     if (maliveb && !mon.mcan) random.rn2(3);
 }
 
-// C ref: uhitm.c passive_obj() (6122-6190). This handles both an ordinary
-// passive object's no-effect arm and the AD_ENCH drain/message arm. C callers
-// may supply the object and attack or let this helper select them.
+// C ref: uhitm.c passive_obj() (6122-6190). The helper applies the monster's
+// passive damage type to the hero's attack object, then refreshes inventory
+// when the object is carried. Callers may supply the object and attack or let
+// this helper select them.
 export async function passive_obj(mon, obj, mattk, state = game, env = {}) {
-    const random = { rn2, ...(env.random ?? {}) };
+    const random = { rn2, rnl, ...(env.random ?? {}) };
     if (!obj) {
         obj = (state.u?.twoweap && state.uswapwep && !random.rn2(2))
             ? state.uswapwep : state.uwep;
@@ -6729,9 +6747,32 @@ export async function passive_obj(mon, obj, mattk, state = game, env = {}) {
         }
         if (!mattk) return;
     }
-    if (mattk.adtyp === AD_ENCH) {
+    const effectEnv = { ...env, random, state };
+    switch (mattk.adtyp) {
+    case AD_FIRE:
+        if (!random.rn2(6) && !mon.mcan
+            && mon.data !== state.mons[PM_STEAM_VORTEX]) {
+            await erode_obj(obj, null, ERODE_BURN, EF_NONE, effectEnv);
+        }
+        break;
+    case AD_ACID:
+        if (!random.rn2(6)) {
+            await erode_obj(obj, null, ERODE_CORRODE, EF_GREASE, effectEnv);
+        }
+        break;
+    case AD_RUST:
+        if (!mon.mcan) {
+            await erode_obj(obj, null, ERODE_RUST, EF_GREASE, effectEnv);
+        }
+        break;
+    case AD_CORR:
+        if (!mon.mcan) {
+            await erode_obj(obj, null, ERODE_CORRODE, EF_GREASE, effectEnv);
+        }
+        break;
+    case AD_ENCH:
         if (!mon.mcan
-            && drain_item(obj, true, state, env)
+            && drain_item(obj, true, state, effectEnv)
             && carried(obj)
             && (obj.known || obj.oclass === ARMOR_CLASS)) {
             const message = env.message
@@ -6742,10 +6783,9 @@ export async function passive_obj(mon, obj, mattk, state = game, env = {}) {
                 env,
             );
         }
-    } else if (mattk.adtyp !== AD_PHYS) {
-        return requireAttackOperation(env, 'unsupported')(
-            'passive object damage',
-        );
+        break;
+    default:
+        break;
     }
     if (carried(obj)) {
         update_inventory({ ...env, state });

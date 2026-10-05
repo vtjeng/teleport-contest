@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation against the same observed northeast Rust Monster. The preceding recorded u attack missed and the Rust Monster remained adjacent, so this adds exactly one u attack. Both attacks are misses at uhitm.c:hitum before the passive_obj call condition; retain this route as non-entry evidence, not helper execution.",
+  "segments": [
+    {
+      "seed": 5082713,
+      "datetime": "20311014091500",
+      "nethackrc": "OPTIONS=name:RustPassiveTrace,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": "#wizgenesis\nhostile sleeping rust monster\nuu"
+    }
+  ]
+}
