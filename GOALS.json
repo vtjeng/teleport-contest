@@ -166656,7 +166656,7 @@
     {
       "id": "port-mcastu-disappear-archon-v21-20261004",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Implement monster disappearance spell and invisibility state",
       "cFile": "mcastu.c",
       "sessions": [
@@ -166670,8 +166670,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "787450ab0fcd7406c1228104b82d513d55888ec8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mcast_disappear",
@@ -167093,6 +167096,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "787450ab0fcd7406c1228104b82d513d55888ec8",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
