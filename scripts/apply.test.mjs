@@ -68,6 +68,25 @@ import {
 const APPLY_C = readFileSync(
     new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',
 );
+const APPLY_JS = readFileSync(new URL('../js/apply.js', import.meta.url), 'utf8');
+
+test('use_towel awaits gulp_blnd_check before restoring blindness', () => {
+    // apply.c:154 consumes the Boolean after cream removal; the helper became
+    // async when it began awaiting gulpmu's source-owned effects.
+    const cStart = APPLY_C.indexOf('\nuse_towel(struct obj *obj)');
+    const cEnd = APPLY_C.indexOf('\n}\n', cStart) + 2;
+    assert.notEqual(cStart, -1, 'apply.c must contain use_towel');
+    assert.ok(cEnd > cStart, 'use_towel must have a complete C body');
+    assert.match(APPLY_C.slice(cStart, cEnd),
+        /if \(!gulp_blnd_check\(\)\)\s*\{[\s\S]*?make_blinded\(0L, TRUE\)/u);
+
+    const jsStart = APPLY_JS.indexOf('export async function use_towel(');
+    const jsEnd = APPLY_JS.indexOf('\n}\n', jsStart) + 2;
+    assert.notEqual(jsStart, -1, 'js/apply.js must contain use_towel');
+    assert.ok(jsEnd > jsStart, 'use_towel must have a complete JS body');
+    assert.match(APPLY_JS.slice(jsStart, jsEnd),
+        /if \(!await gulp_blnd_check\(state, env\)\)\s*\{[\s\S]*?await make_blinded\(0, true/u);
+});
 
 test('apply.c flip_coin drops a lost coin under Hallucination', async () => {
     // apply.c:doapply() dispatches COIN_CLASS to flip_coin(); the lose_coin

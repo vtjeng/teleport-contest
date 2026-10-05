@@ -173,6 +173,29 @@ test('make_blinded(0, true) fires toggle_blindness on sight restoration',
         // that toggle_blindness ran.
         assert.equal(game.disp.botl, true,
             'toggle_blindness sets botl for status-line refresh');
-        assert.equal(game.u.uprops[BLINDED].intrinsic & TIMEOUT, 0,
-            'blindness timeout is cleared');
-    });
+    assert.equal(game.u.uprops[BLINDED].intrinsic & TIMEOUT, 0,
+        'blindness timeout is cleared');
+});
+
+test('wipeoff awaits gulp_blnd_check before restoring blindness', async () => {
+    // do.c:2376 consumes gulp_blnd_check()'s Boolean before deciding whether
+    // to restore blindness. Once its JS port is async, wipeoff must await it;
+    // the matching occupation test above also exercises that false result.
+    const cSource = await readFile(new URL(
+        '../nethack-c/upstream/src/do.c', import.meta.url,
+    ), 'utf8');
+    const cStart = cSource.indexOf('\nstaticfn int\nwipeoff(void)');
+    const cEnd = cSource.indexOf('\n}\n', cStart) + 2;
+    assert.notEqual(cStart, -1, 'do.c must contain wipeoff');
+    assert.ok(cEnd > cStart, 'wipeoff must have a complete C body');
+    assert.match(cSource.slice(cStart, cEnd),
+        /if\s*\(!gulp_blnd_check\(\)\)\s*\{[\s\S]*?make_blinded\(0L, TRUE\)/u);
+
+    const jsSource = await readFile(new URL('../js/do.js', import.meta.url), 'utf8');
+    const jsStart = jsSource.indexOf('export async function wipeoff(');
+    const jsEnd = jsSource.indexOf('\n}\n', jsStart) + 2;
+    assert.notEqual(jsStart, -1, 'js/do.js must contain wipeoff');
+    assert.ok(jsEnd > jsStart, 'wipeoff must have a complete JS body');
+    assert.match(jsSource.slice(jsStart, jsEnd),
+        /if\s*\(!await gulp_blnd_check\(state\)\)\s*\{[\s\S]*?make_blinded\(0, true/u);
+});

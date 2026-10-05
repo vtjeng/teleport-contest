@@ -1175,6 +1175,20 @@ test('failed_grab keeps C pline precision for both monster names', async () => {
 
 test('engulf_target admits a fitting vortex and rejects a huge defender',
     async () => {
+    const cStart = MHITM_C.indexOf('\nboolean\nengulf_target(');
+    const cEnd = MHITM_C.indexOf('\n/*', cStart + 1);
+    assert.notEqual(cStart, -1, 'mhitm.c must contain engulf_target');
+    assert.notEqual(cEnd, -1, 'engulf_target must end before the next unit');
+    const cBody = MHITM_C.slice(cStart + 1, cEnd);
+    assert.match(cBody,
+        /mdef->data->msize >= MZ_HUGE[\s\S]*?magr->data->msize < mdef->data->msize && !is_whirly\(magr->data\)/u);
+    assert.match(cBody, /if \(mdef->mtrapped \|\| magr->mtrapped\)/u);
+    assert.match(cBody,
+        /IS_OBSTRUCTED\(lev->typ\) \|\| closed_door\(dx, dy\) \|\| IS_TREE\(lev->typ\)[\s\S]*?lev->typ == IRONBARS && !is_whirly\(magr->data\)/u);
+    assert.match(cBody,
+        /IS_OBSTRUCTED\(lev->typ\) \|\| closed_door\(ax, ay\) \|\| IS_TREE\(lev->typ\)[\s\S]*?lev->typ == IRONBARS && !is_whirly\(mdef->data\)/u);
+    assert.match(cBody, /return TRUE;/u);
+
     // mhitm.c:805-845. A whirly vortex can cross ordinary terrain, but the
     // target-size guard still rejects a defender larger than medium.
     const state = await hero();

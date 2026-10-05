@@ -5,11 +5,13 @@
 // passiveum(), and gulp_blnd_check().
 
 import {
+    A_STR,
     A_CON,
     A_DEX,
     ACID_RES,
     AC_VALUE,
     BLINDED,
+    MAGICAL_BREATHING,
     COLD_RES,
     CONFLICT,
     CONFUSION,
@@ -32,6 +34,8 @@ import {
     MM_EDOG,
     MM_NOMSG,
     M_SEEN_COLD,
+    M_SEEN_ACID,
+    M_SEEN_ELEC,
     M_SEEN_FIRE,
     NEUTRAL,
     NATTK,
@@ -46,11 +50,14 @@ import {
     STONING,
     STUNNED,
     SHOCK_RES,
+    SLOW_DIGESTION,
     SICK,
     SICK_NONVOMITABLE,
     STONE_RES,
     IS_WATERWALL,
     TT_PIT,
+    TT_WEB,
+    OBJ_FREE,
     TIMEOUT,
     FAST,
     W_AMUL,
@@ -78,6 +85,8 @@ import {
 } from './dbridge.js';
 import { acurr, exercise, minuhpmax } from './attrib.js';
 import { encumber_msg } from './pickup.js';
+import { number_leashed } from './apply.js';
+import { placebc, unplacebc } from './ball.js';
 // js/unported_monster_actions.js already imports allmain.js across the same
 // cycle and records why it is safe: `stop_occupation` is a hoisted function
 // declaration, initialized before either module body runs, and nothing here
@@ -104,10 +113,12 @@ import {
 import { reset_occupations } from './cmd.js';
 import {
     Monnam,
+    Some_Monnam,
     Amonnam,
     capitalizedMonsterName,
     christen_monst,
     hliquid,
+    mon_nam,
     monsterPossessive,
     pmname,
 } from './do_name.js';
@@ -143,6 +154,9 @@ import {
     get_atkdam_type,
     haseyes,
     hides_under,
+    amorphous,
+    amphibious,
+    breathless,
     is_animal,
     is_demon,
     is_human,
@@ -193,13 +207,16 @@ import {
     an,
     cloak_simple_name,
     donameFresh,
+    vtense,
     xnameFresh,
 } from './objnam.js';
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rn2_on_display_rng } from './rng.js';
+import { Punished } from './steed.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
     t_at,
+    reset_utrap,
 } from './trap.js';
 import {
     displayPendingTtyMessageWindow,
@@ -208,6 +225,8 @@ import {
 } from './tty_message.js';
 import {
     heroSickResistance,
+    digests,
+    enfolds,
     mhitm_adtyping,
     mhitm_knockback,
 } from './uhitm.js';
@@ -229,6 +248,7 @@ import {
     make_hallucinated,
     make_sick,
     make_stunned,
+    incr_itimeout,
 } from './potion.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { destroy_items } from './zap_destroy_items.js';
@@ -1319,19 +1339,6 @@ export async function mattacku(monster, rawEnv = {}) {
 
         case M.AT_ENGL:
             if (!range2) {
-                // C dispatches each successful AT_ENGL hit to gulpmu(). This
-                // slice admits the existing ice-vortex AD_COLD route and the
-                // source-defined Juiblex AD_DISE route; unrelated engulfers
-                // and polymorphed heroes remain outside the partial port.
-                const iceVortexCold = mdat?.pmidx === M.PM_ICE_VORTEX
-                    && mattk.adtyp === M.AD_COLD
-                    && !Cold_resistance(state)
-                    && !monster.mcan;
-                const juiblexDisease = mdat?.pmidx === M.PM_JUIBLEX
-                    && mattk.adtyp === M.AD_DISE;
-                if (Upolyd(state.u) || (!iceVortexCold && !juiblexDisease)) {
-                    unsupported('a monster engulfing the hero');
-                }
                 if (foundyou) {
                     let j = 0;
                     const engulfing = u.uswallow
@@ -1343,8 +1350,26 @@ export async function mattacku(monster, rawEnv = {}) {
                     } else {
                         await missmu(monster, tmp === j, mattk, env);
                     }
+                } else if (digests(mdat)) {
+                    await message(
+                        `${Monnam(monster, state, env)} gulps some air!`,
+                        state,
+                        env,
+                    );
+                } else if (initial.youseeit) {
+                    await message(
+                        `${Monnam(monster, state, env)} lunges forward and recoils!`,
+                        state,
+                        env,
+                    );
                 } else {
-                    unsupported('a monster engulfing where the hero is not');
+                    if (is_whirly(mdat))
+                        note_unported('sound.c rushing-wind sound effect');
+                    await message(
+                        `You hear a ${is_whirly(mdat) ? 'rushing noise' : 'splat'} nearby.`,
+                        state,
+                        env,
+                    );
                 }
             }
             break;
@@ -1554,29 +1579,68 @@ export async function diseasemu(mdat, rawEnv = {}) {
     return true;
 }
 
-// C ref: mhitu.c gulpmu() (1287-1577). This function remains a partial port:
-// its ordinary ice-vortex cold slice and the consumed AD_DISE disease arm are
-// implemented. Other engulfers, polymorphed heroes, cold resistance and
-// several engulfing transitions remain outside this selected boundary.
+// C ref: mhitu.c gulpmu() (1287-1577). The source-owned swallow transition,
+// damage switch and expulsion decision stay together here; discarded void
+// callees which remain unported are named at their source call sites.
 async function gulpmu(mtmp, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const u = state.u;
-    const suppliedRandom = rawEnv.random;
-    const message = requireMattackuOperation(rawEnv, 'message');
-    const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
-    if (typeof suppliedRandom?.d !== 'function'
-        || typeof suppliedRandom?.rn2 !== 'function') {
-        throw new TypeError('gulpmu requires d and rn2 random sources');
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd };
+    if (typeof random.d !== 'function' || typeof random.rn2 !== 'function'
+        || typeof random.rnd !== 'function') {
+        throw new TypeError('gulpmu requires d, rn2 and rnd random sources');
     }
-    const random = { d, rn1, rn2, ...suppliedRandom };
+    const message = rawEnv.message ?? ttyPline;
+    const urgentMessage = rawEnv.urgentMessage ?? ttyUrgentPline;
+    const redraw = rawEnv.redraw ?? newsym;
+    const statusRefresh = rawEnv.statusRefresh ?? (() => bot(state));
+    const prop = (index) => u.uprops?.[index] ?? {};
+    const slowDigestion = Boolean(
+        prop(SLOW_DIGESTION).intrinsic || prop(SLOW_DIGESTION).extrinsic,
+    );
+    const halfPhysicalDamage = Boolean(
+        prop(HALF_PHDAM).intrinsic || prop(HALF_PHDAM).extrinsic,
+    );
+    const magicalBreathing = Boolean(
+        prop(MAGICAL_BREATHING).intrinsic
+            || prop(MAGICAL_BREATHING).extrinsic,
+    );
+    const hallucinating = Boolean(
+        prop(HALLUC).intrinsic || prop(HALLUC).extrinsic,
+    );
+    const acidResistant = Boolean(
+        prop(ACID_RES).intrinsic || prop(ACID_RES).extrinsic,
+    );
+    const shockResistant = Boolean(
+        prop(SHOCK_RES).intrinsic || prop(SHOCK_RES).extrinsic,
+    );
+    const coldResistant = Cold_resistance(state);
+    const fireResistant = Fire_resistance(state);
+    const isBlinded = () => {
+        const blinded = prop(BLINDED);
+        return Boolean(blinded.intrinsic && !blinded.blocked);
+    };
+    const encumberMessage = rawEnv.encumberMessage
+        ?? ((subject) => encumber_msg(subject, {
+            ...rawEnv, state, message,
+        }));
+    const exerciseStrength = async () => exercise(
+        A_STR,
+        false,
+        state,
+        random,
+        { encumberMessage },
+    );
 
-    // C evaluates the damage roll before any initial-swallow checks.
+    // C initializes t_at() before rolling damage.
+    const trap = t_at(u.ux, u.uy, state);
     let tmp = random.d(mattk.damn, mattk.damd);
+    let timTmp;
+    let physicalDamage = false;
 
     if (!u.uswallow) {
         const omx = mtmp.mx;
         const omy = mtmp.my;
-        const trap = t_at(u.ux, u.uy, state);
 
         if (!engulf_target(mtmp, state.youmonst, state))
             return M_ATTK_MISS;
@@ -1587,11 +1651,9 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         if (await failed_grab(mtmp, state.youmonst, mattk, rawEnv))
             return M_ATTK_MISS;
 
-        // These source branches are outside this exact ordinary, untrapped,
-        // unpunished, non-steed witness. Refuse before changing placement if
-        // a caller ever presents one to this narrow port.
-        if (u.usteed || u.utrap)
-            unsupported('engulfing a steed or trapped hero');
+        if (Punished(state)) {
+            unplacebc(state);
+        }
 
         // C evaluates Monnam() for the urgent engulfing line before it shuts
         // down vision.  A monster which moved onto the hero's square is
@@ -1599,60 +1661,95 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         // omits that occupied square.  Supply the source's visibility fact
         // for this pre-swallow name lookup; retaining it before placement
         // also preserves C's display-RNG evaluation point.
-        const engulferName = rawEnv.planning
-            ? null : capitalizedMonsterName(mtmp, state, {
-                ...rawEnv,
-                canSpotMonster: () => !mtmp.minvis && !mtmp.mundetected,
-            });
         remove_monster(omx, omy, state);
         mtmp.mtrapped = false;
         place_monster(mtmp, u.ux, u.uy, state);
         set_ustuck(mtmp, state);
-        if (!rawEnv.planning) rawEnv.redraw(mtmp.mx, mtmp.my);
+        if (!rawEnv.planning) redraw(mtmp.mx, mtmp.my);
 
         if (u.usteed) {
-            unsupported('dismounting a steed during engulfing');
-        } else if (rawEnv.planning) {
-            // The planning clone has no display RNG context. Keep the
-            // message branch silent without evaluating its monster name:
-            // do_name.c's hallucinated rndmonnam() is a display-stream draw.
-        } else {
-            await (rawEnv.urgentMessage ?? ttyUrgentPline)(
-                `${engulferName} engulfs you!`, state,
+            const steedName = mon_nam(u.usteed, state, rawEnv);
+            const engulferName = Some_Monnam(mtmp, state, rawEnv);
+            const motion = is_animal(mtmp.data) ? 'lunges'
+                : is_whirly(mtmp.data) ? 'whirls'
+                    : unsolid(mtmp.data) ? 'flows'
+                        : amorphous(mtmp.data) ? 'oozes' : 'surges';
+            await urgentMessage(
+                `${engulferName} ${motion} forward and plucks you off ${steedName}!`,
+                state,
+                rawEnv,
             );
+            // steed.c dismount_steed() is still partial for DISMOUNT_ENGULFED;
+            // C discards its void result, so preserve the named boundary.
+            note_unported('steed.c dismount_steed');
+        } else if (rawEnv.planning) {
+            // Planning suppresses only the display operation. Source state
+            // transitions and game-RNG draws below still run on the clone.
+        } else {
+            const engulferName = capitalizedMonsterName(mtmp, state, {
+                ...rawEnv,
+                canSpotMonster: () => !mtmp.minvis && !mtmp.mundetected,
+            });
+            const verb = digests(mtmp.data) ? 'swallows you whole'
+                : enfolds(mtmp.data) ? 'folds itself around you' : 'engulfs you';
+            await urgentMessage(`${engulferName} ${verb}!`, state, rawEnv);
         }
-        await mattackuStopOccupation(rawEnv);
+        await stop_occupation(state, {
+            message,
+            statusRefresh,
+        });
         reset_occupations(state);
 
-        if (u.utrap)
-            unsupported('releasing the hero from a trap while engulfed');
-        if (touch_petrifies(state.youmonst.data))
-            unsupported('petrification during engulfing');
-
-        // display_nhwindow(WIN_MESSAGE, FALSE) waits for and clears any
-        // pending --More-- before the timer and damage arm below. The
-        // planning clone cannot consume the live input queue, so its message
-        // window is deliberately silent while it preserves state/RNG order.
-        if (!rawEnv.planning) {
-            await displayPendingTtyMessageWindow(state);
-            vision_recalc(2, { state, redraw: rawEnv.redraw });
-            u.uswallow = 1;
-        } else {
-            vision_recalc(2, { state, redraw: () => {} });
-            u.uswallow = 1;
+        if (u.utrap) {
+            await message(
+                `You are released from the ${u.utraptype === TT_WEB ? 'web' : 'trap'}!`,
+                state,
+                rawEnv,
+            );
+            reset_utrap(false, state);
         }
 
-        // C's AD_DGST timer calculation is outside this slice. Every admitted
-        // non-digestion engulfing attack uses rnd(m_lev + 10 / 2).
-        const timTmp = random.rnd(mtmp.m_lev + 10 / 2);
-        u.uswldtim = timTmp < 2 ? 2 : timTmp;
+        const leashed = number_leashed(state);
+        if (leashed > 0) {
+            const noun = leashed > 1 ? 'leashes' : 'leash';
+            await message(`The ${noun} ${vtense(noun, 'snap')} loose.`, state, rawEnv);
+            // apply.c unleash_all() is a discarded void call without a port.
+            note_unported('apply.c unleash_all');
+        }
+
+        if (touch_petrifies(state.youmonst.data)
+            && !Resists_Elem(mtmp, STONE_RES, state)) {
+            // trap.c minstapetrify() has no result consumed here and remains
+            // outside this task. Keep the source relocation around that gap.
+            remove_monster(mtmp.mx, mtmp.my, state);
+            place_monster(mtmp, omx, omy, state);
+            note_unported('trap.c minstapetrify');
+            if (Punished(state)) await placebc(state, rawEnv);
+            set_ustuck(null, state);
+            return mtmp.mhp > 0 ? M_ATTK_MISS : M_ATTK_AGR_DIED;
+        }
+
+        // display_nhwindow(WIN_MESSAGE, FALSE) waits for pending --More-- and
+        // clears it before vision and the swallow timer are updated.
+        if (!rawEnv.planning) {
+            await displayPendingTtyMessageWindow(state);
+        }
+        vision_recalc(2, { state, redraw: rawEnv.planning ? () => {} : redraw });
+        u.uswallow = 1;
+
+        if (mattk.adtyp === M.AD_DGST) {
+            timTmp = acurr(state, A_CON) + 10 - u.uac + random.rn2(20);
+            if (timTmp < 0) timTmp = 0;
+            timTmp = Math.trunc(timTmp / mtmp.m_lev) + 3;
+        } else {
+            timTmp = random.rnd(mtmp.m_lev + 10 / 2);
+        }
+        u.uswldtim = Math.max(2, timTmp);
         if (!rawEnv.planning) await swallowed(1, state);
-        // C mhitu.c:1398-1402 calls snuff_lit() on each inventory object when
-        // the engulfer is not flaming. Its void result is discarded, so retain
-        // the exact named gap until light.c:snuff_lit is ported.
         if (!flaming(mtmp.data)) {
             for (let object = state.invent; object;) {
                 const next = object.nobj;
+                // light.c snuff_lit() is void and its result is discarded.
                 note_unported('light.c snuff_lit');
                 object = next;
             }
@@ -1660,19 +1757,131 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
     }
 
     if (mtmp !== u.ustuck) return M_ATTK_MISS;
+    if (Punished(state)) {
+        if (state.uchain?.where === OBJ_FREE) {
+            state.uchain.ox = mtmp.mx;
+            state.uchain.oy = mtmp.my;
+        }
+        if (state.uball?.where === OBJ_FREE) {
+            state.uball.ox = mtmp.mx;
+            state.uball.oy = mtmp.my;
+        }
+    }
     if (u.uswldtim > 0) u.uswldtim -= 1;
 
     switch (mattk.adtyp) {
+    case M.AD_DGST:
+        physicalDamage = true;
+        if (slowDigestion) {
+            u.uswldtim = 0;
+            tmp = 0;
+        } else if (u.uswldtim === 0) {
+            await message(`${Monnam(mtmp, state, rawEnv)} totally digests you!`, state, rawEnv);
+            tmp = u.uhp;
+            if (halfPhysicalDamage) tmp *= 2;
+        } else {
+            const adverb = u.uswldtim === 2 ? ' thoroughly'
+                : u.uswldtim === 1 ? ' utterly' : '';
+            await message(`${Monnam(mtmp, state, rawEnv)}${adverb} digests you!`, state, rawEnv);
+            await exerciseStrength();
+        }
+        break;
+    case M.AD_PHYS:
+        physicalDamage = true;
+        if (mtmp.data.pmidx === M.PM_FOG_CLOUD) {
+            const heroFlaming = flaming(state.youmonst.data);
+            const isBreathless = magicalBreathing || breathless(state.youmonst.data);
+            const isAmphibious = magicalBreathing || amphibious(state.youmonst.data);
+            const ending = heroFlaming ? 'are smoldering out!'
+                : isBreathless ? 'find it mildly uncomfortable.'
+                    : isAmphibious ? 'feel comforted.' : 'can barely breathe!';
+            await message(`You are laden with moisture and ${ending}`, state, rawEnv);
+            if ((isAmphibious || isBreathless) && !heroFlaming) tmp = 0;
+        } else {
+            await message(
+                `You are ${enfolds(mtmp.data) ? 'being squashed' : 'pummeled with debris'}!`,
+                state,
+                rawEnv,
+            );
+            await exerciseStrength();
+        }
+        break;
+    case M.AD_ACID:
+        if (acidResistant) {
+            await message('You are covered with a seemingly harmless goo.', state, rawEnv);
+            monstseesu(M_SEEN_ACID, state);
+            tmp = 0;
+        } else {
+            await message(
+                hallucinating ? "Ouch!  You've been slimed!"
+                    : 'You are covered in slime!  It burns!',
+                state,
+                rawEnv,
+            );
+            await exerciseStrength();
+            monstunseesu(M_SEEN_ACID, state);
+        }
+        break;
+    case M.AD_BLND:
+        if (can_blnd(mtmp, state.youmonst, mattk.aatyp, null, state)) {
+            if (!heroIsBlind(state)) {
+                const wasBlinded = isBlinded();
+                if (!heroIsBlind(state))
+                    await message("You can't see in here!", state, rawEnv);
+                await make_blinded(tmp, false, state, rawEnv);
+                if (!wasBlinded && !heroIsBlind(state))
+                    await message('Your vision clears.', state, rawEnv);
+            } else {
+                incr_itimeout(prop(BLINDED), 1);
+            }
+        }
+        tmp = 0;
+        break;
     case M.AD_COLD:
         if (!mtmp.mcan && random.rn2(2)) {
-            if (Cold_resistance(state)) {
-                // The resistant branch is outside this slice and requires
-                // shieldeff()/monstseesu()/ugolemeffects().
-                unsupported('cold-resistant engulfing');
+            if (coldResistant) {
+                await shieldeff(u.ux, u.uy, state);
+                await message('You feel mildly chilly.', state, rawEnv);
+                monstseesu(M_SEEN_COLD, state);
+                await ugolemeffects(M.AD_COLD, tmp, state, rawEnv);
+                tmp = 0;
             } else {
                 await message('You are freezing to death!', state);
                 monstunseesu(M_SEEN_COLD, state);
             }
+        } else {
+            tmp = 0;
+        }
+        break;
+    case M.AD_ELEC:
+        if (!mtmp.mcan && random.rn2(2)) {
+            await message('The air around you crackles with electricity.', state, rawEnv);
+            if (shockResistant) {
+                await shieldeff(u.ux, u.uy, state);
+                await message('You seem unhurt.', state, rawEnv);
+                monstseesu(M_SEEN_ELEC, state);
+                await ugolemeffects(M.AD_ELEC, tmp, state, rawEnv);
+                tmp = 0;
+            } else {
+                monstunseesu(M_SEEN_ELEC, state);
+            }
+        } else {
+            tmp = 0;
+        }
+        break;
+    case M.AD_FIRE:
+        if (!mtmp.mcan && random.rn2(2)) {
+            if (fireResistant) {
+                await shieldeff(u.ux, u.uy, state);
+                await message('You feel mildly hot.', state, rawEnv);
+                monstseesu(M_SEEN_FIRE, state);
+                await ugolemeffects(M.AD_FIRE, tmp, state, rawEnv);
+                tmp = 0;
+            } else {
+                await message('You are burning to a crisp!', state, rawEnv);
+                monstunseesu(M_SEEN_FIRE, state);
+            }
+            await burn_away_slime(state, rawEnv);
         } else {
             tmp = 0;
         }
@@ -1684,8 +1893,23 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
             tmp = 0;
         }
         break;
+    case M.AD_DREN:
+        if (!mtmp.mcan && random.rn2(4)) {
+            // C drain_en() is void; its source effects remain an explicit gap.
+            note_unported('uhitm.c drain_en');
+        }
+        tmp = 0;
+        break;
     default:
-        unsupported('non-cold engulfing damage');
+        physicalDamage = true;
+        tmp = 0;
+        break;
+    }
+
+    if (physicalDamage) {
+        if (u.uac < 0) tmp -= random.rnd(-u.uac);
+        if (tmp < 0) tmp = 1;
+        if (halfPhysicalDamage) tmp = Math.trunc((tmp + 1) / 2);
     }
 
     state.gm ??= {};
@@ -1697,16 +1921,26 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         statusRefresh: rawEnv.statusRefresh,
     });
 
-    if (u.uswallow && !u.uswldtim) {
-        // mhitu.c:1558-1567. The admitted vortex is neither digestive nor
-        // enfolding, so the source's message is this fixed non-digestive arm.
-        await message('You get expelled!', state);
+    if (!u.uswallow) {
+        // Life saving already expelled the swallowed hero.
+    } else if (touch_petrifies(state.youmonst.data)
+        && !Resists_Elem(mtmp, STONE_RES, state)) {
+        const verb = digests(mtmp.data) ? 'regurgitates'
+            : enfolds(mtmp.data) ? 'releases' : 'expels';
+        await message(`${Monnam(mtmp, state, rawEnv)} very hurriedly ${verb} you!`, state, rawEnv);
         await expels(mtmp, {
             ...rawEnv,
             state,
             message,
-            unsupported,
         });
+    } else if (!u.uswldtim
+        || state.youmonst.data.msize >= M.MZ_HUGE) {
+        const verb = digests(mtmp.data) ? 'regurgitated'
+            : enfolds(mtmp.data) ? 'released' : 'expelled';
+        await message(`You get ${verb}!`, state, rawEnv);
+        if (state.flags?.verbose !== false && digests(mtmp.data) && slowDigestion)
+            await message(`Obviously ${mon_nam(mtmp, state, rawEnv)} doesn't like your taste.`, state, rawEnv);
+        await expels(mtmp, { ...rawEnv, state, message });
     }
     return M_ATTK_HIT;
 }
@@ -2750,11 +2984,9 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
     return assess_dmg(mtmp, tmp, state, env);
 }
 
-// C ref: mhitu.c gulp_blnd_check() (1273-1285). Called when removing
-// eyewear or wiping cream to check whether a swallowing monster immediately
-// blinds the hero. C discards gulpmu()'s result; its still-unported effects
-// are recorded and skipped after the source-owned swallow timer increment.
-export function gulp_blnd_check(state = game) {
+// C ref: mhitu.c gulp_blnd_check() (1273-1285). C discards gulpmu()'s return;
+// the swallow timer increment and the awaited engulfing effects still occur.
+export async function gulp_blnd_check(state = game, rawEnv = {}) {
     const stuck = state.u?.ustuck;
     const blinded = state.u?.uprops?.[BLINDED];
     let mattk;
@@ -2770,7 +3002,14 @@ export function gulp_blnd_check(state = game) {
             state,
         )) {
         ++state.u.uswldtim;
-        note_unported('mhitu.c gulpmu');
+        await gulpmu(stuck, mattk, {
+            ...rawEnv,
+            state,
+            random: rawEnv.random ?? { d, rn1, rn2, rnd },
+            message: rawEnv.message ?? ttyPline,
+            urgentMessage: rawEnv.urgentMessage ?? ttyUrgentPline,
+            redraw: rawEnv.redraw ?? newsym,
+        });
         return true;
     }
     return false;

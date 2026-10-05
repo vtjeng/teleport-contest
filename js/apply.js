@@ -4300,7 +4300,7 @@ export async function use_towel(obj, state = game, env = {}) {
         );
         if (!blinded) {
             await message("You've got the glop off.", state);
-            if (!gulp_blnd_check(state)) {
+            if (!await gulp_blnd_check(state, env)) {
                 set_itimeout(u.uprops[BLINDED], 1);
                 await make_blinded(0, true, state, env);
             }
