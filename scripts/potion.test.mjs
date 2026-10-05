@@ -63,6 +63,8 @@ import {
     POT_SLEEPING,
     POT_SPEED,
     POT_WATER,
+    POTION_CLASS,
+    STRANGE_OBJECT,
     MUMMY_WRAPPING,
     DAGGER,
     SPBOOK_CLASS,
@@ -77,6 +79,8 @@ import {
 import {
     UnsupportedQuaffError,
     bottlename,
+    drink_ok,
+    dip_hands_ok,
     dip_ok,
     incr_itimeout,
     make_confused,
@@ -87,6 +91,7 @@ import {
     make_stunned,
     make_stoned,
     make_vomiting,
+    mixtype,
     dopotion,
     peffects,
     potionbreathe,
@@ -833,6 +838,53 @@ test('dip_ok matches potion.c classifications and silent accessibility filter', 
     assert.equal(dip_ok({ oclass: RING_CLASS }), GETOBJ_SUGGEST);
 });
 
+test('drink_ok shares the C potion-only callback and extra-prompt gate', () => {
+    // These representative classes pin the source callback's potion suggestion
+    // and its ordinary exclusion without mutating the file-static prompt count.
+    const source = potionSource();
+    const start = source.indexOf('drink_ok(struct obj *obj)');
+    const end = source.indexOf('\n}', start);
+    assert.ok(start > 0 && end > start);
+    const body = source.slice(start, end);
+    assert.match(body, /drink_ok_extra\s*\?\s*GETOBJ_EXCLUDE_NONINVENT\s*:\s*GETOBJ_EXCLUDE/u);
+    assert.match(body, /obj->oclass == POTION_CLASS/u);
+
+    assert.equal(drink_ok(null), GETOBJ_EXCLUDE);
+    assert.equal(drink_ok({ oclass: POTION_CLASS }), GETOBJ_SUGGEST);
+    assert.equal(drink_ok({ oclass: COIN_CLASS }), GETOBJ_EXCLUDE);
+});
+
+test('mixtype preserves source pair swaps and conditional confusion draws', () => {
+    const source = potionSource();
+    const start = source.indexOf('mixtype(struct obj *o1, struct obj *o2)');
+    const end = source.indexOf('/* getobj callback for object to be dipped', start);
+    assert.ok(start > 0 && end > start);
+    const body = source.slice(start, end);
+    assert.match(body, /if \(o1->oclass == POTION_CLASS[\s\S]*?o1typ = o2->otyp;/u);
+    assert.match(body, /case POT_HEALING:[\s\S]*?if \(o2typ == POT_SPEED\)[\s\S]*?return POT_EXTRA_HEALING;/u);
+    assert.match(body, /case POT_CONFUSION:\s*return \(rn2\(3\) \? POT_BOOZE : POT_ENLIGHTENMENT\);/u);
+    assert.match(body, /case POT_LEVITATION:\s*if \(rn2\(3\)\)/u);
+
+    const potion = (otyp) => ({ otyp, oclass: POTION_CLASS });
+    assert.equal(mixtype(potion(POT_HEALING), potion(POT_SPEED)),
+        POT_EXTRA_HEALING);
+    assert.equal(mixtype(potion(POT_SPEED), potion(POT_HEALING)),
+        POT_EXTRA_HEALING, 'source swaps the selected potion pair');
+    assert.equal(mixtype(potion(POT_EXTRA_HEALING), potion(POT_GAIN_LEVEL)),
+        POT_FULL_HEALING);
+
+    const draws = [];
+    // C's rn2(3)=0 branch selects enlightenment for gain-level plus confusion.
+    assert.equal(mixtype(potion(POT_GAIN_LEVEL), potion(POT_CONFUSION), {
+        rn2(bound) { draws.push(bound); return 0; },
+    }), POT_ENLIGHTENMENT);
+    assert.deepEqual(draws, [3]);
+    // This unrelated speed-potion pair must take the no-draw STRANGE_OBJECT arm.
+    assert.equal(mixtype(potion(POT_GAIN_LEVEL), potion(POT_SPEED), {
+        rn2() { throw new Error('unmatched pair must not draw'); },
+    }), STRANGE_OBJECT);
+});
+
 // The body of potionbreathe()'s switch, from the `switch (` line to the closing
 // brace before the `if (!already_in_use)` tail, split into the code the
 // compiler sees and the block comments it does not. The split is the point:
@@ -861,6 +913,26 @@ async function startedGame(seed, name, role = 'Healer') {
         moves: ' ',
     });
 }
+
+test('dip_hands_ok suggests slippery hands only when the floor is reachable',
+    async () => {
+        const source = potionSource();
+        const start = source.indexOf('dip_hands_ok(struct obj *obj)');
+        const end = source.indexOf('/* call hold_another_object()', start);
+        assert.ok(start > 0 && end > start);
+        const body = source.slice(start, end);
+        assert.match(body, /!obj && \(Glib && can_reach_floor\(FALSE\)\)/u);
+        assert.match(body, /return GETOBJ_SUGGEST;/u);
+
+        // Seed 8460207 initializes a Wizard for direct callback branch checks.
+        await startedGame(8460207, 'DipHandsReachFloor', 'Wizard');
+        game.u.uprops[GLIB] ??= { intrinsic: 0, extrinsic: 0, blocked: 0 };
+        // TIMEOUT makes Glib true; clearing it exercises the fallback callback.
+        game.u.uprops[GLIB].intrinsic = TIMEOUT;
+        assert.equal(dip_hands_ok(null, game), GETOBJ_SUGGEST);
+        game.u.uprops[GLIB].intrinsic = 0;
+        assert.equal(dip_hands_ok(null, game), GETOBJ_DOWNPLAY);
+    });
 
 test('unblessed gain-ability potion retries attributes in C RNG order',
     async () => {

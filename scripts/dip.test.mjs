@@ -402,6 +402,30 @@ test('dodip source uses short_oname with doname and thesimpleoname', async () =>
     );
 });
 
+test('dodip source and JavaScript share the pool, decline and potion paths', async () => {
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/potion.c', import.meta.url),
+        'utf8',
+    );
+    const cStart = cSource.indexOf('dodip(void)');
+    const cEnd = cSource.indexOf('\n}\n\n/* #altdip', cStart);
+    assert.ok(cStart > 0 && cEnd > cStart);
+    const cBody = cSource.slice(cStart, cEnd);
+    assert.match(cBody, /drink_ok_extra = 0;/u);
+    assert.equal((cBody.match(/\+\+drink_ok_extra;/gu) ?? []).length, 3);
+    assert.match(cBody, /water_damage\(obj, 0, TRUE\)/u);
+    assert.match(cBody, /getobj\(qbuf, drink_ok, GETOBJ_NOFLAGS\)/u);
+    assert.match(cBody, /return potion_dip\(obj, potion\);/u);
+
+    const js = await readFile(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const commands = await readFile(new URL('../js/cmd.js', import.meta.url), 'utf8');
+    assert.match(js, /export async function dodip\(state = game/u);
+    assert.match(js, /export async function dip_into\(state = game/u);
+    assert.match(js, /export async function potion_dip\(obj, potion/u);
+    assert.match(commands, /case 'dip_into':[\s\S]*?runDipIntoCommand/u);
+    assert.doesNotMatch(js + commands, /UnsupportedDipError/u);
+});
+
 test('dipfountain source checks early return with rn2(2)', async () => {
     // C ref: fountain.c:454. Verify the conditional that gates whether
     // the rnd(30) fate switch runs after water_damage.
