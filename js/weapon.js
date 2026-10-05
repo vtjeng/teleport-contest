@@ -21,6 +21,7 @@ import {
     ECMD_OK,
     MENU_BEHAVE_STANDARD,
     MAXULEV,
+    OBJ_MINVENT,
     NEED_AXE,
     NEED_HTH_WEAPON,
     NEED_PICK_AXE,
@@ -70,7 +71,7 @@ import {
 } from './const.js';
 import { game } from './gstate.js';
 import { dist2, s_suffix } from './hacklib.js';
-import { hands_obj } from './invent.js';
+import { hands_obj, update_inventory } from './invent.js';
 import { m_carrying } from './mon.js';
 import { Monnam, mon_nam } from './do_name.js';
 import {
@@ -116,6 +117,8 @@ import {
     is_pick,
     is_spear,
     is_weptool,
+    is_wet_towel,
+    carried,
     objectType,
 } from './obj.js';
 import {
@@ -236,7 +239,8 @@ import { note_unported } from './unported.js';
 import { cansee, couldsee } from './vision.js';
 import { mwelded } from './wield.js';
 import {
-    The, Tobjnam, Yname2, donameFresh, is_plural, otense, the, xnameFresh,
+    The, Tobjnam, Yname2, Yobjnam2, donameFresh, is_plural, otense, the,
+    xnameFresh,
 } from './objnam.js';
 import { mbodypart } from './polyself.js';
 import { bimanual, which_armor } from './worn.js';
@@ -247,6 +251,77 @@ import { objectGenerationEnv } from './object_generation.js';
 import { canseemon, canspotmon } from './display.js';
 
 const MR_STONE = 0x80;
+
+// C ref: weapon.c finish_towel_change() (1018-1034). The source stores towel
+// wetness in spe, clamps it to 0..7, clears wield feedback only for a dry
+// wielded towel, and refreshes the carried-item description.
+export function finish_towel_change(obj, newspe, state = game, env = {}) {
+    obj.spe = Math.max(0, Math.min(newspe, 7));
+
+    // C gu.unweapon is this port's state.unweapon field.
+    if (obj === state.uwep)
+        state.unweapon = !is_wet_towel(obj);
+
+    if (carried(obj))
+        update_inventory({ ...env, state });
+}
+
+// C ref: weapon.c wet_a_towel() (1036-1063). Positive amounts select an
+// absolute wetness; zero or negative amounts increment it by -amt.
+export async function wet_a_towel(obj, amt, verbose, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const newspe = amt <= 0 ? obj.spe - amt : amt;
+
+    if (newspe > obj.spe && verbose) {
+        const wetness = newspe < 3
+            ? obj.spe === 0 ? 'damp' : 'damper'
+            : obj.spe === 0 ? 'wet' : 'wetter';
+
+        if (carried(obj)) {
+            await message(
+                `${Yobjnam2(obj, null, state)} gets ${wetness}.`, state,
+            );
+        } else if (obj.where === OBJ_MINVENT && obj.ocarry
+            && canseemon(obj.ocarry, state)) {
+            await message(
+                `${s_suffix(Monnam(obj.ocarry, state))} `
+                    + `${xnameFresh(obj, state)} gets ${wetness}.`,
+                state,
+            );
+        }
+    }
+
+    if (newspe !== obj.spe)
+        finish_towel_change(obj, newspe, state, env);
+}
+
+// C ref: weapon.c dry_a_towel() (1065-1088). Positive or zero amounts select
+// the target wetness; a negative amount removes abs(amt) wetness.
+export async function dry_a_towel(obj, amt, verbose, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const newspe = amt < 0 ? obj.spe + amt : amt;
+
+    if (newspe < obj.spe && verbose) {
+        const driesOut = !newspe;
+        if (carried(obj)) {
+            await message(
+                `${Yobjnam2(obj, null, state)} dries${driesOut ? ' out' : ''}.`,
+                state,
+            );
+        } else if (obj.where === OBJ_MINVENT && obj.ocarry
+            && canseemon(obj.ocarry, state)) {
+            await message(
+                `${s_suffix(Monnam(obj.ocarry, state))} `
+                    + `${xnameFresh(obj, state)} dries`
+                    + `${driesOut ? ' out' : ''}.`,
+                state,
+            );
+        }
+    }
+
+    if (newspe !== obj.spe)
+        finish_towel_change(obj, newspe, state, env);
+}
 
 // Source preference order is observable and independent of inventory order.
 const HAND_TO_HAND_WEAPONS = Object.freeze([
@@ -831,7 +906,7 @@ async function endMonsterArtifactLight(monster, obj, normalized) {
     await message(
         `${The(xnameFresh(obj, normalized.state), normalized.state)} in `
         + `${s_suffix(mon_nam(monster, normalized.state, normalized))} `
-        + `${mbodypart(monster, HAND)} ${otense(obj, 'stop')} shining.`,
+        + `${mbodypart(monster, HAND)} ${otense(obj, 'stop', normalized.state)} shining.`,
         normalized.state,
     );
 }
@@ -1001,7 +1076,7 @@ export async function mon_wield_item(monster, env = {}) {
                 const hand = bimanual(current, state)
                     ? makeplural(mbodypart(monster, HAND))
                     : mbodypart(monster, HAND);
-                const welded = `${otense(current, 'are')} welded to `
+                const welded = `${otense(current, 'are', state)} welded to `
                     + `${mhis(monster, namingEnv)} ${hand}`;
                 const message = normalized.message
                     ?? (normalized.planning ? async () => {} : ttyPline);
@@ -1091,7 +1166,7 @@ export async function mon_wield_item(monster, env = {}) {
                 if (bimanual(obj, state)) hand = makeplural(hand);
                 await message(
                     `${Tobjnam(obj, 'weld', state)} `
-                    + `${is_plural(obj) ? 'themselves' : 'itself'} `
+                    + `${is_plural(obj, state) ? 'themselves' : 'itself'} `
                     + `to ${s_suffix(mon_nam(monster, state, namingEnv))} `
                     + `${hand}!`,
                     state,

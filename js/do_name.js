@@ -812,7 +812,7 @@ export async function do_oname(obj, state = game) {
     }
 
     const qbuf = safe_qbuf(
-        `What do you want to name ${is_plural(obj) ? 'these' : 'this'} `,
+        `What do you want to name ${is_plural(obj, state) ? 'these' : 'this'} `,
         '?', obj, xnameFresh, simpleonames, 'item', state,
     );
     const buf = await name_from_player(qbuf, safe_oname(obj), state);

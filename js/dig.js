@@ -451,7 +451,7 @@ export async function dig(state = game, rawEnv = {}) {
                 await dropx(weapon, { ...rawEnv, state, random, message });
             } else {
                 const bounce = Yobjnam2(weapon, 'bounce', state);
-                const hit = otense(weapon, 'hit');
+                const hit = otense(weapon, 'hit', state);
                 if (u.usteed) {
                     await message(
                         `${bounce} and ${hit} ${mon_nam(u.usteed, state)}!`,

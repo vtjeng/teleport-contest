@@ -954,7 +954,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             if (cansee(x, y, state)) {
                 await (rawEnv.message ?? ttyPline)(
                     `${Tobjnam(obj, 'heat', state)} up as `
-                        + `${is_plural(obj) ? 'they hit' : 'it hits'} the hot ground.`,
+                        + `${is_plural(obj, state) ? 'they hit' : 'it hits'} the hot ground.`,
                     state,
                 );
             }
@@ -969,7 +969,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             })) {
                 if (cansee(x, y, state)) {
                     await (rawEnv.message ?? ttyPline)(
-                        `${is_plural(obj) ? 'They shatter' : 'It shatters'} from the heat!`,
+                        `${is_plural(obj, state) ? 'They shatter' : 'It shatters'} from the heat!`,
                         state,
                     );
                 } else if (!heroIsDeaf(state)) {
@@ -1187,7 +1187,7 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
                 && !obj_resists(otmp, 1, 99, { state, random })) {
                 if (!heroIsBlind(state)) {
                     await ttyPline(
-                        `Suddenly, ${donameFresh(otmp, state)} ${otense(otmp, 'vanish')} from the sink!`,
+                        `Suddenly, ${donameFresh(otmp, state)} ${otense(otmp, 'vanish', state)} from the sink!`,
                         state,
                     );
                     ideed = true;
@@ -1759,7 +1759,7 @@ export async function doaltarobj(obj, state = game) {
     if (obj.blessed || obj.cursed) {
         const color = hcolor(obj.blessed ? 'amber' : 'black', state);
         const name = donameFresh(obj, state);
-        const verb = otense(obj, 'hit');
+        const verb = otense(obj, 'hit', state);
         await ttyPline(
             `There is ${an(color)} flash as ${name} ${verb} the altar.`,
             state,
@@ -1767,7 +1767,7 @@ export async function doaltarobj(obj, state = game) {
         if (!heroHallucinating(state)) obj.bknown = 1;
     } else {
         const name = Doname2(obj, state);
-        const verb = otense(obj, 'land');
+        const verb = otense(obj, 'land', state);
         await ttyPline(`${name} ${verb} on the altar.`, state);
         if (obj.oclass !== COIN_CLASS) obj.bknown = 1;
     }

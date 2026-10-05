@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93617823,
+      "datetime": "20370704100000",
+      "nethackrc": "OPTIONS=name:C80TowelToss,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017wet towel\ntoh"
+    }
+  ],
+  "comment": "Independent C-first route for dothrow.c:throw_obj -> weapon.c:dry_a_towel. A freshly chosen Wizard wishes a wet towel, enters the throw command, selects the towel in the C-observed Wizard inventory slot, and throws west. The C output, not the recipe title, will establish whether the towel reaches the pre-throw dry call and which throw result follows."
+}

@@ -2586,7 +2586,7 @@ async function arti_invoke_cost(obj, state) {
         const pw_cost = arti_invoke_cost_pw(obj, state);
         if (pw_cost < 0 || state.u.uen < pw_cost) {
             await ttyPline(
-                `You feel that ${the(xnameFresh(obj, state), state)} ${otense(obj, 'are')} ignoring you.`,
+                `You feel that ${the(xnameFresh(obj, state), state)} ${otense(obj, 'are', state)} ignoring you.`,
                 state);
             obj.age += d(3, 10);
             return false;
@@ -2661,7 +2661,7 @@ async function arti_invoke(obj, state = game) {
     if (on && obj.age > state.moves) {
         prop.extrinsic ^= W_ARTI;
         await ttyPline(
-            `You feel that ${the(xnameFresh(obj, state), state)} ${otense(obj, 'are')} ignoring you.`,
+            `You feel that ${the(xnameFresh(obj, state), state)} ${otense(obj, 'are', state)} ignoring you.`,
             state);
         obj.age += d(3, 10);
         return ECMD_TIME;
@@ -2939,11 +2939,11 @@ export async function Sting_effects(orc_count, state = game, env = {}) {
 
             if (!blind)
                 await message(
-                    `${bare_artifactname(uwep, state)} ${otense(uwep, glow_verb(orc_count, false))} ${glow_color(uwep.oartifact, state)}${(newstr > oldstr) ? '!' : '.'}`,
+                    `${bare_artifactname(uwep, state)} ${otense(uwep, glow_verb(orc_count, false), state)} ${glow_color(uwep.oartifact, state)}${(newstr > oldstr) ? '!' : '.'}`,
                     state);
             else if (oldstr === 0)
                 await message(
-                    `${bare_artifactname(uwep, state)} ${otense(uwep, glow_verb(0, false))} slightly.`,
+                    `${bare_artifactname(uwep, state)} ${otense(uwep, glow_verb(0, false), state)} slightly.`,
                     state);
         } else if (orc_count === 0 && warn_cnt > 0) {
             await message(

@@ -3121,7 +3121,7 @@ export async function dodip(state = game) {
     }
 
     const is_hands = (obj === hands_obj);
-    const shortestname = (is_hands || is_plural(obj) || pair_of(obj))
+    const shortestname = (is_hands || is_plural(obj, state) || pair_of(obj))
         ? 'them' : 'it';
 
     // C ref: potion.c:2288. drink_ok_extra is a file-scope static that

@@ -1267,14 +1267,14 @@ export async function otransit_msg(obj, nodrop, chainthere, num, env = {}) {
         : Tobjnam(obj, null, state);
     if (num || chainthere) {
         let suffix = num
-            ? ` ${otense(obj, 'hit')} ${num === 1 ? 'another' : 'other'}`
+            ? ` ${otense(obj, 'hit', state)} ${num === 1 ? 'another' : 'other'}`
                 + ` object${num > 1 ? 's' : ''}`
-            : ` ${otense(obj, 'rattle')} your chain`;
+            : ` ${otense(obj, 'rattle', state)} your chain`;
         suffix += nodrop ? '.'
-            : ` and ${otense(obj, 'fall')} ${state.gg.gate_str}.`;
+            : ` and ${otense(obj, 'fall', state)} ${state.gg.gate_str}.`;
         await message(name + suffix, state, env);
     } else if (!nodrop) {
-        await message(`${name} ${otense(obj, 'fall')} ${state.gg.gate_str}.`,
+        await message(`${name} ${otense(obj, 'fall', state)} ${state.gg.gate_str}.`,
             state, env);
     }
 }

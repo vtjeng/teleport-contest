@@ -820,7 +820,7 @@ async function applyMonsterArmorRuntime(
                 const curseSubject = Monnam(monster, state, env);
                 await message(
                     `${s_suffix(curseSubject)} ${simpleonames(best, state)} `
-                    + `${otense(best, 'glow')} ${hcolor('black', state, env)} for a moment.`,
+                    + `${otense(best, 'glow', state)} ${hcolor('black', state, env)} for a moment.`,
                     state,
                 );
             }
@@ -854,12 +854,12 @@ async function applyMonsterArmorRuntime(
             const message = env.message ?? ttyPline;
             if (sawMonster) {
                 await message(
-                    `${Yname2(best, state)} ${otense(best, 'begin')} to shine ${adesc}.`,
+                    `${Yname2(best, state)} ${otense(best, 'begin', state)} to shine ${adesc}.`,
                     state,
                 );
             } else if (canseemon(monster, state)) {
                 await message(
-                    `${Yname2(best, state)} ${otense(best, 'are')} shining ${adesc}.`,
+                    `${Yname2(best, state)} ${otense(best, 'are', state)} shining ${adesc}.`,
                     state,
                 );
             } else if (sawLocation) {
