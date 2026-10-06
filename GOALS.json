@@ -174584,6 +174584,75 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-drin-eat-brains-v18-20261005",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port brain-eating attacks in all combat directions",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits"
+      ],
+      "selectionReason": "The current v18 mind-flayer case stops in the unported AD_DRIN dispatcher. A completed source audit bounds the coherent task to uhitm.c:mhitm_ad_drin, eat.c:eat_brains, uhitm.c:m_slips_free, mhitu.c:u_slip_free, dispatcher wiring, and independent runtime evidence for hero-to-monster, monster-to-hero, and monster-to-monster directions.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_drin",
+          "line": 3168,
+          "endLine": 3305,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3168,
+        "to": 3305
+      },
+      "requiredFunctions": [
+        {
+          "name": "eat_brains",
+          "line": 603,
+          "endLine": 757,
+          "declared": false,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "m_slips_free",
+          "line": 2056,
+          "endLine": 2097,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": false
+        },
+        {
+          "name": "u_slip_free",
+          "line": 1047,
+          "endLine": 1088,
+          "declared": true,
+          "sourceFile": "mhitu.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits": {
+          "session": "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.session.json",
+          "recordingSha256": "b1cc90c4d15255a78d9c4b52745cabc3966fc3d708fcf79319805b1023677bd0",
+          "evaluationPath": "challenges/evaluations/20261006022715-v18.json",
+          "evaluationCommit": "a2784766f703430c0dfbf1359e3256335a387eee"
+        }
+      }
     }
   ]
 }
