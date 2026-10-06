@@ -162,6 +162,7 @@ import {
     Trap_Killed_Mon,
     Trap_Moved_Mon,
     MM_IGNORELAVA,
+    MM_NOMSG,
     MM_IGNOREWATER,
     OBJ_INVENT,
     OBJ_MINVENT,
@@ -272,6 +273,8 @@ import {
     PM_GNOME,
     PM_HEALER,
     PM_HUMAN,
+    PM_HOMUNCULUS,
+    PM_IMP,
     PM_MONK,
     PM_MONKEY,
     PM_NINJA,
@@ -387,6 +390,7 @@ import {
 } from './objects.js';
 import {
     an,
+    An,
     armor_simple_name,
     corpse_xname,
     Doname2,
@@ -408,6 +412,7 @@ import {
     mon_nam,
     hliquid,
     pmname,
+    rndmonnam,
     Some_Monnam,
     x_monnam,
 } from './do_name.js';
@@ -446,6 +451,8 @@ import { mpickobj, remove_worn_item } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { set_malign } from './makemon.js';
+import { makemon_runtime } from './makemon_create.js';
 import { explode_oil } from './explode.js';
 import { align_gname } from './pray.js';
 import { heroIsBlind } from './startup_a11y.js';
@@ -1597,12 +1604,33 @@ export async function breaks(obj, x, y, rawEnv = {}) {
     return await breakobj(obj, x, y, false, false, { ...rawEnv, state });
 }
 
+// C ref: dothrow.c release_camera_demon() (2457-2470). The release
+// gate precedes species selection and creation; feedback precedes peacefulness.
+export async function release_camera_demon(obj, x, y, env = {}) {
+    const state = env.state ?? game;
+    const random = { d, rn1, rn2, rnd, rne, ...env.random };
+    const message = env.planning ? async () => {} : (env.message ?? ttyPline);
+    if (!random.rn2(3)) {
+        const species = random.rn2(3) ? PM_HOMUNCULUS : PM_IMP;
+        const monster = await makemon_runtime(state.mons[species], x, y,
+            MM_NOMSG, { ...env, state, random, message });
+        if (monster) {
+            if (canspotmon(monster, state)) {
+                const name = hallucinating(state)
+                    ? An(rndmonnam({ state, random: env.displayRandom }))
+                    : 'The picture-painting demon';
+                await message(`${name} is released!`, state, env);
+            }
+            monster.mpeaceful = !obj.cursed;
+            set_malign(monster, state);
+        }
+    }
+}
+
 // C ref: dothrow.c breakobj() (2480-2578). The resistance check belongs to
 // breaktest(); this function performs the source's object disposition and
-// returns TRUE whenever the caller must stop its landing tail.  The C calls
-// to shop accounting, camera-demon creation, and fire-oil explosion discard
-// their results, so those owners remain explicit notes while delobj() owns the
-// object lifetime here.
+// returns TRUE whenever the caller must stop its landing tail. The camera arm
+// awaits its source helper before the common shop-accounting and delobj() tail.
 export async function breakobj(
     obj,
     x,
@@ -1682,7 +1710,7 @@ export async function breakobj(
         }
         break;
     case EXPENSIVE_CAMERA:
-        note_unported('dothrow.c release_camera_demon');
+        await release_camera_demon(obj, x, y, { ...rawEnv, state, random, message });
         break;
     case EGG:
         if (heroCaused && obj.spe && Number.isInteger(obj.corpsenm))

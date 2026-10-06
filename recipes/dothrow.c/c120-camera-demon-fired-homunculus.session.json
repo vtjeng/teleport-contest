@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Tourist inputs selected from the bounded range 120061001-120061016. The readied-camera f command shares the existing throwit/hitfloor breakobj caller and completes the peaceful release.",
+  "segments": [
+    {
+      "seed": 120061003,
+      "datetime": "21061213141500",
+      "nethackrc": "OPTIONS=name:CameraRelease,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " Qjf>  "
+    }
+  ]
+}
