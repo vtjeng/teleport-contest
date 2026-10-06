@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T05:42:09.946Z",
+  "capturedAt": "2026-10-06T06:07:20.039Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -20665,12 +20665,51 @@
         "worker": "B",
         "goal": "port-uhitm-mhitm-ad-phys-v21-20261006",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8d568ac375bc4e1db7fae31657efea7570beaf3a",
+        "type": "ready",
+        "at": "2026-10-06T05:45:17.540Z",
+        "task": "B111",
+        "delivery": "8d568ac375bc4e1db7fae31657efea7570beaf3a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B111-8d568ac3-20261006",
+        "type": "received",
+        "at": "2026-10-06T05:46:10.448Z",
+        "task": "B111",
+        "delivery": "8d568ac375bc4e1db7fae31657efea7570beaf3a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B111-7288c2fa-20261006",
+        "type": "integrating",
+        "at": "2026-10-06T06:06:56.841Z",
+        "task": "B111",
+        "integration": "7288c2face672d2dcad1748fb87f553c4aa1f3de"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B111-7288c2fa-20261006",
+        "type": "validated",
+        "at": "2026-10-06T06:06:57.633Z",
+        "task": "B111",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B111-7288c2fa-20261006",
+        "type": "accepted",
+        "at": "2026-10-06T06:06:58.479Z",
+        "task": "B111"
       }
     ]
   },
   "development": {
-    "executionCommit": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33",
-    "measuredAt": "2026-10-06T05:26:00.985Z",
+    "executionCommit": "cb97aeec4d071e58dfd16fd1bfdc5b2df06259c8",
+    "measuredAt": "2026-10-06T06:06:45.168Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
