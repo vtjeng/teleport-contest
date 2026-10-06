@@ -179114,7 +179114,7 @@
     {
       "id": "port-trap-b-trapped-callers-v22-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete trapped-container and trapped-door explosion effects",
       "cFile": "trap.c",
       "sessions": [
@@ -179122,17 +179122,24 @@
       ],
       "selectionReason": "The completed v22 trapped-door investigation finds that dig skips trap.c b_trapped at step 62, omitting the explosion draw and KABOOM continuation before door cleanup. The whole helper and its source callers form an independent task.",
       "detail": "Port whole trap.c b_trapped and replace source-named caller gaps in dig.c, eat.c, hack.c, lock.c, detect.c, trap.c and dokick.c where their enclosing paths are active. Preserve damage calculation, message and wake order, Maybe_Half_Phys damage, Strength and conditional Constitution exercise, unhalved stun timeout increment, body-part arguments, and asynchronous continuation ordering. Retain source-named discarded sound gaps when sound output is unavailable.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "da16ddc7015aa1019fabae2e5dc5d776b4e6b2bd",
+      "openStanding": {
+        "sha": "da16ddc7015aa1019fabae2e5dc5d776b4e6b2bd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "da16ddc7015aa1019fabae2e5dc5d776b4e6b2bd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "b_trapped",
           "line": 6694,
           "endLine": 6710,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -179152,6 +179159,83 @@
           "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
           "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb"
         }
+      },
+      "activeStanding": {
+        "sha": "da16ddc7015aa1019fabae2e5dc5d776b4e6b2bd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "b_trapped",
+            "implementation": "js/trap.js",
+            "symbol": "b_trapped",
+            "sourceReview": "Read trap.c:6694-6709 in full. Preserve the level_difficulty bound (low-depth and floor-divided high-depth branches), rnd before awaited KABOOM message, wake_nearby(FALSE), Maybe_Half_Phys damage and explosion killer, STR exercise, conditional CON exercise when bodypart != NO_PART, and full unhalved damage added to HStun TIMEOUT while retaining intrinsic flags. The called functions level_difficulty, wake_nearby, losehp, exercise, make_stunned and the pure Maybe_Half_Phys/The helpers already exist and were inspected. Soundeffect is the source sound-backend macro (sndprocs.h), with no screen, RNG, or state effect in the reference recorder; no JavaScript placeholder was invented. Removed seven discarded b_trapped gaps at active callers, preserving each source caller order. Whole caller branches already refused by doopen_indir/kick_door/kick_nondoor remain refusals rather than invented effects.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "dig",
+                "source": "dig.c:dig:536"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "consume_tin",
+                "source": "eat.c:consume_tin:1538"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "still_chewing",
+                "source": "hack.c:still_chewing:788 and 802"
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "picklock",
+                "source": "lock.c:picklock:141"
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "openone",
+                "source": "detect.c:openone:1753"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:untrap:6076"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-b-trapped.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/c114-trapped-tin.session.json",
+              "recordings/trap.c/c114-trapped-tin-variation.session.json",
+              "recordings/trap.c/c114-trapped-door-key.session.json",
+              "recordings/trap.c/c114-trapped-door-pick-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page",
+                "segment": 0,
+                "fromStep": 62,
+                "throughStep": 64,
+                "source": "dig.c:dig -> trap.c:b_trapped"
+              }
+            ],
+            "checkedAt": "da16ddc7015aa1019fabae2e5dc5d776b4e6b2bd"
+          }
+        ],
+        "entryPointReview": "The selected range is helper-only and has no command dispatcher or independent entry point of its own; entryPoints is therefore empty under validation.md. Production callers are dig (D_TRAPPED door, NO_PART), consume_tin (trapped tin, NO_PART), still_chewing (secret and ordinary trapped doors, NO_PART), picklock (FINGER), openone (nearby trapped door, NO_PART), and untrap (failed door disarm, FINGER). Each active branch is wired to the awaited helper. Runtime reachability is recorded through dig in admitted v22 boundaries 62-64, consume_tin in two independent complete recordings, and picklock in key/tool variations. Caller-specific end-to-end coverage for still_chewing, openone, and untrap is not newly established by this task. Additional source sites lock.c:doopen_indir:908, dokick.c:kick_door:939 and dokick.c:kick_nondoor:988 are active in C but their incomplete JS caller branches still refuse; committed blocked recipes identify each source blocker. They are not claimed inactive or newly completed. This task completes the helper and wires existing branches; it does not close the surrounding caller functions.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "da16ddc7015aa1019fabae2e5dc5d776b4e6b2bd",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T16:42:16.545Z",
+  "capturedAt": "2026-10-06T17:20:19.934Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -21541,12 +21541,69 @@
         "worker": "A2",
         "goal": "port-mhitm-gulpmm-monster-engulf-v21-20261006",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C114-b-trapped-20261006",
+        "type": "assign",
+        "at": "2026-10-06T16:42:53.815Z",
+        "task": "C114",
+        "worker": "C",
+        "goal": "port-trap-b-trapped-callers-v22-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-788621faf254f7ec85d45415f2a9458334d0bb92",
+        "type": "ready",
+        "at": "2026-10-06T16:59:34.507Z",
+        "task": "C114",
+        "delivery": "788621faf254f7ec85d45415f2a9458334d0bb92"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-receive-C114-20261006",
+        "type": "received",
+        "at": "2026-10-06T17:00:01.698Z",
+        "task": "C114",
+        "delivery": "788621faf254f7ec85d45415f2a9458334d0bb92"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-integrating-C114-20261006",
+        "type": "integrating",
+        "at": "2026-10-06T17:00:56.535Z",
+        "task": "C114",
+        "integration": "da16ddc7015aa1019fabae2e5dc5d776b4e6b2bd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-657cf9b04ed3b6385411baf2417352128c256109",
+        "type": "ready",
+        "at": "2026-10-06T17:05:13.964Z",
+        "task": "A111",
+        "delivery": "657cf9b04ed3b6385411baf2417352128c256109"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c114-validated-da16ddc7",
+        "type": "validated",
+        "at": "2026-10-06T17:19:37.262Z",
+        "task": "C114",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c114-accepted-da16ddc7",
+        "type": "accepted",
+        "at": "2026-10-06T17:19:41.597Z",
+        "task": "C114"
       }
     ]
   },
   "development": {
-    "executionCommit": "7691f705a778ba711e577690ea9fe6a4217af74d",
-    "measuredAt": "2026-10-06T16:32:21.573Z",
+    "executionCommit": "da16ddc7015aa1019fabae2e5dc5d776b4e6b2bd",
+    "measuredAt": "2026-10-06T17:10:48.827Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
