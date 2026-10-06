@@ -176974,6 +176974,230 @@
         "rng": 792838
       },
       "parkedReason": "The v20 elapsed-turn hatch and floor-corpse feeding routes now match and dog_nutrition is verified, but restored timers, additional makemon and tamedog callers, object-fed dogfood/dog_eat paths, and the killer-bee jelly entry remain without matching runtime evidence. Their blocked recipes remain recorded for later completion."
+    },
+    {
+      "id": "fix-allmain-delayed-change-v17-20261006",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix delayed polymorph and lycanthropy turn handling",
+      "cFile": "allmain.c",
+      "sessions": [],
+      "selectionReason": "The refreshed v17 tin-human-wererat case remains the highest-priority independent RNG mismatch after C112: cpostfx sets u.ulycn, then allmain.c:moveloop_core must consume the delayed lycanthropy chance before dosounds. The completed investigation identifies this source-owned block and no active reservation overlaps it.",
+      "detail": "At normalized step 50, C allmain.c:moveloop_core validates mvl_change, checks Polymorph, then consumes rn2(80 - 20 * night()) for lycanthropy before automatic search and sounds. JavaScript skipped that block and consumed the later dosounds draw instead. Port the source-ordered delayed-change block while keeping unported successful transformation callees explicit.",
+      "openedAt": "63de6f5bc1e3b7001a251842126fd9880a7f11a5",
+      "openStanding": {
+        "sha": "ba131f051c2653adb296e98a8f51c17d1a813026",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6e2ea3e43698fec12b7b498514120583b4345364",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "moveloop_core",
+      "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+      "step": 50,
+      "syntheticProvenance": {
+        "synthetic/v17/tin-human-wererat-cpostfx-slot-n": {
+          "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "tin-human-wererat-cpostfx-slot-n",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+          "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+          "evaluationPath": "challenges/evaluations/20261006131126-v17.json",
+          "evaluationCommit": "ba131f051c2653adb296e98a8f51c17d1a813026"
+        }
+      },
+      "activeStanding": {
+        "sha": "ba131f051c2653adb296e98a8f51c17d1a813026",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "tin-human-wererat-cpostfx-slot-n",
+          "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+          "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+          "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+          "recipe": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.recipe.session.json",
+          "recipeSha256": "83d14defb71e451c8c58d8086465d28751945439e8c1e509ea961430d3b099d2",
+          "replayInputSha256": "87f3976690c49c04f9476cd32ac3af51453d5923998d991c355316bec6374266",
+          "evaluationPath": "challenges/evaluations/20261006131126-v17.json",
+          "evaluationCommit": "ba131f051c2653adb296e98a8f51c17d1a813026",
+          "evaluationArtifact": "challenges/evaluations/20261006131126-v17.json",
+          "evaluationUtc": "2026-10-06T13:12:11.220Z",
+          "remainingScreens": 0,
+          "recordedSteps": 51,
+          "previousScreensMatched": 51,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 51,
+              "total": 51
+            },
+            "rng": {
+              "matched": 2628,
+              "total": 2632
+            },
+            "cursors": {
+              "matched": 51,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2628,
+              "cEntry": "rn2(80)=50",
+              "cCaller": "moveloop_core(allmain.c:328)",
+              "jsEntry": "rn2(300)=130",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "y"
+              },
+              "stepIndex": 50
+            },
+            "cursor": null
+          },
+          "step": 50,
+          "kind": "rng",
+          "sourceFile": "allmain.c",
+          "function": "moveloop_core",
+          "message": null,
+          "cFile": "allmain.c",
+          "luaFile": null,
+          "line": 328,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/tin-human-wererat-cpostfx-slot-n.json",
+            "result": {
+              "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "tin-human-wererat-cpostfx-slot-n",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+              "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+              "evaluationPath": "challenges/evaluations/20261002123847-v17.json",
+              "evaluationCommit": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+              "remainingScreens": 0,
+              "recordedSteps": 51,
+              "status": "complete",
+              "commit": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "tin-human-wererat-cpostfx-slot-n",
+                "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+                "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+                "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+                "recipe": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.recipe.session.json",
+                "recipeSha256": "83d14defb71e451c8c58d8086465d28751945439e8c1e509ea961430d3b099d2",
+                "replayInputSha256": "ceb304fae81a50533a5435f25b1568b24ea13ab0efb8633e60c94e0d7978a487",
+                "evaluationPath": "challenges/evaluations/20261002123847-v17.json",
+                "evaluationCommit": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+                "evaluationArtifact": "challenges/evaluations/20261002123847-v17.json",
+                "evaluationUtc": "2026-10-02T12:39:29.959Z",
+                "remainingScreens": 0,
+                "recordedSteps": 51,
+                "previousScreensMatched": 50,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 51,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 2628,
+                    "total": 2632
+                  },
+                  "cursors": {
+                    "matched": 51,
+                    "total": 51
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2628,
+                    "cEntry": "rn2(80)=50",
+                    "cCaller": "moveloop_core(allmain.c:328)",
+                    "jsEntry": "rn2(300)=130",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "y"
+                    },
+                    "stepIndex": 50
+                  },
+                  "cursor": null
+                },
+                "step": 50,
+                "kind": "rng",
+                "sourceFile": "allmain.c",
+                "function": "moveloop_core",
+                "message": null,
+                "cFile": "allmain.c",
+                "luaFile": null,
+                "line": 328
+              },
+              "summary": "The saved evaluation now matches all 51 screens and cursors, but still fails on RNG. After the tin route calls cprefx() and cpostfx() sets u.ulycn to PM_WERERAT, C reaches allmain.c:328 and consumes rn2(80)=50 for the daytime lycanthropy change chance; JS skips that allmain turn block and immediately consumes rn2(300) in dosounds(). The actionable owner is allmain.c:moveloop_core(), including its pending-change gates and ordered polymorph/lycanthropy chance and dispatch. The later were.c:you_were() transformation path is not reached by this recording; eat.js also still records artifact.c:retouch_equipment() as a separate cpostfx gap.",
+              "source": {
+                "file": "allmain.c",
+                "branch": "On step 50 the Wizard completes a Szechuan human-wererat tin. C eat.c:cpostfx() has set u.ulycn to PM_WERERAT; the hero is not polymorphed, and the C daytime roll is rn2(80)=50. In allmain.c:moveloop_core(), after teleportation and before automatic search/dosounds, the ismnum(u.ulycn) && !Upolyd branch consumes rn2(80 - 20 * night()). The nonzero result means no transformation. The accepted JS allmain elapsed-turn path has no mvl_change, u.ulycn, or lycanthropy chance branch, so it skips this draw and uses the next C value for dosounds().",
+                "functions": [
+                  "moveloop_core"
+                ],
+                "callers": [
+                  "C allmain.c:moveloop() calls moveloop_core() in its main loop (allmain.c:595); JS allmain.js:moveloop() calls moveloop_core() at 1747.",
+                  "JS allmain.js:moveloop_core() calls advanceElapsedTurn() when context.move is set (1526-1544); advanceElapsedTurn() is the corresponding once-per-turn body. In the accepted source, it proceeds from teleport handling (985-1011) to automatic search (1013 onward) and dosounds() (1055) without the C delayed polymorph/lycanthropy block.",
+                  "The recorded trigger is reached through C eat.c:consume_tin() (1610-1615), which calls cprefx() and then cpostfx(); accepted JS eat.js:consume_tin() (1161-1164) now follows that order, and cpostfx() calls were.js:set_ulycn() before returning to the elapsed turn."
+                ],
+                "dependencies": [
+                  "C eat.c:cpostfx() assigns catch_lycanthropy=PM_WERERAT for PM_HUMAN_WERERAT, then calls were.c:set_ulycn() before retouch_equipment() (eat.c:1144-1145, 1323-1326). Accepted JS eat.js:cpostfx() calls were.js:set_ulycn(), which writes state.u.ulycn and refreshes form-derived properties (were.js:31-36); the current first mismatch is later in allmain, after 2628 RNG calls have matched.",
+                  "Port the entire ordered allmain.c:moveloop_core() delayed-change block (322-339): clear an invalid mvl_change, check Polymorph with rn2(100), otherwise check lycanthropy with rn2(80 - 20 * night()), then when mvl_change is active and Unchanging is false wait for gm.multi >= 0, stop occupation, dispatch polyself(POLY_NOFLAGS) or you_were(), and clear the pending value. Preserve mvl_change state across elapsed turns.",
+                  "The success dispatch to were.c:you_were() is a separate unported callee in accepted JS (the existing references in js/potion.js remain note_unported calls). This recording draws 50, so C does not set mvl_change or call you_were(); retain this downstream gap without treating it as the current first divergence.",
+                  "Accepted JS eat.js:cpostfx() still uses note_unported(\"artifact.c retouch_equipment\") immediately after set_ulycn() (2754-2756). C performs retouch_equipment(2), but this separate equipment effect is not the first recorded RNG mismatch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned queue entry in .cache/A79-final-work-queue.json and saved challenges/evaluations/20261002123847-v17.json identify this exact case, manifest, recording, and tested commit af31fadba807f9170de9a9152f6a2ca4d7102ba6. The evaluation is complete and reports passed=false, 51/51 screens, 2628/2632 RNG calls, 51/51 cursors, remainingScreens=0, and first RNG mismatch index 2628 at segment 0 step 50 key y: C rn2(80)=50 @ moveloop_core(allmain.c:328), JS rn2(300)=130.",
+                "The immutable C recording challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json, step 50, records in order rn2(4)=1 @ maybe_cannibal(eat.c:784), the two distfleeck draws, rn2(12)=4 @ mcalcmove(mon.c:1164), rn2(70)=35 @ maybe_generate_rnd_mon(allmain.c:166), rn2(80)=50 @ moveloop_core(allmain.c:328), and rn2(300)=253 @ dosounds(sounds.c:220). Thus C's lycanthropy chance draw is the first missing value; the accepted JS draw at that position is the later dosounds() rn2(300)=130.",
+                "Frozen C source submodule commit 16ff59115315917b93185d026aeefea06db9b0f4 confirms allmain.c:321-339 validates mvl_change, tests Polymorph, then tests ismnum(u.ulycn) && !Upolyd with rn2(80 - (20 * night())), before stop_occupation()/polyself()/you_were() dispatch. Its call order puts automatic search and dosounds after this block.",
+                "At the examined JavaScript commit, js/allmain.js:985-1011 handles teleportation, then lines 1013 onward handle automatic search, and lines 1055 onward call dosounds(); searching js/allmain.js for mvl_change, u.ulycn, and rn2(80) finds no lycanthropy chance branch. moveloop_core() calls advanceElapsedTurn() at 1540-1544; moveloop() calls moveloop_core() at 1747.",
+                "The current step reaches the expected precondition: frozen C eat.c:consume_tin() calls cprefx() then cpostfx() at 1610-1615; accepted JS eat.js:consume_tin() now calls both at 1161-1164. Frozen C cpostfx() sets catch_lycanthropy=PM_WERERAT for PM_HUMAN_WERERAT, then invokes set_ulycn() at eat.c:1323-1325. Accepted JS cpostfx() calls were.js:set_ulycn(), whose body sets state.u.ulycn (were.js:31-36).",
+                "Counterevidence to the stale report: the prior evaluated cause was the skipped cprefx() caller at 1f29dddb7791d0584379eeb425ef34791d600acc; at this evaluated commit the tin caller now invokes cprefx(), the cannibalism message is present, and RNG matches through index 2627. The earlier Szechuan metadata/newuhs() refusal is also no longer current: accepted JS TIN_VARIETIES[9] is nutrition 70, healthFood true, greasy false (eat.js:445), matching upstream eat.c:tintxts[9] (142-158).",
+                "Downstream scope remains distinct: the C success branch did not run because its chance draw was 50, so were.c:you_were() is not reached by this recording. Accepted JS cpostfx() also still records note_unported(\"artifact.c retouch_equipment\") after set_ulycn(); retain it as a separate later gap rather than the cause of the first mismatch."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6e2ea3e43698fec12b7b498514120583b4345364",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

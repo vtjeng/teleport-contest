@@ -1,0 +1,1246 @@
+{
+  "version": 1,
+  "batch": "v21",
+  "manifestPath": "challenges/manifests/v21.json",
+  "sha": "6e2ea3e43698fec12b7b498514120583b4345364",
+  "utc": "2026-10-06T13:30:56.519Z",
+  "status": "complete",
+  "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "26df4e33c87aa6cb08ee9e9436b9aba30db8618ce11bce5e22d39f67740a3348",
+  "inputFiles": [
+    "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.recipe.session.json",
+    "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+    "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.recipe.session.json",
+    "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.session.json",
+    "challenges/cases/v21/archon-gazes-at-fire-giant-under-conflict-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/archon-gazes-at-fire-giant-under-conflict-v21-cfirst.session.json",
+    "challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.recipe.session.json",
+    "challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.session.json",
+    "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.recipe.session.json",
+    "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.session.json",
+    "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-welcome-pager-corrected.recipe.session.json",
+    "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-welcome-pager-corrected.session.json",
+    "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-arms-and-triggers-wished-land-mine-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-arms-and-triggers-wished-land-mine-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.recipe.session.json",
+    "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+    "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.recipe.session.json",
+    "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.session.json",
+    "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-confused-reads-light-scroll-v21-effect-result.recipe.session.json",
+    "challenges/cases/v21/wizard-confused-reads-light-scroll-v21-effect-result.session.json",
+    "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.recipe.session.json",
+    "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+    "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-selector-menu.recipe.session.json",
+    "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-selector-menu.session.json",
+    "challenges/cases/v21/wizard-drinks-fountain-item-curse-v21-one-wait-variation.recipe.session.json",
+    "challenges/cases/v21/wizard-drinks-fountain-item-curse-v21-one-wait-variation.session.json",
+    "challenges/cases/v21/wizard-drinks-fountain-item-curse-v21-startup-pager-corrected.recipe.session.json",
+    "challenges/cases/v21/wizard-drinks-fountain-item-curse-v21-startup-pager-corrected.session.json",
+    "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected.recipe.session.json",
+    "challenges/cases/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected.session.json",
+    "challenges/cases/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-offers-orc-corpse-lawful-altar-v21-misaligned-result-final.recipe.session.json",
+    "challenges/cases/v21/wizard-offers-orc-corpse-lawful-altar-v21-misaligned-result-final.session.json",
+    "challenges/cases/v21/wizard-offers-orc-corpse-lawful-altar-v21-misaligned-setup.recipe.session.json",
+    "challenges/cases/v21/wizard-offers-orc-corpse-lawful-altar-v21-misaligned-setup.session.json",
+    "challenges/cases/v21/wizard-offers-orc-corpse-neutral-altar-v21-aligned-orc-offering.recipe.session.json",
+    "challenges/cases/v21/wizard-offers-orc-corpse-neutral-altar-v21-aligned-orc-offering.session.json",
+    "challenges/cases/v21/wizard-offers-orc-corpse-neutral-altar-v21-result-continued.recipe.session.json",
+    "challenges/cases/v21/wizard-offers-orc-corpse-neutral-altar-v21-result-continued.session.json",
+    "challenges/cases/v21/wizard-reads-blessed-identify-scroll-v21-slot-o-more-continued.recipe.session.json",
+    "challenges/cases/v21/wizard-reads-blessed-identify-scroll-v21-slot-o-more-continued.session.json",
+    "challenges/cases/v21/wizard-reads-blessed-identify-scroll-v21.recipe.session.json",
+    "challenges/cases/v21/wizard-reads-blessed-identify-scroll-v21.session.json",
+    "challenges/cases/v21/wizard-reads-taming-scroll-hostile-pair-v21-effect-continued.recipe.session.json",
+    "challenges/cases/v21/wizard-reads-taming-scroll-hostile-pair-v21-effect-continued.session.json",
+    "challenges/cases/v21/wizard-sits-wished-throne-case9-rndcurse-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-sits-wished-throne-case9-rndcurse-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-sits-wished-throne-case9-rndcurse-v21-seed-variation.recipe.session.json",
+    "challenges/cases/v21/wizard-sits-wished-throne-case9-rndcurse-v21-seed-variation.session.json",
+    "challenges/cases/v21/wizard-sits-wished-throne-case9-rndcurse-v21-startup-more-corrected.recipe.session.json",
+    "challenges/cases/v21/wizard-sits-wished-throne-case9-rndcurse-v21-startup-more-corrected.session.json",
+    "challenges/cases/v21/wizard-triggers-anti-magic-trap-v21-no-resistance-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-triggers-anti-magic-trap-v21-no-resistance-cfirst.session.json",
+    "challenges/cases/v21/wizard-triggers-anti-magic-trap-v21-source-first.recipe.session.json",
+    "challenges/cases/v21/wizard-triggers-anti-magic-trap-v21-source-first.session.json",
+    "challenges/cases/v21/wizard-triggers-anti-magic-trap-v21-source-return-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-triggers-anti-magic-trap-v21-source-return-corrected-cfirst.session.json",
+    "challenges/cases/v21/wizard-wields-wet-towel-removes-cream-pie-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-wields-wet-towel-removes-cream-pie-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-wishes-statue-trap-releases-living-statue-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-wishes-statue-trap-releases-living-statue-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-wishes-statue-trap-releases-living-statue-v21-stairs-corrected-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-wishes-statue-trap-releases-living-statue-v21-stairs-corrected-cfirst.session.json",
+    "challenges/cases/v21/wizard-zaps-already-locked-floor-chest-with-locking-wand-v21-variation.recipe.session.json",
+    "challenges/cases/v21/wizard-zaps-already-locked-floor-chest-with-locking-wand-v21-variation.session.json",
+    "challenges/cases/v21/wizard-zaps-floor-chest-with-locking-wand-v21-cfirst.recipe.session.json",
+    "challenges/cases/v21/wizard-zaps-floor-chest-with-locking-wand-v21-cfirst.session.json",
+    "challenges/cases/v21/wizard-zaps-hostile-goblin-with-slow-monster-v21-carried-wand-corrected.recipe.session.json",
+    "challenges/cases/v21/wizard-zaps-hostile-goblin-with-slow-monster-v21-carried-wand-corrected.session.json",
+    "challenges/manifests/v21.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+      "recordingSha256": "1da19125d895a4ba98ceaa86db05cc4cc4d3c393390065a6594000330010e1cf",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 66,
+          "total": 66
+        },
+        "rng": {
+          "matched": 2710,
+          "total": 2710
+        },
+        "cursors": {
+          "matched": 66,
+          "total": 66
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-offers-orc-corpse-lawful-altar-v21-misaligned-result-final",
+      "recordingSha256": "0d42f12dc48f54021a32d24e0cbcefc526064dd27bb34bac6323b05ff62f5d3a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 42,
+          "total": 42
+        },
+        "rng": {
+          "matched": 2879,
+          "total": 2879
+        },
+        "cursors": {
+          "matched": 42,
+          "total": 42
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+      "recordingSha256": "1615189ddaee7cd27219a6dea269d553e617ed52ad7e8553995e3c38cfb6ce33",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2147,
+          "total": 2157
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+      "recordingSha256": "77a0ef4747a8edfdfd52c9b4db408c8921313a52c1f83105ef2f8fe768fbb522",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 48,
+          "total": 48
+        },
+        "rng": {
+          "matched": 2700,
+          "total": 2700
+        },
+        "cursors": {
+          "matched": 48,
+          "total": 48
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+      "recordingSha256": "519cbcc0a68c203238b5c70fc574c8b3758c0e0f0f63c357d69b6f0c43c389cc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 37,
+          "total": 37
+        },
+        "rng": {
+          "matched": 2890,
+          "total": 2890
+        },
+        "cursors": {
+          "matched": 37,
+          "total": 37
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+      "recordingSha256": "d860dc7a4ce6b5431cd8506d89499a98de4079e2a5e12449742a6dd43244d64a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2601,
+          "total": 2601
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+      "recordingSha256": "9ff9233f2a658ec6d3f37db7b75896a5aaa4cda4fadb9c81072d33acef9c3641",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 13,
+          "total": 13
+        },
+        "rng": {
+          "matched": 2857,
+          "total": 2857
+        },
+        "cursors": {
+          "matched": 13,
+          "total": 13
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+      "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 108,
+          "total": 108
+        },
+        "rng": {
+          "matched": 2630,
+          "total": 2630
+        },
+        "cursors": {
+          "matched": 108,
+          "total": 108
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+      "recordingSha256": "a92669cbc1408c7b6512ddf48b5a239bccbe74f473f610961ebe047a5043b00f",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 136,
+          "total": 139
+        },
+        "rng": {
+          "matched": 2572,
+          "total": 2582
+        },
+        "cursors": {
+          "matched": 136,
+          "total": 139
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-killer-bee-stings-poison-v21-cfirst",
+      "recordingSha256": "c2f81011a67c9c90524f9ada6447288f33d8da40e5d63e1185320931272d86d4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 45,
+          "total": 45
+        },
+        "rng": {
+          "matched": 2863,
+          "total": 2863
+        },
+        "cursors": {
+          "matched": 45,
+          "total": 45
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+      "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 168,
+          "total": 168
+        },
+        "rng": {
+          "matched": 3790,
+          "total": 3790
+        },
+        "cursors": {
+          "matched": 168,
+          "total": 168
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst",
+      "recordingSha256": "5f1c0744b10c0293ffba9f77e30e6ceb7297fc80c4cf8c79a1a49afacfa11f50",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 169,
+          "total": 169
+        },
+        "rng": {
+          "matched": 3555,
+          "total": 3555
+        },
+        "cursors": {
+          "matched": 169,
+          "total": 169
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+      "recordingSha256": "b3b3e1773ebd6dc68e138d81acadbf6bd2f62dbf76524b55dc25c9ae0e0e0a15",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 178,
+          "total": 178
+        },
+        "rng": {
+          "matched": 3517,
+          "total": 3517
+        },
+        "cursors": {
+          "matched": 178,
+          "total": 178
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+      "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 138,
+          "total": 138
+        },
+        "rng": {
+          "matched": 2820,
+          "total": 2820
+        },
+        "cursors": {
+          "matched": 138,
+          "total": 138
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+      "recordingSha256": "9f409bbb21792da65d3c5532aac43ebb52ca5575b4480077558270cfa6863113",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 148,
+          "total": 148
+        },
+        "rng": {
+          "matched": 3987,
+          "total": 3987
+        },
+        "cursors": {
+          "matched": 148,
+          "total": 148
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archon-gazes-at-fire-giant-under-conflict-v21-cfirst",
+      "recordingSha256": "88ae8ffca680af409cc9f519dfc7588cd06b7bcc0253ac7798e26ae920464414",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 128,
+          "total": 128
+        },
+        "rng": {
+          "matched": 2592,
+          "total": 2592
+        },
+        "cursors": {
+          "matched": 128,
+          "total": 128
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+      "recordingSha256": "dde027291c1e4acc27f079abd5b3cc4f131f1fda96821d81ddb78c990948981a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 62,
+          "total": 62
+        },
+        "rng": {
+          "matched": 2850,
+          "total": 2850
+        },
+        "cursors": {
+          "matched": 62,
+          "total": 62
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hostile-wizard-of-yendor-attempts-amulet-theft-v21-welcome-pager-corrected",
+      "recordingSha256": "369f0af5aa5661f4105a9efb790c310d757747cad0c8836e0e301e1fac7055a6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 48,
+          "total": 48
+        },
+        "rng": {
+          "matched": 2741,
+          "total": 2741
+        },
+        "cursors": {
+          "matched": 48,
+          "total": 48
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-arms-and-triggers-wished-land-mine-v21-cfirst",
+      "recordingSha256": "7d930d54e59b3c6a9e957726b8f15d496ffd410ce535543c1df462557729f7e8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 59,
+          "total": 59
+        },
+        "rng": {
+          "matched": 2073,
+          "total": 2073
+        },
+        "cursors": {
+          "matched": 59,
+          "total": 59
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+      "recordingSha256": "74b358246a488ea58385c6a9fd5f6add454f35e2336451880308c5b41691352f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 140,
+          "total": 140
+        },
+        "rng": {
+          "matched": 2638,
+          "total": 2638
+        },
+        "cursors": {
+          "matched": 140,
+          "total": 140
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst",
+      "recordingSha256": "72598054a63522f80efbe24892eee90676d60962f4b5fa97d99eaf1c3c19ee2c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 177,
+          "total": 177
+        },
+        "rng": {
+          "matched": 2714,
+          "total": 2714
+        },
+        "cursors": {
+          "matched": 177,
+          "total": 177
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-confused-reads-light-scroll-v21-effect-result",
+      "recordingSha256": "835ca901d0e5277566a42834e8c74674362244bae88897c13ba53d86e303a815",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 3040,
+          "total": 3040
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-dips-healing-potion-into-speed-v21-selector-menu",
+      "recordingSha256": "78dc760726aeb3b27e339f07cbc4ef0cdb1717a651e874d74c99c8b30e69b7d1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 61,
+          "total": 61
+        },
+        "rng": {
+          "matched": 2704,
+          "total": 2704
+        },
+        "cursors": {
+          "matched": 61,
+          "total": 61
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-drinks-fountain-item-curse-v21-one-wait-variation",
+      "recordingSha256": "4c4a3dba969e135ec6fda8ba2dca4310dd1f8fcabd6d6c3ec2dd4a3a91492f6f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 14,
+          "total": 14
+        },
+        "rng": {
+          "matched": 2186,
+          "total": 2186
+        },
+        "cursors": {
+          "matched": 14,
+          "total": 14
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-drinks-fountain-item-curse-v21-startup-pager-corrected",
+      "recordingSha256": "bbfbe948b3525dcfb86ed07c7588b9c41bb834acb981d5d806187ec8aeb18a6a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 14,
+          "total": 14
+        },
+        "rng": {
+          "matched": 2968,
+          "total": 2968
+        },
+        "cursors": {
+          "matched": 14,
+          "total": 14
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-offers-fake-amulet-on-neutral-altar-v21-cfirst",
+      "recordingSha256": "cc8d79216ad1d6f86de42732c26dfb10475f42b581606bef56858073fc470472",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2700,
+          "total": 2700
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-offers-orc-corpse-lawful-altar-v21-misaligned-setup",
+      "recordingSha256": "f2ac25fc5476ddd28f5bc0f785ad7af3404c272c20f6e3c79997f3974e52e940",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 2863,
+          "total": 2863
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-offers-orc-corpse-neutral-altar-v21-aligned-orc-offering",
+      "recordingSha256": "5bebd5b10d6df85dce4c173cf5a8fd17ac79b4bb9784efeaac277afa9e80d82c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2121,
+          "total": 2121
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-offers-orc-corpse-neutral-altar-v21-result-continued",
+      "recordingSha256": "53953a7ff5e7306f4657df5f64feb698e1c42da8d253966a509ff9e716ee12ac",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 2123,
+          "total": 2123
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-blessed-identify-scroll-v21-slot-o-more-continued",
+      "recordingSha256": "cca0c6e6f0ab03ff8e1734a91881c39a2afcddc03eb677caff0f168466fe7d2c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 2278,
+          "total": 2278
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-blessed-identify-scroll-v21",
+      "recordingSha256": "a98c35a789728e50ecdcdbe268810fbd02e9e2d0773bea926ff2d68caa707a2e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 42,
+          "total": 42
+        },
+        "rng": {
+          "matched": 2270,
+          "total": 2270
+        },
+        "cursors": {
+          "matched": 42,
+          "total": 42
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-taming-scroll-hostile-pair-v21-effect-continued",
+      "recordingSha256": "d2abf2d5e16c6eeeeda678f39e1f7eb68a0ba6361f232849e5b980793ee92080",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2778,
+          "total": 2778
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sits-wished-throne-case9-rndcurse-v21-cfirst",
+      "recordingSha256": "a82dd73595192296706c10b31a91eae14fef93a411f34d3e7195a04057529b22",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 16,
+          "total": 16
+        },
+        "rng": {
+          "matched": 2475,
+          "total": 2475
+        },
+        "cursors": {
+          "matched": 16,
+          "total": 16
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sits-wished-throne-case9-rndcurse-v21-seed-variation",
+      "recordingSha256": "0086d654e4e9a0bc8fc8377f90c9ef8250e2d1eab646e0601bd483efaed8f5ac",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 17
+        },
+        "rng": {
+          "matched": 4539,
+          "total": 4539
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sits-wished-throne-case9-rndcurse-v21-startup-more-corrected",
+      "recordingSha256": "796df1d2ca8c73641793837a390ff0c1f8d4e12321cbdc769ae5f2a95471bcfd",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 17
+        },
+        "rng": {
+          "matched": 2477,
+          "total": 2477
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-triggers-anti-magic-trap-v21-no-resistance-cfirst",
+      "recordingSha256": "bbabf4197eccdce1e8119bb86c7263133e846e0595c61fa5e065393371be59f4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 24,
+          "total": 24
+        },
+        "rng": {
+          "matched": 2763,
+          "total": 2763
+        },
+        "cursors": {
+          "matched": 24,
+          "total": 24
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-triggers-anti-magic-trap-v21-source-first",
+      "recordingSha256": "852e2855c3d07cfe3bd53e25800593a7a046a0941725c8202573a7fa4a0dfc00",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 21,
+          "total": 21
+        },
+        "rng": {
+          "matched": 2722,
+          "total": 2722
+        },
+        "cursors": {
+          "matched": 21,
+          "total": 21
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-triggers-anti-magic-trap-v21-source-return-corrected-cfirst",
+      "recordingSha256": "afb35835be2f087272b9a06e513c3d49685ecaa0afebed1f7372022fe2857895",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 22,
+          "total": 22
+        },
+        "rng": {
+          "matched": 2769,
+          "total": 2769
+        },
+        "cursors": {
+          "matched": 22,
+          "total": 22
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-wields-wet-towel-removes-cream-pie-v21-cfirst",
+      "recordingSha256": "0cfa792aa123fb8fd836b8b448f90fd74650755950d4da76316bce1dec00e852",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2872,
+          "total": 2872
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-wishes-statue-trap-releases-living-statue-v21-cfirst",
+      "recordingSha256": "3558d195b756657dcad4ae147d046e8218a75d68800c5428db2cf6698083661f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 16,
+          "total": 16
+        },
+        "rng": {
+          "matched": 2733,
+          "total": 2733
+        },
+        "cursors": {
+          "matched": 16,
+          "total": 16
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-wishes-statue-trap-releases-living-statue-v21-stairs-corrected-cfirst",
+      "recordingSha256": "aef915a99479b48a9167b93a7b6f04d10f6dfbd5bb643f5af67c8d0f9ed21061",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 17
+        },
+        "rng": {
+          "matched": 2936,
+          "total": 2936
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-zaps-already-locked-floor-chest-with-locking-wand-v21-variation",
+      "recordingSha256": "5cfa842e7fe3f693b8a81b3f0efacfcf0966d08ad73e1a61e9627ba63172db4a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 55,
+          "total": 55
+        },
+        "rng": {
+          "matched": 4916,
+          "total": 4916
+        },
+        "cursors": {
+          "matched": 55,
+          "total": 55
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-zaps-floor-chest-with-locking-wand-v21-cfirst",
+      "recordingSha256": "9e45b6f06fa30f7765dcefb88161324655197814b82e21a187d2bd38dc93af42",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 57,
+          "total": 57
+        },
+        "rng": {
+          "matched": 4917,
+          "total": 4917
+        },
+        "cursors": {
+          "matched": 57,
+          "total": 57
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-zaps-hostile-goblin-with-slow-monster-v21-carried-wand-corrected",
+      "recordingSha256": "e3dcbca1d9809e67423c95422697dede0c362d5af2914f3fb35968f39a55a627",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2440,
+          "total": 2440
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 42,
+      "total": 44
+    },
+    "screens": {
+      "matched": 2765,
+      "total": 2770
+    },
+    "rng": {
+      "matched": 126716,
+      "total": 126736
+    },
+    "cursors": {
+      "matched": 2765,
+      "total": 2770
+    }
+  }
+}
