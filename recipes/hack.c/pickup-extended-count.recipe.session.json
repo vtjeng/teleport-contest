@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cheap variation of comma counted-stack route: wish three daggers, drop, then 2#pickup. cmd.c doextcmd dispatches hack.c dopickup and retains command_count until it clears multi and selects two. Seed 122061001 and fixed clock 21110304123400 are independently chosen.",
+  "segments": [
+    {
+      "seed": 122061001,
+      "datetime": "21110304123400",
+      "nethackrc": "OPTIONS=name:Picker,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,pettype:none,time\n",
+      "moves": " \u00173 elven daggers\ndf 2#pickup\n   "
+    }
+  ]
+}

@@ -44,6 +44,10 @@ import {
     FAST,
     FIRE_RES,
     FLYING,
+    HOLE,
+    TRAPDOOR,
+    P_BASIC,
+    P_RIDING,
     FUMBLING,
     FROMFORM,
     FROMOUTSIDE,
@@ -242,6 +246,7 @@ import {
     highc,
     ing_suffix,
     sgn,
+    s_suffix,
     upstart,
     visctrl,
 } from './hacklib.js';
@@ -256,6 +261,8 @@ import { doopen_indir } from './lock.js';
 import {
     amorphous,
     attacktype,
+    attacktype_fordmg,
+    likes_lava,
     bigmonst,
     is_flyer,
     is_floater,
@@ -323,6 +330,8 @@ import {
 } from './objects.js';
 import {
     AD_CORR,
+    AD_DGST,
+    AT_ENGL,
     AD_RUST,
     AT_EXPL,
     G_UNIQ,
@@ -365,6 +374,7 @@ import {
 import {
     encumber_msg,
     pickup,
+    loot_mon,
     preflight_describe_decor_at,
     preflight_projected_random_arrival_pickup,
     UnsupportedPickupError,
@@ -404,7 +414,8 @@ import {
     UnsupportedShopError,
 } from './shk.js';
 import { collectMonsterNoticeMessage, collectMonsterNoticeMessages, messageAt } from './startup_a11y.js';
-import { exercise_steed, stucksteed } from './steed.js';
+import { exercise_steed, rider_cant_reach, stucksteed } from './steed.js';
+import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
     S_hcdoor,
@@ -428,6 +439,7 @@ import {
     float_up,
     reset_utrap,
     t_at,
+    uteetering_at_seen_pit,
     trapname,
     into_vs_onto,
     immune_to_trap,
@@ -4247,34 +4259,49 @@ function is_door_mappear(monster) {
             || monster.mappearance === S_vcdoor);
 }
 
-// C ref: hack.c pickup_checks() (3788-3871). Reports what dopickup() should
-// do with the square the hero stands on: 0 to refuse without spending a turn,
-// -1 to run a normal pickup. C's other two results come only from its
-// swallowed arm, which this port refuses instead, so neither is returned here.
-//
-// Three of C's four refusal arms are refused rather than translated, each
-// before its arm prints anything:
-//   * the swallowed arm reads u.ustuck->minvent instead of the floor and ends
-//     in loot_mon(), a whole second command's worth of source;
-//   * the pool and lava arms turn on Wwalking, is_floater(), is_clinger(),
-//     Flying, Breathless, Underwater and likes_lava(), and both fall through
-//     to the rest of the function when none of those holds, so a refusal on
-//     the terrain alone is the only conservative reading;
-//   * the can_reach_floor() arm needs uteetering_at_seen_pit(),
-//     rider_cant_reach() and surface().
-// The !OBJ_AT arm below is the whole of what this port answers today.
-export async function pickup_checks(state = game) {
+// C ref: hack.c pickup_checks() (3788-3871). Results select no-time
+// refusal (0), time-taking refusal (1), floor pickup (-1), or loot_mon (-2).
+export async function pickup_checks(state = game, env = {}) {
     const u = state.u;
+    const message = env.message ?? ttyPline;
 
     /* uswallow case added by GAN 01/29/87 */
     if (u.uswallow) {
-        throw new UnsupportedPickupError('pickup_checks() inside a monster');
+        if (!u.ustuck.minvent) {
+            if (attacktype_fordmg(u.ustuck.data, AT_ENGL, AD_DGST)) {
+                await message(`You pick up ${s_suffix(mon_nam(u.ustuck, state, env))} tongue.`, state);
+                await message("But it's kind of slimy, so you drop it.", state);
+            } else {
+                await message(`You don't ${heroIsBlind(state) ? 'feel' : 'see'} anything in here to pick up.`, state);
+            }
+            return 1;
+        }
+        return -2;
     }
+    // youprop.h: Wwalking excludes the Water Plane; Breathless reads raw
+    // magical-breathing sources, while Flying includes a steed and blocking.
+    const waterWalking = propertyPresent(state, WWALKING) && !Is_waterlevel(u.uz);
+    const breathlessHero = propertyPresent(state, MAGICAL_BREATHING)
+        || breathless(state.youmonst.data);
+    const cannotDive = () => waterWalking || is_floater(state.youmonst.data)
+        || is_clinger(state.youmonst.data) || (heroIsFlying(state) && !breathlessHero);
     if (is_pool(u.ux, u.uy, state)) {
-        throw new UnsupportedPickupError('pickup_checks() over water');
+        if (cannotDive()) {
+            await message(`You cannot dive into the ${hliquid('water', { ...env, state })} to pick things up.`, state);
+            return 0;
+        } else if (!u.uinwater) {
+            await message("You can't even see the bottom, let alone pick up something.", state);
+            return 0;
+        }
     }
     if (is_lava(u.ux, u.uy, state)) {
-        throw new UnsupportedPickupError('pickup_checks() over lava');
+        if (cannotDive()) {
+            await message("You can't reach the bottom to pick things up.", state);
+            return 0;
+        } else if (!likes_lava(state.youmonst.data)) {
+            await message('You would burn to a crisp trying to pick things up.', state);
+            return 0;
+        }
     }
     // C's OBJ_AT(u.ux, u.uy), read off the per-square pile chain the way
     // pickup.c pickup() reads it, so a supplied state rather than the module
@@ -4287,56 +4314,68 @@ export async function pickup_checks(state = game) {
             // rm.h:218 aliases `looted` onto the same field `doormask` names,
             // which is what doorMask() reads. Nothing ported loots a throne,
             // so the shorter line is the only one a game reaches.
-            await ttyPline(
+            await message(
                 `It must weigh${doorMask(lev) ? ' almost' : ''} a ton!`,
                 state,
             );
         } else if (IS_SINK(typ)) {
-            await ttyPline('The plumbing connects it to the floor.', state);
+            await message('The plumbing connects it to the floor.', state);
         } else if (IS_GRAVE(typ)) {
-            await ttyPline("You don't need a gravestone.  Yet.", state);
+            await message("You don't need a gravestone.  Yet.", state);
         } else if (IS_FOUNTAIN(typ)) {
-            await ttyPline(
-                `You could drink the ${hliquid('water', { state })}...`,
+            await message(
+                `You could drink the ${hliquid('water', { ...env, state })}...`,
                 state,
             );
         } else if (IS_DOOR(typ) && (doorMask(lev) & D_ISOPEN)) {
-            await ttyPline("It won't come off the hinges.", state);
+            await message("It won't come off the hinges.", state);
         } else if (IS_ALTAR(typ)) {
-            await ttyPline(
+            await message(
                 'Moving the altar would be a very bad idea.', state,
             );
         } else if (typ === STAIRS) {
-            await ttyPline('The stairs are solidly affixed.', state);
+            await message('The stairs are solidly affixed.', state);
         } else {
-            await ttyPline('There is nothing here to pick up.', state);
+            await message('There is nothing here to pick up.', state);
         }
         return 0;
     }
     const traphere = t_at(u.ux, u.uy, state);
     if (!can_reach_floor(Boolean(traphere && is_pit(traphere.ttyp)), state)) {
-        throw new UnsupportedPickupError(
-            'pickup_checks() by a hero who cannot reach the floor',
-        );
+        if (traphere && uteetering_at_seen_pit(traphere, state)) {
+            await message('You cannot reach the bottom of the pit.', state);
+        } else if (u.usteed && P_SKILL(P_RIDING, state) < P_BASIC) {
+            await rider_cant_reach(state, env);
+        } else if (heroIsBlind(state)) {
+            await message('You cannot reach anything here.', state);
+        } else {
+            let surf = surface(u.ux, u.uy, state);
+            if (traphere?.ttyp === HOLE) surf = 'edge of the hole';
+            else if (traphere?.ttyp === TRAPDOOR) surf = 'trap door';
+            await message(`You cannot reach the ${surf}.`, state);
+        }
+        return 0;
     }
     return -1; /* can do normal pickup */
 }
 
-// C ref: hack.c dopickup() (3876-3891), whose own comment calls it "the
-// #pickup command". The loot_mon() arm at 3884-3887 is not written out:
-// pickup_checks() answers -2 only from its swallowed arm, which throws above.
-export async function dopickup(state = game) {
+// C ref: hack.c dopickup() (3876-3891), comma and #pickup dispatch.
+export async function dopickup(state = game, env = {}) {
     // C's gc.command_count. A count prefix reaches the comma command as
     // commandCount; this function consumes it and clears multi before
     // pickup_checks(), then sends pickup() its negative selection count.
     const count = Math.trunc(state.commandCount ?? 0);
     state.multi = 0; /* always reset */
 
-    const ret = await pickup_checks(state);
+    const ret = await pickup_checks(state, env);
     if (ret >= 0) {
-        // C's `ret ? ECMD_TIME : ECMD_OK`. pickup_checks() answers 1 only
-        // from the swallowed arm it refuses, so only ECMD_OK is reachable.
         return ret ? ECMD_TIME : ECMD_OK;
+    }
+    if (ret === -2) {
+        // C's temporary int passed by address, also read by swallowed pickup.
+        const tmpcount = { value: -count };
+        return await loot_mon(state.u.ustuck, tmpcount, null, state, env)
+            ? ECMD_TIME : ECMD_OK;
     }
     return await pickup(-count, state) ? ECMD_TIME : ECMD_OK;
 }

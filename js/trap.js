@@ -318,7 +318,7 @@ import { float_vs_flight, body_part, polymon } from './polyself.js';
 import { create_gas_cloud } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rn2_on_display_rng, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
-import { dismount_steed, Punished } from './steed.js';
+import { dismount_steed, Punished, rider_cant_reach } from './steed.js';
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { trap_to_defsym } from './symbols.js';
@@ -2479,8 +2479,7 @@ async function try_disarm(ttmp, force_failure, state = game) {
     /* untrappable traps are located on the ground. */
     if (!can_reach_floor(under_u, state)) {
         if (u.usteed && P_SKILL(P_RIDING, state) < P_BASIC) {
-            // C: rider_cant_reach(), steed.c, not ported.
-            note_unported('steed.c rider_cant_reach');
+            await rider_cant_reach(state);
         } else {
             await ttyPline(`You are unable to reach the ${trapname(ttype)}!`, state);
         }

@@ -3013,7 +3013,7 @@ test('counted comma pickup reaches the handler that consumes its count', () => {
     const jsPickup = HACK_JS.slice(jsPickupStart, jsPickupEnd);
     const jsCount = jsPickup.indexOf('const count = Math.trunc(state.commandCount ?? 0);');
     const jsReset = jsPickup.indexOf('state.multi = 0; /* always reset */');
-    const jsChecks = jsPickup.indexOf('await pickup_checks(state)');
+    const jsChecks = jsPickup.indexOf('await pickup_checks(state, env)');
     const jsSelect = jsPickup.indexOf('pickup(-count, state)');
     assert.ok(jsCount >= 0 && jsCount < jsReset && jsReset < jsChecks);
     assert.ok(jsChecks < jsSelect);

@@ -31,7 +31,6 @@ import { runSegment } from '../js/jsmain.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { ELVEN_DAGGER } from '../js/objects.js';
-import { UnsupportedPickupError } from '../js/pickup.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     PICKUP_CASES,
@@ -195,52 +194,28 @@ test('pickup_checks sends a square with something on it to a normal pickup',
         assert.equal(toplines(state), '');
     });
 
-test('pickup_checks refuses the squares this port cannot answer for',
+test('pickup_checks returns source decisions for swallowed, liquid and pit branches',
     async () => {
-        // The swallowed arm reads u.ustuck->minvent and ends in loot_mon().
         const swallowed = await heroOnAnEmptySquare();
         swallowed.u.uswallow = 1;
-        swallowed.u.ustuck = { data: swallowed.youmonst.data };
-        await assert.rejects(
-            () => pickup_checks(swallowed),
-            (error) => error instanceof UnsupportedPickupError
-                && /inside a monster/u.test(error.message),
-        );
-        swallowed.u.uswallow = 0;
-        swallowed.u.ustuck = null;
-
-        // POOL and MOAT are both IS_POOL; LAVAPOOL is IS_LAVA. Each arm turns
-        // on properties the ported hero cannot vary, and each falls through
-        // when none of them holds, so the terrain alone refuses.
-        for (const [typ, pattern] of [
-            [POOL, /over water/u],
-            [MOAT, /over water/u],
-            [LAVAPOOL, /over lava/u],
-        ]) {
+        swallowed.u.ustuck = { data: swallowed.youmonst.data, minvent: null };
+        assert.equal(await pickup_checks(swallowed), 1); // Empty non-digesting engulfer costs time.
+        assert.equal(toplines(swallowed), "You don't see anything in here to pick up.");
+        for (const typ of [POOL, MOAT, LAVAPOOL]) {
             const state = await heroOnAnEmptySquare();
             squareUnderHero(state, typ);
-            await assert.rejects(
-                () => pickup_checks(state),
-                (error) => error instanceof UnsupportedPickupError
-                    && pattern.test(error.message),
-                `typ ${typ}`,
-            );
+            assert.equal(await pickup_checks(state), 0); // Human cannot see the pool bottom or tolerate lava.
+            assert.equal(toplines(state), typ === LAVAPOOL
+                ? 'You would burn to a crisp trying to pick things up.'
+                : "You can't even see the bottom, let alone pick up something.");
         }
-
-        // can_reach_floor() needs uteetering_at_seen_pit(),
-        // rider_cant_reach() and surface() before it can report why. The arm
-        // sits past the empty-square return, so the square needs an object
-        // before a seen pit can reach it.
         const teetering = await heroOnAnEmptySquare();
         objectUnderHero(teetering);
         teetering.level.traps.push({
             tx: teetering.u.ux, ty: teetering.u.uy, ttyp: PIT, tseen: 1,
         });
-        await assert.rejects(
-            () => pickup_checks(teetering),
-            (error) => error instanceof UnsupportedPickupError
-                && /cannot reach the floor/u.test(error.message),
-        );
+        assert.equal(await pickup_checks(teetering), 0); // Visible pit takes precedence over surface wording.
+        assert.equal(toplines(teetering), 'You cannot reach the bottom of the pit.');
     });
 
 test('dopickup spends no turn on a square with nothing to take', async () => {

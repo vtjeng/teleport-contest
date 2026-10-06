@@ -1,0 +1,123 @@
+{
+  "session": "synthetic/v24/v24-cursed-bell-opening-undead",
+  "corpus": "synthetic",
+  "batch": "v24",
+  "caseId": "v24-cursed-bell-opening-undead",
+  "manifestPath": "challenges/manifests/v24.json",
+  "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+  "recordingSha256": "e53dc3208412e3195a08d4c9cb624371915500fed0d4d6b6d43576a7ce48df5a",
+  "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+  "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+  "remainingScreens": 4,
+  "recordedSteps": 35,
+  "status": "complete",
+  "commit": "84d84e111155ac834c43327b7c696055df294349",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v24",
+    "caseId": "v24-cursed-bell-opening-undead",
+    "session": "synthetic/v24/v24-cursed-bell-opening-undead",
+    "manifestPath": "challenges/manifests/v24.json",
+    "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+    "recording": "challenges/cases/v24/v24-cursed-bell-opening-undead.session.json",
+    "recordingPath": "challenges/cases/v24/v24-cursed-bell-opening-undead.session.json",
+    "recordingSha256": "e53dc3208412e3195a08d4c9cb624371915500fed0d4d6b6d43576a7ce48df5a",
+    "recipe": "challenges/cases/v24/v24-cursed-bell-opening-undead.recipe.session.json",
+    "recipeSha256": "6143e458d49e12960bfaf114d98fa7129241fcb61910ad1a8051ef8dd6275135",
+    "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+    "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+    "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+    "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+    "evaluationUtc": "2026-10-06T22:50:52.015Z",
+    "remainingScreens": 4,
+    "recordedSteps": 35,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 31,
+        "total": 35
+      },
+      "rng": {
+        "matched": 2202,
+        "total": 2362
+      },
+      "cursors": {
+        "matched": 35,
+        "total": 35
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 31,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 31,
+          "key": "o"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 27,
+        "cCell": {
+          "ch": "A",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2202,
+        "cEntry": "rnd(5)=3",
+        "cCaller": "mkundead(mkroom.c:461)",
+        "jsEntry": "rn2(12)=7",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 31,
+          "key": "o"
+        },
+        "stepIndex": 31
+      },
+      "cursor": null
+    },
+    "step": 31,
+    "kind": "rng",
+    "sourceFile": "mkroom.c",
+    "function": "mkundead",
+    "message": null,
+    "cFile": "mkroom.c",
+    "luaFile": null,
+    "line": 461
+  },
+  "summary": "With a charged cursed Bell of Opening used outside the invocation square while the hero is not swallowed, apply.c:use_bell calls mkundead. JavaScript currently records an unported gap and wakes nearby monsters, so the undead swarm and its random calls are missing. Port mkroom.c:mkundead and wire both source callers; morguemon is already ported.",
+  "source": {
+    "file": "mkroom.c",
+    "branch": "A charged Bell of Opening is applied; the hero is not swallowed and the bell is cursed. apply.c:use_bell consumes a charge, calls mkundead(&mm, FALSE, NO_MINVENT), then wakes nearby monsters. The general mkundead function also has a corpse-revival arm when revive_corpses is true.",
+    "functions": [
+      "mkundead"
+    ],
+    "callers": [
+      "apply.c:use_bell 1253-1269 -> js/apply.js: use_bell currently calls note_unported(\"minion.c mkundead\") and then continues to wake_nearby; wire the real mkroom.c implementation here.",
+      "spell.c:deadbook 323 -> js/spell.js:raise_dead currently records note_unported(\"mkroom.c mkundead\"); wire the same function here and preserve revive_corpses=true behavior."
+    ],
+    "dependencies": [
+      "mkundead 454-473 draws the swarm count with rnd(5), calls morguemon for each attempt, uses enexto to find a square, optionally checks sobj_at/revive when revive_corpses is true, calls makemon with discarded return, and sets level.flags.graveyard. js/mkroom.js:morguemon already ports morguemon; reuse it.",
+      "For revive_corpses=true from spell.c:deadbook, preserve the consumed revive return. zap.c:revive is already ported in js/zap.js and returns a monster or null, so the caller must test its truth value. The cursed Bell caller passes FALSE and skips this branch.",
+      "Reuse the existing level_difficulty, enexto, sobj_at, makemon runtime, and wake_nearby implementations; retain source order and RNG calls."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The exact examined revision is 84d84e111155ac834c43327b7c696055df294349; its submodule gitlink and local checkout both resolve to 16ff59115315917b93185d026aeefea06db9b0f4. The saved v24 evaluation is challenges/evaluations/20261006225046-v24.json. Its queue entry has 35 recorded steps, 31/35 screens, 2202/2362 RNG calls, 35/35 cursors, and four remaining screens.",
+    "The first divergence is segment 0, step 31, key o: C screen cell row 0 column 27 is A while JS is blank. At the same point C RNG begins rnd(5)=3 at mkroom.c:461; JavaScript instead records rn2(12)=7. The C trace then shows morguemon and collect_coords/makemon calls, while JS has no corresponding swarm call.",
+    "C source: nethack-c/upstream/src/apply.c:1253-1269 calls mkundead(&mm, FALSE, NO_MINVENT) for the charged cursed Bell, then sets wakem. nethack-c/upstream/src/mkroom.c:454-473 creates the swarm and sets graveyard; morguemon follows at 475-487.",
+    "At the examined revision, js/apply.js:3822-3828 records note_unported(\"minion.c mkundead\") and sets wakem without creating undead. js/mkroom.js:515-539 already implements morguemon. The other production call is nethack-c/upstream/src/spell.c:323, reached through js/spell.js:584, and passes revive_corpses=TRUE."
+  ]
+}
