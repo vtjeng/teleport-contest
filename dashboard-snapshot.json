@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T21:43:02.106Z",
+  "capturedAt": "2026-10-06T21:45:13.378Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -22278,6 +22278,26 @@
         "at": "2026-10-06T21:40:40.592Z",
         "task": "C120",
         "commit": "344d615a678084469b5edba8b8c26e6ba9eba8f8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B121-ready-weapon-20261006",
+        "type": "assign",
+        "at": "2026-10-06T21:44:09.106Z",
+        "task": "B121",
+        "worker": "B",
+        "goal": "port-wield-ready-weapon-v23-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C121-burn-object-20261006",
+        "type": "assign",
+        "at": "2026-10-06T21:44:29.570Z",
+        "task": "C121",
+        "worker": "C",
+        "goal": "port-timeout-burn-object-v23-20261006",
+        "kind": "implementation"
       }
     ]
   },
