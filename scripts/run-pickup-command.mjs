@@ -41,6 +41,11 @@
 // the squares a short straight walk from the hero's start reaches; no
 // recorded session was read.
 
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { ELVEN_DAGGER, SADDLE, SHORT_SWORD } from '../js/objects.js';
+import { PM_PONY } from '../js/monsters.js';
+import { W_SADDLE } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
@@ -221,13 +226,154 @@ export async function verifyPickupCommandSegment(segment) {
     }
 }
 
+// Whole pickup_checks/dopickup, consumed-return loot_mon, and mounted
+// reachability routes. Seed 122061001 and clock 21110304123400 were chosen
+// independently. A bounded Knight startup scan of 122061001–122061016 found
+// 16/16 natural ponies and 0/16 cursed saddles; the range was not widened.
+// Independent wished-saddle recipes cover positive and cursed removal.
+// C-pinned constructed tests cover no-limbs attempts. That path is
+// guarded by doloot's earlier no-hands check in ordinary production.
+export const PICKUP_BRANCH_CASES = [
+    {
+        "name": "saddle-applied-cursed",
+        "path": "recipes/pickup.c/loot-applied-cursed-saddle.recipe.session.json"
+    },
+    {
+        "name": "saddle-applied-yes",
+        "path": "recipes/pickup.c/loot-applied-saddle.recipe.session.json"
+    },
+    {
+        "name": "saddle-no",
+        "path": "recipes/pickup.c/loot-saddle-no.recipe.session.json"
+    },
+    {
+        "name": "saddle-quit",
+        "path": "recipes/pickup.c/loot-saddle-quit.recipe.session.json"
+    },
+    {
+        "name": "swallow-digest",
+        "path": "recipes/hack.c/pickup-swallowed-digest.recipe.session.json"
+    },
+    {
+        "name": "swallow-vortex",
+        "path": "recipes/hack.c/pickup-swallowed-vortex.recipe.session.json"
+    },
+    {
+        "name": "swallow-inventory",
+        "path": "recipes/pickup.c/loot-swallowed-count.recipe.session.json"
+    },
+    {
+        "name": "floor-count",
+        "path": "recipes/hack.c/pickup-counted-stack.recipe.session.json"
+    },
+    {
+        "name": "floor-levitating",
+        "path": "recipes/hack.c/pickup-levitating.recipe.session.json"
+    },
+    {
+        "name": "floor-seen-pit",
+        "path": "recipes/hack.c/pickup-seen-pit.recipe.session.json"
+    },
+    {
+        "name": "rider-loot",
+        "path": "recipes/steed.c/rider-cant-reach-pickup-loot.recipe.session.json"
+    },
+    {
+        "name": "rider-dip",
+        "path": "recipes/steed.c/rider-dip-floor-gate.recipe.session.json"
+    },
+    {
+        "name": "rider-untrap",
+        "path": "recipes/steed.c/rider-untrap-floor-gate.recipe.session.json"
+    },
+    {
+        "name": "floor-extended",
+        "path": "recipes/hack.c/pickup-extended-count.recipe.session.json"
+    }
+];
+
+export function loadPickupBranchCases() {
+    return PICKUP_BRANCH_CASES.map(entry => ({
+        ...entry,
+        recipe: validateCleanRecipe(
+            JSON.parse(readFileSync(new URL('../' + entry.path, import.meta.url))),
+            entry.name,
+        ),
+    }));
+}
+
+export async function verifyPickupBranchSegment(segment) {
+    const entry = loadPickupBranchCases().find(({ recipe }) =>
+        recipe.segments[0].moves === segment.moves
+        && recipe.segments[0].nethackrc === segment.nethackrc);
+    assert.ok(entry, 'source branch recipe is registered');
+    let boundary = null;
+    await runSegment(segment, { onBoundary: error => { boundary = error; } });
+    if (boundary) throw boundary;
+    const inventory = [];
+    for (let obj = game.invent; obj; obj = obj.nobj) inventory.push(obj);
+    const held = type => inventory.find(obj => obj.otyp === type);
+    let pony = game.u.usteed;
+    for (let mon = game.level.monlist; !pony && mon; mon = mon.nmon) {
+        if (mon.data.pmidx === PM_PONY) pony = mon;
+    }
+    const floor = game.level.objects[game.u.ux]?.[game.u.uy];
+    assert.equal(game.multi, 0, 'dopickup consumes command count');
+    if (entry.name.startsWith('saddle-')) {
+        assert.ok(pony, 'natural starting pony remains alive');
+        const removed = entry.name.endsWith('-yes');
+        assert.equal(Boolean(held(SADDLE)), removed);
+        assert.equal(Boolean(pony.misc_worn_check & W_SADDLE), !removed);
+        if (removed) {
+            assert.equal(held(SADDLE).owornmask, 0);
+            assert.equal(pony.minvent, null);
+        } else {
+            assert.equal(pony.minvent.otyp, SADDLE);
+            assert.equal(pony.minvent.owornmask, W_SADDLE);
+        }
+        // Applied-saddle routes spend one application turn plus one loot
+        // turn (positive rnd(3) yields one; cursed returns one). Natural
+        // no/quit routes spend only the trailing rest, with no loot time.
+        assert.equal(game.moves, entry.name.startsWith('saddle-applied-') ? 3 : 2);
+    } else if (entry.name.startsWith('swallow-')) {
+        assert.ok(game.u.uswallow, 'command occurs inside the engulfer');
+        assert.ok(game.u.uhp > 0, 'recipe stops before fatal digestion');
+        assert.equal(game.u.ustuck.minvent, null);
+        if (entry.name === 'swallow-inventory') {
+            // objects.c: the Samurai calls SHORT_SWORD a wakizashi.
+            assert.ok(held(SHORT_SWORD), 'counted pickup restores the dropped weapon');
+            assert.equal(held(SHORT_SWORD).owornmask, 0);
+        }
+    } else if (['floor-count', 'floor-extended'].includes(entry.name)) {
+        assert.equal(held(ELVEN_DAGGER).quan, 2);
+        assert.equal(floor.otyp, ELVEN_DAGGER);
+        assert.equal(floor.quan, 1, 'three-object stack splits at requested count two');
+    } else if (entry.name.startsWith('floor-')) {
+        assert.equal(held(ELVEN_DAGGER), undefined);
+        assert.equal(floor.otyp, ELVEN_DAGGER, 'reachability refusal retains floor ownership');
+    } else {
+        assert.ok(game.u.usteed, 'unskilled Samurai is still mounted');
+        assert.ok(game.u.usteed.misc_worn_check & W_SADDLE);
+        if (entry.name === 'rider-loot') {
+            assert.equal(held(ELVEN_DAGGER), undefined);
+            assert.ok(floor, 'refused floor object remains below the rider');
+        }
+        // Dip and untrap recordings verify their earlier can_reach_floor
+        // guards; neither is claimed to execute the nested rider helper.
+    }
+}
+
 export async function runPickupCommandMatrix() {
     return runFreshMatrix({
         entries: [
             { label: 'pickup command', recipe: loadPickupCommandRecipe() },
+            ...loadPickupBranchCases().map(({ name, recipe }) => ({ label: name, recipe })),
         ],
         summaryLabel: 'PICKUP COMMAND',
-        verifySegment: verifyPickupCommandSegment,
+        chunkLimit: 1,
+        verifySegment: segment => segment.seed === 122061001
+            ? verifyPickupBranchSegment(segment)
+            : verifyPickupCommandSegment(segment),
     });
 }
 

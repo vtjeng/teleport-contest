@@ -227,6 +227,7 @@ import {
 } from './timeout.js';
 import { explode, explode_oil } from './explode.js';
 import { Levitation, float_up, unconscious } from './trap.js';
+import { rider_cant_reach } from './steed.js';
 import {
     Can_rise_up, ceiling, depth, get_level, has_ceiling, ledger_no, on_level,
     surface,
@@ -3324,7 +3325,7 @@ export async function dodip(state = game, rawEnv = {}) {
                 } else if (hero.usteed
                     && !is_swimmer(hero.usteed.data)
                     && P_SKILL(P_RIDING, state) < P_BASIC) {
-                    note_unported('steed.c rider_cant_reach');
+                    await rider_cant_reach(state, env);
                 } else if (isHands || obj === state.uarmg) {
                     if (!isHands) obj.pickup_prev = 0;
                     await wash_hands(state, env);

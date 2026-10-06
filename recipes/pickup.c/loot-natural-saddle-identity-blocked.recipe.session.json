@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED by dog.c makedog -> steed.c put_saddle_on_mon -> steal.c mpickobj startup ordering: C receives saddle before initedog makes pony tame, so out-of-view mpickobj clears identification. JavaScript retains bknown for that startup saddle and later loot_mon prints uncursed. Whole loot_mon positive evidence uses independently wished/applied saddle instead. Preserve this independent natural-start route for the startup owner; no matching recording or helper credit is claimed.",
+  "segments": [
+    {
+      "seed": 122061001,
+      "datetime": "21110304123400",
+      "nethackrc": "OPTIONS=name:Looter,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,time\n",
+      "moves": " #loot\nuy   ."
+    }
+  ]
+}

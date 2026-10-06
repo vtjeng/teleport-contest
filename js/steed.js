@@ -1,5 +1,5 @@
 // steed.js -- Riding a saddled monster.
-// C ref: steed.c -- can_saddle(), use_saddle(), put_saddle_on_mon(),
+// C ref: steed.c -- rider_cant_reach(), can_saddle(), use_saddle(), put_saddle_on_mon(),
 // can_ride(), mount_steed(), exercise_steed(),
 // landing_spot(), dismount_steed(), maybewakesteed(), stucksteed() and
 // doride().
@@ -84,6 +84,7 @@ import {
     mon_nam,
     pmname,
     x_monnam,
+    y_monnam,
 } from './do_name.js';
 import { game } from './gstate.js';
 import {
@@ -208,6 +209,15 @@ function canSeeStartingPet(monster, env) {
     // dog.c:makedog() equips the saddle before initedog(); ordinary startup
     // pets are adjacent unless blindness or invisibility prevents seeing one.
     return !Blind(env.state) && !monster.minvis;
+}
+
+// C ref: steed.c rider_cant_reach() (17-20). Its caller has decided
+// that the mounted hero cannot reach; naming retains the ordinary owner.
+export async function rider_cant_reach(state = game, env = {}) {
+    await (env.message ?? ttyPline)(
+        `You aren't skilled enough to reach from ${y_monnam(state.u.usteed, state, env)}.`,
+        state,
+    );
 }
 
 const SADDLEABLE_CLASSES = new Set([

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "hack.c dopickup: independently wish three daggers, drop them, then 2,; leaves one on floor. Independently chosen seed 122061001 and clock 21110304123400; Knight startup scan bounded to 122061001–122061016 found 16/16 ponies, 0/16 cursed saddles, without widening. Real direction/prompt inputs were designed from C setup, not copied from challenge recordings.",
+  "segments": [
+    {
+      "seed": 122061001,
+      "datetime": "21110304123400",
+      "nethackrc": "OPTIONS=name:Picker,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,pettype:none,time\n",
+      "moves": " \u00173 elven daggers\ndf 2,   "
+    }
+  ]
+}

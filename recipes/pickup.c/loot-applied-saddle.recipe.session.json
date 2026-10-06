@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent pickup.c loot_mon route: Samurai level 12 wishes uncursed saddle, creates tame pony, applies saddle northwest, then #loot northwest and yes. High level guarantees source saddle application chance without changing loot RNG; successful removal clears worn masks, transfers to hero, then rnd(3). Seed 122061001 and fixed clock 21110304123400 independently chosen; status time captures consumed turn.",
+  "segments": [
+    {
+      "seed": 122061001,
+      "datetime": "21110304123400",
+      "nethackrc": "OPTIONS=name:Picker,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,pettype:none,time\n",
+      "moves": " #levelchange\n12\n               \u0017uncursed saddle\n\u0007tame pony\n   afy   #loot\nyy   "
+    }
+  ]
+}
