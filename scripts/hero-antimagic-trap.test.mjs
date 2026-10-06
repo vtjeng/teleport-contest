@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -17,6 +18,13 @@ import {
     preflight_dotrap,
     trapeffect_selector,
 } from '../js/trap_effects.js';
+
+const TRAP_C = readFileSync(
+    new URL('../nethack-c/upstream/src/trap.c', import.meta.url), 'utf8',
+);
+const TRAP_EFFECTS_JS = readFileSync(
+    new URL('../js/trap_effects.js', import.meta.url), 'utf8',
+);
 
 const DATETIME = '20340506070809';
 const RC = [
@@ -65,6 +73,55 @@ function trapEnv(state, { d = 8, rnd = [] } = {}) {
         redraw: (x, y) => redraws.push([x, y]),
     };
 }
+
+test('drain_en preserves the complete trap.c source branch order', () => {
+    const cStart = TRAP_C.indexOf(
+        'drain_en(int n, boolean max_already_drained)',
+    );
+    const cEnd = TRAP_C.indexOf('\n}\n\n/* the #untrap command', cStart) + 2;
+    const jsStart = TRAP_EFFECTS_JS.indexOf(
+        'export async function drain_en(',
+    );
+    const jsEnd = TRAP_EFFECTS_JS.indexOf('\n}\n', jsStart) + 2;
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'trap.c must contain the complete drain_en body');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart,
+        'trap_effects.js must contain the complete drain_en body');
+    const cBody = TRAP_C.slice(cStart, cEnd);
+    const jsBody = TRAP_EFFECTS_JS.slice(jsStart, jsEnd);
+
+    // These source-order checks pin trap.c's low-energy throttle before
+    // current-energy subtraction and its max-energy underflow correction.
+    const cOrder = [
+        'char punct = max_already_drained ? \'!\' : \'.\';',
+        'if (u.uenmax < 1)',
+        'if (n > (u.uen + u.uenmax) / 3)',
+        'n = rnd(n);',
+        'u.uen -= n;',
+        'u.uenmax -= rnd(-u.uen);',
+        'u.uen = u.uenmax;',
+        'You_feel("%s%c", mesg, punct);',
+    ].map((source) => cBody.indexOf(source));
+    assert.ok(cOrder.every((position) => position >= 0));
+    assert.ok(cOrder.every((position, index) =>
+        index === 0 || cOrder[index - 1] < position));
+
+    // JavaScript keeps the same state and draw sequence while awaiting the
+    // source's final You_feel message.
+    const jsOrder = [
+        'const punctuation = maxAlreadyDrained ? \'!\' : \'.\';',
+        'if (state.u.uenmax < 1)',
+        'if (n > Math.trunc((state.u.uen + state.u.uenmax) / 3))',
+        'n = random.rnd(n);',
+        'state.u.uen -= n;',
+        'state.u.uenmax -= random.rnd(-state.u.uen);',
+        'state.u.uen = state.u.uenmax;',
+        'await message(`${prefix} ${text}${ending}`, state);',
+    ].map((source) => jsBody.indexOf(source));
+    assert.ok(jsOrder.every((position) => position >= 0));
+    assert.ok(jsOrder.every((position, index) =>
+        index === 0 || jsOrder[index - 1] < position));
+});
 
 test('hero anti-magic activation drains maximum and current energy in source order',
     async () => {

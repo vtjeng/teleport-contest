@@ -248,6 +248,7 @@ import {
     t_at,
     reset_utrap,
 } from './trap.js';
+import { drain_en } from './trap_effects.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
@@ -2347,8 +2348,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         break;
     case M.AD_DREN:
         if (!mtmp.mcan && random.rn2(4)) {
-            // C drain_en() is void; its source effects remain an explicit gap.
-            note_unported('uhitm.c drain_en');
+            await drain_en(tmp, false, state, rawEnv);
         }
         tmp = 0;
         break;

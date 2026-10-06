@@ -209,6 +209,9 @@ const UHITM_C = readFileSync(
 const MHITU_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8',
 );
+const TRAP_EFFECTS_JS = readFileSync(
+    new URL('../js/trap_effects.js', import.meta.url), 'utf8',
+);
 const MHITU_JS = readFileSync(
     new URL('../js/mhitu.js', import.meta.url), 'utf8',
 );
@@ -1259,6 +1262,34 @@ test('mattacku prints the miss its to-hit test loses and the hit it wins',
     assert.deepEqual(hit.lines, bite.lines);
     assert.deepEqual(hit.bounds, physHitBounds(20, 1, 3));
     assert.equal(state.u.uhp, before - bite.cost);
+});
+
+test('gulpmu AD_DREN awaits drain_en after its source probability gate', () => {
+    const cGulpmu = MHITU_C.indexOf(
+        'gulpmu(struct monst *mtmp, struct attack *mattk)',
+    );
+    const cDren = MHITU_C.indexOf('    case AD_DREN:', cGulpmu);
+    const cEnd = MHITU_C.indexOf('\n    default:', cDren);
+    const jsGulpmu = MHITU_JS.indexOf('async function gulpmu(');
+    const jsDren = MHITU_JS.indexOf('    case M.AD_DREN:', jsGulpmu);
+    const jsEnd = MHITU_JS.indexOf('\n    default:', jsDren);
+    assert.ok(cGulpmu >= 0 && cDren > cGulpmu && cEnd > cDren,
+        'mhitu.c must contain gulpmu AD_DREN');
+    assert.ok(jsGulpmu >= 0 && jsDren > jsGulpmu && jsEnd > jsDren,
+        'js/mhitu.js must contain gulpmu AD_DREN');
+    const cArm = MHITU_C.slice(cDren, cEnd);
+    const jsArm = MHITU_JS.slice(jsDren, jsEnd);
+
+    // C clears the damage only after the optional void helper call.
+    assert.match(cArm,
+        /if \(!mtmp->mcan && rn2\(4\)\)[\s\S]*?drain_en\(tmp, FALSE\);[\s\S]*?tmp = 0;/u);
+    assert.match(jsArm,
+        /if \(!mtmp\.mcan && random\.rn2\(4\)\)\s*\{\s*await drain_en\(tmp, false, state, rawEnv\);\s*\}\s*tmp = 0;/u);
+    assert.match(MHITU_JS,
+        /import \{ drain_en \} from '\.\/trap_effects\.js';/u);
+    assert.match(TRAP_EFFECTS_JS,
+        /export async function drain_en\(n, maxAlreadyDrained, state = game, env = \{\}\)/u);
+    assert.doesNotMatch(jsArm, /note_unported\([^)]*drain_en/u);
 });
 
 test('an ice vortex swallows, freezes, and expels an ordinary hero',
