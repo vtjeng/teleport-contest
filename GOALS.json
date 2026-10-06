@@ -181650,8 +181650,8 @@
           "name": "release_camera_demon",
           "line": 2457,
           "endLine": 2479,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -181847,7 +181847,63 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "release_camera_demon",
+            "implementation": "js/dothrow.js",
+            "symbol": "release_camera_demon",
+            "sourceReview": "Read whole dothrow.c release_camera_demon2457-2470, selected2457-2479, and whole breakobj2480-2578. Preserve first rn2(3) short-circuit before second rn2(3) species selection: nonzero selects PM_HOMUNCULUS and zero PM_IMP. Await existing makemon_runtime with explicit coordinates and MM_NOMSG; null creation stops visibility, message and state writes. A visible monster uses the fixed message unless Hallucination, in which case existing do_name.c rndmonnam uses display RNG and objnam An supplies the article. Await release feedback before assigning mpeaceful=!obj.cursed and calling existing set_malign. No extra main RNG, creation substitute or allowlist. Planning suppresses message callbacks while preserving source state/RNG. Read existing makemon_runtime3281-3334, creationEnv725 and explicitCoordinateRuntimeCall1317-1327; preserve their return and positioning behavior. Read whole set_malign915-956 and rndmonnam1587-1619, existing canspotmon, hallucinating and An helpers. breakobj now awaits release while the camera still exists and then continues its unchanged common disposition tail. Remove the named dothrow.c release_camera_demon gap and stale header claim. Inherited shop/explosion/death/creation branches are not credited to this helper port; no owner beyond dothrow.js changed.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "breakobj",
+                "source": "dothrow.c2523: EXPENSIVE_CAMERA arm calls release_camera_demon before common shop accounting and deletion; now awaits shared source owner"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c throwit: horizontal breakage calls breaktest/breakmsg/breakobj; vertical downward hitfloor uses hero_breaks -> breakobj. Existing live t command and quivered f command reach the shared caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/camera-demon.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/dothrow-thitmonst.test.mjs",
+              "scripts/fire-command.test.mjs",
+              "scripts/throw-command.test.mjs",
+              "scripts/makemon.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/c120-camera-demon-no-release.session.json",
+              "recordings/dothrow.c/c120-camera-demon-homunculus.session.json",
+              "recordings/dothrow.c/c120-camera-demon-cursed-imp.session.json",
+              "recordings/dothrow.c/c120-camera-demon-cursed-homunculus.session.json",
+              "recordings/dothrow.c/c120-camera-demon-blind-imp.session.json",
+              "recordings/dothrow.c/c120-camera-demon-hallucinated-homunculus.session.json",
+              "recordings/dothrow.c/c120-camera-demon-fired-homunculus.session.json"
+            ],
+            "sourceFile": "dothrow.c",
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected",
+                "segment": 0,
+                "fromStep": 27,
+                "throughStep": 29,
+                "source": "cmd.c t command -> dothrow.c dothrow -> throwit -> breaktest -> breakmsg -> breakobj EXPENSIVE_CAMERA -> release_camera_demon; wall impact takes the non-creation gate branch"
+              }
+            ],
+            "checkedAt": "7e0602cd41d01b693e0c1f67f8b1d7099cc53719"
+          }
+        ],
+        "entryPointReview": "Helper-only selected range has one direct C caller: breakobj EXPENSIVE_CAMERA. Its existing throwit, hero_breaks and breaks callers, including hitfloor and toss_up paths, share that arm; no new command entry is defined by release_camera_demon. The admitted horizontal wall throw executes the non-creation branch. Independent downward t recipes cover non-creation, both species, cursed/uncursed peacefulness, blind message suppression and hallucinated display naming; a quivered f recording independently reaches the same breakage helper. The matrix checks actual camera deletion, monster species, peacefulness, blindness/hallucination state and completed input without a pending boundary. Source-pinned fixtures cover null creation of a genocided species, hallucination resistance, planning silence and awaited feedback/object-lifetime ordering. No build-excluded helper branch or unported callee is introduced.",
+        "entryPoints": []
+      }
     }
   ]
 }
