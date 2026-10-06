@@ -4141,3 +4141,50 @@ test('invulnerability suppresses the periodic teleport chance draw',
             'allmain.c:308 suppresses rn2(85) while invulnerable',
         );
     });
+
+test('wererat infection gets its daytime allmain change roll before dosounds',
+    async () => {
+        const cBlockStart = C_ALLMAIN.indexOf(
+            '/* delayed change may not be valid anymore */',
+        );
+        const cBlockEnd = C_ALLMAIN.indexOf(
+            'if (Searching && !svl.level.flags.noautosearch',
+            cBlockStart,
+        );
+        assert.ok(cBlockStart >= 0 && cBlockEnd > cBlockStart);
+        const cBlock = C_ALLMAIN.slice(cBlockStart, cBlockEnd);
+        assert.match(cBlock,
+            /mvl_change == 2 && u\.ulycn == NON_PM/u);
+        assert.match(cBlock,
+            /Polymorph && !rn2\(100\)[\s\S]*?ismnum\(u\.ulycn\)[\s\S]*?!rn2\(80 - \(20 \* night\(\)\)\)/u);
+        assert.match(cBlock,
+            /if \(mvl_change && !Unchanging\)[\s\S]*?gm\.multi >= 0[\s\S]*?stop_occupation\(\)[\s\S]*?polyself\(POLY_NOFLAGS\)[\s\S]*?you_were\(\)/u);
+
+        const session = JSON.parse(readFileSync(new URL(
+            '../challenges/cases/v17/'
+                + 'tin-human-wererat-cpostfx-slot-n.session.json',
+            import.meta.url,
+        ), 'utf8'));
+        const [segment] = session.segments;
+        const replay = await runSegment(segment);
+        const rng = replay.getRngLog();
+        const lycanthropyRoll = rng.findIndex(
+            (entry) => /^rn2\(80\)=50(?: @|$)/u.test(entry),
+        );
+
+        assert.ok(lycanthropyRoll >= 0,
+            'the cpostfx-set wererat state reaches C allmain.c:328 equivalent');
+        assert.match(rng[lycanthropyRoll + 1], /^rn2\(300\)=/u,
+            'dosounds follows the delayed-change chance without an intervening draw');
+        assert.equal(game.mvl_change, 0,
+            'the nonzero chance result leaves no delayed change pending');
+        assert.equal(game.unported?.has('were.c you_were'), false,
+            'rn2(80)=50 does not dispatch the later were transformation');
+
+        const planned = planningState(game);
+        assert.equal(planned.mvl_change, game.mvl_change,
+            'the C static is copied into an elapsed-turn planning clone');
+        planned.mvl_change = 2;
+        assert.equal(game.mvl_change, 0,
+            'a planned pending change does not mutate the live game');
+    });
