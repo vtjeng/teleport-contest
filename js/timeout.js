@@ -1229,6 +1229,64 @@ async function vomiting_dialogue(state, env = {}) {
     await exercise(A_CON, false, state, random, { encumberMessage });
 }
 
+// C ref: timeout.c stoned_texts[] and stoned_dialogue() (128-185).
+const stonedTexts = Object.freeze([
+    'You are slowing down.',
+    'Your limbs are stiffening.',
+    'Your limbs have turned to stone.',
+    'You have turned to stone.',
+    'You are a statue.',
+]);
+
+export async function stoned_dialogue(state = game, env = {}) {
+    const u = state.u;
+    const i = u.uprops[STONED].intrinsic & TIMEOUT;
+    const random = env.random ?? { d, rn2, rnd };
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
+    const urgentMessage = env.urgentMessage
+        ?? (env.planning ? message : ttyUrgentPline);
+    if (i > 0 && i <= stonedTexts.length) {
+        let text = stonedTexts[stonedTexts.length - i];
+        if (nolimbs(state.youmonst.data) && strstri(text, 'limbs') >= 0)
+            text = strsubst(text, 'limbs', 'extremities');
+        await urgentMessage(text, state);
+    }
+    switch (i) {
+    case 5:
+        u.uprops[FAST].intrinsic = 0;
+        if ((state.multi ?? 0) > 0) nomul(0, state);
+        break;
+    case 4:
+        if (!Popeye(STONED, state))
+            await stop_occupation(state, { ...env, random, message });
+        if ((state.multi ?? 0) > 0) nomul(0, state);
+        break;
+    case 3:
+        await stop_occupation(state, { ...env, random, message });
+        nomul(-3, state);
+        state.multi_reason = 'getting stoned';
+        state.nomovemsg = You_can_move_again;
+        if ((u.uprops[WOUNDED_LEGS].intrinsic
+            || u.uprops[WOUNDED_LEGS].extrinsic) && !u.usteed)
+            await heal_legs(state, { ...env, how: 2, message });
+        break;
+    case 2: {
+        const deafTimeout = u.uprops[DEAF].intrinsic & TIMEOUT;
+        if (deafTimeout > 0 && deafTimeout < 5)
+            set_itimeout(u.uprops[DEAF], 5);
+        if (u.uprops[VOMITING].intrinsic)
+            await make_vomiting(0, false, state, { ...env, message });
+        if (u.uprops[SLIMED].intrinsic)
+            await make_slimed(0, null, state, { ...env, message });
+        break;
+    }
+    }
+    const encumberMessage = env.encumberMessage
+        ?? (subject => encumber_msg(subject, { message }));
+    await exercise(A_DEX, false, state, random, { encumberMessage });
+}
+
 // C ref: timeout.c phaze_texts[] and phaze_dialogue() (528-543).
 const phazeTexts = Object.freeze([
     'You start to feel bloated.',
@@ -1272,6 +1330,7 @@ export function nh_timeout_requires_live_state(state = game) {
     if (u.uinvulnerable) return false;
     if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)
         && !is_were(state.youmonst.data)) return true;
+    if (u.uprops?.[STONED]?.intrinsic) return true;
     if (u.uprops?.[STRANGLED]?.intrinsic) return true;
     if (u.uprops?.[VOMITING]?.intrinsic) return true;
     // Warnings at five and three turns stop occupations after displaying
@@ -1566,8 +1625,8 @@ export async function nh_timeout(state = game, env = {}) {
     };
     adjust_timeout_luck(state);
     if (u.uinvulnerable) return;
-    if (u.uprops?.[STONED]?.intrinsic && !env.planning)
-        note_unported('timeout.c stoned_dialogue');
+    if (u.uprops?.[STONED]?.intrinsic)
+        await stoned_dialogue(state, { ...displayEnv, random });
     if (u.uprops?.[SLIMED]?.intrinsic) {
         const slimeMessage = env.message
             ?? (env.planning ? async () => {} : ttyPline);

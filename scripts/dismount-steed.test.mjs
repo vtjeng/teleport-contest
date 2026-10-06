@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_DEX,
     CONFUSION,
     DIR_E,
     DIR_ERR,
@@ -44,6 +45,7 @@ import {
     TT_WEB,
     VAULT,
     VIBRATING_SQUARE,
+    WOUNDED_LEGS,
     W_SADDLE,
     xdir,
     ydir,
@@ -1318,4 +1320,19 @@ test('is_pole covers both object classes and both polearm skills', () => {
     // The class test is a conjunct of its own: the same skill on some other
     // class answers FALSE.
     assert.equal(is_pole({ oclass: ROCK_CLASS, otyp: LANCE }, game), false);
+});
+
+test('dismount heals wounded steed legs before releasing the mounted context', async () => {
+    const state = await mounted();
+    // A wound obtained while riding belongs to the steed; heal_legs(1) sees
+    // u.usteed and suppresses both leg and encumbrance messages at this site.
+    state.u.uprops[WOUNDED_LEGS] = { intrinsic: 12, extrinsic: RIGHT_SIDE, blocked: 0 };
+    state.u.atemp[A_DEX] = -1; // The shared source temporary wound penalty.
+    quiet(state);
+    await dismount_steed(DISMOUNT_BYCHOICE, state);
+    assert.equal(state.u.usteed, null);
+    assert.equal(state.u.uprops[WOUNDED_LEGS].intrinsic, 0);
+    assert.equal(state.u.uprops[WOUNDED_LEGS].extrinsic, 0);
+    assert.equal(state.u.atemp[A_DEX], 0);
+    assert.doesNotMatch(toplines(), /leg.*better/u);
 });

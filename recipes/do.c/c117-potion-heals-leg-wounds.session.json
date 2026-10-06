@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent ordinary heal_legs(0) production route: Rogue debug wounded-legs timeout, then wished blessed extra healing potion. The quaff must heal the still-active wound and retain ordinary body-part and encumbrance ordering.",
+  "segments": [
+    {
+      "seed": 117261307,
+      "datetime": "21070910141400",
+      "nethackrc": "OPTIONS=name:StoneStages,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n17m\n \u0017blessed potion of extra healing\nqg  ."
+    }
+  ]
+}

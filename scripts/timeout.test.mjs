@@ -263,7 +263,9 @@ test('timeout planning hands live-only expiries off before touching their state'
         FLYING, STONED,
     ]) {
         state.u.uprops[property].intrinsic = 2;
-        assert.equal(nh_timeout_requires_live_state(state), false, `${property}: countdown`);
+        // Active stoning always exercises Dexterity and runs its stage effects live.
+        assert.equal(nh_timeout_requires_live_state(state), property === STONED,
+            `${property}: countdown`);
         state.u.uprops[property].intrinsic = 1;
         assert.equal(nh_timeout_requires_live_state(state), true, `${property}: expiry`);
         state.u.uinvulnerable = true;
@@ -485,7 +487,13 @@ test('timeout.c releases delayed killers when STONED or fatal SICK expires', asy
         format: 0,
         next: { id: STONED, format: 7, name: 'cockatrice', next: null },
     };
-    await nh_timeout(state, { planning: true });
+    // stoned_dialogue exercises Dexterity once before the one-turn expiry.
+    const draws = [];
+    await nh_timeout(state, { planning: true, random: { rn2(bound) {
+        draws.push(bound);
+        return 1;
+    } } });
+    assert.deepEqual(draws, [2]);
     assert.equal(state.killer.name, 'cockatrice');
     assert.equal(state.killer.format, 7);
     assert.equal(state.killer.next, null);

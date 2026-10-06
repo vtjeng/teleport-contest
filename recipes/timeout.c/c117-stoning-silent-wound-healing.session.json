@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent whole heal_legs(2) caller: set wounded legs through the C debug property command, then start three-turn stoning. The limb-to-stone warning clears wound state silently; automatic immobilized turns may reach later urgent message pages, where the recipe ends before timeout.c:done_timeout. Disable safe_wait because do.c:cmd_safety_prevention otherwise refuses waiting during Stoned.",
+  "segments": [
+    {
+      "seed": 117261303,
+      "datetime": "21050708121200",
+      "nethackrc": "OPTIONS=name:StoneStages,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " #wizintrinsic\n17m\n #wizintrinsic\n3b\n ."
+    }
+  ]
+}

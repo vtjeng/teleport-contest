@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent stoned_dialogue witness: fresh Rogue starts a five-turn countdown and two waits reach slowing and stiffening. This ends before immobilization automatically advances to the separate unported done_timeout expiry. Disable safe_wait because do.c:cmd_safety_prevention otherwise refuses waiting during Stoned.",
+  "segments": [
+    {
+      "seed": 117261301,
+      "datetime": "21040607111000",
+      "nethackrc": "OPTIONS=name:StoneStages,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " #wizintrinsic\n5b\n .."
+    }
+  ]
+}

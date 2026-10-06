@@ -459,3 +459,26 @@ test('the planning clone leaves the live canned command queue alone',
         assert.ok(reachedRound, 'the planning round must have run');
         assert.deepEqual(game.command_queue[CQ_CANNED], canned);
     });
+
+test('heal_legs modes one and two clear wounds without encumbrance feedback', async () => {
+    // do.c:2483 runs encumber_msg only for ordinary mode zero. Mode one can
+    // still print a leg message when unmounted; mode two always suppresses it.
+    for (const how of [1, 2]) {
+        for (const mounted of [false, true]) {
+            const wounded = await unwoundedHeroOnLevelOne();
+            wounded.intrinsic = 9; // Any live timeout enters the common healing body.
+            wounded.extrinsic = BOTH_SIDES;
+            game.u.atemp[A_DEX] = -1; // Restore exactly one temporary wound penalty.
+            game.go.oldcap = SLT_ENCUMBER; // A feedback check would reset this sentinel.
+            game.u.usteed = mounted ? {} : null;
+            const messages = [];
+            await heal_legs(game, { how, message: async text => { messages.push(text); } });
+            assert.deepEqual(messages, how === 1 && !mounted ? ['Your legs feel better.'] : []);
+            assert.equal(wounded.intrinsic, 0);
+            assert.equal(wounded.extrinsic, 0);
+            assert.equal(game.u.atemp[A_DEX], 0);
+            assert.equal(game.go.oldcap, SLT_ENCUMBER);
+            assert.equal(game.disp.botl, true);
+        }
+    }
+});

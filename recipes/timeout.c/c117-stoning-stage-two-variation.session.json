@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap stage/countdown variation: deaf and vomiting properties are active before the two-turn stoning warning. It extends short deafness and clears vomiting silently before the common decrement. No unrelated egg behavior is claimed. Disable safe_wait because do.c:cmd_safety_prevention otherwise refuses waiting during Stoned.",
+  "segments": [
+    {
+      "seed": 117261305,
+      "datetime": "21060809131300",
+      "nethackrc": "OPTIONS=name:StoneStages,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " #wizintrinsic\n4j\n #wizintrinsic\n6k\n #wizintrinsic\n2b\n ."
+    }
+  ]
+}

@@ -2993,16 +2993,9 @@ export async function set_wounded_legs(side, timex, state = game, env = {}) {
     await encumber_msg(state, { message: env.message ?? ttyPline });
 }
 
-// C ref: do.c heal_legs() (2448-2486), the how == 0 arm. C's argument picks
-// between an ordinary recovery (0), a dismount (1) and the petrification
-// countdown (2), and it is read at C 2461 and 2483 to suppress the message and
-// the encumbrance feedback. Only timeout.c nh_timeout()'s WOUNDED_LEGS case is
-// ported and it passes 0, so both tests are resolved here in the direction 0
-// takes; steed.c dismount_steed()'s heal_legs(1) stays refused at js/steed.js.
-//
-// The caller has already counted HWounded_legs down to zero, so youprop.h:138
-// Wounded_legs is true here only through the side bits EWounded_legs holds.
-// Both fields are cleared together because 5.0 heals both legs at once.
+// C ref: do.c heal_legs() (2448-2486). `how` is C's healing mode:
+// 0 ordinary recovery, 1 dismounting, 2 limbs turning to stone.
+// Both HWounded_legs and EWounded_legs clear together in every mode.
 //
 // C's two halves of the temporary-Dexterity ledger are guarded differently,
 // and neither is unconditional. set_wounded_legs() spends a point only when no
@@ -3011,7 +3004,7 @@ export async function set_wounded_legs(side, timex, state = game, env = {}) {
 // extends the timeout. This function gives one back only while the temporary
 // total is still negative (do.c:2453-2454), so a hero whose Dexterity was
 // raised in between keeps the gain. Across one wound the two cancel exactly.
-export async function heal_legs(state = game, { message = ttyPline } = {}) {
+export async function heal_legs(state = game, { how = 0, message = ttyPline } = {}) {
     const u = state.u;
     const wounded = u.uprops[WOUNDED_LEGS];
     if (!wounded.intrinsic && !wounded.extrinsic) return;
@@ -3022,7 +3015,7 @@ export async function heal_legs(state = game, { message = ttyPline } = {}) {
 
     // C ref: do.c:2461-2469. A mounted hero's wound belongs to the steed, so
     // nothing is said about the hero's own legs.
-    if (!u.usteed) {
+    if (!u.usteed && how !== 2) {
         let legs = body_part(LEG, state.youmonst);
         if ((wounded.extrinsic & BOTH_SIDES) === BOTH_SIDES)
             legs = makeplural(legs);
@@ -3034,5 +3027,5 @@ export async function heal_legs(state = game, { message = ttyPline } = {}) {
 
     // C ref: do.c:2473-2484. Wounded legs cost carrying capacity, so healing
     // them can lift an encumbrance the hero has been carrying.
-    await encumber_msg(state, { message });
+    if (how === 0) await encumber_msg(state, { message });
 }

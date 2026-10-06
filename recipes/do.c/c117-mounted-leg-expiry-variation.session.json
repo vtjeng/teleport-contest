@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cheap variation of mounted wounded-legs healing: a one-turn timed wound expires while mounted before voluntary dismount. The ordinary timeout site heals the steed silently; dismount then has no remaining wound to repair. Same map seed fixes the mounted route while changing the wound duration changes the source branch.",
+  "segments": [
+    {
+      "seed": 117261219,
+      "datetime": "21030506101000",
+      "nethackrc": "OPTIONS=name:LegRider,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #ride\nj #wizintrinsic\n1m\n #ride\n   ."
+    }
+  ]
+}

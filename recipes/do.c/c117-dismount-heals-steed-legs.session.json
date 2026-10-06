@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent heal_legs(1) source caller: mount the fresh Knight pony south of the hero, set timed wounds while riding through the debug property command, then dismount. C heals before clearing u.usteed, without a feel-better or premature encumbrance line.",
+  "segments": [
+    {
+      "seed": 117261219,
+      "datetime": "21030506101000",
+      "nethackrc": "OPTIONS=name:LegRider,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #ride\nj #wizintrinsic\n10m\n #ride\n   ."
+    }
+  ]
+}
