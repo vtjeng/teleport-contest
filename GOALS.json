@@ -182858,7 +182858,7 @@
     {
       "id": "port-hack-pickup-checks-v23-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pickup reachability checks, command dispatch, and monster inventory looting",
       "cFile": "hack.c",
       "sessions": [
@@ -182873,22 +182873,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "pickup_checks",
           "line": 3788,
           "endLine": 3875,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dopickup",
           "line": 3876,
           "endLine": 3897,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -182900,9 +182903,9 @@
           "name": "loot_mon",
           "line": 2431,
           "endLine": 2487,
-          "declared": false,
+          "declared": true,
           "sourceFile": "pickup.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -183241,7 +183244,215 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pickup_checks",
+            "implementation": "js/hack.js",
+            "symbol": "pickup_checks",
+            "sourceReview": "Read whole hack.c3788-3871, then whole dopickup3876-3891. Preserve branch order and all four result values: swallowed empty digesting/non-digesting output returns1; nonempty minvent returns-2; raw Wwalking excluding Water Plane, is_floater/is_clinger, Flying including steed and blocking, raw magical Breathless plus species, Underwater and likes_lava determine surface refusal; empty-square terrain switch precedes reachability. Seen pit precedes unskilled rider, then blindness and hole/trapdoor surface overrides. All ordinary messages await in source order; no new RNG. Read consumed owner can_reach_floor engrave.c187-213 and current implementation, uteetering_at_seen_pit trap.c6647-6653, mondata.h digests/likes_lava and youprop.h property macros. Remove swallowed, water/lava, and unreachable-floor refusal placeholders. No returned note_unported value or injected substitute remains.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "dopickup",
+                "source": "hack.c3884 checks after copying command_count and resetting multi"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-checks-loot-mon.test.mjs",
+              "scripts/pickup-command.test.mjs",
+              "scripts/loot-command.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/pickup-swallowed-digest.session.json",
+              "recordings/hack.c/pickup-swallowed-vortex.session.json",
+              "recordings/hack.c/pickup-counted-stack.session.json",
+              "recordings/hack.c/pickup-levitating.session.json",
+              "recordings/hack.c/pickup-seen-pit.session.json",
+              "recordings/steed.c/rider-cant-reach-pickup-loot.session.json",
+              "recordings/hack.c/pickup-extended-count.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-water",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 8,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              },
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-lava",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              }
+            ],
+            "checkedAt": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d"
+          },
+          {
+            "name": "dopickup",
+            "implementation": "js/hack.js",
+            "symbol": "dopickup",
+            "sourceReview": "Whole hack.c3876-3891: copy integer command_count, clear multi before checks, map nonnegative checks to ECMD_TIME/OK, use tmpcount=-count passed by address into loot_mon for -2, otherwise pickup(-count). Both pickup and loot_mon results are consumed only for source time truth. Mutable {value} is the one JavaScript representation of each C pointer. Existing command bindings/extended dispatch retained. Remove obsolete comments asserting swallowed refusal; no stub remains.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runPickupCommand",
+                "source": "cmd.c extcmdlist comma pickup CMD_M_PREFIX -> rhack function pointer; doextcmd pickup, click-generated dopickup queue and MCMD.PICKUP use same row. js/cmd.js runPickupCommand, dispatchQueuedFunction5155, rhack5910 all reach whole dopickup."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-checks-loot-mon.test.mjs",
+              "scripts/pickup-command.test.mjs",
+              "scripts/loot-command.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/pickup-swallowed-digest.session.json",
+              "recordings/hack.c/pickup-swallowed-vortex.session.json",
+              "recordings/pickup.c/loot-swallowed-count.session.json",
+              "recordings/hack.c/pickup-counted-stack.session.json",
+              "recordings/steed.c/rider-cant-reach-pickup-loot.session.json",
+              "recordings/hack.c/pickup-extended-count.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-water",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 8,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              },
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-lava",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              }
+            ],
+            "checkedAt": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d"
+          },
+          {
+            "name": "loot_mon",
+            "implementation": "js/pickup.js",
+            "symbol": "loot_mon",
+            "sourceReview": "Read whole pickup.c2431-2481 and caller doloot_core2178-2344. Skip null/current steed/no saddle; mark inquiry before x_monnam SUPPRESS_SADDLE prompt. Yes tests nolimbs then curse with distinct0/1 returns, awaits extract_from_minvent(TRUE,FALSE), verbose take message, existing hold_another_object with doname drop argument, then exactly rnd(3), then prev_loot TRUE. q returns0; n falls through. Swallowed tail uses passed_info count and replaces timepassed with existing pickup return. Read source and implementation owners which_armor/extract_from_minvent worn.c, hold_another_object invent.c1208-1311, pickup/pickup_object/pick_obj pickup.c. Compose existing object/drop owners for hold fallback, encumbrance and equipment updates. Wire doloot_core lootmon label: inquiry/loot pointers, looted_mon based on result, impaired direction time and source else wording retained. Owned loot_mon refusal removed; no whole doloot_core or downstream owner credit is claimed.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "dopickup",
+                "source": "hack.c3886 swallowed route passes negated count and NULL prev_loot"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "doloot_core_lootmon",
+                "source": "pickup.c2311 adjacent-monster loot, int/boolean pointers and consumed time return"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-checks-loot-mon.test.mjs",
+              "scripts/pickup-command.test.mjs",
+              "scripts/loot-command.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/loot-applied-cursed-saddle.session.json",
+              "recordings/pickup.c/loot-applied-saddle.session.json",
+              "recordings/pickup.c/loot-saddle-no.session.json",
+              "recordings/pickup.c/loot-saddle-quit.session.json",
+              "recordings/pickup.c/loot-swallowed-count.session.json"
+            ],
+            "sourceFile": "pickup.c",
+            "synthetic": [],
+            "checkedAt": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d"
+          }
+        ],
+        "entryPointReview": "Commands are comma pickup (including swallowed count and mounted reach decisions), extended #pickup, and adjacent #loot saddle removal. These converge on the whole selected helpers; separate independent #pickup recording verifies doextcmd production wiring. The bounded mounted helper callers are hack.c pickup_checks and pickup.c able_to_loot through floor container #loot and #tip, both recorded in the mounted route. potion.c dodip and trap.c untrap have earlier source floor guards excluding the same unskilled mounted state before their nested rider helper; matching guard recordings are preserved without claiming nested reachability. No caller is labeled compile-time inactive. Independent applied saddles cover successful and cursed removal; natural Knight no/quit variation covers source inquiry without transfer. Bounded startup scan122061001-122061016 produced16/16 ponies,0/16 cursed saddles without widening; cursed coverage uses wished equipment instead. C-pinned direct tests cover nolimbs (ordinary #loot has earlier nohands guard), raw blocked properties, floating/lava-loving forms, blind/hole/trapdoor wording, current-steed exclusion and exact extraction/message/rnd order. Natural-start saddle acquisition is blocked by inherited dog.c makedog/steed.c put_saddle_on_mon/steal.c mpickobj identification ordering, documented in its committed recipe; independently applied-saddle evidence establishes the selected loot_mon entry without claiming startup owner completion.",
+        "entryPoints": [
+          {
+            "name": "comma pickup, including swallowed inventory and mounted reach checks",
+            "functions": [
+              "pickup_checks",
+              "dopickup",
+              {
+                "sourceFile": "pickup.c",
+                "name": "loot_mon"
+              }
+            ],
+            "recordings": [
+              "recordings/hack.c/pickup-swallowed-digest.session.json",
+              "recordings/hack.c/pickup-swallowed-vortex.session.json",
+              "recordings/pickup.c/loot-swallowed-count.session.json",
+              "recordings/hack.c/pickup-counted-stack.session.json",
+              "recordings/hack.c/pickup-levitating.session.json",
+              "recordings/hack.c/pickup-seen-pit.session.json",
+              "recordings/steed.c/rider-cant-reach-pickup-loot.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-water",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 8,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              },
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-lava",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              }
+            ]
+          },
+          {
+            "name": "extended #pickup with a count",
+            "functions": [
+              "pickup_checks",
+              "dopickup"
+            ],
+            "recordings": [
+              "recordings/hack.c/pickup-extended-count.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "adjacent #loot saddle inquiry and acquisition",
+            "functions": [
+              {
+                "sourceFile": "pickup.c",
+                "name": "loot_mon"
+              }
+            ],
+            "recordings": [
+              "recordings/pickup.c/loot-applied-cursed-saddle.session.json",
+              "recordings/pickup.c/loot-applied-saddle.session.json",
+              "recordings/pickup.c/loot-saddle-no.session.json",
+              "recordings/pickup.c/loot-saddle-quit.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
