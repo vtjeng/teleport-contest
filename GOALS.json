@@ -181386,7 +181386,7 @@
     {
       "id": "port-dog-wary-dog-v22-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port dog.c:wary_dog and wire corpse and statue revival callers.",
       "cFile": "dog.c",
       "sessions": [
@@ -181394,8 +181394,12 @@
       ],
       "selectionReason": "The current v22 mismatch first differs in dog.c:wary_dog at step 98 after the revived hero-killed pet skips the source RNG and tameness transition.",
       "detail": "Implement whole wary_dog in source order, wire zap.c:revive and trap.c:animate_statue, and retain explicit evidence limits for the unported lifesaved_monster, leash, and thrown-steed paths.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "0b11882ef71f5a7a9aa9b90e1a804b3c8839e021",
+      "openStanding": {
+        "sha": "0b11882ef71f5a7a9aa9b90e1a804b3c8839e021",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -181403,7 +181407,7 @@
           "name": "wary_dog",
           "line": 1292,
           "endLine": 1361,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -181424,7 +181428,64 @@
           "evaluationPath": "challenges/evaluations/20261006190144-v22.json",
           "evaluationCommit": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "0b11882ef71f5a7a9aa9b90e1a804b3c8839e021",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [],
+        "entryPointReview": "Enumerated the three direct source caller families. The two assigned existing revival callers now await the whole helper and preserve their canonical environments. Hero-wand corpse revival is witnessed by v22 segment 0 steps 96-100 and a completely matching independent horse recording (C wary_dog at step 85). Saved-traits statue animation is wired but lacks a matching runtime witness because the independent forced-melee recipe stops matching when uhitm.c:hmon_hitmon_misc_obj skips unported trap.c:minstapetrify; the committed blocked recipe names that dependency. Amulet life-saving remains blocked in its whole existing mon.c:lifesaved_monster owner and is not silently treated as inactive. Still-tame reset, starvation healing, minions, abuse boundaries, live feedback, no-eyes/visibility, planning silence and discarded leash/mount branches have source-derived helper tests, but these tests do not establish the blocked production entry coverage.",
+        "entryPoints": [
+          {
+            "name": "saved-traits corpse revival through undead turning",
+            "functions": [
+              "wary_dog"
+            ],
+            "recordings": [
+              "recordings/dog.c/b119-horse-corpse-revival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+                "segment": 0,
+                "fromStep": 96,
+                "throughStep": 100,
+                "source": "cmd.c:dozap -> zap.c:weffects -> bhit/bhitpile/bhito -> revive:1005 -> dog.c:wary_dog:1292-1360. The saved tame stone giant has EDOG.killed_by_u=1 and abuse=0, consumes rn2(1), loses tameness and becomes peaceful, then resumes ordinary monster movement after the resurrection pager."
+              }
+            ]
+          },
+          {
+            "name": "saved-traits statue animation through stone to flesh (blocked by minstapetrify)",
+            "functions": [
+              "wary_dog"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "pet amulet life-saving (blocked by whole lifesaved_monster owner)",
+            "functions": [
+              "wary_dog"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "0b11882ef71f5a7a9aa9b90e1a804b3c8839e021",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole wary_dog plus corpse and statue revival callers are integrated; admitted v22 and an independent horse recording verify corpse revival. Completion remains blocked on a matching statue route through unported trap.c:minstapetrify and on mon.c:lifesaved_monster, with leash and thrown-steed cleanup gaps retained explicitly."
     },
     {
       "id": "port-artifact-invoke-blinding-ray-v22-20261006",
