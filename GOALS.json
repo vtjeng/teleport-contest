@@ -174687,7 +174687,7 @@
       "sessions": [
         "synthetic/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected"
       ],
-      "selectionReason": "The current v21 Pyrolisk case stops at mattackm AT_GAZE before gazemm, M-to-M fire damage, and the floating-eye AD_PLYS passive. A read-only whole-source audit bounds the task to mhitm.c:gazemm, mdamagem, passivemm, the AT_GAZE/passive caller wiring, and result-bearing mon_reflects and mhitm_knockback verification; accepted C86 evidence supplies the existing AD_FIRE and grow_up closure.",
+      "selectionReason": "The current v21 Pyrolisk case stops at mattackm AT_GAZE before gazemm, M-to-M fire damage, and the floating-eye AD_PLYS passive. A read-only whole-source audit bounds the task to mhitm.c:gazemm, mdamagem, passivemm, the AT_GAZE/passive caller wiring, result-bearing mon_reflects and mhitm_knockback, and knockback predicates m_is_steadfast and will_hurtle; accepted C86 evidence supplies the existing AD_FIRE and grow_up closure.",
       "detail": "",
       "openedAt": null,
       "openStanding": null,
@@ -174737,6 +174737,22 @@
           "endLine": 5423,
           "declared": true,
           "sourceFile": "uhitm.c",
+          "complete": false
+        },
+        {
+          "name": "m_is_steadfast",
+          "line": 5218,
+          "endLine": 5246,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": false
+        },
+        {
+          "name": "will_hurtle",
+          "line": 977,
+          "endLine": 991,
+          "declared": true,
+          "sourceFile": "dothrow.c",
           "complete": false
         }
       ],
