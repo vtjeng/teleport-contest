@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T17:56:07.228Z",
+  "capturedAt": "2026-10-06T18:15:11.366Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -21702,12 +21702,68 @@
         "type": "accepted",
         "at": "2026-10-06T17:55:59.786Z",
         "task": "B116"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "b116-published-523c5e1c",
+        "type": "published",
+        "at": "2026-10-06T17:56:54.449Z",
+        "task": "B116",
+        "commit": "523c5e1c3ee468cad39a6970c6ad623b417261fb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c115-received-7a232620",
+        "type": "received",
+        "at": "2026-10-06T17:57:14.994Z",
+        "task": "C115",
+        "delivery": "7a232620e28b7839fff26a54dfd79832e826b14d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A112-A2-20261006",
+        "type": "assign",
+        "at": "2026-10-06T17:57:23.550Z",
+        "task": "A112",
+        "worker": "A2",
+        "goal": "port-uhitm-mhitm-ad-cold-whole-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A112-selection-gate",
+        "type": "park",
+        "at": "2026-10-06T17:59:32.293Z",
+        "task": "A112"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c115-integrating-5913841d",
+        "type": "integrating",
+        "at": "2026-10-06T17:59:54.943Z",
+        "task": "C115",
+        "integration": "5913841d2eeb8e82110208f1966bb47f08725368"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c115-validated-5913841d",
+        "type": "validated",
+        "at": "2026-10-06T18:15:04.992Z",
+        "task": "C115",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c115-accepted-5913841d",
+        "type": "accepted",
+        "at": "2026-10-06T18:15:07.394Z",
+        "task": "C115"
       }
     ]
   },
   "development": {
-    "executionCommit": "cf40bcddcbc120518f09e938db568ae2d2d9c4c6",
-    "measuredAt": "2026-10-06T17:49:10.481Z",
+    "executionCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+    "measuredAt": "2026-10-06T18:07:51.815Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

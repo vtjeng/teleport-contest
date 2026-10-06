@@ -3,15 +3,15 @@
   "corpus": "synthetic",
   "batch": "v22",
   "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
-  "remainingScreens": 12,
+  "remainingScreens": 8,
   "recordedSteps": 101,
   "manifestPath": "challenges/manifests/v22.json",
   "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
   "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
-  "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
-  "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb",
+  "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+  "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
   "status": "complete",
-  "commit": "9758aabc188413626cbf908f909e9448412c9fdb",
+  "commit": "5913841d2eeb8e82110208f1966bb47f08725368",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v22",
@@ -24,77 +24,68 @@
     "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
     "recipe": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
     "recipeSha256": "dd4337fb5504e488ff7adc498d9a500c3e3319802973cdd07ce23cf6f7e5c0a8",
-    "replayInputSha256": "95e601d652ecd5bef4db004f4b10f27fca78dc0a408fc07bfe10a748ce0baedf",
-    "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
-    "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb",
-    "evaluationArtifact": "challenges/evaluations/20261006163300-v22.json",
-    "evaluationUtc": "2026-10-06T16:33:08.254Z",
-    "remainingScreens": 12,
+    "replayInputSha256": "a4de07e86e1a102a427012f613decfed4d464623cb75dc17236872f36190e8a2",
+    "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+    "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+    "evaluationArtifact": "challenges/evaluations/20261006180802-v22.json",
+    "evaluationUtc": "2026-10-06T18:09:23.546Z",
+    "remainingScreens": 8,
     "recordedSteps": 101,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 93,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 89,
+        "matched": 93,
         "total": 101
       },
       "rng": {
-        "matched": 2638,
+        "matched": 2651,
         "total": 2741
       },
       "cursors": {
-        "matched": 89,
+        "matched": 93,
         "total": 101
       }
     },
     "firstMismatch": {
       "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zhitu() for damage type 4",
-      "step": 89
+      "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+      "step": 93
     },
-    "step": 89,
+    "step": 93,
     "kind": "stop",
-    "sourceFile": "zap.c",
-    "function": "zhitu",
-    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zhitu() for damage type 4",
-    "cFile": "zap.c",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+    "cFile": null,
     "luaFile": null,
     "line": null
   },
-  "summary": "The death ray rebounds onto the hero before corpse revival. zap.c:zhitu has no ZT_DEATH implementation in JavaScript, so the Antimagic branch refuses at step 89 instead of printing the reference’s unaffected message. Assign the whole zhitu function and reconcile its existing caller/helper chain, including exact monster death attribution; the later wary_dog path is not the first blocker.",
+  "summary": "After B116 completes the hero death-ray path, the same command kills the tame stone giant and drops its boulder. JavaScript stops before step 93 because steal.c:mdrop_obj calls place_object without the blockPoint hook required for a first boulder on a square. Port the whole mdrop_obj lifecycle composition and wire its relobj death and pet callers with the canonical object-generation environment.",
   "source": {
-    "file": "zap.c",
-    "branch": "A wand death ray misses the tame stone giant, bounces, then hits a living non-demon hero with Antimagic and no reflection. dobuzz calls zhitu(type 4); zaptype(type)%10 is ZT_DEATH and the source takes the Antimagic arm.",
+    "file": "steal.c",
+    "branch": "The killed tame stone giant releases its inventory through mon.c:m_detach -> steal.c:relobj -> mdrop_obj. For a carried boulder, mdrop_obj places the object before stacking it; mkobj.c:place_object calls vision.c:block_point when this is the square's first boulder.",
     "functions": [
-      "zhitu"
+      "mdrop_obj"
     ],
     "callers": [
-      "zap.c:dobuzz at4980 -> zhitu after zap_hit succeeds on the hero and reflection is absent; wand command -> weffects -> buzz -> dobuzz",
-      "zap.c:ubreatheu at3021 -> zhitu for a polymorphed hero breathing at self"
+      "steal.c:relobj at 889 drops each monster inventory object through mdrop_obj during mon.c:m_detach after xkilled/mondead",
+      "steal.c:relobj also supplies the existing pet and monster inventory-release paths; verify those callers while keeping their broader behavior outside the source claim"
     ],
     "dependencies": [
-      "zap.c:zaptype and inventory_resistance_check are existing returned-value owners; verify the latter’s u_adtyp_resistance_obj dependency and disintegration draw-before-resistance order",
-      "mcastu.c:death_inflicted_by at358-382 needs a whole pure implementation, because zhitu consumes its output buffer; existing zhituLosehpArguments simplifies gender and shapechanger imitation instead",
-      "hacklib.c:strsubst exists; use it after death_inflicted_by and preserve Half_spell_damage integer arithmetic",
-      "Existing shieldeff, monstseesu/monstunseesu, ugolemeffects, fall_asleep, poisoned, burnarmor, erode_armor, destroy_items, ignite_items, disintegrate_arm, losehp and done owners must be wired at their exact source sites and supplied planning/live context",
-      "trap.c:acid_damage remains a named discarded-return gap when weapons are present; it is not a returned dependency that can supply invented damage",
-      "Retain the existing planned-death handoff for monster ray damage; new direct done(DIED) death/disintegration routes also need the production planning/live boundary reconciled"
+      "mkobj.c:place_object is an existing owner whose boulder branch consumes the blockPoint hook; reuse objectGenerationEnv rather than inventing a display update",
+      "Existing extract_from_minvent, flooreffects, stackobj, newsym, cansee, obj_no_longer_held, dealloc_obj and naming owners remain in source order; port no unrelated relobj behavior"
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/v22-work-queue.json and evaluation challenges/evaluations/20261006163300-v22.json identify 89/101 matching screens and 12 remaining at 9758aabc188413626cbf908f909e9448412c9fdb. This is an investigation count, not a claimed gain.",
-    "Examined JavaScript at the exact evaluation commit using git show into .cache/investigations/synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst/zap-at-evaluation.js. Its zhitu at4643-4744 handles ZT_FIRE and ZT_ACID only; the default at4718-4721 throws UnsupportedZapError for damage type4. Existing imported ugolemeffects and related owners show the old fire-resistance comment is not current evidence of missing callees.",
-    "Read whole upstream zap.c:4401-4591 at the evaluation’s identical C gitlink16ff59115315917b93185d026aeefea06db9b0f4. The ZT_DEATH branch4464-4509 distinguishes disintegration breath, nonliving/demon forms, Antimagic, and actual death; the Antimagic arm4497-4501 shields, records M_SEEN_MAGR, prints You aren’t affected, and breaks without a damage roll.",
-    "Immutable C recording challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json shows step88 direction l: the death ray misses and bounces; step89 newline: it hits the hero; step90 newline: You aren’t affected. The queue’s refusal at89 and absence of earlier divergence establish this source cause before the intended revival.",
-    "The saved single-session diagnostic, copied to .cache/investigations/synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst/saved-diagnostic.json, corroborates the same stop89 without an earlier divergence. Its replayCommit39a8c9e7cd9f9418eb91c290ddb057737bd5f84b is retained as counter-provenance; the present examined commit and remaining count come from the assigned evaluation, not that earlier diagnostic.",
-    "Later C steps93-94 kill the tame stone giant and again survive a returned death ray. C step98 records montraits zap.c:750 then rn2(1) at wary_dog dog.c:1313; step99 reports resurrection. JavaScript has not reached this tail, so this investigation does not claim revive/montraits/wary_dog parity after zhitu is implemented.",
-    "Smallest independently assignable source scope is the whole zap.c:zhitu4401-4591, including all eight damage types and the shared losehp tail, with its dobuzz/ubreatheu callers. A death-arm-only implementation would leave the selected whole function incomplete. Reconcile existing fire/acid partial behavior in the same task.",
-    "Whole-source return/output closure also requires mcastu.c:death_inflicted_by358-382. Its output is read by zhitu at4574-4588 even though C discards the char-pointer return. No matching declaration exists in js/mcastu.js at the evaluation commit; the current local formatter ignores Mgender and cham imitation. Port it in js/mcastu.js and give this pure helper source-pinned tests; use existing hacklib.c:strsubst instead of another formatter.",
-    "For every damage arm preserve C order: fire/cold/lightning mandatory d(nd,6), sleep d(nd,25) only without resistance, disintegration inventory protection draw before checking hero resistance, shield/suit/cloak destruction order, raw signed-type corpse suppression, immediate return after done even when lifesaved, poison’s direct poisoned call, acid weapon/armor gates, and rounded half spell damage only for non-breath rays.",
-    "Whole-function runtime coverage needs the cited Antimagic rebound and independently chosen cases for remaining elemental, sleep, poison, death, disintegration and self-breath entries. Existing helper declarations or isolated tests do not establish those runtime entries. Expand helper message/RNG environments only where the planning clone needs them; preserve existing death handoff instead of adding new Unsupported guards.",
-    "Identity verified: admitted v22 corpusDigest equals 5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0 and this recording’s file SHA256 equals 3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4. No active ledger reservations were present at the investigation’s reservation read; reserve source:zap.c:zhitu and source:mcastu.c:death_inflicted_by plus the hero-ray/planning contract before implementation, and recheck current reservations then."
+    "Current evaluation challenges/evaluations/20261006180802-v22.json at 5913841d2eeb8e82110208f1966bb47f08725368 records 93/101 matching screens, 2651/2741 RNG calls and a stop before zero-based step 93: blockPoint is not available for otyp 475. Otyp 475 is BOULDER.",
+    "A bounded C/JavaScript trace on published B116 saved at the worker as .cache/A112-v22-readonly-trace.log reaches wand command -> weffects -> buzz/dobuzz -> xkilled -> mondead -> m_detach -> relobj -> mdrop_obj -> place_object. The trace made no behavior edits.",
+    "Read steal.c:mdrop_obj 814-846 and its relobj caller. C calls place_object for the dropped boulder before stackobj and completes the death drop; JavaScript js/steal.js passes plain dropEnv to place_object while supplying objectGenerationEnv(env) only to the following stackobj call.",
+    "The canonical objectGenerationHooks owner supplies blockPoint. The failing value is the first boulder on its square, so mkobj.c:place_object 2331-2334 requires that hook to update vision; the missing environment is the first differing operation.",
+    "The immutable C recording next logs rn2(6)=5 in xkilled at mon.c:3587. JavaScript never reaches that draw, confirming that the boulder drop blocks before the later treasure and revival tail.",
+    "Smallest independently assignable scope is whole steal.c:mdrop_obj 814-846 with its relobj death and pet callers. Verify the existing mkobj.c:place_object/vision contract and preserve extraction, floor effects, stacking, held-state cleanup, visibility and redraw order."
   ]
 }

@@ -179657,7 +179657,7 @@
     {
       "id": "port-timeout-levitation-dialogue-v22-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete levitation timeout warnings and occupation cancellation",
       "cFile": "timeout.c",
       "sessions": [
@@ -179665,17 +179665,24 @@
       ],
       "selectionReason": "The completed v22 investigation traces the step-20 screen mismatch to nh_timeout skipping timeout.c levitation_dialogue at a five-turn intrinsic timeout. The whole warning helper and its planning/live caller wiring are independently assignable.",
       "detail": "Port whole timeout.c levitation_dialogue and wire nh_timeout before the common decrement loop. Preserve extrinsic and terrain suppression, odd timeout warning selection, ordinary versus urgent messages, pool/lava and Plane of Water wording, stop_occupation ordering, and planning/live state ownership. Keep final timeout-one descent in the existing float_down expiry path.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "5913841d2eeb8e82110208f1966bb47f08725368",
+      "openStanding": {
+        "sha": "5913841d2eeb8e82110208f1966bb47f08725368",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5913841d2eeb8e82110208f1966bb47f08725368",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "levitation_dialogue",
           "line": 353,
           "endLine": 388,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -179694,6 +179701,131 @@
           "recordingSha256": "76a69b499c40322ca856031510a0608c567dd8f5cad561552c7dc2164fedc260",
           "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
           "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb"
+        }
+      },
+      "activeStanding": {
+        "sha": "5913841d2eeb8e82110208f1966bb47f08725368",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "levitation_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "levitation_dialogue",
+            "sourceReview": "Read timeout.c:347-378, including both levi_texts entries and the complete function. Preserve integer truncation of (HLevitation TIMEOUT - 1)/2, raw ELevitation suppression, inaccessible non-pool/lava terrain suppression, odd timeout and two-entry index bounds. Five turns uses ordinary pline1; three uses urgent_pline with over/surface outside the Plane of Water and in/air otherwise. Await the selected message before source stop_occupation; do not decrement the property in the helper or move float_down final descent into it. Inspected consumed callees ACCESSIBLE (rm.h macro/const.js), is_pool_or_lava (dbridge.c:76-83), Is_waterlevel, surface (dungeon.c:1749-1788 including hliquid display RNG), and stop_occupation (allmain.c:684-697, including maybe_finished_meal, nomul and canned-command clearing). All have existing source implementations; no callee gap was added. Replaced the source-named nh_timeout gap with an awaited call between sickness_dialogue and phaze_dialogue, before property decrements. Live-state handoff now recognizes only emitted levitation warnings (3/5, unsuppressed terrain and extrinsic guards) alongside the existing final expiry gate. The existing allmain handoff halts speculative execution before warnings, occupation cancellation and hallucinated surface display draws; suppressed/countdown-only calls remain safe on clones. Removed the obsolete levitation_dialogue gap.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout:633-634; HLevitation & TIMEOUT call before common property decrement at 670-672"
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurn",
+                "source": "allmain.c:moveloop_core:273 calls nh_timeout before run_regions; existing JS live timeout handoff uses nh_timeout_requires_live_state"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-levitation.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c115-levitation-search-warning.session.json",
+              "recordings/timeout.c/c115-levitation-three-turn-variation.session.json",
+              "recordings/timeout.c/c115-levitation-pool-warning.session.json",
+              "recordings/timeout.c/c115-levitation-hallucinated-pool-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 20,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> levitation_dialogue"
+              }
+            ],
+            "checkedAt": "5913841d2eeb8e82110208f1966bb47f08725368"
+          }
+        ],
+        "entryPointReview": "The selected source unit is a countdown helper called only by nh_timeout, reached every elapsed hero turn through allmain.c:moveloop_core. Its entry is the timed intrinsic levitation clock; it has no separate command dispatcher. Matching admitted v22 steps 18-20 cover the five-turn warning. Independent counted-search recording reaches the same warning while occupied at boundary 22, prints You stop searching after it, and reaches the three-turn urgent warning at boundary 29. A separate three-turn case covers urgent air wording, a wished-pool case covers surface water wording, and its hallucinated variation covers the live surface/hliquid display-RNG branch. Focused tests pin ELevitation and terrain suppression, raw intrinsic/blocked semantics, Plane of Water, lava and underlying raised-drawbridge terrain, out-of-range/even counts, invulnerability handoff, and asynchronous warning-before-cancellation-before-decrement order. Final timeout-one descent stays in the existing float_down expiry owner; this task does not replace that function.",
+        "entryPoints": [
+          {
+            "name": "elapsed hero turn with timed intrinsic levitation",
+            "functions": [
+              "levitation_dialogue"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c115-levitation-search-warning.session.json",
+              "recordings/timeout.c/c115-levitation-three-turn-variation.session.json",
+              "recordings/timeout.c/c115-levitation-pool-warning.session.json",
+              "recordings/timeout.c/c115-levitation-hallucinated-pool-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 20,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> levitation_dialogue"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5913841d2eeb8e82110208f1966bb47f08725368",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-steal-mdrop-obj-boulder-v22-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete monster inventory drops with boulder vision updates",
+      "cFile": "steal.c",
+      "sessions": [
+        "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst"
+      ],
+      "selectionReason": "The refreshed v22 investigation at 5913841d traces the step-93 stop to steal.c mdrop_obj: the killed tame stone giant's first boulder reaches mkobj.c place_object without the canonical blockPoint environment, while C completes the drop before xkilled's next rn2(6).",
+      "detail": "Port whole steal.c mdrop_obj and wire its relobj death and pet callers. Preserve extraction, floor effects, object placement, stacking, held-state cleanup, visibility, and redraw order. Reuse the existing objectGenerationEnv/place_object vision contract so a first boulder supplies blockPoint; do not claim whole relobj or unrelated monster-death behavior.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mdrop_obj",
+          "line": 814,
+          "endLine": 851,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 814,
+        "to": 851
+      },
+      "syntheticProvenance": {
+        "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst": {
+          "session": "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recordingPath": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+          "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+          "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368"
         }
       }
     }
