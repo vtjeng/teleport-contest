@@ -1,0 +1,128 @@
+{
+  "session": "synthetic/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst",
+  "corpus": "synthetic",
+  "batch": "v22",
+  "caseId": "wizard-invokes-sunsword-ray-at-orc-v22-cfirst",
+  "remainingScreens": 1,
+  "recordedSteps": 126,
+  "manifestPath": "challenges/manifests/v22.json",
+  "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+  "recordingSha256": "6720fd55c07e895615747a5f88bb15af6cdc2d4dd65c7b3246885588ba23cd15",
+  "evaluationPath": "challenges/evaluations/20261006192757-v22.json",
+  "evaluationCommit": "2dd4a6fc5922b536fe79f76ab272ad0f3ebc5a5c",
+  "status": "complete",
+  "commit": "2dd4a6fc5922b536fe79f76ab272ad0f3ebc5a5c",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v22",
+    "caseId": "wizard-invokes-sunsword-ray-at-orc-v22-cfirst",
+    "session": "synthetic/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst",
+    "manifestPath": "challenges/manifests/v22.json",
+    "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+    "recording": "challenges/cases/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.session.json",
+    "recordingPath": "challenges/cases/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.session.json",
+    "recordingSha256": "6720fd55c07e895615747a5f88bb15af6cdc2d4dd65c7b3246885588ba23cd15",
+    "recipe": "challenges/cases/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.recipe.session.json",
+    "recipeSha256": "5bd2112b00b33f563202a30d971d64bc5b99b5dd7152528fa397dbc25a43b8e8",
+    "replayInputSha256": "95e601d652ecd5bef4db004f4b10f27fca78dc0a408fc07bfe10a748ce0baedf",
+    "evaluationPath": "challenges/evaluations/20261006192757-v22.json",
+    "evaluationCommit": "2dd4a6fc5922b536fe79f76ab272ad0f3ebc5a5c",
+    "evaluationArtifact": "challenges/evaluations/20261006192757-v22.json",
+    "evaluationUtc": "2026-10-06T19:29:20.250Z",
+    "remainingScreens": 1,
+    "recordedSteps": 126,
+    "previousScreensMatched": 125,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 125,
+        "total": 126
+      },
+      "rng": {
+        "matched": 2680,
+        "total": 2686
+      },
+      "cursors": {
+        "matched": 126,
+        "total": 126
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 125,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 125,
+          "key": "l"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2677,
+        "cEntry": "rn2(4)=0",
+        "cCaller": "flash_hits_mon(uhitm.c:6399)",
+        "jsEntry": "rn2(12)=4",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 125,
+          "key": "l"
+        },
+        "stepIndex": 125
+      },
+      "cursor": null
+    },
+    "step": 125,
+    "kind": "rng",
+    "sourceFile": "uhitm.c",
+    "function": "flash_hits_mon",
+    "message": null,
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": 6399
+  },
+  "summary": "At zero-based step 125, artifact.c:invoke_blinding_ray skips the existing apply.c:do_blinding_ray caller. C blinds the adjacent orc and draws rn2(4); JavaScript records an unported gap and begins next-turn monster-speed RNG. Port the complete artifact invocation function and wire its horizontal, vertical, self and cancellation branches to their existing source owners.",
+  "source": {
+    "file": "artifact.c",
+    "branch": "The selected Sunsword has BLINDING_RAY invocation power; arti_invoke pays its invocation cost, getdir accepts an eastward horizontal direction, and invoke_blinding_ray must call apply.c:do_blinding_ray. That helper returns the visible adjacent orc through zap.c:bhit and calls uhitm.c:flash_hits_mon.",
+    "functions": [
+      "invoke_blinding_ray"
+    ],
+    "callers": [
+      "artifact.c:arti_invoke at 2172 consumes invoke_blinding_ray return in the BLINDING_RAY switch. Existing js/artifacts.js:2691 already awaits it; preserve command-result semantics.",
+      "Production #invoke dispatch is js/cmd.js:doinvoke -> artifact.c:doinvoke 1749-1759 -> retouch_object -> arti_invoke -> invoke_blinding_ray. Keep touch damage and invocation-cost draws before the direction prompt, and call the existing apply.c:do_blinding_ray instead of its named gap."
+    ],
+    "dependencies": [
+      "Reuse getdir, apply.c:do_blinding_ray 61-76 (js/apply.js:1479), zap.c:bhit FLASHED_LIGHT traversal, uhitm.c:flash_hits_mon and light.c:transient_light_cleanup. Do not reimplement these accepted camera-ray owners.",
+      "Reuse read.c:litroom 2491-2634 for the up/down arm. The current light.c litroom annotation names the wrong C file. Its existing Sunsword branch illuminates only the hero square outside Rogue levels; after awaiting it, preserve the C Blind/lit/waslit message condition.",
+      "Reuse zap.c:flashburn 3060-3087; its boolean return is consumed by invoke_blinding_ray and the existing helper covers it. Self invocation must determine gremlin vulnerability before the possible lightdamage/rehumanization, then evaluate damg+rnd(damg), await flashburn, and suppress nothing_seems_to_happen when vulnerable.",
+      "Reuse zap.c:lightdamage 3026-3056 for gremlin self invocation, whose discarded return precedes flashburn. Existing lightdamage lacks the broader clone/random environment used by newer helpers; ordinary #invoke is live, and any proposed planning exposure needs a separate source/environment audit.",
+      "Existing historical artifact-c declaration marks invoke_blinding_ray ported despite all three branches containing named gaps or substitute behavior. Root must reconcile its completion evidence before accepting this whole-function follow-up."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Evaluation challenges/evaluations/20261006192757-v22.json at 2dd4a6fc5922b536fe79f76ab272ad0f3ebc5a5c records 125/126 screens, 2680/2686 aggregate matching RNG calls and 126/126 cursors: one screen remains.",
+    "Exact-commit single-case replay .cache/A2-sunsword-investigation-replay.log (bounded run-P3JFBd) first differs at segment 0 zero-based step 125 key l, global RNG index 2677: C rn2(4)=0 @ flash_hits_mon(uhitm.c:6399), JS rn2(12)=4. First screen difference is row 0 column 0: C begins The orc is blinded by the flash!, JS top line is blank. The replay completes without a boundary refusal.",
+    "Read whole artifact.c:invoke_blinding_ray 2054-2087 and its arti_invoke caller. Horizontal direction calls do_blinding_ray; vertical calls litroom then tests the updated current-square lit/waslit state; self direction conditionally calls lightdamage for a gremlin and always consumes flashburn result; cancellation prints Never_mind, resets obj.age to moves and returns ECMD_CANCEL. Every accepted direction returns ECMD_TIME.",
+    "At the examined commit js/artifacts.js:2600 records note_unported(artifact.c do_blinding_ray), so the C ray never runs. The actual helper belongs to apply.c and is already exported by js/apply.js. The first cause is this missing artifact caller, even though the first differing random call is annotated uhitm.c:flash_hits_mon.",
+    "apply.c:do_blinding_ray writes object.ox/oy to the hero coordinates after bhit, then calls flash_hits_mon and finally transient_light_cleanup. For this visible adjacent orc, uhitm.c:6399 draws rn2(4)=0, so no flee-duration draw follows, and distance below three yields permanent blindness without another duration draw. Existing js/uhitm.js follows those source gates.",
+    "The earlier artifact touch-power damage, cost draw sequence, pager and direction prompt match through step 124. That matching prefix excludes invocation cost and direction acquisition as the first cause. The final mismatch must be repaired by wiring the existing ray, not by adding a substitute rn2(4) or message.",
+    "This case exercises only one horizontal monster-hit invocation. Whole-function closure also needs independent horizontal empty/miss and direction-cancel, up/down lighting including the source Rogue exception, and self invocation with ordinary and gremlin/resistant hero variations. Saved camera-helper evidence does not establish Sunsword entry wiring, and this read-only investigation supplies no completion evidence."
+  ]
+}

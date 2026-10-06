@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T19:35:17.118Z",
+  "capturedAt": "2026-10-06T19:55:47.973Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -21955,12 +21955,53 @@
         "type": "accepted",
         "at": "2026-10-06T19:34:45.570Z",
         "task": "C117"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C117-a0cd1105",
+        "type": "published",
+        "at": "2026-10-06T19:36:28.698Z",
+        "task": "C117",
+        "commit": "a0cd110501062dbe5bb1d700aa44e47024e8a9da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C118-20261006",
+        "type": "assign",
+        "at": "2026-10-06T19:38:46.265Z",
+        "task": "C118",
+        "worker": "C",
+        "goal": "port-mon-kill-genocided-monsters-v22-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B118-89e08848",
+        "type": "integrating",
+        "at": "2026-10-06T19:38:47.086Z",
+        "task": "B118",
+        "integration": "89e08848f84d398e136b109857aa54eb87c1c4fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B118-89e08848",
+        "type": "validated",
+        "at": "2026-10-06T19:52:49.624Z",
+        "task": "B118",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B118-89e08848",
+        "type": "accepted",
+        "at": "2026-10-06T19:52:52.044Z",
+        "task": "B118"
       }
     ]
   },
   "development": {
-    "executionCommit": "2dd4a6fc5922b536fe79f76ab272ad0f3ebc5a5c",
-    "measuredAt": "2026-10-06T19:27:44.429Z",
+    "executionCommit": "89e08848f84d398e136b109857aa54eb87c1c4fc",
+    "measuredAt": "2026-10-06T19:46:48.821Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -180949,7 +180949,7 @@
     {
       "id": "port-timeout-region-dialogue-v22-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete magical breathing timeout warnings in dangerous regions",
       "cFile": "timeout.c",
       "sessions": [
@@ -180963,15 +180963,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "89e08848f84d398e136b109857aa54eb87c1c4fc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "region_dialogue",
           "line": 554,
           "endLine": 574,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -181191,7 +181194,76 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "region_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "region_dialogue",
+            "sourceReview": "Read the complete timeout.c region_texts[] table (548-551), region_dialogue body (554-569), and sole direct nh_timeout caller (638). The assigned range 554-574 includes the following done_timeout declaration; no done_timeout scope is claimed. Translated both strings, integer r/2 indexing, odd-count and bounds gates, clearing only TIMEOUT, computing Breathless from intrinsic/extrinsic magical breathing or species breathlessness, unconditionally calling region_danger even when Breathless is true, restoring the original timeout before either return or ordinary pline, and caller ordering after phaze_dialogue and before sleep_dialogue and timeout decrement. Read youprop.h:275-276 Breathless and region.c:1340-1362 region_danger, and inspected their existing JavaScript owners. region_danger is a pure complete predicate with existing source-pinned tests; it checks hero-inside gas callback and nonliving, breathless, magical breathing and poison resistance without RNG, output or state writes. No new source-owner credit for it is claimed. Removed the obsolete note_unported region_dialogue substitute and planning guard; the production caller now awaits the helper with its canonical display/message environment. The helper is impure because it temporarily writes the intrinsic timeout and can print. It adds no RNG, urgency, occupation cancellation, redraw or additional input. Planning defaults to silent output and preserves an explicitly supplied caller operation. No unported callee or discarded-return gap remains in the selected helper. Searched source marker and timeout callers in scripts/*.test.mjs; the fail-first test reproduced the missing helper. Tests cover both source strings, odd/even and out-of-table clocks, timeout restoration before awaiting output, ignored blocked bits, protected/resistant states, unconditional danger evaluation, absent gas, and live/planning caller behavior.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:638 invokes region_dialogue when HMagical_breathing has TIMEOUT, after phaze_dialogue and before sleep_dialogue and property decrement. JavaScript awaits region_dialogue(state, displayEnv), retaining the existing invulnerability early return and timeout ordering."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurn",
+                "source": "allmain.c:moveloop_core:273 invokes nh_timeout during elapsed-turn upkeep. Existing JavaScript finishElapsedTurn:906 supplies the clone/live state and turn message operation to nh_timeout; no allmain edit or whole caller completion is claimed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-region-dialogue.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/timeout-phaze.test.mjs",
+              "scripts/timeout-levitation.test.mjs",
+              "scripts/region.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "timeout.c",
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected",
+                "segment": 0,
+                "fromStep": 53,
+                "throughStep": 55,
+                "source": "allmain.c:moveloop_core:273 -> timeout.c:nh_timeout:638 -> region_dialogue:554-569. Elapsed turns inside the poison gas cloud reach timed magical breathing 5; region_dialogue clears TIMEOUT while evaluating Breathless and region.c:region_danger, restores the clock, and emits the first ordinary warning before nh_timeout decrements the property."
+              }
+            ],
+            "checkedAt": "89e08848f84d398e136b109857aa54eb87c1c4fc"
+          }
+        ],
+        "entryPointReview": "The selected whole helper has one direct source caller: nh_timeout during hero elapsed-turn upkeep. Its timed magical-breathing warning inside a poison gas cloud is the active entry. The admitted v22 recording executes this production chain and now matches all 56 screens, 56 cursors and 2784 RNG calls; its cited zero-based segment 0 steps 53-55 cover the cloud continuation and warning. This matching admitted range covers the impure function and entry, so no independent recording is required. Source-pinned tests cover the second warning and conditions suppressing output. The table is part of this whole helper source unit; no whole nh_timeout, region_danger or unrelated region behavior completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "timed magical-breathing warning during hero upkeep inside poison gas",
+            "functions": [
+              "region_dialogue"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected",
+                "segment": 0,
+                "fromStep": 53,
+                "throughStep": 55,
+                "source": "allmain.c:moveloop_core:273 -> timeout.c:nh_timeout:638 -> region_dialogue:554-569. Elapsed turns inside the poison gas cloud reach timed magical breathing 5; region_dialogue clears TIMEOUT while evaluating Breathless and region.c:region_danger, restores the clock, and emits the first ordinary warning before nh_timeout decrements the property."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "89e08848f84d398e136b109857aa54eb87c1c4fc",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-mon-kill-genocided-monsters-v22-20261006",
@@ -181276,6 +181348,49 @@
           "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
           "evaluationPath": "challenges/evaluations/20261006190144-v22.json",
           "evaluationCommit": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c"
+        }
+      }
+    },
+    {
+      "id": "port-artifact-invoke-blinding-ray-v22-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete artifact.c invoke_blinding_ray and wire the Sunsword ray branches.",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst"
+      ],
+      "selectionReason": "The current v22 case first differs because invoke_blinding_ray skips the existing do_blinding_ray helper at step 125; historical artifact-c evidence covered a partial implementation.",
+      "detail": "Port horizontal, vertical, self, and cancellation branches in source order through the existing do_blinding_ray, litroom, lightdamage, and consumed flashburn owners; reconcile stale artifact-c completion evidence before integration.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "invoke_blinding_ray",
+          "line": 2054,
+          "endLine": 2090,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2054,
+        "to": 2090
+      },
+      "syntheticProvenance": {
+        "synthetic/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst": {
+          "session": "synthetic/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst",
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-invokes-sunsword-ray-at-orc-v22-cfirst",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recordingPath": "challenges/cases/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.session.json",
+          "recordingSha256": "6720fd55c07e895615747a5f88bb15af6cdc2d4dd65c7b3246885588ba23cd15",
+          "evaluationPath": "challenges/evaluations/20261006194658-v22.json",
+          "evaluationCommit": "89e08848f84d398e136b109857aa54eb87c1c4fc"
         }
       }
     }
