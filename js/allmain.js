@@ -121,6 +121,7 @@ import {
     see_objects,
     see_traps,
     swallowed,
+    under_water,
     timebot,
     UnsupportedMapMemoryError,
 } from './display.js';
@@ -1586,6 +1587,9 @@ async function advanceElapsedTurn(state) {
         doVicinityMap: (sobj, { state: mapState } = {}) =>
             do_vicinity_map(sobj, mapState ?? state, { random }),
     });
+    // C allmain.c:432: redraw after stationary pool effects, before the
+    // nearby-monster observation, only in the hero-took-time block.
+    if (state.u.uinwater) await under_water(0, state);
     see_nearby_monsters(state);
 }
 
