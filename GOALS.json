@@ -179832,7 +179832,7 @@
     {
       "id": "port-timeout-phaze-dialogue-v22-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete wall-passing timeout warning dialogue",
       "cFile": "timeout.c",
       "sessions": [
@@ -179846,15 +179846,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f35e28081e8d63878ce53dfd814fefc7e9a8df4c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "phaze_dialogue",
           "line": 534,
           "endLine": 553,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -180074,7 +180077,81 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "phaze_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "phaze_dialogue",
+            "sourceReview": "Read complete phaze_texts[] at timeout.c:528-531 and phaze_dialogue at 533-543. Preserve C integer truncation of (HPasses_walls & TIMEOUT)/2 before the raw EPasses_walls or HPasses_walls & ~TIMEOUT guard. Select the two source strings in reverse countdown order only at odd timeout counts 5 and 3; even, count-one, zero and counts above the array index bound print nothing. Do not consult blocked or the combined Passes_walls predicate. Ordinary pline is the only callee: await its existing message callback, defaulting to ttyPline live and silence on a planning clone. No occupation cancellation, property mutation, RNG call or source callee gap exists in this helper. Deleted the nh_timeout source-named gap and await the helper whenever the masked HPasses_walls timeout is nonzero, between levitation_dialogue and region_dialogue, before the common decrement loop. Existing allmain ordinary-message planning callbacks provide silence on speculative clones; there is no phaze-specific state/RNG effect requiring a new live handoff. Actual timeout-one expiry and its stuck_in_wall behavior remain owned by the existing decrement_property_timeouts branch.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout:635-636: HPasses_walls & TIMEOUT call before common decrement at670-672"
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurn",
+                "source": "allmain.c:moveloop_core:273: elapsed-turn nh_timeout before run_regions; existing ordinary turnMessage supplies silentDisplay for planning and ttyPline live"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-phaze.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c116-phaze-five-turn-warning.session.json",
+              "recordings/timeout.c/c116-phaze-three-turn-variation.session.json",
+              "recordings/timeout.c/c116-phaze-search-continues.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 20,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> phaze_dialogue"
+              }
+            ],
+            "checkedAt": "f35e28081e8d63878ce53dfd814fefc7e9a8df4c"
+          }
+        ],
+        "entryPointReview": "The whole helper is reached only through the nh_timeout clock on elapsed hero turns. Admitted v22 steps18-20 establish its three-turn ordinary warning; independent Monk count-five recording reaches bloated at21 and flabby at24, accounting for fast actions that do not always advance a turn. A fresh Ranger/count-three variation reaches flabby at21. The normal-speed Valkyrie counted-search recording starts at seven (outside the warning range), reaches both warnings in boundary22, and has no You stop searching message; six automatic searches continue through the source warnings and leave timeout one for the separate expiry owner. An earlier Monk search setup encountered an unrelated nearby-monster interruption before warnings; the committed recipe documents this counter-evidence and uses a separately chosen level seed/role. Focused tests pin raw extrinsic/permanent intrinsic suppression and ignored blocked field, even/out-of-range/timeout-one silence, no RNG or urgent message, awaited warning-before-decrement, retained occupation/multi, default silent planning and ordinary callback forwarding. All active source entry paths for this helper converge on the same elapsed-turn clock.",
+        "entryPoints": [
+          {
+            "name": "elapsed hero turn with timed intrinsic Passes_walls",
+            "functions": [
+              "phaze_dialogue"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c116-phaze-five-turn-warning.session.json",
+              "recordings/timeout.c/c116-phaze-three-turn-variation.session.json",
+              "recordings/timeout.c/c116-phaze-search-continues.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 20,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> phaze_dialogue"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f35e28081e8d63878ce53dfd814fefc7e9a8df4c",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-timeout-stoned-dialogue-heal-legs-v22-20261006",
@@ -180169,6 +180246,49 @@
           "recordingSha256": "709241e806cddd2c3348ab169e13aaf65d56d8264e40b2656e293fe6e4f2c56c",
           "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
           "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368"
+        }
+      }
+    },
+    {
+      "id": "port-mon-kill-genocided-monsters-v22-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete genocided monster removal across live and stored objects",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected"
+      ],
+      "selectionReason": "The current v22 queue has one unmatched screen at step 72; the complete investigation traces it to skipped mon.c kill_genocided_monsters, which leaves the genocided newt live and shifts later allmain movement RNG.",
+      "detail": "Port whole mon.c kill_genocided_monsters and wire read.c single/class genocide, do.c goto_level, and cmd.c wiz_makemap callers. Preserve saved-next traversal, original-versus-current form handling, mondead/newcham dispatch, and surviving inventory plus hero/floor/migrating/buried kill_eggs sweeps. Remove the private do.js stub and retain the explicit kill_egg gap.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "kill_genocided_monsters",
+          "line": 5639,
+          "endLine": 5679,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 5639,
+        "to": 5679
+      },
+      "syntheticProvenance": {
+        "synthetic/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected": {
+          "session": "synthetic/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected",
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recordingPath": "challenges/cases/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.session.json",
+          "recordingSha256": "477b3a67f08c0d927b452d07ea18eb61d3c3bdb81ddace9a9981d720af524034",
+          "evaluationPath": "challenges/evaluations/20261006184056-v22.json",
+          "evaluationCommit": "f35e28081e8d63878ce53dfd814fefc7e9a8df4c"
         }
       }
     }

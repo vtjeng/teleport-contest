@@ -1,0 +1,130 @@
+{
+  "session": "synthetic/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected",
+  "corpus": "synthetic",
+  "batch": "v22",
+  "caseId": "wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected",
+  "remainingScreens": 1,
+  "recordedSteps": 73,
+  "manifestPath": "challenges/manifests/v22.json",
+  "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+  "recordingSha256": "477b3a67f08c0d927b452d07ea18eb61d3c3bdb81ddace9a9981d720af524034",
+  "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+  "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+  "status": "complete",
+  "commit": "6280c0e41434074f94bedd415490cacf824abc50",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v22",
+    "caseId": "wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected",
+    "session": "synthetic/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected",
+    "manifestPath": "challenges/manifests/v22.json",
+    "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+    "recording": "challenges/cases/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.session.json",
+    "recordingPath": "challenges/cases/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.session.json",
+    "recordingSha256": "477b3a67f08c0d927b452d07ea18eb61d3c3bdb81ddace9a9981d720af524034",
+    "recipe": "challenges/cases/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.recipe.session.json",
+    "recipeSha256": "93d2cfe15a5b2af74077e2e55ca322d68af3a803330f36102cf97d2bf62d1ea1",
+    "replayInputSha256": "95e601d652ecd5bef4db004f4b10f27fca78dc0a408fc07bfe10a748ce0baedf",
+    "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+    "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+    "evaluationArtifact": "challenges/evaluations/20261006180802-v22.json",
+    "evaluationUtc": "2026-10-06T16:33:08.254Z",
+    "remainingScreens": 1,
+    "recordedSteps": 73,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 72,
+        "total": 73
+      },
+      "rng": {
+        "matched": 3064,
+        "total": 3067
+      },
+      "cursors": {
+        "matched": 73,
+        "total": 73
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 72,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 72,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 5,
+        "column": 28,
+        "cCell": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": ":",
+          "color": 11,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3064,
+        "cEntry": "rn2(70)=48",
+        "cCaller": "maybe_generate_rnd_mon(allmain.c:166)",
+        "jsEntry": "rn2(12)=8",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 72,
+          "key": "\n"
+        },
+        "stepIndex": 72
+      },
+      "cursor": null
+    },
+    "step": 72,
+    "kind": "rng",
+    "sourceFile": "mon.c",
+    "function": "kill_genocided_monsters",
+    "message": null,
+    "cFile": "mon.c",
+    "luaFile": null,
+    "line": 5639
+  },
+  "summary": "The genocide scroll sets the newt species flags and prints Wiped out all newts, but JavaScript skips mon.c:kill_genocided_monsters. The live newt remains on the map and receives one extra movement-allocation draw. Port the whole removal sweep and its existing genocide, level-arrival and wizard-map callers; allmain.c is where the shifted random stream is observed, not the first cause.",
+  "source": {
+    "file": "mon.c",
+    "branch": "A non-confused uncursed genocide scroll targets an existing hostile newt. read.c do_genocide marks its species G_GENOD|G_NOCORPSE and calls kill_genocided_monsters; the non-shapechanging live newt must pass to mondead before turn upkeep.",
+    "functions": [
+      "kill_genocided_monsters"
+    ],
+    "callers": [
+      "read.c:do_genocide2993 after species flags and possible hero death/rehumanization; js/read.js3085 has note_unported instead of a call.",
+      "read.c:do_class_genocide2749 after each admitted class species update; js/read.js2860 has the same named gap.",
+      "do.c:goto_level1817 after migrating creatures arrive, to catch species wiped out while in limbo; js/do.js2629 invokes a private kill_genocided_monsters stub at2853 which checks obsolete state.mvitals and records a gap.",
+      "cmd.c:wiz_makemap1048 after losedogs in the map-reposition path; js/cmd.js2595 records the named gap."
+    ],
+    "dependencies": [
+      "Reuse canonical mon.c mondead/m_detach/relobj and newcham owners with caller state, random, message/redraw and planning context. Ordinary genocide must not create a corpse or grant hero-kill conduct/experience: C calls mondead, not xkilled/killed/mondied. Audit inherited special-monster/death-callee limitations and preserve named void gaps without invented substitutes.",
+      "Reuse mon.c kill_eggs5609-5635, which consumes pure dead_species5587-5605. Existing JS dead_species in mondata.js checks current and baby species genocide while ignoring extinction; existing source-pinned mondata tests cover the predicate. Existing kill_eggs in mon.js recursively traverses inventory/container chains, but timeout.c kill_egg remains an explicit discarded-call gap. Do not claim egg timer cancellation parity without its owner/evidence.",
+      "Preserve the saved next-monster pointer before death or shapechange, skip DEADMONSTER before all work, distinguish genocided original shapechanger versus only genocided current form, call newcham(NULL,NC_SHOW_MSG) for the latter, then sweep surviving minvent and hero/floor/migrating/buried object chains in source order.",
+      "Remove the duplicate private do.js kill_genocided_monsters stub when wiring the single mon.js source owner. Do not retain its assumption that no ported command can set genocide flags."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Assigned challenges/evaluations/20261006180802-v22.json at 5913841d2eeb8e82110208f1966bb47f08725368 reports72/73 matched screens and3064/3067 matched RNG entries,73/73 cursors. The1 remaining screen is an investigation measurement, not delivered progress.",
+    "Resolved published6280c0e4 to full commit 6280c0e41434074f94bedd415490cacf824abc50. A read-only git-archive snapshot with official frozen isaac64/terminal/storage overlays replays only the assigned case. Bounded run-m9TaPz, .cache/A2-genocide-investigation-replay.log, reproduces segment0 step72 newline screen difference row5,col28: C floor '.', JavaScript live newt ':'; both top rows say Wiped out all newts. No boundary refusal occurred. Parked A112 edits were excluded and remain unchanged.",
+    "First RNG mismatch index3064 is C rn2(70)=48 @ maybe_generate_rnd_mon(allmain.c:166) versus JS rn2(12)=8. The C step72 annotation has nine mcalcmove rn2(12) allocations after scroll exercise; JavaScript has one additional allocation for the surviving newt before the random-monster gate. The queue attribution to allmain.c locates the next displaced call rather than the missing monster removal.",
+    "Read whole mon.c kill_genocided_monsters5639-5677. It saves mtmp2 before processing, skips dead monsters, checks genocided current form and original cham species, forces a non-genocided chameleon out of genocided form with newcham(NULL,NC_SHOW_MSG), otherwise calls mondead; then sweeps monster minvent and hero/floor/migrating/buried eggs. Read the adjacent kill_eggs/dead_species definitions and current owners, plus the mondead death/detach path rather than assuming same-name completeness.",
+    "Read whole read.c do_genocide2826-3015. Its selected branch sets G_GENOD|G_NOCORPSE, prints the same matched wipeout message, then calls kill_genocided_monsters2993 before update_inventory. Current js/read.js3085 records note_unported(mon.c kill_genocided_monsters). Searches of the published snapshot find no source-owner implementation in mon.js; only the obsolete private do.js stub and named read/cmd gaps.",
+    "Production caller audit found all four direct C call sites: read.c2749 class genocide, read.c2993 single-species/throne/forced genocide, do.c1817 level arrival, cmd.c1048 wizard map. Existing JS caller sites are present, so wire the whole source owner at all of them and await the death/drop lifecycle. This case supplies the ordinary single-species live-newt entry only; completion needs independent cheap class/arrival and shapechanger/egg routes or explicit blocked evidence.",
+    "The selected task should remain mon.c whole kill_genocided_monsters with its callers and required helper reconciliation. Replacing only the map glyph, skipping one rn2 call, or altering random generation in allmain would leave the monster on the live chain and violate source death/inventory state. Existing incomplete timeout.c kill_egg is a separate source gap, and inherited special-monster death paths need honest limits.",
+    "Immutable manifest corpus and recording SHA256 identities were verified against current admitted files before atomic cache replacement."
+  ]
+}
