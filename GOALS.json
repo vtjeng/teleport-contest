@@ -177202,7 +177202,7 @@
     {
       "id": "port-uhitm-mhitm-ad-poly-v21-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port polymorph attacks in all combat directions",
       "cFile": "uhitm.c",
       "sessions": [
@@ -177216,15 +177216,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f090c5e3dac898f0a7a9313809defbf18d293a5d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_poly",
           "line": 3729,
           "endLine": 3776,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -177236,9 +177239,9 @@
           "name": "mon_poly",
           "line": 1122,
           "endLine": 1209,
-          "declared": false,
+          "declared": true,
           "sourceFile": "mhitm.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -177411,7 +177414,141 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_poly",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_poly",
+            "sourceReview": "Read complete uhitm.c:3729-3774. Preserved mandatory magical-cancellation draw before mspec_used, weaponless hero gate, strict nonlethal limits, Maybe_Half_Phys rounding, all three actor routes, transformed defender death flags, done and damage return. AD_POLY refusal removed. Direct returned-damage callee mon_poly ported whole.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:4821 AD_POLY dispatch; reached by damageum at 4854, mhitu.c:hitmu at 1191, and mhitm.c:mdamagem at 1059"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-poly.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b113-ad-poly-hero-to-monster-tele-cancel.session.json",
+              "recordings/uhitm.c/b113-ad-poly-hero-to-monster-tele-cancel-terse.session.json",
+              "recordings/uhitm.c/b113-ad-poly-monster-pair-witness.session.json",
+              "recordings/uhitm.c/b113-ad-poly-monster-pair-witness-terse.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 30,
+                "source": "mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping(AD_POLY) -> mhitm_ad_poly -> mhitm.c:mon_poly -> polyself.c:polyself"
+              }
+            ],
+            "checkedAt": "f090c5e3dac898f0a7a9313809defbf18d293a5d"
+          },
+          {
+            "name": "mon_poly",
+            "implementation": "js/mhitm.js",
+            "symbol": "mon_poly",
+            "sourceReview": "Read complete mhitm.c:1122-1207. Preserved hero Antimagic/Unchanging gates, polyself/lycanthropy branch order, before-name capture, innate/general magic resistance order, rn2(25) system shock and integer HP deduction, death owner, newcham return, visible/terse/disappearance messages, attacker teleport, and rnd(2) post-change cooldown. Void were.c:you_were and you_unwere are named discarded-return gaps at this immutable base. Existing input planning boundary replays live before polyself and possible control prompts; no gameplay guard remains.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_poly",
+                "source": "uhitm.c:3744,3759,3767 consume mon_poly return for hero-to-monster, monster-to-hero and monster-to-monster routes"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-poly.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b113-ad-poly-hero-to-monster-tele-cancel.session.json",
+              "recordings/uhitm.c/b113-ad-poly-hero-to-monster-tele-cancel-terse.session.json",
+              "recordings/uhitm.c/b113-ad-poly-monster-pair-witness.session.json",
+              "recordings/uhitm.c/b113-ad-poly-monster-pair-witness-terse.session.json"
+            ],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 30,
+                "source": "mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping(AD_POLY) -> mhitm_ad_poly -> mhitm.c:mon_poly -> polyself.c:polyself"
+              }
+            ],
+            "checkedAt": "f090c5e3dac898f0a7a9313809defbf18d293a5d"
+          }
+        ],
+        "entryPointReview": "Complete mhitm_ad_poly and mon_poly have three active combat entry points, each wired through mhitm_adtyping. C monster catalog permits genetic engineer as hero form. Hero-to-monster and monster-to-monster use independent C recipes; monster-to-hero uses matching admitted v21 steps 29-30. No compile-time inactive entry points. All returned-value helpers already implemented: mhitm_mgc_atk_negated, resists_magm, resist, pm_to_cham, newcham, canspotmon, can_teleport, tele_restrict. Void you_were/you_unwere calls remain explicit gaps and are owned by concurrent A scope; polyself, shieldeff, xkilled, monkilled, tele and rloc use existing implementations. !verbose recipes cover terse seen-target wording. Source-pinned lethal equality test covers just beyond the nonlethal limit.",
+        "entryPoints": [
+          {
+            "name": "polymorphed hero AD_POLY melee",
+            "functions": [
+              "mhitm_ad_poly",
+              {
+                "sourceFile": "mhitm.c",
+                "name": "mon_poly"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b113-ad-poly-hero-to-monster-tele-cancel.session.json",
+              "recordings/uhitm.c/b113-ad-poly-hero-to-monster-tele-cancel-terse.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster AD_POLY attack on hero",
+            "functions": [
+              "mhitm_ad_poly",
+              {
+                "sourceFile": "mhitm.c",
+                "name": "mon_poly"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 30,
+                "source": "mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping(AD_POLY) -> mhitm_ad_poly -> mhitm.c:mon_poly -> polyself.c:polyself"
+              }
+            ]
+          },
+          {
+            "name": "Conflict monster AD_POLY melee",
+            "functions": [
+              "mhitm_ad_poly",
+              {
+                "sourceFile": "mhitm.c",
+                "name": "mon_poly"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b113-ad-poly-monster-pair-witness.session.json",
+              "recordings/uhitm.c/b113-ad-poly-monster-pair-witness-terse.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f090c5e3dac898f0a7a9313809defbf18d293a5d",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
