@@ -175961,6 +175961,99 @@
           "evaluationCommit": "482f9f019aa0eeb4691fda203392488df869b3f7"
         }
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-phys-v21-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete physical attacks in all combat directions",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation"
+      ],
+      "selectionReason": "The current combined mismatch queue and investigations/synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.json trace the next independent source task to the incomplete uhitm.c mhitm_ad_phys artifact and armed monster branches. Complete the whole function and its six return-valued source dependencies. The existing mhitm.c caller is already wired and is reserved separately by B111.",
+      "detail": "The admitted v21 case has C physical combat at step 128 and an Archon wielding Sunsword hitting the hero at step 143. Current JavaScript refuses the artifact weapon hero arm and the armed monster-versus-monster arm. Reuse the already verified artifact_hit implementation. Add independent C-first matching evidence for all active directions that the repaired v21 range does not cover.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_phys",
+          "line": 3981,
+          "endLine": 4202,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3981,
+        "to": 4202
+      },
+      "requiredFunctions": [
+        {
+          "name": "shade_miss",
+          "line": 2016,
+          "endLine": 2055,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": false
+        },
+        {
+          "name": "dmgval",
+          "line": 216,
+          "endLine": 360,
+          "declared": true,
+          "sourceFile": "weapon.c",
+          "complete": false
+        },
+        {
+          "name": "do_stone_u",
+          "line": 3924,
+          "endLine": 3944,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": false
+        },
+        {
+          "name": "cloneu",
+          "line": 2616,
+          "endLine": 2643,
+          "declared": true,
+          "sourceFile": "mhitu.c",
+          "complete": false
+        },
+        {
+          "name": "permapoisoned",
+          "line": 2837,
+          "endLine": 2844,
+          "declared": true,
+          "sourceFile": "artifact.c",
+          "complete": false
+        },
+        {
+          "name": "mpoisons_subj",
+          "line": 145,
+          "endLine": 162,
+          "declared": true,
+          "sourceFile": "mhitu.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation": {
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.session.json",
+          "recordingSha256": "9f409bbb21792da65d3c5532aac43ebb52ca5575b4480077558270cfa6863113",
+          "evaluationPath": "challenges/evaluations/20261006050923-v21.json",
+          "evaluationCommit": "482f9f019aa0eeb4691fda203392488df869b3f7"
+        }
+      }
     }
   ]
 }
