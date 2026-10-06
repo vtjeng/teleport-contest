@@ -181490,7 +181490,7 @@
     {
       "id": "port-artifact-invoke-blinding-ray-v22-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Complete artifact.c invoke_blinding_ray and wire the Sunsword ray branches.",
       "cFile": "artifact.c",
       "sessions": [
@@ -181498,8 +181498,12 @@
       ],
       "selectionReason": "The current v22 case first differs because invoke_blinding_ray skips the existing do_blinding_ray helper at step 125; historical artifact-c evidence covered a partial implementation.",
       "detail": "Port horizontal, vertical, self, and cancellation branches in source order through the existing do_blinding_ray, litroom, lightdamage, and consumed flashburn owners; reconcile stale artifact-c completion evidence before integration.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8",
+      "openStanding": {
+        "sha": "d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -181528,7 +181532,99 @@
           "evaluationPath": "challenges/evaluations/20261006194658-v22.json",
           "evaluationCommit": "89e08848f84d398e136b109857aa54eb87c1c4fc"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [],
+        "entryPointReview": "One active #invoke production entry reaches doinvoke -> retouch_object -> arti_invoke -> invoke_blinding_ray. Enumerate horizontal adjacent monster (admitted v22) and empty ray, up/down vertical (independent recordings), self invocation with all three BUC bounds, already-blind false flashburn, and gremlin lightdamage before flashburn (independent recordings), plus cancellation with age reset. Nine recordings and the matrix verify runtime state. The rare wielded-artifact shield result is tested through the actual function with constructed equipment; production wielding is blocked at existing wield.c setuwep artifact-shine refusal, preserved in its blocked recipe. Rogue vertical is an active source variation, not build-excluded: preserved failed exact recipe and C trace identify missing vision.c rogue_vision, so its evidence arrays remain empty and the whole function is retained in incompleteFunctions. No new rays/light/flash implementation or planning exposure was added; no unrelated owner behavior credited.",
+        "entryPoints": [
+          {
+            "name": "horizontal adjacent-monster ray",
+            "functions": [
+              "invoke_blinding_ray"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-invokes-sunsword-ray-at-orc-v22-cfirst",
+                "segment": 0,
+                "fromStep": 115,
+                "throughStep": 125,
+                "source": "cmd.c #invoke -> artifact.c doinvoke -> arti_invoke BLINDING_RAY -> invoke_blinding_ray -> apply.c do_blinding_ray -> zap.c bhit FLASHED_LIGHT -> uhitm.c flash_hits_mon"
+              }
+            ]
+          },
+          {
+            "name": "horizontal empty ray",
+            "functions": [
+              "invoke_blinding_ray"
+            ],
+            "recordings": [
+              "recordings/artifact.c/c119-blinding-ray-empty-horizontal.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "vertical up and down current-square light",
+            "functions": [
+              "invoke_blinding_ray"
+            ],
+            "recordings": [
+              "recordings/artifact.c/c119-blinding-ray-up.session.json",
+              "recordings/artifact.c/c119-blinding-ray-down.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "self light and blindness including gremlin and already-blind variants",
+            "functions": [
+              "invoke_blinding_ray"
+            ],
+            "recordings": [
+              "recordings/artifact.c/c119-blinding-ray-self.session.json",
+              "recordings/artifact.c/c119-blinding-ray-self-blessed.session.json",
+              "recordings/artifact.c/c119-blinding-ray-self-cursed.session.json",
+              "recordings/artifact.c/c119-blinding-ray-self-gremlin.session.json",
+              "recordings/artifact.c/c119-blinding-ray-self-blind.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "direction cancellation",
+            "functions": [
+              "invoke_blinding_ray"
+            ],
+            "recordings": [
+              "recordings/artifact.c/c119-blinding-ray-cancel.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Rogue vertical whole-room light",
+            "functions": [
+              "invoke_blinding_ray"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole invoke_blinding_ray and its caller chain are integrated; admitted v22 plus nine independent recordings verify ordinary horizontal, vertical, self, and cancellation routes. Completion remains blocked on Rogue-level vertical rendering through unported vision.c:rogue_vision, with the wielded-artifact entry blocker retained explicitly."
     }
   ]
 }

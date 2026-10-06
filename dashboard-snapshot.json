@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T20:37:39.038Z",
+  "capturedAt": "2026-10-06T20:52:30.984Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -22135,12 +22135,59 @@
         "type": "accepted",
         "at": "2026-10-06T20:37:13.994Z",
         "task": "B119"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B119-122bd42a",
+        "type": "published",
+        "at": "2026-10-06T20:38:31.153Z",
+        "task": "B119",
+        "commit": "122bd42a0bcca95661203e057e0aa5fbcfd97648"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C119-d9a391f1",
+        "type": "integrating",
+        "at": "2026-10-06T20:39:16.494Z",
+        "task": "C119",
+        "integration": "d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-76410c30fe358d6502eb87f94a4737283ac3b073",
+        "type": "ready",
+        "at": "2026-10-06T20:41:11.606Z",
+        "task": "B120",
+        "delivery": "76410c30fe358d6502eb87f94a4737283ac3b073"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B120-76410c30",
+        "type": "received",
+        "at": "2026-10-06T20:42:33.702Z",
+        "task": "B120",
+        "delivery": "76410c30fe358d6502eb87f94a4737283ac3b073"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C119-d9a391f1",
+        "type": "validated",
+        "at": "2026-10-06T20:52:04.478Z",
+        "task": "C119",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C119-d9a391f1",
+        "type": "accepted",
+        "at": "2026-10-06T20:52:06.694Z",
+        "task": "C119"
       }
     ]
   },
   "development": {
-    "executionCommit": "0b11882ef71f5a7a9aa9b90e1a804b3c8839e021",
-    "measuredAt": "2026-10-06T20:32:13.308Z",
+    "executionCommit": "d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8",
+    "measuredAt": "2026-10-06T20:47:19.824Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
