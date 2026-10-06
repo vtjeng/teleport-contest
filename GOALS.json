@@ -177982,7 +177982,7 @@
     {
       "id": "port-mon-corpse-chance-whole-v21-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete corpse chance and wire monster digestion death handling",
       "cFile": "mon.c",
       "sessions": [
@@ -178287,7 +178287,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "58941777a28f7fdcbf578f7f288223a02ccd88e2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "A110 completes and verifies mon.c corpse_chance through ordinary hero kills, monster deaths, hero engulf no-corpse handling, and contained explosions. Whole uhitm.c mhitm_ad_dgst and AD_DGST dispatch are implemented and source-pinned, but its production monster-to-monster entry still stops at the unported mhitm.c gulpmm path; the committed blocked recipe reaches that exact boundary. Resume with whole gulpmm and its consumed result dependencies."
     },
     {
       "id": "port-eat-doeat-resumed-meals-v20-20261006",
