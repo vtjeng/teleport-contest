@@ -178004,7 +178004,7 @@
           "line": 3181,
           "endLine": 3252,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -178016,7 +178016,7 @@
           "name": "mhitm_ad_dgst",
           "line": 4492,
           "endLine": 4569,
-          "declared": false,
+          "declared": true,
           "sourceFile": "uhitm.c",
           "complete": false
         }
@@ -178195,7 +178195,99 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "corpse_chance",
+            "implementation": "js/mon.js",
+            "symbol": "corpse_chance",
+            "sourceReview": "Read complete C mon.c:3181-3252 and compared each return, loop and state/output transition. Preserve mswallower substitution only for AT_ENGL; visible nonswallowed Vlad/lich dust before FALSE; first AT_BOOM damage roll (damn, level+1 or zero) before contained versus ordinary explosion; hero stomach/killer-name/Maybe_Half_Phys losehp; monster You_hear gates, HP loss, mondied and second DEADMONSTER check before visible death or indigestion feedback; LEVEL_SPECIFIC_NOCORPSE before the special guaranteed corpses and final frequency/size divisor. Removed the lich refusal and mixed immediate/Promise return implementation. All callers await the now async function. C pline_mon output uses messageAt for creature location. Existing return helpers attacktype, cansee, canseemon, canspotmon, body_part, s_suffix, Monnam, mon_pmname/pmname-Mgender, LEVEL_SPECIFIC_NOCORPSE, bigmonst, is_golem, is_mplayer, is_rider and verysmall were read against their source definitions. Existing void losehp, mondied and mon_explodes owners are called directly; no new substitute, throw or gap is introduced. Existing downstream lifesaved_monster remains a separate unported void path in mondead: no matching lifesaving branch execution is claimed. Whole uhitm.c:mhitm_ad_dgst:4492-4567 is implemented and dispatch-wired, preserving hero zero-damage arms, Rider death/lifesaving flags, verbose non-Deaf burp then squared-distance-four waking, defender HP damage assignment and amulet consumption, short-circuit corpse_chance/dead aggressor check, and tame non-minion non-G_NOCORPSE virtual-corpse nutrition with truncating quarter eating time/half nutrition. Its production M2M entry remains unverified behind gulpmm.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mondied",
+                "source": "C mon.c:3260: monster death -> corpse_chance -> make_corpse; independently recorded trapped-door death calls monmove.c:mb_trapped -> mondied."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "C mon.c:3618: hero kill -> corpse_chance before corpse creation; ordinary gas-spore witness enters through hero attack -> killed/xkilled."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "gulpum",
+                "source": "C uhitm.c:5070: hero AT_ENGL/AD_DGST -> corpse_chance after xkilled swallowed kill. New lich and contained gas-spore witnesses reach this exact caller."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_dgst",
+                "source": "C uhitm.c:4542: M2M digestion -> consumed corpse_chance result. Whole helper and AD_DGST dispatch are wired; production runtime evidence remains blocked by mhitm.c:gulpmm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs",
+              "scripts/uhitm-ad-dgst.test.mjs",
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/a110-hero-engulf-lich.session.json",
+              "recordings/mon.c/a110-hero-engulf-gas-spore.session.json",
+              "recordings/mon.c/gas-spore-death-explosion.session.json",
+              "recordings/mon.c/mondied-trapped-door-first-rest-variation-b64.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "6b113994bc5f27c3790d3b027858474560260901"
+          }
+        ],
+        "entryPointReview": "corpse_chance is a helper with active callers mondied, xkilled, gulpum and mhitm_ad_dgst; none is build-inactive. Ordinary gas-spore hero death and trapped-door monster death have complete matching recordings (existing first-rest variation, segment 0 step 45: rnd(15)=9 at mb_trapped then rn2(2)=1 at corpse_chance). New independent hero engulf recordings cover lich no-corpse return (segment 0 steps 52-53) and contained hero explosion (segment 0 steps 106-108). The source-pinned fixtures cover ordinary frequency/size/level conditions, visible dust, swallowed return, mswallower substitution, hearing/acoustics/Deaf/Underwater, contained monster survival/death, hero AD_DGST zero-damage dispatch, pet nutrition/waking and Rider death. The required M2M digestion handler is deliberately omitted from verified functions and retained as incomplete behind gulpmm/mintrap. C nosound build excludes the SetVoice macro effect; verbalize remains active and implemented. The selected v21 case stops before gulpmm and provides no completion range.",
+        "entryPoints": [
+          {
+            "name": "ordinary hero kill corpse selection and death explosion",
+            "functions": [
+              "corpse_chance"
+            ],
+            "recordings": [
+              "recordings/mon.c/gas-spore-death-explosion.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster death corpse selection",
+            "functions": [
+              "corpse_chance"
+            ],
+            "recordings": [
+              "recordings/mon.c/mondied-trapped-door-first-rest-variation-b64.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "hero engulf no-corpse and contained explosion",
+            "functions": [
+              "corpse_chance"
+            ],
+            "recordings": [
+              "recordings/mon.c/a110-hero-engulf-lich.session.json",
+              "recordings/mon.c/a110-hero-engulf-gas-spore.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-monster digestion",
+            "functions": [
+              "corpse_chance",
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_dgst"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     },
     {
       "id": "port-eat-doeat-resumed-meals-v20-20261006",
