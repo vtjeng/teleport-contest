@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent A110 hero digestion witness. C setup places the lich south of the purple worm, so Fj selects it. Spaces clear start_engulf animation prompts; the lich branch of mon.c:corpse_chance returns FALSE without corpse nutrition or digestion delay.",
+  "segments": [
+    {
+      "seed": 61106110,
+      "datetime": "20420217133000",
+      "nethackrc": "OPTIONS=name:CorpseA110,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,pauper,!legacy,!tutorial,!splash_screen,!acoustics,!safe_wait\n",
+      "moves": " #polyself\npurple worm\n #wizgenesis\nhostile lich\n Fj      ."
+    }
+  ]
+}

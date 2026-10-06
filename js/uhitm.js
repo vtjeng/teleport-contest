@@ -261,6 +261,7 @@ import {
     u_slip_free,
 } from './mhitu.js';
 import { abuse_dog } from './dog.js';
+import { dog_nutrition } from './dogmove.js';
 import { losexp } from './exper.js';
 import {
     angry_guards,
@@ -451,6 +452,8 @@ import {
     PM_FLOATING_EYE,
     PM_IRON_GOLEM,
     PM_MEDUSA,
+    PM_FAMINE,
+    PM_PESTILENCE,
     PM_PAPER_GOLEM,
     PM_PYROLISK,
     PM_PURPLE_WORM,
@@ -502,6 +505,8 @@ import {
     is_missile,
     is_weptool,
     mksobj,
+    set_corpsenm,
+    dealloc_obj,
     is_flimsy,
     is_shield,
     is_axe,
@@ -6893,6 +6898,69 @@ export async function mhitm_ad_poly(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_dgst() (4492-4567). Hero digestion is handled by
+// gulpum(); this helper handles a monster swallowing another monster.
+export async function mhitm_ad_dgst(
+    magr, mattk, mdef, mhm, state = game, env = {},
+) {
+    const pd = mdef.data;
+    if (magr === state.youmonst || mdef === state.youmonst) {
+        mhm.damage = 0;
+        return;
+    }
+    const message = env.message ?? ttyPline;
+    if (is_rider(pd)) {
+        if (state.gv?.vis && canseemon(magr, state)) {
+            const ending = pd === state.mons[PM_FAMINE]
+                ? 'belches feebly, shrivels up and dies'
+                : pd === state.mons[PM_PESTILENCE]
+                    ? 'coughs spasmodically and collapses'
+                    : 'vomits violently and drops dead';
+            await message(messageAt(
+                `${Monnam(magr, state, env)} ${ending}!`,
+                magr.mx, magr.my, state,
+            ), state);
+        }
+        await mondied(magr, state, env);
+        if (magr.mhp >= 1) {
+            mhm.hitflags = M_ATTK_MISS;
+            mhm.done = true;
+            return;
+        } else if (magr.mtame && !state.gv?.vis) {
+            await message(
+                'You have a queasy feeling for a moment, then it passes.', state,
+            );
+        }
+        mhm.hitflags = M_ATTK_AGR_DIED;
+        mhm.done = true;
+        return;
+    }
+    if (state.flags.verbose && !Deaf(state)) {
+        // sndprocs.h SetVoice is empty in the recorder's nosound build.
+        await verbalize('Burrrrp!', state, { message });
+    }
+    await wake_nearto(magr.mx, magr.my, 2 * 2, { ...env, state });
+    mhm.damage = mdef.mhp;
+    const lifesaver = mlifesaver(mdef, state);
+    if (lifesaver) await m_useup(mdef, lifesaver, { ...env, state });
+    if (!await corpse_chance(mdef, magr, true, state, env)
+        || magr.mhp < 1) return;
+
+    const num = monsndx(pd);
+    if (magr.mtame && !magr.isminion
+        && !(state.svm.mvitals[num].mvflags & G_NOCORPSE)) {
+        const objectEnv = { ...env, state };
+        const virtualcorpse = mksobj(CORPSE, false, false, objectEnv);
+        set_corpsenm(virtualcorpse, num, objectEnv);
+        let nutrit = dog_nutrition(magr, virtualcorpse, state);
+        dealloc_obj(virtualcorpse, objectEnv);
+        if (magr.meating > 1)
+            magr.meating = Math.trunc((magr.meating + 3) / 4);
+        if (nutrit > 1) nutrit = Math.trunc(nutrit / 2);
+        magr.mextra.edog.hungrytime += nutrit;
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -7020,7 +7088,9 @@ export async function mhitm_adtyping(
     case AD_FAMN:
         await mhitm_ad_famn(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_DGST: unported('mhitm_ad_dgst'); break;
+    case AD_DGST:
+        await mhitm_ad_dgst(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_HALU: unported('mhitm_ad_halu'); break;
     default:
         mhm.damage = 0;

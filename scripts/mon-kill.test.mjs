@@ -268,7 +268,7 @@ test('corpse_chance divides by frequency and size', async () => {
         const env = killEnv([1]);
         const label = `${game.mons[pmidx].pmnames.find(Boolean)}`;
         assert.equal(
-            corpse_chance(monster(pmidx), null, false, game, env),
+            await corpse_chance(monster(pmidx), null, false, game, env),
             false,
             `${label} declined`,
         );
@@ -276,7 +276,7 @@ test('corpse_chance divides by frequency and size', async () => {
         // A zero roll is the only one that leaves a corpse.
         const kept = killEnv([0]);
         assert.equal(
-            corpse_chance(monster(pmidx), null, false, game, kept),
+            await corpse_chance(monster(pmidx), null, false, game, kept),
             true,
             `${label} kept`,
         );
@@ -326,7 +326,7 @@ test('corpse_chance answers big and special monsters without drawing',
         for (const pmidx of [PM_LIZARD, PM_STONE_GOLEM, PM_ARCHEOLOGIST]) {
             const env = killEnv();
             assert.equal(
-                corpse_chance(monster(pmidx), null, false, game, env),
+                await corpse_chance(monster(pmidx), null, false, game, env),
                 true,
                 `${pmidx}`,
             );
@@ -335,7 +335,7 @@ test('corpse_chance answers big and special monsters without drawing',
         // isshk is a flag rather than a species, and it is the last disjunct.
         const shk = killEnv();
         assert.equal(
-            corpse_chance(monster(PM_NEWT, { isshk: 1 }), null, false,
+            await corpse_chance(monster(PM_NEWT, { isshk: 1 }), null, false,
                           game, shk),
             true,
         );
@@ -345,7 +345,7 @@ test('corpse_chance answers big and special monsters without drawing',
         // and MZ_TINY, so the divisor is 3.
         const cloned = killEnv([1]);
         assert.equal(
-            corpse_chance(monster(PM_LIZARD, { mcloned: 1 }), null, false,
+            await corpse_chance(monster(PM_LIZARD, { mcloned: 1 }), null, false,
                           game, cloned),
             false,
         );
@@ -359,9 +359,10 @@ test('corpse_chance stops on liches and explodes gas spores',
         await hero();
         for (const pmidx of [PM_ARCH_LICH, PM_VLAD_THE_IMPALER]) {
             const env = killEnv();
-            refuses(
-                () => corpse_chance(monster(pmidx), null, false, game, env),
-                'a lich body crumbling into dust',
+            assert.equal(
+                await corpse_chance(monster(pmidx), null, false, game, env),
+                false,
+                'C returns FALSE without a corpse or draw',
             );
             assert.deepEqual(env.bounds, []);
         }
@@ -380,7 +381,7 @@ test('the graveyard term draws only for undead in a graveyard', async () => {
     await hero();
     const ordinary = killEnv([1]);
     assert.equal(
-        corpse_chance(monster(PM_KOBOLD_ZOMBIE), null, false, game, ordinary),
+        await corpse_chance(monster(PM_KOBOLD_ZOMBIE), null, false, game, ordinary),
         false,
     );
     assert.deepEqual(ordinary.bounds, ['rn2(3)'], 'the divisor, not the term');
@@ -391,7 +392,7 @@ test('the graveyard term draws only for undead in a graveyard', async () => {
         // returns FALSE without reaching the divisor.
         const undead = killEnv([2]);
         assert.equal(
-            corpse_chance(monster(PM_KOBOLD_ZOMBIE), null, false, game,
+            await corpse_chance(monster(PM_KOBOLD_ZOMBIE), null, false, game,
                           undead),
             false,
         );
@@ -399,7 +400,7 @@ test('the graveyard term draws only for undead in a graveyard', async () => {
         // A zero falls through to the divisor, so two calls happen.
         const through = killEnv([0, 1]);
         assert.equal(
-            corpse_chance(monster(PM_KOBOLD_ZOMBIE), null, false, game,
+            await corpse_chance(monster(PM_KOBOLD_ZOMBIE), null, false, game,
                           through),
             false,
         );
@@ -407,7 +408,7 @@ test('the graveyard term draws only for undead in a graveyard', async () => {
         // A living species in the same graveyard never reaches the term.
         const living = killEnv([1]);
         assert.equal(
-            corpse_chance(monster(PM_LICHEN), null, false, game, living),
+            await corpse_chance(monster(PM_LICHEN), null, false, game, living),
             false,
         );
         assert.deepEqual(living.bounds, ['rn2(2)']);
@@ -421,7 +422,7 @@ test('the graveyard term draws only for undead in a graveyard', async () => {
     try {
         const nodrops = killEnv();
         assert.equal(
-            corpse_chance(monster(PM_LICHEN), null, false, game, nodrops),
+            await corpse_chance(monster(PM_LICHEN), null, false, game, nodrops),
             false,
         );
         assert.deepEqual(nodrops.bounds, []);

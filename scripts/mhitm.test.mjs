@@ -1903,8 +1903,8 @@ test('an unprotected attacker is stoned before damage typing',
         assert.equal(pet.mhp, 0);
 
         // C's second disjunct needs both AD_DGST and Medusa. A digesting bite
-        // against an ordinary defender therefore passes the check and stops
-        // one call later, inside mhitm_adtyping().
+        // against an ordinary defender therefore passes the check and
+        // reaches the whole digestion helper, killing that defender.
         const ant = fixture(PM_GIANT_ANT, dx, y + 1);
         game.level.monsters[cockatrice.mx][cockatrice.my] = null;
         game.level.monsters[ant.mx][ant.my] = null;
@@ -1912,19 +1912,26 @@ test('an unprotected attacker is stoned before damage typing',
         ant.my = y;
         place_monster(ant, ant.mx, ant.my, game);
         aim(ant);
-        const ordinary = pet.data;
-        pet.data = {
+        // Use a living attacker rather than the kitten just stoned above.
+        const attacker = fixture(PM_KITTEN, ax, y);
+        const ordinary = attacker.data;
+        attacker.data = {
             ...ordinary,
             mattk: [
                 { aatyp: AT_BITE, adtyp: AD_DGST, damn: 1, damd: 6 },
                 ...ordinary.mattk.slice(1),
             ],
         };
-        await assert.rejects(
-            mattackm(pet, ant, attackEnv([1])),
-            /mhitm_ad_dgst/u,
-        );
-        pet.data = ordinary;
+        const digestEnv = attackEnv([1]);
+        assert.equal(await mattackm(attacker, ant, digestEnv),
+            M_ATTK_HIT | M_ATTK_DEF_DIED);
+        assert.equal(ant.mhp, 0);
+        assert.ok(attacker.mhp > 0, 'an ordinary defender does not petrify');
+        assert.deepEqual(digestEnv.bounds, [
+            'rnd(20)', 'd(1,6)', 'rn2(3)', 'rn2(3)', 'rn2(6)',
+            'rnd(3)',
+        ], 'hit, damage, corpse eligibility, knockback and growth order');
+        attacker.data = ordinary;
     });
 
 // mhitm.c mdamagem():1083-1087, gz.zombify, and the reset at :1090. C's

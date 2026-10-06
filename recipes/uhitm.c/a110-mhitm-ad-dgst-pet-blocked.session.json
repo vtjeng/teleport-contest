@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED A110 production mhitm_ad_dgst entry. Independent pauper Wizard wears source-valid +99 armor to survive while a tame purple worm attacks an adjacent hostile stone golem. mhitm.c:mattackm AT_ENGL still refuses instead of calling whole gulpmm, whose consumed trap.c:mintrap status has remaining source branches assigned separately. Retain input only; no matching M2M digestion runtime evidence is claimed.",
+  "segments": [
+    {
+      "seed": 61106122,
+      "datetime": "20420217143000",
+      "nethackrc": "OPTIONS=name:MonsterDigestA110,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed +99 gray dragon scale mail\nWa   #wizgenesis\nhostile stone golem\n #wizgenesis\ntame purple worm\n .   .   .   .   .   .   .   .   .   .   .   .   "
+    }
+  ]
+}

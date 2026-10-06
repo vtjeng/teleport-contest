@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent A110 contained gas-spore explosion variation. A cursed -28 accuracy ring lowers find_roll_to_hit. The initial bite and engulf miss; the next bite misses and AT_ENGL/AD_DGST lands. C places the spore northwest, selected with Fy. Spaces clear start_engulf pages. The resulting trace has one contained corpse_chance 4d6 roll and a stomach explosion, without ordinary mon_explodes.",
+  "segments": [
+    {
+      "seed": 61106114,
+      "datetime": "20420217133000",
+      "nethackrc": "OPTIONS=name:CorpseA110,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,pauper,!legacy,!tutorial,!splash_screen,!acoustics,!safe_wait\n",
+      "moves": " \u0017cursed -28 ring of increase accuracy\nPal#polyself\npurple worm\n #wizgenesis\nhostile gas spore\n Fy      Fy      ."
+    }
+  ]
+}
