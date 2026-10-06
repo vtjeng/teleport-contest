@@ -209,7 +209,7 @@ import {
     noit_Monnam, y_monnam, YMonnam, rndcolor, hliquid, hcolor, rndmonnam,
     a_monnam, christen_monst,
 } from './do_name.js';
-import { abuse_dog } from './dog.js';
+import { abuse_dog, wary_dog } from './dog.js';
 import {
     has_ceiling,
     Can_fall_thru,
@@ -3292,7 +3292,7 @@ export async function animate_statue(
             { ...objectEnv, state, random },
         );
         if (monster?.mtame && !monster.isminion)
-            note_unported('dog.c wary_dog');
+            await wary_dog(monster, true, objectEnv);
     } else {
         let mmflags = NO_MINVENT | MM_NOMSG;
         const sgend = statue.spe & CORPSTAT_GENDER;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED: uhitm.c:hmon_hitmon_misc_obj discards unported trap.c:minstapetrify, so JavaScript cannot create this saved-traits kitten statue. Independently chosen glove/corpse/forced-melee setup reaches C petrification after one observed miss and retry, then #wizcast stone to flesh reaches trap.c:animate_statue -> dog.c:wary_dog (C rn2(1)=0). Preserve until the whole minstapetrify dependency closure is ported; this is not a passing recording.",
+  "segments": [
+    {
+      "seed": 1190614,
+      "datetime": "20871117153000",
+      "nethackrc": "OPTIONS=name:WaryGloves,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nleather gloves\nWp#wizwish\ncockatrice corpse\nwq#wizgenesis\ntame kitten\nFh Fh #wizcast\n>sh"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 // level with the hero.
 // C refs: dog.c pick_familiar_pm(), make_familiar(), newedog(), initedog(),
 // pet_type(), makedog(), mon_leave(),
-// keep_mon_accessible(), keepdogs(), migrate_to_level() and abuse_dog();
+// keep_mon_accessible(), keepdogs(), migrate_to_level(), wary_dog() and abuse_dog();
 // mon.c relmon(),
 // mon_leaving_level() and see_monster_closeup();
 // do_name.c christen_monst().
@@ -16,6 +16,7 @@ import {
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
     EDOG,
+    EYE,
     G_EXTINCT,
     HALLUC,
     HALLUC_RES,
@@ -71,6 +72,7 @@ import { makemon_runtime } from './makemon_create.js';
 import { minliquid, mnexto } from './mon.js';
 import {
     attacktype,
+    haseyes,
     is_covetous,
     is_demon,
     is_human,
@@ -129,6 +131,8 @@ import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import { note_unported } from './unported.js';
+import { finish_meating } from './dogmove.js';
+import { body_part } from './polyself.js';
 
 import { has_oname, ONAME } from './const.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
@@ -1190,6 +1194,68 @@ function Aggravate_monster(state) {
 
 function Conflict(state) {
     return propertyActive(state.u, CONFLICT);
+}
+
+// C ref: dog.c wary_dog() (1292-1360). Saved traits retain the pet's
+// history; revival reassesses tameness before clearing a surviving pet's slate.
+export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
+    const env = dogEnv(rawEnv);
+    const { state, random } = env;
+    const quietly = was_dead;
+    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const redraw = env.redraw ?? (env.planning ? () => {}
+        : (x, y) => newsym(x, y, state));
+    finish_meating(mtmp, { ...env, redraw });
+    if (!mtmp.mtame) return;
+    const edog = !mtmp.isminion ? EDOG(mtmp) : null;
+
+    if (edog && edog.mhpmax_penalty) {
+        mtmp.mhpmax += edog.mhpmax_penalty;
+        mtmp.mhp += edog.mhpmax_penalty;
+        edog.mhpmax_penalty = 0;
+    }
+    // mon.c:xkilled stores this C integer flag as a JavaScript boolean.
+    if (edog && (Number(edog.killed_by_u) === 1 || edog.abuse > 2)) {
+        mtmp.mpeaceful = mtmp.mtame = 0;
+        if (edog.abuse >= 0 && edog.abuse < 10)
+            if (!random.rn2(edog.abuse + 1)) mtmp.mpeaceful = 1;
+        if (!quietly && (env.canSee ?? cansee)(mtmp.mx, mtmp.my, state)) {
+            if (haseyes(state.youmonst.data)) {
+                const name = Monnam(mtmp, state, env);
+                await message(messageAt(haseyes(mtmp.data)
+                    ? `${name} ${mtmp.mpeaceful ? 'seems unable' : 'refuses'} `
+                        + `to look you in the ${body_part(EYE, state.youmonst)}.`
+                    : `${name} avoids your gaze.`, mtmp.mx, mtmp.my, state), state);
+            }
+        }
+    } else {
+        mtmp.mtame = random.rn2(mtmp.mtame + 1);
+        if (!mtmp.mtame) mtmp.mpeaceful = random.rn2(2);
+    }
+    if (!mtmp.mtame) {
+        if (!quietly && (env.canSpot ?? canspotmon)(mtmp, state))
+            await message(messageAt(`${Monnam(mtmp, state, env)} `
+                + `${mtmp.mpeaceful ? 'is no longer tame' : 'has become feral'}.`,
+            mtmp.mx, mtmp.my, state), state);
+        redraw(mtmp.mx, mtmp.my);
+        // C discards these results. Their leash and thrown-steed owners are
+        // outside this port; retain their named gaps without invented effects.
+        if (mtmp.mleashed) note_unported('apply.c m_unleash');
+        if (mtmp === state.u.usteed) note_unported('steed.c dismount_steed');
+    } else if (edog) {
+        edog.revivals++;
+        edog.killed_by_u = 0;
+        edog.abuse = 0;
+        edog.ogoal.x = edog.ogoal.y = -1;
+        if (was_dead || edog.hungrytime < state.moves + 500)
+            edog.hungrytime = state.moves + 500;
+        if (was_dead) {
+            edog.droptime = 0;
+            edog.dropdist = 10000;
+            edog.whistletime = 0;
+            edog.apport = 5;
+        }
+    }
 }
 
 /**

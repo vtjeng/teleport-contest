@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B119 saved-traits corpse revival. A tame horse is large, so mon.c:corpse_chance guarantees the corpse; a death wand kills it and an undead-turning wand restores saved traits through zap.c:revive -> montraits -> dog.c:wary_dog. New seed/date/species/input were selected independently. The one death-ray pager dismissal and west direction come from this case's C setup.",
+  "segments": [
+    {
+      "seed": 1190616,
+      "datetime": "20871118153000",
+      "nethackrc": "OPTIONS=name:WaryCorpse,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nwand of death\n#wizwish\nwand of undead turning\n#wizgenesis\ntame horse\nzmh znh"
+    }
+  ]
+}
