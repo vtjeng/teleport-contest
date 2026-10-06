@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first doseduce route: u_init.c gives the Wizard one worn armor item, a cloak, so `i b T` removes it before C creates the female succubus. The recorded adjacent map puts her west of the Wizard, so `#chat h` reaches domonnoise's MS_SEDUCE arm. Five spaces clear the source-observed attraction, naked murmur, time-still, outcome, and payment message prompts through mhitu.c:doseduce's return and its relocation message. The earlier six-space trace showed the last space was an unrelated unknown command; this recipe stops before it.",
+  "segments": [
+    {
+      "seed": 87123017,
+      "datetime": "20310817093000",
+      "nethackrc": "OPTIONS=name:SourceTest,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": " i b T#wizgenesis\nfemale succubus\n#chat\nh\u0020\u0020\u0020\u0020\u0020"
+    }
+  ]
+}

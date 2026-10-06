@@ -5,9 +5,13 @@
 // passiveum(), and gulp_blnd_check().
 
 import {
-    A_STR,
+    A_CHA,
+    A_CHAOTIC,
     A_CON,
     A_DEX,
+    A_INT,
+    A_STR,
+    A_WIS,
     ACID_RES,
     AC_VALUE,
     BLINDED,
@@ -77,13 +81,18 @@ import {
     HALLUC_RES,
     REFLECTING,
     KILLED_BY,
+    HAND,
+    LEFT_RING,
+    LARGEST_INT,
+    RLOC_MSG,
+    RIGHT_RING,
     BOLT_LIM,
 } from './const.js';
 import {
     is_pool,
     is_waterwall,
 } from './dbridge.js';
-import { acurr, exercise, minuhpmax } from './attrib.js';
+import { acurr, adjalign, adjattrib, exercise, minuhpmax } from './attrib.js';
 import { encumber_msg } from './pickup.js';
 import { number_leashed } from './apply.js';
 import { placebc, unplacebc } from './ball.js';
@@ -100,7 +109,7 @@ import {
     is_art,
     protects,
 } from './artifacts.js';
-import { midnight, night } from './calendar.js';
+import { getyear, midnight, night, yyyymmdd } from './calendar.js';
 import {
     bot,
     flush_screen,
@@ -110,7 +119,7 @@ import {
     swallowed,
     tp_sensemon,
 } from './display.js';
-import { reset_occupations } from './cmd.js';
+import { reset_occupations, y_n } from './cmd.js';
 import {
     Monnam,
     Some_Monnam,
@@ -120,13 +129,16 @@ import {
     hliquid,
     mon_nam,
     monsterPossessive,
+    noit_Monnam,
+    noit_mon_nam,
     pmname,
 } from './do_name.js';
 import { initedog } from './dog.js';
 import { In_hell, on_level } from './dungeon.js';
 import { done, done_in_by } from './end.js';
+import { losexp, pluslvl } from './exper.js';
 import { game } from './gstate.js';
-import { nomul, showdamage, spoteffects } from './hack.js';
+import { losehp, nomul, showdamage, spoteffects } from './hack.js';
 import { dist2, distmin, upstart } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -166,8 +178,10 @@ import {
     is_undead,
     is_vampshifter,
     is_were,
+    mhe,
     dmgtype,
     gender,
+    mhim,
     mhis,
     monsndx,
     monstseesu,
@@ -185,14 +199,23 @@ import {
     flaming,
     defended,
     resists_blnd,
+    resists_drli,
 } from './mondata.js';
-import { monnear } from './monmove.js';
+import { monnear, onscary, set_apparxy } from './monmove.js';
 import * as M from './monsters.js';
 import { find_offensive } from './muse.js';
 import { mon_reflects, ureflects } from './muse.js';
 import { makeplural } from './fruit.js';
 import { is_weptool, is_wet_towel, objectType } from './obj.js';
-import { sobj_at, update_inventory } from './invent.js';
+import {
+    currency,
+    freeinv,
+    money_cnt,
+    prinv,
+    sobj_at,
+    u_carried_gloves,
+    update_inventory,
+} from './invent.js';
 import { place_monster, remove_monster } from './monst.js';
 import {
     AMULET_OF_GUARDING,
@@ -200,6 +223,7 @@ import {
     CORPSE,
     OILSKIN_CLOAK,
     PIERCE,
+    RIN_ADORNMENT,
     WEAPON_CLASS,
     getObjects,
 } from './objects.js';
@@ -207,9 +231,15 @@ import {
     an,
     cloak_simple_name,
     donameFresh,
+    safe_qbuf,
+    simpleonames,
+    the,
     vtense,
+    xname,
     xnameFresh,
+    yname,
 } from './objnam.js';
+import { discover_object, observe_object } from './o_init.js';
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rn2_on_display_rng } from './rng.js';
 import { Punished } from './steed.js';
@@ -233,12 +263,13 @@ import {
 import { Cold_resistance, Fire_resistance, drain_item } from './zap.js';
 import { cansee, couldsee, m_canseeu, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
-import { is_pole, which_armor } from './worn.js';
+import { is_pole, setworn, which_armor } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
 import { mnexto } from './mon.js';
 import {
-    polymon,
+    body_part,
     poly_gender,
+    polymon,
     rehumanize,
     ugolemeffects,
 } from './polyself.js';
@@ -255,10 +286,15 @@ import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
 import { note_unported } from './unported.js';
-import { heroDeaf, heroUnaware } from './pline.js';
-import { growl_sound } from './sounds.js';
+import { heroDeaf, heroUnaware, verbalize } from './pline.js';
+import { growl_sound, set_voice } from './sounds.js';
 import { were_summon } from './were.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
+import { stop_donning, Ring_gone, Ring_on } from './do_wear.js';
+import { welded } from './wield.js';
+import { mpickobj, remove_worn_item, unresponsive } from './steal.js';
+import { money2mon } from './shk.js';
+import { tele_restrict, rloc } from './teleport.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
 // callers share this owner: HFast is cleared in one operation, leaving any
@@ -700,6 +736,422 @@ export function could_seduce(magr, mdef, mattk, rawEnv = {}) {
 
     return genagr === 1 - gendef ? 1
         : pagr.mlet === M.S_NYMPH ? 2 : 0;
+}
+
+// C ref: mhitu.c doseduce() (1985-2305). Resolve one successful seduction,
+// retaining its early returns, inventory order, and outcome-draw order. The
+// source's private mayberem() calls are void and remain named gaps; they do
+// not supply a return value to this function.
+export async function doseduce(mon, state = game, rawEnv = {}) {
+    const random = {
+        d, rn1, rn2, rnd,
+        ...(rawEnv.random ?? {}),
+    };
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const urgentMessage = rawEnv.urgentMessage
+        ?? (rawEnv.message ? rawEnv.message
+            : rawEnv.planning ? async () => {} : ttyUrgentPline);
+    const effectEnv = { ...rawEnv, state, random, message };
+    const namingEnv = {
+        ...effectEnv,
+        canSpotMonster: (monster, currentState) =>
+            canseemon(monster, currentState),
+    };
+    const pline = (text) => message(text, state);
+    const plineMon = (text) => message(
+        messageAt(text, mon.mx, mon.my, state), state,
+    );
+    const urgent = (text) => urgentMessage(text, state);
+    const makeknown = (otyp) => discover_object(
+        otyp, true, true, true, state, effectEnv,
+    );
+    const mayberem = () => note_unported('mhitu.c mayberem');
+    const femaleDemon = monsndx(mon.data) === M.PM_AMOROUS_DEMON
+        && Boolean(mon.female);
+    const pronounEnv = {
+        ...namingEnv,
+        canSpotMonster: () => true,
+    };
+
+    if (mon.mcan || mon.mspec_used) {
+        await plineMon(
+            `${Monnam(mon, state, namingEnv)} acts as though `
+                + `${mhe(mon, namingEnv)} has got a `
+                + `${mon.mcan ? 'severe ' : ''}headache.`,
+        );
+        return 0;
+    }
+    if (unresponsive(state)) {
+        await plineMon(
+            `${Monnam(mon, state, namingEnv)} seems dismayed at your lack `
+                + 'of response.',
+        );
+        return 0;
+    }
+
+    const seewho = canseemon(mon, state);
+    if (!seewho) await pline('Someone caresses you...');
+    else await pline(`You feel very attracted to ${mon_nam(mon, state, namingEnv)}.`);
+    const who = seewho
+        ? Monnam(mon, state, namingEnv)
+        : femaleDemon ? 'She' : 'He';
+
+    // do_wear.c stop_donning() is a void state-change call here; C ignores
+    // its returned delay but finishes the interruption before checking uwep.
+    await stop_donning(null, state);
+    let triedGloves = welded(state.uwep, state) ? 1 : 0;
+
+    for (let ring = state.invent; ring;) {
+        const nextRing = ring.nobj;
+        if (ring.otyp !== RIN_ADORNMENT) {
+            ring = nextRing;
+            continue;
+        }
+
+        if (femaleDemon) {
+            if (ring.owornmask && state.uarmg) {
+                if (!triedGloves++) mayberem();
+                if (state.uarmg) {
+                    ring = nextRing;
+                    continue;
+                }
+            }
+            if (!heroDeaf(state) && random.rn2(20) < acurr(state, A_CHA)) {
+                const query = safe_qbuf(
+                    '"That ', ' looks pretty.  May I have it?"', ring,
+                    xname, simpleonames, 'ring', state,
+                );
+                makeknown(RIN_ADORNMENT);
+                set_voice(mon, 0, 80, 0, state);
+                if (await y_n(query, state) === 'n') {
+                    ring = nextRing;
+                    continue;
+                }
+            } else {
+                await pline(
+                    `${who} decides she'd like ${yname(ring, state)}, `
+                        + 'and takes it.',
+                );
+            }
+            makeknown(RIN_ADORNMENT);
+            if (ring.owornmask)
+                await remove_worn_item(ring, false, state, effectEnv);
+            freeinv(ring, effectEnv);
+            mpickobj(mon, ring, effectEnv);
+        } else {
+            if (state.uleft && state.uright
+                && state.uleft.otyp === RIN_ADORNMENT
+                && state.uright.otyp === RIN_ADORNMENT) {
+                break;
+            }
+            if (ring === state.uleft || ring === state.uright) {
+                ring = nextRing;
+                continue;
+            }
+            if (state.uarmg) {
+                if (!triedGloves++) mayberem();
+                if (state.uarmg) break;
+            }
+            if (!heroDeaf(state) && random.rn2(20) < acurr(state, A_CHA)) {
+                const query = safe_qbuf(
+                    '"That ',
+                    ' looks pretty.  Would you wear it for me?"',
+                    ring,
+                    xname,
+                    simpleonames,
+                    'ring',
+                    state,
+                );
+                makeknown(RIN_ADORNMENT);
+                set_voice(mon, 0, 80, 0, state);
+                if (await y_n(query, state) === 'n') {
+                    ring = nextRing;
+                    continue;
+                }
+            } else {
+                await pline(
+                    `${who} decides you'd look prettier wearing `
+                        + `${yname(ring, state)},`,
+                );
+                await pline('and puts it on your finger.');
+            }
+            makeknown(RIN_ADORNMENT);
+            if (!state.uright) {
+                await pline(
+                    `${who} puts ${the(xname(ring, state), state)} on your `
+                        + `right ${body_part(HAND, state.youmonst)}.`,
+                );
+                setworn(ring, RIGHT_RING, { state });
+            } else if (!state.uleft) {
+                await pline(
+                    `${who} puts ${the(xname(ring, state), state)} on your `
+                        + `left ${body_part(HAND, state.youmonst)}.`,
+                );
+                setworn(ring, LEFT_RING, { state });
+            } else if (state.uright
+                && state.uright.otyp !== RIN_ADORNMENT) {
+                await pline(
+                    `${who} replaces ${yname(state.uright, state)} with `
+                        + `${yname(ring, state)}.`,
+                );
+                await Ring_gone(state.uright, state);
+                if (state.utotype || !m_next2u(mon, state)) return 1;
+                setworn(ring, RIGHT_RING, { state });
+            } else if (state.uleft
+                && state.uleft.otyp !== RIN_ADORNMENT) {
+                await pline(
+                    `${who} replaces ${yname(state.uleft, state)} with `
+                        + `${yname(ring, state)}.`,
+                );
+                await Ring_gone(state.uleft, state);
+                if (state.utotype || !m_next2u(mon, state)) return 1;
+                setworn(ring, LEFT_RING, { state });
+            } else {
+                note_unported('pline.c impossible');
+            }
+            await Ring_on(ring, state, effectEnv);
+            await prinv(null, ring, 0, effectEnv);
+        }
+        ring = nextRing;
+    }
+
+    const naked = !state.uarmc && !state.uarmf && !state.uarmg
+        && !state.uarms && !state.uarmh && !state.uarmu;
+    await urgent(
+        `${who} ${heroDeaf(state)
+            ? 'seems to murmur into your ear'
+            : naked ? 'murmurs sweet nothings into your ear'
+                : 'murmurs in your ear'}${naked
+            ? '' : ', while helping you undress'}.`,
+    );
+    mayberem(); // cloak
+    if (!state.uarmc) mayberem(); // suit
+    mayberem(); // boots
+    if (!triedGloves) mayberem(); // gloves
+    mayberem(); // shield
+    mayberem(); // helm
+    if (!state.uarmc && !state.uarm) mayberem(); // shirt
+
+    if (state.utotype || !m_next2u(mon, state)) return 1;
+    if (state.uarm || state.uarmc) {
+        if (!heroDeaf(state)) {
+            // mhitu.c's ld() compares the fixed date's MMDD remainder with
+            // 0229; it is a leap-day predicate, independent of alignment.
+            const leapDay = yyyymmdd(state) - getyear(state) * 10000 === 0xe5;
+            if (!(leapDay && mon.female)) {
+                set_voice(mon, 0, 80, 0, state);
+                await verbalize(
+                    `You're such a ${state.flags?.female
+                        ? 'sweet lady' : 'nice guy'}; I wish...`,
+                    state,
+                    { message },
+                );
+            } else {
+                const yourGloves = u_carried_gloves(state);
+                if (yourGloves) observe_object(yourGloves, state);
+                await verbalize(
+                    `Well, then you owe me ${yourGloves
+                        ? yname(yourGloves, state)
+                        : 'twelve pairs of gloves'}${yourGloves
+                        ? ' and eleven more pairs of gloves' : ''}!`,
+                    state,
+                    { message },
+                );
+            }
+        } else if (seewho) {
+            await plineMon(`${Monnam(mon, state, namingEnv)} appears to sigh.`);
+        }
+
+        if (!await tele_restrict(mon, state, effectEnv)) {
+            await rloc(mon, RLOC_MSG, {
+                ...effectEnv,
+                newsym,
+                onscary: (x, y, mtmp, normalized) =>
+                    onscary(x, y, mtmp, normalized.state),
+                setApparxy: set_apparxy,
+            });
+        }
+        return 1;
+    }
+
+    if (state.u?.ualign?.type === A_CHAOTIC) adjalign(1, state);
+    await urgent(
+        `Time stands still while you and ${noit_mon_nam(mon, state, namingEnv)} `
+            + "lie in each other's arms...",
+    );
+    const attrTotal = acurr(state, A_CHA) + acurr(state, A_INT);
+    if (random.rn2(35) > Math.min(attrTotal, 32)) {
+        await pline(
+            `${noit_Monnam(mon, state, namingEnv)} seems to have enjoyed it `
+                + 'more than you...',
+        );
+        switch (random.rn2(5)) {
+        case 0:
+            await pline('You feel drained of energy.');
+            state.u.uen = 0;
+            state.u.uenmax -= random.rnd(Half_physical_damage(state) ? 5 : 10);
+            await exercise(A_CON, false, state, random, {
+                encumberMessage: (currentState) =>
+                    encumber_msg(currentState, { message }),
+            });
+            if (state.u.uenmax < 0) state.u.uenmax = 0;
+            break;
+        case 1:
+            await pline('You are down in the dumps.');
+            await adjattrib(A_CON, -1, true, state, effectEnv);
+            await exercise(A_CON, false, state, random, {
+                encumberMessage: (currentState) =>
+                    encumber_msg(currentState, { message }),
+            });
+            state.disp.botl = true;
+            break;
+        case 2:
+            await pline('Your senses are dulled.');
+            await adjattrib(A_WIS, -1, true, state, effectEnv);
+            await exercise(A_WIS, false, state, random, {
+                encumberMessage: (currentState) =>
+                    encumber_msg(currentState, { message }),
+            });
+            state.disp.botl = true;
+            break;
+        case 3:
+            if (!resists_drli(state.youmonst, state)) {
+                await pline('You feel out of shape.');
+                await losexp('overexertion', state, effectEnv);
+            } else {
+                await pline('You have a curious feeling...');
+            }
+            for (const attribute of [A_CON, A_DEX, A_WIS]) {
+                await exercise(attribute, false, state, random, {
+                    encumberMessage: (currentState) =>
+                        encumber_msg(currentState, { message }),
+                });
+            }
+            break;
+        case 4: {
+            await pline('You feel exhausted.');
+            await exercise(A_STR, false, state, random, {
+                encumberMessage: (currentState) =>
+                    encumber_msg(currentState, { message }),
+            });
+            const damage = random.rn1(10, 6);
+            await losehp(
+                Half_physical_damage(state)
+                    ? Math.trunc((damage + 1) / 2) : damage,
+                'exhaustion', KILLED_BY, state, effectEnv,
+            );
+            break;
+        }
+        }
+    } else {
+        mon.mspec_used = random.rnd(100);
+        await pline(
+            `You seem to have enjoyed it more than `
+                + `${noit_mon_nam(mon, state, namingEnv)}...`,
+        );
+        switch (random.rn2(5)) {
+        case 0:
+            await pline('You feel raised to your full potential.');
+            await exercise(A_CON, true, state, random, {
+                encumberMessage: (currentState) =>
+                    encumber_msg(currentState, { message }),
+            });
+            state.u.uenmax += random.rnd(5);
+            state.u.uen = state.u.uenmax;
+            if (state.u.uenmax > state.u.uenpeak)
+                state.u.uenpeak = state.u.uenmax;
+            break;
+        case 1:
+            await pline('You feel good enough to do it again.');
+            await adjattrib(A_CON, 1, true, state, effectEnv);
+            await exercise(A_CON, true, state, random, {
+                encumberMessage: (currentState) =>
+                    encumber_msg(currentState, { message }),
+            });
+            state.disp.botl = true;
+            break;
+        case 2:
+            await pline(
+                `You will always remember ${noit_mon_nam(mon, state, namingEnv)}...`,
+            );
+            await adjattrib(A_WIS, 1, true, state, effectEnv);
+            await exercise(A_WIS, true, state, random, {
+                encumberMessage: (currentState) =>
+                    encumber_msg(currentState, { message }),
+            });
+            state.disp.botl = true;
+            break;
+        case 3:
+            await pline('That was a very educational experience.');
+            await pluslvl(false, state, effectEnv);
+            await exercise(A_WIS, true, state, random, {
+                encumberMessage: (currentState) =>
+                    encumber_msg(currentState, { message }),
+            });
+            break;
+        case 4:
+            await pline('You feel restored to health!');
+            state.u.uhp = state.u.uhpmax;
+            if (Upolyd(state.u)) state.u.mh = state.u.mhmax;
+            await exercise(A_STR, true, state, random, {
+                encumberMessage: (currentState) =>
+                    encumber_msg(currentState, { message }),
+            });
+            state.disp.botl = true;
+            break;
+        }
+    }
+
+    if (!mon.mtame) {
+        if (random.rn2(20) < acurr(state, A_CHA)) {
+            await pline(
+                `${noit_Monnam(mon, state, namingEnv)} demands that you pay `
+                    + `${mhim(mon, pronounEnv)}, but you refuse...`,
+            );
+        } else if (state.u?.umonnum === M.PM_LEPRECHAUN) {
+            await plineMon(
+                `${noit_Monnam(mon, state, namingEnv)} tries to take your gold, `
+                    + 'but fails...',
+            );
+        } else {
+            const heroMoney = money_cnt(state.invent);
+            let cost = heroMoney > LARGEST_INT - 10
+                ? random.rnd(LARGEST_INT) + 500
+                : random.rnd(Math.trunc(heroMoney) + 10) + 500;
+            if (mon.mpeaceful) {
+                cost = Math.trunc(cost / 5);
+                if (!cost) cost = 1;
+            }
+            if (cost > heroMoney) cost = heroMoney;
+            if (!cost) {
+                if (!heroDeaf(state)) {
+                    set_voice(mon, 0, 80, 0, state);
+                    await verbalize("It's on the house!", state, { message });
+                } else {
+                    await pline('No charge.');
+                }
+            } else {
+                await plineMon(
+                    `${noit_Monnam(mon, state, namingEnv)} takes ${cost} `
+                        + `${currency(cost, state)} for services rendered!`,
+                );
+                money2mon(mon, cost, state);
+                state.disp.botl = true;
+            }
+        }
+    }
+    if (!random.rn2(25)) mon.mcan = 1;
+    if (!await tele_restrict(mon, state, effectEnv)) {
+        await rloc(mon, RLOC_MSG, {
+            ...effectEnv,
+            newsym,
+            onscary: (x, y, mtmp, normalized) =>
+                onscary(x, y, mtmp, normalized.state),
+            setApparxy: set_apparxy,
+        });
+    }
+    return 1;
 }
 
 // allmain.c stop_occupation(), which mhitu.c calls from missmu() at :99 and
