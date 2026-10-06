@@ -176152,6 +176152,99 @@
           "evaluationCommit": "482f9f019aa0eeb4691fda203392488df869b3f7"
         }
       }
+    },
+    {
+      "id": "port-timeout-hatch-egg-pet-closure-v20-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete egg hatching and its consumed monster creation and taming closure",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20"
+      ],
+      "selectionReason": "The current v20 evaluation challenges/evaluations/20261006054722-v20.json stops at step 380 because timeout.c:hatch_egg has no JavaScript timer callback. The admitted recording is challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json (SHA-256 fb88c4150fe6a1fa884b19c83648994cfa0a30ed0ce6d9d0aee77c0c9e83123e); its manifest is challenges/manifests/v20.json (SHA-256 83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0). Source audit shows that hatch_egg consumes makemon and tamedog results, whose whole return closure includes dogfood, dog_eat, dog_nutrition, and bee_eat_jelly.",
+      "detail": "Port the complete timeout.c:hatch_egg callback and wire timeout_funcs[HATCH_EGG] through existing elapsed-turn and level-arrival timer dispatch. Verify or complete every required source unit rather than relying on legacy declaration flags. Existing accepted whole evidence covers get_obj_location, big_to_little, enexto, learn_egg_type, and the egg timer attachment helper. The v20 carried giant-ant range supplies the primary impure entry evidence; add independent evidence for active required-function entry points that it does not execute.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hatch_egg",
+          "line": 1017,
+          "endLine": 1192,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1017,
+        "to": 1192
+      },
+      "requiredFunctions": [
+        {
+          "name": "makemon",
+          "line": 1147,
+          "endLine": 1513,
+          "declared": true,
+          "sourceFile": "makemon.c",
+          "complete": false
+        },
+        {
+          "name": "tamedog",
+          "line": 1143,
+          "endLine": 1291,
+          "declared": true,
+          "sourceFile": "dog.c",
+          "complete": false
+        },
+        {
+          "name": "dogfood",
+          "line": 995,
+          "endLine": 1142,
+          "declared": true,
+          "sourceFile": "dog.c",
+          "complete": false
+        },
+        {
+          "name": "dog_nutrition",
+          "line": 156,
+          "endLine": 217,
+          "declared": true,
+          "sourceFile": "dogmove.c",
+          "complete": false
+        },
+        {
+          "name": "dog_eat",
+          "line": 218,
+          "endLine": 347,
+          "declared": true,
+          "sourceFile": "dogmove.c",
+          "complete": false
+        },
+        {
+          "name": "bee_eat_jelly",
+          "line": 394,
+          "endLine": 423,
+          "declared": true,
+          "sourceFile": "monmove.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20": {
+          "session": "synthetic/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json",
+          "recordingSha256": "fb88c4150fe6a1fa884b19c83648994cfa0a30ed0ce6d9d0aee77c0c9e83123e",
+          "evaluationPath": "challenges/evaluations/20261006054722-v20.json",
+          "evaluationCommit": "5143232201101362e6fe64b817df401d80b2a45c"
+        }
+      }
     }
   ]
 }
