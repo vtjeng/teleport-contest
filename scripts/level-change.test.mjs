@@ -75,6 +75,7 @@ import {
     PM_VALKYRIE,
     PM_WIZARD,
 } from '../js/monsters.js';
+import { rehumanize } from '../js/polyself.js';
 import { add_weapon_skill, lose_weapon_skill } from '../js/weapon.js';
 import { skillSlot } from '../js/startup_skills.js';
 import { scanLevelArgument } from '../js/wizcmds.js';
@@ -729,6 +730,46 @@ test('planned level loss carries its death boundary through rehumanize',
     assert.deepEqual(state.killer, {
         format: NO_KILLER_PREFIX,
         name: 'killed while stuck in creature form',
+    });
+});
+
+test('planned rehumanize reaches the unhealthy original-form death boundary',
+    async () => {
+    await runSegment({
+        // This arbitrary startup supplies the complete state polyman() owns.
+        seed: 8820254,
+        datetime: '20310203040507',
+        nethackrc: 'OPTIONS=role:Archeologist,race:human,gender:female,align:neutral\n'
+            + 'OPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n',
+        moves: '.',
+    });
+    game.u.macurr = { a: [...game.u.acurr.a] };
+    game.u.mamax = { a: [...game.u.amax.a] };
+    game.u.mfemale = game.flags.female;
+    game.u.umonnum = PM_GNOME;
+    game.u.umonster = PM_HUMAN;
+    game.u.mh = 0;
+    game.u.mhmax = 1;
+    game.u.uhp = 0;
+    game.youmonst.data = game.mons[PM_GNOME];
+    const messages = [];
+    const boundary = new Error('planned unhealthy original-form death');
+
+    const caught = await rehumanize(game, {
+        planning: true,
+        message: async (text) => { messages.push(text); },
+        planningDeath: () => boundary,
+    }).then(() => null, (error) => error);
+
+    assert.equal(caught, boundary);
+    assert.equal(game.u.umonnum, PM_HUMAN);
+    assert.strictEqual(game.youmonst.data, game.mons[PM_HUMAN]);
+    assert.deepEqual(messages, [
+        'Your old form was not healthy enough to survive.',
+    ]);
+    assert.deepEqual(game.killer, {
+        format: KILLED_BY,
+        name: 'reverting to unhealthy human form',
     });
 });
 

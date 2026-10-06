@@ -657,7 +657,9 @@ export function planningState(state) {
         if (!source) return null;
         return {
             ...source,
-            id: monsterMap.get(source.id)
+            id: source.id === state.youmonst
+                ? heroMonster
+                : monsterMap.get(source.id)
                 ?? objectMap.get(source.id)
                 ?? source.id,
             next: cloneLightList(source.next),

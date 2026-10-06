@@ -38,6 +38,7 @@ import {
     LAVAPOOL,
     LS_MONSTER,
     LS_OBJECT,
+    M_AP_OBJECT,
     KILLED_BY_AN,
     MMOVE_DONE,
     MMOVE_NOTHING,
@@ -159,6 +160,7 @@ import {
     hideunder,
     minliquid,
     movemon_singlemon,
+    normal_shape,
 } from '../js/mon.js';
 import { cancel_monst } from '../js/zap.js';
 import { clear_bypasses } from '../js/worn.js';
@@ -852,9 +854,14 @@ test('planningState gives hero monster form changes their own owner',
     async () => {
     await prepareSelectedAction({ adjacentHero: true });
     const liveForm = game.youmonst.data;
+    // Range 1 is the light.c minimum and makes the source owner, rather than
+    // its radius, the behavior under test.
+    new_light_source(game.u.ux, game.u.uy, 1, LS_MONSTER, game.youmonst, game);
     const planned = planningState(game);
 
     assert.notStrictEqual(planned.youmonst, game.youmonst);
+    assert.strictEqual(planned.gl.light_base.id, planned.youmonst);
+    assert.strictEqual(game.gl.light_base.id, game.youmonst);
     planned.youmonst.data = game.mons[PM_CHAMELEON];
     planned.youmonst.mcan = 1;
 
@@ -897,9 +904,37 @@ test('planned cancellation routes chameleon redraws through its injected seam',
 
     assert.equal(clone.cham, NON_PM);
     assert.equal(clone.data, planned.mons[PM_CHAMELEON]);
-    assert.ok(redraws.some(([x, y]) => x === clone.mx && y === clone.my));
+    assert.deepEqual(redraws, [
+        [clone.mx, clone.my], // newcham() redraws the changed form.
+        [clone.mx, clone.my], // normal_shape() redraws after clearing cham.
+    ]);
     assert.equal(target.monster.data, liveForm);
     assert.equal(target.monster.cham, PM_CHAMELEON);
+});
+
+test('planned normal_shape routes mimic redraw through its injected seam',
+    async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+    target.monster.cham = NON_PM;
+    target.monster.m_ap_type = M_AP_OBJECT;
+    // A wax candle is a valid object appearance; its identity is immaterial
+    // because seemimic() clears the disguise before the redraw.
+    target.monster.mappearance = WAX_CANDLE;
+    const planned = planningState(game);
+    const clone = planned.level.monlist;
+    const redraws = [];
+
+    await normal_shape(clone, planned, {
+        planning: true,
+        redraw: (x, y) => { redraws.push([x, y]); },
+    });
+
+    assert.equal(clone.m_ap_type, 0);
+    assert.equal(clone.mappearance, 0);
+    assert.equal(clone.msleeping, 1);
+    assert.deepEqual(redraws, [[clone.mx, clone.my]]);
+    assert.equal(target.monster.m_ap_type, M_AP_OBJECT);
+    assert.equal(target.monster.mappearance, WAX_CANDLE);
 });
 
 test('planned Stormbringer monster action reports its attacker at fatal drain',
