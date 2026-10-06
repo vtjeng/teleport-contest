@@ -63,6 +63,7 @@ import {
     In_quest,
     KILLED_BY,
     KILLED_BY_AN,
+    NC_SHOW_MSG,
     NO_MM_FLAGS,
     NO_KILLER_PREFIX,
     NOTELL,
@@ -156,6 +157,7 @@ import {
     surface,
 } from './dungeon.js';
 import {
+    Amonnam,
     capitalizedMonsterName,
     monsterCommonName,
     mon_nam,
@@ -164,7 +166,7 @@ import {
 import { game } from './gstate.js';
 import { losexp } from './exper.js';
 import { youHear as plineYouHear } from './pline.js';
-import { setmangry } from './mon.js';
+import { m_in_air, newcham, setmangry } from './mon.js';
 import { hard_helmet } from './do_wear.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
 import {
@@ -187,6 +189,7 @@ import {
 import {
     obj_extract_self,
     obfree,
+    prinv,
     stackobj,
     update_inventory,
     sobj_at,
@@ -391,17 +394,11 @@ import {
 } from './trap_water_damage.js';
 import { canseemon, canspotmon } from './display.js';
 
-// Five owners arrive through the caller's env rather than through an import.
-// `mInAir` is mon.c m_in_air() and `youHear`/`heroDeaf` are pline.c You_hear()
-// and youprop.h's Deaf; js/monmove.js holds all three, and importing it here
-// would make the two files import each other. `message` and `redraw` are the
-// planning clone's seams: a dry run must write neither the message window nor
-// the map. `random` arrives the same way, and mintrap() checks it separately
-// because it needs two named draws rather than one callable.
-//
-// Each is looked up through this helper, which throws on a missing owner
-// rather than falling back, so a misspelled injection fails loudly instead of
-// silently taking a default.
+// Effects receive the source owners through their caller's environment.
+// mintrap() supplies live defaults for state-only production callers; planning
+// callers replace message/redraw and RNG with clone-local operations. Every
+// supplied environment is checked here so an invalid operation fails before
+// it is used.
 function requireTrapOperation(env, name) {
     const operation = env[name];
     if (typeof operation !== 'function')
@@ -1431,10 +1428,7 @@ async function steedintrap(trap, otmp, env) {
     case POLY_TRAP:
         if (!resists_magm(steed, state)
             && !await resist(steed, WAND_CLASS, 0, NOTELL, state, random)) {
-            // C discards newcham()'s return. The general shape-changing path
-            // still needs inventory and attachment handling, so retain the
-            // explicit source gap while preserving the resistance draw.
-            note_unported('mon.c newcham steed');
+            await newcham(steed, null, { ...env, ncflags: NC_SHOW_MSG });
         }
         steedhit = true;
         break;
@@ -2990,8 +2984,8 @@ function unchangingTrapHero(state) {
 }
 
 // C ref: trap.c trapeffect_poly_trap() (2453-2525). The monster arm's
-// polymorph resistance result is consumed here, while newcham() is a C void
-// call and remains an explicit source gap. Iron shoes are removed, picked up,
+// polymorph resistance result is consumed here; C discards newcham()'s
+// result after the complete shape-changing owner runs. Iron shoes are picked up,
 // transformed and re-equipped in that order.
 async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
     const { state, random } = env;
@@ -3027,7 +3021,9 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
                 env,
             );
             update_inventory({ state });
-            if (shoes) note_unported('invent.c prinv');
+            if (state.uarmf) await prinv(null, state.uarmf, 0, {
+                ...env, hooks: { ...env.hooks, message },
+            });
         } else if (antimagicTrapHero(state)
             || unchangingTrapHero(state)) {
             await shieldeff(state.u.ux, state.u.uy, state);
@@ -3072,9 +3068,7 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
         // terminal-only visual gap.
         await shieldeff_mon(mtmp, { ...env, state });
     } else if (!await resist(mtmp, WAND_CLASS, 0, NOTELL, state, random)) {
-        // C discards newcham()'s result. Keep the gap at that exact call while
-        // preserving the later trap reveal for an in-sight monster.
-        note_unported('mon.c newcham');
+        await newcham(mtmp, null, { ...env, ncflags: NC_SHOW_MSG });
         if (inSight) seetrap(trap, env);
     }
     return Trap_Effect_Finished;
@@ -3800,10 +3794,8 @@ async function trapeffect_vibrating_square(mtmp, trap, _trflags, env) {
     return Trap_Effect_Finished;
 }
 
-// C ref: trap.c trapeffect_selector() (2936-2992). C's default arm calls
-// impossible() for a type outside the switch; the port throws instead, since
-// impossible() is not ported and a type outside 1..TRAPNUM-1 means the trap
-// list is corrupt.
+// C ref: trap.c trapeffect_selector() (2936-2993). Each arm returns its
+// effect's Trap_* status, including the default arm's Finished result.
 export async function trapeffect_selector(monster, trap, trflags, env) {
     if (trap.ttyp === SQKY_BOARD)
         return trapeffect_sqky_board(monster, trap, trflags, env);
@@ -3847,7 +3839,9 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_rolling_boulder_trap(monster, trap, trflags, env);
     if (trap.ttyp === VIBRATING_SQUARE)
         return trapeffect_vibrating_square(monster, trap, trflags, env);
-    throw new Error(`trapeffect_selector: strange trap type ${trap.ttyp}`);
+    // C discards impossible()'s result and then returns Finished.
+    note_unported('pline.c impossible');
+    return Trap_Effect_Finished;
 }
 
 // Everything dotrap() and its trapeffect_*() hero arms cannot answer, asked
@@ -4029,13 +4023,11 @@ export async function dotrap(trap, trflags, state = game, rawEnv = {}) {
     await trapeffect_selector(state.youmonst, trap, flags, env);
 }
 
-// C ref: trap.c mintrap() (3732-3840). Both held and unheld branches preserve
+// C ref: trap.c mintrap() (3733-3843). Both held and unheld branches preserve
 // trap reveal, escape, floor-trigger, learning, selector-result, and unhide
 // order. Calls to void helpers outside the port remain named at their sites.
 export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const env = { ...rawEnv, state };
-    requireTrapOperation(env, 'unsupported');
     const trap = t_at(monster.mx, monster.my, state);
     const species = monster.data;
 
@@ -4045,6 +4037,20 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
         monster.mtrapped = false; /* perhaps teleported? */
         return Trap_Effect_Finished;
     }
+    // State-only production callers (muse.c and trap.c open/close traps) use
+    // the ordinary source owners. Planning callers supply their own complete
+    // random set and output operations; preserve those without filling missing
+    // random operations from the live stream.
+    const defaults = heroTrapEnv(state);
+    const env = {
+        ...defaults,
+        mInAir: m_in_air,
+        heroDeaf: heroIsDeaf,
+        youHear: plineYouHear,
+        ...rawEnv,
+        state,
+    };
+    requireTrapOperation(env, 'unsupported');
     // Checked here rather than on entry because C makes no draw for a monster
     // standing on no trap, and postmov() calls this on every completed move.
     // Everything the admitted path can need is proven present here, before the
@@ -4206,7 +4212,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
         if (!alreadySpotted && canseemon(monster, state)) {
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(monster, state)} appears.`,
+                    `${Amonnam(monster, env)} appears.`,
                     monster.mx,
                     monster.my,
                     state,

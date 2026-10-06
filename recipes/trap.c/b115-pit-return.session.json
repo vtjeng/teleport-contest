@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B115 trap.c:mintrap -> trapeffect_selector -> trapeffect_pit. Step 47 kills a giant rat in the pit and returns Trap_Killed_Mon; whole recording matches C/JS.",
+  "segments": [
+    {
+      "seed": 8807113,
+      "datetime": "20331108091011",
+      "nethackrc": "OPTIONS=name:TrapReturn,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " h#wizwish\npit\n#wizgenesis\nhostile giant rat\njssssssssssssssssssss"
+    }
+  ]
+}

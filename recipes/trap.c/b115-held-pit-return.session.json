@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B115 trap.c:mintrap held-pit witness. A weaponless horse survives the pit at step 44; moving away reaches repeated rn2(40) held returns through step 58. Stronger-victim variation of the giant-rat recipe; no session copied. Whole recording matches C/JS.",
+  "segments": [
+    {
+      "seed": 8807113,
+      "datetime": "20331108091011",
+      "nethackrc": "OPTIONS=name:TrapReturn,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " h#wizwish\npit\n#wizgenesis\nhostile horse\njms ms llms ms ms "
+    }
+  ]
+}

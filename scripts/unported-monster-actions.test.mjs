@@ -2890,25 +2890,6 @@ test('simple preflight rejects each remaining excluded action atomically',
     async () => {
         const cases = [
             {
-                // C monmove.c's scan now reaches the remaining unsupported
-                // trap escape when this ordinary monster is held by a PIT.
-                // Keep the repeated-attempt assertion against this genuine
-                // source boundary instead of the completed AD_SLEE branch.
-                name: 'trapped monster',
-                reason: 'a trapped monster',
-                prepare: async () => {
-                    const target = await prepareSelectedAction();
-                    target.monster.mtrapped = true;
-                    game.level.traps.push({
-                        tx: target.monsterX,
-                        ty: target.heroY,
-                        ttyp: PIT,
-                        tseen: false,
-                    });
-                    return target;
-                },
-            },
-            {
                 name: 'region transition',
                 reason: 'a region transition',
                 prepare: async () => {
@@ -3013,56 +2994,26 @@ test('simple preflight handles each turn-preamble state on its own',
         );
     });
 
-// trap.c mintrap()'s mtmp->mtrapped arm, which monmove.c m_move() reaches at
-// :1734, is ported for bear traps and webs, so the gate reads the square under
-// the monster rather than its mtrapped bit. A pit needs fill_pit() and
-// m_easy_escape_pit(); every remaining type escapes with no line at all.
-test('simple preflight admits a monster held in a bear trap or web',
-    async () => {
-        for (const [label, ttyp] of [['bear trap', BEAR_TRAP], ['web', WEB]]) {
-            const held = await prepareSelectedAction();
-            held.monster.mtrapped = true;
-            game.level.traps.push({
-                tx: held.monsterX,
-                ty: held.heroY,
-                ttyp,
-                tseen: true,
-            });
-            const before = completeSecondTurnSnapshot(game, held.replay);
-
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await preflightSimpleMonsterActions(game);
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, held.replay),
-                    before,
-                    `${label}, attempt ${attempt + 1}`,
-                );
-            }
-        }
-
-        const other = await prepareSelectedAction();
-        other.monster.mtrapped = true;
-        game.level.traps.push({
-            tx: other.monsterX,
-            ty: other.heroY,
-            ttyp: PIT,
-            tseen: true,
+// trap.c mintrap()'s whole held-monster arm is reached by monmove.c:m_move
+// at :1734. Preflight does not reject a held pit or a stale no-trap hold.
+test('simple preflight admits every held mintrap path', async () => {
+    for (const [label, ttyp] of [
+        ['bear trap', BEAR_TRAP], ['web', WEB], ['pit', PIT],
+        ['fire trap', FIRE_TRAP], ['no trap', null],
+    ]) {
+        const held = await prepareSelectedAction();
+        held.monster.mtrapped = true;
+        if (ttyp !== null) game.level.traps.push({
+            tx: held.monsterX, ty: held.heroY, ttyp, tseen: true,
         });
-        const otherBefore = completeSecondTurnSnapshot(game, other.replay);
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'a trapped monster'
-            ),
-            'pit',
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, other.replay),
-            otherBefore,
-            'pit',
-        );
-    });
+        const before = completeSecondTurnSnapshot(game, held.replay);
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(completeSecondTurnSnapshot(game, held.replay),
+                before, `${label}, attempt ${attempt + 1}`);
+        }
+    }
+});
 
 // monmove.c m_move()'s mtrapped prologue hands mintrap() a `redraw` and a
 // `message`, and js/monmove.js replaces both with no-ops while the planning

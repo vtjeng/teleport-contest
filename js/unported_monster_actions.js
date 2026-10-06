@@ -11,8 +11,6 @@
 // Delete this file once ported coverage makes the boundary unnecessary.
 
 import {
-    BEAR_TRAP,
-    WEB,
     BURN,
     CORR,
     DOOR,
@@ -180,9 +178,6 @@ import {
 } from './rng.js';
 
 
-import {
-    t_at,
-} from './trap.js';
 import { rloc } from './teleport.js';
 import { ttyPline, ttyPlineWillWait } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -303,13 +298,8 @@ function assertSimpleActionState(monster, state) {
     // js/quest.js refuses every conversation branch it does not carry.
     if (monster.mfrozen)
         unsupported('inconsistent frozen monster state');
-    // trap.c mintrap()'s held-monster arm is ported for bear traps and webs.
-    // Other trap types retain their source-specific escape dependencies.
-    if (monster.mtrapped) {
-        const heldBy = t_at(monster.mx, monster.my, state);
-        if (heldBy && heldBy.ttyp !== BEAR_TRAP && heldBy.ttyp !== WEB)
-            unsupported('a trapped monster');
-    }
+    // trap.c mintrap() owns every held-trap escape, including pits,
+    // metallivore effects, and clearing a stale mtrapped bit on no trap.
     if (monster.mtame && !monster.isminion) {
         // C monmove.c:m_move() sends every tame non-minion with an edog
         // extension through dogmove.c:dog_move(); that path is not limited to

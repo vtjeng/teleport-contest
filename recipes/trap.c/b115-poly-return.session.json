@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B115 trap.c:mintrap -> trapeffect_selector -> trapeffect_poly_trap -> mon.c:newcham witness. At step 59 the giant rat becomes a rock troll. Trap-type variation of the independently chosen pit recipe; whole recording matches C/JS.",
+  "segments": [
+    {
+      "seed": 8807113,
+      "datetime": "20331108091011",
+      "nethackrc": "OPTIONS=name:TrapReturn,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " h#wizwish\npolymorph trap\n#wizgenesis\nhostile giant rat\njms ms ms ms ms ms "
+    }
+  ]
+}
