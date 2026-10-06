@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24 independent candidate: eat.c:fprefx PM_PYROLISK egg explosion. wish pyrolisk egg; eat it. Expected observation: Fire explosion consumes egg. Recipe precedes JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92410007,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Probe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,fruit:persimmon\n",
+      "moves": " \u0017uncursed pyrolisk egg\neo   "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24 independent candidate: eat.c:fprefx LEMBAS_WAFER orc branch. orc Wizard wishes lembas; eats it. Expected observation: !#?&* elf kibble!. Recipe precedes JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92410006,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Probe,role:Wizard,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,fruit:persimmon\n",
+      "moves": " \u0017uncursed lembas wafer\nep   "
+    }
+  ]
+}

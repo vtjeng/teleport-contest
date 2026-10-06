@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24 independent candidate: pickup.c:dotip -> mkobj.c:hornoplenty tipping branch. wish horn of plenty; #tip selects it. Expected observation: Multiple generated items fall to floor. Recipe precedes JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92410024,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Probe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,fruit:persimmon\n",
+      "moves": " \u0017uncursed horn of plenty (3)\n#tip\no   "
+    }
+  ]
+}

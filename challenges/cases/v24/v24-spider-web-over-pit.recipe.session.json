@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24: polyself.c:dospinweb PIT branch -> dig.c:bury_objs. debug giant spider; create pit under hero; drop item; #monster; expected Web covers pit and buries floor object.",
+  "segments": [
+    {
+      "seed": 92410014,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Morph,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\ngiant spider\n            ldi\u0017pit\n#monster\n   "
+    }
+  ]
+}

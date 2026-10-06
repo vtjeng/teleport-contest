@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24 independent candidate: eat.c:fprefx PEAR Hallucination branch. set timed Hallucination via intrinsic menu; wish pear; eat it. Expected observation: One of three segmentation fault messages. Recipe precedes JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92410005,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Probe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,fruit:persimmon\n",
+      "moves": " \u0017uncursed pear\n#wizintrinsic\nh\n  en  "
+    }
+  ]
+}

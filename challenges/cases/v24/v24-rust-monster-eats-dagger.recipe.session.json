@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24: eat.c:doeat rustproof metallic-object branch. debug rust monster; wish rustproof iron dagger; eat; expected Spits rustproof metal item out.",
+  "segments": [
+    {
+      "seed": 92410020,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Morph,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nrust monster\n            \u0017uncursed rustproof dagger\neo   "
+    }
+  ]
+}

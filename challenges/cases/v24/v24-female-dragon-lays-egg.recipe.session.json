@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24: sit.c:lay_an_egg -> mkobj.c:set_corpsenm. debug polymorph female red dragon; sit; expected You lay an egg..",
+  "segments": [
+    {
+      "seed": 92410013,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Morph,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nred dragon\n            l#sit\n   "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24: eat.c:fprefx CLOVE_OF_GARLIC undead branch. debug vampire; wish garlic; eat; expected Vomiting from garlic.",
+  "segments": [
+    {
+      "seed": 92410022,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Morph,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nvampire\n            \u0017uncursed clove of garlic\neo   "
+    }
+  ]
+}

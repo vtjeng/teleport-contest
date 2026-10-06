@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent supplemental v24 C mission: mkobj.c:start_corpse_timeout -> timeout.c:run_timers -> do.c:revive_mon; Wizard wishes a fresh uncursed troll corpse and waits 24 turns on the same level.. Frozen before own JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92411002,
+      "datetime": "20741219141500",
+      "nethackrc": "OPTIONS=name:V24Supplement,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed troll corpse\n    .............................................  "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24 independent candidate: apply.c:use_stethoscope cursed noise branch. wish cursed stethoscope; apply self. Expected observation: C reports source cursed diagnostic. Recipe precedes JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92410009,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Probe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,fruit:persimmon\n",
+      "moves": " \u0017cursed stethoscope\nap.ap.ap.   "
+    }
+  ]
+}

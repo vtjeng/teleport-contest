@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24: polyself.c:dobreathe -> zap.c:ubreatheu. debug red dragon sufficient energy; #monster direction self; expected Hero breath self effect.",
+  "segments": [
+    {
+      "seed": 92410016,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Morph,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #levelchange\n3\n        #polyself\nred dragon\n            #monster\n.   "
+    }
+  ]
+}

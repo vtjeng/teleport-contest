@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-observed continuation with a new ID: original ordinary rest stopped advancing time beside a hostile jackal. Invulnerability prevents incidental damage; m-prefixed rest advances the corpse timer. Designed from the C block and source before its own JS comparison.",
+  "segments": [
+    {
+      "seed": 92411002,
+      "datetime": "20741219141500",
+      "nethackrc": "OPTIONS=name:V24Supplement,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n100a\n    \u0017uncursed troll corpse\n    m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.   "
+    }
+  ]
+}

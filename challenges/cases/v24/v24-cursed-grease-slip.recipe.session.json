@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24 independent candidate: apply.c:use_grease cursed slip/charge branch. wish cursed charged can grease; apply repeatedly if needed. Expected observation: Can slips and charge consumed. Recipe precedes JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92410011,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Probe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,fruit:persimmon\n",
+      "moves": " \u0017cursed can of grease (20)\nap   "
+    }
+  ]
+}

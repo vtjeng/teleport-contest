@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24 independent candidate: eat.c:fprefx SLIME_MOLD current_fruit branch. wish slime mold of configured fruit; eat it. Expected observation: My, this is a yummy .... Recipe precedes JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92410004,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Probe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,fruit:persimmon\n",
+      "moves": " \u0017uncursed persimmon\neo  "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v24: polyself.c:domindblast. debug mind flayer; create hostile mind flayer; #monster; expected Psychic lock on telepathy.",
+  "segments": [
+    {
+      "seed": 92410017,
+      "datetime": "20740917140000",
+      "nethackrc": "OPTIONS=name:V24Morph,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #levelchange\n3\n        #polyself\nmind flayer\n            \u0007hostile mind flayer\n#monster\n #monster\n #monster\n   "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent supplemental v24 C mission: artifact.c:invoke_blinding_ray -> apply.c:do_blinding_ray -> zap.c:bhit FLASHED_LIGHT; Lawful Knight wishes Sunsword, creates hostile newt, invokes sword toward observed monster square.. Frozen before own JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92411001,
+      "datetime": "20741219141500",
+      "nethackrc": "OPTIONS=name:V24Supplement,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed Sunsword\n\u0007hostile newt\n#invoke\nil   "
+    }
+  ]
+}
