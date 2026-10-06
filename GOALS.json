@@ -173953,7 +173953,7 @@
     {
       "id": "port-trap-drain-en-v19-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Verify energy drain and wire engulfing attacks",
       "cFile": "trap.c",
       "sessions": [
@@ -173967,15 +173967,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "99b6b6a9671cb29c375819f1dedbddfdeee7be1b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "drain_en",
           "line": 5202,
           "endLine": 5247,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -174234,7 +174237,85 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "drain_en",
+            "implementation": "js/trap_effects.js",
+            "symbol": "drain_en",
+            "sourceReview": "Read the complete trap.c:drain_en body (5202-5243). The helper sets punctuation before the max-energy-zero branch; otherwise it throttles n with rnd(n) when n exceeds one third of current plus maximum energy, marks an exclamation when n exceeds current energy, subtracts current energy, and uses a second rnd draw to reduce maximum energy on underflow. It clamps maximum energy to zero, restores current energy to the maximum when the caller previously lowered the maximum, marks the status line, then calls You_feel. The JavaScript preserves C integer truncation, state-update order, RNG order and Unaware message prefix. You_feel is represented by the existing awaited message callback. The C return is void and drain_en has no consumed-return function callees.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_anti_magic",
+                "source": "trap.c:trapeffect_anti_magic (2398) calls drain_en after its hero energy and maximum-energy updates; the JS caller awaits the helper at trap_effects.js:2454."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu AD_DREN (1537-1541) calls drain_en only when the monster is not cancelled and rn2(4) is nonzero, then clears tmp; js/mhitu.js awaits the helper after the same gate and before tmp = 0."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-antimagic-trap.test.mjs",
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-anti-magic-field-valkyrie-c39.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "energy-vortex-engulfs-and-drains-energy-c62-more",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 43,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:gulpmu AD_DREN -> trap.c:drain_en; step 43 prints the energy-drain message and changes Pw from 8 to 6."
+              }
+            ],
+            "checkedAt": "99b6b6a9671cb29c375819f1dedbddfdeee7be1b"
+          }
+        ],
+        "entryPointReview": "The selected caller entry point is a monster energy-vortex engulf of the hero. The admitted v19 case reaches gulpmu AD_DREN at segment 0 step 43, where drain_en prints 'You feel your magical energy drain away.' and the hero's energy falls from 8 to 6; all recorded RNG, screens and cursors match through that step. The already-wired hero antimagic-trap caller is also covered by recordings/trap.c/hero-anti-magic-field-valkyrie-c39.session.json at segment 0 step 22. A third direct C call appears in uhitm.c:mhitm_ad_dren (2433), but that separate M-to-H AD_DREN handler remains an explicit unported JS dispatch and is outside A103's reservations; this task does not claim that entry point.",
+        "entryPoints": [
+          {
+            "name": "Energy vortex engulfs the hero and drains energy",
+            "functions": [
+              "drain_en"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "energy-vortex-engulfs-and-drains-energy-c62-more",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 43,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:gulpmu AD_DREN -> trap.c:drain_en"
+              }
+            ]
+          },
+          {
+            "name": "Hero steps on an antimagic trap",
+            "functions": [
+              "drain_en"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-anti-magic-field-valkyrie-c39.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "99b6b6a9671cb29c375819f1dedbddfdeee7be1b",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
