@@ -183453,6 +183453,99 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-revive-corpse-v24-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port corpse revival callbacks across object locations and timer dispatch",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v24/v24-troll-corpse-revives-forced-wait"
+      ],
+      "selectionReason": "Select the largest remaining v24 mismatch from investigations/synthetic/v24/v24-troll-corpse-revives-forced-wait.json: timeout.c run_timers reaches an unwired REVIVE_MON callback, and the inventory corpse requires the complete do.c revive_corpse and revive_mon family plus production timer dispatch.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "revive_corpse",
+          "line": 2111,
+          "endLine": 2250,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "revive_mon",
+          "line": 2251,
+          "endLine": 2298,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2111,
+        "to": 2298
+      },
+      "syntheticProvenance": {
+        "synthetic/v24/v24-troll-corpse-revives-forced-wait": {
+          "session": "synthetic/v24/v24-troll-corpse-revives-forced-wait",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-troll-corpse-revives-forced-wait",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-troll-corpse-revives-forced-wait.session.json",
+          "recordingSha256": "9b70f25e179f56fa49bf3c9bddb6a9a2af3dbf311976e2456e0a59ca8a968ae9",
+          "evaluationPath": "challenges/evaluations/20261006233641-v24.json",
+          "evaluationCommit": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d"
+        }
+      }
+    },
+    {
+      "id": "port-mkroom-mkundead-v24-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port undead swarm creation and wire Bell and Book callers",
+      "cFile": "mkroom.c",
+      "sessions": [
+        "synthetic/v24/v24-cursed-bell-opening-undead"
+      ],
+      "selectionReason": "Select the independent completed v24 investigation at investigations/synthetic/v24/v24-cursed-bell-opening-undead.json: cursed Bell use reaches the missing mkroom.c mkundead implementation; include both active Bell and Book production callers and the revive_corpses return-valued branch.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mkundead",
+          "line": 456,
+          "endLine": 477,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 456,
+        "to": 477
+      },
+      "syntheticProvenance": {
+        "synthetic/v24/v24-cursed-bell-opening-undead": {
+          "session": "synthetic/v24/v24-cursed-bell-opening-undead",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-cursed-bell-opening-undead",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-cursed-bell-opening-undead.session.json",
+          "recordingSha256": "e53dc3208412e3195a08d4c9cb624371915500fed0d4d6b6d43576a7ce48df5a",
+          "evaluationPath": "challenges/evaluations/20261006233641-v24.json",
+          "evaluationCommit": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d"
+        }
+      }
     }
   ]
 }
