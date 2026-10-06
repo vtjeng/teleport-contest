@@ -179789,7 +179789,7 @@
     {
       "id": "port-steal-mdrop-obj-boulder-v22-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete monster inventory drops with boulder vision updates",
       "cFile": "steal.c",
       "sessions": [
@@ -179803,15 +179803,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mdrop_obj",
           "line": 814,
           "endLine": 851,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -179984,7 +179987,174 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mdrop_obj",
+            "implementation": "js/steal.js",
+            "symbol": "mdrop_obj",
+            "sourceReview": "Read nethack-c/upstream/src/steal.c:814-846 in full (assigned range 814-851 includes the following comment and void declaration). Compared the complete existing implementation in source order: snapshot coordinates/worn mask; call distant_name before extracting for naming side effects; extract_from_minvent(FALSE,TRUE); tame paid saddle exemption only when both hero and drop square share the shop; visibility-gated pline_mon naming/location; consumed flooreffects return; place_object before stackobj; defer living-monster extrinsic removal until after placement/stacking. Reuse the canonical objectGenerationEnv once for this entire drop so place_object receives blockPoint and stackobj retains object removal/light/timer/held-state hooks; caller overrides are preserved. Replaced capitalizedMonsterName with the source Monnam call and forwarded the environment, including clone-owned display RNG. No new RNG, messages or redraws are invented. Read extract_from_minvent and place_object source/implementation, inspected distant_name, Monnam, flooreffects and stackobj owners, and retained their existing contracts. The regression test first reproduced the same missing blockPoint refusal, then verifies both death/pet drop paths and hook-before-relobj-redraw order; a second fail-first test reproduced the dropped naming environment. Canonical place_object currently rebuilds vision after indexing the boulder so the derived transparency owner reads the new pile. No new source-owner credit for floor effects, vision, extraction or stacking is claimed.",
+            "callers": [
+              {
+                "path": "js/steal.js",
+                "symbol": "relobj",
+                "source": "steal.c:893 calls mdrop_obj for each selected minvent/droppables object with is_pet && flags.verbose. JavaScript awaits this call and passes the existing environment; mdrop_obj now composes its canonical lifecycle operations itself."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:2779 calls relobj(mtmp,1,FALSE) after taking the dead monster off its map square. JavaScript m_detach:4799 awaits relobj before finishDetach. The assigned v22 death-ray command executes this production path and drops the tame stone giant's boulder."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_invent",
+                "source": "dogmove.c:420 calls relobj(mtmp,minvis,TRUE) after its apport/drop gates. JavaScript dog_invent:776 awaits the existing relobj owner; independent gold/potion recordings reach that loop and mdrop_obj."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "leppie_stash",
+                "source": "monmove.c:1166 drops an unseen leprechaun's gold through mdrop_obj. Existing JavaScript leppie_stash:1653 awaits it with env; no caller edit or new entry credit is claimed."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:430 drops a saddle when the opening branch releases it. Existing JavaScript bhitm:3630 awaits mdrop_obj with the existing state/random/operation environment; no caller edit or new entry credit is claimed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/steal.test.mjs",
+              "scripts/worn.test.mjs",
+              "scripts/dogmove.test.mjs",
+              "scripts/dogmove-inventory.test.mjs",
+              "scripts/monster-death-planning.test.mjs",
+              "scripts/monster-death-disclosure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/steal.c/b117-pet-gold-drop.session.json",
+              "recordings/steal.c/b117-pet-potion-drop.session.json"
+            ],
+            "sourceFile": "steal.c",
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+                "segment": 0,
+                "fromStep": 91,
+                "throughStep": 95,
+                "source": "zap.c:dozap -> dobuzz -> mon.c:xkilled -> mondead -> m_detach:2779 -> steal.c:relobj:889 -> mdrop_obj:823-845 places the dead tame stone giant's carried boulder with mkobj.c:place_object block_point before stacking and redraw. The complete death-ray command and recovery of the ordinary command prompt match through step 95; no later revival-owner credit is claimed."
+              }
+            ],
+            "checkedAt": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c"
+          }
+        ],
+        "entryPointReview": "B117 covers the whole mdrop_obj body and the assigned existing relobj death/pet entries. The C source has additional direct caller owners leppie_stash:1166 and bhitm:430; both already await the same mdrop_obj implementation with an environment and automatically use its corrected composition. They receive no new whole caller or entry-family credit here. steal.c:mdrop_special_objs:864 is an existing unported caller branch that records its protected-object floor-drop gap; that broader owner remains outside this assignment. relobj's guard-gold behavior and unrelated death/revival logic are also outside scope. The monster death entry is an admitted synthetic range rather than a copied regression case. Independent kitten recordings cover the live pet drop entry with gold and potion as a cheap object-class variation; source-pinned tests cover extraction/naming order, visibility/message/redraw gates, equipment cleanup, shop saddle predicates, stacking, default boulder vision and caller hook preservation.",
+        "entryPoints": [
+          {
+            "name": "monster death inventory release through relobj",
+            "functions": [
+              "mdrop_obj"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+                "segment": 0,
+                "fromStep": 91,
+                "throughStep": 95,
+                "source": "zap.c:dozap -> dobuzz -> mon.c:xkilled -> mondead -> m_detach:2779 -> steal.c:relobj:889 -> mdrop_obj:823-845 places the dead tame stone giant's carried boulder with mkobj.c:place_object block_point before stacking and redraw. The complete death-ray command and recovery of the ordinary command prompt match through step 95; no later revival-owner credit is claimed."
+              }
+            ]
+          },
+          {
+            "name": "pet inventory release through dog_invent and relobj",
+            "functions": [
+              "mdrop_obj"
+            ],
+            "recordings": [
+              "recordings/steal.c/b117-pet-gold-drop.session.json",
+              "recordings/steal.c/b117-pet-potion-drop.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "session": "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recording": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingPath": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+          "recipe": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
+          "recipeSha256": "dd4337fb5504e488ff7adc498d9a500c3e3319802973cdd07ce23cf6f7e5c0a8",
+          "replayInputSha256": "fcb9095d2a8fa12609118bf061b5c0708cd499573a009a8052f102a247d247e1",
+          "evaluationPath": "challenges/evaluations/20261006190144-v22.json",
+          "evaluationCommit": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c",
+          "evaluationArtifact": "challenges/evaluations/20261006190144-v22.json",
+          "evaluationUtc": "2026-10-06T19:03:10.716Z",
+          "remainingScreens": 2,
+          "recordedSteps": 101,
+          "previousScreensMatched": 93,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 99,
+              "total": 101
+            },
+            "rng": {
+              "matched": 2702,
+              "total": 2741
+            },
+            "cursors": {
+              "matched": 99,
+              "total": 101
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2701,
+              "cEntry": "rn2(1)=0",
+              "cCaller": "wary_dog(dog.c:1313)",
+              "jsEntry": "rn2(19)=8",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 98,
+                "key": "l"
+              },
+              "stepIndex": 98
+            },
+            "cursor": null
+          },
+          "step": 98,
+          "kind": "rng",
+          "sourceFile": "dog.c",
+          "function": "wary_dog",
+          "message": null,
+          "cFile": "dog.c",
+          "luaFile": null,
+          "line": 1313,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.json",
+            "previousRemainingScreens": 8
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-timeout-phaze-dialogue-v22-20261006",

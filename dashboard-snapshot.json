@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T18:48:23.891Z",
+  "capturedAt": "2026-10-06T19:08:18.745Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -21841,12 +21841,53 @@
         "type": "accepted",
         "at": "2026-10-06T18:47:34.211Z",
         "task": "C116"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C116-06d5b271",
+        "type": "published",
+        "at": "2026-10-06T18:49:25.505Z",
+        "task": "C116",
+        "commit": "06d5b2711daed9c2bb71b14b72d1c715f20708e6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B117-42b62e6f",
+        "type": "integrating",
+        "at": "2026-10-06T18:50:45.515Z",
+        "task": "B117",
+        "integration": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C117-20261006",
+        "type": "assign",
+        "at": "2026-10-06T18:53:55.982Z",
+        "task": "C117",
+        "worker": "C",
+        "goal": "port-timeout-stoned-dialogue-heal-legs-v22-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B117-42b62e6f",
+        "type": "validated",
+        "at": "2026-10-06T19:07:45.548Z",
+        "task": "B117",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B117-42b62e6f",
+        "type": "accepted",
+        "at": "2026-10-06T19:07:49.640Z",
+        "task": "B117"
       }
     ]
   },
   "development": {
-    "executionCommit": "f35e28081e8d63878ce53dfd814fefc7e9a8df4c",
-    "measuredAt": "2026-10-06T18:40:28.559Z",
+    "executionCommit": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c",
+    "measuredAt": "2026-10-06T19:01:33.606Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
