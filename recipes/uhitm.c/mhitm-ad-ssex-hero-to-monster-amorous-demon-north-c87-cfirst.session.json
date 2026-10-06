@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first entry recipe for uhitm.c:mhitm_ad_ssex through hero-to-monster damageum. A male Wizard becomes the Incubus form of the amorous demon and creates one hostile goblin. The recorded C map places the goblin directly north in the same column as the hero-form glyph, so k is the source-observed attack direction. The fresh seed/date and target are independent of the admitted combat case.",
+  "segments": [
+    {
+      "seed": 52087311,
+      "datetime": "20410917131425",
+      "nethackrc": "OPTIONS=name:C87SsexHero,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": " #polyself\namorous demon\n #wizgenesis\nhostile goblin\nFk"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of the frozen C87 monster-pair setup. The previous record verified that #wizintrinsic selects only Conflict and that hostile goblin and succubus glyphs are adjacent; its first wait produced no attack because the new monsters had not yet acted. This source-directed continuation removes an extraneous startup space and allows one additional normal wait, without changing seed, species, options, or layout.",
+  "segments": [
+    {
+      "seed": 98104723,
+      "datetime": "20440609120130",
+      "nethackrc": "OPTIONS=name:C87SsexPair,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": "#wizintrinsic\n>>h\n #wizgenesis\nhostile goblin\n #wizgenesis\nhostile amorous demon\n.."
+    }
+  ]
+}
