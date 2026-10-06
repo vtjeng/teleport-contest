@@ -1,0 +1,126 @@
+{
+  "session": "synthetic/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst",
+  "corpus": "synthetic",
+  "batch": "v22",
+  "caseId": "wizard-eats-wished-cockatrice-egg-v22-cfirst",
+  "remainingScreens": 1,
+  "recordedSteps": 28,
+  "manifestPath": "challenges/manifests/v22.json",
+  "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+  "recordingSha256": "717ac86e3559f1003533f33bcd30426a07cc43eb5b373378351a9696a75ebeb9",
+  "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+  "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+  "status": "complete",
+  "commit": "dd773aa907ac51eed9884ff821b6161457c9d888",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v22",
+    "caseId": "wizard-eats-wished-cockatrice-egg-v22-cfirst",
+    "session": "synthetic/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst",
+    "manifestPath": "challenges/manifests/v22.json",
+    "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+    "recording": "challenges/cases/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst.session.json",
+    "recordingPath": "challenges/cases/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst.session.json",
+    "recordingSha256": "717ac86e3559f1003533f33bcd30426a07cc43eb5b373378351a9696a75ebeb9",
+    "recipe": "challenges/cases/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst.recipe.session.json",
+    "recipeSha256": "3366856b7e80976e6af26e0eee0138fbbad7533b127282093af7bf465f98325f",
+    "replayInputSha256": "95e601d652ecd5bef4db004f4b10f27fca78dc0a408fc07bfe10a748ce0baedf",
+    "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+    "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+    "evaluationArtifact": "challenges/evaluations/20261006180802-v22.json",
+    "evaluationUtc": "2026-10-06T16:33:08.254Z",
+    "remainingScreens": 1,
+    "recordedSteps": 28,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 27,
+        "total": 28
+      },
+      "rng": {
+        "matched": 4185,
+        "total": 4188
+      },
+      "cursors": {
+        "matched": 28,
+        "total": 28
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 27,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 27,
+          "key": "o"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 24,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 4185,
+        "cEntry": "rn2(2)=1",
+        "cCaller": "exercise(attrib.c:509)",
+        "jsEntry": "rn2(20)=3",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 27,
+          "key": "o"
+        },
+        "stepIndex": 27
+      },
+      "cursor": null
+    },
+    "step": 27,
+    "kind": "rng",
+    "sourceFile": "timeout.c",
+    "function": "stoned_dialogue",
+    "message": null,
+    "cFile": "timeout.c",
+    "luaFile": null,
+    "line": 137
+  },
+  "summary": "Eating the cockatrice egg already starts delayed stoning. The sole remaining step27 difference is the missing timeout.c:stoned_dialogue: C appends ‘You are slowing down.’ and exercises Dexterity, while JavaScript skips the whole dialogue. This is the same source task as the v22 stoning-timeout case, not an independent attrib.c or eat.c defect.",
+  "source": {
+    "file": "timeout.c",
+    "branch": "A human Wizard without stone resistance eats a non-stale cockatrice egg. eat.c fpostfx establishes Stoned=5; same-turn nh_timeout reaches stoned_dialogue before decrement, which prints the five-turn warning, clears HFast and exercises Dexterity.",
+    "functions": [
+      "stoned_dialogue"
+    ],
+    "callers": [
+      "eat.c:doeat -> start_eating -> done_eating -> fpostfx at2561-2578 EGG case calls make_stoned(5,NULL,KILLED_BY_AN,killerName) when flesh_petrifies, no Stone_resistance and no successful stone-golem transformation. This establishes the property read by the timeout caller.",
+      "allmain.c:moveloop_core273 -> timeout.c:nh_timeout624 -> stoned_dialogue137. JavaScript advanceHeroUpkeep invokes nh_timeout, but its nonzero-STONED branch records note_unported instead of executing the helper."
+    ],
+    "dependencies": [
+      "Reuse the existing make_stoned, flesh_petrifies, Stone_resistance and poly_when_stoned/polymon path; eating already reaches its expected delicious message and stoning status. This observation does not establish whole fpostfx completion.",
+      "Reuse eat.c:Popeye for the consumed case4 result and nolimbs/strstri/strsubst, urgent message, nomul, stop_occupation, set_itimeout, make_vomiting/make_slimed, exercise owners for whole stoned_dialogue. Reconcile nh_timeout_requires_live_state planning/live handoff for active countdown effects.",
+      "Same prerequisite as the sibling stoning investigation: do.c:heal_legs(how2) clears wounded legs without feel-better or encumbrance messages. Existing js/do.js helper models ordinary how0 only; reconcile the whole source helper and its callers or retain an explicit discarded-call gap with honest blocked evidence."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Assigned challenges/evaluations/20261006180802-v22.json at 5913841d2eeb8e82110208f1966bb47f08725368 reports27/28 matched screens,4185/4188 RNG and28/28 cursors. Remaining1 is the saved investigation count, not an implementation gain.",
+    "Verified corrected current published full SHA dd773aa907ac51eed9884ff821b6161457c9d888 with git rev-parse --verify <SHA>^{commit}. Replayed only this assigned immutable case in a git-archive snapshot of its js/frozen/package.json with official frozen isaac64/terminal/storage overlays; parked A112 edits were excluded and unchanged. Bounded run-lV4Qt8, .cache/A2-egg-investigation-replay.log, produces28 screens with no boundary stop; first screen difference is segment0 step27 input o, top row column24 C Y vs JS space. First RNG difference index4185 is C rn2(2)=1 @ exercise(attrib.c:509) vs JS rn2(20)=3.",
+    "Immutable C step27 prints This egg is delicious! followed by You are slowing down. JavaScript prints exactly the delicious prefix but omits the warning. Both show Stone status. The preceding mcalcmove and maybe_generate_rnd_mon draws match; C then calls exercise before gethungry and the final moveloop_core draw, whereas JavaScript jumps directly to gethungry. This proves the first cause is the missing timeout caller rather than attrib.c arithmetic.",
+    "Read whole timeout.c stoned_dialogue137-185 and nh_timeout588-646. Every nonzero Stoned value reaches the dialogue after the invulnerability guard and before property decrement. It indexes five warning texts, substitutes extremities for limbs when needed, handles slowing/stiffening/immobility/final timeout effects and always exercises A_DEX,FALSE. Current published js/timeout.js1552 retains note_unported(timeout.c stoned_dialogue).",
+    "Read whole eat.c fpostfx2510-2595 and current js/eat.js3018-3130. The EGG arm is implemented at3095: eligible petrifying egg plus no stone resistance or stone-golem escape establishes the source five-turn killer timeout. done_eating3424 calls it after the meal, then uses up the egg and clears victual. The recipe comment describes the historical fprefx EGG blocker; that branch now reaches its delicious feedback and is not the remaining first mismatch.",
+    "Actionable whole-source scope remains timeout.c stoned_dialogue and its nh_timeout/planning caller reconciliation, with the same heal_legs how2 prerequisite identified in investigations/synthetic/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.json. These two investigations represent one independently assignable source task. The cockatrice-egg setup is a distinct production route into that task and verifies countdown5 only; it does not establish later warning branches or whole eat.c completion.",
+    "The assigned recording SHA256 equals717ac86e3559f1003533f33bcd30426a07cc43eb5b373378351a9696a75ebeb9; admitted v22 manifest corpus digest equals5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0. Both identities were verified against current files."
+  ]
+}
