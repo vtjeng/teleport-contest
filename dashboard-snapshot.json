@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T19:08:18.745Z",
+  "capturedAt": "2026-10-06T19:15:33.435Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -21882,6 +21882,40 @@
         "type": "accepted",
         "at": "2026-10-06T19:07:49.640Z",
         "task": "B117"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B117-6a2e73f4",
+        "type": "published",
+        "at": "2026-10-06T19:08:59.938Z",
+        "task": "B117",
+        "commit": "6a2e73f40c46591da8b31132f0fff8faa1d6f8eb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B118-20261006",
+        "type": "assign",
+        "at": "2026-10-06T19:12:38.695Z",
+        "task": "B118",
+        "worker": "B",
+        "goal": "port-timeout-region-dialogue-v22-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6da6181ad6df2ab96f361ad61a76620c6736fec7",
+        "type": "ready",
+        "at": "2026-10-06T19:14:26.466Z",
+        "task": "C117",
+        "delivery": "6da6181ad6df2ab96f361ad61a76620c6736fec7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C117-6da6181a",
+        "type": "received",
+        "at": "2026-10-06T19:15:17.232Z",
+        "task": "C117",
+        "delivery": "6da6181ad6df2ab96f361ad61a76620c6736fec7"
       }
     ]
   },

@@ -180618,6 +180618,49 @@
           "evaluationCommit": "f35e28081e8d63878ce53dfd814fefc7e9a8df4c"
         }
       }
+    },
+    {
+      "id": "port-dog-wary-dog-v22-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port dog.c:wary_dog and wire corpse and statue revival callers.",
+      "cFile": "dog.c",
+      "sessions": [
+        "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst"
+      ],
+      "selectionReason": "The current v22 mismatch first differs in dog.c:wary_dog at step 98 after the revived hero-killed pet skips the source RNG and tameness transition.",
+      "detail": "Implement whole wary_dog in source order, wire zap.c:revive and trap.c:animate_statue, and retain explicit evidence limits for the unported lifesaved_monster, leash, and thrown-steed paths.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wary_dog",
+          "line": 1292,
+          "endLine": 1361,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1292,
+        "to": 1361
+      },
+      "syntheticProvenance": {
+        "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst": {
+          "session": "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recordingPath": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+          "evaluationPath": "challenges/evaluations/20261006190144-v22.json",
+          "evaluationCommit": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c"
+        }
+      }
     }
   ]
 }

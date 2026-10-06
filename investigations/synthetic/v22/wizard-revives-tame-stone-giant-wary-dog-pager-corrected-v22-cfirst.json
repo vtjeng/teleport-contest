@@ -3,15 +3,15 @@
   "corpus": "synthetic",
   "batch": "v22",
   "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
-  "remainingScreens": 8,
+  "remainingScreens": 2,
   "recordedSteps": 101,
   "manifestPath": "challenges/manifests/v22.json",
   "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
   "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
-  "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
-  "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+  "evaluationPath": "challenges/evaluations/20261006190144-v22.json",
+  "evaluationCommit": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c",
   "status": "complete",
-  "commit": "5913841d2eeb8e82110208f1966bb47f08725368",
+  "commit": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v22",
@@ -25,67 +25,77 @@
     "recipe": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
     "recipeSha256": "dd4337fb5504e488ff7adc498d9a500c3e3319802973cdd07ce23cf6f7e5c0a8",
     "replayInputSha256": "a4de07e86e1a102a427012f613decfed4d464623cb75dc17236872f36190e8a2",
-    "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
-    "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
-    "evaluationArtifact": "challenges/evaluations/20261006180802-v22.json",
-    "evaluationUtc": "2026-10-06T18:09:23.546Z",
-    "remainingScreens": 8,
+    "evaluationPath": "challenges/evaluations/20261006190144-v22.json",
+    "evaluationCommit": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c",
+    "evaluationArtifact": "challenges/evaluations/20261006190144-v22.json",
+    "evaluationUtc": "2026-10-06T19:03:10.716Z",
+    "remainingScreens": 2,
     "recordedSteps": 101,
-    "previousScreensMatched": 93,
+    "previousScreensMatched": 99,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 93,
+        "matched": 99,
         "total": 101
       },
       "rng": {
-        "matched": 2651,
+        "matched": 2702,
         "total": 2741
       },
       "cursors": {
-        "matched": 93,
+        "matched": 99,
         "total": 101
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
-      "step": 93
+      "kind": "rng",
+      "step": 98,
+      "segment": 0,
+      "rngIndex": 2701,
+      "cEntry": "rn2(1)=0",
+      "jsEntry": "rn2(19)=8",
+      "cCaller": "wary_dog(dog.c:1313)"
     },
-    "step": 93,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
-    "cFile": null,
+    "step": 98,
+    "kind": "rng",
+    "sourceFile": "dog.c",
+    "function": "wary_dog",
+    "message": "The revived pet skips wary_dog; C rn2(1)=0 versus JS rn2(19)=8",
+    "cFile": "dog.c",
     "luaFile": null,
-    "line": null
+    "line": 1313
   },
-  "summary": "After B116 completes the hero death-ray path, the same command kills the tame stone giant and drops its boulder. JavaScript stops before step 93 because steal.c:mdrop_obj calls place_object without the blockPoint hook required for a first boulder on a square. Port the whole mdrop_obj lifecycle composition and wire its relobj death and pet callers with the canonical object-generation environment.",
+  "summary": "The revived tame stone giant skips dog.c:wary_dog at zero-based step 98. C consumes rn2(1) and makes the hero-killed pet untamed and peaceful; JavaScript leaves it tame and advances to the next exercise draw. Its later pet pickup of the boulder stops before step 99 with a missing recalcBlockPoint hook. Port whole wary_dog and wire the existing corpse/statue revival callers; keep the separate pickup hook defect and unported life-saving entry explicit.",
   "source": {
-    "file": "steal.c",
-    "branch": "The killed tame stone giant releases its inventory through mon.c:m_detach -> steal.c:relobj -> mdrop_obj. For a carried boulder, mdrop_obj places the object before stacking it; mkobj.c:place_object calls vision.c:block_point when this is the square's first boulder.",
+    "file": "dog.c",
+    "branch": "A traits-bearing corpse restores a tame non-minion killed by the hero (EDOG.killed_by_u=1, abuse=0). zap.c:revive calls wary_dog(mtmp, TRUE), whose killed/abused arm clears mtame and mpeaceful and consumes rn2(abuse+1). Its rn2(1)=0 makes this revived giant peaceful; was_dead suppresses messages.",
     "functions": [
-      "mdrop_obj"
+      "wary_dog"
     ],
     "callers": [
-      "steal.c:relobj at 889 drops each monster inventory object through mdrop_obj during mon.c:m_detach after xkilled/mondead",
-      "steal.c:relobj also supplies the existing pet and monster inventory-release paths; verify those callers while keeping their broader behavior outside the source claim"
+      "zap.c:revive at 1005 after montraits; accepted js/zap.js:651-654 records dog.c wary_dog instead of calling it. Wire this production entry with its state/random/planning environment.",
+      "trap.c:animate_statue at 766 after montraits; accepted js/trap.js:3287-3295 has the same named gap. Wire this existing saved-traits statue entry.",
+      "mon.c:lifesaved_monster at 2871 calls wary_dog(mtmp, !surviver). Accepted js/mon.js:4896 refuses the entire amulet life-saving body, so this caller remains blocked until whole lifesaved_monster is implemented; do not claim that entry complete."
     ],
     "dependencies": [
-      "mkobj.c:place_object is an existing owner whose boulder branch consumes the blockPoint hook; reuse objectGenerationEnv rather than inventing a display update",
-      "Existing extract_from_minvent, flooreffects, stackobj, newsym, cansee, obj_no_longer_held, dealloc_obj and naming owners remain in source order; port no unrelated relobj behavior"
+      "Reuse whole dogmove.c:finish_meating 1447-1457, exported in js/dogmove.js:733. It clears meating and removes a non-mimic eating disguise before the untame early return.",
+      "Reuse existing cansee/canspotmon, haseyes, body_part, monster naming and newsym owners. Preserve every wary_dog RNG gate, starvation healing, tameness/peacefulness transition, message, leash/steed branch and EDOG reset in source order.",
+      "C m_unleash and dismount_steed results are discarded. m_unleash has no general runtime owner; js/steed.js:dismount_steed refuses DISMOUNT_THROWN. Keep named gaps and independent blocked evidence for those branches unless their whole owners are included deliberately.",
+      "EDOG.killed_by_u is C integer 1 but existing js/mon.js:xkilled stores boolean true. The port must read the canonical existing state representation, without introducing a second flag.",
+      "Later independent defect: dogmove.c:dog_invent -> invent.c:obj_extract_self -> mkobj.c:remove_object requires the vision.c:recalc_block_point hook for a floor BOULDER. objectGenerationHooks supplies blockPoint for placement but no recalcBlockPoint for removal; the pet pickup currently stops there."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Current evaluation challenges/evaluations/20261006180802-v22.json at 5913841d2eeb8e82110208f1966bb47f08725368 records 93/101 matching screens, 2651/2741 RNG calls and a stop before zero-based step 93: blockPoint is not available for otyp 475. Otyp 475 is BOULDER.",
-    "A bounded C/JavaScript trace on published B116 saved at the worker as .cache/A112-v22-readonly-trace.log reaches wand command -> weffects -> buzz/dobuzz -> xkilled -> mondead -> m_detach -> relobj -> mdrop_obj -> place_object. The trace made no behavior edits.",
-    "Read steal.c:mdrop_obj 814-846 and its relobj caller. C calls place_object for the dropped boulder before stackobj and completes the death drop; JavaScript js/steal.js passes plain dropEnv to place_object while supplying objectGenerationEnv(env) only to the following stackobj call.",
-    "The canonical objectGenerationHooks owner supplies blockPoint. The failing value is the first boulder on its square, so mkobj.c:place_object 2331-2334 requires that hook to update vision; the missing environment is the first differing operation.",
-    "The immutable C recording next logs rn2(6)=5 in xkilled at mon.c:3587. JavaScript never reaches that draw, confirming that the boulder drop blocks before the later treasure and revival tail.",
-    "Smallest independently assignable scope is whole steal.c:mdrop_obj 814-846 with its relobj death and pet callers. Verify the existing mkobj.c:place_object/vision contract and preserve extraction, floor effects, stacking, held-state cleanup, visibility and redraw order."
+    "Evaluation challenges/evaluations/20261006190144-v22.json at 42b62e6f472e1ab0631b7f4cf82bf3904062e66c records 99/101 screens and cursors, 2702/2741 aggregate matching RNG calls: exactly two screens remain. The former death-drop mdrop_obj/blockPoint stop at step 93 was repaired by B117 and is no longer the first cause.",
+    "Exact accepted-commit single-case replay .cache/A2-revive-investigation-replay.log (bounded run-1Ov0sp) matches screens/cursors through step 98 and first differs at global RNG index 2701, segment 0 step 98 key l: C rn2(1)=0 @ wary_dog(dog.c:1313), JS rn2(19)=8. The comparator identifies the first differing index; the evaluation matching-call total is not a contiguous-prefix count.",
+    "Caller path: wand direction l -> zap.c:weffects -> zap.c:bhit/bhitpile/bhito revival -> zap.c:revive -> montraits -> dog.c:wary_dog. The recording includes the new-monster HP/identity and montraits draws immediately before the wary_dog draw, so the first new cause follows the accepted death-drop path.",
+    "Read whole dog.c:wary_dog 1292-1360. C first calls finish_meating even for an untame monster, heals the EDOG starvation penalty, then chooses the killed/abused arm or random tameness arm. An untamed result redraws and ends leash/mount relations; a still-tame result resets revival, abuse, goal and hunger state and, when dead, drop/whistle/apport state.",
+    "C mon.c:xkilled 3526 sets EDOG.killed_by_u=1 before death; js/mon.js:5890 stores true. Corpse saved traits restored by montraits carry this flag. With abuse=0, C wary_dog clears mtame and mpeaceful, rn2(1)=0 restores mpeaceful, and was_dead=TRUE suppresses the life-saving messages. The giant resumes ordinary-monster movement instead of pet inventory behavior.",
+    "Accepted source search rg for wary_dog in js finds only named gaps in zap.js and trap.js, with no definition in dog.js. The existing mon.c:lifesaved_monster owner still refuses amulet life-saving, so whole wary_dog plus its existing revive/animate_statue callers is actionable while that production entry remains explicitly blocked.",
+    "The replay later stops with recalcBlockPoint is not available for otyp 475 before step 99 newline; the final JS screen is The stone giant corpse glows iridescently.--More--. C step 99 instead prints The stone giant is resurrected!, moves the untamed giant and leaves the boulder on the floor. This later extraction-hook defect remains unresolved and may become unreachable for this case after wary_dog; do not erase it or substitute a boulder fix for the earlier RNG cause.",
+    "Whole-function evidence must include independent saved-traits corpse and statue revival entry witnesses, cheap killed/abused versus still-tame variations, and source-derived tests for any new pure helpers. This case establishes only the quiet hero-killed-pet arm. Life-saving, leash and thrown-steed paths need separate recorded evidence or explicit blocked recipes; this investigation establishes no completion claim."
   ]
 }
