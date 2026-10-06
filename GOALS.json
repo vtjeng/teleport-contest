@@ -182453,7 +182453,7 @@
     {
       "id": "port-display-under-water-v23-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port transient underwater map display and its active callers",
       "cFile": "display.c",
       "sessions": [
@@ -182467,15 +182467,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "070ae43e6b24f937cc805b6b8527c429b6569b58",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "under_water",
           "line": 1395,
           "endLine": 1444,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -182730,7 +182733,127 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "under_water",
+            "implementation": "js/display.js",
+            "symbol": "under_water",
+            "sourceReview": "Read whole display.c:1395-1444. Preserved Water Plane/swallowed exits; static lastx/lasty/dela in one per-game _underWater value, reset with resetGame; mode1 or pending dela before mode2; old 3x3 erase y/x order and new radius1 draw x/y order; isok then pool/lava/ice then Blind/u_at tests; prior-position assignment last. Erase/cls writes affect canonical transient disp_* only; newsym remains the canonical source owner for visible memory updates. Read existing isok, is_pool_or_lava, is_ice, Is_waterlevel, heroIsBlind/u_at, newsym, show_glyph_cell and unexploredGlyphInfo; no missing consumed return or discarded gap remains inside this helper. Reused GLYPH_UNEXPLORED source presentation, including custom symbols. Planning clones do not paint or consume live input; the live turn owns display at the established boundary. Removed both under_water gap markers, including the incorrect vision.c attribution. Four exact production source callers now await the helper.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "trap.c:5123 after vision_recalc(2) and set_uinwater(1)"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "docrt",
+                "source": "display.c:docrt_flags:1731 after swallowed precedence, before ordinary memory redraw/post_map"
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "map_redisplay",
+                "source": "detect.c:99 after reconstrain_map and docrt; mode2 schedules full redraw"
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "advanceElapsedTurn",
+                "source": "allmain.c:moveloop_core:432 after once-per-hero-action stationary pooleffects and before see_nearby_monsters"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/under-water.test.mjs",
+              "scripts/display-symbols.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/display.c/b122-underwater-redraw-detector.session.json",
+              "recordings/display.c/b122-underwater-moat-variation.session.json",
+              "recordings/display.c/b122-underwater-blind-limit.session.json",
+              "recordings/display.c/b122-underwater-adjacent-move.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-underwater-display-on-pool-entry",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 32,
+                "source": "cmd.c:wait -> allmain.c:moveloop_core -> trap.c:pooleffects/drown:5123 -> display.c:under_water(1):1407 -> cls:2196 message flush, then allmain.c:432 under_water(0). The pending touch-bottom More at step31 and cleared transient map at32 now match."
+              }
+            ],
+            "checkedAt": "070ae43e6b24f937cc805b6b8527c429b6569b58"
+          }
+        ],
+        "entryPointReview": "Enumerated all four active underwater caller families and the source redraw command. Five independent matching recordings cover pool/moat entry, submerged adjacent-pool movement, elapsed-time limited redraw, Ctrl-R/#redraw, blindness, wiz_map -> do_mapping -> map_redisplay and next-action delayed full redraw. Constructed source-pinned checks cover Water Plane/swallowed exclusions, mode2 while dela pending, loop ordering, per-game reset and silent planning clone. cls has shared helper callers outside this range; their existing canonical calls remain intact, and focused display/swallow/trap/detect/allmain/command checks cover changed behavior. Broader vision_recalc, feel_newsym caller, terrain projection and monster perception source units remain outside this task; blocked witnesses preserve their failures without incomplete helper claims.",
+        "entryPoints": [
+          {
+            "name": "ordinary pool/moat entry with magical breathing",
+            "functions": [
+              "under_water"
+            ],
+            "recordings": [
+              "recordings/display.c/b122-underwater-redraw-detector.session.json",
+              "recordings/display.c/b122-underwater-moat-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-underwater-display-on-pool-entry",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 32,
+                "source": "cmd.c:wait -> allmain.c:moveloop_core -> trap.c:pooleffects/drown:5123 -> display.c:under_water(1):1407 -> cls:2196 message flush, then allmain.c:432 under_water(0). The pending touch-bottom More at step31 and cleared transient map at32 now match."
+              }
+            ]
+          },
+          {
+            "name": "hero-took-time underwater limited/delayed redraw and submerged movement",
+            "functions": [
+              "under_water"
+            ],
+            "recordings": [
+              "recordings/display.c/b122-underwater-redraw-detector.session.json",
+              "recordings/display.c/b122-underwater-adjacent-move.session.json",
+              "recordings/display.c/b122-underwater-blind-limit.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "redraw command and underwater docrt precedence",
+            "functions": [
+              "under_water"
+            ],
+            "recordings": [
+              "recordings/display.c/b122-underwater-redraw-detector.session.json",
+              "recordings/display.c/b122-underwater-moat-variation.session.json",
+              "recordings/display.c/b122-underwater-blind-limit.session.json",
+              "recordings/display.c/b122-ordinary-redraw.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "detect map redisplay/delayed update",
+            "functions": [
+              "under_water"
+            ],
+            "recordings": [
+              "recordings/display.c/b122-underwater-redraw-detector.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "070ae43e6b24f937cc805b6b8527c429b6569b58",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-hack-pickup-checks-v23-20261006",

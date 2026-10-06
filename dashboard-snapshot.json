@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T22:52:48.555Z",
+  "capturedAt": "2026-10-06T23:24:56.135Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -22404,12 +22404,114 @@
         "worker": "C",
         "goal": "port-hack-pickup-checks-v23-20261006",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C121-3470fce7",
+        "type": "published",
+        "at": "2026-10-06T22:53:23.708Z",
+        "task": "C121",
+        "commit": "3470fce7b2ee7ab949c421ea2abd70fac3854b4e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-68cecc925453cdcf34af10df068e00be5f30fa47",
+        "type": "ready",
+        "at": "2026-10-06T22:56:11.536Z",
+        "task": "B122",
+        "delivery": "68cecc925453cdcf34af10df068e00be5f30fa47"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B122-68cecc92",
+        "type": "received",
+        "at": "2026-10-06T22:56:37.434Z",
+        "task": "B122",
+        "delivery": "68cecc925453cdcf34af10df068e00be5f30fa47"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-B122-ccc6f249",
+        "type": "integrating",
+        "at": "2026-10-06T23:00:28.037Z",
+        "task": "B122",
+        "integration": "ccc6f2499ac99057885882dfb32a9aa056b1f0f8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B122-scan-port-redraw",
+        "type": "feedback",
+        "at": "2026-10-06T23:07:11.328Z",
+        "task": "B122",
+        "delivery": "68cecc925453cdcf34af10df068e00be5f30fa47"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B122-scan-test-correction-20261006",
+        "type": "resume",
+        "at": "2026-10-06T23:07:35.358Z",
+        "task": "B122"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b610f1b6897eb9656f9e5576f83e1fc05af3c6a4",
+        "type": "ready",
+        "at": "2026-10-06T23:09:02.011Z",
+        "task": "B122",
+        "delivery": "b610f1b6897eb9656f9e5576f83e1fc05af3c6a4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B122-b610f1b6",
+        "type": "received",
+        "at": "2026-10-06T23:10:25.231Z",
+        "task": "B122",
+        "delivery": "b610f1b6897eb9656f9e5576f83e1fc05af3c6a4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-B122-070ae43e",
+        "type": "integrating",
+        "at": "2026-10-06T23:10:40.793Z",
+        "task": "B122",
+        "integration": "070ae43e6b24f937cc805b6b8527c429b6569b58"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7ddf9676788caa21ad5f420b958d3da7adcec894",
+        "type": "ready",
+        "at": "2026-10-06T23:10:49.117Z",
+        "task": "C122",
+        "delivery": "7ddf9676788caa21ad5f420b958d3da7adcec894"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C122-7ddf9676",
+        "type": "received",
+        "at": "2026-10-06T23:12:05.332Z",
+        "task": "C122",
+        "delivery": "7ddf9676788caa21ad5f420b958d3da7adcec894"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-B122-070ae43e",
+        "type": "validated",
+        "at": "2026-10-06T23:18:34.575Z",
+        "task": "B122",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B122-070ae43e",
+        "type": "accepted",
+        "at": "2026-10-06T23:24:42.639Z",
+        "task": "B122"
       }
     ]
   },
   "development": {
-    "executionCommit": "84d84e111155ac834c43327b7c696055df294349",
-    "measuredAt": "2026-10-06T22:50:41.164Z",
+    "executionCommit": "070ae43e6b24f937cc805b6b8527c429b6569b58",
+    "measuredAt": "2026-10-06T23:18:21.889Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
