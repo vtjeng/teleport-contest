@@ -176601,7 +176601,7 @@
     {
       "id": "port-timeout-hatch-egg-pet-closure-v20-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Complete egg hatching and its consumed monster creation and taming closure",
       "cFile": "timeout.c",
       "sessions": [
@@ -176609,8 +176609,12 @@
       ],
       "selectionReason": "The current v20 evaluation challenges/evaluations/20261006054722-v20.json stops at step 380 because timeout.c:hatch_egg has no JavaScript timer callback. The admitted recording is challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json (SHA-256 fb88c4150fe6a1fa884b19c83648994cfa0a30ed0ce6d9d0aee77c0c9e83123e); its manifest is challenges/manifests/v20.json (SHA-256 83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0). Source audit shows that hatch_egg consumes makemon and tamedog results, whose whole return closure includes dogfood, dog_eat, dog_nutrition, and bee_eat_jelly.",
       "detail": "Port the complete timeout.c:hatch_egg callback and wire timeout_funcs[HATCH_EGG] through existing elapsed-turn and level-arrival timer dispatch. Verify or complete every required source unit rather than relying on legacy declaration flags. Existing accepted whole evidence covers get_obj_location, big_to_little, enexto, learn_egg_type, and the egg timer attachment helper. The v20 carried giant-ant range supplies the primary impure entry evidence; add independent evidence for active required-function entry points that it does not execute.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "8435ff6e81b59e4fed5c19959cb2825c87805a9b",
+      "openStanding": {
+        "sha": "f568bf8d346d69069b7d38ae065810fbf2c8730c",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -176618,7 +176622,7 @@
           "name": "hatch_egg",
           "line": 1017,
           "endLine": 1192,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -176657,7 +176661,7 @@
           "endLine": 217,
           "declared": true,
           "sourceFile": "dogmove.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "dog_eat",
@@ -176689,7 +176693,287 @@
           "evaluationPath": "challenges/evaluations/20261006054722-v20.json",
           "evaluationCommit": "5143232201101362e6fe64b817df401d80b2a45c"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f568bf8d346d69069b7d38ae065810fbf2c8730c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+          "session": "synthetic/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json",
+          "recordingPath": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json",
+          "recordingSha256": "fb88c4150fe6a1fa884b19c83648994cfa0a30ed0ce6d9d0aee77c0c9e83123e",
+          "recipe": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.recipe.session.json",
+          "recipeSha256": "2c1c6a26d5d554771474c1ad0b563b55ac13580dfa0563b6abb09df5c5a6c580",
+          "replayInputSha256": "fbb134c58d0791c764c69dfe059ea42b2827e3549bb0061cff2d5545fcba962a",
+          "evaluationPath": "challenges/evaluations/20261006112621-v20.json",
+          "evaluationCommit": "7a0ddb9d2d965e8d3eea95666fec032af8be6b71",
+          "evaluationArtifact": "challenges/evaluations/20261006112621-v20.json",
+          "evaluationUtc": "2026-10-06T11:27:26.942Z",
+          "remainingScreens": 122,
+          "recordedSteps": 502,
+          "previousScreensMatched": 380,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 380,
+              "total": 502
+            },
+            "rng": {
+              "matched": 8541,
+              "total": 11010
+            },
+            "cursors": {
+              "matched": 380,
+              "total": 502
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "elapsed-turn nh_timeout requires a ported timeout function, but hatch_egg() is due",
+            "step": 380
+          },
+          "step": 380,
+          "kind": "stop",
+          "sourceFile": "timeout.c",
+          "function": "hatch_egg",
+          "message": "elapsed-turn nh_timeout requires a ported timeout function, but hatch_egg() is due",
+          "cFile": "timeout.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.json",
+            "result": {
+              "session": "synthetic/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+              "remainingScreens": 122,
+              "recordedSteps": 502,
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingPath": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json",
+              "recordingSha256": "fb88c4150fe6a1fa884b19c83648994cfa0a30ed0ce6d9d0aee77c0c9e83123e",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+                "session": "synthetic/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json",
+                "recordingPath": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json",
+                "recordingSha256": "fb88c4150fe6a1fa884b19c83648994cfa0a30ed0ce6d9d0aee77c0c9e83123e",
+                "recipe": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.recipe.session.json",
+                "recipeSha256": "2c1c6a26d5d554771474c1ad0b563b55ac13580dfa0563b6abb09df5c5a6c580",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 122,
+                "recordedSteps": 502,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 380,
+                    "total": 502
+                  },
+                  "rng": {
+                    "matched": 8541,
+                    "total": 11010
+                  },
+                  "cursors": {
+                    "matched": 380,
+                    "total": 502
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "elapsed-turn nh_timeout requires a ported timeout function, but hatch_egg() is due",
+                  "step": 380
+                },
+                "step": 380,
+                "kind": "stop",
+                "sourceFile": "timeout.c",
+                "function": "hatch_egg",
+                "message": "elapsed-turn nh_timeout requires a ported timeout function, but hatch_egg() is due",
+                "cFile": "timeout.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 380, timeout.c:hatch_egg fires for a viable carried giant ant egg. JavaScript has no HATCH_EGG timer callback. The whole callback task must also establish its consumed makemon/tamedog source closure; existing implementations and old creation-route fixes do not supply whole-function completion evidence.",
+              "source": {
+                "file": "timeout.c",
+                "branch": "A due TIMER_OBJECT uses the HATCH_EGG function index for a fertile carried egg on the current level. hatch_egg() derives ownership from egg->spe or the male-carrier rn2(2) branch, treats timeout == svm.moves as a visible hatch, rolls rnd(egg->quan), and creates a non-unique, non-genocided species with enexto() and makemon(). A successful own same-level hatch is tamed; the inventory branch reports the hatch, learns the egg species when visible, and consumes the egg or schedules a short timer for any remainder.",
+                "functions": [
+                  "hatch_egg"
+                ],
+                "callers": [
+                  "C: timeout.c:1985 registers hatch_egg in timeout_funcs[HATCH_EGG]; timeout.c:2222-2242 run_timers() unlinks a due timer, decrements TIMER_OBJECT.timed, then calls the registered function.",
+                  "C elapsed-turn path: timeout.c:947 nh_timeout() calls run_timers(); the assigned recording reaches this path at step 380.",
+                  "C other production callers: do.c:1823 goto_level() and restore.c:930 restgamestate() also call run_timers().",
+                  "Current JS elapsed-turn path: allmain.js:1310 preflights an entering turn through timeout.js:650 preflight_nh_timeout_elapsed_turn(); timeout.js:453 unportedDueTimerReason() stops because the HATCH_EGG row has no callback. The live timeout path is timeout.js:1211 nh_timeout() -> run_timers().",
+                  "Current JS level-arrival path: do.js:2632-2635 calls timeout.js run_timers() after object and monster delivery."
+                ],
+                "dependencies": [
+                  "Whole-function scope is timeout.c:hatch_egg; update timeout.js timeout_funcs[HATCH_EGG] and due-prefix admission so this row has a callback while other unported rows still refuse safely. The current HATCH_EGG table row at timeout.js:376 has only a name, and unportedDueTimerReason() at :453 rejects every due row without f.",
+                  "Result-bearing get_obj_location, enexto, makemon and tamedog determine location, spawn success and ownership. The accepted A83 get_obj_location and enexto/enexto_core/collect_coords/goodpos evidence is reusable: their JS files are unchanged since checkedAt 62092f3c6a618f508c18f57463366227f24d3f87. Whole makemon and tamedog evidence is absent from current function/required-function records and accepted whole-function spans; include their unowned source closure rather than treating old declaration flags or route-specific creation fixes as completion. Whole tamedog consumes dogfood and dog_eat, and dog_eat consumes dog_nutrition and dogfood, even though this egg caller passes obj=NULL and does not execute the food arms.",
+                  "timeout.js already implements attach_egg_hatch_timeout() at :1710 and learn_egg_type() at :1728. Reuse these for remaining egg stacks and inventory knowledge; preserve the callback’s container_weight(), useup(), obj_extract_self(), obfree(), and newsym() effects through their existing JS owners.",
+                  "C restore.c:930 is a third run_timers() caller; the current JS search found direct calls through nh_timeout() and goto_level() only. This case establishes the elapsed-turn route, so keep restore-path coverage separate from the cause of this mismatch.",
+                  "big_to_little has accepted pure source/result evidence in port-mondata-growth-conversion-helpers-v20-20261004 at checkedAt 522fe990c2b7328078782bcb6ca66bc29270ce15; js/mondata.js is unchanged since that proof."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261003003219-v20.json identifies this case at evaluationCommit b5bb23ff11504c300f032b10b1e17c99b06fc97e, with 380/502 screens matched, 8541/11010 RNG calls matched, and a stop at step 380: “elapsed-turn nh_timeout requires a ported timeout function, but hatch_egg() is due”. The queue row carries remainingScreens=122 and the same evaluation commit.",
+                "The admitted recording challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json records step 380 calls rn2(2)=0 and rnd(1)=1 at timeout.c:hatch_egg(), followed by hatch placement and makemon draws. At step 381 its screen reports “You see a giant ant drop out of your pack!”. This agrees with the callback branch in upstream timeout.c:1017-1187.",
+                "Upstream nethack-c/upstream/src/timeout.c:1017-1187 defines the whole impure hatch_egg() callback, including egg viability, ownership and silent checks, location and hatch-count checks, monster placement and taming, inventory/floor/minvent output, egg knowledge, rescheduling or cleanup, and redraw. timeout.c:1976-1990 maps HATCH_EGG to the callback table; timeout.c:2222-2242 dispatches due timers.",
+                "At the examined JavaScript source, js/timeout.js:376 has no f for HATCH_EGG. js/timeout.js:453 refuses a due timer without f, and js/timeout.js:650 invokes that refusal during elapsed-turn preflight. js/timeout.js:1535-1545 applies the same due-prefix check before mutating the timer queue. The C source and saved evaluation therefore identify the same source owner and an actionable whole-function port.",
+                "Source/evidence cross-check at f3b1ff3ac670e168e558ab641d1cfbfd229f5382: hatch_egg step380 consumes the returned makemon pointer and tamedog Boolean before setting carried non-dragon mtame=20. dog.c:1197/1247 consumes dogfood and :1265 consumes dog_eat()==2; dogmove.c:232 consumes dog_nutrition and :315 consumes dogfood. No whole completion records for these dog units or makemon were found in GOALS function, required-function or historical whole-span evidence. The closed makemon-c entry is a declaration; bagotricks creation proof is call-shape-specific, and its relevant JS files have since changed. This is a larger source task, not a callback-only fix."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dog_nutrition",
+            "implementation": "js/dogmove.js",
+            "symbol": "dog_nutrition",
+            "sourceReview": "Read the complete dogmove.c:156-217 body. The FOOD_CLASS/CORPSE, ordinary food, COIN_CLASS, unusual-object, size-multiplier, and partially-eaten-object branches preserve C's integer operation order and write mtmp->meating before returning nutrition. The sole direct C caller is dogmove.c:dog_eat at line 232, which consumes the returned amount to update EDOG hungrytime; js/dogmove.js:dog_eat uses the same result. The v20 giant-ant recording reaches the floor-corpse meal at normalized segment 0 step 404 through dog_move -> dog_eat -> dog_nutrition. Other dog_eat caller routes remain incomplete and are not credited here.",
+            "callers": [
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_eat",
+                "source": "C dogmove.c:dog_eat() calls dog_nutrition() at line 232 and consumes its returned nutrition to update the pet's hungry time; the JavaScript caller stores the returned value before applying the same update."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dogmove.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "dogmove.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+                "segment": 0,
+                "fromStep": 404,
+                "throughStep": 404,
+                "source": "dogmove.c:dog_move -> dog_eat -> dog_nutrition, corpse-food branch"
+              }
+            ],
+            "checkedAt": "ba131f051c2653adb296e98a8f51c17d1a813026"
+          }
+        ],
+        "entryPointReview": "C112 verifies two matching paths. The admitted v20 case matches segment 0 through step 501 (502 of 502 emitted screens and recorded steps): timeout.c:run_timers dispatches the due HATCH_EGG row to hatch_egg at step 380, with the hatch messages at 381-383; makemon.c:makemon's explicit-coordinate inventoryless call and timeout.c:hatch_egg's returned monster/taming path are exercised there. The same case reaches a pet's jackal-corpse meal at step 404 through dogmove.c:dog_move -> dog_eat -> dog_nutrition. The second exact replay is recordings/dogmove.c/pet-ranged-score-probe.session.json, which matches all six screens, RNG calls, and cursors for the ordinary, unforced remote-target miss path through dog_move -> pet_ranged_attk -> best_target. These paths establish the recorded prefix only, not every production caller of the broad makemon, tamedog, dogfood, and dog_eat units. `makemon` has many direct creation callers; tamedog and dogfood also have object-fed and monster-action callers; those routes remain incomplete. `best_target` and `pet_ranged_attk` retain unverified forced targeting, hero-target, non-miss attack status, death, and retaliation branches; C112 does not port mattacku or mattackm. dog_eat's consumed bee_eat_jelly result is source-mapped, but the available recording named bee-eats-royal-jelly hatches an egg and never invokes bee_eat_jelly, so that active killer-bee route remains incomplete. The elapsed-turn timer route is verified. A restored egg timer remains incomplete because restore.c:dorestore must persist and restore the timer queue; this task does not add a no-op run_timers call to synchronous dorestore. The elapsed-turn route does not claim a post-restore entry point.",
+        "entryPoints": [
+          {
+            "name": "Elapsed-turn due egg timer and hatch",
+            "functions": [
+              "hatch_egg",
+              {
+                "sourceFile": "makemon.c",
+                "name": "makemon"
+              },
+              {
+                "sourceFile": "dog.c",
+                "name": "tamedog"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+                "segment": 0,
+                "fromStep": 380,
+                "throughStep": 501,
+                "source": "timeout.c:run_timers -> timeout_funcs[HATCH_EGG] -> hatch_egg -> makemon(NO_MINVENT|MM_NOMSG) -> tamedog"
+              }
+            ]
+          },
+          {
+            "name": "Hatched pet eats a floor corpse",
+            "functions": [
+              {
+                "sourceFile": "dog.c",
+                "name": "dogfood"
+              },
+              {
+                "sourceFile": "dogmove.c",
+                "name": "dog_eat"
+              },
+              {
+                "sourceFile": "dogmove.c",
+                "name": "dog_nutrition"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+                "segment": 0,
+                "fromStep": 404,
+                "throughStep": 404,
+                "source": "dogmove.c:dog_move -> dogfood -> dog_eat -> dog_nutrition"
+              }
+            ]
+          },
+          {
+            "name": "Killer bee consumes floor royal jelly",
+            "functions": [
+              {
+                "sourceFile": "dogmove.c",
+                "name": "dog_eat"
+              },
+              {
+                "sourceFile": "monmove.c",
+                "name": "bee_eat_jelly"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Due egg timer restored from a saved game",
+            "functions": [
+              "hatch_egg"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "ba131f051c2653adb296e98a8f51c17d1a813026",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The v20 elapsed-turn hatch and floor-corpse feeding routes now match and dog_nutrition is verified, but restored timers, additional makemon and tamedog callers, object-fed dogfood/dog_eat paths, and the killer-bee jelly entry remain without matching runtime evidence. Their blocked recipes remain recorded for later completion."
     }
   ]
 }
