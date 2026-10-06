@@ -178996,6 +178996,67 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mhitm-gulpmm-monster-engulf-v21-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete monster-on-monster engulf and digestion placement",
+      "cFile": "mhitm.c",
+      "sessions": [
+        "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst"
+      ],
+      "selectionReason": "The only fully investigated current mismatch stops at v21 step 136 in mattackm AT_ENGL before mhitm.c gulpmm. Accepted A110 supplies whole mhitm_ad_dgst and corpse_chance behavior, and accepted B115 supplies the live mintrap return owners; this task completes gulpmm, wires the AT_ENGL caller, and verifies the consumed digestion and trap-result path.",
+      "detail": "Port whole mhitm.c gulpmm lines 849-967 and replace mattackm AT_ENGL refusal with the source caller. Preserve engulf_target gates, message and map movement order, gm.mswallower around mdamagem, DEF_DIED and AGR_DIED handling, goodpos, minliquid and mintrap consumed results, and placement cleanup. Reuse complete mdamagem and accepted A110/B115 helpers, finishing any reached missing branch from source. Record matching v21 runtime evidence and independent branch variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "gulpmm",
+          "line": 849,
+          "endLine": 969,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 849,
+        "to": 969
+      },
+      "requiredFunctions": [
+        {
+          "name": "mhitm_ad_dgst",
+          "line": 4492,
+          "endLine": 4569,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": false
+        },
+        {
+          "name": "mintrap",
+          "line": 3733,
+          "endLine": 3843,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst": {
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.session.json",
+          "recordingSha256": "a92669cbc1408c7b6512ddf48b5a239bccbe74f473f610961ebe047a5043b00f",
+          "evaluationPath": "challenges/evaluations/20261006161601-v21.json",
+          "evaluationCommit": "58941777a28f7fdcbf578f7f288223a02ccd88e2"
+        }
+      }
     }
   ]
 }

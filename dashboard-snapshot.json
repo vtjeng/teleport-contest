@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T16:23:24.693Z",
+  "capturedAt": "2026-10-06T16:36:46.510Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -21513,12 +21513,20 @@
         "type": "accepted",
         "at": "2026-10-06T16:21:48.636Z",
         "task": "A110"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-published-A110-7691f705",
+        "type": "published",
+        "at": "2026-10-06T16:24:45.133Z",
+        "task": "A110",
+        "commit": "7691f705a778ba711e577690ea9fe6a4217af74d"
       }
     ]
   },
   "development": {
-    "executionCommit": "58941777a28f7fdcbf578f7f288223a02ccd88e2",
-    "measuredAt": "2026-10-06T16:15:41.747Z",
+    "executionCommit": "7691f705a778ba711e577690ea9fe6a4217af74d",
+    "measuredAt": "2026-10-06T16:32:21.573Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
