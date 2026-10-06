@@ -1305,6 +1305,33 @@ export async function phaze_dialogue(state = game, env = {}) {
     }
 }
 
+// C ref: timeout.c region_texts[] and region_dialogue() (548-569).
+const regionTexts = Object.freeze([
+    'You seem to have some trouble breathing.',
+    'The air here seems foul.',
+]);
+
+export async function region_dialogue(state = game, env = {}) {
+    const property = state.u.uprops[MAGICAL_BREATHING];
+    const remaining = property.intrinsic & TIMEOUT;
+    const i = Math.trunc(remaining / 2);
+
+    // Test danger after removing only the timed breathing protection. Restore
+    // it before returning or allowing the ordinary warning to wait for input.
+    property.intrinsic &= ~TIMEOUT;
+    const noNeedToBreathe = propertySource(state, MAGICAL_BREATHING)
+        || breathless(state.youmonst.data);
+    const inPoisonGasCloud = region_danger(state);
+    property.intrinsic |= remaining;
+    if (noNeedToBreathe || !inPoisonGasCloud) return;
+
+    if (remaining % 2 && i > 0 && i <= regionTexts.length) {
+        const message = env.message
+            ?? (env.planning ? async () => {} : ttyPline);
+        await message(regionTexts[regionTexts.length - i], state);
+    }
+}
+
 // youprop.h: source-only properties do not consult their blocked field.
 function propertySource(state, index) {
     const property = state.u?.uprops?.[index];
@@ -1663,8 +1690,8 @@ export async function nh_timeout(state = game, env = {}) {
         await levitation_dialogue(state, displayEnv);
     if (u.uprops?.[PASSES_WALLS]?.intrinsic & TIMEOUT)
         await phaze_dialogue(state, displayEnv);
-    if ((u.uprops?.[MAGICAL_BREATHING]?.intrinsic & TIMEOUT) && !env.planning)
-        note_unported('timeout.c region_dialogue');
+    if (u.uprops?.[MAGICAL_BREATHING]?.intrinsic & TIMEOUT)
+        await region_dialogue(state, displayEnv);
     if (u.uprops?.[SLEEPY]?.intrinsic & TIMEOUT)
         await sleep_dialogue(state, env);
     if (u.mtimedone && !--u.mtimedone) {
