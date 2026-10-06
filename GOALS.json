@@ -172840,6 +172840,726 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mhitu-gulpmu-purple-worm-digestion-v21-20261005",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port hero engulf digestion and source blindness checks",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+        "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst"
+      ],
+      "selectionReason": "Complete the source-traced Purple Worm AT_ENGL/AD_DGST hero-target path selected by the two v21 investigations, including return-dependent engulf_target and can_blnd.",
+      "detail": "Port whole mhitu.c gulpmu, whole mhitm.c engulf_target, whole mondata.c can_blnd, caller-only mattacku AT_ENGL dispatch, and async gulp_blnd_check caller propagation. The monster-to-monster gulpmm and mattackm AT_ENGL route remains outside scope.",
+      "openedAt": "becc4c0510546bbf19aa297ded0a584395a7f959",
+      "openStanding": {
+        "sha": "becc4c0510546bbf19aa297ded0a584395a7f959",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "becc4c0510546bbf19aa297ded0a584395a7f959",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "gulpmu",
+          "line": 1289,
+          "endLine": 1590,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1289,
+        "to": 1590
+      },
+      "requiredFunctions": [
+        {
+          "name": "engulf_target",
+          "line": 807,
+          "endLine": 848,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": true
+        },
+        {
+          "name": "can_blnd",
+          "line": 305,
+          "endLine": 401,
+          "declared": true,
+          "sourceFile": "mondata.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst": {
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+          "evaluationPath": "challenges/evaluations/20261005235601-v21.json",
+          "evaluationCommit": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1"
+        },
+        "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst": {
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.session.json",
+          "recordingSha256": "74b358246a488ea58385c6a9fd5f6add454f35e2336451880308c5b41691352f",
+          "evaluationPath": "challenges/evaluations/20261005235601-v21.json",
+          "evaluationCommit": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1"
+        }
+      },
+      "activeStanding": {
+        "sha": "becc4c0510546bbf19aa297ded0a584395a7f959",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+          "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json",
+          "recipeSha256": "e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb",
+          "replayInputSha256": "4f8afff76919390acfd4aa90ad2ced782589251da9f49de401299e32352243ff",
+          "evaluationPath": "challenges/evaluations/20261006002056-v21.json",
+          "evaluationCommit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+          "evaluationArtifact": "challenges/evaluations/20261006002056-v21.json",
+          "evaluationUtc": "2026-10-06T00:22:21.669Z",
+          "remainingScreens": 3,
+          "recordedSteps": 108,
+          "previousScreensMatched": 103,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 105,
+              "total": 108
+            },
+            "rng": {
+              "matched": 2591,
+              "total": 2630
+            },
+            "cursors": {
+              "matched": 107,
+              "total": 108
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 105,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 105,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2586,
+              "cEntry": "d(1,10)=2",
+              "cCaller": "gulpmu(mhitu.c:1292)",
+              "jsEntry": "rn2(5)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 105,
+                "key": "."
+              },
+              "stepIndex": 105
+            },
+            "cursor": {
+              "index": 107,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 107,
+                "key": "."
+              },
+              "cCursor": [
+                10,
+                7,
+                1
+              ],
+              "jsCursor": [
+                11,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 105,
+          "kind": "rng",
+          "sourceFile": "mhitu.c",
+          "function": "gulpmu",
+          "message": null,
+          "cFile": "mhitu.c",
+          "luaFile": null,
+          "line": 1292,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.json",
+            "previousRemainingScreens": 5
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.session.json",
+          "recordingSha256": "74b358246a488ea58385c6a9fd5f6add454f35e2336451880308c5b41691352f",
+          "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.recipe.session.json",
+          "recipeSha256": "821eb159ccc65c3789e67ba05107d9900b2b77a0aa28b556a126eb823c2abcd2",
+          "replayInputSha256": "4f8afff76919390acfd4aa90ad2ced782589251da9f49de401299e32352243ff",
+          "evaluationPath": "challenges/evaluations/20261006002056-v21.json",
+          "evaluationCommit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+          "evaluationArtifact": "challenges/evaluations/20261006002056-v21.json",
+          "evaluationUtc": "2026-10-06T00:22:21.669Z",
+          "remainingScreens": 3,
+          "recordedSteps": 140,
+          "previousScreensMatched": 135,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 137,
+              "total": 140
+            },
+            "rng": {
+              "matched": 2610,
+              "total": 2638
+            },
+            "cursors": {
+              "matched": 139,
+              "total": 140
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 137,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 137,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2604,
+              "cEntry": "d(1,10)=4",
+              "cCaller": "gulpmu(mhitu.c:1292)",
+              "jsEntry": "rn2(5)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 137,
+                "key": "."
+              },
+              "stepIndex": 137
+            },
+            "cursor": {
+              "index": 139,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 139,
+                "key": "."
+              },
+              "cCursor": [
+                12,
+                5,
+                1
+              ],
+              "jsCursor": [
+                12,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 137,
+          "kind": "rng",
+          "sourceFile": "mhitu.c",
+          "function": "gulpmu",
+          "message": null,
+          "cFile": "mhitu.c",
+          "luaFile": null,
+          "line": 1292,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.json",
+            "previousRemainingScreens": 5
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "gulpmu",
+            "implementation": "js/mhitu.js",
+            "symbol": "gulpmu",
+            "sourceReview": "Read the complete mhitu.c:gulpmu definition (1289-1577) and its directly preceding gulp_blnd_check caller (1273-1285). Preserve the initial t_at lookup and damage roll order; engulf eligibility and placement; trap release, leashes, petrification, vision, and swallowed timer; the complete damage-type switch, including AD_DGST constitution/AC/rn2(20)/level arithmetic, physical-damage handling, lifesaving, and expulsion; and the exact return codes. Return values are consumed by mhitu.c:mattacku (stored in sum[]) and discarded by gulp_blnd_check only after the call completes. The JS now awaits both paths. Discarded void effects that remain unported are named at their source sites (steed.c:dismount_steed, apply.c:unleash_all, trap.c:minstapetrify, light.c:snuff_lit, uhitm.c:drain_en, explode.c:mon_explodes, and pline.c:impossible where applicable); no replacement RNG or state effect is invented. The separate C M2M caller mhitm.c:gulpmm remains outside scope and the existing mattackm AT_ENGL refusal is retained.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku AT_ENGL (844-856) calls gulpmu after a successful hero-targeted engulfing hit and stores the returned attack status."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulp_blnd_check",
+                "source": "mhitu.c:gulp_blnd_check (1273-1285) increments uswldtim, discards gulpmu’s result, and returns TRUE; JS now awaits the same call before returning."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+                "segment": 0,
+                "fromStep": 103,
+                "throughStep": 104,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_ENGL -> mhitu.c:gulpmu AD_DGST; step 103 performs the initial swallow and step 104 the next digestion action."
+              },
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+                "segment": 0,
+                "fromStep": 135,
+                "throughStep": 136,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_ENGL -> mhitu.c:gulpmu AD_DGST; this is the Purple Worm attacking the hero, not the later M2M action named by the case title."
+              }
+            ],
+            "checkedAt": "becc4c0510546bbf19aa297ded0a584395a7f959"
+          },
+          {
+            "name": "engulf_target",
+            "implementation": "js/mhitm.js",
+            "symbol": "engulf_target",
+            "sourceReview": "Compared the complete pure mhitm.c:engulf_target body (807-845): reject huge defenders or a non-whirly smaller attacker, either trapped participant, and obstruction/closed doors/trees/iron bars at the defender and attacker squares in source order; otherwise return TRUE. The return is consumed by gulpmu. C gulpmm is another direct source caller, but its M2M mattackm AT_ENGL path is explicitly outside this task and remains refused; no whole gulpmm or mattackm claim is made.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu (1301) consumes engulf_target before moving the monster and changing swallow state."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:gulpmm (858) also calls engulf_target; the surrounding M2M AT_ENGL path remains the named outside-scope refusal in this task."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+                "segment": 0,
+                "fromStep": 103,
+                "throughStep": 104,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_ENGL -> mhitu.c:gulpmu AD_DGST; step 103 performs the initial swallow and step 104 the next digestion action."
+              },
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+                "segment": 0,
+                "fromStep": 135,
+                "throughStep": 136,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_ENGL -> mhitu.c:gulpmu AD_DGST; this is the Purple Worm attacking the hero, not the later M2M action named by the case title."
+              }
+            ],
+            "checkedAt": "becc4c0510546bbf19aa297ded0a584395a7f959"
+          },
+          {
+            "name": "can_blnd",
+            "implementation": "js/mondata.js",
+            "symbol": "can_blnd",
+            "sourceReview": "Compared the complete mondata.c:can_blnd body (305-398): no-eyes, permanent-monster-blindness and same-raven guards; the light-attack cancellation/resistance switch; cream-pie, blinding-venom and blindness-potion object rules; engulfing, claw, touch and sting rules; and the final worn-visored-helmet scan. Its own body has no RNG or game-state mutation, but it is classified impure because its consumed resists_blnd call can emit C impossible() for an inconsistent BLND_RES state. resists_blnd and resists_blnd_by_arti are reused from their accepted whole-source evidence in port-uhitm-mhitm-ad-slee-v18-20261002; can_blnd itself retains the source diagnostic as note_unported and the C TRUE result.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulp_blnd_check",
+                "source": "mhitu.c:gulp_blnd_check (1279) asks whether the swallowed hero can be blinded."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu AD_BLND (1472) checks blindness before its damage/message branch."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_misc_obj",
+                "source": "uhitm.c:hmon_hitmon_misc_obj (1268) checks a thrown cream pie or blinding venom against a monster; this is the runtime route in the strict dothrow cream-pie recording."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_blnd",
+                "source": "uhitm.c:mhitm_ad_blnd (2966, 2978, 2988) dispatches the hero, monster, and M2M blindness cases."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "gulpum",
+                "source": "uhitm.c:gulpum (5128) uses can_blnd for the hero-as-engulfer AD_BLND arm."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ohitmon",
+                "source": "mthrowu.c:ohitmon (471) checks a monster hit by a monster-thrown cream pie or venom."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "thrwmu",
+                "source": "mthrowu.c:thrwmu (755) checks a monster-thrown cream pie or venom against the hero."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "toss_up",
+                "source": "dothrow.c:toss_up (1297) checks the hero hit by a tossed-up cream pie or blinding venom."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_cream_pie",
+                "source": "apply.c:use_cream_pie (3584) checks a cream pie applied to self."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mondata-pure.test.mjs",
+              "scripts/apply-cream-pie.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-cream-pie.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "becc4c0510546bbf19aa297ded0a584395a7f959"
+          }
+        ],
+        "entryPointReview": "The selected impure M2H entry is an ordinary monster turn in which an adjacent Purple Worm successfully reaches mhitu.c:mattacku AT_ENGL and calls gulpmu AD_DGST. The count-pair v21 case matches the source action at segment 0 steps 103-104; the stone-golem v21 case matches the Purple Worm-to-hero attack and digestion at steps 135-136. The case title’s later M2M action is not the first source route. The complete strict cream-pie recording also reaches can_blnd through dothrow.c throw/hit -> uhitm.c:hmon_hitmon_misc_obj at step 505 (cream pie splashes over the kobold). The direct caller census for can_blnd was checked across mhitu.c, uhitm.c, mthrowu.c, apply.c and dothrow.c; the existing JS callers use the canonical helper. gulp_blnd_check remains a caller-contract wrapper, not a whole-source unit: apply.c:use_towel, do.c:wipeoff, and do_wear.c:Blindf_off await its result before restoring blindness. Their exact C-before-effect and JS-await order is source-pinned in apply.test.mjs, wipe-occupation.test.mjs, and take-off-armor.test.mjs. The C M2M engulfing caller mhitm.c:gulpmm -> mattackm AT_ENGL remains outside scope and the existing JS refusal stays in place.",
+        "entryPoints": [
+          {
+            "name": "Purple Worm AT_ENGL/AD_DGST attacks the hero",
+            "functions": [
+              {
+                "sourceFile": "mhitu.c",
+                "name": "gulpmu"
+              },
+              {
+                "sourceFile": "mhitm.c",
+                "name": "engulf_target"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+                "segment": 0,
+                "fromStep": 103,
+                "throughStep": 104,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_ENGL -> mhitu.c:gulpmu AD_DGST; step 103 performs the initial swallow and step 104 the next digestion action."
+              },
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+                "segment": 0,
+                "fromStep": 135,
+                "throughStep": 136,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_ENGL -> mhitu.c:gulpmu AD_DGST; this is the Purple Worm attacking the hero, not the later M2M action named by the case title."
+              }
+            ]
+          },
+          {
+            "name": "Hero throws a cream pie at a hostile monster",
+            "functions": [
+              {
+                "sourceFile": "mondata.c",
+                "name": "can_blnd"
+              }
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-cream-pie.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+          "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json",
+          "recipeSha256": "e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb",
+          "replayInputSha256": "4f8afff76919390acfd4aa90ad2ced782589251da9f49de401299e32352243ff",
+          "evaluationPath": "challenges/evaluations/20261006002056-v21.json",
+          "evaluationCommit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+          "evaluationArtifact": "challenges/evaluations/20261006002056-v21.json",
+          "evaluationUtc": "2026-10-06T00:22:21.669Z",
+          "remainingScreens": 3,
+          "recordedSteps": 108,
+          "previousScreensMatched": 103,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 105,
+              "total": 108
+            },
+            "rng": {
+              "matched": 2591,
+              "total": 2630
+            },
+            "cursors": {
+              "matched": 107,
+              "total": 108
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 105,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 105,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2586,
+              "cEntry": "d(1,10)=2",
+              "cCaller": "gulpmu(mhitu.c:1292)",
+              "jsEntry": "rn2(5)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 105,
+                "key": "."
+              },
+              "stepIndex": 105
+            },
+            "cursor": {
+              "index": 107,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 107,
+                "key": "."
+              },
+              "cCursor": [
+                10,
+                7,
+                1
+              ],
+              "jsCursor": [
+                11,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 105,
+          "kind": "rng",
+          "sourceFile": "mhitu.c",
+          "function": "gulpmu",
+          "message": null,
+          "cFile": "mhitu.c",
+          "luaFile": null,
+          "line": 1292,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.json",
+            "previousRemainingScreens": 5
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.session.json",
+          "recordingSha256": "74b358246a488ea58385c6a9fd5f6add454f35e2336451880308c5b41691352f",
+          "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.recipe.session.json",
+          "recipeSha256": "821eb159ccc65c3789e67ba05107d9900b2b77a0aa28b556a126eb823c2abcd2",
+          "replayInputSha256": "4f8afff76919390acfd4aa90ad2ced782589251da9f49de401299e32352243ff",
+          "evaluationPath": "challenges/evaluations/20261006002056-v21.json",
+          "evaluationCommit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+          "evaluationArtifact": "challenges/evaluations/20261006002056-v21.json",
+          "evaluationUtc": "2026-10-06T00:22:21.669Z",
+          "remainingScreens": 3,
+          "recordedSteps": 140,
+          "previousScreensMatched": 135,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 137,
+              "total": 140
+            },
+            "rng": {
+              "matched": 2610,
+              "total": 2638
+            },
+            "cursors": {
+              "matched": 139,
+              "total": 140
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 137,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 137,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2604,
+              "cEntry": "d(1,10)=4",
+              "cCaller": "gulpmu(mhitu.c:1292)",
+              "jsEntry": "rn2(5)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 137,
+                "key": "."
+              },
+              "stepIndex": 137
+            },
+            "cursor": {
+              "index": 139,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 139,
+                "key": "."
+              },
+              "cCursor": [
+                12,
+                5,
+                1
+              ],
+              "jsCursor": [
+                12,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 137,
+          "kind": "rng",
+          "sourceFile": "mhitu.c",
+          "function": "gulpmu",
+          "message": null,
+          "cFile": "mhitu.c",
+          "luaFile": null,
+          "line": 1292,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.json",
+            "previousRemainingScreens": 5
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "becc4c0510546bbf19aa297ded0a584395a7f959",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
