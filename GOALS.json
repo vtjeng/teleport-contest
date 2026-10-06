@@ -174594,7 +174594,7 @@
       "sessions": [
         "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits"
       ],
-      "selectionReason": "The current v18 mind-flayer case stops in the unported AD_DRIN dispatcher. The coherent task covers uhitm.c:mhitm_ad_drin, eat.c:eat_brains, both slip helpers, dispatcher wiring, and all three combat directions. Planning requires env threading through eat.c:eating_conducts, maybe_cannibal, and violated_vegetarian. Independent H-to-M evidence further proves that the polymorphed hero caller consumes weapon.c:abon and makemon.c:adj_lev before the AD_DRIN hit, so their whole source behavior is required in the same task.",
+      "selectionReason": "The current v18 mind-flayer case stops in the unported AD_DRIN dispatcher. The coherent task covers uhitm.c:mhitm_ad_drin, eat.c:eat_brains, both slip helpers, dispatcher wiring, and all three combat directions. Planning requires env threading through eat.c:eating_conducts, maybe_cannibal, and violated_vegetarian. Independent H-to-M evidence proves that the polymorphed hero caller consumes weapon.c:abon, makemon.c:adj_lev, and weapon.c:dbon before the AD_DRIN hit, so their whole source behavior is required in the same task.",
       "detail": "",
       "openedAt": null,
       "openStanding": null,
@@ -174677,6 +174677,14 @@
           "declared": true,
           "sourceFile": "makemon.c",
           "complete": false
+        },
+        {
+          "name": "dbon",
+          "line": 993,
+          "endLine": 1019,
+          "declared": true,
+          "sourceFile": "weapon.c",
+          "complete": false
         }
       ],
       "syntheticProvenance": {
@@ -174689,8 +174697,8 @@
           "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
           "recordingPath": "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.session.json",
           "recordingSha256": "b1cc90c4d15255a78d9c4b52745cabc3966fc3d708fcf79319805b1023677bd0",
-          "evaluationPath": "challenges/evaluations/20261006022715-v18.json",
-          "evaluationCommit": "a2784766f703430c0dfbf1359e3256335a387eee"
+          "evaluationPath": "challenges/evaluations/20261006043147-v18.json",
+          "evaluationCommit": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c"
         }
       }
     },
