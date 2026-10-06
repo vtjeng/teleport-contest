@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent consume_tin -> b_trapped(\"tin\",NO_PART) witness; the blessed tin opens immediately. The C inventory probe observed the tin in slot o. The final spaces dismiss ordinary tin-opening and explosion pages.",
+  "segments": [
+    {
+      "seed": 114261007,
+      "datetime": "20650211101000",
+      "nethackrc": "OPTIONS=name:TinTrap,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed trapped tin of newt\n eo    "
+    }
+  ]
+}

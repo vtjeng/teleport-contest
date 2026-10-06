@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent lock.c:pick_lock -> picklock -> trap.c:b_trapped(\"door\",FINGER) witness. A Rogue unlocks a separately wished trapped locked door using the C-observed key in slot h; its chance, setup, seed, and clock differ from the challenge digging caller. Final spaces dismiss the success, explosion, and stun pages. A wished horizontal wall first supplies the source-required terrain beneath the hero, then the door replaces it before stepping west.",
+  "segments": [
+    {
+      "seed": 114261017,
+      "datetime": "20660712131500",
+      "nethackrc": "OPTIONS=name:DoorTrap,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017horizontal wall\n\u0017trapped locked door\nh\u0017blessed skeleton key\nahly      "
+    }
+  ]
+}

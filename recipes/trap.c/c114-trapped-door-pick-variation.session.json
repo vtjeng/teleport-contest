@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap tool variation for lock.c:picklock -> b_trapped(FINGER): a wished lock pick replaces the skeleton key, changing the source success probability; a separate seed and clock select its attempts and damage. A wished horizontal wall first supplies the source-required terrain beneath the hero, then the door replaces it before stepping west. The C inventory observes the wished lock pick in slot g (the existing identical tool affects allocation).",
+  "segments": [
+    {
+      "seed": 114261025,
+      "datetime": "20671117131500",
+      "nethackrc": "OPTIONS=name:DoorTrap,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017horizontal wall\n\u0017trapped locked door\nh\u0017blessed lock pick\nagly      ............"
+    }
+  ]
+}
