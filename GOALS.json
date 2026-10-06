@@ -174653,6 +174653,83 @@
           "evaluationCommit": "a2784766f703430c0dfbf1359e3256335a387eee"
         }
       }
+    },
+    {
+      "id": "port-mhitm-gazemm-mdamagem-passivemm-v21-20261005",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port monster gaze damage and passive retaliation",
+      "cFile": "mhitm.c",
+      "sessions": [
+        "synthetic/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected"
+      ],
+      "selectionReason": "The current v21 Pyrolisk case stops at mattackm AT_GAZE before gazemm, M-to-M fire damage, and the floating-eye AD_PLYS passive. A read-only whole-source audit bounds the task to mhitm.c:gazemm, mdamagem, passivemm, the AT_GAZE/passive caller wiring, and result-bearing mon_reflects and mhitm_knockback verification; accepted C86 evidence supplies the existing AD_FIRE and grow_up closure.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "gazemm",
+          "line": 736,
+          "endLine": 806,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 736,
+        "to": 806
+      },
+      "requiredFunctions": [
+        {
+          "name": "mdamagem",
+          "line": 1016,
+          "endLine": 1121,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": false
+        },
+        {
+          "name": "passivemm",
+          "line": 1304,
+          "endLine": 1460,
+          "declared": true,
+          "sourceFile": "mhitm.c",
+          "complete": false
+        },
+        {
+          "name": "mon_reflects",
+          "line": 2797,
+          "endLine": 2835,
+          "declared": true,
+          "sourceFile": "muse.c",
+          "complete": false
+        },
+        {
+          "name": "mhitm_knockback",
+          "line": 5247,
+          "endLine": 5423,
+          "declared": true,
+          "sourceFile": "uhitm.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected": {
+          "session": "synthetic/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.session.json",
+          "recordingSha256": "b3b3e1773ebd6dc68e138d81acadbf6bd2f62dbf76524b55dc25c9ae0e0e0a15",
+          "evaluationPath": "challenges/evaluations/20261006022715-v21.json",
+          "evaluationCommit": "a2784766f703430c0dfbf1359e3256335a387eee"
+        }
+      }
     }
   ]
 }
