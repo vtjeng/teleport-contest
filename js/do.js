@@ -420,7 +420,7 @@ export async function wipeoff(state = game) {
     if (!blinded.intrinsic) {
         await ttyPline("You've got the glop off.", state);
         hero.ucreamed = 0;
-        if (!gulp_blnd_check(state)) {
+        if (!await gulp_blnd_check(state)) {
             set_itimeout(blinded, 1);
             await make_blinded(0, true, state);
         }

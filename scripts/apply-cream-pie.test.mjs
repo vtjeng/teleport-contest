@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { doapply } from '../js/apply.js';
@@ -24,6 +25,11 @@ import {
     WISH_ONLY,
 } from './run-apply-cream-pie.mjs';
 
+const APPLY_C = readFileSync(
+    new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',
+);
+const APPLY_JS = readFileSync(new URL('../js/apply.js', import.meta.url), 'utf8');
+
 function recipeSegment() {
     // The matrix has one segment because debug recordings cannot share an
     // install chunk. Pinning that cardinality prevents this helper from
@@ -45,6 +51,26 @@ async function wishForPie() {
 function queue(...keys) {
     for (const key of keys) game.nhDisplay.pushKey(key.charCodeAt(0));
 }
+
+test('cream-pie callers use the canonical can_blnd predicate', () => {
+    // apply.c:3584 consumes can_blnd() before drawing rnd(25); the JavaScript
+    // use_cream_pie arm must keep the same helper and decision point.
+    const cStart = APPLY_C.indexOf('\nuse_cream_pie(struct obj *obj)');
+    const cEnd = APPLY_C.indexOf('\n}', cStart) + 2;
+    assert.notEqual(cStart, -1, 'apply.c must contain use_cream_pie');
+    assert.ok(cEnd > cStart, 'use_cream_pie must have a complete C body');
+    const cBody = APPLY_C.slice(cStart, cEnd);
+    assert.match(cBody,
+        /if\s*\(can_blnd\(\(struct monst \*\) 0,\s*&gy\.youmonst,\s*AT_WEAP,\s*obj\)\)\s*\{[\s\S]*?rnd\(25\)/u);
+
+    const jsStart = APPLY_JS.indexOf('async function use_cream_pie(');
+    const jsEnd = APPLY_JS.indexOf('\n}', jsStart) + 2;
+    assert.notEqual(jsStart, -1, 'js/apply.js must contain use_cream_pie');
+    assert.ok(jsEnd > jsStart, 'use_cream_pie must have a complete JS body');
+    const jsBody = APPLY_JS.slice(jsStart, jsEnd);
+    assert.match(jsBody,
+        /if\s*\(can_blnd\(null, state\.youmonst, AT_WEAP, obj, state\)\)\s*\{[\s\S]*?random\.rnd\(25\)/u);
+});
 
 test('can_blnd admits a cream pie against an unprotected hero with eyes',
     async () => {

@@ -1340,7 +1340,7 @@ export async function Blindf_off(otmp, state = game) {
             );
         }
     } else if (was_blind) {
-        if (!gulp_blnd_check(state)) {
+        if (!await gulp_blnd_check(state)) {
             changed = true;
             await ttyPline('You can see again.', state);
         }

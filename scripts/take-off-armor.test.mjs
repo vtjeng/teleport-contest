@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
@@ -112,6 +113,13 @@ import {
     loadTakeOffOptionsRecipe,
     loadTakeOffRecipe,
 } from './run-take-off-armor.mjs';
+
+const DO_WEAR_C = readFileSync(
+    new URL('../nethack-c/upstream/src/do_wear.c', import.meta.url), 'utf8',
+);
+const DO_WEAR_JS = readFileSync(
+    new URL('../js/do_wear.js', import.meta.url), 'utf8',
+);
 
 const { Armor_off, Boots_off, Cloak_off, Gloves_off, Helmet_off,
     reset_remarm, Shield_off, Shirt_off, takeoffContext, setwornEnv }
@@ -1065,6 +1073,24 @@ test('an amulet removal runs its source helper and clears the worn slot', async 
     assert.equal(await armor_or_accessory_off(ring, game), ECMD_TIME);
     assert.equal(game.uleft, null);
     assert.equal(ring.owornmask, 0);
+});
+
+test('Blindf_off awaits gulp_blnd_check before restoring sight', () => {
+    // do_wear.c:1526 uses the Boolean result before toggling sight; the JS
+    // helper awaits gulpmu and must finish before Blindf_off continues.
+    const cStart = DO_WEAR_C.indexOf('\nBlindf_off(struct obj *otmp)');
+    const cEnd = DO_WEAR_C.indexOf('\n}\n', cStart) + 2;
+    assert.notEqual(cStart, -1, 'do_wear.c must contain Blindf_off');
+    assert.ok(cEnd > cStart, 'Blindf_off must have a complete C body');
+    assert.match(DO_WEAR_C.slice(cStart, cEnd),
+        /if \(!gulp_blnd_check\(\)\)\s*\{[\s\S]*?You\("can see again\."\)/u);
+
+    const jsStart = DO_WEAR_JS.indexOf('export async function Blindf_off(');
+    const jsEnd = DO_WEAR_JS.indexOf('\n}\n', jsStart) + 2;
+    assert.notEqual(jsStart, -1, 'js/do_wear.js must contain Blindf_off');
+    assert.ok(jsEnd > jsStart, 'Blindf_off must have a complete JS body');
+    assert.match(DO_WEAR_JS.slice(jsStart, jsEnd),
+        /if \(!await gulp_blnd_check\(state\)\)\s*\{[\s\S]*?You can see again/u);
 });
 
 test('Blindf_off clears the blindfold slot and toggles blindness', async () => {

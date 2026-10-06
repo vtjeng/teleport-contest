@@ -4117,8 +4117,24 @@ test('mhitm_ad_cold zeros damage when magic cancellation negates the attack',
     assert.equal(mhm.damage, 0, 'damage zeroed by cancellation');
 });
 
-test('mhitu.c gulp_blnd_check returns its source result and names discarded gulpmu',
+test('gulp_blnd_check runs gulpmu and keeps its source timer order',
     async () => {
+    const cStart = MHITU_C.indexOf('\ngulp_blnd_check(void)');
+    const cEnd = MHITU_C.indexOf('\n}\n', cStart) + 2;
+    assert.notEqual(cStart, -1, 'mhitu.c must contain gulp_blnd_check');
+    assert.ok(cEnd > cStart, 'gulp_blnd_check must have a complete C body');
+    const cBody = MHITU_C.slice(cStart, cEnd);
+    assert.match(cBody,
+        /if \(!Blinded && u\.uswallow[\s\S]*?\+\+u\.uswldtim;[\s\S]*?\(void\) gulpmu\(u\.ustuck, mattk\);[\s\S]*?return TRUE;/u);
+
+    const jsStart = MHITU_JS.indexOf('export async function gulp_blnd_check(');
+    const jsEnd = MHITU_JS.indexOf('\n}\n', jsStart) + 2;
+    assert.notEqual(jsStart, -1, 'js/mhitu.js must contain gulp_blnd_check');
+    assert.ok(jsEnd > jsStart, 'gulp_blnd_check must have a complete JS body');
+    const jsBody = MHITU_JS.slice(jsStart, jsEnd);
+    assert.match(jsBody,
+        /if \(!\(blinded\?\.intrinsic && !blinded\.blocked\)[\s\S]*?\+\+state\.u\.uswldtim;\s*await gulpmu\(stuck, mattk/u);
+
     await runSegment({
         seed: 83015139,
         datetime: '20310304123501',
@@ -4130,12 +4146,24 @@ test('mhitu.c gulp_blnd_check returns its source result and names discarded gulp
     game.u.ucreamed = 0;
     game.u.uswldtim = 17;
     game.u.ustuck = {
-        data: { mattk: [{ aatyp: AT_ENGL, adtyp: AD_BLND }] },
+        data: { mattk: [{ aatyp: AT_ENGL, adtyp: AD_BLND, damn: 0, damd: 0 }] },
         mcan: 0,
+        m_lev: 1,
     };
-    assert.equal(gulp_blnd_check(game), true);
-    assert.equal(game.u.uswldtim, 18);
-    assert.equal(game.unported.has('mhitu.c gulpmu'), true);
+    const messages = [];
+    const rawEnv = {
+        message: async (line) => { messages.push(line); },
+        random: {
+            d: () => 0,
+            rn1: () => 1,
+            rn2: () => 0,
+            rnd: () => 1,
+        },
+    };
+    assert.equal(await gulp_blnd_check(game, rawEnv), true);
+    assert.equal(game.u.uswldtim, 17,
+        'gulp_blnd_check increments before gulpmu consumes one swallow tick');
+    assert.equal(game.unported.has('mhitu.c gulpmu'), false);
 
     const blinded = game.u.uprops[BLINDED];
     game.unported.clear();
@@ -4143,17 +4171,17 @@ test('mhitu.c gulp_blnd_check returns its source result and names discarded gulp
     blinded.intrinsic = 3;
     blinded.extrinsic = 0;
     blinded.blocked = W_TOOL;
-    assert.equal(gulp_blnd_check(game), true,
+    assert.equal(await gulp_blnd_check(game, rawEnv), true,
         'C Blinded is false when BBlinded blocks HBlinded');
-    assert.equal(game.u.uswldtim, 18);
-    assert.equal(game.unported.has('mhitu.c gulpmu'), true);
+    assert.equal(game.u.uswldtim, 17);
+    assert.equal(game.unported.has('mhitu.c gulpmu'), false);
 
     game.unported.clear();
     game.u.uswldtim = 17;
     blinded.intrinsic = 0;
     blinded.extrinsic = W_TOOL;
     blinded.blocked = 0;
-    assert.equal(gulp_blnd_check(game), false,
+    assert.equal(await gulp_blnd_check(game, rawEnv), false,
         'AT_ENGL can_blnd rejects the extrinsic blindfold');
     assert.equal(game.u.uswldtim, 17);
     assert.equal(game.unported.has('mhitu.c gulpmu'), false);
@@ -4164,7 +4192,7 @@ test('mhitu.c gulp_blnd_check returns its source result and names discarded gulp
     blinded.blocked = 0;
     game.u.uswallow = false;
     game.u.uswldtim = 17;
-    assert.equal(gulp_blnd_check(game), false);
+    assert.equal(await gulp_blnd_check(game, rawEnv), false);
     assert.equal(game.u.uswldtim, 17);
     assert.equal(game.unported.has('mhitu.c gulpmu'), false);
 });

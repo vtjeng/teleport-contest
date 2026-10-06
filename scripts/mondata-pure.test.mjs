@@ -19,6 +19,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { BLINDED } from '../js/const.js';
 import * as M from '../js/monsters.js';
 import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 import {
@@ -30,6 +31,7 @@ import {
     can_blow,
     breakarm,
     can_track,
+    can_blnd,
     emits_light,
     extra_nasty,
     cantvomit,
@@ -88,6 +90,62 @@ const MONFLAG_H = readFileSync(
 const MONSTERS_H = readFileSync(
     new URL('../nethack-c/upstream/include/monsters.h', import.meta.url), 'utf8',
 );
+
+test('can_blnd preserves the complete C guard, attack and visor order', () => {
+    const cStart = MONDATA_C.indexOf('\nboolean\ncan_blnd(');
+    const cEnd = MONDATA_C.indexOf('\n/* returns True if monster can attack at range */', cStart);
+    assert.notEqual(cStart, -1, 'mondata.c must contain can_blnd');
+    assert.notEqual(cEnd, -1, 'can_blnd must end before ranged_attk');
+    const cBody = MONDATA_C.slice(cStart + 1, cEnd);
+    assert.match(cBody, /if \(!haseyes\(mdef->data\)\)\s*return FALSE;/u);
+    assert.match(cBody, /if \(!is_you && mon_perma_blind\(mdef\)\)\s*return FALSE;/u);
+    assert.match(cBody,
+        /magr->data == &mons\[PM_RAVEN\] && mdef->data == &mons\[PM_RAVEN\]/u);
+    assert.match(cBody,
+        /case AT_EXPL:[\s\S]*?case AT_BREA:[\s\S]*?return !resists_blnd\(mdef\);/u);
+    assert.match(cBody,
+        /case AT_WEAP:[\s\S]*?obj->otyp == CREAM_PIE[\s\S]*?obj->otyp == BLINDING_VENOM[\s\S]*?obj->otyp == POT_BLINDNESS[\s\S]*?return TRUE;/u);
+    assert.match(cBody,
+        /case AT_ENGL:[\s\S]*?Blindfolded \|\| Unaware \|\| u\.ucreamed[\s\S]*?mdef->msleeping/u);
+    assert.match(cBody,
+        /case AT_CLAW:[\s\S]*?if \(is_you && ublindf\)[\s\S]*?check_visor = TRUE;/u);
+    assert.match(cBody,
+        /case AT_TUCH:[\s\S]*?case AT_STNG:[\s\S]*?if \(magr && magr->mcan\)/u);
+    assert.match(cBody,
+        /if \(check_visor\)[\s\S]*?objdescr_is\(o, "visored helmet"\)/u);
+    assert.match(cBody, /return TRUE;/u);
+
+    // monflag.h defines M1_NOEYES; the yellow light has it in monsters.h.
+    assert.match(MONSTERS_H,
+        /MON\(NAM\("yellow light"\)[\s\S]*?M1_NOEYES[\s\S]*?YELLOW_LIGHT\)/u);
+    const state = monsterState();
+    state.u = { uprops: [], ucreamed: 0, uhs: 0 };
+    state.invent = null;
+    state.uwep = null;
+    state.ublindf = null;
+    state.multi = 0;
+    const hero = { data: pm(M.PM_HUMAN), mcansee: 1, mblinded: 0 };
+    state.youmonst = hero;
+
+    assert.equal(can_blnd(null,
+        { data: pm(M.PM_YELLOW_LIGHT), mcansee: 1, mblinded: 0 },
+        M.AT_ENGL, null, state), false);
+    assert.equal(can_blnd(null,
+        { data: pm(M.PM_HUMAN), mcansee: 0, mblinded: 0 },
+        M.AT_ENGL, null, state), false);
+    assert.equal(can_blnd(
+        { data: pm(M.PM_RAVEN) },
+        { data: pm(M.PM_RAVEN), mcansee: 1, mblinded: 0 },
+        M.AT_CLAW, null, state), false);
+    assert.equal(can_blnd(null, hero, M.AT_BOOM, null, state), true);
+    assert.equal(can_blnd(null, hero, M.AT_WEAP, { otyp: 300 }, state), true,
+        'POT_BLINDNESS bypasses equipment defenses (objects.h:375)');
+    assert.equal(can_blnd(null, hero, M.AT_WEAP, { otyp: 999 }, state), false,
+        'unsupported object types do not blind');
+    state.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 4, blocked: 0 };
+    assert.equal(can_blnd(null, hero, M.AT_WEAP, { otyp: 287 }, state), false,
+        'Blindfolded blocks a cream pie (objects.h:362)');
+});
 
 test('attacktype and attacktype_fordmg preserve C scan and wildcard order', () => {
     assert.match(MONDATA_C,
