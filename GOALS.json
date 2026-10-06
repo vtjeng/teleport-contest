@@ -181629,7 +181629,7 @@
     {
       "id": "port-dothrow-release-camera-demon-v22-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port camera demon release behavior and wire the existing breakobj caller",
       "cFile": "dothrow.c",
       "sessions": [
@@ -181643,8 +181643,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "release_camera_demon",
@@ -181903,6 +181906,12 @@
         ],
         "entryPointReview": "Helper-only selected range has one direct C caller: breakobj EXPENSIVE_CAMERA. Its existing throwit, hero_breaks and breaks callers, including hitfloor and toss_up paths, share that arm; no new command entry is defined by release_camera_demon. The admitted horizontal wall throw executes the non-creation branch. Independent downward t recipes cover non-creation, both species, cursed/uncursed peacefulness, blind message suppression and hallucinated display naming; a quivered f recording independently reaches the same breakage helper. The matrix checks actual camera deletion, monster species, peacefulness, blindness/hallucination state and completed input without a pending boundary. Source-pinned fixtures cover null creation of a genocided species, hallucination resistance, planning silence and awaited feedback/object-lifetime ordering. No build-excluded helper branch or unported callee is introduced.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

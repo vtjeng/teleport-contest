@@ -1,0 +1,101 @@
+{
+  "session": "synthetic/v23/v23-cursed-welded-weapon-attempt",
+  "corpus": "synthetic",
+  "batch": "v23",
+  "caseId": "v23-cursed-welded-weapon-attempt",
+  "remainingScreens": 3,
+  "recordedSteps": 33,
+  "manifestPath": "challenges/manifests/v23.json",
+  "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+  "recordingSha256": "1938a2d7c705964e9e7cf873fc4356a9231caa8ca4d24cbd5a76e273e733972f",
+  "evaluationPath": "challenges/evaluations/20261006211300-v23.json",
+  "evaluationCommit": "febae9e636df2c7af3d2a18c4da1217b2f4c24ea",
+  "status": "complete",
+  "commit": "32d1ee81513a78ca485bf68cc4fc13eb92e6f435",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v23",
+    "caseId": "v23-cursed-welded-weapon-attempt",
+    "session": "synthetic/v23/v23-cursed-welded-weapon-attempt",
+    "manifestPath": "challenges/manifests/v23.json",
+    "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+    "recording": "challenges/cases/v23/v23-cursed-welded-weapon-attempt.session.json",
+    "recordingPath": "challenges/cases/v23/v23-cursed-welded-weapon-attempt.session.json",
+    "recordingSha256": "1938a2d7c705964e9e7cf873fc4356a9231caa8ca4d24cbd5a76e273e733972f",
+    "recipe": "challenges/cases/v23/v23-cursed-welded-weapon-attempt.recipe.session.json",
+    "recipeSha256": "dcab1d4916dd841297e83f310eb99215062462d9d6b148a345acb757cfed90f5",
+    "replayInputSha256": "b21aa49a44b7596be8d00ac1b3bd0373b2684515573eb1fb30942261d96cfadb",
+    "evaluationPath": "challenges/evaluations/20261006211300-v23.json",
+    "evaluationCommit": "febae9e636df2c7af3d2a18c4da1217b2f4c24ea",
+    "evaluationArtifact": "challenges/evaluations/20261006211300-v23.json",
+    "evaluationUtc": "2026-10-06T21:13:38.278Z",
+    "remainingScreens": 3,
+    "recordedSteps": 33,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 30,
+        "total": 33
+      },
+      "rng": {
+        "matched": 3583,
+        "total": 3594
+      },
+      "cursors": {
+        "matched": 30,
+        "total": 33
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: wield.c reached a cursed weapon welding itself",
+      "step": 30
+    },
+    "step": 30,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: wield.c reached a cursed weapon welding itself",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At zero-based step 30, ready_weapon refuses the first wield of the cursed long sword before C prints the welding message, reveals its curse and installs the primary weapon. The recorded second wield at step 32 also needs weldmsg, currently a stub. Port whole ready_weapon and the related cant_wield_corpse/weldmsg helpers, including small required arti_speak return closure, and wire the existing callers. Source naming, rumor and artifact-light owners already exist; the contrary stub comments are stale.",
+  "source": {
+    "file": "wield.c",
+    "branch": "A human Wizard wishes a cursed long sword and a dagger, then wields the sword and attempts to replace it with the dagger. will_weld is true for the cursed sword. ready_weapon must print The long sword welds itself to your dominant left hand!, set_bknown before setuwep, preserve later artifact/shop/status order, and return ECMD_TIME. The subsequent dowield sees welded(uwep), calls weldmsg, resets armor-removal state and returns ECMD_FAIL without changing weapon slots. Whole-function closure also includes bare-handed petrifying corpse, two-handed shield conflict, retouch failure, artifact speech/light and unpaid-shop branches; these are not covered by this admitted case.",
+    "functions": [
+      "cant_wield_corpse",
+      "ready_weapon",
+      "weldmsg"
+    ],
+    "callers": [
+      "cmd.c w command -> wield.c:dowield -> ready_weapon; dowield’s existing result and flags.pushweapon/untwoweapon tail must stay in source order. The existing js/wield.js call awaits ready_weapon.",
+      "wield.c:doswapweapon and wield_tool also invoke ready_weapon; doswapweapon consumes its ECMD return while wield_tool discards it and checks the resulting slot. Preserve async state and original weapon/quiver/secondary slot order.",
+      "weldmsg callers: wield.c:dowield, doswapweapon and dowieldquiver; pickup.c:in_container; dothrow.c:throw_obj; do.c:drop. Export one canonical async helper and replace existing named gaps/refusals at those source sites. The do.c and dothrow.c duplicated checks are unreachable after canletgo in current flow but should retain the source calls. The do_wear.c:2201 reference is commented-out C and is not an active caller."
+    ],
+    "dependencies": [
+      "Required consumed return: whole cant_wield_corpse (wield.c:137–153) is currently partial and synchronous. Add Stone_resistance short-circuit, source corpse/body-part/killer formatting, named discarded trap.c:instapetrify gap if still unported, and TRUE return after that call. Reconcile its ready_weapon and can_twoweapon callers with any async conversion; do not claim petrification death runtime completion without that dependency.",
+      "Required consumed return: whole artifact.c:arti_speak (2279–2296) currently refuses SPFX_SPEAK and feeds ready_weapon’s result OR. This is a small callee expansion: canonical rumors.c:getrumor exists in js/random_text.js with generated data, bcsign exists, and pline.js:verbalize implements the quoted-message operation. Preserve truth/exclude-cookie selection, empty-rumor fallback, whisper-before-quoted-rumor ordering and ECMD_TIME; retain named SetVoice gap for discarded sound if needed.",
+      "Reuse existing objnam.c:xname, The, aobjnam, Yobjnam2 and Tobjnam; stale weldmsg comments incorrectly claim Yobjnam2/yobjnam are absent. Use u.uhandedness == RIGHT_HANDED for one-handed dominant-side text and bimanual/body_part/makeplural for hands.",
+      "Reuse light.c:arti_light_description and timeout.c:begin_burn, which already accepts artifact_light. Reconcile ready_weapon’s still-refused artifact-light caller. Existing setuwep in js/worn.js requires endArtifactLight hook when unwielding a lit artifact; verify and provide its source-ordered canonical end_burn/message operation at the caller environment, or retain an explicit blocked entry without claiming completion.",
+      "Reuse source shop_keeper/inside_shop/shkname for the consumed shopkeeper/name returns in ready_weapon’s unpaid branch; these owners already exist. Preserve bare-handed status condition’s enabled gate and had_wep capture. Do not claim whole dowield/quiver/throw/container/drop functions.",
+      "No active shared-ledger reservation names wield.c ready_weapon/cant_wield_corpse/weldmsg, artifact.c arti_speak or the rumor owner at investigation time. New task scope must include the small required artifact return closure and the actual caller write set before editing."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved evaluation challenges/evaluations/20261006211300-v23.json at febae9e636df2c7af3d2a18c4da1217b2f4c24ea: 30/33 screens and cursors, 3583/3594 RNG; exactly 3 remaining screens. Original saved queue stop at zero-based step 30 names wield.c cursed weapon welding itself.",
+    "Exact published-commit replay used git archive of only js/, frozen/, package.json and the assigned recording at 32d1ee81513a78ca485bf68cc4fc13eb92e6f435, overlaying the three scorer-supplied modules. Bounded run-bTVxEV, receipt /tmp/teleport-validation-1000/run-bTVxEV/receipt.json; diagnosis /tmp/teleport-loop-worker-b-20260925/.cache/investigation-v23-cursed-welded-weapon-attempt/replay.json. It emits 30 of 33 screens. First missing screen is zero-based step 30/key n; first absent RNG is rn2(12)=6 @ mcalcmove(mon.c:1164) after the omitted wield operation, rather than a mon.c cause.",
+    "Frozen C screen at step 30: The long sword welds itself to your dominant left hand! Step 31 prompts for a weapon. Step 32: Your long sword is welded to your hand! Both source behaviors must be addressed; simply adding the first message leaves the follow-up refusal.",
+    "Read whole wield.c:ready_weapon169–273: source will_weld arm196–212 formats article/aobjnam/count/handedness, then set_bknown. Source setuwep is later at230, artifact speech at240, artifact light at244, unpaid shop at264, and final bare-handed condition at270. js/wield.js ready_weapon581 currently throws before those effects; artifact-light and unpaid branches also remain refused and need whole-source reconciliation.",
+    "Read whole wield.c:weldmsg1061–1074: save owornmask, set it to zero, format Yobjnam2 are plus singular/plural HAND, print, restore mask. Existing js/wield.js weldmsg520 is a refusal whose naming-prerequisite explanation is obsolete: Yobjnam2 is exported at js/objnam.js1690, and yobjnam/aobjnam are ported.",
+    "Read wield.c:cant_wield_corpse137–153 and artifact.c:arti_speak2279–2296 because ready_weapon consumes their results. Canonical getrumor exists at js/random_text.js190; its own exercise callback and RNG source order need reuse, not replacement. Pure will_weld/erodeable_wep/empty_handed/artifact_light/arti_light_description are existing owners with source-pinned tests; verify and reuse them.",
+    "Caller survey found live weldmsg gaps in js/pickup.js2907 and js/dothrow.js2128 plus the local wield stub; js/do.js1498 retains a dead-path refusal. do_wear.c:2201 is inside a C block comment, so it is excluded. Ready_weapon callers are dowield451, doswapweapon483 and wield_tool742; required corpse helper also serves can_twoweapon.",
+    "Concrete smallest coherent implementation plan: whole cant_wield_corpse, ready_weapon and weldmsg in C definition order, plus whole artifact.c:arti_speak required return closure; reuse existing naming/light/shop/rumor owners and wire current wield/pickup/throw/drop callers. Read or edit no unrelated command owner. Preserve explicit discarded instapetrify and sound limits and test the nearest blocked entry outside the passing suite when its result cannot match.",
+    "The admitted case covers first one-handed cursed wield and replacement rejection only. Independent C recipes during implementation should cover right-handed and two-handed/plural welding, swap/quiver/container callers, a speaking artifact rumor, and artifact-light start/stop. Bare-handed petrifying corpse is an explicit outside-limit witness if instapetrify remains unported; no fresh C games were recorded in this investigation."
+  ]
+}

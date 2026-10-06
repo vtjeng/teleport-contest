@@ -1,0 +1,99 @@
+{
+  "session": "synthetic/v23/v23-burn-object-expiry",
+  "corpus": "synthetic",
+  "batch": "v23",
+  "caseId": "v23-burn-object-expiry",
+  "remainingScreens": 341,
+  "recordedSteps": 705,
+  "manifestPath": "challenges/manifests/v23.json",
+  "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+  "recordingSha256": "99e8dcc8e99050c1679dc8ab64a000a35a212202c5bb825d7c9e47bb04c3e05d",
+  "evaluationPath": "challenges/evaluations/20261006211300-v23.json",
+  "evaluationCommit": "febae9e636df2c7af3d2a18c4da1217b2f4c24ea",
+  "status": "complete",
+  "commit": "32d1ee81513a78ca485bf68cc4fc13eb92e6f435",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v23",
+    "caseId": "v23-burn-object-expiry",
+    "session": "synthetic/v23/v23-burn-object-expiry",
+    "manifestPath": "challenges/manifests/v23.json",
+    "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+    "recording": "challenges/cases/v23/v23-burn-object-expiry.session.json",
+    "recordingPath": "challenges/cases/v23/v23-burn-object-expiry.session.json",
+    "recordingSha256": "99e8dcc8e99050c1679dc8ab64a000a35a212202c5bb825d7c9e47bb04c3e05d",
+    "recipe": "challenges/cases/v23/v23-burn-object-expiry.recipe.session.json",
+    "recipeSha256": "3ce9b5f0fd020df71249cb4c4169df75b2d3177cd6c94cd616734fc3e39c07b6",
+    "replayInputSha256": "b21aa49a44b7596be8d00ac1b3bd0373b2684515573eb1fb30942261d96cfadb",
+    "evaluationPath": "challenges/evaluations/20261006211300-v23.json",
+    "evaluationCommit": "febae9e636df2c7af3d2a18c4da1217b2f4c24ea",
+    "evaluationArtifact": "challenges/evaluations/20261006211300-v23.json",
+    "evaluationUtc": "2026-10-06T21:13:38.278Z",
+    "remainingScreens": 341,
+    "recordedSteps": 705,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 364,
+        "total": 705
+      },
+      "rng": {
+        "matched": 4600,
+        "total": 7097
+      },
+      "cursors": {
+        "matched": 364,
+        "total": 705
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "elapsed-turn nh_timeout requires a ported timeout function, but burn_object() is due",
+      "step": 364
+    },
+    "step": 364,
+    "kind": "stop",
+    "sourceFile": "timeout.c",
+    "function": "burn_object",
+    "message": "elapsed-turn nh_timeout requires a ported timeout function, but burn_object() is due",
+    "cFile": "timeout.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At zero-based step 364 the elapsed-turn preflight refuses a due BURN_OBJECT timer because timeout_funcs has no burn_object handler. C reaches the carried tallow candle’s 75-fuel warning and continues; the same recording later reaches the 15-fuel warning and final consumption. Port whole timeout.c:burn_object with its lamp-message helpers and timer dispatch, preserving repeat scheduling, light teardown and object deletion.",
+  "source": {
+    "file": "timeout.c",
+    "branch": "An applied, carried tallow candle has a TIMER_OBJECT/BURN_OBJECT timer due on the current move with age=75, the fuel left at this threshold. The live timer queue must unlink the due element and decrement obj.timed before calling burn_object, which prints the shortening warning and schedules the next burn segment through begin_burn(obj, TRUE).",
+    "functions": [
+      "see_lamp_flicker",
+      "lantern_message",
+      "burn_object"
+    ],
+    "callers": [
+      "timeout.c:timeout_funcs 1984 registers burn_object as BURN_OBJECT; run_timers 2222-2240 consumes that callback at the source timer-drain boundary. js/timeout.js:593 currently provides only its name; add the complete callback and its preflight admission contract.",
+      "timeout.c:nh_timeout calls run_timers at its tail; js/allmain.js preflights both the planning turn and the entering live turn before awaiting nh_timeout. Wire the callback through existing dispatch rather than adding direct burn calls to elapsed upkeep.",
+      "do.c:goto_level 1823 calls run_timers after object/monster delivery to catch up timers that expired away; js/do.js:2633 already awaits it. The same BURN_OBJECT callback must support its timeout!=moves path.",
+      "apply.c:use_lamp lights the candle through timeout.c:begin_burn; the existing begin_burn and start_timer already create the observed timer and light. Keep those accepted owners and preserve their object age/timed state contract."
+    ],
+    "dependencies": [
+      "Read whole see_lamp_flicker 1345-1356, lantern_message 1360-1375 and burn_object 1383-1680. Include these two same-file message helpers in definition order so lamp/lantern branches do not remain empty calls.",
+      "Reuse timeout.c:begin_burn, end_burn, cleanup_burn and timer primitives; first callback has timed decremented before entry and repeated begin_burn(TRUE) schedules a new timer. end_burn(FALSE) requires deleteObjectLightSource in the lifecycle environment even though the queue already removed the firing timer.",
+      "Consumed-return callees already have owners: get_obj_location in js/light.js, cansee, m_at, carried, weight in js/obj.js and object/monster naming. Shk_Your in js/shk.js supplies the C output-buffer prefix as its existing return value; preserve both ownership and naming order.",
+      "Reuse obj_extract_self, obfree, useupall and update_inventory from js/invent.js, plus maybe_unhide_at and newsym. Compose the canonical object/light/inventory hooks for the callback so full-object deletion, worn light items, shop billing and permanent inventory updates operate on the passed state.",
+      "Planning must mutate only the cloned timer/object/light graph and use silent injected message/redraw/inventory operations. Supply source display RNG to hallucinated naming where required; do not let cleanup or naming fall back to live global state. Await real messages at the source sites before restarting/freeing objects."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved evaluation challenges/evaluations/20261006211300-v23.json at febae9e636df2c7af3d2a18c4da1217b2f4c24ea records 364/705 matching screens and cursors, 4600/7097 RNG calls: exactly 341 screens remain. The examined publication 32d1ee81513a78ca485bf68cc4fc13eb92e6f435 has identical js/frozen blobs to that evaluation commit (git diff --stat over those paths is empty).",
+    "Exact-publication replay .cache/A2-burn-investigation-replay.log (bounded run-fuXurg) stops before segment 0 zero-based step 364 key period: elapsed-turn nh_timeout requires a ported timeout function, but burn_object() is due. It produces 364 screens/cursors and 4600 RNG calls; the first missing C draw is rn2(12)=10 @ mcalcmove(mon.c:1164). That missing later draw identifies the halted turn, not the missing source owner.",
+    "The frozen C recording prints Your candle is getting short. at step 364, the candle flame flickers low at step 522, and Your candle is consumed! Its flame dies. at step 564. These are burn_object candle age 75, 15 and 0 arms. The first stop is the age-75 callback, not final exhaustion; the older preparation description of final expiry does not define the first defect.",
+    "Source trace: apply.c:use_lamp -> timeout.c:begin_burn -> start_timer(TIMER_OBJECT,BURN_OBJECT) -> allmain.c once-per-turn nh_timeout -> run_timers -> timeout_funcs[BURN_OBJECT]. JS begin_burn subtracts the scheduled segment from object age, but the callback row has no f, so unportedDueTimerReason refuses the due prefix before dispatch.",
+    "Whole burn_object covers late callbacks before location/message work: elapsed away time either reduces age and restarts, or ends the light and consumes candles/oil (candelabrum remains with spe=0 and recomputed weight). On-time paths handle oil, lamp/lantern age thresholds, candle/candelabrum age thresholds, blindness versus tactile notification, inventory/floor/monster ownership, migrating worn-mask cleanup, hiding updates, redraw and inventory refresh in C order.",
+    "Existing run_timers unlinks the head and decrements object.timed before awaiting the callback, then rereads the queue, permitting begin_burn to add its next segment. Implement the admission predicate alongside f: the current preflight calls entry.unported for every handler and restricts a due object to one timer. Preserve that explicit timer limit or source-trace a deliberate whole-contract expansion; a fabricated callback or warning-only shim is insufficient.",
+    "This case covers only a live carried single tallow candle through warning/restart/final deletion once it matches. Independent recordings remain required for oil potion and lamps/lanterns, floor/monster ownership, candle stacks/candelabrum, blind tactile notification and timeout-away catch-up. Cheap variations should cover those reachable entries; an unsupported arrival setup belongs in a blocked recipe, not completion evidence. No missing consumed-return callee blocks this whole family audit."
+  ]
+}
