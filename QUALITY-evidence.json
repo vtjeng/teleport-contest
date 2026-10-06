@@ -18086,5 +18086,86 @@
       "scope": "Active corner status repair and queued inventory-adjust dispatch; branch divergence fix, no whole-function completion credit"
     },
     "recordedAt": "2026-10-02T14:45:29.092Z"
+  },
+  {
+    "kind": "review",
+    "head": "2d05002da753991b7e1281167e937a2e87b12644",
+    "auditedRange": "d902b937160191dcc8c6d657a6ba362a6e971b93..2d05002da753991b7e1281167e937a2e87b12644",
+    "level": "full",
+    "areas": [
+      "objects",
+      "monsters",
+      "commands"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 8 raw, 8 deduplicated, 7 confirmed, 4 applied, 3 deferred, 1 rejected, 0 unverified. The full pass ran correctness, readability-risk, test-quality, variable-flow, and concurrency finders; performance was omitted because the range adds only source-required combat work. The applied fixes stop combat after lethal weapon poison, replace a stale result-contract comment, and strengthen poison and artifact-item-effects tests. Three findings crossed a source family, lifecycle boundary, or recorded-play boundary and returned to bounded implementation under B112. No finder or adjudication warning remained. Post-fix validation passed 44 of 44 fixed sessions and 980 of 980 recordings in checkpoint run-tNhhwT, plus the affected focused tests and lint.",
+    "auditMetrics": {
+      "wallTimeSeconds": 2752,
+      "counts": {
+        "raw": 8,
+        "deduplicated": 8,
+        "confirmed": 7,
+        "applied": 4,
+        "deferred": 3,
+        "rejected": 1,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 3,
+        "tests": 3,
+        "clarity": 1,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "A lethal poisoned weapon hit could continue into knockback and later death handling after done() returned",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "Magicbane planning called Mb_hit without its environment and leaked random draws and messages into live state",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Fatal level-one life drain during artifact planning called live done() instead of the planning-death lifecycle",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        }
+      ],
+      "readiness": {
+        "boundary": "The range changes artifact_hit, mattacku, do_stone_mon, and mhitm_ad_phys and their named physical-attack helpers. The admitted v21 Archon case executes ordinary monster-to-monster physical combat through step 128 and monster-to-hero Sunsword combat through step 143; focused tests execute the other listed helpers. Hero-to-monster physical combat, do_stone_u, cloneu, and the monster-to-monster petrifying-corpse setup lack matching recorded play and remain incomplete entry points.",
+        "sourceReview": "The worker and orchestrator traced every changed function and caller against uhitm.c, mhitu.c, artifact.c, and the recorder patches, including state and PRNG order. Remaining gaps are mhitm.c rustm, uhitm.c poisoned, and the routes named by blocked recipes; no Unsupported*Error remains as the implementation for a changed path.",
+        "completeness": "No note_unported() call in the reviewed scope supplies a value consumed by C; the remaining rustm call is void in C. Used damage, death, and control results were included in the source review."
+      },
+      "rejections": [
+        {
+          "summary": "Rename artifactHit because artifact_hit() returning true means no caller damage remains",
+          "counterEvidence": "js/artifacts.js documents the artifact_hit() return contract, and the assignment and if (!artifactHit) branch are adjacent in js/mhitu.js. The inverted helper contract mirrors artifact.c, so the proposed rename was a style preference without a demonstrated misread."
+        }
+      ],
+      "deferrals": [
+        {
+          "summary": "The black-pudding clone test did not set the hero monster identity and hit points required to reach cloneu, and the clone route still lacks independent recorded play",
+          "category": "tests"
+        },
+        {
+          "summary": "Magicbane planning called Mb_hit without its environment and leaked random draws and messages into live state",
+          "category": "production"
+        },
+        {
+          "summary": "Fatal level-one life drain during artifact planning called live done() instead of the planning-death lifecycle",
+          "category": "production"
+        }
+      ]
+    },
+    "recordedAt": "2026-10-06T08:14:15.149Z"
   }
 ]
