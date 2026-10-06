@@ -486,6 +486,7 @@ import {
     engulf_target,
     failed_grab,
     paralyze_monst,
+    mon_poly,
     sleep_monst,
     slept_monst,
     attk_protection,
@@ -6851,6 +6852,47 @@ export async function mhitm_ad_tlpt(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_poly() (3729-3774). Polymorph is permitted
+// only on a nonlethal hit; a hero attack must also be weaponless.
+export async function mhitm_ad_poly(
+    magr, mattk, mdef, mhm, state = game, env = {},
+) {
+    const negated = await mhitm_mgc_atk_negated(
+        magr, mdef, false, state, env,
+    ) || magr.mspec_used;
+    const message = env.message ?? ttyPline;
+    if (magr === state.youmonst) {
+        if (!state.uwep && mhm.damage < mdef.mhp) {
+            if (negated) {
+                await message(`${Monnam(mdef, state, env)} is not transformed.`, state);
+            } else {
+                mhm.damage = await mon_poly(magr, mdef, mhm.damage, state, env);
+                if (mdef.mhp < 1) mhm.hitflags |= M_ATTK_DEF_DIED;
+                mhm.hitflags |= M_ATTK_HIT;
+                mhm.done = true;
+            }
+        }
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        const damage = propertyPresent(state.u, HALF_PHDAM)
+            ? Math.trunc((mhm.damage + 1) / 2) : mhm.damage;
+        if (damage < (Upolyd(state.u) ? state.u.mh : state.u.uhp)) {
+            if (negated) {
+                if (magr.mcan) await message("You aren't transformed.", state);
+            } else {
+                mhm.damage = await mon_poly(magr, mdef, mhm.damage, state, env);
+                mhm.hitflags |= M_ATTK_HIT;
+                mhm.done = true;
+            }
+        }
+    } else if (mhm.damage < mdef.mhp && !negated) {
+        mhm.damage = await mon_poly(magr, mdef, mhm.damage, state, env);
+        if (mdef.mhp < 1) mhm.hitflags |= M_ATTK_DEF_DIED;
+        mhm.hitflags |= M_ATTK_HIT;
+        mhm.done = true;
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -6962,7 +7004,9 @@ export async function mhitm_adtyping(
     case AD_CONF:
         await mhitm_ad_conf(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_POLY: unported('mhitm_ad_poly'); break;
+    case AD_POLY:
+        await mhitm_ad_poly(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_DISE: unported('mhitm_ad_dise'); break;
     case AD_SAMU:
         await mhitm_ad_samu(magr, mattk, mdef, mhm, state, env);

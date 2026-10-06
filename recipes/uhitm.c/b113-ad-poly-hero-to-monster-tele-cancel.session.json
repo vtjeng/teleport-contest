@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B113 hero-to-monster AD_POLY recording. C setup places an ogre east of the genetic engineer hero. Force-fight east, acknowledge C combat messages, then cancel the post-transformation teleport destination prompt. This source path exercises mhitm_ad_poly -> mon_poly -> resist/newcham/tele.",
+  "segments": [
+    {
+      "seed": 12853101,
+      "datetime": "20560703121900",
+      "nethackrc": "OPTIONS=name:B113Poly,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n#wizgenesis\nhostile ogre\n#polyself\ngenetic engineer\nFl  \u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap B113 variation: disable verbose messages to cover mon_poly’s seen-target terse transformation wording. The source preconditions and input sequence remain independently selected in the parent recipe.",
+  "segments": [
+    {
+      "seed": 12853101,
+      "datetime": "20560703121900",
+      "nethackrc": "OPTIONS=name:B113Poly,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!verbose,!acoustics,!safe_wait\n",
+      "moves": "\n#wizgenesis\nhostile ogre\n#polyself\ngenetic engineer\nFl  \u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B113 monster-to-monster AD_POLY witness. The C-observed west step lets the ogre and genetic engineer become adjacent under Conflict. End after C step 137: mon_poly polymorphs the ogre to a winged gargoyle, relocates the M1_TPORT attacker, and draws rnd(2)=1 for mspec_used. Later gargoyle combat is outside this source task.",
+  "segments": [
+    {
+      "seed": 12853102,
+      "datetime": "20560703121900",
+      "nethackrc": "OPTIONS=name:B113Poly,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\n>>h\n #wizgenesis\nhostile ogre\n#wizgenesis\nhostile genetic engineer\nh . . . . "
+    }
+  ]
+}
