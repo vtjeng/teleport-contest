@@ -18298,5 +18298,60 @@
       "unverified": []
     },
     "recordedAt": "2026-10-06T09:55:21.185Z"
+  },
+  {
+    "kind": "review",
+    "head": "51faab1ae57d36f0b5c11f049de527c1b04bb71c",
+    "auditedRange": "b6eebea6a6527abfb7b23d161650310c0a232bda..51faab1ae57d36f0b5c11f049de527c1b04bb71c",
+    "level": "full",
+    "areas": [
+      "hero",
+      "objects",
+      "monsters"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 3 raw, 3 deduplicated, 3 confirmed, 3 applied, 0 deferred, 0 rejected, 0 unverified. The audit found one planning-state ownership defect and two missing regressions. The correction remaps hero light sources to the cloned youmonst, checks both chameleon redraws and the mimic seam, and exercises the fatal unhealthy-form branch after polyman. Concurrency ran because planning and live replay ownership changed; performance was omitted because the correction adds no amplified work.",
+    "auditMetrics": {
+      "wallTimeSeconds": 3001,
+      "counts": {
+        "raw": 3,
+        "deduplicated": 3,
+        "confirmed": 3,
+        "applied": 3,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 1,
+        "tests": 2,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "Planning state left hero-owned light sources attached to the live youmonst record",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "rejections": [],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "The audit read the frozen range b6eebea6a6527abfb7b23d161650310c0a232bda..08f3ddf5e7b123d79512683874f0b3f1e13d57c2 after a passing checkpoint, then verified the three applied corrections through 51faab1ae57d36f0b5c11f049de527c1b04bb71c. The intervening v23 changes alter recorded challenge inputs only; the B112 correction changes planning ownership and adds source-path regressions.",
+        "sourceReview": "Independent correctness, readability, test, variable-flow, and concurrency reviewers traced planningState, rehumanize, normal_shape, and seemimic against their C owners and production callers. The adjudicator confirmed one live-state ownership defect and two missing regression cases. The final diff remaps hero light ownership by identity and directly covers both redraw sites, mimic reveal, and the post-polyman fatal branch.",
+        "completeness": "The correction adds no placeholder or value-bearing unported call. Focused tests cover the three confirmed findings, lint passes, and the pre-correction readiness checkpoint matched all 44 fixed sessions and all 980 recordings."
+      },
+      "optionalFinders": {
+        "concurrency": "Enabled because the reviewed code separates planned state from live replay and crosses asynchronous death and redraw boundaries.",
+        "performance": "Disabled because the change adds one identity check per cloned light source and no amplified runtime work."
+      },
+      "warnings": [],
+      "unverified": []
+    },
+    "recordedAt": "2026-10-06T11:18:11.530Z"
   }
 ]
