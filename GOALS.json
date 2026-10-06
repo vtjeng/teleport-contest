@@ -179832,7 +179832,7 @@
     {
       "id": "port-timeout-phaze-dialogue-v22-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete wall-passing timeout warning dialogue",
       "cFile": "timeout.c",
       "sessions": [
@@ -179840,8 +179840,12 @@
       ],
       "selectionReason": "The current v22 queue has one unmatched screen at step 20; the complete investigation traces it to the omitted timeout.c phaze_dialogue call and identifies an independent whole-function scope.",
       "detail": "Port timeout.c phaze_texts and whole phaze_dialogue, then wire nh_timeout before property decrements. Preserve odd timeout warnings and suppression by extrinsic or permanent intrinsic wall passing. The helper has no RNG, state mutation, or occupation cancellation.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "6280c0e41434074f94bedd415490cacf824abc50",
+      "openStanding": {
+        "sha": "5913841d2eeb8e82110208f1966bb47f08725368",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -179870,7 +179874,207 @@
           "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
           "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "5913841d2eeb8e82110208f1966bb47f08725368",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+          "session": "synthetic/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recording": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.session.json",
+          "recordingPath": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.session.json",
+          "recordingSha256": "c7954bc564b80af6279477eea7cbb7dc8339bf7e23f84a70b690feadd3eb7be2",
+          "recipe": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.recipe.session.json",
+          "recipeSha256": "7c2666dc1f19bd74288c21c8cb77a2c5e3e164b6cf2b726ad934892d5593c52b",
+          "replayInputSha256": "a4de07e86e1a102a427012f613decfed4d464623cb75dc17236872f36190e8a2",
+          "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+          "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+          "evaluationArtifact": "challenges/evaluations/20261006180802-v22.json",
+          "evaluationUtc": "2026-10-06T18:09:23.546Z",
+          "remainingScreens": 1,
+          "recordedSteps": 21,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 21
+            },
+            "rng": {
+              "matched": 2603,
+              "total": 2603
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 20,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 20,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.json",
+            "result": {
+              "session": "synthetic/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+              "corpus": "synthetic",
+              "batch": "v22",
+              "caseId": "wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+              "remainingScreens": 1,
+              "recordedSteps": 21,
+              "manifestPath": "challenges/manifests/v22.json",
+              "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+              "recordingSha256": "c7954bc564b80af6279477eea7cbb7dc8339bf7e23f84a70b690feadd3eb7be2",
+              "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+              "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+              "commit": "5913841d2eeb8e82110208f1966bb47f08725368",
+              "status": "complete",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v22",
+                "caseId": "wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+                "session": "synthetic/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+                "manifestPath": "challenges/manifests/v22.json",
+                "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+                "recording": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.session.json",
+                "recordingPath": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.session.json",
+                "recordingSha256": "c7954bc564b80af6279477eea7cbb7dc8339bf7e23f84a70b690feadd3eb7be2",
+                "recipe": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.recipe.session.json",
+                "recipeSha256": "7c2666dc1f19bd74288c21c8cb77a2c5e3e164b6cf2b726ad934892d5593c52b",
+                "replayInputSha256": "95e601d652ecd5bef4db004f4b10f27fca78dc0a408fc07bfe10a748ce0baedf",
+                "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
+                "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb",
+                "evaluationArtifact": "challenges/evaluations/20261006163300-v22.json",
+                "evaluationUtc": "2026-10-06T16:33:08.254Z",
+                "remainingScreens": 1,
+                "recordedSteps": 21,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 21
+                  },
+                  "rng": {
+                    "matched": 2603,
+                    "total": 2603
+                  },
+                  "cursors": {
+                    "matched": 21,
+                    "total": 21
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 20,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 20,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "file-port",
+              "summary": "At segment 0 step 20, a three-turn Passes_walls timeout should print \"You are feeling rather flabby.\" before decrementing. JavaScript skips timeout.c:phaze_dialogue(), leaving the message row blank while RNG and cursor match. Port the whole warning helper and nh_timeout caller, preserving odd countdown selection and suppression by extrinsic or permanent intrinsic sources. This helper does not cancel occupations.",
+              "source": {
+                "file": "timeout.c",
+                "functions": [
+                  "phaze_dialogue"
+                ],
+                "branch": "nh_timeout calls phaze_dialogue for any HPasses_walls & TIMEOUT, after levitation_dialogue and before region_dialogue and property decrements. The helper computes i=timeout/2 using C integer truncation, returns for any EPasses_walls or HPasses_walls & ~TIMEOUT, and prints only odd values with i in 1..2: timeout 5 uses \"You start to feel bloated.\"; timeout 3 uses \"You are feeling rather flabby.\" Both use ordinary pline. Even, timeout-one and larger counts are silent. It does not inspect blocked, draw RNG, mutate state, or call stop_occupation.",
+                "callers": [
+                  "C timeout.c:nh_timeout:635-636 guards this call with HPasses_walls & TIMEOUT, between levitation_dialogue and region_dialogue and before the decrement loop at 670-672. At examined commit 5913841d, js/timeout.js:nh_timeout:1587-1588 records note_unported(\"timeout.c phaze_dialogue\") only on the live path and omits the call entirely during planning.",
+                  "C allmain.c:moveloop_core:273 calls nh_timeout each elapsed turn before run_regions. JS allmain.js:finishElapsedTurn:904-917 uses the ordinary turnMessage callback, which is silentDisplay on a planning clone and ttyPline on the live state. The assigned final dot command reaches this production turn path with intrinsic timeout 3."
+                ],
+                "dependencies": [
+                  "Use u.uprops[PASSES_WALLS].intrinsic & TIMEOUT for the timeout and preserve raw extrinsic and intrinsic & ~TIMEOUT guards. Combined Passes_walls and blocked-field predicates are not substitutes for those C expressions.",
+                  "Ordinary pline is the only callee. Await the message through the existing nh_timeout environment and keep planning-clone messages silent; no additional callee source port is required.",
+                  "Do not copy levitation_dialogue occupation cancellation or its warning live-handoff gate. phaze_dialogue has no occupation, state or RNG effect, and existing ordinary-message planning/live seams apply.",
+                  "Keep actual expiry separate: timeout.c:874-882 already handles loss of Passes_walls with stuck_in_wall and normal/unusual-self messages, mirrored by js/timeout.js:decrement_property_timeouts. This case exercises the pre-decrement three-turn warning, not that expiry arm."
+                ]
+              },
+              "evidence": [
+                "Current evaluation challenges/evaluations/20261006180802-v22.json at 5913841d2eeb8e82110208f1966bb47f08725368 records 20/21 screens, 2603/2603 RNG entries and 21/21 cursor positions matching for this exact frozen case. Its corpus manifest digest and case recording hash agree with the saved queue. The saved queue still points to the earlier 9758aabc evaluation with the same remaining count and immutable input identity; the cache rules permit reusing that diagnosis across commits.",
+                "The retained queue firstMismatch locates segment 0 step 20, key dot, screen row 0 column 0: C Y versus JavaScript space, with no RNG or cursor difference. The current parent handoff identifies the same first mismatch. Y is the first letter of \"You are feeling rather flabby.\", not a map glyph.",
+                "Frozen recording challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.session.json has SHA-256 c7954bc564b80af6279477eea7cbb7dc8339bf7e23f84a70b690feadd3eb7be2. Step 18 shows \"Timeout for pass thru walls set to 3.--More--\"; step 19 dismisses the page without RNG. Step 20 prints the full flabby warning and consumes only four ordinary-turn RNG entries. The property still has a countdown, so this is warning output before expiry.",
+                "Read complete timeout.c:phaze_texts[] at 528-531 and phaze_dialogue at 533-543. With timeout 3, i=3/2 truncates to 1, and SIZE(2)-i selects phaze_texts[1]. Timeout 5 selects the first bloated message. Both early-return guards and all odd/index conditions belong to the same small whole-function scope.",
+                "git show 5913841d2eeb8e82110208f1966bb47f08725368:js/timeout.js and a source-name search find the nh_timeout source-named gap at 1587-1588 and no phaze_dialogue definition. The original C helper contains only ordinary message output: adding stop_occupation would invent behavior absent from source.",
+                "Admitted v22 manifest preparation preserves independent C replay run-T6TPed byte-identical to recording c7954bc564b80af6279477eea7cbb7dc8339bf7e23f84a70b690feadd3eb7be2 and strict comparison run-p2e9S9 identifying boundary 21 (zero-based step 20) screen divergence. No new replay, C recording, aggregate scan or scoring was needed for this source diagnosis.",
+                "Independently assignable whole-function scope: timeout.c:phaze_dialogue (533-543), its phaze_texts array at528-531, and its nh_timeout caller in js/timeout.js. Source-completion validation should cover both odd warnings, even/out-of-range/timeout-one silence, any extrinsic source, non-timeout intrinsic source bits, ignored blocked field, awaited live messages and silent planning-clone callbacks. Other dialogue helpers and actual wall-passing expiry remain separate source units."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-timeout-stoned-dialogue-heal-legs-v22-20261006",
