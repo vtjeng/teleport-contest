@@ -416,7 +416,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                 if (dmgtyp === AD_FIRE && osym === FOOD_CLASS)
                     how = 'exploding glob of slime';
                 await losehp(dmg, one ? how : makeplural(how),
-                    one ? KILLED_BY_AN : KILLED_BY, state);
+                    one ? KILLED_BY_AN : KILLED_BY, state, env);
                 // C really_done() never returns; gameover represents that
                 // termination in the JavaScript replay harness.
                 if (state.program_state?.gameover) return dmg;

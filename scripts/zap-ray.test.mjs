@@ -13,6 +13,7 @@ import test from 'node:test';
 
 import {
     ACID_RES,
+    ANTIMAGIC,
     AC_VALUE,
     COLD_RES,
     COULD_SEE,
@@ -103,6 +104,7 @@ import {
     WAND_CLASS,
 } from '../js/objects.js';
 import { ART_DRAGONBANE, ART_SUNSWORD } from '../js/artifacts.js';
+import { HeroDeathPlanningError } from '../js/hack.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 // Read straight out of the generated defsym.h index rather than through
 // js/symbols.js, so the assertion does not rest on the same `S_vbeam + n`
@@ -1039,22 +1041,16 @@ test('a planned monster fire death crosses the existing live handoff', async () 
         rnl: (bound) => { calls.push(['rnl', bound]); return 1; },
         rnz: (value) => { calls.push(['rnz', value]); return value; },
     };
-    let subject;
     await assert.rejects(
         () => dobuzz(
             -21, 6, game.u.ux, game.u.uy, 0, 0,
             true, false, false, game, random,
             {
                 planning: true,
-                planningDeath: (monster) => {
-                    subject = monster;
-                    return new Error('planned monster death');
-                },
             },
         ),
-        /planned monster death/u,
+        HeroDeathPlanningError,
     );
-    assert.equal(subject, undefined);
     assert.equal(game.u.uhp, -5,
         'the clone records the same lethal damage before handing off');
     assert.deepEqual(calls, [
@@ -1287,12 +1283,15 @@ test('dobuzz admits a hero wand or monster breath and rejects other bands', asyn
     // monster wand/spell/breath types. Only values outside those bands are
     // rejected before the range draw.
     await assert.rejects(() => call(-1), /invalid zap type -1/u);
-    // The hero's own wand band is 0..9. Types 0 and 5 are magic missile and
-    // lightning, the first and last wands objects.h gives the band; each
-    // walks the bolt and stops further in, at zhitu()'s damage-type arm.
+    // The first and last ordinary ray wands now reach their whole zhitu()
+    // arms. Both roll six dice; a high HP pool avoids the live death prompt.
     for (const type of [0, 5]) {
-        await assert.rejects(() => call(type), (error) => error.message
-            .endsWith(`zhitu() for damage type ${type}`));
+        await runSegment({ ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]) });
+        game.u.uhp = game.u.uhpmax = 100;
+        game.u.uprops[ANTIMAGIC] = { intrinsic: 0, extrinsic: 0 };
+        await dobuzz(type, 6, game.u.ux, game.u.uy, 0, 0, true,
+            false, false, game, straightThrough(), { message: async () => {} });
+        assert.equal(game.u.uhp, 94);
     }
     // 9 is the last slot the band reserves and flash_types[] leaves empty, so
     // the guard has to admit it even though the message it would print has no
@@ -1405,20 +1404,19 @@ test('hallucinated cold-water naming uses display RNG and its ice timer uses cor
     assert.deepEqual(messages, ['The deep yoghurt is bridged with ice!']);
 });
 
-test('a hero the bolt cannot burn stops it before the damage roll',
-    async () => {
-    // youprop.h:28 Fire_resistance is the plain "either source" spelling,
-    // so an intrinsic alone and an extrinsic alone each select their arm.
-    for (const [index, source, pattern] of [
-        [FIRE_RES, 'intrinsic', /fire-resistant hero, over ugolemeffects/u],
-        [FIRE_RES, 'extrinsic', /fire-resistant hero, over ugolemeffects/u],
-    ]) {
+test('a fire-resistant hero rolls damage but takes none', async () => {
+    // youprop.h Fire_resistance accepts either intrinsic or extrinsic. The
+    // source still rolls d(6,6), checks armor, and runs inventory gates.
+    for (const source of ['intrinsic', 'extrinsic']) {
         const wand = await aimedWand(0, 0, 1);
-        game.u.uprops[index] = { intrinsic: 0, extrinsic: 0 };
-        game.u.uprops[index][source] = FROMOUTSIDE;
-        await assert.rejects(
-            () => weffects(wand, game, straightThrough()), pattern,
-        );
+        game.u.uprops[FIRE_RES] = { intrinsic: 0, extrinsic: 0, [source]: FROMOUTSIDE };
+        const before = game.u.uhp;
+        const messages = [];
+        await weffects(wand, game, straightThrough(), {
+            message: async (line) => messages.push(line),
+        });
+        assert.equal(game.u.uhp, before);
+        assert.ok(messages.includes("You don't feel hot!"));
     }
 });
 
@@ -1655,34 +1653,22 @@ test('erode_obj treats non-carried objects as floor objects despite stale ocarry
 
 test('weffects turns each ray wand into the dobuzz type its row implies',
     async () => {
-    // hack.h:1477 BZ_OFS_WAN(otyp) is `abs(otyp - WAN_MAGIC_MISSILE) % 10`
-    // and :1480 BZ_U_WAND(bztyp) is `0 + bztyp`, so objects.h:1488's ordering
-    // of the six ray wands is what numbers them. zhitu() names the number
-    // back in its refusal, which is how each row is read here. Fire is the one
-    // arm that runs instead of refusing, so it is read from the damage it
-    // does: d(6, 6) is 6 through straightThrough().
-    const cases = [
-        [WAN_MAGIC_MISSILE, 'zhitu() for damage type 0'],
-        [WAN_FIRE, null],
-        [WAN_COLD, 'zhitu() for damage type 2'],
-        [WAN_SLEEP, 'zhitu() for damage type 3'],
-        [WAN_DEATH, 'zhitu() for damage type 4'],
-        [WAN_LIGHTNING, 'zhitu() for damage type 5'],
-    ];
-    for (const [otyp, ending] of cases) {
+    // objects.h ray-wand order maps to ZT_MAGIC_MISSILE..ZT_LIGHTNING.
+    // Six dice produce six damage in this fixture. Sleep instead writes its
+    // sleeping occupation; Antimagic selects the death-ray immunity arm.
+    for (const otyp of [WAN_MAGIC_MISSILE, WAN_FIRE, WAN_COLD,
+        WAN_SLEEP, WAN_DEATH, WAN_LIGHTNING]) {
         const wand = await aimedWand(0, 0, 1, otyp);
-        assert.equal(game.objects[otyp].oc_dir, RAY, `oc_dir of ${otyp}`);
-        if (ending === null) {
-            const before = game.u.uhp;
-            await weffects(wand, game, straightThrough());
-            assert.equal(game.u.uhp, before - 6, `${otyp}`);
-            continue;
-        }
-        await assert.rejects(
-            () => weffects(wand, game, straightThrough()),
-            (error) => error.message.endsWith(ending),
-            `${otyp}`,
-        );
+        game.u.uhp = game.u.uhpmax = 100;
+        game.u.uprops[ANTIMAGIC] = { intrinsic: 0, extrinsic: 0 };
+        if (otyp === WAN_DEATH)
+            game.u.uprops[ANTIMAGIC] = { intrinsic: FROMOUTSIDE };
+        assert.equal(game.objects[otyp].oc_dir, RAY);
+        await weffects(wand, game, straightThrough(), {
+            message: async () => {}, statusRefresh: () => {},
+        });
+        assert.equal(game.u.uhp, [WAN_SLEEP, WAN_DEATH].includes(otyp) ? 100 : otyp === WAN_MAGIC_MISSILE ? 98 : 94);
+        if (otyp === WAN_SLEEP) assert.equal(game.multi_reason, 'sleeping');
     }
 });
 

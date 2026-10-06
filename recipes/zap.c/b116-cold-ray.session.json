@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B116 zap.c:zhitu cold ray witness. Vertical direction reaches hero damage through dozap -> weffects -> ubuzz -> dobuzz. Wizard keeps initial Antimagic for death and missile; Valkyrie level 8 survives elemental damage. Spaces acknowledge source messages.",
+  "segments": [
+    {
+      "seed": 1160610,
+      "datetime": "20000711120509",
+      "nethackrc": "OPTIONS=name:RayWhole,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#levelchange\n8\n            \u0017wand of cold\nze>     "
+    }
+  ]
+}

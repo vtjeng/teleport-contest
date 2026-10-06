@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B116 zap.c:ubreatheu -> zhitu witness, yellow dragon self breath. Polyself setup source is polyself.c:polyself/polymon. Spaces acknowledge transformation and ray messages; inspect the first C result before freezing the recipe.",
+  "segments": [
+    {
+      "seed": 1160610,
+      "datetime": "20000711120509",
+      "nethackrc": "OPTIONS=name:RayBreath,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#levelchange\n8\n            #polyself\nyellow dragon\n     #monster\n.     "
+    }
+  ]
+}

@@ -25,9 +25,12 @@ import {
     TIMEOUT,
 } from '../js/const.js';
 import { GLYPH_INVISIBLE } from '../js/display.js';
-import { buzzmu, castmu, mcast_summon_mons } from '../js/mcastu.js';
+import { buzzmu, castmu, death_inflicted_by, mcast_summon_mons } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
 import {
+    G_UNIQ,
+    M2_PNAME,
+    NON_PM,
     AD_CLRC,
     AD_COLD,
     AD_FIRE,
@@ -1538,3 +1541,40 @@ test('MCAST_DISAPPEAR is not selected when invisibility is already blocked',
             assert.deepEqual(random.draws, ['rn2(20)']);
         }
     });
+
+// mcastu.c:358-382 writes a caller-local string, chooses Mgender names,
+// and uses the original cham species while describing imitation separately.
+test('death_inflicted_by pins the complete pure source formatter', () => {
+    const ordinary = { geno: 0, mflags2: 0,
+        pmnames: ['kobold lord', 'kobold lady', 'kobold noble'] };
+    const fake = { geno: 0, mflags2: 0,
+        pmnames: ['orc', null, 'orc'] };
+    const named = { geno: 0, mflags2: M2_PNAME,
+        pmnames: ['Medusa', null, 'Medusa'] };
+    const unique = { geno: G_UNIQ, mflags2: 0,
+        pmnames: ['Wizard of Yendor', null, 'Wizard of Yendor'] };
+    // Slot zero is a valid cham index; NON_PM (-1) is the source sentinel.
+    const state = { mons: [ordinary, named], youmonst: {} };
+    const monster = (data, female = false, cham = NON_PM) =>
+        ({ data, female, cham });
+    const cases = [
+        [null, 'bolt of cold'],
+        [monster(ordinary), 'bolt of cold inflicted by a kobold lord'],
+        [monster(ordinary, true), 'bolt of cold inflicted by a kobold lady'],
+        [monster(named), 'bolt of cold inflicted by Medusa'],
+        [monster(unique), 'bolt of cold inflicted by the Wizard of Yendor'],
+        [monster(fake, true, 0),
+            'bolt of cold inflicted by a kobold lady imitating an orc'],
+        // Article suppression uses the current form's uniqueness, while the
+        // actual name still comes from the original cham species (source369).
+        [monster(unique, true, 0),
+            'bolt of cold inflicted by the kobold lady imitating a Wizard of Yendor'],
+        [monster(fake, false, 1),
+            'bolt of cold inflicted by Medusa imitating an orc'],
+    ];
+    const before = JSON.stringify({ state, cases });
+    for (const [subject, expected] of cases)
+        assert.equal(death_inflicted_by('bolt of cold', subject, state), expected);
+    assert.equal(JSON.stringify({ state, cases }), before,
+        'the helper changes neither the monster nor global state');
+});

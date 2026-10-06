@@ -95,6 +95,7 @@ import { game } from './gstate.js';
 import { strstri } from './hacklib.js';
 // js/invent.js does not import from this file, so no cycle.
 import { carrying } from './invent.js';
+import { TOWEL } from './objects.js';
 // js/mon.js imports adjalign() from this file; both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
 import { adj_erinys } from './mon.js';
@@ -1709,14 +1710,10 @@ export async function poisoned(
     } else if (i > 5) {
         // HP damage; more likely but less severe with missiles.
         let loss = thrown_weapon ? random.rnd(6) : random.rn1(10, 6);
-        // Half_gas_damage (blast or cloud + worn towel) is not ported; the dart
-        // trap caller passes thrown_weapon=true, so blast and cloud are
-        // unreachable. Guard with a refusal rather than silently skipping.
+        // C ref: youprop.h Half_gas_damage: only a worn damp/wet towel.
         if ((blast || reason === 'gas cloud')
-            && state.u?.uprops) {
-            // Half_gas_damage check: the towel halving. No consumer can reach
-            // this for a dart trap, so leave it as a no-op placeholder.
-        }
+            && state.ublindf?.otyp === TOWEL && state.ublindf.spe > 0)
+            loss = Math.trunc((loss + 1) / 2);
         await losehp(loss, pkiller, kprefix, state);
     } else {
         // Attribute loss.

@@ -35,11 +35,13 @@ import {
     SEE_INVIS,
     SHOCK_RES,
     u_at,
+    ismnum,
 } from './const.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { sgn } from './hacklib.js';
-import { Monnam } from './do_name.js';
+import { Monnam, Mgender, pmname } from './do_name.js';
+import { an, the_unique_pm } from './objnam.js';
 import {
     canspotmon,
     canseemon,
@@ -55,6 +57,7 @@ import {
     monstseesu,
     monstunseesu,
     perceives,
+    type_is_pname,
 } from './mondata.js';
 import {
     AD_CLRC,
@@ -79,6 +82,27 @@ import { note_unported } from './unported.js';
 import { buzz, flash_str, flashburn } from './zap.js';
 import { verbalize as plineVerbalize } from './pline.js';
 import { ttyPline } from './tty_message.js';
+
+// C ref: mcastu.c death_inflicted_by() (358-382). The C output buffer is
+// represented by the returned string; naming reads no game state beyond the
+// caster's species, original species, and gender.
+export function death_inflicted_by(deathreason, monster, state = game) {
+    let result = deathreason;
+    if (monster) {
+        const species = monster.data;
+        const original = ismnum(monster.cham)
+            ? state.mons[monster.cham] : species;
+        const gender = Mgender(monster, state);
+        let realName = pmname(original, gender);
+        const fakeName = pmname(species, gender);
+        if (!type_is_pname(original) && !the_unique_pm(species))
+            realName = an(realName);
+        result += ` inflicted by ${the_unique_pm(species) ? 'the ' : ''}${realName}`;
+        if (original !== species)
+            result += ` imitating ${an(fakeName)}`;
+    }
+    return result;
+}
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
 // These must match the C enum values (0-based, order from mcastu.h).
@@ -970,7 +994,7 @@ export async function buzzmu(mtmp, mattk, rawEnv = {}) {
             mattk.damn,
             mtmp.mx, mtmp.my,
             sgn(state.gt.tbx), sgn(state.gt.tby),
-            state, random,
+            state, random, env,
         );
         state.gb.buzzer = 0;
         return M_ATTK_HIT;

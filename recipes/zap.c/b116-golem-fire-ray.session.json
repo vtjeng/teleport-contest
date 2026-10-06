@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B116 polyself.c:ugolemeffects witness: iron golem quaffs acid before a fire wand ray heals it. Caller: dozap -> weffects -> ubuzz -> dobuzz -> zhitu -> ugolemeffects. The potion varies the form HP independently of the ray fixture.",
+  "segments": [
+    {
+      "seed": 1160610,
+      "datetime": "20000711120509",
+      "nethackrc": "OPTIONS=name:RayBreath,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#polyself\niron golem\n     \u0017potion of acid\nqo \u001b\u0017wand of fire\nzp>     "
+    }
+  ]
+}

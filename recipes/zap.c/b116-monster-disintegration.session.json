@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B116 monster disintegration breath. Create a hostile black dragon and walk away to establish its ranged action. Forced searches and pager acknowledgments reach breamm -> dobuzz -> zhitu at steps 110–116, including cloak destruction, direct death, and debug recovery. Inputs were chosen independently of challenge recordings.",
+  "segments": [
+    {
+      "seed": 1160610,
+      "datetime": "20000711120509",
+      "nethackrc": "OPTIONS=name:MonsterRay,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#levelchange\n8\n            #wizgenesis\nhostile black dragon\nhhmsmsms   nmsmsms   nmsmsms   nllllmsmsms   nmsmsms   n"
+    }
+  ]
+}

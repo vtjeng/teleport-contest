@@ -626,30 +626,17 @@ test('only a zap that chose a wand spends the turn', async () => {
     assert.equal(game.moves, waited + 1);
 });
 
-test('an aimed zap reaches the ray and stops in zhitu', async () => {
+test('aimed sleep zaps reach the whole zhitu sleep arm', async () => {
     const segment = segmentFor(`${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}`);
-    // A real direction, which is C's `else` at zap.c:2665. The self arm beside
-    // it runs instead of stopping; 'a self-zap of sleep' below owns it.
-    // weffects() now sends the sleep ray through dobuzz(), which walks it and
-    // stops only when the bolt reaches the hero: zhitu()'s ZT_SLEEP arm is
-    // one of the six damage types this port has not reached.
-    const aimed = await boundaryFor(segment, `.${ZAP_KEY}${HEALER_WAND}h`);
-    assert.match(aimed?.message ?? '', /zhitu\(\) for damage type 3/u);
-    // Up and down leave u.dx and u.dy at 0 and set u.dz, so only the third
-    // conjunct of zap.c:2657 separates them from the self arm, and a hero who
-    // zapped upward must reach weffects() rather than fall asleep. A vertical
-    // bolt is forced to range 1 at zap.c:4824-4825 and never leaves the hero's
-    // own square, so it stops in the same arm.
-    for (const key of ['<', '>']) {
-        const vertical =
-            await boundaryFor(segment, `.${ZAP_KEY}${HEALER_WAND}${key}`);
-        assert.match(
-            vertical?.message ?? '', /zhitu\(\) for damage type 3/u, key,
-        );
+    // A horizontal rebound and either vertical direction use weffects() ->
+    // ubuzz() -> dobuzz() -> zhitu(), whereas '.' uses zapyourself().
+    for (const key of ['h', '<', '>']) {
+        const boundary = await boundaryFor(segment,
+            `.${ZAP_KEY}${HEALER_WAND}${key}`);
+        assert.equal(boundary, null, key);
+        assert.equal(game.multi_reason, 'sleeping', key);
     }
-    // WAN_SLEEP is the wand both arms name. BZ_OFS_WAN(432) is
-    // (432 - WAN_MAGIC_MISSILE) % 10 = 3, which is the ZT_SLEEP the refusal
-    // reports and flash_types[]'s "sleep ray" row.
+    // objects.h places WAN_SLEEP three slots after WAN_MAGIC_MISSILE.
     assert.equal(WAN_SLEEP, 432);
 });
 
@@ -1281,8 +1268,6 @@ test('every remaining zap refusal names an unported zap.c function',
             'backfire',
             // bhito() now handles the whole floor-object callback. Void
             // callee gaps are source-named and do not reject the ray.
-            // zhitu(): the still-unported hero damage branches.
-            'zhitu', 'zhitu',
             // zapnodir() now covers its whole NODIR switch, including the
             // C default no-op; weffects() still refuses unexpected directed
             // objects after its NODIR and ray cases.

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B116 fatal zhitu death wand witness. Valkyrie lacks Antimagic; decline wizard death and then wait, proving immediate return after done(DIED) recovery rather than ordinary ray damage.",
+  "segments": [
+    {
+      "seed": 1160611,
+      "datetime": "20000711120509",
+      "nethackrc": "OPTIONS=name:RayRecovery,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017wand of death\nze> n.     "
+    }
+  ]
+}

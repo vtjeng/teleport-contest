@@ -40,9 +40,9 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    ACID_RES, A_INT, A_STR, A_DEX, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, DIR_180, DIR_ERR, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEAD, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_OBSTRUCTED, IS_ROOM, IS_SINK, IS_TREE, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DOOR, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, PHYS_EXPL_TYPE, PICK_NONE, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_earthlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STOMACH, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, TT_PIT, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_BALL, W_CHAIN, W_RING, W_RINGL, W_QUIVER, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, } from './const.js';
+    ACID_RES, A_INT, A_STR, A_DEX, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, DIR_180, DIR_ERR, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEAD, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_OBSTRUCTED, IS_ROOM, IS_SINK, IS_TREE, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DOOR, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, PHYS_EXPL_TYPE, PICK_NONE, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_earthlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STOMACH, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, TT_PIT, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_BALL, W_CHAIN, W_RING, W_RINGL, W_QUIVER, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, } from './const.js';
 import { stop_occupation } from './allmain.js';
-import { acurr, adjalign, exercise } from './attrib.js';
+import { acurr, adjalign, exercise, poisoned } from './attrib.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import {
     bot, cmap_to_glyph, flush_screen, glyph_is_invisible, glyph_is_monster, glyph_at, map_glyphinfo, map_invisible, glyph_is_warning, newsym, knowninvisible, obj_to_glyph, shieldeff, tmp_at, unmap_invisible, unmap_object, zapdir_to_glyph, } from './display.js';
@@ -63,9 +63,9 @@ import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import {
-    check_capacity, end_running, in_town, losehp, may_dig, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
+    check_capacity, HeroDeathPlanningError, in_town, losehp, may_dig, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
 import {
-    dist2, lcase, mungspaces, s_suffix, truncateByteString, upstart, } from './hacklib.js';
+    dist2, lcase, mungspaces, s_suffix, strsubst, truncateByteString, upstart, } from './hacklib.js';
 import {
     getobj,
     display_binventory,
@@ -142,11 +142,12 @@ import { objectGenerationEnv } from './object_generation.js';
 import {
     CORPSE, ROCK_CLASS, MEATBALL, MEAT_STICK, ENORMOUS_MEATBALL, MEAT_RING, ARMOR_CLASS, GEM_CLASS, AMULET_OF_LIFE_SAVING, AMULET_OF_UNCHANGING, BOULDER, DWARVISH_CLOAK, HEAVY_IRON_BALL, IMMEDIATE, NODIR, POTION_CLASS, POT_POLYMORPH, POT_WATER, RING_CLASS, ROCK, SCROLL_CLASS, SPBOOK_CLASS, SPE_DIG, SPE_FORCE_BOLT, SPE_FIREBALL, SPE_CONE_OF_COLD, SPE_EXTRA_HEALING, SPE_FINGER_OF_DEATH, SPE_CURE_SICKNESS, SPE_HEALING, SPE_KNOCK, SPE_MAGIC_MISSILE, SPE_LIGHT, SPE_DRAIN_LIFE, SPE_CANCELLATION, SPE_SLOW_MONSTER, SPE_WIZARD_LOCK, SPE_DETECT_UNSEEN, SPE_TURN_UNDEAD, SPE_BLANK_PAPER, SPE_NOVEL, SPE_POLYMORPH, SPE_SLEEP, SPE_STONE_TO_FLESH, TOOL_CLASS, WAND_CLASS, STATUE, FIGURINE, WEAPON_CLASS, HELM_OF_BRILLIANCE, GAUNTLETS_OF_DEXTERITY, RIN_GAIN_STRENGTH, RIN_GAIN_CONSTITUTION, RIN_ADORNMENT, RIN_INCREASE_ACCURACY, RIN_INCREASE_DAMAGE, RIN_PROTECTION, CRYSTAL_BALL, CANDELABRUM_OF_INVOCATION, POT_ACID, POT_SICKNESS, POT_SEE_INVISIBLE, POT_FRUIT_JUICE, SCR_BLANK_PAPER, SPE_BOOK_OF_THE_DEAD, WAN_DEATH, WAN_DIGGING, WAN_LIGHTNING, WAN_LIGHT, WAN_STASIS, WAN_ENLIGHTENMENT, WAN_MAKE_INVISIBLE, WAN_SLOW_MONSTER, WAN_SPEED_MONSTER, WAN_UNDEAD_TURNING, WAN_OPENING, WAN_POLYMORPH, WAN_WISHING, WAN_STRIKING, WAN_MAGIC_MISSILE, WAN_CANCELLATION, WAN_NOTHING, WAN_PROBING, WAN_COLD, WAN_FIRE, WAN_LOCKING, EXPENSIVE_CAMERA, FROST_HORN, FIRE_HORN, MUMMY_WRAPPING, LARGE_BOX, CHEST, BAG_OF_HOLDING, TIN, WAN_SECRET_DOOR_DETECTION, WAN_CREATE_MONSTER, WAN_SLEEP, WAN_TELEPORTATION, POT_OIL, POT_GAIN_ABILITY, SCR_MAIL, SCR_FIRE, SPE_TELEPORT_AWAY, MAGIC_LAMP, MAGIC_MARKER, OIL_LAMP, LOW_BOOTS, EGG, LEASH, UNICORN_HORN, FLESH, PAPER, CLOTH, LEATHER, WOOD, BONE, IRON, METAL, COPPER, SILVER, GOLD, PLATINUM, MITHRIL, GEMSTONE, MINERAL, GLASS, STRANGE_OBJECT, } from './objects.js';
 import {
-    An, The, Tobjnam, Yname2, an, aobjnam, ansimpleoname, bare_artifactname, boots_simple_name, cloak_simple_name, donameFresh, corpse_xname, cxname_singular, distant_name, otense, gloves_simple_name, helm_simple_name, killer_xname, shield_simple_name, shirt_simple_name, simpleonames, isPoisonable, suit_simple_name, the, the_unique_pm, vtense, yname, xnameFresh, erosion_matters, } from './objnam.js';
+    An, The, Tobjnam, Yname2, an, aobjnam, ansimpleoname, bare_artifactname, boots_simple_name, cloak_simple_name, donameFresh, corpse_xname, cxname_singular, distant_name, otense, gloves_simple_name, helm_simple_name, killer_xname, shield_simple_name, shirt_simple_name, simpleonames, isPoisonable, suit_simple_name, the, vtense, yname, xnameFresh, erosion_matters, } from './objnam.js';
 import { readobjnam } from './objnam_readobjnam.js';
+import { death_inflicted_by } from './mcastu.js';
 import { encumber_msg, force_decor } from './pickup.js';
 import { cant_revive, litroom, unpunish } from './read.js';
-import { set_wear } from './do_wear.js';
+import { disintegrate_arm, set_wear } from './do_wear.js';
 import { is_quest_artifact } from './questpgr.js';
 import { mstatusline, ustatusline } from './insight.js';
 import {
@@ -4246,29 +4247,10 @@ export async function bhit(
 // u_adtyp_resistance_obj() (5675-5698) and inventory_resistance_check()
 // (5709-5718).
 //
-// This is the aimed-ray half of the file: the hero points a wand of magic
-// missile, fire, cold, sleep, death or lightning in a direction and dobuzz()
-// walks the bolt one square at a time until its range runs out. bhit() above
-// is the sibling traversal for an IMMEDIATE wand and shares none of it.
-//
-// The whole of it is entered from one place, weffects()'s ubuzz() arm, so
-// `type` is always a hero wand zap, 0..9. Three things C computes follow from
-// that and are written here as constants rather than tests:
-//
-// - `fireball` is `type == ZT_SPELL(ZT_FIRE)`, which is 11, so it is false.
-//   Its four consequences -- the skipped zap_over_floor(), the `break` on a
-//   monster, the explode-before-the-obstacle arm and explode() itself -- are
-//   all absent below rather than refused.
-// - `spell_type` is `is_hero_spell(type) ? SPE_MAGIC_MISSILE + damgtype : 0`,
-//   and is_hero_spell() needs 10..19, so it is 0. zap_hit() takes that 0 and
-//   never reaches spell_hit_bonus().
-// - `gas_hit` is `damgtype == ZT_POISON_GAS`, which is 6. BZ_OFS_WAN() answers
-//   0..5 for the six ray wands (objects.h:1488 orders them so), so it is
-//   false and the deferred second zap_over_floor() at 5021-5022 never runs.
-//
-// Only zhitu()'s ZT_FIRE arm is ported; the other six damage types stop by
-// name. The killer-and-losehp() tail below them is ported too, and the doc
-// comment on zhitu() itself records what of it still refuses.
+// Rays reach this family from hero wands, directed monster spells and breath,
+// and the hero's self-targeted breath. dobuzz() forwards the caller's state,
+// RNG and presentation environment to the complete zhitu() damage switch.
+// Spell casting and some beam traversal effects retain their own gaps.
 
 // C ref: zap.c:45-57. ZT_<element> is the damage type minus one, and the three
 // ZT_ macros shift it into the wand, spell and breath bands.
@@ -4573,14 +4555,9 @@ export function zap_hit(ac, type, random = { rn2, rnd }, state = game) {
     return (3 - chance < ac + spell_bonus);
 }
 
-// C ref: zap.c zhitu() (4561-4589), the braced block that turns the bolt into
-// the two arguments losehp() reads at 4588: the killer string and the damage.
-//
-// It stands apart from zhitu() because nothing observes svk.killer until end.c
-// done() names the death by it, and done() is unported. No screen, cursor or
-// random-number call moves with the string, so a fresh differential cannot
-// tell a right killer from a wrong one and the test that pins it is the only
-// proof it is correct.
+// C ref: zap.c zhitu() (4561-4589). This pure part formats losehp()'s
+// arguments; the shared mcastu.c formatter preserves the caster's original
+// species and gender when it is shape changed.
 export function zhituLosehpArguments(type, abstyp, dam, fltxt, state = game) {
     const otmp = state.current_wand;
     /* fire horn and frost horn get handled as wands by caller */
@@ -4592,28 +4569,10 @@ export function zhituLosehpArguments(type, abstyp, dam, fltxt, state = game) {
 
     let kbuf;
     if (type < 0 || (type === 0 && state.gb?.buzzer)) {
-        // C ref: mcastu.c death_inflicted_by() (358-382) and hacklib.c
-        // strsubst(). The monster that fired the bolt names the killer.
         const buzzer = state.gb?.buzzer;
-        if (buzzer) {
-            // Simplified death_inflicted_by: use the buzzer's species name
-            // with "a/an" for ordinary monsters, "the" for unique ones, and
-            // the bare name for proper-name monsters.
-            const mptr = buzzer.data;
-            const name = mptr?.pmnames?.[2] ?? mptr?.pmnames?.[0]
-                ?? 'something';
-            let monName;
-            if (the_unique_pm(mptr)) {
-                monName = `the ${name}`;
-            } else if (type_is_pname(mptr)) {
-                monName = name;
-            } else {
-                monName = an(name);
-            }
-            kbuf = `${fltxt} ${verb} by ${monName}`;
-        } else {
-            kbuf = fltxt;
-        }
+        kbuf = death_inflicted_by(fltxt, buzzer, state);
+        if (buzzer)
+            kbuf = strsubst(kbuf, 'inflicted', verb);
     } else {
         /* FIXME: "zapped by herself" is suitable for a rebound;
            "zapped at herself" would be better if player explicitly
@@ -4627,117 +4586,185 @@ export function zhituLosehpArguments(type, abstyp, dam, fltxt, state = game) {
     return { dam, kbuf };
 }
 
-// C ref: zap.c zhitu() (4400-4591), the damage a bolt does to the hero, and
-// the caller of burnarmor() and erode_armor() this port reaches.
-//
-// The ZT_FIRE arm (4421-4439) and the ZT_ACID armor-corrosion gates
-// (4529-4545) are ported here. The armor gate follows either acid resistance
-// or damage handling. acid_damage() calls remain named void gaps when an
-// actual weapon is present; no whole zhitu() completion is claimed. The tail
-// through losehp() is shared by both arms.
-//
-// `dam` and `orig_dam` are separate in C because a fire-resistant hero takes
-// no damage but still has the full roll fed to ugolemeffects() and to
-// destroy_items(). Only the else at 4428-4431 is ported, where the two are
-// equal.
-async function zhitu(type, nd, fltxt, sx, sy, state, random, rawEnv = {}) {
-    // The monster-turn preflight reaches hero damage on a planning clone.  In
-    // C burnarmor(), destroy_items() and ignite_items() all receive the same
-    // live call context; forwarding it here keeps their messages and display
-    // seams on the clone instead of writing into the live terminal (or
-    // consuming its input while a planned message waits for --More--).
-    const env = { ...rawEnv, state, random };
+// C ref: zap.c zhitu() (4401-4591). All eight beam types share the final
+// losehp() call, except fatal death/disintegration, which returns immediately
+// after done() even when life-saving or wizard recovery lets play continue.
+export async function zhitu(type, nd, fltxt, sx, sy, state = game,
+                            random = { rn2, rnd, d, rn1 }, rawEnv = {}) {
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const env = { ...rawEnv, state, random, message };
+    const encumberMessage = (subject) => encumber_msg(subject, { message });
+    const exerciseEnv = { ...env, encumberMessage };
+    // Armor-off callbacks can ask for input (levitation loss, selftouch,
+    // occupations). The existing monster input boundary lets the live scan
+    // own those calls, then replans the remainder from its resulting state.
+    const disintegrate = async (armor) => {
+        if (env.planning)
+            env.requestPlanningInput('do_wear.c disintegrate_arm');
+        await disintegrate_arm(armor, env);
+    };
     let dam = 0;
     const abstyp = zaptype(type);
     let orig_dam = 0;
 
-    // sx and sy are read by shieldeff() alone, and every arm that calls it
-    // refuses above the call.
-    void sx;
-    void sy;
-
     switch (abstyp % 10) {
+    case ZT_MAGIC_MISSILE:
+        if (heroHasProperty(state, ANTIMAGIC)) {
+            await shieldeff(sx, sy, state);
+            await message('The missiles bounce off!', state, env);
+            monstseesu(M_SEEN_MAGR, state);
+        } else {
+            dam = random.d(nd, 6);
+            await exercise(A_STR, false, state, random, exerciseEnv);
+            monstunseesu(M_SEEN_MAGR, state);
+        }
+        break;
     case ZT_FIRE:
         orig_dam = random.d(nd, 6);
         if (Fire_resistance(state)) {
-            // shieldeff() is a tmp_at() animation, monstseesu() the ledger of
-            // what monsters noticed the hero shrug off, and ugolemeffects()
-            // the iron golem that heals on fire. None is ported and no ported
-            // hero resists fire.
-            throw new UnsupportedZapError(
-                "zhitu()'s fire-resistant hero, over ugolemeffects()",
-            );
+            await shieldeff(sx, sy, state);
+            await message("You don't feel hot!", state, env);
+            monstseesu(M_SEEN_FIRE, state);
+            await ugolemeffects(AD_FIRE, orig_dam, state, env);
+        } else {
+            dam = orig_dam;
+            monstunseesu(M_SEEN_FIRE, state);
         }
-        dam = orig_dam;
-        monstunseesu(M_SEEN_FIRE, state);
         await burn_away_slime(state, env);
-        /* "body hit" */
-        if (await burnarmor(state.youmonst, { ...env })) {
+        if (await burnarmor(state.youmonst, env)) { /* body hit */
             if (!random.rn2(3))
-                await destroy_items(state.youmonst, AD_FIRE, orig_dam,
-                    { ...env });
+                await destroy_items(state.youmonst, AD_FIRE, orig_dam, env);
             if (!random.rn2(3))
-                await ignite_items(state.invent, { ...env });
+                await ignite_items(state.invent, env);
         }
         break;
-
+    case ZT_COLD:
+        orig_dam = random.d(nd, 6);
+        if (Cold_resistance(state)) {
+            await shieldeff(sx, sy, state);
+            await message("You don't feel cold.", state, env);
+            monstseesu(M_SEEN_COLD, state);
+            await ugolemeffects(AD_COLD, orig_dam, state, env);
+        } else {
+            dam = orig_dam;
+            monstunseesu(M_SEEN_COLD, state);
+        }
+        if (!random.rn2(3))
+            await destroy_items(state.youmonst, AD_COLD, orig_dam, env);
+        break;
+    case ZT_SLEEP:
+        if (heroHasProperty(state, SLEEP_RES)) {
+            await shieldeff(state.u.ux, state.u.uy, state);
+            await message("You don't feel sleepy.", state, env);
+            monstseesu(M_SEEN_SLEEP, state);
+        } else {
+            monstunseesu(M_SEEN_SLEEP, state);
+            await fall_asleep(-random.d(nd, 25), true, state, env);
+        }
+        break;
+    case ZT_DEATH:
+        if (abstyp === (20 + ZT_DEATH)) {
+            const protectedInventory = inventory_resistance_check(AD_DISN,
+                state, random);
+            if (heroHasProperty(state, DISINT_RES)) {
+                await message('You are not disintegrated.', state, env);
+                monstseesu(M_SEEN_DISINT, state);
+                break;
+            } else if (protectedInventory) {
+                break;
+            }
+            monstunseesu(M_SEEN_DISINT, state);
+            if (state.uarms) {
+                await disintegrate(state.uarms);
+                break;
+            } else if (state.uarm) {
+                if (state.uarmc) await disintegrate(state.uarmc);
+                await disintegrate(state.uarm);
+                break;
+            }
+            if (state.uarmc) await disintegrate(state.uarmc);
+            if (state.uarmu) await disintegrate(state.uarmu);
+        } else if (nonliving(state.youmonst.data)
+                   || is_demon(state.youmonst.data)) {
+            await shieldeff(sx, sy, state);
+            await message('You seem unaffected.', state, env);
+            break;
+        } else if (heroHasProperty(state, ANTIMAGIC)) {
+            await shieldeff(sx, sy, state);
+            monstseesu(M_SEEN_MAGR, state);
+            await message("You aren't affected.", state, env);
+            break;
+        }
+        monstunseesu(M_SEEN_MAGR, state);
+        state.killer ??= {};
+        state.killer.format = KILLED_BY_AN;
+        state.killer.name = fltxt ?? '';
+        state.u.ugrave_arise = type === -(20 + ZT_DEATH) ? -3 : NON_PM;
+        if (env.planning)
+            throw new HeroDeathPlanningError(state.killer.name,
+                state.killer.format, { fromMonster: type < 0 });
+        await done(DIED, state, { fromMonster: type < 0 });
+        return; /* lifesaved */
+    case ZT_LIGHTNING:
+        orig_dam = random.d(nd, 6);
+        if (heroHasProperty(state, SHOCK_RES)) {
+            await shieldeff(sx, sy, state);
+            await message("You aren't affected.", state, env);
+            monstseesu(M_SEEN_ELEC, state);
+            await ugolemeffects(AD_ELEC, orig_dam, state, env);
+        } else {
+            dam = orig_dam;
+            await exercise(A_CON, false, state, random, exerciseEnv);
+            monstunseesu(M_SEEN_ELEC, state);
+        }
+        if (!random.rn2(3))
+            await destroy_items(state.youmonst, AD_ELEC, orig_dam, env);
+        break;
+    case ZT_POISON_GAS:
+        await poisoned('blast', A_DEX, 'poisoned blast', 15, false, state, {
+            ...env,
+            encumberMessage,
+            losehp: (loss, name, prefix, subject) =>
+                losehp(loss, name, prefix, subject, {
+                    ...env, fromMonster: type < 0,
+                }),
+            done: (how, subject) => done(how, subject, {
+                fromMonster: type < 0,
+            }),
+            planningDeath: () => new HeroDeathPlanningError(
+                state.killer.name, state.killer.format,
+                { fromMonster: type < 0 }),
+        });
+        break;
     case ZT_ACID: {
         const acid = hliquid('acid', {
             state,
             displayRandom: env.displayRandom,
         });
         if (heroHasProperty(state, ACID_RES)) {
-            await ttyPline(`The ${acid} doesn't hurt.`, state);
+            await message(`The ${acid} doesn't hurt.`, state, env);
             monstseesu(M_SEEN_ACID, state);
-            dam = 0;
         } else {
-            await ttyPline(`The ${acid} burns!`, state);
+            await message(`The ${acid} burns!`, state, env);
             dam = random.d(nd, 6);
-            await exercise(A_STR, false, state, random, {
-                encumberMessage: encumber_msg,
-            });
+            await exercise(A_STR, false, state, random, exerciseEnv);
             monstunseesu(M_SEEN_ACID, state);
         }
-        // trap.c:acid_damage() is a discarded-void call outside this task.
-        // Preserve both source gates and their order; a null weapon's acid
-        // routine has no effect, while a real weapon is recorded as a gap.
-        if (!random.rn2(state.u?.twoweap ? 3 : 6) && state.uwep)
+        // C discards acid_damage()'s return. Preserve the source gates, but
+        // leave weapon corrosion as a named gap until trap.c is ported.
+        if (!random.rn2(state.u.twoweap ? 3 : 6))
             note_unported('trap.c acid_damage');
-        if (state.u?.twoweap && !random.rn2(3) && state.uswapwep)
+        if (state.u.twoweap && !random.rn2(3))
             note_unported('trap.c acid_damage');
         if (!random.rn2(6))
-            await erode_armor(
-                state.youmonst,
-                ERODE_CORRODE,
-                state,
-                env,
-            );
+            await erode_armor(state.youmonst, ERODE_CORRODE, state, env);
         break;
     }
-
-    default:
-        throw new UnsupportedZapError(
-            `zhitu() for damage type ${abstyp % 10}`,
-        );
     }
     const killed = zhituLosehpArguments(type, abstyp, dam, fltxt, state);
-    if (env.planning && !Upolyd(state.u)
-        && killed.dam >= state.u.uhp
-        && typeof env.planningDeath === 'function') {
-        // C's losehp() enters end.c done() on this monster-turn death.  The
-        // planning clone cannot run its urgent message or death query, so
-        // carry the source damage write and attacker identity across the
-        // existing atomic planning/live handoff used by mhitu.c.
-        end_running(true, state);
-        state.disp ??= {};
-        state.disp.botl = true;
-        state.u.uhp -= killed.dam;
-        throw env.planningDeath(state.gb?.buzzer);
-    }
     await losehp(killed.dam, killed.kbuf, KILLED_BY_AN, state, {
-        ...env,
-        fromMonster: type < 0 || Boolean(env.fromMonster),
-        message: env.message,
+        ...env, fromMonster: type < 0 || Boolean(env.fromMonster),
     });
 }
 
@@ -5423,7 +5450,7 @@ async function buzzmonst(
     const otmp = zhitResult.otmp;
 
     if (is_rider(mon.data)
-        && Math.abs(type) === 20 + ZT_DEATH /* ZT_BREATH(ZT_DEATH) */) {
+        && Math.abs(type) === 20 + ZT_DEATH /* (20 + ZT_DEATH) */) {
         if (canseemon(mon, state)) {
             await hit(flash_str(fltyp, false, state, random), mon,
                 exclam(0), state, env);
@@ -5813,11 +5840,11 @@ export async function dobuzz(
 // C ref: zap.c ubuzz() (4758-4762). The hero's own ray, fired from their own
 // square along u.dx/u.dy.
 export async function ubuzz(
-    type, nd, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz },
+    type, nd, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {},
 ) {
     return dobuzz(
         type, nd, state.u.ux, state.u.uy, state.u.dx, state.u.dy,
-        true, false, false, state, random,
+        true, false, false, state, random, rawEnv,
     );
 }
 
@@ -5826,21 +5853,21 @@ export async function ubuzz(
 // forcemiss=false.
 export async function buzz(
     type, nd, sx, sy, dx, dy,
-    state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz },
+    state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {},
 ) {
-    return dobuzz(type, nd, sx, sy, dx, dy, true, false, false, state, random);
+    return dobuzz(type, nd, sx, sy, dx, dy, true, false, false, state, random, rawEnv);
 }
 
 // C ref: zap.c ubreatheu() (3017-3022). Called when the poly'd hero uses a
 // breath attack against self (direction '.').  Delegates to zhitu() with the
 // hero-breath type offset and the hero's own coordinates.
 export async function ubreatheu(
-    mattk, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz },
+    mattk, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {},
 ) {
     // C: int dtyp = 20 + mattk->adtyp - 1;  /* breath by hero */
     const dtyp = 20 + mattk.adtyp - 1;
     await zhitu(dtyp, mattk.damn, flash_str(dtyp, true, state),
-        state.u.ux, state.u.uy, state, random);
+        state.u.ux, state.u.uy, state, random, rawEnv);
 }
 
 // C ref: zap.c do_enlightenment_effect() (2525-2535). C pauses the message
@@ -6346,7 +6373,7 @@ export async function zap_updown(obj, state = game,
 // :1480 BZ_U_WAND(bztyp) is `0 + bztyp`, so the six ray wands become dobuzz()
 // types 0..5 in the order objects.h:1488 lists them.
 export async function weffects(
-    obj, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz },
+    obj, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {},
 ) {
     const otyp = obj.otyp;
     let disclose = false;
@@ -6395,7 +6422,7 @@ export async function weffects(
             await ubuzz(
                 Math.abs(otyp - WAN_MAGIC_MISSILE) % 10,
                 (otyp === WAN_MAGIC_MISSILE) ? 2 : 6,
-                state, random,
+                state, random, rawEnv,
             );
         } else {
             // C's impossible("weffects: unexpected spell or wand"), for a
