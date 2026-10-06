@@ -174594,7 +174594,7 @@
       "sessions": [
         "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits"
       ],
-      "selectionReason": "The current v18 mind-flayer case stops in the unported AD_DRIN dispatcher. A completed source audit bounds the coherent task to uhitm.c:mhitm_ad_drin, eat.c:eat_brains, uhitm.c:m_slips_free, mhitu.c:u_slip_free, dispatcher wiring, and independent runtime evidence for hero-to-monster, monster-to-hero, and monster-to-monster directions. The pre-edit planning audit also requires env threading through eat.c:eating_conducts, maybe_cannibal, and violated_vegetarian so clone planning cannot touch the live terminal or global RNG.",
+      "selectionReason": "The current v18 mind-flayer case stops in the unported AD_DRIN dispatcher. The coherent task covers uhitm.c:mhitm_ad_drin, eat.c:eat_brains, both slip helpers, dispatcher wiring, and all three combat directions. Planning requires env threading through eat.c:eating_conducts, maybe_cannibal, and violated_vegetarian. Independent H-to-M evidence further proves that the polymorphed hero caller consumes weapon.c:abon and makemon.c:adj_lev before the AD_DRIN hit, so their whole source behavior is required in the same task.",
       "detail": "",
       "openedAt": null,
       "openStanding": null,
@@ -174660,6 +174660,22 @@
           "endLine": 1388,
           "declared": true,
           "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "abon",
+          "line": 950,
+          "endLine": 992,
+          "declared": true,
+          "sourceFile": "weapon.c",
+          "complete": false
+        },
+        {
+          "name": "adj_lev",
+          "line": 2016,
+          "endLine": 2050,
+          "declared": true,
+          "sourceFile": "makemon.c",
           "complete": false
         }
       ],
