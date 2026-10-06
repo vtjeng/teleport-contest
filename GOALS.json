@@ -180483,7 +180483,7 @@
     {
       "id": "port-timeout-stoned-dialogue-heal-legs-v22-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete petrification timeout dialogue and silent leg healing",
       "cFile": "timeout.c",
       "sessions": [
@@ -180491,8 +180491,12 @@
       ],
       "selectionReason": "The current v22 queue has one unmatched screen at step 20; the complete investigation traces it to omitted timeout.c stoned_dialogue and identifies the source-required do.c heal_legs how-2 branch.",
       "detail": "Port whole timeout.c stoned_dialogue and wire nh_timeout before decrements, preserving staged messages, state changes, occupation handling, and exercise order. Reconcile whole do.c heal_legs so the how-2 petrification call silently clears wounds without ordinary encumbrance feedback. Reuse the verified Popeye return contract.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "a22f5552756f46f18b9f2ebea5013da844b93081",
+      "openStanding": {
+        "sha": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -180531,7 +180535,229 @@
           "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
           "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+          "session": "synthetic/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recording": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.session.json",
+          "recordingPath": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.session.json",
+          "recordingSha256": "1f702867c752ca46121a1d8500a8b15f7feca99072476cfc62fee55d7a3368db",
+          "recipe": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.recipe.session.json",
+          "recipeSha256": "0ddd75ccec74bd292fc91542b869b74e05441d35cf8ef3c4324ed743e354ed63",
+          "replayInputSha256": "fcb9095d2a8fa12609118bf061b5c0708cd499573a009a8052f102a247d247e1",
+          "evaluationPath": "challenges/evaluations/20261006190144-v22.json",
+          "evaluationCommit": "42b62e6f472e1ab0631b7f4cf82bf3904062e66c",
+          "evaluationArtifact": "challenges/evaluations/20261006190144-v22.json",
+          "evaluationUtc": "2026-10-06T19:03:10.716Z",
+          "remainingScreens": 1,
+          "recordedSteps": 21,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 21
+            },
+            "rng": {
+              "matched": 2857,
+              "total": 2860
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 20,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2857,
+              "cEntry": "rn2(2)=1",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(20)=13",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "."
+              },
+              "stepIndex": 20
+            },
+            "cursor": null
+          },
+          "step": 20,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.json",
+            "result": {
+              "session": "synthetic/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+              "corpus": "synthetic",
+              "batch": "v22",
+              "caseId": "wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+              "remainingScreens": 1,
+              "recordedSteps": 21,
+              "manifestPath": "challenges/manifests/v22.json",
+              "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+              "recordingSha256": "1f702867c752ca46121a1d8500a8b15f7feca99072476cfc62fee55d7a3368db",
+              "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+              "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+              "status": "complete",
+              "commit": "17076735810434b7abb83ef84d463f99406f1f09",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v22",
+                "caseId": "wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+                "session": "synthetic/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+                "manifestPath": "challenges/manifests/v22.json",
+                "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+                "recording": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.session.json",
+                "recordingPath": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.session.json",
+                "recordingSha256": "1f702867c752ca46121a1d8500a8b15f7feca99072476cfc62fee55d7a3368db",
+                "recipe": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.recipe.session.json",
+                "recipeSha256": "0ddd75ccec74bd292fc91542b869b74e05441d35cf8ef3c4324ed743e354ed63",
+                "replayInputSha256": "95e601d652ecd5bef4db004f4b10f27fca78dc0a408fc07bfe10a748ce0baedf",
+                "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+                "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+                "evaluationArtifact": "challenges/evaluations/20261006180802-v22.json",
+                "evaluationUtc": "2026-10-06T16:33:08.254Z",
+                "remainingScreens": 1,
+                "recordedSteps": 21,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 21
+                  },
+                  "rng": {
+                    "matched": 2857,
+                    "total": 2860
+                  },
+                  "cursors": {
+                    "matched": 21,
+                    "total": 21
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 20,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2857,
+                    "cEntry": "rn2(2)=1",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(20)=13",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "."
+                    },
+                    "stepIndex": 20
+                  },
+                  "cursor": null
+                },
+                "step": 20,
+                "kind": "rng",
+                "sourceFile": "timeout.c",
+                "function": "stoned_dialogue",
+                "message": null,
+                "cFile": "timeout.c",
+                "luaFile": null,
+                "line": 137
+              },
+              "summary": "At step 20 the five-turn petrification countdown should print ‘You are slowing down.’ and exercise Dexterity. JavaScript skips timeout.c:stoned_dialogue entirely. The RNG annotation points to attrib.c:exercise because that is the missing helper’s final call, not because exercise itself is defective. Port the whole stoned_dialogue and wire its pre-decrement nh_timeout caller and planning/live handoff.",
+              "source": {
+                "file": "timeout.c",
+                "branch": "Non-invulnerable hero has a nonzero Stoned intrinsic, with timeout five before nh_timeout decrements property clocks. Source stoned_dialogue prints stoned_texts[0], clears HFast, cancels positive multi, and calls exercise(A_DEX,FALSE).",
+                "functions": [
+                  "stoned_dialogue"
+                ],
+                "callers": [
+                  "timeout.c:nh_timeout624 calls stoned_dialogue for every nonzero Stoned after the invulnerability guard and before all timed-property decrements; JavaScript nh_timeout currently records note_unported instead.",
+                  "allmain.c:moveloop_core273 calls nh_timeout during hero turn upkeep; js/allmain.js advanceHeroUpkeep906 calls the same owner after nh_timeout_requires_live_state selects planning or live execution."
+                ],
+                "dependencies": [
+                  "Reuse whole eat.c:Popeye3920-3955 for the consumed case-4 tin-occupation result; js/eat.js1350 already implements accessible/known tin, lizard/acidic species branches.",
+                  "Reuse nolimbs, strstri/strsubst, ttyUrgentPline, nomul, stop_occupation, You_can_move_again, set_itimeout, make_vomiting, make_slimed and attrib.c:exercise owners; verify silent planning and canonical state/random forwarding.",
+                  "do.c:heal_legs2449-2487 has a material how==2 branch. Existing js/do.js3014 only models ordinary healing, always prints feel-better when not mounted, and always calls encumber_msg. stoned_dialogue calls heal_legs(2) to clear wounds silently and skip encumbrance feedback. Reconcile the whole helper’s how parameter and ordinary/dismount/petrification callers in the same coherent task, or leave an explicit discarded-call gap with blocked evidence rather than calling the ordinary-only substitute.",
+                  "nh_timeout_requires_live_state currently hands off STONED only at expiry one; newly ported active dialogue performs message/RNG and multi/occupation changes before that expiry. Reconcile the source live handoff, as existing active Strangled/Vomiting paths do. No whole nh_timeout completion is claimed."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Assigned saved evaluation challenges/evaluations/20261006180802-v22.json at 5913841d2eeb8e82110208f1966bb47f08725368 reports 20/21 matched screens, 2857/2860 matched RNG entries and 21/21 cursors. The 1 remaining screen and step20 are investigation measurements, not delivered gains.",
+                "Read-only exact published snapshot 17076735810434b7abb83ef84d463f99406f1f09 was exported with git archive (js/frozen/package.json), then official frozen isaac64/terminal/storage overlays were applied in .cache/A2-stoning-17076735. Parked A112 source edits were untouched and excluded from this replay. Bounded single-case run-4aWWw9, .cache/A2-stoning-investigation-replay.log, reproduced screen mismatch row0 column0 at step20 and RNG mismatch index2857: C rn2(2)=1 @ exercise(attrib.c:509), JS rn2(20)=13. No boundary refusal occurred; both produced21 screens.",
+                "Immutable C recording segment0 step18 sets the five-turn stoning intrinsic and reports You are turning into stone; step19 acknowledges the pager; step20 key . reports You are slowing down. Its annotated RNG has six preceding monster/upkeep draws, then rn2(2)=1 @ exercise, followed by gethungry and moveloop_core. JavaScript omits this one draw and leaves the top row blank, shifting later random values.",
+                "Read whole timeout.c:137-185 stoned_dialogue and stoned_texts127-133: timeout1..5 selects an urgent warning, substitutes extremities for limbs in limbless forms; case5 clears HFast and positive multi; case4 preserves a curing tin occupation through Popeye; case3 stops occupation, nomul(-3), sets multi_reason/nomovemsg and heals unmounted wounded legs with how2; case2 extends short Deaf timeout to5 and clears Vomiting/Slimed without messages; every timeout value unconditionally exercises Dexterity.",
+                "Both evaluation implementation 5913841d2eeb8e82110208f1966bb47f08725368 and current published 17076735810434b7abb83ef84d463f99406f1f09 timeout.js contain the same explicit note_unported('timeout.c stoned_dialogue') in nh_timeout, so the diagnosis survives publication. attrib.c exercise at the published commit already implements the source -rn2(2) Dexterity adjustment; no independent attrib.c defect explains this trace.",
+                "Read the required return-valued Popeye owner and small formatting/predicate owners. Read do.c heal_legs and found the existing ordinary-only JavaScript helper lacks how==1/how==2 semantics; this is a whole-helper caller prerequisite for case3, not evidence that the stoning dialogue may be implemented as only its five-turn arm.",
+                "Actionable whole-function scope is timeout.c:stoned_dialogue137-185 with stoned_texts, nh_timeout caller and planning/live boundary. Add a bounded whole do.c:heal_legs2449-2487 reconciliation to preserve the consumed source effects at how2. The assigned21-step case verifies only countdown5; completion still needs independently chosen recordings for later warnings, occupation/multi changes and cheap physiology variants, plus source-pinned tests for unreachable branches. This investigation creates no C recording and claims no future parity."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-timeout-region-dialogue-v22-20261006",
