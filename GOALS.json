@@ -179871,6 +179871,59 @@
           "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368"
         }
       }
+    },
+    {
+      "id": "port-timeout-stoned-dialogue-heal-legs-v22-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete petrification timeout dialogue and silent leg healing",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst"
+      ],
+      "selectionReason": "The current v22 queue has one unmatched screen at step 20; the complete investigation traces it to omitted timeout.c stoned_dialogue and identifies the source-required do.c heal_legs how-2 branch.",
+      "detail": "Port whole timeout.c stoned_dialogue and wire nh_timeout before decrements, preserving staged messages, state changes, occupation handling, and exercise order. Reconcile whole do.c heal_legs so the how-2 petrification call silently clears wounds without ordinary encumbrance feedback. Reuse the verified Popeye return contract.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "stoned_dialogue",
+          "line": 137,
+          "endLine": 196,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 137,
+        "to": 196
+      },
+      "requiredFunctions": [
+        {
+          "name": "heal_legs",
+          "line": 2449,
+          "endLine": 2489,
+          "declared": true,
+          "sourceFile": "do.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst": {
+          "session": "synthetic/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recordingPath": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.session.json",
+          "recordingSha256": "1f702867c752ca46121a1d8500a8b15f7feca99072476cfc62fee55d7a3368db",
+          "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+          "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368"
+        }
+      }
     }
   ]
 }
