@@ -179216,7 +179216,7 @@
     {
       "id": "port-zap-zhitu-death-ray-v22-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete hero-directed beam effects and death-ray handling",
       "cFile": "zap.c",
       "sessions": [
@@ -179224,17 +179224,24 @@
       ],
       "selectionReason": "The largest current v22 mismatch stops at step 89 when a rebounding death ray reaches the Antimagic hero. The completed investigation traces the first cause to missing zap.c zhitu ZT_DEATH behavior, before the later corpse revival and wary_dog actions.",
       "detail": "Port whole zap.c zhitu lines 4401-4591 for all eight beam types and shared tail, wire dobuzz and ubreatheu callers, and replace the simplified killer formatter with whole pure mcastu.c death_inflicted_by. Preserve type dispatch, resistance and inventory order, integer arithmetic, messages, blindness and sleep effects, armor and item destruction, hero death ownership, and planning/live handoff. Keep acid_damage as a named discarded-return gap if still unported.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "cf40bcddcbc120518f09e938db568ae2d2d9c4c6",
+      "openStanding": {
+        "sha": "cf40bcddcbc120518f09e938db568ae2d2d9c4c6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "cf40bcddcbc120518f09e938db568ae2d2d9c4c6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "zhitu",
           "line": 4401,
           "endLine": 4597,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -179246,9 +179253,9 @@
           "name": "death_inflicted_by",
           "line": 358,
           "endLine": 388,
-          "declared": false,
+          "declared": true,
           "sourceFile": "mcastu.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -179264,6 +179271,260 @@
           "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
           "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb"
         }
+      },
+      "activeStanding": {
+        "sha": "cf40bcddcbc120518f09e938db568ae2d2d9c4c6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "session": "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recording": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingPath": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+          "recipe": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
+          "recipeSha256": "dd4337fb5504e488ff7adc498d9a500c3e3319802973cdd07ce23cf6f7e5c0a8",
+          "replayInputSha256": "8bb3aeb141709ee47dd5ff411efac143f623bfd9c36ceb38eb843b2690fdfe1f",
+          "evaluationPath": "challenges/evaluations/20261006174924-v22.json",
+          "evaluationCommit": "cf40bcddcbc120518f09e938db568ae2d2d9c4c6",
+          "evaluationArtifact": "challenges/evaluations/20261006174924-v22.json",
+          "evaluationUtc": "2026-10-06T17:50:47.618Z",
+          "remainingScreens": 8,
+          "recordedSteps": 101,
+          "previousScreensMatched": 89,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 93,
+              "total": 101
+            },
+            "rng": {
+              "matched": 2651,
+              "total": 2741
+            },
+            "cursors": {
+              "matched": 93,
+              "total": 101
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+            "step": 93
+          },
+          "step": 93,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.json",
+            "previousRemainingScreens": 12
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "zhitu",
+            "implementation": "js/zap.js",
+            "symbol": "zhitu",
+            "sourceReview": "Read nethack-c/upstream/src/zap.c:4401-4591 completely. Reconciled all eight beam types and the shared losehp tail: missile damage/exercise and seen-resistance state; mandatory fire/cold/lightning damage draws before resistance; golem healing; slime/burnarmor and independent inventory/ignition gates; source sleep duration; disintegration inventory protection before personal resistance, shield/suit/cloak/shirt priority, direct killer/grave state and immediate return after done; poison blast operations and wet-towel integer halving; acid damage/exercise, two-weapon gates and armor erosion; original-species killer naming, verb substitution and integer Half_spell_damage. Consumed return dependencies burnarmor, inventory_resistance_check, property/predicate/naming helpers and death_inflicted_by are implemented and called in source order. C discards trap.c:acid_damage at 4541/4543; its exact gates remain and the selected calls record note_unported('trap.c acid_damage') rather than fabricated corrosion. Removed prior beam refusals and stale refusal tests. Planning transfers direct and HP-pool deaths using the existing HeroDeathPlanningError, while disintegrate_arm crosses the existing requestPlanningInput boundary before live armor-off callbacks; the independent monster recording reaches both cloak removal and death recovery. Forwarded the existing environment through the aimed ray caller chain and buzzmu. The authorized maybe_destroy_item caller repair forwards the environment into losehp so shattered-potion death cannot enter live end-game output on a clone. This is caller repair only; no whole inventory-destruction owner credit is claimed.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "dobuzz",
+                "source": "zap.c:4980 calls zhitu from the hero-hit ray arm after hit testing and reflection. JavaScript dobuzz passes state, random and the existing operation environment. Production dozap -> weffects -> ubuzz, and monster breamm -> dobuzz, reach this call."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "ubreatheu",
+                "source": "zap.c:3016-3022 computes 20+adtyp-1 and calls zhitu for a polymorphed hero breathing at herself. The #monster command reaches dobreathe -> ubreatheu and forwards its environment."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-zhitu.test.mjs",
+              "scripts/zap-ray.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/b116-magic-missile-ray.session.json",
+              "recordings/zap.c/b116-fire-ray.session.json",
+              "recordings/zap.c/b116-cold-ray.session.json",
+              "recordings/zap.c/b116-sleep-ray.session.json",
+              "recordings/zap.c/b116-death-ray.session.json",
+              "recordings/zap.c/b116-lightning-ray.session.json",
+              "recordings/zap.c/b116-poison-breath.session.json",
+              "recordings/zap.c/b116-acid-breath.session.json",
+              "recordings/zap.c/b116-disintegration-breath.session.json",
+              "recordings/zap.c/b116-death-recovery.session.json",
+              "recordings/zap.c/b116-golem-fire-ray.session.json",
+              "recordings/zap.c/b116-monster-disintegration.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+                "segment": 0,
+                "fromStep": 89,
+                "throughStep": 92,
+                "source": "zap.c:dozap -> weffects -> ubuzz -> dobuzz:4980 -> zhitu:4470-4514 death-ray Antimagic immunity and shared zero-damage tail"
+              }
+            ],
+            "checkedAt": "cf40bcddcbc120518f09e938db568ae2d2d9c4c6"
+          },
+          {
+            "name": "death_inflicted_by",
+            "implementation": "js/mcastu.js",
+            "symbol": "death_inflicted_by",
+            "sourceReview": "Read nethack-c/upstream/src/mcastu.c:358-382 completely. Pure formatter: no RNG, message, screen output or game-state mutation. Preserves original-species selection through ismnum(cham), gender names, the original-species proper-name test combined with current-species uniqueness, unique article, and imitating suffix. Its C output buffer is represented by the returned JavaScript string. The source-pinned test covers null, ordinary male/female, proper and unique names, and changed-species combinations, and checks that input state does not change.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zhituLosehpArguments",
+                "source": "zap.c:4574 invokes death_inflicted_by in zhitu's shared damage tail for negative types or a type-zero buzzer; JavaScript then substitutes the source verb. mcastu.c touch_of_death:332 and mcast_weaken_you:482 remain unported caller owners with named dispatcher gaps; they are outside this assignment."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mcastu.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mcastu.c",
+            "synthetic": [],
+            "checkedAt": "cf40bcddcbc120518f09e938db568ae2d2d9c4c6"
+          }
+        ],
+        "entryPointReview": "The selected zhitu range has two direct source callers: dobuzz:4980 for a ray hitting the hero, and ubreatheu:3021 for self-directed polymorph breath. Independent recordings cover aimed wand missile/fire/cold/sleep/death/lightning, self-directed poison/acid/disintegration breaths, golem healing, direct death recovery and a monster breath through the production planner/live scan. The monster recording executes breamm -> dobuzz -> zhitu at zero-based segment-0 steps 110-116, including inventory resistance, cloak removal and debug recovery; it is not merely a setup witness. Shared formatter evidence is pure, while all eight impure beam arms have production recordings and source-pinned branch/RNG tests. The environment-only changes in ubuzz, buzz, weffects and buzzmu do not claim whole caller completion or new spell/priest/storm/monster-wand entry credit. Existing helper owners remain separate; ugolemeffects gains a clone-owned message/random environment, and poisoned implements the previously omitted Half_gas_damage macro. No whole poisoned, ugolemeffects, maybe_destroy_item, destroy_items or other caller completion is claimed by this delivery.",
+        "entryPoints": [
+          {
+            "name": "aimed wand ray hitting hero",
+            "functions": [
+              "zhitu"
+            ],
+            "recordings": [
+              "recordings/zap.c/b116-magic-missile-ray.session.json",
+              "recordings/zap.c/b116-fire-ray.session.json",
+              "recordings/zap.c/b116-cold-ray.session.json",
+              "recordings/zap.c/b116-sleep-ray.session.json",
+              "recordings/zap.c/b116-death-ray.session.json",
+              "recordings/zap.c/b116-lightning-ray.session.json",
+              "recordings/zap.c/b116-death-recovery.session.json",
+              "recordings/zap.c/b116-golem-fire-ray.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+                "segment": 0,
+                "fromStep": 89,
+                "throughStep": 92,
+                "source": "zap.c:dozap -> weffects -> ubuzz -> dobuzz:4980 -> zhitu:4470-4514 death-ray Antimagic immunity and shared zero-damage tail"
+              }
+            ]
+          },
+          {
+            "name": "polymorphed hero self-directed breath",
+            "functions": [
+              "zhitu"
+            ],
+            "recordings": [
+              "recordings/zap.c/b116-poison-breath.session.json",
+              "recordings/zap.c/b116-acid-breath.session.json",
+              "recordings/zap.c/b116-disintegration-breath.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster breath hitting hero through production planning and live death recovery",
+            "functions": [
+              "zhitu"
+            ],
+            "recordings": [
+              "recordings/zap.c/b116-monster-disintegration.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "session": "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recording": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingPath": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+          "recipe": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
+          "recipeSha256": "dd4337fb5504e488ff7adc498d9a500c3e3319802973cdd07ce23cf6f7e5c0a8",
+          "replayInputSha256": "8bb3aeb141709ee47dd5ff411efac143f623bfd9c36ceb38eb843b2690fdfe1f",
+          "evaluationPath": "challenges/evaluations/20261006174924-v22.json",
+          "evaluationCommit": "cf40bcddcbc120518f09e938db568ae2d2d9c4c6",
+          "evaluationArtifact": "challenges/evaluations/20261006174924-v22.json",
+          "evaluationUtc": "2026-10-06T17:50:47.618Z",
+          "remainingScreens": 8,
+          "recordedSteps": 101,
+          "previousScreensMatched": 89,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 93,
+              "total": 101
+            },
+            "rng": {
+              "matched": 2651,
+              "total": 2741
+            },
+            "cursors": {
+              "matched": 93,
+              "total": 101
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+            "step": 93
+          },
+          "step": 93,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.json",
+            "previousRemainingScreens": 12
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "cf40bcddcbc120518f09e938db568ae2d2d9c4c6",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
