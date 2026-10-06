@@ -2717,10 +2717,11 @@ export async function dochug(monster, rawEnv = {}) {
                     || attacktype(monster.data, AT_WEAP)
                     || find_offensive(monster, env));
             if (!shootsAfterMoving) {
-                // C's remaining arm is `if (engulfing_u(mtmp)) return
-                // mattacku(mtmp);` before the plain `return 0`. No ported path
-                // sets u.uswallow -- js/mon.js clears it and nothing writes it
-                // -- so only the plain return is reachable.
+                // monmove.c:953-954 returns mattacku() when this mover still
+                // holds the swallowed hero. Preserve its result before the
+                // ordinary no-attack return.
+                if (engulfing_u(monster, state))
+                    return attackHero(monster, env);
                 return 0;
             }
             // C breaks out of the switch here rather than returning, so a

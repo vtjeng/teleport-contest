@@ -195,6 +195,7 @@ import {
     PM_XORN,
     S_HUMAN,
     S_NYMPH,
+    AT_WEAP,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -3289,6 +3290,134 @@ test('dochug gives Conflict monsters the source movement turn', async () => {
     assert.deepEqual(attacks, []);
     assert.deepEqual(ranges, [true, true]);
     assert.deepEqual(draws, []);
+});
+
+// monmove.c:937-958. A moved monster that still holds the swallowed hero
+// returns mattacku() before the ordinary zero result, but only after the
+// ranged-after-move exception has been checked.
+test('dochug reattacks a swallowed hero only after the ranged exception', async () => {
+    const dochugSource = MONMOVE_C.slice(
+        MONMOVE_C.indexOf('dochug(struct monst *mtmp)'),
+        MONMOVE_C.indexOf('static NEARDATA const char practical[]'),
+    );
+    const movedStart = dochugSource.indexOf('case MMOVE_MOVED:');
+    const movedEnd = dochugSource.indexOf('case MMOVE_DIED:', movedStart);
+    const movedArm = dochugSource.slice(movedStart, movedEnd);
+    const sourceOrder = [
+        'if (helpless(mtmp))',
+        'if (!nearby',
+        'if (engulfing_u(mtmp))',
+        'return mattacku(mtmp);',
+    ].map((text) => movedArm.indexOf(text));
+    sourceOrder.push(movedArm.lastIndexOf('return 0;'));
+    // These source fragments pin C's helpless, ranged, holder and fallback order.
+    assert.ok(sourceOrder.every((index) => index >= 0));
+    assert.deepEqual(sourceOrder, [...sourceOrder].sort((a, b) => a - b));
+
+    async function run({
+        swallowed = true,
+        isHolder = true,
+        nearby = true,
+        inrange = true,
+        hasWeaponAttack = false,
+    } = {}) {
+        const { state } = makeState();
+        const baseData = state.mons[PM_GIANT_RAT];
+        const data = hasWeaponAttack
+            ? {
+                ...baseData,
+                mattk: [{
+                    aatyp: AT_WEAP,
+                    adtyp: 0,
+                    damn: 1,
+                    damd: 1,
+                }],
+            }
+            : baseData;
+        const monster = ordinaryMonster(state, {
+            data,
+            mcanmove: true,
+            // Fleeing supplies C's opportunity to move in this adjacent fixture.
+            mflee: 1,
+            mfleetim: 1,
+            mspec_used: 1,
+            mpeaceful: false,
+            mhp: 5,
+            mhpmax: 5,
+        });
+        state.u.uswallow = swallowed;
+        state.u.ustuck = isHolder ? monster : ordinaryMonster(state);
+        const events = [];
+        const ranges = [];
+        const env = {
+            state,
+            random: {
+                rn2(bound) {
+                    // One misses dochug()'s fleeing rn2(40) teleport check.
+                    assert.equal(bound, 40);
+                    return 1;
+                },
+                rnd() { assert.fail('unexpected random draw'); },
+            },
+            preflight() {},
+            usePreMoveItems: () => false,
+            moveMonster(candidate) {
+                assert.equal(candidate, monster);
+                events.push('move');
+                return MMOVE_MOVED;
+            },
+            attackHero(candidate, attackEnv) {
+                events.push('attackHero');
+                assert.equal(candidate, monster);
+                assert.equal(attackEnv.state, state);
+                // One is mattacku()'s true return; this pins direct result propagation.
+                return 1;
+            },
+            wakeMessage() {},
+            monFlee() {},
+            monsterCanSeeHero: () => true,
+            unsupported: (reason) => assert.fail(`unexpected refusal: ${reason}`),
+            castUndirectedSpell: () => false,
+            distanceAndFear() {
+                ranges.push(true);
+                return { nearby, inrange, scared: false };
+            },
+            setApparentHero() {},
+            wipeEngraving() {},
+            wieldPreMoveWeapon: () => false,
+            redraw() {},
+            questStatCheck() {},
+            questTalk() {},
+        };
+        return {
+            result: await dochug(monster, env),
+            events,
+            ranges: ranges.length,
+        };
+    }
+
+    const swallowedHolder = await run();
+    assert.equal(swallowedHolder.result, 1);
+    assert.deepEqual(swallowedHolder.events, ['move', 'attackHero']);
+    assert.equal(swallowedHolder.ranges, 2);
+
+    const ordinaryMove = await run({ swallowed: false });
+    assert.equal(ordinaryMove.result, 0);
+    assert.deepEqual(ordinaryMove.events, ['move']);
+
+    const differentHolder = await run({ isHolder: false });
+    assert.equal(differentHolder.result, 0);
+    assert.deepEqual(differentHolder.events, ['move']);
+
+    // A weapon-capable mover with !nearby breaks to phase four before the
+    // engulfing test; out of range, it must not take the direct reattack arm.
+    const rangedException = await run({
+        nearby: false,
+        inrange: false,
+        hasWeaponAttack: true,
+    });
+    assert.equal(rangedException.result, 0);
+    assert.deepEqual(rangedException.events, ['move']);
 });
 
 // monmove.c:967.  The phase-four Conflict disjunct has no iswiz exception;
