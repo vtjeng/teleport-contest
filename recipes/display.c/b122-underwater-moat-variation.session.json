@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent display.c under_water source witness. Chosen seeds and clock are fresh; intrinsic page 2 selector g follows timeout.c propertynames MAGICAL_BREATHING. Terrain wishes set current cell via objnam.c. Control-L covers docrt; terrain menu plus Escape covers detect.c map_redisplay and next wait consumes delayed mode. Blind case probes the separate vision.c visibility dependency. Inventory selectors will be checked against the C recording before comparison. C-only refinement: Ctrl-R is source redraw; force-rest prefix m avoids nearby-monster rest guard; spaces dismiss observed water damage and farlook tip pages. Final C-boundary refinement removes extraneous post-wear spaces or acknowledges the final touch-bottom More. Ends after redraw; the following hostile-monster action is retained separately as a blocked set_apparxy recipe.",
+  "segments": [
+    {
+      "seed": 78122002,
+      "datetime": "20961006113100",
+      "nethackrc": "OPTIONS=name:WaterProbe,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n>g\n \u0017moat\nm.       \u0012"
+    }
+  ]
+}

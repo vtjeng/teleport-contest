@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary display.c:doredraw witness; Ctrl-R and #redraw are the C extcmdlist dispatcher entries and take no time. Fresh seed/time and role selected before comparison.",
+  "segments": [
+    {
+      "seed": 78122004,
+      "datetime": "20961006113300",
+      "nethackrc": "OPTIONS=name:DryRedraw,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0012#redraw\n"
+    }
+  ]
+}

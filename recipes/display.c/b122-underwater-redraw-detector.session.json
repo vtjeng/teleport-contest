@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent whole display.c:under_water witness: pool entry, Ctrl-R redraw, wiz_map -> do_mapping -> map_redisplay delayed redraw, next rest -> under_water(0). Seed was the sole monster-free level in preselected JS scan 78122101..78122132 (1/32), avoiding the separately retained monmove.c:set_apparxy underwater prerequisite; this is a setup choice, not game-code special handling. Intrinsic menu selector and acknowledgment inputs follow C observations.",
+  "segments": [
+    {
+      "seed": 78122127,
+      "datetime": "20961006113500",
+      "nethackrc": "OPTIONS=name:QuietWater,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n>g\n \u0017pool\n.      \u0012#wizmap\n  \u001bm."
+    }
+  ]
+}

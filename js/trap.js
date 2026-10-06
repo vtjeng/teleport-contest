@@ -233,7 +233,7 @@ import { next_to_u } from './apply_next_to_u.js';
 import { number_leashed } from './apply.js';
 import { done } from './end.js';
 import {
-    canseemon, feel_newsym, rank_of, map_invisible,
+    canseemon, feel_newsym, rank_of, map_invisible, under_water,
 } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -1395,7 +1395,7 @@ export async function drown(state = game) {
         }
         vision_recalc(2);
         await set_uinwater(true, state);
-        note_unported('vision.c under_water');
+        await under_water(1, state);
         state.vision_full_recalc = 1;
         return false;
     }
