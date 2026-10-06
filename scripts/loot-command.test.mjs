@@ -14,6 +14,7 @@ import {
     SELL_NORMAL,
 } from '../js/const.js';
 import { surface } from '../js/dungeon.js';
+import { PM_PONY } from '../js/monsters.js';
 import { add_to_container } from '../js/invent.js';
 import {
     container_at,
@@ -142,20 +143,19 @@ test('doloot routes an unreachable floor through cant_reach_floor',
             `You can't reach the ${surface(ux, uy, state)}.`);
     });
 
-test('doloot retains the source-named unskilled-rider output gap',
+test('doloot prints the source unskilled-rider refusal',
     async () => {
         const state = await heroOnCleanSquare();
         const { ux, uy } = state.u;
         placeFloorObjects(state, [{ otyp: LARGE_BOX, olocked: 0 }]);
-        state.u.usteed = {};
+        state.u.usteed = { data: state.mons[PM_PONY], mtame: 10 }; // A tame pony supplies y_monnam ownership.
         state.u.weapon_skills ??= [];
         state.u.weapon_skills[P_RIDING] = { skill: 0 };
         clearTtyMessageWindow(state);
-        const toplinesBefore = state.nhDisplay?.toplines ?? '';
 
         assert.equal(await doloot(state), 0);
-        assert.ok(state.unported.has('steed.c rider_cant_reach'));
-        assert.equal(state.nhDisplay?.toplines ?? '', toplinesBefore);
+        assert.equal(state.unported.has('steed.c rider_cant_reach'), false);
+        assert.equal(state.nhDisplay?.toplines, "You aren't skilled enough to reach from your pony.");
         assert.equal(state.level.objects[ux][uy]?.otyp, LARGE_BOX);
     });
 

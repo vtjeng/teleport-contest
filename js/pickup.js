@@ -9,6 +9,9 @@
 
 import {
     AUTOSELECT_SINGLE,
+    ARTICLE_THE,
+    SUPPRESS_SADDLE,
+    W_SADDLE,
     ALL_TYPES,
     ALL_TYPES_SELECTED,
     A_WIS,
@@ -127,7 +130,7 @@ import { autokey, pick_lock } from './lock.js';
 import { bot, flush_screen, newsym, obj_to_glyph } from './display.js';
 import { hliquid } from './do_name.js';
 import { ceiling, surface, surface_typ } from './dungeon.js';
-import { doaltarobj, dropy, revive_corpse, trycall } from './do.js';
+import { doaltarobj, dropCommandEnv, dropx, dropy, revive_corpse, trycall } from './do.js';
 import { exercise } from './attrib.js';
 import {
     can_reach_floor,
@@ -136,7 +139,7 @@ import {
     read_engr_at,
 } from './engrave.js';
 import { makesingular } from './fruit.js';
-import { christen_monst, Monnam, oname, rndmonnam } from './do_name.js';
+import { christen_monst, Monnam, mon_nam, oname, rndmonnam, x_monnam } from './do_name.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
 import { upstart } from './hacklib.js';
@@ -163,6 +166,7 @@ import {
     tally_BUCX,
     dfeature_at,
     getobj,
+    hold_another_object,
     merge_choice,
     let_to_name,
     look_here,
@@ -201,7 +205,8 @@ import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { regex_match } from './posixregex.js';
 import { in_rooms } from './rooms.js';
-import { rn2 } from './rng.js';
+import { rn2, rnd } from './rng.js';
+import { rider_cant_reach } from './steed.js';
 import {
     AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
     BRASS_LANTERN,
@@ -250,7 +255,7 @@ import { livelog_printf } from './pline.js';
 import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
 import { welded, weldmsg } from './wield.js';
-import { setuqwep, setuswapwep, setuwep } from './worn.js';
+import { extract_from_minvent, which_armor, setuqwep, setuswapwep, setuwep } from './worn.js';
 import { note_unported } from './unported.js';
 import { d } from './rng.js';
 import { canspotmon } from './display.js';
@@ -1741,11 +1746,9 @@ async function able_to_loot(x, y, looting, state) {
     const verb = looting ? 'loot' : 'tip';
     const trap = t_at(x, y, state);
     if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
-        // pickup.c:2049-2053. The rider helper's result is discarded; keep its
-        // exact remaining output gap instead of fabricating the message.
         const ridingSkill = state.u.weapon_skills?.[P_RIDING]?.skill ?? 0;
         if (state.u.usteed && ridingSkill < P_BASIC) {
-            note_unported('steed.c rider_cant_reach');
+            await rider_cant_reach(state);
         } else {
             await cant_reach_floor(
                 x, y, false, true, false, state, { pline: ttyPline },
@@ -3383,7 +3386,7 @@ export async function menu_loot(retry, put_in, state = game) {
 // get_adjacent_loc(), the underfoot redirect, the u.dz < 0 ceiling arm, and
 // the no-container messages.
 //
-// Not covered: Confusion/reverse_loot() (refuses), loot_mon() (refuses),
+// Not covered: Confusion/reverse_loot() (refuses),
 // cockatrice blind-no-glove arm (refuses).
 async function doloot_core(state) {
     let c = null;
@@ -3545,29 +3548,37 @@ async function doloot_core_lootmon(
             );
             return ECMD_TIME;
         }
-        // pickup.c:2309-2313. loot_mon() is unported.
+        // C's int/boolean pointers retain whether a query was asked and
+        // an item acquired, independently of the elapsed-time return.
+        const prevInquiry = { value: 0 };
+        const prevLoot = { value: false };
+        let lootedMon = false;
         const mtmp = m_at(cc.x, cc.y, state);
         if (mtmp) {
-            throw new UnsupportedPickupError(
-                'doloot_core: loot_mon() is unported',
-            );
+            timepassed = await loot_mon(mtmp, prevInquiry, prevLoot, state);
+            if (timepassed) lootedMon = true;
         }
         // pickup.c:2318-2319.
         if (ConfusionProp(state) || StunnedProp(state))
             timepassed = 1;
         // pickup.c:2325-2340.
-        if (!underfoot && container_at(cc.x, cc.y, false, state)) {
-            await ttyPline(
-                'You have to be at a container to loot it.',
-                state,
-            );
-        } else {
-            await ttyPline(
-                `You ${dont_find_anything} `
-                + `${!underfoot ? 't' : ''}here to loot.`,
-                state,
-            );
-            return timepassed ? ECMD_TIME : ECMD_OK;
+        if (!lootedMon) {
+            if (!underfoot && container_at(cc.x, cc.y, false, state)) {
+                if (mtmp) {
+                    await ttyPline(
+                        `You can't loot anything ${prevInquiry.value ? 'else ' : ''}there with ${mon_nam(mtmp, state)} in the way.`,
+                        state,
+                    );
+                    return timepassed ? ECMD_TIME : ECMD_OK;
+                }
+                await ttyPline('You have to be at a container to loot it.', state);
+            } else {
+                await ttyPline(
+                    `You ${dont_find_anything} ${prevInquiry.value || prevLoot.value ? 'else ' : ''}${!underfoot ? 't' : ''}here to loot.`,
+                    state,
+                );
+                return timepassed ? ECMD_TIME : ECMD_OK;
+            }
         }
     } else if (c !== 'y' && c !== 'n') {
         // pickup.c:2341-2343.
@@ -3590,6 +3601,55 @@ export async function doloot(state = game) {
         state.loot_reset_justpicked = false;
     }
     return res;
+}
+
+// C ref: pickup.c loot_mon() (2431-2481). The optional mutable values
+// correspond to int *passed_info and boolean *prev_loot; only the source
+// assignments change them, so a swallowed count remains distinct from inquiry.
+export async function loot_mon(mtmp, passedInfo = null, prevLoot = null,
+    state = game, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const env = objectGenerationEnv(dropCommandEnv(state, {
+        ...rawEnv,
+        state,
+        hooks: {
+            message,
+            encumberMessage: subject => encumber_msg(subject, { message }),
+            dropObject: (obj, actionEnv) => dropx(obj, actionEnv),
+            ...rawEnv.hooks,
+        },
+    }));
+    let timepassed = 0;
+    const saddle = mtmp && mtmp !== state.u.usteed
+        ? which_armor(mtmp, W_SADDLE, state) : null;
+    if (saddle) {
+        if (passedInfo) passedInfo.value = 1;
+        const query = `Do you want to remove the saddle from ${x_monnam(mtmp, ARTICLE_THE, null, SUPPRESS_SADDLE, false, state, env)}?`;
+        const c = await yn_function(query, 'ynq', 'n', true, state);
+        if (c === 'y'.charCodeAt(0)) {
+            if (nolimbs(state.youmonst.data)) {
+                await message("You can't do that without limbs.", state);
+                return 0;
+            }
+            if (saddle.cursed) {
+                await message(`You can't.  The saddle seems to be stuck to ${x_monnam(mtmp, ARTICLE_THE, null, SUPPRESS_SADDLE, false, state, env)}.`, state);
+                return 1;
+            }
+            await extract_from_minvent(mtmp, saddle, true, false, env);
+            if (state.flags.verbose)
+                await message(`You take ${thesimpleoname(saddle, state)} off of ${mon_nam(mtmp, state, env)}.`, state);
+            await hold_another_object(saddle, 'You drop %s!', donameFresh(saddle, state), null, env);
+            timepassed = (env.random?.rnd ?? rnd)(3);
+            if (prevLoot) prevLoot.value = true;
+        } else if (c === 'q'.charCodeAt(0)) {
+            return 0;
+        }
+    }
+    if (state.u.uswallow) {
+        const count = passedInfo ? passedInfo.value : 0;
+        timepassed = await pickup(count, state);
+    }
+    return timepassed;
 }
 
 // -----------------------------------------------------------------------
