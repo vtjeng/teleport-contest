@@ -3286,6 +3286,18 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-10-06T08:14:15.149Z"
+    },
+    {
+      "kind": "review",
+      "head": "b6eebea6a6527abfb7b23d161650310c0a232bda",
+      "auditedRange": "2d05002da753991b7e1281167e937a2e87b12644..b6eebea6a6527abfb7b23d161650310c0a232bda",
+      "level": "full",
+      "areas": [
+        "hero",
+        "objects"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-10-06T09:55:21.185Z"
     }
   ]
 }

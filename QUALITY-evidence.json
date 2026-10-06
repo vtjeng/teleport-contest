@@ -18167,5 +18167,136 @@
       ]
     },
     "recordedAt": "2026-10-06T08:14:15.149Z"
+  },
+  {
+    "kind": "review",
+    "head": "b6eebea6a6527abfb7b23d161650310c0a232bda",
+    "auditedRange": "2d05002da753991b7e1281167e937a2e87b12644..b6eebea6a6527abfb7b23d161650310c0a232bda",
+    "level": "full",
+    "areas": [
+      "hero",
+      "objects"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 17 raw, 13 deduplicated, 8 confirmed, 0 applied, 8 deferred, 5 rejected, 0 unverified. The pass reviewed the correction and the intervening quality and v23 preparation commits as separate frozen segments. Four source and lifecycle defects and four test or evidence gaps return to implementation. Concurrency ran because the planning and live replay lifecycle changed; performance was omitted because the delta adds no amplified work. No warning or unverified finding remains.",
+    "auditMetrics": {
+      "wallTimeSeconds": 2793,
+      "counts": {
+        "raw": 17,
+        "deduplicated": 13,
+        "confirmed": 8,
+        "applied": 0,
+        "deferred": 8,
+        "rejected": 5,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 4,
+        "tests": 4,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "Artifact damage estimation can bypass the planned random stream",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Planning state shares youmonst with the live game during rehumanization",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Fatal planned rehumanization can enter done without an attacker-bound planning handoff",
+          "foundBy": [
+            "correctness",
+            "variable-trace",
+            "concurrency"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Planned Magicbane cancellation can redraw the live game while reverting a shapechanger",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "deferred"
+        }
+      ],
+      "rejections": [
+        {
+          "summary": "Treat the missing cloneu recording as a new defect in the correction delta",
+          "counterEvidence": "No cloneu production code changed in this range. The corrected unit fixture now reaches the branch, and the committed recipe explicitly records that its 62-boundary matching replay stops before a metallic weapon hit or cloneu call. The route remains incomplete evidence rather than a new correction defect."
+        },
+        {
+          "summary": "Require the live replay to consume heroDeath.monsterId",
+          "counterEvidence": "The marker producer and live replay loop did not change in this range, and no mismatch was demonstrated under the ordered deterministic monster replay. The ID remains diagnostic metadata; Boolean heroDeath controls whether the ordinary live scan must replay the fatal turn."
+        },
+        {
+          "summary": "Rewrite the v23 throne target-miss comment because the trailing 2 was not consumed by a prompt",
+          "counterEvidence": "The comment explicitly states that C did not enter the prompt and describes 2 as an attempted answer, not as a consumed response or stat increase. The recording's ordinary result and unchanged screen after 2 agree with that target-miss description."
+        },
+        {
+          "summary": "Correct the burn-object first-mismatch claim as a committed range finding",
+          "counterEvidence": "The inaccurate expiry claim exists only in the external immutable worker packet. The committed recipe requires a timer callback and its recording contains both the warning callback and later expiry; neither committed file claims expiry was the first mismatch. The packet needs a separate acceptance-evidence correction."
+        },
+        {
+          "summary": "Correct the welded-weapon first-mismatch claim as a committed range finding",
+          "counterEvidence": "The inaccurate replacement-refusal claim exists only in the external immutable worker packet. The committed recipe accurately says that the route wields n and then attempts o; it does not claim which action diverges first. The packet needs a separate acceptance-evidence correction."
+        }
+      ],
+      "deferrals": [
+        {
+          "summary": "Artifact damage estimation can bypass the planned random stream",
+          "category": "production"
+        },
+        {
+          "summary": "Planning state shares youmonst with the live game during rehumanization",
+          "category": "production"
+        },
+        {
+          "summary": "Fatal planned rehumanization can enter done without an attacker-bound planning handoff",
+          "category": "production"
+        },
+        {
+          "summary": "Planned Magicbane cancellation can redraw the live game while reverting a shapechanger",
+          "category": "production"
+        },
+        {
+          "summary": "Magicbane monster-defender cancellation lacks an end-to-end injected-random test",
+          "category": "tests"
+        },
+        {
+          "summary": "Stormbringer fatal planning lacks a monster-action planner handoff test",
+          "category": "tests"
+        },
+        {
+          "summary": "The confused gold-detection v23 case stops before its claimed trap-detection branch",
+          "category": "tests"
+        },
+        {
+          "summary": "The underwater v23 case includes an unrelated trailing unknown command",
+          "category": "tests"
+        }
+      ],
+      "readiness": {
+        "boundary": "The pass split the exact range 2d05002da753991b7e1281167e937a2e87b12644..b6eebea6a6527abfb7b23d161650310c0a232bda into the non-code quality and v23 preparation segment through 5581f844 and the B112 correction segment through b6eebea6. The correction changes artifact.c spec_dbon, Mb_hit and artifact_hit planning paths, zap.c cancel_monst, and exper.c losexp; focused tests execute each changed branch, while the matching blocked clone recipe does not execute cloneu. The v23 segment contains paired input-only recipes and C recordings and remains unadmitted and unscored.",
+        "sourceReview": "Reviewers traced every changed correction function and its production callers against artifact.c, zap.c and exper.c, then traced the exposed weapon.c dmgval, polyself.c rehumanize, and mon.c normal_shape paths plus planningState ownership. They checked gameplay and display random order, message order, cloned versus live state, async redraws, and fatal lifecycle boundaries. The unchanged cancel_monst clay-golem kill note_unported gap remains a discarded C return path; no changed Unsupported error or unlisted value-bearing gap was found.",
+        "completeness": "No note_unported call in the reviewed range supplies a value consumed by C. The only relevant cancellation kill gap has a discarded result in C and is not used by Magicbane. The confirmed issues concern environment, state, death, redraw, and evidence propagation rather than a placeholder value."
+      },
+      "optionalFinders": {
+        "concurrency": "Enabled because the delta changes asynchronous planning and live replay lifecycle behavior.",
+        "performance": "Disabled because the delta adds no work beyond source-required calls and bounded environment propagation."
+      },
+      "warnings": [],
+      "unverified": []
+    },
+    "recordedAt": "2026-10-06T09:55:21.185Z"
   }
 ]
