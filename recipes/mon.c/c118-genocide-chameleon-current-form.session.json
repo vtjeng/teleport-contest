@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent current-form-only genocide: wizard monpolycontrol gives a created chameleon newt form, then a newt genocide forces it to choose lichen. The original chameleon species is not genocided. This reaches newcham(NULL,NC_SHOW_MSG) inside the sweep.",
+  "segments": [
+    {
+      "seed": 118261309,
+      "datetime": "21120113131300",
+      "nethackrc": "OPTIONS=name:GenocideSweep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,monpolycontrol,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile chameleon\nnewt\n\u0017uncursed scroll of genocide\nro  newt\n lichen\n  "
+    }
+  ]
+}

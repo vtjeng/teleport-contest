@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent level-arrival route: leave a hostile newt on level one, genocide its species on level two, then return so goto_level removes the retained genocided monster after losedogs.",
+  "segments": [
+    {
+      "seed": 118261305,
+      "datetime": "21101011111100",
+      "nethackrc": "OPTIONS=name:GenocideSweep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile newt\n\u00162\n\u0017uncursed scroll of genocide\nrn  newt\n\u00161\n"
+    }
+  ]
+}

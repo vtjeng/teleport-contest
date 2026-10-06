@@ -6778,6 +6778,43 @@ export function kill_eggs(obj_list, rawEnv = {}) {
     }
 }
 
+// C ref: mon.c kill_genocided_monsters() (5639-5677). Save the next
+// monster before death or shapechange; both operations can change its state.
+// Egg timer cancellation remains owned by kill_eggs()'s timeout.c gap.
+export async function kill_genocided_monsters(state = game, env = {}) {
+    const deathEnv = {
+        ...env,
+        state,
+        random: env.random ?? { d, rn1, rn2, rnd, rne },
+        message: env.message ?? ttyPline,
+        // Preserve the existing death owner's unsupported-operation boundary.
+        // Ordinary deaths need no missing operation; special branches still
+        // require a caller-provided implementation or refusal.
+        unsupported: env.unsupported
+            ?? (reason => requiredKillOperation(env, 'unsupported')(reason)),
+    };
+    let next;
+    for (let monster = state.level.monlist; monster; monster = next) {
+        next = monster.nmon;
+        if (monster.mhp <= 0) continue; // C DEADMONSTER().
+        const mndx = monsndx(monster.data);
+        const killCham = ismnum(monster.cham)
+            && (state.svm.mvitals[monster.cham].mvflags & G_GENOD);
+        if ((state.svm.mvitals[mndx].mvflags & G_GENOD) || killCham) {
+            if (ismnum(monster.cham) && !killCham)
+                await newcham(monster, null, { ...deathEnv, ncflags: NC_SHOW_MSG });
+            else
+                await mondead(monster, state, deathEnv);
+        }
+        if (monster.minvent) kill_eggs(monster.minvent, { ...env, state });
+    }
+    kill_eggs(state.invent, { ...env, state });
+    // C fobj is level.objlist; the per-square object grid is a separate index.
+    kill_eggs(state.level.objlist, { ...env, state });
+    kill_eggs(state.gm?.migrating_objs, { ...env, state });
+    kill_eggs(state.level.buriedobjlist, { ...env, state });
+}
+
 // C ref: mon.c golemeffects() (5680-5708). Elemental damage can heal or slow
 // a flesh or iron golem. The speed mutation is owned by worn.c
 // mon_adjust_speed(); the source call's return value is discarded.

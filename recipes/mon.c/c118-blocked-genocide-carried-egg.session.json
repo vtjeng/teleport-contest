@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED: timeout.c kill_egg is still an explicit discarded-call gap in mon.c kill_eggs. The sweep can locate carried or nested genocided eggs, but this recipe is not evidence for hatch-timer cancellation or later egg behavior. Uses independently chosen Rogue setup, where successive wished objects occupy g and h.",
+  "segments": [
+    {
+      "seed": 118261311,
+      "datetime": "21130214141400",
+      "nethackrc": "OPTIONS=name:GenocideSweep,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017cockatrice egg\n\u0017uncursed scroll of genocide\nrh  cockatrice\n...."
+    }
+  ]
+}

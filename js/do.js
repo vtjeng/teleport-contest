@@ -3,8 +3,8 @@
 // C refs: do.c -- boulder_hits_pool(), dodrop(), flooreffects(), canletgo(), drop(), dosinkring(),
 // teleport_sink(), dropx(), dropy(), dropz(), trycall(), u_stuck_cannot_go(), dodown(), doup(),
 // goto_level(), u_collide_m(), temperature_change_msg() and
-// legs_in_no_shape(), set_wounded_legs(); dokick.c obj_delivery(); mon.c
-// kill_genocided_monsters(); questpgr.c deliver_splev_message().
+// legs_in_no_shape(), set_wounded_legs(), heal_legs(); dokick.c obj_delivery();
+// questpgr.c deliver_splev_message().
 
 import {
     ACH_ASTR,
@@ -40,7 +40,6 @@ import {
     FUMBLING,
     GETOBJ_ALLOWCNT,
     GETOBJ_PROMPT,
-    G_GENOD,
     GRAVE,
     HAND,
     HALF_PHDAM,
@@ -215,7 +214,7 @@ import { mklev } from './mklev.js';
 import { makemon } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
 import {
-    healmon, m_in_air, m_into_limbo, mnexto, mondied, newcham, pm_to_cham, set_ustuck,
+    healmon, kill_genocided_monsters, m_in_air, m_into_limbo, mnexto, mondied, newcham, pm_to_cham, set_ustuck,
     wake_nearto,
 } from './mon.js';
 import { m_at } from './monst.js';
@@ -2626,7 +2625,7 @@ export async function goto_level(
     if (Punished(state)) await placebc(state);
     obj_delivery(false, state);
     await losedogs({ state });
-    kill_genocided_monsters(state);
+    await kill_genocided_monsters(state);
     // "Expire all timers that have gone off while away. Must be after
     // migrating monsters and objects are delivered."
     // The arrival is never a dry run, so a rotting floor corpse draws through
@@ -2841,21 +2840,6 @@ export async function goto_level(
 function obj_delivery(near_hero, state = game) {
     if (state.gm?.migrating_objs) {
         note_unported('dokick.c obj_delivery');
-    }
-}
-
-// C ref: mon.c kill_genocided_monsters(), which goto_level() calls so that a
-// monster of a genocided species that was migrating dies as it arrives.
-//
-// Nothing genocides a species in this port: svm.mvitals[].mvflags gains
-// G_GENOD only in read.c do_genocide(), which no ported command reaches. The
-// kill_eggs() sweep at the end of C's function selects on the same flag.
-function kill_genocided_monsters(state = game) {
-    for (let index = 0; index < (state.mvitals?.length ?? 0); ++index) {
-        if (state.mvitals[index].mvflags & G_GENOD) {
-            note_unported('mon.c kill_genocided_monsters');
-            return;
-        }
     }
 }
 

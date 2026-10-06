@@ -214,7 +214,7 @@ import {
 import { monster_census } from './minion.js';
 import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
 import {
-    flash_mon, mongone, setmangry, wake_nearto, wakeup,
+    flash_mon, kill_genocided_monsters, mongone, setmangry, wake_nearto, wakeup,
 } from './mon.js';
 import {
     MAXMCLASSES, S_goodpos,
@@ -2737,8 +2737,8 @@ const GENOCIDE_ONTHRONE = 4;
 
 // C ref: read.c do_class_genocide() (2638-2820). The class parser fallback,
 // retry accounting, eligibility scan, and self-genocide order follow C. Its
-// wizard `*` branch calls the admitted mon.c:mongone() path; the distinct
-// kill_genocided_monsters() calls remain a named source gap.
+// wizard `*` branch calls mon.c mongone(); ordinary species updates call
+// the shared mon.c kill_genocided_monsters() sweep in source order.
 export async function do_class_genocide(state = game, env = {}) {
     let llDone = false;
     let feelDead = false;
@@ -2857,7 +2857,7 @@ export async function do_class_genocide(state = game, env = {}) {
                     llDone = true;
                 }
                 mvitals[i].mvflags |= G_GENOD | G_NOCORPSE;
-                note_unported('mon.c kill_genocided_monsters');
+                await kill_genocided_monsters(state, env);
                 await update_inventory({ state });
                 await ttyPline(`Wiped out all ${name}.`, state);
                 if (Upolyd(state.u)
@@ -3082,7 +3082,7 @@ export async function do_genocide(how, state = game) {
             const { rehumanize } = await import('./polyself.js');
             await rehumanize(state);
         }
-        note_unported('mon.c kill_genocided_monsters');
+        await kill_genocided_monsters(state);
         await update_inventory({ state });
     } else {
         let count = 0;

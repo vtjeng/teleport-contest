@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED: wizcmds.c wiz_makemap has no JavaScript command dispatcher/owner. cmd.c makemap_prepost(false) is wired to kill_genocided_monsters; this recipe supplies the still-unported enclosing command and is not passing runtime evidence.",
+  "segments": [
+    {
+      "seed": 118261307,
+      "datetime": "21111212121200",
+      "nethackrc": "OPTIONS=name:GenocideSweep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " #wizmakemap\n"
+    }
+  ]
+}

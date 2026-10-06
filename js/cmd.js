@@ -300,7 +300,7 @@ import {
     UnsupportedPrayerError,
 } from './pray.js';
 import { doextversion } from './version.js';
-import { UnsupportedHideError } from './mon.js';
+import { kill_genocided_monsters, UnsupportedHideError } from './mon.js';
 import { dosave, dosave0, savelev } from './save.js';
 import {
     dohelp,
@@ -2592,7 +2592,7 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
         state,
     );
     await losedogs({ state });
-    note_unported('mon.c kill_genocided_monsters');
+    await kill_genocided_monsters(state);
     if (m_at(state.u.ux, state.u.uy, state))
         note_unported('do.c u_collide_m');
     initrack(state);

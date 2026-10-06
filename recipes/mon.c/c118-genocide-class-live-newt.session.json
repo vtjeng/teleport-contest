@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent blessed class route: a live newt is in the lizard class selected by its source symbol colon. The three pager spaces finish all class updates.",
+  "segments": [
+    {
+      "seed": 118261303,
+      "datetime": "21090810101000",
+      "nethackrc": "OPTIONS=name:GenocideSweep,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile newt\n\u0017blessed scroll of genocide\nrn  :\n   "
+    }
+  ]
+}
