@@ -178035,7 +178035,7 @@
     {
       "id": "port-eat-doeat-resumed-meals-v20-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete resumed meals and source-ordered eating helpers",
       "cFile": "eat.c",
       "sessions": [
@@ -178049,15 +178049,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "55140c697b03c01b3196f5beb9ccd84052d3baa8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "doeat",
           "line": 2817,
           "endLine": 3087,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -178071,15 +178074,15 @@
           "endLine": 395,
           "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "do_reset_eat",
           "line": 422,
           "endLine": 452,
-          "declared": false,
+          "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "eatcorpse",
@@ -178087,7 +178090,7 @@
           "endLine": 2021,
           "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "fprefx",
@@ -178095,15 +178098,15 @@
           "endLine": 2220,
           "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "edibility_prompts",
           "line": 2627,
           "endLine": 2733,
-          "declared": false,
+          "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "eatfood",
@@ -178111,7 +178114,7 @@
           "endLine": 543,
           "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "bite",
@@ -178119,7 +178122,7 @@
           "endLine": 3162,
           "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "start_eating",
@@ -178127,7 +178130,7 @@
           "endLine": 2077,
           "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -178294,7 +178297,438 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doeat",
+            "implementation": "js/eat.js",
+            "symbol": "doeat",
+            "sourceReview": "Read complete eat.c:2817-3084 in definition order and checked short-circuit gates, danger prompts, object access, nonfood/tin branches, conduct order, resumed and newly encountered partly eaten meals, mandatory rot draws, reqtime rounding, nmod and canchoke. Removed resumed/partly-eaten/worn/artifact refusals. Returned edibility_prompts, touchfood, eatcorpse and fprefx are wired and audited in this family. Existing nonfood/tin/bar helpers retained; corpse pre-bite cprefx still has inherited outside-scope petrification/Rider gaps. No session/input special cases.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runEatCommand",
+                "source": "cmd.c:1712-1713 eat command registry dispatch; js/cmd.js runEatCommand -> doeat"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/eat-edibility.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-food-smell-decline-apple.session.json",
+              "recordings/eat.c/b114-food-smell-decline-apple-terse.session.json",
+              "recordings/eat.c/b114-first-bite-human-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-orc-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-elf-lembas.session.json",
+              "recordings/eat.c/b114-floor-orange-stack.session.json",
+              "recordings/eat.c/b114-meal-reset.session.json",
+              "recordings/eat.c/b114-eat-brown-pudding-glob.session.json",
+              "recordings/eat.c/b114-eat-gray-ooze-glob.session.json",
+              "recordings/eat.c/mildly-rotten-jackal.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "cursed-apple-fpostfx-after-rottenfood-v20",
+                "segment": 0,
+                "fromStep": 20,
+                "throughStep": 30,
+                "source": "cmd.c:doeat -> eat.c:doeat resumed victual -> touchfood -> start_eating -> bite -> done_eating -> fpostfx cursed APPLE"
+              }
+            ],
+            "checkedAt": "55140c697b03c01b3196f5beb9ccd84052d3baa8"
+          },
+          {
+            "name": "touchfood",
+            "implementation": "js/eat.js",
+            "symbol": "touchfood",
+            "sourceReview": "Read complete eat.c:360-386. Floor stacks split off quan-1 while retaining original singleton; inventory stacks keep returned singleton. COST_BITE precedes oeaten initialization; freeinv precedes count check; SELL_DONTSELL/dropy/SELL_NORMAL order and OBJ_DELETED null return preserved. Deleted floor/full-pack guards. mkobj.c costly_alteration is a discarded-return gap recorded by note_unported instead of an injected no-op when its billed/floor hook is needed.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:2935,2960 touchfood return controls resumed/fresh meal"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "do_reset_eat",
+                "source": "eat.c:429 refresh interrupted meal object"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eatcorpse",
+                "source": "eat.c:1952 after rottenfood faint"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/eat-edibility.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-first-bite-human-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-orc-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-elf-lembas.session.json",
+              "recordings/eat.c/b114-floor-orange-stack.session.json",
+              "recordings/eat.c/b114-meal-reset.session.json",
+              "recordings/eat.c/b114-eat-brown-pudding-glob.session.json",
+              "recordings/eat.c/b114-eat-gray-ooze-glob.session.json",
+              "recordings/eat.c/mildly-rotten-jackal.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "cursed-apple-fpostfx-after-rottenfood-v20",
+                "segment": 0,
+                "fromStep": 20,
+                "throughStep": 30,
+                "source": "cmd.c:doeat -> eat.c:doeat resumed victual -> touchfood -> start_eating -> bite -> done_eating -> fpostfx cursed APPLE"
+              }
+            ],
+            "checkedAt": "55140c697b03c01b3196f5beb9ccd84052d3baa8"
+          },
+          {
+            "name": "do_reset_eat",
+            "implementation": "js/eat.js",
+            "symbol": "do_reset_eat",
+            "sourceReview": "Read complete eat.c:422-449. Clears object id before touchfood; stores returned piece/id and recalculates weight; resets fullwarn/eating/doreset together without clearing canchoke; awaits stop_occupation then newuhs(FALSE). Added real implementation and wired abandoned-meal/bite paths, replacing refusals.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "bite",
+                "source": "eat.c:3143 reset pending meal"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eatfood",
+                "source": "eat.c:528 missing/local food"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:2942,2966,3039 failed touchfood/early fprefx"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/eat-edibility.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-meal-reset.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [],
+            "checkedAt": "55140c697b03c01b3196f5beb9ccd84052d3baa8"
+          },
+          {
+            "name": "eatcorpse",
+            "implementation": "js/eat.js",
+            "symbol": "eatcorpse",
+            "sourceReview": "Read complete eat.c:1855-2018. Existing conduct, rot divisor/RNG order, taint vs stone/slime gate, resistance, acid/poison/mild sickness, weight delay, rottenfood return and flavor expression audit. Removed glob/stoneable preguards that did not exist in C. Globs preserve source rotted draw and object-weight delay/nutrition. Awaited touchfood refresh. Petrification itself belongs to later void cprefx and retains its inherited unported path outside this unit; prior eatcorpse completion evidence needs reconciliation.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:2973 eatcorpse return distinguishes normal, fainted, consumed corpse"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/eat-edibility.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-eat-brown-pudding-glob.session.json",
+              "recordings/eat.c/b114-eat-gray-ooze-glob.session.json",
+              "recordings/eat.c/mildly-rotten-jackal.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [],
+            "checkedAt": "55140c697b03c01b3196f5beb9ccd84052d3baa8"
+          },
+          {
+            "name": "fprefx",
+            "implementation": "js/eat.js",
+            "symbol": "fprefx",
+            "sourceReview": "Read complete eat.c:2099-2213. Implemented pyrolisk egg consumption/explode return, stale egg, hallucinating hungry ration, tripe race/form/experience mandatory rn2 and conditional rn1, lembas, meat/default feedback, garlic fallthrough, fruit, cursed-apple deferred effect and hallucinating pear rnd(100) thresholds 75/99. Removed old guards. Inherited Macintosh APPLE compile arm is retained for historical recordings and existing tests; current fresh Linux recorder selects UNIX Core dumped instead. Blocked independent apple probe retains this build-provenance discrepancy; no gameplay special case was added. Other whole-source arms are translated directly.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:3038 fresh noncorpse first bite consumes bool return"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/eat-edibility.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-first-bite-human-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-orc-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-elf-lembas.session.json",
+              "recordings/eat.c/b114-floor-orange-stack.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [],
+            "checkedAt": "55140c697b03c01b3196f5beb9ccd84052d3baa8"
+          },
+          {
+            "name": "edibility_prompts",
+            "implementation": "js/eat.js",
+            "symbol": "edibility_prompts",
+            "sourceReview": "Read complete eat.c:2627-2730 and youprop.h resistance macros. Source-ordered taint, stone/slime, resistant taint, rotten, poison, cursed apple, monk, acid, rustproof, vegan and vegetarian checks. Worst-case age divisor is 10 with no RNG; curse/bless adjustments and singular/plural question preserved; returns 0 for no prompt, 1 for n, 2 otherwise. Production doeat consumes smell charge only after a prompt.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:2835 food-detection danger check"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/eat-edibility.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-food-smell-decline-apple.session.json",
+              "recordings/eat.c/b114-food-smell-decline-apple-terse.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [],
+            "checkedAt": "55140c697b03c01b3196f5beb9ccd84052d3baa8"
+          },
+          {
+            "name": "eatfood",
+            "implementation": "js/eat.js",
+            "symbol": "eatfood",
+            "sourceReview": "Read complete eat.c:519-541. Floor-local food validation precedes reset; absent food runs do_reset_eat and returns0; inactive meal returns0; increment usedtime before bite; completion calls done_eating(TRUE). Removed missing/abandoned meal refusal. Runtime occupation remains source-wired.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "start_eating",
+                "source": "eat.c:2073 set_occupation(eatfood) via js/cmd.js set_occupation"
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c occupation callback invokes eatfood"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/eat-edibility.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-first-bite-human-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-orc-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-elf-lembas.session.json",
+              "recordings/eat.c/b114-floor-orange-stack.session.json",
+              "recordings/eat.c/b114-meal-reset.session.json",
+              "recordings/eat.c/b114-eat-brown-pudding-glob.session.json",
+              "recordings/eat.c/b114-eat-gray-ooze-glob.session.json",
+              "recordings/eat.c/mildly-rotten-jackal.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [],
+            "checkedAt": "55140c697b03c01b3196f5beb9ccd84052d3baa8"
+          },
+          {
+            "name": "bite",
+            "implementation": "js/eat.js",
+            "symbol": "bite",
+            "sourceReview": "Read complete eat.c:3133-3161. Choke before reset, reset before nutrition; force_save_hs bracket, negative/positive nmod update and recalc_wt order retained. Replaced do_reset_eat refusal with awaited call and return0. Existing fatal JS sentinel preserves C nonreturning done path.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "eatfood",
+                "source": "eat.c:534 occupation bite"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "start_eating",
+                "source": "eat.c:2049 initial or resumed bite"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/eat-edibility.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-first-bite-human-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-orc-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-elf-lembas.session.json",
+              "recordings/eat.c/b114-floor-orange-stack.session.json",
+              "recordings/eat.c/b114-meal-reset.session.json",
+              "recordings/eat.c/b114-eat-brown-pudding-glob.session.json",
+              "recordings/eat.c/b114-eat-gray-ooze-glob.session.json",
+              "recordings/eat.c/mildly-rotten-jackal.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "cursed-apple-fpostfx-after-rottenfood-v20",
+                "segment": 0,
+                "fromStep": 20,
+                "throughStep": 30,
+                "source": "cmd.c:doeat -> eat.c:doeat resumed victual -> touchfood -> start_eating -> bite -> done_eating -> fpostfx cursed APPLE"
+              }
+            ],
+            "checkedAt": "55140c697b03c01b3196f5beb9ccd84052d3baa8"
+          },
+          {
+            "name": "start_eating",
+            "implementation": "js/eat.js",
+            "symbol": "start_eating",
+            "sourceReview": "Read complete eat.c:2022-2074. Clears fullwarn/doreset, sets eating, checks meal piece/eating after existing cprefx call, old/new nomovemsg preservation across choke, usedtime increments, completion flag and set_occupation order retained. Added source post-cprefx continuation check. cprefx petrification/Rider refusals are inherited outside-family gaps, not claimed ported here.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:2950 resumed meal;3079 fresh meal"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/eat-edibility.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-first-bite-human-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-orc-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-elf-lembas.session.json",
+              "recordings/eat.c/b114-floor-orange-stack.session.json",
+              "recordings/eat.c/b114-meal-reset.session.json",
+              "recordings/eat.c/b114-eat-brown-pudding-glob.session.json",
+              "recordings/eat.c/b114-eat-gray-ooze-glob.session.json",
+              "recordings/eat.c/mildly-rotten-jackal.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "cursed-apple-fpostfx-after-rottenfood-v20",
+                "segment": 0,
+                "fromStep": 20,
+                "throughStep": 30,
+                "source": "cmd.c:doeat -> eat.c:doeat resumed victual -> touchfood -> start_eating -> bite -> done_eating -> fpostfx cursed APPLE"
+              }
+            ],
+            "checkedAt": "55140c697b03c01b3196f5beb9ccd84052d3baa8"
+          }
+        ],
+        "entryPointReview": "Active entry points are the eat command (inventory, floor, resumed meals and detection-enabled danger checks) and the eatfood occupation. Independent recipes cover declined cursed food, terse option variation, human/orc tripe, elf lembas, floor orange stack, globs and a satiated meal reset; admitted v20 covers resumed cursed-apple completion. No source caller is declared compile-time inactive. cprefx remains inherited partial behavior outside the selected family. The normal APPLE first-bite platform branch has incompatible historical MACOS and current fresh UNIX evidence, retained in a blocked recipe; source/provenance reconciliation is still required for that arm. No failing recording is added to regression corpus.",
+        "entryPoints": [
+          {
+            "name": "eat command inventory and floor food",
+            "functions": [
+              "doeat",
+              "touchfood",
+              "eatcorpse",
+              "fprefx",
+              "start_eating",
+              "bite"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-first-bite-human-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-orc-tripe.session.json",
+              "recordings/eat.c/b114-first-bite-elf-lembas.session.json",
+              "recordings/eat.c/b114-floor-orange-stack.session.json",
+              "recordings/eat.c/b114-eat-brown-pudding-glob.session.json",
+              "recordings/eat.c/b114-eat-gray-ooze-glob.session.json",
+              "recordings/eat.c/mildly-rotten-jackal.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "food detection danger check before eating",
+            "functions": [
+              "doeat",
+              "edibility_prompts"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-food-smell-decline-apple.session.json",
+              "recordings/eat.c/b114-food-smell-decline-apple-terse.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "resume interrupted meal",
+            "functions": [
+              "doeat",
+              "touchfood",
+              "start_eating",
+              "bite"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "cursed-apple-fpostfx-after-rottenfood-v20",
+                "segment": 0,
+                "fromStep": 20,
+                "throughStep": 30,
+                "source": "cmd.c:doeat -> eat.c:doeat resumed victual -> touchfood -> start_eating -> bite -> done_eating -> fpostfx cursed APPLE"
+              }
+            ]
+          },
+          {
+            "name": "meal occupation and pending reset",
+            "functions": [
+              "eatfood",
+              "bite",
+              "do_reset_eat",
+              "touchfood"
+            ],
+            "recordings": [
+              "recordings/eat.c/b114-meal-reset.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "55140c697b03c01b3196f5beb9ccd84052d3baa8",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
