@@ -170473,13 +170473,13 @@
     {
       "id": "port-timeout-slime-dialogue-v18-20261005",
       "kind": "file-port",
-      "status": "parked",
+      "status": "closed",
       "summary": "Port green-slime transformation dialogue and its pure condition helpers",
       "cFile": "timeout.c",
       "sessions": [
         "synthetic/v18/green-slime-infects-wizard-c59-rest-prefix-corrected"
       ],
-      "selectionReason": "The current v18 mismatch reaches timeout.c slime_dialogue from nh_timeout while Slimed is active; port the complete dialogue and source-defined pure predicates used by its branches.",
+      "selectionReason": "B107 passive dependency is accepted; integrate the ready B108 timeout dialogue delivery.",
       "detail": "Implement timeout.c slime_dialogue in source order and wire its active nh_timeout caller. The admitted v18 case provides full runtime evidence through transformation; pure helpers are pinned to their C definitions. Keep makemon.c private pm_to_cham behavior outside this source scope.",
       "openedAt": "1e3423556e1720f067b698daaa0fcd06fbdf6339",
       "openStanding": {
@@ -170487,15 +170487,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "slime_dialogue",
           "line": 389,
           "endLine": 447,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -170509,7 +170512,7 @@
           "endLine": 3960,
           "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "can_reach_floor",
@@ -170517,7 +170520,7 @@
           "endLine": 217,
           "declared": true,
           "sourceFile": "engrave.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "pm_to_cham",
@@ -170525,7 +170528,7 @@
           "endLine": 563,
           "declared": true,
           "sourceFile": "mon.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "uteetering_at_seen_pit",
@@ -170533,7 +170536,7 @@
           "endLine": 6659,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "uescaped_shaft",
@@ -170541,7 +170544,7 @@
           "endLine": 6667,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -170559,7 +170562,7 @@
         }
       },
       "activeStanding": {
-        "sha": "c00138cce8789366f1ef76d14390861aa1b57068",
+        "sha": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1",
         "screens": 11405,
         "rng": 792838
       },
@@ -170819,7 +170822,203 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "The immutable B108 delivery declares parked passive_obj delivery 48c24ad0 as an unaccepted ancestry dependency. Current v19 Energy Vortex and Spotted Jelly mismatches now make the complete uhitm.c passive/passive_obj family actionable; accept that dependency first, then resume this fully matching timeout dialogue delivery."
+      "parkedReason": "The immutable B108 delivery declares parked passive_obj delivery 48c24ad0 as an unaccepted ancestry dependency. Current v19 Energy Vortex and Spotted Jelly mismatches now make the complete uhitm.c passive/passive_obj family actionable; accept that dependency first, then resume this fully matching timeout dialogue delivery.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "slime_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "slime_dialogue",
+            "sourceReview": "Compared the complete timeout.c:slime_dialogue() definition at 388-443 and slime_texts[] at 380-386. It reads (Slimed & TIMEOUT), derives i=t/2, updates the self disguise and calls newsym when t==1, then on odd t selects the reverse-indexed text and replaces “limbs” for nolimbs forms. For i==4, C emits the green-color row only under !Blind; include/youprop.h defines Blind as ((HBlinded || EBlinded) && !BBlinded), so the gate includes worn W_TOOL blindness and respects blockers. JS uses canonical heroIsBlind(state), not the property timeout alone. It then switches on i in source order: case 3 clears intrinsic HFast, calls Popeye(SLIMED), stops occupation only when false, and calls nomul only for positive multi; case 2 raises a short deaf timeout to five; case 1 clears active stoning; the unconditional exercise(A_DEX,FALSE) is last. JS assigns strsubst’s returned immutable string, passes separate gameplay/display RNG and output callbacks, and leaves the active Slimed check in nh_timeout. The source function emits messages and changes hero state, so it is impure. No whole nh_timeout completion is claimed.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout:625-626 invokes slime_dialogue only when Slimed is active; js/timeout.js:1290-1300 awaits the helper with the current state, gameplay/display RNG and message callbacks."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurn",
+                "source": "allmain.c:moveloop_core:269-274 calls nh_timeout once per turn; js/allmain.js:898 passes the turn state into nh_timeout."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "timeout.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "segment": 0,
+                "fromStep": 64,
+                "throughStep": 106,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> timeout.c:slime_dialogue; repeated active Slimed countdowns include the unconditional attrib.c:exercise(A_DEX,FALSE), and step 68 enters Popeye(SLIMED)"
+              }
+            ],
+            "checkedAt": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1"
+          },
+          {
+            "name": "Popeye",
+            "implementation": "js/eat.js",
+            "symbol": "Popeye",
+            "sourceReview": "Compared the complete eat.c:Popeye() definition at 3920-3955. It first compares the current occupation with opentin, then checks carried status; a non-carried tin must be at the hero square and can_reach_floor(TRUE). An unknown accessible tin returns TRUE before threat dispatch. Known tins preserve the HUNGER species/spinach rule, STONED valid-species and lizard/acidic rule, SLIMED polyfood result, and FALSE for SICK, VOMITING and default. polyfood is the include/obj.h:321-324 macro: ofood, a valid corpsenm, then pm_to_cham or dmgtype(AD_POLY). JS keeps this as a pure boolean function and uses the same pointer marker for opentin. There are no RNG calls, messages or state writes.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "slime_dialogue",
+                "source": "timeout.c:slime_dialogue:427 calls Popeye(SLIMED) in switch case 3; js/timeout.js:773 uses its Boolean before stop_occupation."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "vomiting_dialogue",
+                "source": "timeout.c:vomiting_dialogue:216 calls Popeye(VOMITING); js/timeout.js:924 consumes its Boolean before stop_occupation."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/eat-tin.test.mjs",
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "eat.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "segment": 0,
+                "fromStep": 64,
+                "throughStep": 106,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> timeout.c:slime_dialogue; repeated active Slimed countdowns include the unconditional attrib.c:exercise(A_DEX,FALSE), and step 68 enters Popeye(SLIMED)"
+              }
+            ],
+            "checkedAt": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1"
+          },
+          {
+            "name": "can_reach_floor",
+            "implementation": "js/engrave.js",
+            "symbol": "can_reach_floor",
+            "sourceReview": "Compared the complete engrave.c:can_reach_floor() body at 185-214. It returns FALSE in C order for swallowing, a non-sticking hero held by AT_HUGS, levitation outside air/water levels, unskilled riding and ceiling hiding. Flying or MZ_HUGE returns TRUE before pit lookup. Otherwise check_pit gates t_at and the two known-trap predicates; the default result is TRUE. The helper only reads game state and returns a Boolean; its callees here are pure helpers/macros.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "Popeye",
+                "source": "eat.c:Popeye:3929-3930 checks can_reach_floor(TRUE) only for a non-carried tin that is at the hero square; js/eat.js:1154-1156 preserves the short-circuit order."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/engraving.test.mjs",
+              "scripts/eat-tin.test.mjs",
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "engrave.c",
+            "synthetic": [],
+            "checkedAt": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1"
+          },
+          {
+            "name": "pm_to_cham",
+            "implementation": "js/mon.js",
+            "symbol": "pm_to_cham",
+            "sourceReview": "Compared the complete mon.c:pm_to_cham() body at 533-546. It initializes NON_PM, checks ismnum(mndx), then returns mndx only when mons[mndx] satisfies is_shapeshifter; otherwise it returns NON_PM. These checks only read species data and return an integer. The B108 path reaches it through eat.c:Popeye -> include/obj.h:polyfood for a known SLIMED tin; JS Popeye calls the canonical mon.js implementation in the same short-circuit position. The separate makemon.c:makemon:1357 caller maps to the unchanged private js/makemon_create.js:pm_to_cham helper; that caller boundary is explicitly outside B108.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "Popeye",
+                "source": "eat.c:Popeye:3946-3947 returns polyfood(otin); include/obj.h:321-324 expands polyfood to pm_to_cham((obj)->corpsenm) != NON_PM before dmgtype(AD_POLY); js/eat.js:1170-1175 calls mon.js:pm_to_cham at that branch."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/level-arrival.test.mjs",
+              "scripts/eat-tin.test.mjs",
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mon.c",
+            "synthetic": [],
+            "checkedAt": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1"
+          },
+          {
+            "name": "uteetering_at_seen_pit",
+            "implementation": "js/trap.js",
+            "symbol": "uteetering_at_seen_pit",
+            "sourceReview": "Compared the complete trap.c:uteetering_at_seen_pit() body at 6647-6653. It returns TRUE only for a non-null pit, seen trap, trap coordinates equal to the hero coordinates, and a hero not still caught in a TT_PIT. It reads trap and hero state and returns a Boolean; it has no RNG, output or mutation.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "can_reach_floor",
+                "source": "engrave.c:can_reach_floor:209-210 calls uteetering_at_seen_pit(t) before uescaped_shaft(t); js/engrave.js:1170-1173 preserves this order."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dodown.test.mjs",
+              "scripts/engraving.test.mjs",
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1"
+          },
+          {
+            "name": "uescaped_shaft",
+            "implementation": "js/trap.js",
+            "symbol": "uescaped_shaft",
+            "sourceReview": "Compared the complete trap.c:uescaped_shaft() body at 6659-6664. It returns TRUE only for a non-null seen hole/trap door at the hero coordinates; unlike the pit helper it does not test u.utrap. It reads trap and hero state and returns a Boolean; it has no RNG, output or mutation.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "can_reach_floor",
+                "source": "engrave.c:can_reach_floor:209-210 checks uescaped_shaft(t) only after uteetering_at_seen_pit(t) is false; js/engrave.js:1170-1173 preserves the order."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dodown.test.mjs",
+              "scripts/engraving.test.mjs",
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1"
+          }
+        ],
+        "entryPointReview": "The active B108 entry is the once-per-turn Slimed branch: allmain.c:moveloop_core calls timeout.c:nh_timeout, which calls slime_dialogue when Slimed is nonzero. The JavaScript route is js/allmain.js:finishElapsedTurn -> js/timeout.js:nh_timeout -> slime_dialogue. The admitted v18 case is a monster-to-hero green-slime attack followed by repeated hero turns; its full 107-boundary replay matches at current base c4f6a1fb. Segment 0 steps 64-106 include the countdown messages and final recorded helper invocations; step 68 reaches Popeye(SLIMED) in C case 3. Pure helper bodies are pinned by their source-derived tests. This evidence does not claim whole nh_timeout, stoned_dialogue, or any other timeout callback. The C stoned_dialogue caller of Popeye remains outside this task and has no JS production caller yet. The index-four blind gate is pinned against include/youprop.h:Blind and exercised with BLINDED.intrinsic=0, BLINDED.extrinsic=W_TOOL, BLINDED.blocked=0; the W_TOOL source suppresses the line while exercise(A_DEX,FALSE) and common timeout decrement still execute. The makemon.c:makemon:1357 route remains an unchanged private-helper boundary in js/makemon_create.js and receives no B108 caller credit.",
+        "entryPoints": [
+          {
+            "name": "Hero timeout with active Slimed property",
+            "functions": [
+              {
+                "sourceFile": "timeout.c",
+                "name": "slime_dialogue"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+                "segment": 0,
+                "fromStep": 64,
+                "throughStep": 106,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> timeout.c:slime_dialogue; repeated active Slimed countdowns include the unconditional attrib.c:exercise(A_DEX,FALSE), and step 68 enters Popeye(SLIMED)"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a1de8e786e565ebf5d5d5a27fb8108cc57e8ddf1",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-pickup-in-container-icebox-v20-20261005",
