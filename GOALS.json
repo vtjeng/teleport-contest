@@ -98537,7 +98537,7 @@
     {
       "id": "port-trap-mintrap-hurtling-return-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port trap.c mintrap and its consumed trap-result dependencies for monster hurtling",
       "cFile": "trap.c",
       "sessions": [
@@ -98841,11 +98841,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "31a2ed22a45f64162949a29f462c23cd51827978",
+        "sha": "bdfc1fd96c5f8bfa62e051b0cdc9936017b726dd",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "A32 implements mintrap held/unheld flow and strict pit, arrow, web, and magic paths, but no matching C/JS entry evidence reaches polymorph/vibrating selectors, held-pit boulder/metallivore, airborne/learned-trap, or no-trap reset paths. The v9 kick case still first stops in dothrow.c:mhurtle before mintrap. Resume when source-directed recordings cover these active branches and parked trap.c magic/fire return dependencies are reconciled."
+      "parkedReason": "B115 reconciles mintrap state-only live owners, selector return values, polymorph/newcham wiring, and held-trap preflight, with matching pit, held-pit, polymorph, and vibrating recordings. Whole completion still lacks held-pit boulder/metallivore, airborne/known-trap, no-trap-reset, mounted/hero selector entries, and deeper selector effects; the armed held-pit recipe is blocked by js/monmove.js select_rwep not being imported. Resume after those entry paths and dependencies are available."
     },
     {
       "id": "port-potion-peffect-gain-ability-synthetic-v9-20260927",
