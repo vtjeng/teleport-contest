@@ -174588,7 +174588,7 @@
     {
       "id": "port-uhitm-mhitm-ad-drin-eat-brains-v18-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port brain-eating attacks in all combat directions",
       "cFile": "uhitm.c",
       "sessions": [
@@ -174602,15 +174602,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_drin",
           "line": 3168,
           "endLine": 3305,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -174622,9 +174625,9 @@
           "name": "eat_brains",
           "line": 603,
           "endLine": 757,
-          "declared": false,
+          "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "m_slips_free",
@@ -174632,7 +174635,7 @@
           "endLine": 2097,
           "declared": true,
           "sourceFile": "uhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "u_slip_free",
@@ -174640,7 +174643,7 @@
           "endLine": 1088,
           "declared": true,
           "sourceFile": "mhitu.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "eating_conducts",
@@ -174648,7 +174651,7 @@
           "endLine": 602,
           "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "maybe_cannibal",
@@ -174656,7 +174659,7 @@
           "endLine": 790,
           "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "violated_vegetarian",
@@ -174664,7 +174667,7 @@
           "endLine": 1388,
           "declared": true,
           "sourceFile": "eat.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "abon",
@@ -174672,7 +174675,7 @@
           "endLine": 992,
           "declared": true,
           "sourceFile": "weapon.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "adj_lev",
@@ -174680,7 +174683,7 @@
           "endLine": 2050,
           "declared": true,
           "sourceFile": "makemon.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "dbon",
@@ -174688,7 +174691,7 @@
           "endLine": 1019,
           "declared": true,
           "sourceFile": "weapon.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -174863,7 +174866,438 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_drin",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_drin",
+            "sourceReview": "Read the complete C definition at uhitm.c:3168-3303. Preserve the orientation order (hero attacker, hero defender, monster-versus-monster), with the source head and notonhead checks first; H-to-M then checks m_slips_free, helmet chance and life-saving state before eat_brains; M-to-H prints hitmsg, checks defender immunity/head, u_slip_free, helmet, applies physical damage and then brain/hunger/conduct/intelligence/spell/skill effects; M-to-M handles head/helmet before eat_brains and writes hitflags. Damage/skip flags and deferred return values remain orientation-specific. The C body’s unported discarded losespells and drain_weapon_skill calls are explicitly named after their own gates; their results are not used.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "C uhitm.c:mhitm_adtyping dispatches AD_DRIN to mhitm_ad_drin; JavaScript awaits that arm."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "C uhitm.c:hitmm calls mhitm_adtyping(&gy.youmonst, mattk, mdef, &mhm); JavaScript damageum supplies the hero attacker and target monster."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "C mhitu.c:mattacku calls mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm); JavaScript mattacku awaits the same dispatcher."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "C mhitm.c:mdamagem calls mhitm_adtyping(magr, mattk, mdef, &mhm); JavaScript mdamagem awaits the dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs",
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b110-mindflayer-hero-to-monster-ogre-direction-corrected.session.json",
+              "recordings/uhitm.c/b110-mindflayer-monster-to-monster-wolf-cfirst.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping(AD_DRIN) -> uhitm.c:mhitm_ad_drin M-to-H branch -> eat.c:eat_brains"
+              }
+            ],
+            "checkedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33"
+          },
+          {
+            "name": "eat_brains",
+            "implementation": "js/eat.js",
+            "symbol": "eat_brains",
+            "sourceReview": "Read the complete C definition at eat.c:603-757. It draws rnd(10) at entry, checks a dead nonhero attacker and noncorporeal defender, then emits the orientation-specific brain message. Petrifying flesh runs before orientation effects. Hero-attacker handling updates eating conduct, refuses mindless targets, handles Rider death/lifesaving, hunger, intelligence recovery, exercise and bonus damage, then discards maybe_cannibal’s boolean. Hero-defender handling applies the minimum-intelligence/death path, nutrition flag and negative exercise. M-to-M handling rejects mindless targets, delegates Rider death, or adds bonus damage and tame nutrition. Return flags and damage mutation are preserved; no result is fabricated for discarded callees.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_drin",
+                "source": "C uhitm.c:mhitm_ad_drin calls eat_brains in the H-to-M, M-to-H, and M-to-M arms at lines 3216, 3249, and 3297; JavaScript preserves those branches."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b110-mindflayer-hero-to-monster-ogre-direction-corrected.session.json",
+              "recordings/uhitm.c/b110-mindflayer-monster-to-monster-wolf-cfirst.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping(AD_DRIN) -> uhitm.c:mhitm_ad_drin M-to-H branch -> eat.c:eat_brains"
+              }
+            ],
+            "checkedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33"
+          },
+          {
+            "name": "m_slips_free",
+            "implementation": "js/uhitm.js",
+            "symbol": "m_slips_free",
+            "sourceReview": "Read the full C helper at uhitm.c:2056-2097. AD_DRIN selects helmet; grabbing selects cloak, suit, then shirt. Greased or oilskin armor succeeds unless cursed and rn2(3) allows the grab; the message distinguishes AD_WRAP, known oilskin and grease. A greased item wears off on rn2(2), then the helper returns TRUE; all other paths return FALSE. State mutation and draw order match.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_drin",
+                "source": "C uhitm.c:3204 calls m_slips_free before the hero-to-monster brain attack; JavaScript calls it in the same position."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_wrap",
+                "source": "C uhitm.c:3350 also calls m_slips_free in AD_WRAP; JavaScript retains that direct caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b110-mindflayer-hero-to-monster-ogre-direction-corrected.session.json",
+              "recordings/uhitm.c/b110-mindflayer-monster-to-monster-wolf-cfirst.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [],
+            "checkedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33"
+          },
+          {
+            "name": "u_slip_free",
+            "implementation": "js/mhitu.js",
+            "symbol": "u_slip_free",
+            "sourceReview": "Read the full C helper at mhitu.c:1047-1088. AT_ENGL immediately returns FALSE; otherwise select cloak/suit then shirt, overridden by helmet for AD_DRIN. Greased or oilskin armor can resist the grab unless cursed and rn2(3) passes; use pline_mon with attacker coordinates, optionally consume grease on rn2(2), and update inventory. Preserve the boolean return and source ordering.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_drin",
+                "source": "C uhitm.c:3232 calls u_slip_free before monster-to-hero brain damage; JavaScript awaits it at the same point."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_wrap",
+                "source": "C uhitm.c:3380 calls u_slip_free in AD_WRAP; JavaScript retains that direct caller."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "C uhitm.c:4025 calls u_slip_free for the AD_PHYS HUGS case; JavaScript retains that direct caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs",
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mhitu.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping(AD_DRIN) -> uhitm.c:mhitm_ad_drin M-to-H branch -> eat.c:eat_brains"
+              }
+            ],
+            "checkedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33"
+          },
+          {
+            "name": "eating_conducts",
+            "implementation": "js/eat.js",
+            "symbol": "eating_conducts",
+            "sourceReview": "Read the complete C body at eat.c:576-602. Increment food conduct, record first-food livelog once, then apply vegan and vegetarian checks in order; the first available livelog suppresses later first-time wording. Non-vegetarian input calls violated_vegetarian after its source-specific livelog condition. Conduct fields and output order match.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "eat_brains",
+                "source": "C eat.c:663 calls eating_conducts for a hero mind-flayer bite; JavaScript awaits the same helper with its cloned effect environment."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "start_tin",
+                "source": "C eat.c:1603 calls eating_conducts before corpse effects for a tin; JavaScript retains the existing direct caller."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "gulpum",
+                "source": "C uhitm.c:5017 calls eating_conducts for digestion when digestion is not slow or the gulp is fatal; JavaScript retains that direct caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b110-mindflayer-hero-to-monster-ogre-direction-corrected.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [],
+            "checkedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33"
+          },
+          {
+            "name": "maybe_cannibal",
+            "implementation": "js/eat.js",
+            "symbol": "maybe_cannibal",
+            "sourceReview": "Read the complete C body at eat.c:758-790. The static ate_brains turn marker returns FALSE before all later work on a repeat in one move; otherwise it updates the marker, checks the race/Upolyd/were-form conditions only when cannibalism is disallowed, optionally emits the two messages, sets external aggravation and changes luck by rn1(4,2). Preserve the boolean result and random order. In the selected AD_DRIN caller C discards that result.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "eat_brains",
+                "source": "C eat.c:691 discards maybe_cannibal(monsndx(pd), TRUE); JavaScript awaits the helper and ignores its boolean result in the same source branch."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "cprefx",
+                "source": "C eat.c:793 calls maybe_cannibal before corpse effects; JavaScript retains this direct caller."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eatcorpse",
+                "source": "C eat.c:1896 consumes the maybe_cannibal result while selecting tainted-food wording; JavaScript retains this direct caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b110-mindflayer-hero-to-monster-ogre-direction-corrected.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [],
+            "checkedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33"
+          },
+          {
+            "name": "violated_vegetarian",
+            "implementation": "js/eat.js",
+            "symbol": "violated_vegetarian",
+            "sourceReview": "Read the full C body at eat.c:1376-1388. It increments unvegetarian unconditionally; only a Monk receives the guilty message and adjalign(-1). It returns void and draws no random values. The JS adapter preserves the supplied state/message operation for planning calls.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "eating_conducts",
+                "source": "C eat.c:597 calls violated_vegetarian for non-vegetarian food; JavaScript awaits the helper in the matching branch."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eatcorpse",
+                "source": "C eat.c:1882 calls violated_vegetarian for meat corpses; JavaScript retains this direct caller."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "C eat.c:2785 and later food-conduct branches call violated_vegetarian; JavaScript retains those direct callers."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b110-mindflayer-hero-to-monster-ogre-direction-corrected.session.json"
+            ],
+            "sourceFile": "eat.c",
+            "synthetic": [],
+            "checkedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33"
+          },
+          {
+            "name": "abon",
+            "implementation": "js/weapon.js",
+            "symbol": "abon",
+            "sourceReview": "Read the complete C body at weapon.c:949-988. ACURR(A_STR/A_DEX) are read before Upolyd; a polymorphed hero returns adj_lev(current form)-3. Otherwise the Strength ladder, low-level +1 adjustment, then Dexterity ladder run in order. The helper has no output, RNG or writes.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "find_roll_to_hit",
+                "source": "C uhitm.c:376 adds abon() to the hero attack roll; JavaScript find_roll_to_hit reads abon(state) in the matching calculation."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/weapon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "weapon.c",
+            "synthetic": [],
+            "checkedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33"
+          },
+          {
+            "name": "dbon",
+            "implementation": "js/weapon.js",
+            "symbol": "dbon",
+            "sourceReview": "Read the complete C body at weapon.c:993-1016. Read ACURR(A_STR), then return 0 if Upolyd; otherwise use the ordered thresholds <6, <16, <18, ==18, <=STR18(75), <=STR18(90), <STR18(100), else. It has no output, RNG or writes. The polymorph macro compares umonnum with umonster; the JS branch now does likewise instead of relying on an obsolete false-only assumption.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "C uhitm.c:1463 obtains dbon() for non-propelled hero attacks; JavaScript damageum calls dbon(state) in that branch."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/weapon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "weapon.c",
+            "synthetic": [],
+            "checkedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33"
+          },
+          {
+            "name": "adj_lev",
+            "implementation": "js/makemon.js",
+            "symbol": "adj_lev",
+            "sourceReview": "Read the complete C body at makemon.c:2016-2050. Wizard of Yendor level adds deaths and caps at 49; ordinary monsters above level 49 return 50. Other forms adjust from level difficulty (including signed integer division), then hero level, then clamp to 0..min(3*mlevel/2,49). This is a pure numeric helper; source-pinned boundary tests cover special, difficulty, player-level and cap branches.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "abon",
+                "source": "C weapon.c:953 calls adj_lev(&mons[u.umonnum]) for a polymorphed hero; JavaScript abon calls adj_lev on the selected form."
+              },
+              {
+                "path": "js/makemon.js",
+                "symbol": "newmonhp",
+                "source": "C makemon.c:1017 assigns mon->m_lev = adj_lev(ptr); JavaScript newmonhp sets the same field from adj_lev."
+              },
+              {
+                "path": "js/makemon.js",
+                "symbol": "rndmonst_adj",
+                "source": "C makemon.c:1959 weights candidates using adj_lev(&mons[MONSi(last)]); JavaScript rndmonst_adj applies the equivalent level weight."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/makemon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "makemon.c",
+            "synthetic": [],
+            "checkedAt": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33"
+          }
+        ],
+        "entryPointReview": "The active AD_DRIN entry is the uhitm.c:mhitm_adtyping switch arm. Production reaches it in all three orientations: hero-form mind flayer attacks monster through hitmm/damageum, monster attacks hero through mhitu.c:mattacku, and monster attacks monster through mhitm.c:mdamagem. The admitted v18 recording supplies the M-to-H entry; independent B110 recordings supply H-to-M and M-to-M. The H-to-M recording uses the corrected mind-flayer form and exercises abon -> adj_lev and dbon. No other AD_DRIN orientation or caller is claimed. Other consumed void helpers outside this task remain the source-named gaps documented in mhitm_ad_drin.",
+        "entryPoints": [
+          {
+            "name": "polymorphed hero attacks a monster with AD_DRIN",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_drin"
+              },
+              {
+                "sourceFile": "eat.c",
+                "name": "eat_brains"
+              },
+              {
+                "sourceFile": "eat.c",
+                "name": "eating_conducts"
+              },
+              {
+                "sourceFile": "eat.c",
+                "name": "maybe_cannibal"
+              },
+              {
+                "sourceFile": "eat.c",
+                "name": "violated_vegetarian"
+              },
+              {
+                "sourceFile": "weapon.c",
+                "name": "abon"
+              },
+              {
+                "sourceFile": "weapon.c",
+                "name": "dbon"
+              },
+              {
+                "sourceFile": "makemon.c",
+                "name": "adj_lev"
+              },
+              {
+                "sourceFile": "uhitm.c",
+                "name": "m_slips_free"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b110-mindflayer-hero-to-monster-ogre-direction-corrected.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster attacks hero with AD_DRIN",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_drin"
+              },
+              {
+                "sourceFile": "eat.c",
+                "name": "eat_brains"
+              },
+              {
+                "sourceFile": "mhitu.c",
+                "name": "u_slip_free"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping(AD_DRIN) -> uhitm.c:mhitm_ad_drin M-to-H branch -> eat.c:eat_brains"
+              }
+            ]
+          },
+          {
+            "name": "monster attacks monster with AD_DRIN",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_drin"
+              },
+              {
+                "sourceFile": "eat.c",
+                "name": "eat_brains"
+              },
+              {
+                "sourceFile": "uhitm.c",
+                "name": "m_slips_free"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b110-mindflayer-monster-to-monster-wolf-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5e10da9f49f1f03be8aea4bc29b4c12156c76a33",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-mhitm-gazemm-mdamagem-passivemm-v21-20261005",
