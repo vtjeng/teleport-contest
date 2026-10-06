@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v21.json",
   "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
   "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
-  "evaluationPath": "challenges/evaluations/20261003202359-v21.json",
-  "evaluationCommit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
-  "remainingScreens": 5,
+  "evaluationPath": "challenges/evaluations/20261006002056-v21.json",
+  "evaluationCommit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+  "remainingScreens": 3,
   "recordedSteps": 108,
   "status": "complete",
-  "commit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
+  "commit": "becc4c0510546bbf19aa297ded0a584395a7f959",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v21",
@@ -24,72 +24,120 @@
     "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
     "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json",
     "recipeSha256": "e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb",
-    "replayInputSha256": "458fa0628e5e69cb24c1066551cd1722bb35f6ffe6052fe44291ffb82a0c8533",
-    "evaluationPath": "challenges/evaluations/20261003202359-v21.json",
-    "evaluationCommit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
-    "evaluationArtifact": "challenges/evaluations/20261003202359-v21.json",
-    "evaluationUtc": "2026-10-03T20:25:09.589Z",
-    "remainingScreens": 5,
+    "replayInputSha256": "4f8afff76919390acfd4aa90ad2ced782589251da9f49de401299e32352243ff",
+    "evaluationPath": "challenges/evaluations/20261006002056-v21.json",
+    "evaluationCommit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+    "evaluationArtifact": "challenges/evaluations/20261006002056-v21.json",
+    "evaluationUtc": "2026-10-06T00:22:21.669Z",
+    "remainingScreens": 3,
     "recordedSteps": 108,
-    "previousScreensMatched": 48,
+    "previousScreensMatched": 103,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 103,
+        "matched": 105,
         "total": 108
       },
       "rng": {
-        "matched": 2549,
+        "matched": 2591,
         "total": 2630
       },
       "cursors": {
-        "matched": 103,
+        "matched": 107,
         "total": 108
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "simple monster action requires a monster engulfing the hero",
-      "step": 103
+      "screen": {
+        "index": 105,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 105,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2586,
+        "cEntry": "d(1,10)=2",
+        "cCaller": "gulpmu(mhitu.c:1292)",
+        "jsEntry": "rn2(5)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 105,
+          "key": "."
+        },
+        "stepIndex": 105
+      },
+      "cursor": {
+        "index": 107,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 107,
+          "key": "."
+        },
+        "cCursor": [
+          10,
+          7,
+          1
+        ],
+        "jsCursor": [
+          11,
+          6,
+          1
+        ]
+      }
     },
-    "step": 103,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "simple monster action requires a monster engulfing the hero",
-    "cFile": null,
+    "step": 105,
+    "kind": "rng",
+    "sourceFile": "mhitu.c",
+    "function": "gulpmu",
+    "message": null,
+    "cFile": "mhitu.c",
     "luaFile": null,
-    "line": null
+    "line": 1292
   },
-  "summary": "After the earlier counted-command stop was fixed, this case reaches a Purple Worm attack on the hero. At step 103 C executes AT_BITE then a successful AT_ENGL/AD_DGST branch in mhitu.c:mattacku and calls gulpmu; JavaScript stops at its partial engulfing guard before the source digestion path. The case title’s intended monster-versus-monster action is not the first cause: this C step records mattacku/hitmu/gulpmu, not mattackm/gulpmm. Port whole mhitu.c:gulpmu and wire the existing mattacku and gulp_blnd_check callers.",
+  "summary": "The earlier step-103 swallow and step-104 first digestion now match. The current first divergence is step 105: C’s moved swallowing monster resumes its attack through monmove.c:dochug()’s MMOVE_MOVED engulfing_u() arm, reaches gulpmu(), and draws d(1,10); JavaScript returns from dochug() before that reattack. The stale JavaScript comment says no ported path sets u.uswallow, but gulpmu() now sets it. The actionable owner is the missing dochug() continuation, not the already-matched initial swallow or gulpmu() damage roll itself.",
   "source": {
-    "file": "mhitu.c",
-    "branch": "During the first conflict turn with two adjacent Purple Worms, one Purple Worm’s AT_BITE hits the hero, then its AT_ENGL/AD_DGST attack roll succeeds. C reaches mhitu.c:mattacku() with foundyou true and calls gulpmu(); gulpmu performs the initial swallow, sets u.uswallow and calculates the AD_DGST digestion timer. The JavaScript mattacku slice currently admits only ice-vortex AD_COLD and Juiblex AD_DISE engulfing attacks, so it refuses the Purple Worm before dispatching gulpmu().",
+    "file": "monmove.c",
+    "branch": "When m_move() returns MMOVE_MOVED for the swallowing monster, dochug() first handles trap/readiness and the monster-may-shoot exception. If the moved monster is still engulfing the hero, C then returns mattacku(mtmp) instead of ending its turn. The matched prefix sets u.uswallow in gulpmu(); on step 105 the Purple Worm moves and must attack again, which enters gulpmu() with the hero already swallowed and draws the attack damage die.",
     "functions": [
-      "gulpmu"
+      "dochug"
     ],
     "callers": [
-      "mhitu.c:mattacku() AT_ENGL branch (844-856) calls gulpmu() after the successful hero-targeted engulfing roll; js/mhitu.js has the existing partial caller branch at 1256-1284.",
-      "mhitu.c:gulp_blnd_check() (1273-1284) is gulpmu()’s second direct caller; js/mhitu.js:2591-2610 currently records the gulpmu gap in this caller.",
-      "monmove.c:dochug() (965-972) is the ordinary monster action path into mattacku(); the assigned recording enters it during the hero’s turn-wait commands.",
-      "No mhitm.c:mattackm()/gulpmm() branch is reached before this first stop; the saved C action trace only records mattacku(), hitmu(), and gulpmu()."
+      "C mon.c:movemon_singlemon() calls monmove.c:dochugw(mtmp, TRUE) at mon.c:1320; monmove.c:dochugw() calls dochug() at monmove.c:214.",
+      "JS allmain.js:moveElapsedTurnMonster() calls mon.js:movemon_singlemon(); its action adapter in js/unported_monster_actions.js:1501-1510 calls monmove.js:dochugw(), whose injected action calls monmove.js:dochug().",
+      "Inside C monmove.c:dochug(), the MMOVE_MOVED branch calls mhitu.c:mattacku() at monmove.c:953-954 when engulfing_u(mtmp) remains true; the attack reaches mhitu.c:gulpmu() at mhitu.c:852."
     ],
     "dependencies": [
-      "mondata.c:engulf_target(), digests(), and enfolds() determine swallowing eligibility, digestion behavior, and the initial swallow message.",
-      "mon.c:remove_monster(), place_monster(), and set_ustuck() perform the initial swallow placement and attachment.",
-      "mhitu.c:mdamageu(), expels(), and stop_occupation() handle digestion damage, lifesaving, expulsion, and interruption of occupations.",
-      "light.c:snuff_lit() is called for inventory objects with its void result discarded; js/mhitu.js currently records note_unported(\"light.c snuff_lit\") at that call site."
+      "monmove.c:m_move() supplies MMOVE_MOVED and preserves the engulfing holder state; its relevant JS implementation is js/monmove.js:m_move().",
+      "mhitu.c:mattacku() selects the holder’s AT_ENGL attack; its existing JS implementation is js/mhitu.js:mattacku().",
+      "mhitu.c:gulpmu() sets u.uswallow on the matched initial swallow and consumes the later AD_DGST attack; its JS implementation is js/mhitu.js:gulpmu()."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    "The refreshed .cache/B96-final-work-queue.json identifies this exact synthetic/v21 case at 5 remaining screens of 108 recorded steps, evaluation challenges/evaluations/20261003202359-v21.json, evaluated on 9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6. It reports 103/108 screens, 2549/2630 RNG calls, 103/108 cursors matched and a stop at step 103: “simple monster action requires a monster engulfing the hero”. The previous count-60 investigation is stale; its step-48 rhack count refusal was before the current replay prefix reached this monster action.",
-    "The assigned-case diagnostic .cache/synthetic-scans/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.json records the step-103 key as “.” and the message “The purple worm bites! The purple worm swallows you whole!--More--”. Its inputThroughStop shows the count-prefixed #wizgenesis creation and the conflict intrinsic setup.",
-    "The C recording challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json at segment 0, step 103 records rnd(20)=5 at mattacku(mhitu.c:806), d(2,8)=14 at hitmu(mhitu.c:1187), then rnd(21)=6 at mattacku(mhitu.c:848) and d(1,10)=1 at gulpmu(mhitu.c:1292). Together with the recorded bite-and-swallow message, this identifies the actor as a Purple Worm attacking the hero and the first source unit reached as gulpmu, not a monster attacking another monster.",
-    "C source nethack-c/upstream/src/mhitu.c:844-856 makes a successful foundyou AT_ENGL attack call gulpmu(); lines 1287-1396 perform the initial swallow and the AD_DGST timer branch; lines 1418-1436 apply subsequent digestion. The current JavaScript source js/mhitu.js:1256-1279 refuses Purple Worm AD_DGST at the engulfing allowlist and contains only a partial gulpmu port at 1497 onward.",
-    "The related investigation investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.json establishes the same whole mhitu.c:gulpmu source family for its later step-135 Purple Worm swallow. This case is independently attributed by its own step-103 C RNG callers and screen; the earlier case is not used as a substitute for the current actor trace.",
-    "The assigned recipe challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json says to count the monster-versus-monster branch only if C records the mattackm()/gulpmm() chain. The actual step-103 C recording instead names mattacku(), hitmu(), and gulpmu(), so the count-created pair is setup and the first mismatch is the hero-targeted engulfing path."
+    "The refreshed queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/A102-work-mismatch-queue.json identifies this immutable v21 case at 3 remaining screens of 108 steps. Evaluation challenges/evaluations/20261006002056-v21.json is based on becc4c0510546bbf19aa297ded0a584395a7f959; it matches 105/108 screens, 2591/2630 RNG calls and 107/108 cursors. Its first screen mismatch is segment 0, zero-based step 105 (key \".\"): C cell row 0 column 0 is \"T\" while JS is blank. Its first RNG mismatch is flattened index 2586: C d(1,10)=2 @ gulpmu(mhitu.c:1292), JS rn2(5)=1.",
+    "The immutable C recording challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json (SHA-256 9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d) confirms that step 103 shows “The purple worm bites! The purple worm swallows you whole!” and step 104 shows “The purple worm digests you!”; these steps are before the current first divergence and match in the evaluated prefix. Step 103’s successful AT_ENGL attack calls gulpmu() and draws d(1,10)=1; step 104 continues the initial swallow after the pending message, draws rn2(20)=12 for the digestion timer and applies the first digestion.",
+    "At step 105, C’s draws before RNG index 2586 include the same three distfleeck draws, resist_conflict(), four m_move() draws, and the post-move distfleeck draw in both streams. C then reaches gulpmu() and draws d(1,10)=2 before its “thoroughly digests you” message. The bounded JS-only replay run-EkPVzS (receipt /tmp/teleport-validation-1000/run-EkPVzS/receipt.json, SHA-256 63d9429b4b9214877d48861a3c4af797fab782f9278f326b08493cc1582fe1f7; exit 0, reaped) confirms screens 103 and 104 match and step 105 is blank; its logged JS draw at index 2586 is rn2(5)=1. The JS RNG logger does not annotate that draw’s caller, so this record does not assign that extra draw to a specific helper.",
+    "C nethack-c/upstream/src/monmove.c:dochug() lines 938-955 handles MMOVE_MOVED; after the ranged-attack exception it tests engulfing_u(mtmp) and returns mattacku(mtmp) at lines 953-954. C mon.c:movemon_singlemon() calls dochugw(mtmp, TRUE) at mon.c:1320; monmove.c:dochugw() calls dochug() at line 214.",
+    "JS js/monmove.js:dochug() lines 2708-2724 handles MMOVE_MOVED but returns 0 at lines 2719-2724 without testing engulfing_u(monster,state). The comment at lines 2720-2723 says no ported path sets u.uswallow; that assumption is stale because js/mhitu.js:1738 sets u.uswallow=1 in gulpmu() during the now-matching initial swallow. The production chain is allmain.js:1182-1184 to mon.js:movemon_singlemon(), then js/unported_monster_actions.js:1501-1510 to js/monmove.js:dochugw()/dochug().",
+    "The matching recipe is challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json (SHA-256 e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb). The strict comparison tests the C recording without making a new C recording; the earlier first cause at step 103 is historical and resolved in the current evaluated replay."
   ]
 }

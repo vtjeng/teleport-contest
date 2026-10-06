@@ -173564,7 +173564,7 @@
     {
       "id": "port-uhitm-mhitm-ad-ssex-doseduce-v18-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port seduction attacks and succubus dialogue",
       "cFile": "uhitm.c",
       "sessions": [
@@ -173578,15 +173578,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7984fe77836aa184e4c4c9863f200430d9880167",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_ssex",
           "line": 4751,
           "endLine": 4781,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -173598,9 +173601,9 @@
           "name": "doseduce",
           "line": 1985,
           "endLine": 2308,
-          "declared": false,
+          "declared": true,
           "sourceFile": "mhitu.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -173775,7 +173778,146 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_ssex",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_ssex",
+            "sourceReview": "Read the complete uhitm.c:mhitm_ad_ssex() definition (4751-4779) and its mhitm_adtyping() AD_SSEX dispatch arm (4797). Preserve the hero-attacker arm's call to mhitm_ad_sedu and mhm.done propagation; the monster-attacker/hero-defender arm's SYSOPT_SEDUCE, could_seduce()==1 and !magr->mcan gates, consumed doseduce return and M_ATTK_AGR_DONE/mhm.done updates; the SYSOPT_SEDUCE-off fallback; and the monster-versus-monster delegation. The dispatcher awaits only the AD_SSEX handler and no whole mhitm_adtyping(), damageum(), hitmu(), or mdamagem() completion is claimed. The admitted v18 range below exercises the monster-to-hero same-gender refusal branch: could_seduce returns 0, so doseduce is not called and the following physical attacks remain reachable. Independent C-first matching recordings now exercise the previously uncovered hero-attacks-monster damageum arm and monster-attacks-monster mdamagem arm; the full source path and exact C boundaries are recorded in correctionRuntimeEvidence.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping() case AD_SSEX (4797) calls mhitm_ad_ssex()."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu() dispatches monster-to-hero attack effects through uhitm.c:mhitm_adtyping()."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem() dispatches monster-to-monster attack effects through uhitm.c:mhitm_adtyping()."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum() dispatches hero-to-monster attack effects through uhitm.c:mhitm_adtyping()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-ssex.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-ssex-hero-to-monster-amorous-demon-north-c87-cfirst.session.json",
+              "recordings/uhitm.c/mhitm-ad-ssex-monster-to-monster-amorous-demon-conflict-two-waits-c87-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-wields-silver-saber-retries-succubus-strike-c59",
+                "segment": 0,
+                "fromStep": 65,
+                "throughStep": 65,
+                "source": "mhitu.c:hitmu -> uhitm.c:mhitm_adtyping case AD_SSEX -> uhitm.c:mhitm_ad_ssex monster-to-hero arm; same-gender could_seduce refusal leaves zero damage so hitmu proceeds to the two physical claws."
+              }
+            ],
+            "checkedAt": "7984fe77836aa184e4c4c9863f200430d9880167"
+          },
+          {
+            "name": "doseduce",
+            "implementation": "js/mhitu.js",
+            "symbol": "doseduce",
+            "sourceReview": "Read the complete mhitu.c:doseduce() definition (1985-2305), preserving cancellation/unresponsive exits, visibility/name choice, stop_donning order, ring iteration and glove gates, naked/armor handling, chaotic alignment change, rn2(35) outcome split and rn2(5) subbranches, exercise/attribute/energy/HP/level changes, payment and monster-state draws, tele_restrict/rloc order, and the integer return. Every consumed result is handled by its source-aligned helper; the void mayberem() result is discarded in C, so the JS records note_unported('mhitu.c mayberem') and skips its armor-removal effect. The independent matching recording enters dosound/dochat's MS_SEDUCE caller, reaches doseduce with no worn armor, and matches through the terminal vanishing message.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_ssex",
+                "source": "uhitm.c:mhitm_ad_ssex() consumes doseduce(magr)'s integer return to set M_ATTK_AGR_DONE and mhm.done."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:domonnoise() MS_SEDUCE arm calls doseduce() for an enabled non-nymph seducer when could_seduce()==1; its return is discarded. The production #chat path reaches this arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu-doseduce.test.mjs",
+              "scripts/sounds-doseduce.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sounds.c/doseduce-succubus-male-wizard-c87-no-worn-armor.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [],
+            "checkedAt": "7984fe77836aa184e4c4c9863f200430d9880167"
+          }
+        ],
+        "entryPointReview": "The admitted v18 M→H range at segment 0 step 65 reaches mhitm_ad_ssex through hitmu and verifies the same-gender no-seduction branch before C continues with physical claws. The independent #chat recording reaches sounds.c:domonnoise MS_SEDUCE -> mhitu.c:doseduce with no worn armor and matches all 47 recorded boundaries. Two new independent C-first recordings now cover the remaining active mhitm_ad_ssex directions: the Incubus hero uses Fk against the observed north-adjacent goblin and reaches hmonas -> damageum with d(0,0) at segment 0 step 55; a Conflict-enabled succubus attacks its adjacent goblin and reaches fightm -> mattackm -> mdamagem with d(0,0) at segment 0 step 83. Both match every C RNG, screen and cursor boundary. No runtime defect appeared. The void mayberem and steal_it results remain skipped only where C discards them; no whole outer dispatcher or combat caller is claimed.",
+        "entryPoints": [
+          {
+            "name": "Monster attacks the hero with AD_SSEX; same-gender seduction is refused",
+            "functions": [
+              "mhitm_ad_ssex"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-wields-silver-saber-retries-succubus-strike-c59",
+                "segment": 0,
+                "fromStep": 65,
+                "throughStep": 65,
+                "source": "mhitu.c:hitmu -> uhitm.c:mhitm_adtyping case AD_SSEX -> uhitm.c:mhitm_ad_ssex."
+              }
+            ]
+          },
+          {
+            "name": "Hero #chat enters a non-nymph MS_SEDUCE doseduce call",
+            "functions": [
+              {
+                "sourceFile": "mhitu.c",
+                "name": "doseduce"
+              }
+            ],
+            "recordings": [
+              "recordings/sounds.c/doseduce-succubus-male-wizard-c87-no-worn-armor.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero attacks a monster with AD_SSEX through damageum",
+            "functions": [
+              "mhitm_ad_ssex"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-ssex-hero-to-monster-amorous-demon-north-c87-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster attacks another monster with AD_SSEX through mdamagem",
+            "functions": [
+              "mhitm_ad_ssex"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-ssex-monster-to-monster-amorous-demon-conflict-two-waits-c87-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7984fe77836aa184e4c4c9863f200430d9880167",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
