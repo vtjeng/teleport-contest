@@ -123,6 +123,7 @@ import {
     bot,
     cls,
     docrt,
+    doredraw,
     flush_screen,
     glyph_at,
     glyph_is_invisible,
@@ -1860,7 +1861,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'seeall', 'seetools', 'teleport',
     'overview', 'chronicle', 'conduct', 'vanquished', 'genocided',
     'inventtype', 'adjust', 'altadjust',
-    'terrain', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
+    'terrain', 'redraw', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -5071,6 +5072,8 @@ async function doextcmd(key, state) {
         return await dosuspend_core(state);
     case 'donull':
         return await donull(state) ? ECMD_TIME : ECMD_OK;
+    case 'doredraw':
+        return await doredraw();
     case 'dolook':
         return await runLookCommand(key, state) ? ECMD_TIME : ECMD_OK;
     case 'doattributes':
@@ -5659,6 +5662,12 @@ export async function rhack(key, state = game) {
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'redraw') {
+            // display.c doredraw() returns ECMD_OK; redraw takes no time.
+            await doredraw();
+            resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'terrain') {

@@ -1,0 +1,120 @@
+{
+  "session": "synthetic/v24/v24-pyrolisk-gazes-hostile",
+  "corpus": "synthetic",
+  "batch": "v24",
+  "caseId": "v24-pyrolisk-gazes-hostile",
+  "remainingScreens": 4,
+  "recordedSteps": 82,
+  "manifestPath": "challenges/manifests/v24.json",
+  "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+  "recordingSha256": "61b18e7a3552a6db8d9b5be6a1d89012ffcec299d7dabe050ec59c4cea72587b",
+  "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+  "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+  "status": "complete",
+  "commit": "84d84e111155ac834c43327b7c696055df294349",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v24",
+    "caseId": "v24-pyrolisk-gazes-hostile",
+    "session": "synthetic/v24/v24-pyrolisk-gazes-hostile",
+    "manifestPath": "challenges/manifests/v24.json",
+    "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+    "recording": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+    "recordingPath": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+    "recordingSha256": "61b18e7a3552a6db8d9b5be6a1d89012ffcec299d7dabe050ec59c4cea72587b",
+    "recipe": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.recipe.session.json",
+    "recipeSha256": "6c011feabf67e56c6c0fc348520c3a2465213dc755441a7e7e1db4253d51b3df",
+    "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+    "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+    "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+    "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+    "evaluationUtc": "2026-10-06T22:50:52.015Z",
+    "remainingScreens": 4,
+    "recordedSteps": 82,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 78,
+        "total": 82
+      },
+      "rng": {
+        "matched": 2696,
+        "total": 2724
+      },
+      "cursors": {
+        "matched": 82,
+        "total": 82
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 78,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 78,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 4,
+        "cCell": {
+          "ch": "a",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "g",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2695,
+        "cEntry": "d(2,6)=5",
+        "cCaller": "dogaze(polyself.c:1715)",
+        "jsEntry": "rn2(12)=3",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 78,
+          "key": "\n"
+        },
+        "stepIndex": 78
+      },
+      "cursor": null
+    },
+    "step": 78,
+    "kind": "rng",
+    "sourceFile": "polyself.c",
+    "function": "dogaze",
+    "message": null,
+    "cFile": "polyself.c",
+    "luaFile": null,
+    "line": 1715
+  },
+  "summary": "When a human wizard polymorphed into a pyrolisk uses #monster on the visible hostile newt, C attacks and kills it. JavaScript dogaze() reports that it sees no target because it starts at state.fmon, which is null, while the live target is in state.level.monlist. Scan the canonical level monster chain before applying the existing visibility and fire-gaze logic.",
+  "source": {
+    "file": "polyself.c",
+    "branch": "The hero is an unblinded pyrolisk with at least 15 energy and an AT_GAZE/AD_FIRE attack. A hostile, live newt at (38,6) is in view: canseemon() and couldsee() are true. C dogaze() finds it through fmon; at the same pre-action replay state JavaScript state.fmon is null but state.level.monlist contains that visible newt.",
+    "functions": [
+      "dogaze"
+    ],
+    "callers": [
+      "cmd.c:domonability() selects dogaze() when attacktype(youmonst.data, AT_GAZE) is true; js/cmd.js:domonability() already dispatches to dogaze()."
+    ],
+    "dependencies": [
+      "js/polyself.js:dogaze() currently loops from state.fmon. Use the live per-level monster chain state.level.monlist, with state.fmon as fallback for states that do not expose level.monlist. Preserve the existing canseemon()/couldsee() predicates; the target passes both at the pre-action state.",
+      "Once found, reuse the existing setmangry(), d(2,6), resists_fire(), rn2(20), destroy_items(), ignite_items(), damage, and killed paths in polyself.c:dogaze(); the diagnosis does not require changing their behavior."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The assigned queue entry in .cache/mismatch-queue-v24-baseline.json cites evaluation challenges/evaluations/20261006225046-v24.json at 84d84e111155ac834c43327b7c696055df294349: 4 screens remain from 82; the first divergent boundary is segment 0, step 78, the newline that executes #monster. The recorded C trace at that step begins d(2,6)=5 @ dogaze(polyself.c:1715).",
+    "Bounded replay of only challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json against an archive of commit 84d84e111155ac834c43327b7c696055df294349 reproduced 78/82 screens, 2696/2724 RNG calls, and 82/82 cursors (run-Ao7ayP). At step 78 C prints “You attack the newt with a fiery gaze! You kill the newt!”; JavaScript prints “You gaze at no place in particular. The newt misses!” and leaves the newt on the map (run-VoNMRj).",
+    "A bounded replay of the same session prefix through step 77, before the newline executes #monster, showed hero coordinates (38,5), pyrolisk form, and no blindness. state.level.monlist contains the live newt at (38,6), for which canseemon(), cansee(), and couldsee() are all true; state.fmon is null (run-Hry9tp). This directly identifies the stale list head read in js/polyself.js:2496 as the cause; C polyself.c:1642-1774 walks fmon and reaches dogaze’s fire branch."
+  ]
+}

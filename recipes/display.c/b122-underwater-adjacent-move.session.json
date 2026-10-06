@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap movement variation of the independent quiet-level witness: create a pool, step west while still dry, create an adjacent pool, enter it with magical breathing, then move east while submerged. The whole display.c:under_water old-position erase and new-position redraw follow that hero action. Acknowledgments are refined against C only. C confirms seven water-entry acknowledgments and eastward submerged movement from map (8,2) to (9,2).",
+  "segments": [
+    {
+      "seed": 78122127,
+      "datetime": "20961006113500",
+      "nethackrc": "OPTIONS=name:QuietWater,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n>g\n \u0017pool\nh\u0017pool\nm.       l"
+    }
+  ]
+}

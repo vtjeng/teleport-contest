@@ -129,6 +129,7 @@ import {
     GLYPH_INVISIBLE,
     mon_to_glyph,
     flash_glyph_at,
+    under_water,
 } from './display.js';
 import { depth, on_level, room_discovered } from './dungeon.js';
 import {
@@ -1311,7 +1312,7 @@ export async function map_redisplay(state = game) {
         throw new TypeError('map_redisplay() redraws the global game');
     reconstrain_map(state);
     await docrt();
-    if (state.u.uinwater) note_unported('display.c under_water');
+    if (state.u.uinwater) await under_water(2, state);
     if (state.u.uburied) note_unported('display.c under_ground');
 }
 

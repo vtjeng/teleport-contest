@@ -1,0 +1,138 @@
+{
+  "session": "synthetic/v24/v24-mind-flayer-blast",
+  "corpus": "synthetic",
+  "batch": "v24",
+  "caseId": "v24-mind-flayer-blast",
+  "remainingScreens": 13,
+  "recordedSteps": 112,
+  "manifestPath": "challenges/manifests/v24.json",
+  "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+  "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+  "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+  "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+  "status": "complete",
+  "commit": "84d84e111155ac834c43327b7c696055df294349",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v24",
+    "caseId": "v24-mind-flayer-blast",
+    "session": "synthetic/v24/v24-mind-flayer-blast",
+    "manifestPath": "challenges/manifests/v24.json",
+    "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+    "recording": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+    "recordingPath": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+    "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+    "recipe": "challenges/cases/v24/v24-mind-flayer-blast.recipe.session.json",
+    "recipeSha256": "90976ddb59429b9cd8940a801bc8b076cd2c292117286f4df127951400620d79",
+    "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+    "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+    "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+    "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+    "evaluationUtc": "2026-10-06T22:50:52.015Z",
+    "remainingScreens": 13,
+    "recordedSteps": 112,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 99,
+        "total": 112
+      },
+      "rng": {
+        "matched": 2921,
+        "total": 2962
+      },
+      "cursors": {
+        "matched": 99,
+        "total": 112
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 99,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 99,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2920,
+        "cEntry": "rn2(2)=0",
+        "cCaller": "domindblast(polyself.c:1921)",
+        "jsEntry": "rn2(12)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 88,
+          "key": "\n"
+        },
+        "stepIndex": 88
+      },
+      "cursor": {
+        "index": 99,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 99,
+          "key": " "
+        },
+        "cCursor": [
+          58,
+          0,
+          1
+        ],
+        "jsCursor": [
+          37,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 88,
+    "kind": "rng",
+    "sourceFile": "polyself.c",
+    "function": "domindblast",
+    "message": null,
+    "cFile": "polyself.c",
+    "luaFile": null,
+    "line": 1921
+  },
+  "summary": "At the #monster action, C enters domindblast’s candidate loop and its first divergent RNG call is polyself.c:1921, while JavaScript emits the same opening blast text without the corresponding target-selection draws. By step 99 C displays “You lock in on the mind flayer’s latent telepathy” and JavaScript displays the mind flayer concentrating. The source owner is the existing whole-function polyself.c:domindblast implementation; compare its live candidate gates and inputs, including distance, peacefulness, mindlessness, telepathy, and vision. The current trace does not distinguish which gate or input differs.",
+  "source": {
+    "file": "polyself.c",
+    "branch": "When u.uen is at least 10, domindblast spends 10 energy and walks fmon in list order. It skips dead monsters, monsters beyond BOLT_LIM squared, peaceful monsters, and mindless monsters. It targets a remaining monster when the hero senses it telepathically, when its species is telepathic and rn2(2) succeeds, or when rn2(10) is zero; a target takes rnd(15) damage after wakeup, and killed() runs if that damage is lethal.",
+    "functions": [
+      "domindblast"
+    ],
+    "callers": [
+      "cmd.c:domonability (cmd.c:916) calls domindblast when is_mind_flayer(uptr); js/cmd.js:domonability (js/cmd.js:3567) routes the #monster command to the existing js/polyself.js:domindblast implementation."
+    ],
+    "dependencies": [
+      "hack.h:mdistu supplies the squared-distance check; mondata.h:mindless and telepathic supply species predicates.",
+      "rnd.c:rn2 and rnd provide the ordered target-selection and damage draws.",
+      "mon.c:wakeup and killed perform the target wakeup, damage-death cleanup, and removal side effects."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved evaluation challenges/evaluations/20261006225046-v24.json, evaluated at 84d84e111155ac834c43327b7c696055df294349, records 99/112 matching screens and cursors and 2921/2962 matching RNG calls. Its first mismatch is segment 0 step 88 on Enter: C rn2(2)=0 from domindblast(polyself.c:1921), against JavaScript rn2(12)=0; the first screen difference is step 99, C glyph Y versus JavaScript T.",
+    "A targeted replay of only this session with `node scripts/scan-sessions.mjs --json --synthetic v24/v24-mind-flayer-blast` completed as bounded run-yFlguM at replay commit 3470fce7b2ee7ab949c421ea2abd70fac3854b4e and reproduced the same RNG and screen locations. The step-88 recording has domindblast target-selection draws; the JavaScript step-88 slice has no domindblast draws. At step 99 C reports locking onto the mind flayer’s latent telepathy while JavaScript reports the mind flayer concentrating. The examined C and JavaScript source paths for polyself.c, cmd.c, mondata.h, js/polyself.js, js/cmd.js, and js/mondata.js are unchanged between the evaluated commit and this replay commit.",
+    "The source trace is polyself.c:1894-1938, including the full candidate-loop guards and the ordered `u_sen || (telepathic && rn2(2)) || !rn2(10)` condition. The production entry point is cmd.c:domonability at 916; the #monster command reaches js/cmd.js:domonability at 3567 and js/polyself.js:domindblast at 2778. The remaining implementation probe is to compare each candidate’s dead state, distance, peacefulness, mindless predicate, species telepathy, and mcansee value at this call; the available replay does not identify which eligibility input first differs."
+  ]
+}

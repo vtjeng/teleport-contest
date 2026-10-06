@@ -48,7 +48,7 @@ import {
     dismissPendingTtyMessage,
 } from './tty_message.js';
 import {
-    A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS,
+    A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BLINDED, BOLT_LIM, CONFUSION, DEAF, DETECT_MONSTERS, FLYING,
     HALLUC, HALLUC_RES, INFRAVISION, SEE_INVIS,
@@ -2907,6 +2907,40 @@ function unexploredGlyphInfo(state) {
     return presentation;
 }
 
+// C ref: display.c under_water() (1395-1444). The static prior position and
+// delayed-update flag live once per game; resetGame() discards them. These
+// erase/clear operations change the transient buffer, not remembered map cells.
+export async function under_water(mode, state = game) {
+    if (Is_waterlevel(state.u.uz) || state.u.uswallow) return;
+    // Display owners use the live singleton. Planning clones leave terminal
+    // output and input to the live pass, as shieldeff() does.
+    if (state !== game || state.program_state?.planning) return;
+    const previous = state._underWater ??= { x: 0, y: 0, dela: false };
+    if (mode === 1 || previous.dela) {
+        await cls();
+        previous.dela = false;
+    } else if (mode === 2) {
+        previous.dela = true;
+        return;
+    } else {
+        for (let y = previous.y - 1; y <= previous.y + 1; ++y)
+            for (let x = previous.x - 1; x <= previous.x + 1; ++x)
+                if (isok(x, y))
+                    show_glyph_cell(x, y, unexploredGlyphInfo(state));
+    }
+    for (let x = state.u.ux - 1; x <= state.u.ux + 1; ++x)
+        for (let y = state.u.uy - 1; y <= state.u.uy + 1; ++y)
+            if (isok(x, y)
+                && (is_pool_or_lava(x, y, state) || is_ice(x, y, state))) {
+                if (heroIsBlind(state) && !u_at(x, y, state))
+                    show_glyph_cell(x, y, unexploredGlyphInfo(state));
+                else
+                    newsym(x, y);
+            }
+    previous.x = state.u.ux;
+    previous.y = state.u.uy;
+}
+
 // C ref: display.c swallow_to_glyph() (2429-2446). The monster number is
 // packed above the eight stomach-wall positions; Hallucination changes only
 // the displayed monster and consumes the display RNG, just like what_mon().
@@ -4077,66 +4111,32 @@ export function see_traps(state = game) {
     }
 }
 
-// ── docrt ──
-// C ref: display.c docrt() through docrt_flags(docrtRecalc) (1990-2050).
-//
-// C shuts vision down, clears the screen, shows every remembered glyph, turns
-// vision back on and overlays the monsters. The port's newsym() answers
-// memory, vision and monsters together from the level and the vision arrays,
-// so one sweep replaces C's three passes.
-// `suspendVision` and `restoreVision`, when supplied, run at the two
-// vision_recalc() positions inside docrt_flags(). They let a caller retain
-// ownership of vision.js while preserving the redraw order. The optional
-// overlayMonsters=false form is for callers that perform the final overlay.
-//
-// The vision recalculation C brackets that repaint with stays with this
-// function's callers, and they do not all make the same calls. goto_level()
-// makes both, vision_recalc(2) then vision_recalc(0), at js/do.js:550-551;
-// newgame() at js/allmain.js:201 and moveloop() at js/allmain.js:826 each make
-// vision_recalc(0) alone, because neither has prior vision state to shut down.
-// A fourth caller -- doup(), a level teleport, a trapdoor fall -- must decide
-// which shape it needs from its own upstream site rather than by copying a
-// neighbour: this function performs no vision work itself, and an arriving
-// hero whose caller omits the recalculation gets no map.
-//
-// What does belong here is cls()'s first statement,
-// display_nhwindow(WIN_MESSAGE, FALSE). It reaches win/tty/wintty.c
-// tty_display_nhwindow()'s NHW_MESSAGE arm, which calls more() when the top
-// line still holds a message the player has not acknowledged, and that is the
-// input boundary a level change stops on: a descending hero sees
-// "You descend the stairs.--More--" over the level she is leaving rather than
+// C ref: display.c doredraw() (1694-1699), the redraw command dispatcher.
+export async function doredraw() {
+    await docrt();
+    return ECMD_OK;
+}
+
+// C ref: display.c docrt()/docrt_flags() (1703-1775). Swallowed and underwater
+// displays take precedence over the ordinary remembered-map redraw. cls()
+// flushes pending messages before clearing the transient frame. Ordinary
+// redraw callers own vision recalculation through suspend/restoreVision;
+// overlayMonsters=false lets a caller perform its own final monster overlay.
 export async function docrt(options = {}) {
     if (!game.level || !game.u?.ux || game.program_state?.in_docrt) return;
     game.program_state ??= {};
     game.program_state.in_docrt = true;
     try {
-        // cls() begins with tty_display_nhwindow(WIN_MESSAGE, FALSE),
-        // which clears rawprint before any pending message wait.
-        if (game.nhDisplay?.nomuxRaw)
-            game.nhDisplay.nomuxRaw.rawprint = 0;
-        const waitingForMore = game.nhDisplay?.toplin === TOPLINE_NEED_MORE;
-        if (waitingForMore && await dismissPendingTtyMessage(game)) {
-            // tty_display_nhwindow() restores TOPLINE_NEED_MORE after more()
-            // has reset it, so tty_clear_nhwindow() takes its repair branch.
-            clearTtyMessageWindow(game);
-        } else if (game.nhDisplay) {
-            // cls() clears the physical map after display_nhwindow() has
-            // consumed an answered prompt. Drop the corresponding pending
-            // message too, or the port's full-screen rebuild would paint the
-            // old prompt back over the newly restored map.
-            clearTtyMessageWindow(game);
-        }
-        options.suspendVision?.();
-        // display.c docrt_flags() calls cls() before replaying remembered
-        // glyphs. This clears both the physical terminal and transient
-        // disp_* entries, so unexplored cells cannot retain the old level.
-        await cls();
         // C ref: display.c docrt_flags() (1727-1731). A swallowed hero gets
         // the complete stomach redraw here; newsym()'s swallowed guard only
         // protects the existing transient frame and cannot replace this arm.
         if (game.u?.uswallow) {
             await swallowed(true);
+        } else if (game.u.uinwater && !Is_waterlevel(game.u.uz)) {
+            await under_water(1);
         } else {
+            options.suspendVision?.();
+            await cls();
             // display.c docrt_flags() first paints remembered map glyphs,
             // without calling newsym(), and only then see_monsters() overlays
             // the live monsters in fmon order.  Keeping those as two passes
@@ -4167,13 +4167,12 @@ export async function docrt(options = {}) {
             options.restoreVision?.();
             if (options.overlayMonsters !== false) see_monsters(game);
         }
+        // display.c post_map marks status dirty before leaving in_docrt.
+        game.disp ??= {};
+        game.disp.botlx = true;
     } finally {
         game.program_state.in_docrt = false;
     }
-    // display.c docrt(): the full redraw invalidates the tty status window;
-    // the next flush performs bot() before placing the hero cursor.
-    game.disp ??= {};
-    game.disp.botlx = true;
 }
 
 // ── reglyph_darkroom ──
@@ -6158,50 +6157,55 @@ export async function flush_screen(mode) {
 
 // ── cls ──
 export async function cls() {
-    const display = game?.nhDisplay;
-    // tty_display_nhwindow(WIN_MESSAGE, FALSE) clears rawprint first.
-    if (display?.nomuxRaw) display.nomuxRaw.rawprint = 0;
-    // C display.c cls() begins with display_nhwindow(WIN_MESSAGE, FALSE).
-    // On the TTY this dismisses a pending --More-- before the old level is
-    // erased.  drag_down() relies on that boundary: its caller's fall
-    // message must be visible and acknowledged before the collision message
-    // replaces it.  Keep the restore-to-NEED_MORE/clear sequence identical to
-    // the other display-window callers so the message state is not carried
-    // into the rebuilt map.
-    const waitingForMore = display?.toplin === TOPLINE_NEED_MORE;
-    if (waitingForMore && await dismissPendingTtyMessage(game)) {
-        display.toplin = TOPLINE_NEED_MORE;
-        clearTtyMessageWindow(game);
-    } else if (display) {
-        display.toplin = TOPLINE_EMPTY;
-        clearTtyMessageWindow(game);
-    }
-    if (display?.clearScreen) display.clearScreen();
-    // C's cls() clears both the physical terminal and its pending glyph
-    // buffer.  disp_* is the JS glyph-buffer owner; leaving it populated lets
-    // the next flush reconstruct dungeon cells which were meant to stay
-    // hidden on a temporary find_trap() display.
-    if (game.level?.at) {
-        for (let x = 1; x < COLNO; ++x) {
-            for (let y = 0; y < ROWNO; ++y) {
-                const loc = game.level.at(x, y);
-                loc.disp_ch = null;
-                loc.disp_color = NO_COLOR;
-                loc.disp_decgfx = false;
-                loc.disp_attr = 0;
-                loc.disp_browser_ch = null;
-                loc.disp_browser_color = null;
-                loc.disp_browser_attr = null;
-                loc.disp_glyph = null;
-                loc.gnew = 0;
+    // C's static in_cls protects reentrant message/display callbacks.
+    if (game._inCls) return;
+    game._inCls = true;
+    try {
+        const display = game?.nhDisplay;
+        // tty_display_nhwindow(WIN_MESSAGE, FALSE) clears rawprint first.
+        if (display?.nomuxRaw) display.nomuxRaw.rawprint = 0;
+        // C display.c cls() begins with display_nhwindow(WIN_MESSAGE, FALSE).
+        // On the TTY this dismisses a pending --More-- before the old level is
+        // erased.  drag_down() relies on that boundary: its caller's fall
+        // message must be visible and acknowledged before the collision message
+        // replaces it.  Keep the restore-to-NEED_MORE/clear sequence identical to
+        // the other display-window callers so the message state is not carried
+        // into the rebuilt map.
+        const waitingForMore = display?.toplin === TOPLINE_NEED_MORE;
+        if (waitingForMore && await dismissPendingTtyMessage(game)) {
+            display.toplin = TOPLINE_NEED_MORE;
+            clearTtyMessageWindow(game);
+        } else if (display) {
+            display.toplin = TOPLINE_EMPTY;
+            clearTtyMessageWindow(game);
+        }
+        game.disp ??= {};
+        game.disp.botlx = true;
+        if (display?.clearScreen) display.clearScreen();
+        // C's cls() clears both the physical terminal and its pending glyph
+        // buffer.  disp_* is the JS glyph-buffer owner; leaving it populated lets
+        // the next flush reconstruct dungeon cells which were meant to stay
+        // hidden on a temporary find_trap() display.
+        if (game.level?.at) {
+            for (let x = 1; x < COLNO; ++x) {
+                for (let y = 0; y < ROWNO; ++y) {
+                    const loc = game.level.at(x, y);
+                    loc.disp_ch = null;
+                    loc.disp_color = NO_COLOR;
+                    loc.disp_decgfx = false;
+                    loc.disp_attr = 0;
+                    loc.disp_browser_ch = null;
+                    loc.disp_browser_color = null;
+                    loc.disp_browser_attr = null;
+                    loc.disp_glyph = null;
+                    loc.gnew = 0;
+                }
             }
         }
+        game._pending_message = '';
+    } finally {
+        game._inCls = false;
     }
-    game._pending_message = '';
-    // display.c cls() forces the bottom lines to be rebuilt after clearing
-    // the physical screen.
-    game.disp ??= {};
-    game.disp.botlx = true;
 }
 
 // ── bot ──

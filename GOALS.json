@@ -181917,39 +181917,46 @@
     {
       "id": "port-timeout-burn-object-v23-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port timed lamp and candle burn callbacks and their messages",
       "cFile": "timeout.c",
       "sessions": [
         "synthetic/v23/v23-burn-object-expiry"
       ],
-      "selectionReason": "The current v23 evaluation leaves 341 screens after burn_object becomes due at step 364; investigations/synthetic/v23/v23-burn-object-expiry.json traces the whole source scope through see_lamp_flicker, lantern_message, burn_object, timer dispatch, and existing burn lifecycle owners.",
+      "selectionReason": "v23 burn object expiry is source-traced to timeout.c burn_object and its threshold message helpers",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "c78f463ea340f06efd8705335aaf0180613f043b",
+      "openStanding": {
+        "sha": "c78f463ea340f06efd8705335aaf0180613f043b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c78f463ea340f06efd8705335aaf0180613f043b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "see_lamp_flicker",
           "line": 1345,
           "endLine": 1359,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "lantern_message",
           "line": 1360,
           "endLine": 1382,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "burn_object",
           "line": 1383,
           "endLine": 1711,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -181969,6 +181976,159 @@
           "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
           "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e"
         }
+      },
+      "activeStanding": {
+        "sha": "c78f463ea340f06efd8705335aaf0180613f043b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "see_lamp_flicker",
+            "implementation": "js/timeout.js",
+            "symbol": "see_lamp_flicker",
+            "sourceReview": "Read whole timeout.c1345-1356. Inventory/monster ownership Yname2 and floor an(xname) messages match; tailer remains source-owned; ordinary awaited output, planning silent with display RNG preserved. Read timeout.c whole definitions1345-1375 and1383-1680, with begin_burn1712-1800, end_burn1804-1823, cleanup_burn and timeout_funcs1984/run_timers2222-2240. Read existing object, light, inventory, worn-slot and ownership helpers rather than substituting their effects. Source order preserved: late catch-up before location/naming; Shk_Your formatting even for an invisible located owner; tactile gating excludes brass lantern; awaited feedback before end_burn/deletion; candle post-message Hallucination precedes Blind; floor maybe_unhide_at precedes obfree on time but follows obfree while late; candelabrum spe/weight retained; restart from remaining age; final map then inventory updates. No extra RNG. Remove BURN_OBJECT refusal and install the source callback in the existing table. Compose existing objectGenerationEnv and setwornEnv/setnotworn against the callback state. Planning mutates only its cloned objects/timers/light graph and suppresses messages, inventory and map writes; optional displayRandom reaches existing Shk_Your/Yname2 -> shk_your/mon_owns -> y_monnam. Read mkobj.c obj_extract_self migrating branch and use the existing extract_nobj on gm.migrating_objs; clear migrating destination masks in source order. These narrow caller/owner changes have no additional source-unit credit. The impossible() discarded-return diagnostic is recorded with note_unported(pline.c impossible) for the invalid object-type arm. Existing maybe_unhide_at retains its named hero hideunder gap; no hidden-monster or unrelated owner completion is claimed. Inherited due-object admission still requires exactly its own one timer; the focused test pins atomic refusal for a second future timer, without claiming wider admission.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "burn_object",
+                "source": "timeout.c1479-1480: visible oil lamp at ages150/100/50 calls see_lamp_flicker, considerably only at50."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-burn-object.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c121-burn-oil-lamp.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "c78f463ea340f06efd8705335aaf0180613f043b"
+          },
+          {
+            "name": "lantern_message",
+            "implementation": "js/timeout.js",
+            "symbol": "lantern_message",
+            "sourceReview": "Read whole timeout.c1360-1375. Carried Your with hallucinated batteries after its awaited line; floor You_see; monster s_suffix(Monnam) using forwarded display RNG. Read timeout.c whole definitions1345-1375 and1383-1680, with begin_burn1712-1800, end_burn1804-1823, cleanup_burn and timeout_funcs1984/run_timers2222-2240. Read existing object, light, inventory, worn-slot and ownership helpers rather than substituting their effects. Source order preserved: late catch-up before location/naming; Shk_Your formatting even for an invisible located owner; tactile gating excludes brass lantern; awaited feedback before end_burn/deletion; candle post-message Hallucination precedes Blind; floor maybe_unhide_at precedes obfree on time but follows obfree while late; candelabrum spe/weight retained; restart from remaining age; final map then inventory updates. No extra RNG. Remove BURN_OBJECT refusal and install the source callback in the existing table. Compose existing objectGenerationEnv and setwornEnv/setnotworn against the callback state. Planning mutates only its cloned objects/timers/light graph and suppresses messages, inventory and map writes; optional displayRandom reaches existing Shk_Your/Yname2 -> shk_your/mon_owns -> y_monnam. Read mkobj.c obj_extract_self migrating branch and use the existing extract_nobj on gm.migrating_objs; clear migrating destination masks in source order. These narrow caller/owner changes have no additional source-unit credit. The impossible() discarded-return diagnostic is recorded with note_unported(pline.c impossible) for the invalid object-type arm. Existing maybe_unhide_at retains its named hero hideunder gap; no hidden-monster or unrelated owner completion is claimed. Inherited due-object admission still requires exactly its own one timer; the focused test pins atomic refusal for a second future timer, without claiming wider admission.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "burn_object",
+                "source": "timeout.c1477,1488: visible brass lantern thresholds150/100/50/25 dispatch lantern_message."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-burn-object.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c121-burn-lantern.session.json",
+              "recordings/timeout.c/c121-burn-hallucinated-lantern.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "c78f463ea340f06efd8705335aaf0180613f043b"
+          },
+          {
+            "name": "burn_object",
+            "implementation": "js/timeout.js",
+            "symbol": "burn_object",
+            "sourceReview": "Read timeout.c whole definitions1345-1375 and1383-1680, with begin_burn1712-1800, end_burn1804-1823, cleanup_burn and timeout_funcs1984/run_timers2222-2240. Read existing object, light, inventory, worn-slot and ownership helpers rather than substituting their effects. Source order preserved: late catch-up before location/naming; Shk_Your formatting even for an invisible located owner; tactile gating excludes brass lantern; awaited feedback before end_burn/deletion; candle post-message Hallucination precedes Blind; floor maybe_unhide_at precedes obfree on time but follows obfree while late; candelabrum spe/weight retained; restart from remaining age; final map then inventory updates. No extra RNG. Remove BURN_OBJECT refusal and install the source callback in the existing table. Compose existing objectGenerationEnv and setwornEnv/setnotworn against the callback state. Planning mutates only its cloned objects/timers/light graph and suppresses messages, inventory and map writes; optional displayRandom reaches existing Shk_Your/Yname2 -> shk_your/mon_owns -> y_monnam. Read mkobj.c obj_extract_self migrating branch and use the existing extract_nobj on gm.migrating_objs; clear migrating destination masks in source order. These narrow caller/owner changes have no additional source-unit credit. The impossible() discarded-return diagnostic is recorded with note_unported(pline.c impossible) for the invalid object-type arm. Existing maybe_unhide_at retains its named hero hideunder gap; no hidden-monster or unrelated owner completion is claimed. Inherited due-object admission still requires exactly its own one timer; the focused test pins atomic refusal for a second future timer, without claiming wider admission.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "run_timers",
+                "source": "timeout.c timeout_funcs1984 BURN_OBJECT callback table; run_timers2222-2240 unlinks the due timer and decrements obj.timed before dispatch."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c947 ordinary turn drain; js/allmain.js finishElapsedTurn invokes the planning and live nh_timeout allocation with matching message/display owners."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c1823 drains expired timers after object delivery, losedogs and kill_genocided_monsters; existing awaited caller passes ordinary live feedback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-burn-object.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c121-burn-tallow-carried.session.json",
+              "recordings/timeout.c/c121-burn-candelabrum.session.json",
+              "recordings/timeout.c/c121-burn-oil-potion.session.json",
+              "recordings/timeout.c/c121-burn-oil-lamp.session.json",
+              "recordings/timeout.c/c121-burn-lantern.session.json",
+              "recordings/timeout.c/c121-burn-blind-tallow.session.json",
+              "recordings/timeout.c/c121-burn-wax-floor-stack.session.json",
+              "recordings/timeout.c/c121-burn-floor-away.session.json",
+              "recordings/timeout.c/c121-burn-hallucinated-lantern.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-burn-object-expiry",
+                "segment": 0,
+                "fromStep": 350,
+                "throughStep": 704,
+                "source": "Carried candle apply -> timeout.c begin_burn -> allmain.c moveloop_core -> nh_timeout947 -> run_timers2222 -> BURN_OBJECT1984 -> burn_object on-time 75/15/0 warnings and deletion."
+              }
+            ],
+            "checkedAt": "c78f463ea340f06efd8705335aaf0180613f043b"
+          }
+        ],
+        "entryPointReview": "This helper-only timeout.c range has two active callback routes: ordinary nh_timeout run_timers and level-arrival goto_level run_timers; both are listed explicitly for review. Existing apply.c lamp/candle/candelabrum/oil paths schedule begin_burn timers. The floor variation drops an unlit candle and then uses the existing fire beam ignite_objects owner, because do.c dropx refuses direct lit-object dropping; both exact blocked recipes remain under recipes/timeout.c. The corrected floor-away route raises wizard HP before the bouncing beam so teleport input cannot be swallowed by a death prompt: C leaves Dlvl1 atstep81 and returns atstep1017 after expiry, without ordinary warning output. Interactive mO>qr toggles source wizard hunger/generation flags; startup config cannot set them (options.c set_wiznofuz) and no options or command owner was edited. Helpers execute through the same ordinary callback, with oil lamp and hallucinated lantern recordings. Rare monster ownership, migrating destination, quivered equipment, unseen/tactile and refuelling branches are pinned by focused source tests; these are branch variations of the same two entries. No build-excluded callers were found. Direct lit dropping, monster combat, menu-search rendering and #optionsfull gaps observed during recipe preparation are outside this source claim. BURN_OBJECT admission retains its previous one-timer-object boundary.",
+        "entryPoints": [
+          {
+            "name": "ordinary turn BURN_OBJECT callback",
+            "functions": [
+              "see_lamp_flicker",
+              "lantern_message",
+              "burn_object"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c121-burn-tallow-carried.session.json",
+              "recordings/timeout.c/c121-burn-candelabrum.session.json",
+              "recordings/timeout.c/c121-burn-oil-potion.session.json",
+              "recordings/timeout.c/c121-burn-oil-lamp.session.json",
+              "recordings/timeout.c/c121-burn-lantern.session.json",
+              "recordings/timeout.c/c121-burn-blind-tallow.session.json",
+              "recordings/timeout.c/c121-burn-wax-floor-stack.session.json",
+              "recordings/timeout.c/c121-burn-hallucinated-lantern.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-burn-object-expiry",
+                "segment": 0,
+                "fromStep": 350,
+                "throughStep": 704,
+                "source": "Carried candle apply -> timeout.c begin_burn -> allmain.c moveloop_core -> nh_timeout947 -> run_timers2222 -> BURN_OBJECT1984 -> burn_object on-time 75/15/0 warnings and deletion."
+              }
+            ]
+          },
+          {
+            "name": "level arrival late BURN_OBJECT catch-up",
+            "functions": [
+              "burn_object"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c121-burn-floor-away.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c78f463ea340f06efd8705335aaf0180613f043b",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -182289,6 +182449,1010 @@
         "rng": 792838
       },
       "parkedReason": "Validated B121 fixes the v23 welded-weapon case and verifies empty_handed plus weldmsg; cant_wield_corpse, ready_weapon, and arti_speak remain source-incomplete on named trap.c instapetrify, artifact carried-property, lit Sunsword shutdown, and do_wear takeoff dependencies."
+    },
+    {
+      "id": "port-display-under-water-v23-20261006",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port transient underwater map display and its active callers",
+      "cFile": "display.c",
+      "sessions": [
+        "synthetic/v23/v23-underwater-display-on-pool-entry"
+      ],
+      "selectionReason": "Integrate the queued B122 delivery for the remaining v23 underwater-display mismatch; C122 owns the two pickup failures.",
+      "detail": "",
+      "openedAt": "3470fce7b2ee7ab949c421ea2abd70fac3854b4e",
+      "openStanding": {
+        "sha": "84d84e111155ac834c43327b7c696055df294349",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "070ae43e6b24f937cc805b6b8527c429b6569b58",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "under_water",
+          "line": 1395,
+          "endLine": 1444,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1395,
+        "to": 1444
+      },
+      "syntheticProvenance": {
+        "synthetic/v23/v23-underwater-display-on-pool-entry": {
+          "session": "synthetic/v23/v23-underwater-display-on-pool-entry",
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-underwater-display-on-pool-entry",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recordingPath": "challenges/cases/v23/v23-underwater-display-on-pool-entry.session.json",
+          "recordingSha256": "be41e228a387701c32181a6ac4f03ac74901e5ad4e7605128acb6c22b5b44b4e",
+          "evaluationPath": "challenges/evaluations/20261006223245-v23.json",
+          "evaluationCommit": "c78f463ea340f06efd8705335aaf0180613f043b"
+        }
+      },
+      "activeStanding": {
+        "sha": "84d84e111155ac834c43327b7c696055df294349",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-underwater-display-on-pool-entry",
+          "session": "synthetic/v23/v23-underwater-display-on-pool-entry",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recording": "challenges/cases/v23/v23-underwater-display-on-pool-entry.session.json",
+          "recordingPath": "challenges/cases/v23/v23-underwater-display-on-pool-entry.session.json",
+          "recordingSha256": "be41e228a387701c32181a6ac4f03ac74901e5ad4e7605128acb6c22b5b44b4e",
+          "recipe": "challenges/cases/v23/v23-underwater-display-on-pool-entry.recipe.session.json",
+          "recipeSha256": "1afcfdf594557edd1c7019530477ac98de06437b7ccd91e281be0ed81e2e05aa",
+          "replayInputSha256": "ec03df54e5e2da5d767ea2086bc2f71e6b35c36d066149c0fcd7aa280baca171",
+          "evaluationPath": "challenges/evaluations/20261006223245-v23.json",
+          "evaluationCommit": "c78f463ea340f06efd8705335aaf0180613f043b",
+          "evaluationArtifact": "challenges/evaluations/20261006223245-v23.json",
+          "evaluationUtc": "2026-10-06T22:34:12.527Z",
+          "remainingScreens": 2,
+          "recordedSteps": 33,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 33
+            },
+            "rng": {
+              "matched": 2798,
+              "total": 2798
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 31,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 17,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 31,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": " "
+              },
+              "cCursor": [
+                25,
+                0,
+                1
+              ],
+              "jsCursor": [
+                45,
+                18,
+                1
+              ]
+            }
+          },
+          "step": 31,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v23/v23-underwater-display-on-pool-entry.json",
+            "result": {
+              "session": "synthetic/v23/v23-underwater-display-on-pool-entry",
+              "corpus": "synthetic",
+              "batch": "v23",
+              "caseId": "v23-underwater-display-on-pool-entry",
+              "remainingScreens": 2,
+              "recordedSteps": 33,
+              "manifestPath": "challenges/manifests/v23.json",
+              "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+              "recordingSha256": "be41e228a387701c32181a6ac4f03ac74901e5ad4e7605128acb6c22b5b44b4e",
+              "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+              "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+              "status": "complete",
+              "commit": "5862a1154f03695d0506303a6909a3838eebaaa6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v23",
+                "caseId": "v23-underwater-display-on-pool-entry",
+                "session": "synthetic/v23/v23-underwater-display-on-pool-entry",
+                "manifestPath": "challenges/manifests/v23.json",
+                "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+                "recording": "challenges/cases/v23/v23-underwater-display-on-pool-entry.session.json",
+                "recordingPath": "challenges/cases/v23/v23-underwater-display-on-pool-entry.session.json",
+                "recordingSha256": "be41e228a387701c32181a6ac4f03ac74901e5ad4e7605128acb6c22b5b44b4e",
+                "recipe": "challenges/cases/v23/v23-underwater-display-on-pool-entry.recipe.session.json",
+                "recipeSha256": "1afcfdf594557edd1c7019530477ac98de06437b7ccd91e281be0ed81e2e05aa",
+                "replayInputSha256": "b21aa49a44b7596be8d00ac1b3bd0373b2684515573eb1fb30942261d96cfadb",
+                "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+                "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+                "evaluationArtifact": "challenges/evaluations/20261006212455-v23.json",
+                "evaluationUtc": "2026-10-06T21:26:24.973Z",
+                "remainingScreens": 2,
+                "recordedSteps": 33,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 31,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 2798,
+                    "total": 2798
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 31,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 17,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 31,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      25,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      45,
+                      18,
+                      1
+                    ]
+                  }
+                },
+                "step": 31,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At segment 0 step 31 C waits at “You touch bottom.--More--”, while JS omits the pager. The skipped display.c:under_water(1) call omits cls() and its pending-message flush/map clear; step 32 then becomes an unknown space command and leaves old map cells visible. Port whole under_water with all four production callers and preserve the cls message boundary and transient glyph-buffer contract.",
+              "source": {
+                "file": "display.c",
+                "branch": "Hero has just become underwater in trap.c:drown on an ordinary pool level, is not swallowed and is not on the Water Plane. under_water(1) must perform a full display update, flushing the pending “You touch bottom” message through cls before drawing nearby water/lava/ice.",
+                "functions": [
+                  "under_water"
+                ],
+                "callers": [
+                  "trap.c:drown 5123 calls under_water(1) after water-entry messages and the sight-state transition. js/trap.js:1398 skips it using incorrectly attributed note_unported(vision.c under_water). Wire an awaited display.c call at that source site; do not claim whole drown.",
+                  "display.c:docrt_flags 1731 calls under_water(1) with swallowed display taking precedence and underground display following. js/display.js:docrt currently redraws ordinary remembered cells. Wire the underwater branch while preserving in_docrt and post_map handling and avoiding a subsequent normal redraw.",
+                  "detect.c:map_redisplay 99 calls under_water(2) after reconstrain_map and docrt. js/detect.js:1314 names the gap. Wire the delayed-full-update request at that exact point.",
+                  "allmain.c:moveloop_core 432 calls under_water(0) after stationary pooleffects/lava sinking and before see_nearby_monsters in the actual-time block. js/allmain.js:advanceElapsedTurn currently runs finishHeroTimeEffects then see_nearby_monsters; insert the bounded underwater display caller between those operations, preserving the source time gate and water transition order."
+                ],
+                "dependencies": [
+                  "Read whole display.c:under_water 1395-1434. Preserve static lastx/lasty/dela, Water Plane and swallowed early exits, mode 1 or pending dela before mode 2, old 3x3 erase in y/x order, and new 3x3 pool/lava/ice draw in x/y order. Blindness shows only the hero among those cells. Store these C locals once in game state and preserve startup/reset semantics without erasing permanent map memory.",
+                  "Reuse and audit existing display.c:cls, show_glyph/newsym, terrain predicates, isok and u_at. All returned predicates already have owners; no missing consumed-return callee blocks under_water. cls must remain awaited because its pending-message flush can wait for input. Its C source 2189-2204 has an in_cls recursion guard and disp.botlx=TRUE; audit the existing JS cls for those source details and include the complete helper in the task if correcting it. Do not fabricate a separate pager to replace cls.",
+                  "Shared contract: pending top-line state, input continuation, transient glyph buffer versus remembered map, underwater display precedence, and cached prior-position/delayed flag. Existing show_glyph/newsym/cls use live global display state: planner calls must remain clone-only and silent, handing off real display/input at the established live boundary.",
+                  "Explicit separate limits: vision.c:vision_recalc underwater visibility path 589-606 remains unported in current JS, and drown still skips display.c:feel_newsym. Their broader whole-source closure is outside this display helper task; record these gaps rather than claiming whole vision_recalc or drown. A later blind/vision recipe blocked by them is not passing entry-point evidence."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Evaluation challenges/evaluations/20261006212455-v23.json at 40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e reports 31/33 screens, 2798/2798 RNG calls and 32/33 cursors; exactly 2 screens remain. Examined publication 5862a1154f03695d0506303a6909a3838eebaaa6 has identical js/frozen blobs to the saved evaluation commit.",
+                "Only these three assigned recordings were replayed against an exported exact-publication js/frozen snapshot with official frozen runtime modules. Diagnostic /tmp/teleport-loop-worker-a46-20260929/.cache/A2-liquid-investigation-replay.log, bounded run-5S2vNG, reproduces the saved boundaries. This is mismatch diagnosis, not implementation completion or a passing validation claim.",
+                "First difference is zero-based screen index/step 31, key space, row 0 column 17: C has the first dash of --More--; JS has a blank. C cursor is [25,0,1], JS [45,18,1]. All 2798 RNG calls match. Final hero is at (46,17), uinwater=true, uswallow=false, on POOL; JS unported includes display.c feel_newsym and misnamed vision.c under_water.",
+                "At step 32 C has cleared the message and old room cells, while JS prints Unknown command space and retains old room/wall glyphs in rows 16-20. The first defect is the missing flush/input boundary at step 31; the stale map is its following display consequence. Do not start from a remembered-wall glyph workaround.",
+                "Source trace: pool entry -> trap.c:drown -> display.c:under_water(1) -> cls -> display_nhwindow(WIN_MESSAGE,FALSE). TTY win/tty/wintty.c:1855-1883 forces more() for TOPLINE_NEED_MORE even with blocking=FALSE, then clears the message. Existing JS cls already awaits its pending-message dismissal; the source call is entirely skipped in drown.",
+                "Whole-helper completion needs independent recordings for underwater entry/full update, movement/limited update, detector map redisplay/delayed update, and redraw. Add cheap blind/adjacent pool-lava-ice variations and test Water Plane/swallowed precedence plus game-reset state. This admitted case currently covers only the entry setup; its failing steps 31-32 cannot establish the new helper until matched. Separate vision_recalc/feel_newsym gaps limit what blind and sight tests can prove."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "under_water",
+            "implementation": "js/display.js",
+            "symbol": "under_water",
+            "sourceReview": "Read whole display.c:1395-1444. Preserved Water Plane/swallowed exits; static lastx/lasty/dela in one per-game _underWater value, reset with resetGame; mode1 or pending dela before mode2; old 3x3 erase y/x order and new radius1 draw x/y order; isok then pool/lava/ice then Blind/u_at tests; prior-position assignment last. Erase/cls writes affect canonical transient disp_* only; newsym remains the canonical source owner for visible memory updates. Read existing isok, is_pool_or_lava, is_ice, Is_waterlevel, heroIsBlind/u_at, newsym, show_glyph_cell and unexploredGlyphInfo; no missing consumed return or discarded gap remains inside this helper. Reused GLYPH_UNEXPLORED source presentation, including custom symbols. Planning clones do not paint or consume live input; the live turn owns display at the established boundary. Removed both under_water gap markers, including the incorrect vision.c attribution. Four exact production source callers now await the helper.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "trap.c:5123 after vision_recalc(2) and set_uinwater(1)"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "docrt",
+                "source": "display.c:docrt_flags:1731 after swallowed precedence, before ordinary memory redraw/post_map"
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "map_redisplay",
+                "source": "detect.c:99 after reconstrain_map and docrt; mode2 schedules full redraw"
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "advanceElapsedTurn",
+                "source": "allmain.c:moveloop_core:432 after once-per-hero-action stationary pooleffects and before see_nearby_monsters"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/under-water.test.mjs",
+              "scripts/display-symbols.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/display.c/b122-underwater-redraw-detector.session.json",
+              "recordings/display.c/b122-underwater-moat-variation.session.json",
+              "recordings/display.c/b122-underwater-blind-limit.session.json",
+              "recordings/display.c/b122-underwater-adjacent-move.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-underwater-display-on-pool-entry",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 32,
+                "source": "cmd.c:wait -> allmain.c:moveloop_core -> trap.c:pooleffects/drown:5123 -> display.c:under_water(1):1407 -> cls:2196 message flush, then allmain.c:432 under_water(0). The pending touch-bottom More at step31 and cleared transient map at32 now match."
+              }
+            ],
+            "checkedAt": "070ae43e6b24f937cc805b6b8527c429b6569b58"
+          }
+        ],
+        "entryPointReview": "Enumerated all four active underwater caller families and the source redraw command. Five independent matching recordings cover pool/moat entry, submerged adjacent-pool movement, elapsed-time limited redraw, Ctrl-R/#redraw, blindness, wiz_map -> do_mapping -> map_redisplay and next-action delayed full redraw. Constructed source-pinned checks cover Water Plane/swallowed exclusions, mode2 while dela pending, loop ordering, per-game reset and silent planning clone. cls has shared helper callers outside this range; their existing canonical calls remain intact, and focused display/swallow/trap/detect/allmain/command checks cover changed behavior. Broader vision_recalc, feel_newsym caller, terrain projection and monster perception source units remain outside this task; blocked witnesses preserve their failures without incomplete helper claims.",
+        "entryPoints": [
+          {
+            "name": "ordinary pool/moat entry with magical breathing",
+            "functions": [
+              "under_water"
+            ],
+            "recordings": [
+              "recordings/display.c/b122-underwater-redraw-detector.session.json",
+              "recordings/display.c/b122-underwater-moat-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-underwater-display-on-pool-entry",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 32,
+                "source": "cmd.c:wait -> allmain.c:moveloop_core -> trap.c:pooleffects/drown:5123 -> display.c:under_water(1):1407 -> cls:2196 message flush, then allmain.c:432 under_water(0). The pending touch-bottom More at step31 and cleared transient map at32 now match."
+              }
+            ]
+          },
+          {
+            "name": "hero-took-time underwater limited/delayed redraw and submerged movement",
+            "functions": [
+              "under_water"
+            ],
+            "recordings": [
+              "recordings/display.c/b122-underwater-redraw-detector.session.json",
+              "recordings/display.c/b122-underwater-adjacent-move.session.json",
+              "recordings/display.c/b122-underwater-blind-limit.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "redraw command and underwater docrt precedence",
+            "functions": [
+              "under_water"
+            ],
+            "recordings": [
+              "recordings/display.c/b122-underwater-redraw-detector.session.json",
+              "recordings/display.c/b122-underwater-moat-variation.session.json",
+              "recordings/display.c/b122-underwater-blind-limit.session.json",
+              "recordings/display.c/b122-ordinary-redraw.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "detect map redisplay/delayed update",
+            "functions": [
+              "under_water"
+            ],
+            "recordings": [
+              "recordings/display.c/b122-underwater-redraw-detector.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "070ae43e6b24f937cc805b6b8527c429b6569b58",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-hack-pickup-checks-v23-20261006",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port pickup reachability checks, command dispatch, and monster inventory looting",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v23/v23-pickup-over-water",
+        "synthetic/v23/v23-pickup-over-lava"
+      ],
+      "selectionReason": "Integrate queued C122, which resolves the final two v23 pickup mismatches after B122 was accepted.",
+      "detail": "",
+      "openedAt": "79bfa0faae7373beb3d89b06818165ee52d84583",
+      "openStanding": {
+        "sha": "070ae43e6b24f937cc805b6b8527c429b6569b58",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "pickup_checks",
+          "line": 3788,
+          "endLine": 3875,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "dopickup",
+          "line": 3876,
+          "endLine": 3897,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3788,
+        "to": 3897
+      },
+      "requiredFunctions": [
+        {
+          "name": "loot_mon",
+          "line": 2431,
+          "endLine": 2487,
+          "declared": true,
+          "sourceFile": "pickup.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v23/v23-pickup-over-water": {
+          "session": "synthetic/v23/v23-pickup-over-water",
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-pickup-over-water",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recordingPath": "challenges/cases/v23/v23-pickup-over-water.session.json",
+          "recordingSha256": "d4a8f39a9707b25215cfd5e78cf4f368718499ec50e24f804411f3da3fb10ec0",
+          "evaluationPath": "challenges/evaluations/20261006223245-v23.json",
+          "evaluationCommit": "c78f463ea340f06efd8705335aaf0180613f043b"
+        },
+        "synthetic/v23/v23-pickup-over-lava": {
+          "session": "synthetic/v23/v23-pickup-over-lava",
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-pickup-over-lava",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recordingPath": "challenges/cases/v23/v23-pickup-over-lava.session.json",
+          "recordingSha256": "a7bd7ab16deee54d90e8c22b111998acefc2bb3319fcff21608b3360ec5ff46a",
+          "evaluationPath": "challenges/evaluations/20261006223245-v23.json",
+          "evaluationCommit": "c78f463ea340f06efd8705335aaf0180613f043b"
+        }
+      },
+      "activeStanding": {
+        "sha": "070ae43e6b24f937cc805b6b8527c429b6569b58",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-pickup-over-water",
+          "session": "synthetic/v23/v23-pickup-over-water",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recording": "challenges/cases/v23/v23-pickup-over-water.session.json",
+          "recordingPath": "challenges/cases/v23/v23-pickup-over-water.session.json",
+          "recordingSha256": "d4a8f39a9707b25215cfd5e78cf4f368718499ec50e24f804411f3da3fb10ec0",
+          "recipe": "challenges/cases/v23/v23-pickup-over-water.recipe.session.json",
+          "recipeSha256": "584b658048f83aff1b0c6356c439c7e673f05bcf07f48e286f9c444b8a3d4685",
+          "replayInputSha256": "5cc41c31fa8a65b4de34ed4060380c6dd907281ded62526922cea9db97142874",
+          "evaluationPath": "challenges/evaluations/20261006231844-v23.json",
+          "evaluationCommit": "070ae43e6b24f937cc805b6b8527c429b6569b58",
+          "evaluationArtifact": "challenges/evaluations/20261006231844-v23.json",
+          "evaluationUtc": "2026-10-06T23:20:12.990Z",
+          "remainingScreens": 1,
+          "recordedSteps": 9,
+          "previousScreensMatched": 8,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 8,
+              "total": 9
+            },
+            "rng": {
+              "matched": 2697,
+              "total": 2697
+            },
+            "cursors": {
+              "matched": 8,
+              "total": 9
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over water",
+            "step": 8
+          },
+          "step": 8,
+          "kind": "stop",
+          "sourceFile": "hack.c",
+          "function": "pickup_checks",
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over water",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v23/v23-pickup-over-water.json",
+            "result": {
+              "session": "synthetic/v23/v23-pickup-over-water",
+              "corpus": "synthetic",
+              "batch": "v23",
+              "caseId": "v23-pickup-over-water",
+              "remainingScreens": 1,
+              "recordedSteps": 9,
+              "manifestPath": "challenges/manifests/v23.json",
+              "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+              "recordingSha256": "d4a8f39a9707b25215cfd5e78cf4f368718499ec50e24f804411f3da3fb10ec0",
+              "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+              "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+              "status": "complete",
+              "commit": "5862a1154f03695d0506303a6909a3838eebaaa6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v23",
+                "caseId": "v23-pickup-over-water",
+                "session": "synthetic/v23/v23-pickup-over-water",
+                "manifestPath": "challenges/manifests/v23.json",
+                "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+                "recording": "challenges/cases/v23/v23-pickup-over-water.session.json",
+                "recordingPath": "challenges/cases/v23/v23-pickup-over-water.session.json",
+                "recordingSha256": "d4a8f39a9707b25215cfd5e78cf4f368718499ec50e24f804411f3da3fb10ec0",
+                "recipe": "challenges/cases/v23/v23-pickup-over-water.recipe.session.json",
+                "recipeSha256": "584b658048f83aff1b0c6356c439c7e673f05bcf07f48e286f9c444b8a3d4685",
+                "replayInputSha256": "b21aa49a44b7596be8d00ac1b3bd0373b2684515573eb1fb30942261d96cfadb",
+                "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+                "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+                "evaluationArtifact": "challenges/evaluations/20261006212455-v23.json",
+                "evaluationUtc": "2026-10-06T21:26:24.973Z",
+                "remainingScreens": 1,
+                "recordedSteps": 9,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 8,
+                    "total": 9
+                  },
+                  "rng": {
+                    "matched": 2697,
+                    "total": 2697
+                  },
+                  "cursors": {
+                    "matched": 8,
+                    "total": 9
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over water",
+                  "step": 8
+                },
+                "step": 8,
+                "kind": "stop",
+                "sourceFile": "hack.c",
+                "function": "pickup_checks",
+                "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over water",
+                "cFile": "hack.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At segment 0 step 8 comma pickup over a pool stops at the JS pickup_checks terrain refusal. C prints that the hero cannot see the bottom and returns 0 without using a turn. Combine this with the lava case in one whole hack.c:pickup_checks/dopickup task, including consumed-return pickup.c:loot_mon and its bounded caller wiring.",
+              "source": {
+                "file": "hack.c",
+                "branch": "Explicit comma pickup on a pool or lava square; the hero is an ordinary human, not underwater in the pool case and not lava-loving in the lava case. No surface-walking/floating/clinging or applicable flying predicate intercepts the observed branch. C prints a refusal and returns 0 without advancing time.",
+                "functions": [
+                  "pickup_checks",
+                  "dopickup"
+                ],
+                "callers": [
+                  "cmd.c command dispatch invokes hack.c:dopickup for comma; js/hack.js:dopickup already awaits pickup_checks but maps every negative result to floor pickup. Preserve count capture and multi=0, map results 0/1 to ECMD_OK/ECMD_TIME, and wire the -2 swallowed result through loot_mon with the negated count pointer.",
+                  "pickup.c:doloot_core 2311 consumes loot_mon(mtmp,&inquiry,&prev_loot) for an adjacent monster. js/pickup.js:3549-3553 currently refuses that caller. Include its bounded caller correction when adding whole loot_mon, preserving inquiry/prev_loot and elapsed-time aggregation; do not claim whole doloot_core.",
+                  "hack.c:pickup_checks calls steed.c:rider_cant_reach on the unskilled riding branch. If including this tiny whole helper, also wire existing discarded callers pickup.c:able_to_loot 2050 (JS pickup.js:1748), potion.c:dodip 2346 (JS potion.js:3327), and trap.c:try_disarm 5473 (JS trap.js:2483). These are bounded caller corrections, not claims of those whole functions."
+                ],
+                "dependencies": [
+                  "Include whole pickup.c:loot_mon 2431-2481: dopickup consumes its return for the -2 swallowed-inventory path, so skipping it cannot complete whole pickup_checks/dopickup. Preserve saddle prompt y/n/q, no-limbs/cursed refusals, extract_from_minvent, verbose message, hold_another_object, rnd(3), then swallowed pickup(count) overriding elapsed time. Preserve optional passed_info and prev_loot pointers as canonical mutable values.",
+                  "Reuse existing pickup.c:pickup for floor and swallowed monster inventory, worn.c:which_armor/extract_from_minvent, and invent.c:hold_another_object. The latter pointer is assigned then discarded via nhUse; retain its real ownership and inventory side effects. No additional missing consumed-return helper was identified after adding loot_mon.",
+                  "Reuse source-pinned can_reach_floor in engrave.js, uteetering_at_seen_pit/t_at/is_pit, dungeon terrain predicates/surface, object-presence checks, hliquid and monster naming. The digests macro means attacktype_fordmg(AT_ENGL,AD_DGST), whose owner already exists in mondata.js; preserve real Flying (including mount/blocking), Wwalking Water Plane exclusion, and Breathless intrinsic/extrinsic/species semantics.",
+                  "Recommended same-task small void helper steed.c:rider_cant_reach 17-20 is currently missing. Port it whole and wire its bounded existing callers, or explicitly retain its discarded-call gap and riding evidence limit. Do not substitute an invented message/RNG operation for the gap.",
+                  "Shared contracts: pickup return values 1/0/-1/-2 and ECMD_TIME versus ECMD_OK; command count and multi; floor-object versus engulfer-minvent ownership; saddle extraction and mutable inquiry/prev_loot; awaited prompts/messages and canonical core versus display RNG. Remove the owned UnsupportedPickupError throw sites; other class uses remain outside this task until their last-site audit."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Evaluation challenges/evaluations/20261006212455-v23.json at 40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e reports 8/9 screens, 2697/2697 RNG calls and 8/9 cursors; exactly 1 screens remain. Examined publication 5862a1154f03695d0506303a6909a3838eebaaa6 has identical js/frozen blobs to the saved evaluation commit.",
+                "Only these three assigned recordings were replayed against an exported exact-publication js/frozen snapshot with official frozen runtime modules. Diagnostic /tmp/teleport-loop-worker-a46-20260929/.cache/A2-liquid-investigation-replay.log, bounded run-5S2vNG, reproduces the saved boundaries. This is mismatch diagnosis, not implementation completion or a passing validation claim.",
+                "First missing JS screen/cursor is segment 0 zero-based step 8, key comma: unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over water. There is no RNG mismatch. C prints You cannot even see the bottom, let alone pick up something. and leaves the hero command at ECMD_OK.",
+                "Replay state is hero (10,18), POOL, uinwater=false and uswallow=false. C hack.c:pickup_checks pool arm 3818-3828 reaches !Underwater after its surface/flying predicate, then prints the bottom refusal and returns 0.",
+                "Read whole hack.c:pickup_checks 3788-3871 and dopickup 3876-3891. Current JS hack.js:4266 has terrain/swallow/reachability refusals around an already ported no-object message arm; this is a whole-function port, not two message replacements. Cover swallowed-empty return 1, swallowed-inventory return -2, pool/lava surface gates, normal fallthrough, terrain no-object messages, and unreachable-floor/pit/riding/blind branches in source order.",
+                "dopickup captures count, clears multi and consumes all four pickup_checks results. The missing -2 branch consumes loot_mon(u.ustuck,&tmpcount,NULL), so whole pickup.c:loot_mon is a required prerequisite in this same coherent task. Its adjacent-monster caller in doloot_core also consumes the result and inquiry/prev_loot pointers and needs a bounded correction. The water and lava sessions share these exact source owners/contracts; combine them as one task while retaining separate cache identities.",
+                "Independent completion evidence must exercise comma pickup floor success/refusal, pool underwater fallthrough versus surface/flying refusal, lava-loving fallthrough, swallowed empty versus nonempty minvent including count/menu, and unreachable-floor/pit/blind/riding branches. Whole loot_mon additionally needs adjacent saddled-monster yes/no/q, cursed saddle/no limbs and saddle acquisition/drop entries through doloot. Use independent inputs and cheap relevant variations; retain blocked recipes for unported setup functions. These two current cases cover only no-time human terrain refusals, not swallowed or saddle production entries."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-pickup-over-lava",
+          "session": "synthetic/v23/v23-pickup-over-lava",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recording": "challenges/cases/v23/v23-pickup-over-lava.session.json",
+          "recordingPath": "challenges/cases/v23/v23-pickup-over-lava.session.json",
+          "recordingSha256": "a7bd7ab16deee54d90e8c22b111998acefc2bb3319fcff21608b3360ec5ff46a",
+          "recipe": "challenges/cases/v23/v23-pickup-over-lava.recipe.session.json",
+          "recipeSha256": "8b26b44bcdec73ab6c609d9d1776824809798f2e68d18af37fc97d4f030f1c31",
+          "replayInputSha256": "5cc41c31fa8a65b4de34ed4060380c6dd907281ded62526922cea9db97142874",
+          "evaluationPath": "challenges/evaluations/20261006231844-v23.json",
+          "evaluationCommit": "070ae43e6b24f937cc805b6b8527c429b6569b58",
+          "evaluationArtifact": "challenges/evaluations/20261006231844-v23.json",
+          "evaluationUtc": "2026-10-06T23:20:12.990Z",
+          "remainingScreens": 1,
+          "recordedSteps": 41,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2613,
+              "total": 2613
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over lava",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "hack.c",
+          "function": "pickup_checks",
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over lava",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v23/v23-pickup-over-lava.json",
+            "result": {
+              "session": "synthetic/v23/v23-pickup-over-lava",
+              "corpus": "synthetic",
+              "batch": "v23",
+              "caseId": "v23-pickup-over-lava",
+              "remainingScreens": 1,
+              "recordedSteps": 41,
+              "manifestPath": "challenges/manifests/v23.json",
+              "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+              "recordingSha256": "a7bd7ab16deee54d90e8c22b111998acefc2bb3319fcff21608b3360ec5ff46a",
+              "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+              "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+              "status": "complete",
+              "commit": "5862a1154f03695d0506303a6909a3838eebaaa6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v23",
+                "caseId": "v23-pickup-over-lava",
+                "session": "synthetic/v23/v23-pickup-over-lava",
+                "manifestPath": "challenges/manifests/v23.json",
+                "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+                "recording": "challenges/cases/v23/v23-pickup-over-lava.session.json",
+                "recordingPath": "challenges/cases/v23/v23-pickup-over-lava.session.json",
+                "recordingSha256": "a7bd7ab16deee54d90e8c22b111998acefc2bb3319fcff21608b3360ec5ff46a",
+                "recipe": "challenges/cases/v23/v23-pickup-over-lava.recipe.session.json",
+                "recipeSha256": "8b26b44bcdec73ab6c609d9d1776824809798f2e68d18af37fc97d4f030f1c31",
+                "replayInputSha256": "b21aa49a44b7596be8d00ac1b3bd0373b2684515573eb1fb30942261d96cfadb",
+                "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+                "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+                "evaluationArtifact": "challenges/evaluations/20261006212455-v23.json",
+                "evaluationUtc": "2026-10-06T21:26:24.973Z",
+                "remainingScreens": 1,
+                "recordedSteps": 41,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2613,
+                    "total": 2613
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over lava",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": "hack.c",
+                "function": "pickup_checks",
+                "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over lava",
+                "cFile": "hack.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At segment 0 step 40 comma pickup over lava stops at the JS pickup_checks terrain refusal. C prints that pickup would burn the hero to a crisp and returns 0 without using a turn. This is the same coherent whole hack.c:pickup_checks/dopickup task as the water case, including consumed-return pickup.c:loot_mon and its bounded caller wiring.",
+              "source": {
+                "file": "hack.c",
+                "branch": "Explicit comma pickup on a pool or lava square; the hero is an ordinary human, not underwater in the pool case and not lava-loving in the lava case. No surface-walking/floating/clinging or applicable flying predicate intercepts the observed branch. C prints a refusal and returns 0 without advancing time.",
+                "functions": [
+                  "pickup_checks",
+                  "dopickup"
+                ],
+                "callers": [
+                  "cmd.c command dispatch invokes hack.c:dopickup for comma; js/hack.js:dopickup already awaits pickup_checks but maps every negative result to floor pickup. Preserve count capture and multi=0, map results 0/1 to ECMD_OK/ECMD_TIME, and wire the -2 swallowed result through loot_mon with the negated count pointer.",
+                  "pickup.c:doloot_core 2311 consumes loot_mon(mtmp,&inquiry,&prev_loot) for an adjacent monster. js/pickup.js:3549-3553 currently refuses that caller. Include its bounded caller correction when adding whole loot_mon, preserving inquiry/prev_loot and elapsed-time aggregation; do not claim whole doloot_core.",
+                  "hack.c:pickup_checks calls steed.c:rider_cant_reach on the unskilled riding branch. If including this tiny whole helper, also wire existing discarded callers pickup.c:able_to_loot 2050 (JS pickup.js:1748), potion.c:dodip 2346 (JS potion.js:3327), and trap.c:try_disarm 5473 (JS trap.js:2483). These are bounded caller corrections, not claims of those whole functions."
+                ],
+                "dependencies": [
+                  "Include whole pickup.c:loot_mon 2431-2481: dopickup consumes its return for the -2 swallowed-inventory path, so skipping it cannot complete whole pickup_checks/dopickup. Preserve saddle prompt y/n/q, no-limbs/cursed refusals, extract_from_minvent, verbose message, hold_another_object, rnd(3), then swallowed pickup(count) overriding elapsed time. Preserve optional passed_info and prev_loot pointers as canonical mutable values.",
+                  "Reuse existing pickup.c:pickup for floor and swallowed monster inventory, worn.c:which_armor/extract_from_minvent, and invent.c:hold_another_object. The latter pointer is assigned then discarded via nhUse; retain its real ownership and inventory side effects. No additional missing consumed-return helper was identified after adding loot_mon.",
+                  "Reuse source-pinned can_reach_floor in engrave.js, uteetering_at_seen_pit/t_at/is_pit, dungeon terrain predicates/surface, object-presence checks, hliquid and monster naming. The digests macro means attacktype_fordmg(AT_ENGL,AD_DGST), whose owner already exists in mondata.js; preserve real Flying (including mount/blocking), Wwalking Water Plane exclusion, and Breathless intrinsic/extrinsic/species semantics.",
+                  "Recommended same-task small void helper steed.c:rider_cant_reach 17-20 is currently missing. Port it whole and wire its bounded existing callers, or explicitly retain its discarded-call gap and riding evidence limit. Do not substitute an invented message/RNG operation for the gap.",
+                  "Shared contracts: pickup return values 1/0/-1/-2 and ECMD_TIME versus ECMD_OK; command count and multi; floor-object versus engulfer-minvent ownership; saddle extraction and mutable inquiry/prev_loot; awaited prompts/messages and canonical core versus display RNG. Remove the owned UnsupportedPickupError throw sites; other class uses remain outside this task until their last-site audit."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Evaluation challenges/evaluations/20261006212455-v23.json at 40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e reports 40/41 screens, 2613/2613 RNG calls and 40/41 cursors; exactly 1 screens remain. Examined publication 5862a1154f03695d0506303a6909a3838eebaaa6 has identical js/frozen blobs to the saved evaluation commit.",
+                "Only these three assigned recordings were replayed against an exported exact-publication js/frozen snapshot with official frozen runtime modules. Diagnostic /tmp/teleport-loop-worker-a46-20260929/.cache/A2-liquid-investigation-replay.log, bounded run-5S2vNG, reproduces the saved boundaries. This is mismatch diagnosis, not implementation completion or a passing validation claim.",
+                "First missing JS screen/cursor is segment 0 zero-based step 40, key comma: unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over lava. There is no RNG mismatch. C prints You would burn to a crisp trying to pick things up. and leaves the hero command at ECMD_OK.",
+                "Replay state is hero (58,2), LAVAPOOL, uinwater=false and uswallow=false. C hack.c:pickup_checks lava arm 3829-3840 reaches !likes_lava after its surface/flying predicate, then prints the burn refusal and returns 0. The existing trap.c fire_damage_chain discarded gap appears earlier in this matching setup; preserve it as a separate evidence limit.",
+                "Read whole hack.c:pickup_checks 3788-3871 and dopickup 3876-3891. Current JS hack.js:4266 has terrain/swallow/reachability refusals around an already ported no-object message arm; this is a whole-function port, not two message replacements. Cover swallowed-empty return 1, swallowed-inventory return -2, pool/lava surface gates, normal fallthrough, terrain no-object messages, and unreachable-floor/pit/riding/blind branches in source order.",
+                "dopickup captures count, clears multi and consumes all four pickup_checks results. The missing -2 branch consumes loot_mon(u.ustuck,&tmpcount,NULL), so whole pickup.c:loot_mon is a required prerequisite in this same coherent task. Its adjacent-monster caller in doloot_core also consumes the result and inquiry/prev_loot pointers and needs a bounded correction. The water and lava sessions share these exact source owners/contracts; combine them as one task while retaining separate cache identities.",
+                "Independent completion evidence must exercise comma pickup floor success/refusal, pool underwater fallthrough versus surface/flying refusal, lava-loving fallthrough, swallowed empty versus nonempty minvent including count/menu, and unreachable-floor/pit/blind/riding branches. Whole loot_mon additionally needs adjacent saddled-monster yes/no/q, cursed saddle/no limbs and saddle acquisition/drop entries through doloot. Use independent inputs and cheap relevant variations; retain blocked recipes for unported setup functions. These two current cases cover only no-time human terrain refusals, not swallowed or saddle production entries."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pickup_checks",
+            "implementation": "js/hack.js",
+            "symbol": "pickup_checks",
+            "sourceReview": "Read whole hack.c3788-3871, then whole dopickup3876-3891. Preserve branch order and all four result values: swallowed empty digesting/non-digesting output returns1; nonempty minvent returns-2; raw Wwalking excluding Water Plane, is_floater/is_clinger, Flying including steed and blocking, raw magical Breathless plus species, Underwater and likes_lava determine surface refusal; empty-square terrain switch precedes reachability. Seen pit precedes unskilled rider, then blindness and hole/trapdoor surface overrides. All ordinary messages await in source order; no new RNG. Read consumed owner can_reach_floor engrave.c187-213 and current implementation, uteetering_at_seen_pit trap.c6647-6653, mondata.h digests/likes_lava and youprop.h property macros. Remove swallowed, water/lava, and unreachable-floor refusal placeholders. No returned note_unported value or injected substitute remains.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "dopickup",
+                "source": "hack.c3884 checks after copying command_count and resetting multi"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-checks-loot-mon.test.mjs",
+              "scripts/pickup-command.test.mjs",
+              "scripts/loot-command.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/pickup-swallowed-digest.session.json",
+              "recordings/hack.c/pickup-swallowed-vortex.session.json",
+              "recordings/hack.c/pickup-counted-stack.session.json",
+              "recordings/hack.c/pickup-levitating.session.json",
+              "recordings/hack.c/pickup-seen-pit.session.json",
+              "recordings/steed.c/rider-cant-reach-pickup-loot.session.json",
+              "recordings/hack.c/pickup-extended-count.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-water",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 8,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              },
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-lava",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              }
+            ],
+            "checkedAt": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d"
+          },
+          {
+            "name": "dopickup",
+            "implementation": "js/hack.js",
+            "symbol": "dopickup",
+            "sourceReview": "Whole hack.c3876-3891: copy integer command_count, clear multi before checks, map nonnegative checks to ECMD_TIME/OK, use tmpcount=-count passed by address into loot_mon for -2, otherwise pickup(-count). Both pickup and loot_mon results are consumed only for source time truth. Mutable {value} is the one JavaScript representation of each C pointer. Existing command bindings/extended dispatch retained. Remove obsolete comments asserting swallowed refusal; no stub remains.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runPickupCommand",
+                "source": "cmd.c extcmdlist comma pickup CMD_M_PREFIX -> rhack function pointer; doextcmd pickup, click-generated dopickup queue and MCMD.PICKUP use same row. js/cmd.js runPickupCommand, dispatchQueuedFunction5155, rhack5910 all reach whole dopickup."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-checks-loot-mon.test.mjs",
+              "scripts/pickup-command.test.mjs",
+              "scripts/loot-command.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/pickup-swallowed-digest.session.json",
+              "recordings/hack.c/pickup-swallowed-vortex.session.json",
+              "recordings/pickup.c/loot-swallowed-count.session.json",
+              "recordings/hack.c/pickup-counted-stack.session.json",
+              "recordings/steed.c/rider-cant-reach-pickup-loot.session.json",
+              "recordings/hack.c/pickup-extended-count.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-water",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 8,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              },
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-lava",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              }
+            ],
+            "checkedAt": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d"
+          },
+          {
+            "name": "loot_mon",
+            "implementation": "js/pickup.js",
+            "symbol": "loot_mon",
+            "sourceReview": "Read whole pickup.c2431-2481 and caller doloot_core2178-2344. Skip null/current steed/no saddle; mark inquiry before x_monnam SUPPRESS_SADDLE prompt. Yes tests nolimbs then curse with distinct0/1 returns, awaits extract_from_minvent(TRUE,FALSE), verbose take message, existing hold_another_object with doname drop argument, then exactly rnd(3), then prev_loot TRUE. q returns0; n falls through. Swallowed tail uses passed_info count and replaces timepassed with existing pickup return. Read source and implementation owners which_armor/extract_from_minvent worn.c, hold_another_object invent.c1208-1311, pickup/pickup_object/pick_obj pickup.c. Compose existing object/drop owners for hold fallback, encumbrance and equipment updates. Wire doloot_core lootmon label: inquiry/loot pointers, looted_mon based on result, impaired direction time and source else wording retained. Owned loot_mon refusal removed; no whole doloot_core or downstream owner credit is claimed.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "dopickup",
+                "source": "hack.c3886 swallowed route passes negated count and NULL prev_loot"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "doloot_core_lootmon",
+                "source": "pickup.c2311 adjacent-monster loot, int/boolean pointers and consumed time return"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-checks-loot-mon.test.mjs",
+              "scripts/pickup-command.test.mjs",
+              "scripts/loot-command.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/loot-applied-cursed-saddle.session.json",
+              "recordings/pickup.c/loot-applied-saddle.session.json",
+              "recordings/pickup.c/loot-saddle-no.session.json",
+              "recordings/pickup.c/loot-saddle-quit.session.json",
+              "recordings/pickup.c/loot-swallowed-count.session.json"
+            ],
+            "sourceFile": "pickup.c",
+            "synthetic": [],
+            "checkedAt": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d"
+          }
+        ],
+        "entryPointReview": "Commands are comma pickup (including swallowed count and mounted reach decisions), extended #pickup, and adjacent #loot saddle removal. These converge on the whole selected helpers; separate independent #pickup recording verifies doextcmd production wiring. The bounded mounted helper callers are hack.c pickup_checks and pickup.c able_to_loot through floor container #loot and #tip, both recorded in the mounted route. potion.c dodip and trap.c untrap have earlier source floor guards excluding the same unskilled mounted state before their nested rider helper; matching guard recordings are preserved without claiming nested reachability. No caller is labeled compile-time inactive. Independent applied saddles cover successful and cursed removal; natural Knight no/quit variation covers source inquiry without transfer. Bounded startup scan122061001-122061016 produced16/16 ponies,0/16 cursed saddles without widening; cursed coverage uses wished equipment instead. C-pinned direct tests cover nolimbs (ordinary #loot has earlier nohands guard), raw blocked properties, floating/lava-loving forms, blind/hole/trapdoor wording, current-steed exclusion and exact extraction/message/rnd order. Natural-start saddle acquisition is blocked by inherited dog.c makedog/steed.c put_saddle_on_mon/steal.c mpickobj identification ordering, documented in its committed recipe; independently applied-saddle evidence establishes the selected loot_mon entry without claiming startup owner completion.",
+        "entryPoints": [
+          {
+            "name": "comma pickup, including swallowed inventory and mounted reach checks",
+            "functions": [
+              "pickup_checks",
+              "dopickup",
+              {
+                "sourceFile": "pickup.c",
+                "name": "loot_mon"
+              }
+            ],
+            "recordings": [
+              "recordings/hack.c/pickup-swallowed-digest.session.json",
+              "recordings/hack.c/pickup-swallowed-vortex.session.json",
+              "recordings/pickup.c/loot-swallowed-count.session.json",
+              "recordings/hack.c/pickup-counted-stack.session.json",
+              "recordings/hack.c/pickup-levitating.session.json",
+              "recordings/hack.c/pickup-seen-pit.session.json",
+              "recordings/steed.c/rider-cant-reach-pickup-loot.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-water",
+                "segment": 0,
+                "fromStep": 8,
+                "throughStep": 8,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              },
+              {
+                "batch": "v23",
+                "caseId": "v23-pickup-over-lava",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 40,
+                "source": "cmd.c rhack comma -> hack.c dopickup -> pickup_checks, liquid branch before empty floor checks"
+              }
+            ]
+          },
+          {
+            "name": "extended #pickup with a count",
+            "functions": [
+              "pickup_checks",
+              "dopickup"
+            ],
+            "recordings": [
+              "recordings/hack.c/pickup-extended-count.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "adjacent #loot saddle inquiry and acquisition",
+            "functions": [
+              {
+                "sourceFile": "pickup.c",
+                "name": "loot_mon"
+              }
+            ],
+            "recordings": [
+              "recordings/pickup.c/loot-applied-cursed-saddle.session.json",
+              "recordings/pickup.c/loot-applied-saddle.session.json",
+              "recordings/pickup.c/loot-saddle-no.session.json",
+              "recordings/pickup.c/loot-saddle-quit.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
