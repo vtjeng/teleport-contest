@@ -81,6 +81,26 @@ test('controlled changes decline before polymon and preserve the beast prompt',
         assert.match(game.nhDisplay.serialize(), /Do you want to change into a rat\?/u);
     });
 
+test('controlled changes accept a key or the configured paranoid word',
+    async () => {
+        // flag.h ParanoidWerechange selects cmd.c's complete-word reader;
+        // otherwise C accepts the single y byte.
+        for (const paranoid of [false, true]) {
+            await initialized();
+            game.u.uprops[POLYMORPH_CONTROL].intrinsic = 1;
+            game.flags.paranoia_bits = paranoid ? PARANOID_WERECHANGE : 0;
+            const keys = [...(paranoid ? 'yes\n' : 'y')];
+            game.nhDisplay.readKey = async () => {
+                const key = keys.shift();
+                assert.ok(key, 'the source confirmation reads only its answer');
+                return key.charCodeAt(0);
+            };
+            await you_were(game, quiet);
+            assert.equal(game.u.umonnum, PM_WERERAT);
+            assert.equal(keys.length, 0);
+        }
+    });
+
 test('stunning disables controlled confirmation before the ordinary transformation',
     async () => {
         await initialized();
