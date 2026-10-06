@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    A_STR,
     BEAR_TRAP,
     BLINDED,
     HALLUC,
@@ -1595,6 +1596,73 @@ test('mattacku swings a wielded weapon and adds its to-hit bonus',
     assert.deepEqual(raised.bounds,
         ['rnd(20)', 'd(1,4)', 'rnd(8)', 'rn2(3)', 'rn2(6)']);
     assert.equal(state.u.uhp, 12);
+});
+
+test('mattacku carries the weapon attack roll into poison handling',
+    async () => {
+    // mhitu.c:898 stores rnd(20) in gm.mhitu_dieroll. The landed weapon arm
+    // reaches uhitm.c:4107 only for rolls through five, so this low hit pins
+    // the value across mattacku(), hitmu(), and mhitm_ad_phys().
+    const state = await meleeHero();
+    const goblin = meleeAttacker(state, PM_GOBLIN, 1, 0);
+    const dagger = mksobj(DAGGER, false, false, { state });
+    dagger.nobj = null;
+    dagger.spe = 0;
+    dagger.opoisoned = true;
+    goblin.minvent = dagger;
+    goblin.mw = dagger;
+    goblin.weapon_check = NO_WEAPON_WANTED;
+    const poisonCalls = [];
+
+    // rnd(20)=5 both lands and meets the poison threshold. dmgval() then
+    // consumes rnd(4)=1 before the two source knockback gates.
+    const poisonedHit = meleeEnv(state, [5, 1], {
+        poisoned: async (...args) => poisonCalls.push(args),
+    });
+    assert.equal(await mattacku(goblin, poisonedHit.env), false);
+    assert.deepEqual(poisonedHit.bounds, [
+        'rnd(20)', 'd(1,4)', 'rnd(4)', 'rn2(3)', 'rn2(6)',
+    ]);
+    assert.deepEqual(poisonedHit.lines, [
+        'The goblin thrusts his dagger.',
+        'The goblin hits!',
+    ]);
+    assert.equal(poisonCalls.length, 1);
+    assert.equal(poisonCalls[0][0], "The goblin's weapon");
+    assert.equal(poisonCalls[0][1], A_STR);
+    assert.equal(poisonCalls[0][2], 'goblin');
+    assert.equal(poisonCalls[0][3], 10);
+    assert.equal(poisonCalls[0][4], false);
+});
+
+test('mattacku stops after poisoned weapon handling ends the game',
+    async () => {
+    // C's lethal poisoned() -> done() path is NORETURN. JavaScript completes
+    // the final display and sets gameover, so hitmu() must stop before the two
+    // knockback draws and before its fallback mdamageu() death check.
+    const state = await meleeHero();
+    const goblin = meleeAttacker(state, PM_GOBLIN, 1, 0);
+    const dagger = mksobj(DAGGER, false, false, { state });
+    dagger.nobj = null;
+    dagger.spe = 0;
+    dagger.opoisoned = true;
+    goblin.minvent = dagger;
+    goblin.mw = dagger;
+    goblin.weapon_check = NO_WEAPON_WANTED;
+    let poisonCalls = 0;
+    const lethalHit = meleeEnv(state, [5, 1], {
+        poisoned: async () => {
+            ++poisonCalls;
+            state.u.uhp = 0;
+            state.program_state.gameover = 1;
+        },
+    });
+
+    assert.equal(await mattacku(goblin, lethalHit.env), 1);
+    assert.equal(poisonCalls, 1);
+    assert.deepEqual(lethalHit.bounds, [
+        'rnd(20)', 'd(1,4)', 'rnd(4)',
+    ]);
 });
 
 test('a raw fatal weapon roll survives negative-AC mitigation', async () => {

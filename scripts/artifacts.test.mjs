@@ -60,7 +60,8 @@ import {
 import {
     A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ANTIMAGIC, BLND_RES,
     ENERGY_REGENERATION,
-    HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM, SLIMED,
+    HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM,
+    OBJ_MINVENT, SLIMED,
     W_ARM, W_ARMC, W_ART, W_WEP,
 } from '../js/const.js';
 import {
@@ -81,7 +82,9 @@ import {
     GOLD_DRAGON_SCALE_MAIL,
     LONG_SWORD,
     LUCKSTONE,
+    OIL_LAMP,
     ORCISH_DAGGER,
+    SCR_TELEPORTATION,
     SILVER_DRAGON_SCALE_MAIL,
     SILVER_SABER,
 } from '../js/objects.js';
@@ -1169,6 +1172,107 @@ test('artifact_hit burns away Slimed when the fire destruction roll misses',
         'The fiery blade burns you!',
         'The slime that covers you is burned away!',
     ]);
+});
+
+test('artifact_hit forwards planned item destruction and ignition operations',
+    async () => {
+    // artifact.c:1507-1514 enters the inventory effects on rn2(4)==0.
+    // One scroll pins destroy_items()'s random stream and one unlit oil lamp
+    // pins ignite_items()'s begin-burn operation after the scroll is removed.
+    async function runItemEffects(planning) {
+        const state = stateFor('Val', 'lawful');
+        objects_globals_init(state);
+        state.u = { uprops: [], ulycn: NON_PM, ustuck: null };
+        state.youmonst = {
+            data: {}, mx: 0, my: 0, minvent: null, misc_worn_check: 0,
+        };
+        state.uwep = null;
+        state.mons = [];
+        state.invent = null;
+        init_artifacts(state);
+        const defender = {
+            data: { mresists: 0 },
+            mx: 3,
+            my: 4,
+            minvis: true,
+            mhp: 20,
+            mhpmax: 20,
+            minvent: null,
+        };
+        const lamp = {
+            otyp: OIL_LAMP,
+            oclass: state.objects[OIL_LAMP].oc_class,
+            o_id: 11202,
+            quan: 1,
+            where: OBJ_MINVENT,
+            ocarry: defender,
+            nobj: null,
+            lamplit: false,
+            age: 100,
+            in_use: false,
+            cursed: false,
+            unpaid: false,
+            oartifact: 0,
+            owornmask: 0,
+        };
+        const scroll = {
+            otyp: SCR_TELEPORTATION,
+            oclass: state.objects[SCR_TELEPORTATION].oc_class,
+            o_id: 11201,
+            quan: 1,
+            where: OBJ_MINVENT,
+            ocarry: defender,
+            nobj: lamp,
+            in_use: false,
+            oartifact: 0,
+            owornmask: 0,
+        };
+        defender.minvent = scroll;
+        const draws = [];
+        const burned = [];
+        const damage = { value: 3 };
+        const special = await artifact_hit(
+            null,
+            defender,
+            { oartifact: ART_FIRE_BRAND, otyp: LONG_SWORD },
+            damage,
+            10,
+            state,
+            {
+                planning,
+                random: {
+                    rn2: (bound) => {
+                        draws.push(`rn2(${bound})`);
+                        return 0;
+                    },
+                    rnd: (bound) => {
+                        draws.push(`rnd(${bound})`);
+                        return 1;
+                    },
+                },
+                message: async () => {},
+                squareVisible: () => false,
+                beginBurn: (obj) => {
+                    burned.push(obj);
+                    obj.lamplit = true;
+                },
+            },
+        );
+        return { burned, damage, defender, draws, lamp, special };
+    }
+
+    for (const planning of [true, false]) {
+        const result = await runItemEffects(planning);
+        assert.equal(result.special, false);
+        assert.equal(result.damage.value, 7);
+        assert.equal(result.defender.minvent, result.lamp,
+            'the injected destruction path removes the scroll');
+        assert.deepEqual(result.burned, [result.lamp]);
+        assert.equal(result.lamp.lamplit, true);
+        assert.deepEqual(result.draws, [
+            'rn2(4)', 'rn2(5)', 'rn2(3)',
+        ]);
+    }
 });
 
 test('attacks() returns true when the artifact attack type matches', () => {
