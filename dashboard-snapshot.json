@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T01:41:18.374Z",
+  "capturedAt": "2026-10-06T01:48:00.945Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -20392,6 +20392,34 @@
         "type": "accepted",
         "at": "2026-10-06T01:40:49.964Z",
         "task": "C87"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-c87-a8a4beb4",
+        "type": "published",
+        "at": "2026-10-06T01:42:09.970Z",
+        "task": "C87",
+        "commit": "a8a4beb4d1c96c7341db85f8caf0027ac7ece023"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A103-drain-en-20261005",
+        "type": "assign",
+        "at": "2026-10-06T01:45:47.266Z",
+        "task": "A103",
+        "worker": "A2",
+        "goal": "port-trap-drain-en-v19-20261005",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B109-dochug-20261005",
+        "type": "assign",
+        "at": "2026-10-06T01:46:09.602Z",
+        "task": "B109",
+        "worker": "B",
+        "goal": "div-monmove-dochug-swallowed-reattack-v21-20261005",
+        "kind": "implementation"
       }
     ]
   },
