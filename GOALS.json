@@ -180483,7 +180483,7 @@
     {
       "id": "port-timeout-stoned-dialogue-heal-legs-v22-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete petrification timeout dialogue and silent leg healing",
       "cFile": "timeout.c",
       "sessions": [
@@ -180497,15 +180497,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2dd4a6fc5922b536fe79f76ab272ad0f3ebc5a5c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "stoned_dialogue",
           "line": 137,
           "endLine": 196,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -180519,7 +180522,7 @@
           "endLine": 2489,
           "declared": true,
           "sourceFile": "do.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -180757,7 +180760,191 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "stoned_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "stoned_dialogue",
+            "sourceReview": "Read whole timeout.c stoned_texts at128-134 and stoned_dialogue137-185, plus nh_timeout raw Stoned call before common decrements. Await urgent warning first, use masked timeout only to choose five through one, replace limbs with extremities only for nolimbs. Five clears all HFast and positive multi; four preserves a curing opentin occupation only when consumed Popeye(STONED) returns true, then cancels positive multi; three stops occupation, calls nomul(-3), sets multi_reason and nomovemsg, and calls heal_legs(2) only for unmounted Wounded_legs; two extends only masked Deaf1-4 to5 retaining source bits and clears raw Vomiting/Slimed through silent existing helpers. Unconditional exercise(A_DEX,FALSE) runs last, including maskedzero or out-of-range counts; normal unsaturated human exercise draws exactly rn2(2), while polymorph/exercise saturation skip that draw as the existing source helper specifies. Complete consumed existing callees checked: mondata.h nolimbs, hacklib.c strstri740-784 and strsubst536-551, eat.c Popeye3920-3956 and its return contract. Also checked allmain.c stop_occupation684-696, hack.c nomul4161-4173, attrib.c exercise489-518, potion.c set_itimeout/make_vomiting/make_slimed and whole do.c heal_legs. Removed obsolete stoned_dialogue note_unported and inserted awaited nh_timeout call in source order before slime and property decrements. Any nonzero raw Stoned now requests live elapsed-turn handoff because even silent counts exercise Dexterity; invulnerability retains the earlier source guard. Planning callbacks remain silent. Added no RNG/message/state substitutes and no new unported callee gap. timeout.c done_timeout at actual petrification expiry remains a separate existing gap outside this helper.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c nh_timeout: raw Stoned after invulnerability guard, before Slimed and common property decrements"
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurn",
+                "source": "allmain.c moveloop_core273 elapsed-turn nh_timeout; existing live-state handoff stops speculation before unconditional stoned_dialogue exercise and warning/state effects"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-stoned.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c117-stoning-initial-stages.session.json",
+              "recordings/timeout.c/c117-stoning-silent-wound-healing.session.json",
+              "recordings/timeout.c/c117-stoning-stage-two-variation.session.json"
+            ],
+            "sourceFile": "timeout.c",
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 20,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> stoned_dialogue"
+              },
+              {
+                "batch": "v22",
+                "caseId": "wizard-eats-wished-cockatrice-egg-v22-cfirst",
+                "segment": 0,
+                "fromStep": 27,
+                "throughStep": 27,
+                "source": "eat.c:doeat -> done_eating -> fpostfx establishes Stoned; allmain.c:moveloop_core -> timeout.c:nh_timeout -> stoned_dialogue"
+              }
+            ],
+            "checkedAt": "2dd4a6fc5922b536fe79f76ab272ad0f3ebc5a5c"
+          },
+          {
+            "name": "heal_legs",
+            "implementation": "js/do.js",
+            "symbol": "heal_legs",
+            "sourceReview": "Read complete do.c heal_legs2449-2486, body-part/plural/verb callees and encumber_msg. C how is stored as the operation option how, default0 at unchanged ordinary callers; it is not a second game-state value. For any raw intrinsic or extrinsic wound: set botl, restore one temporary Dexterity point only while negative, await body-part feel-better output only when unmounted and how!=2, clear both property halves together, and invoke ordinary encumber_msg only for how0. Mode1 suppresses encumbrance during mounted dismount; mode2 suppresses both leg and encumbrance output. stoned_dialogue passes2 at source stage3. Expanded source caller wiring in steed.c dismount_steed655 passes1 before releasing u.usteed, replacing the obsolete heal_legs-only refusal; its other source branches remain outside this task. All existing active ordinary callers continue passing default0 and retain their source guards/order. Inspected steed.c mount_steed236: the enclosing wounded-mount legs_in_no_shape/debug-force healing question remains explicitly refused in JavaScript before this call; no execution credit is claimed for that separate unsupported caller branch. No placeholder was added and the helper has no unported callee.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "stoned_dialogue",
+                "source": "timeout.c170 heal_legs(2) after occupation/nomul state and before unconditional exercise"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "decrement_property_timeouts",
+                "source": "timeout.c775 ordinary heal_legs(0) on WOUNDED_LEGS expiry before stop_occupation"
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "dismount_steed",
+                "source": "steed.c655 heal_legs(1) while still mounted, before u.usteed=NULL658; replaced heal_legs-only refusal without claiming unrelated dismount branches"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_speed",
+                "source": "potion.c1058 ordinary heal_legs(0) for non-cursed speed potion and unmounted Wounded_legs"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_extra_healing",
+                "source": "potion.c1140 ordinary heal_legs(0) for blessed extra-healing and unmounted Wounded_legs"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_full_healing",
+                "source": "potion.c1161 ordinary heal_legs(0), blessed mounted or non-cursed unmounted"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "fpostfx",
+                "source": "eat.c2558 ordinary heal_legs(0) after non-cursed lump-of-royal-jelly effects"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c579 TROUBLE_WOUNDED_LEGS -> heal_legs(0)"
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c99 throne healing -> heal_legs(0) after blindness/sickness clears"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wounded-legs.test.mjs",
+              "scripts/dismount-steed.test.mjs",
+              "scripts/mount-steed.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/hero-bear-trap.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/potion-full-healing.test.mjs",
+              "scripts/eat.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c117-stoning-silent-wound-healing.session.json",
+              "recordings/do.c/c117-dismount-heals-steed-legs.session.json",
+              "recordings/do.c/c117-mounted-leg-expiry-variation.session.json",
+              "recordings/do.c/c117-potion-heals-leg-wounds.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [],
+            "checkedAt": "2dd4a6fc5922b536fe79f76ab272ad0f3ebc5a5c"
+          }
+        ],
+        "entryPointReview": "Selected source units are two helpers. stoned_dialogue has the single elapsed-turn clock dispatcher, exercised by both admitted v22 production routes: debug property at steps18-20 and eaten cockatrice egg at step27. Independently chosen Rogue recordings cover warnings5/4, stage3 silent leg healing and immobilization, and stage2 Deaf/Vomiting changes. Mode0 ordinary callers converge on the same whole heal_legs operation, and their existing source guards were retained: expiry, speed/extra/full healing potions, non-cursed royal jelly, prayer and throne. Matching independent extra-healing and mounted-expiry recordings cover ordinary helper behavior; mounted voluntary dismount covers mode1 before steed release; stoning covers mode2. C steed.c mount_steed236 belongs to an enclosing unsupported wounded-mount/debug-force prompt branch; the unchanged refusal assertion in mount-steed.test.mjs passes, and this delivery does not claim that branch or whole mount_steed/dismount_steed. Final petrification done_timeout/death is a separate existing timeout gap. No additional compile-time inactive caller was invented. Helpers are verified across modes; direct tests pin branches no cheap production recipe reaches, including limbless and curing-tin occupation. Recordings were replayed with frozen official modules and production state checks after strict PRNG/screen/cursor/frame parity.",
+        "entryPoints": [
+          {
+            "name": "elapsed hero turn with Stoned from timed intrinsic or eaten petrifying egg",
+            "functions": [
+              {
+                "sourceFile": "timeout.c",
+                "name": "stoned_dialogue"
+              }
+            ],
+            "recordings": [
+              "recordings/timeout.c/c117-stoning-initial-stages.session.json",
+              "recordings/timeout.c/c117-stoning-silent-wound-healing.session.json",
+              "recordings/timeout.c/c117-stoning-stage-two-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+                "segment": 0,
+                "fromStep": 18,
+                "throughStep": 20,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> stoned_dialogue"
+              },
+              {
+                "batch": "v22",
+                "caseId": "wizard-eats-wished-cockatrice-egg-v22-cfirst",
+                "segment": 0,
+                "fromStep": 27,
+                "throughStep": 27,
+                "source": "eat.c:doeat -> done_eating -> fpostfx establishes Stoned; allmain.c:moveloop_core -> timeout.c:nh_timeout -> stoned_dialogue"
+              }
+            ]
+          },
+          {
+            "name": "wounded-leg healing modes through ordinary potion/expiry, mounted dismount, and stoning",
+            "functions": [
+              {
+                "sourceFile": "do.c",
+                "name": "heal_legs"
+              }
+            ],
+            "recordings": [
+              "recordings/timeout.c/c117-stoning-silent-wound-healing.session.json",
+              "recordings/do.c/c117-dismount-heals-steed-legs.session.json",
+              "recordings/do.c/c117-mounted-leg-expiry-variation.session.json",
+              "recordings/do.c/c117-potion-heals-leg-wounds.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2dd4a6fc5922b536fe79f76ab272ad0f3ebc5a5c",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-timeout-region-dialogue-v22-20261006",
