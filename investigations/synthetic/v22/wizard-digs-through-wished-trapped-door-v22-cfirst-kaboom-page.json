@@ -1,0 +1,146 @@
+{
+  "session": "synthetic/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page",
+  "corpus": "synthetic",
+  "batch": "v22",
+  "caseId": "wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page",
+  "remainingScreens": 3,
+  "recordedSteps": 65,
+  "manifestPath": "challenges/manifests/v22.json",
+  "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+  "recordingSha256": "158c7b9202afc5f7d31b54efdeeab70f4124a376583beb2c79732753c9db24a4",
+  "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
+  "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb",
+  "commit": "9758aabc188413626cbf908f909e9448412c9fdb",
+  "status": "complete",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v22",
+    "caseId": "wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page",
+    "session": "synthetic/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page",
+    "manifestPath": "challenges/manifests/v22.json",
+    "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+    "recording": "challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.session.json",
+    "recordingPath": "challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.session.json",
+    "recordingSha256": "158c7b9202afc5f7d31b54efdeeab70f4124a376583beb2c79732753c9db24a4",
+    "recipe": "challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.recipe.session.json",
+    "recipeSha256": "18be533e7365296b84e668cbe2d0418ab8d5a3261c9f859621e0f2e9c6228830",
+    "replayInputSha256": "95e601d652ecd5bef4db004f4b10f27fca78dc0a408fc07bfe10a748ce0baedf",
+    "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
+    "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb",
+    "evaluationArtifact": "challenges/evaluations/20261006163300-v22.json",
+    "evaluationUtc": "2026-10-06T16:33:08.254Z",
+    "remainingScreens": 3,
+    "recordedSteps": 65,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 62,
+        "total": 65
+      },
+      "rng": {
+        "matched": 2472,
+        "total": 2483
+      },
+      "cursors": {
+        "matched": 63,
+        "total": 65
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 62,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 46,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2470,
+        "cEntry": "rnd(6)=6",
+        "cCaller": "b_trapped(trap.c:6697)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": " "
+        },
+        "stepIndex": 62
+      },
+      "cursor": {
+        "index": 62,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": " "
+        },
+        "cCursor": [
+          54,
+          0,
+          1
+        ],
+        "jsCursor": [
+          41,
+          18,
+          1
+        ]
+      }
+    },
+    "step": 62,
+    "kind": "rng",
+    "sourceFile": "trap.c",
+    "function": "b_trapped",
+    "message": null,
+    "cFile": "trap.c",
+    "luaFile": null,
+    "line": 6697
+  },
+  "summary": "At segment 0 step 62, dig() skips the trapped-door call to trap.c:b_trapped(). C draws rnd(6)=6 before the pending KABOOM message forces a door-break --More-- page; JavaScript continues the turn instead. Port the whole b_trapped() function and wire its source callers, preserving explosion damage, attribute exercise, stun timeout, and asynchronous message order.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "trap.c",
+    "functions": [
+      "b_trapped"
+    ],
+    "branch": "The hero completes digging effort above 100 against a DOOR carrying D_TRAPPED. dig() prints the break-through message, changes the door mask to D_NODOOR, then calls b_trapped(\"door\", NO_PART) before recalc_block_point(), newsym(), and digging cleanup. b_trapped computes damage from level_difficulty(), prints KABOOM, wakes nearby monsters, applies Maybe_Half_Phys damage, exercises Strength negatively, exercises Constitution only for a bodypart other than NO_PART, and adds the unhalved damage to the existing HStun timeout.",
+    "callers": [
+      "C dig.c:dig():300-570 calls b_trapped(\"door\", NO_PART) at 536 after the message and door-mask change. At examined commit 9758aabc, js/dig.js:dig():395-748 reaches the same D_TRAPPED arm at 691-697 but uses note_unported(\"trap.c b_trapped\") at 694.",
+      "C dig.c:use_pick_axe2() registers dig as an occupation at 1311 and 1356; JS js/dig.js:use_pick_axe2() registers the same exported dig callback at 1055 and 1112. The assigned keys a, p, l reach application of the pick-axe and eastward digging; the occupation completes during recorded step 61 and the message continuation is step 62.",
+      "Other C caller sites are eat.c:consume_tin():1538 (tin, NO_PART), hack.c:still_chewing():788/802 (secret door or door, NO_PART), lock.c:picklock():141 and doopen_indir():908 (door, FINGER), detect.c:openone():1753 (door, NO_PART), trap.c:untrap():6076 (door, FINGER), and dokick.c:kick_door():939/988 (door, FOOT). Inventory these source sites and replace existing source-named b_trapped gaps when wiring the whole function; refusal-backed caller branches must retain their separate incomplete-source status."
+    ],
+    "dependencies": [
+      "dungeon.c:level_difficulty() supplies the consumed damage bound; js/dungeon.js:level_difficulty() is implemented. On this Dlvl:1 witness the expression is 5+1=6; preserve C integer division for lvl>=5.",
+      "mon.c:wake_nearby(FALSE) is implemented by js/mon.js:wake_nearby(), taking false plus an environment containing state. Preserve its position after the explosion message and before damage.",
+      "hack.c:losehp() is implemented by js/hack.js:losehp(); preserve Maybe_Half_Phys(dmg), killer \"explosion\", and KILLED_BY_AN. trap.js already has the physical-damage helper and imports losehp.",
+      "attrib.c:exercise() and potion.c:make_stunned() are implemented and imported by trap.js. Call exercise(A_STR,FALSE); call exercise(A_CON,FALSE) only for bodypart!=NO_PART; then make_stunned((HStun & TIMEOUT)+dmg,TRUE). Do not halve the stun increment when physical damage is halved.",
+      "The C Soundeffect call precedes pline. If the corresponding sound operation remains unported, retain a source-named discarded-call gap rather than invent output or random draws. All message-producing calls need asynchronous sequencing so --More-- suspends before wake, damage, exercise, stun, and caller map cleanup."
+    ]
+  },
+  "evidence": [
+    "Saved queue .cache/v22-work-queue.json and complete evaluation challenges/evaluations/20261006163300-v22.json at 9758aabc188413626cbf908f909e9448412c9fdb record 62/65 screens, 2472/2483 RNG entries, and 63/65 cursors. First screen, RNG, and cursor differences all occur at segment 0 step 62, key space; C rnd(6)=6 at b_trapped(trap.c:6697), JS rn2(5)=2.",
+    "Frozen C recording challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.session.json has SHA-256 158c7b9202afc5f7d31b54efdeeab70f4124a376583beb2c79732753c9db24a4. Step 61 shows the digging start/hit --More-- page. Step 62 consumes exactly rnd(6)=6 while showing the door-break --More-- page. Step 63, key dot, remains on that same page and consumes no RNG. Step 64, key space, displays \"KABOOM!!  The door was booby-trapped!  You stagger...\", HP 6(12), and Stun.",
+    "Read the whole C trap.c:b_trapped() at 6692-6707. Its only initial random call is rnd(5+(lvl<5?lvl:2+lvl/2)); output, wake, losehp, Strength exercise, conditional Constitution exercise, and stun follow in that order. For NO_PART no Constitution exercise occurs. At step 64 the source exercise call consumes rn2(2)=1 before monster-turn random calls.",
+    "git show 9758aabc188413626cbf908f909e9448412c9fdb:js/dig.js confirms the exact skipped call at line 694 and caller cleanup ordering at 695-699. Searching examined trap.js for b_trapped finds only its untrap caller gap, with no b_trapped declaration. This is missing source behavior, not a defect in an existing b_trapped implementation.",
+    "Reused v22 preparation evidence: the admitted manifest attributes this case to dig.c:dig -> trap.c:b_trapped and retains independent C replay run-XGvwsU with byte-identical recording hash. Its original strict comparison run-siFeQB reports the same first source boundary after converting displayed step 63 to zero-based step 62. No new C recording or full validation was run.",
+    "The independently assignable source scope is whole trap.c:b_trapped(), with production caller wiring and removal of replaced gaps. Read the runtime ledger before writing this record; no outstanding task reserved b_trapped or the trapped-door explosion contract. Recheck reservations when selecting implementation. The reusable callee implementations above avoid a new damage, timer, or wake-state owner.",
+    "This investigation establishes the first cause and implementation scope from saved replay measurements and source. It does not establish that implementing b_trapped will match every later boundary or certify its other tin, secret-door, lock, untrap, magic-open, and kick entry points; those require source-completion evidence in the implementation task."
+  ]
+}
