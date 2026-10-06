@@ -29592,7 +29592,15 @@
         "sha": "ebf442841b3a412c75a573a746f5725791dbe946",
         "screens": 7170,
         "rng": 524609
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "corpse_chance",
+          "reason": "Whole-source review found retained lich and Vlad refusal, incorrect swallowed explosion hearing, and a missing DEADMONSTER recheck after mondied and lifesaving; the prior gas-spore evidence covered only part of corpse_chance.",
+          "followupGoal": "port-mon-corpse-chance-whole-v21-20261006",
+          "at": "1cbd575eb1c5cec2220358df8c0b6996f807d35e"
+        }
+      ]
     },
     {
       "id": "fix-pager-quest-staircase-description",
@@ -177961,6 +177969,59 @@
         "sha": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "port-mon-corpse-chance-whole-v21-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete corpse chance and wire monster digestion death handling",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst"
+      ],
+      "selectionReason": "The remaining v21 Purple Worm case requires gulpmm through mdamagem and uhitm.c mhitm_ad_dgst, which consumes mon.c corpse_chance. Later source tracing proved the historical corpse_chance completion evidence partial.",
+      "detail": "Port mon.c corpse_chance lines 3181-3252 completely and required uhitm.c mhitm_ad_dgst lines 4492-4567 with AD_DGST dispatch. Correct lich and Vlad no-corpse behavior, source hearing gates, the post-mondied DEADMONSTER recheck after lifesaving, killer assignment order, digestion state and consumed return values. Existing mondied, xkilled and gulpum callers already await corpse_chance. Add independent hero-engulf and gas-spore evidence; preserve a blocked monster-digestion recipe until gulpmm and mintrap return handling land, and keep mhitm_ad_dgst evidence incomplete if its production entry remains blocked.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "corpse_chance",
+          "line": 3181,
+          "endLine": 3252,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3181,
+        "to": 3252
+      },
+      "requiredFunctions": [
+        {
+          "name": "mhitm_ad_dgst",
+          "line": 4492,
+          "endLine": 4569,
+          "declared": false,
+          "sourceFile": "uhitm.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst": {
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.session.json",
+          "recordingSha256": "a92669cbc1408c7b6512ddf48b5a239bccbe74f473f610961ebe047a5043b00f",
+          "evaluationPath": "challenges/evaluations/20261006145213-v21.json",
+          "evaluationCommit": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8"
+        }
       }
     }
   ]
