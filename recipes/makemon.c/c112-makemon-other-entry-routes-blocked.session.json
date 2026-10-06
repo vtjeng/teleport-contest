@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C112 coverage note; not recorded. The matching hatch case exercises only makemon.c:makemon() with an existing giant-ant species pointer, an enexto-selected coordinate, and NO_MINVENT|MM_NOMSG. The complete makemon() unit has separate random-species, group, special-initialization, and other production-caller routes; C112 does not claim those from the hatch call shape.",
+  "segments": [
+    {
+      "seed": 202610061131,
+      "datetime": "20261006131100",
+      "nethackrc": "OPTIONS=name:C112Makemon,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "#wizgenesis 5 giant ant\n....."
+    }
+  ]
+}

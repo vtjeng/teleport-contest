@@ -95,6 +95,7 @@ import {
     PM_TROLL,
     PM_GREEN_SLIME,
     LOW_PM,
+    NON_PM,
     SPECIAL_PM,
     M1_NOLIMBS,
     M1_HUMANOID,
@@ -1635,18 +1636,17 @@ test('run_timers drains the due prefix head-first and stops at the future',
 //
 // Every unported row is driven through run_timers() here, indexed by the
 // js/const.js constant, so the table is pinned against the enum rather than
-// against itself. ROT_CORPSE, FIG_TRANSFORM, and SHRINK_GLOB are absent
-// because they are ported rows; their focused tests cover those callbacks.
+// against itself. ROT_CORPSE, HATCH_EGG, FIG_TRANSFORM, SHRINK_GLOB, and
+// MELT_ICE_AWAY are absent because their callbacks are ported.
 test('every unported timeout row names its own C function', async () => {
     const rows = [
         [ROT_ORGANIC, 'rot_organic'],
         [REVIVE_MON, 'revive_mon'],
         [ZOMBIFY_MON, 'zombify_mon'],
         [BURN_OBJECT, 'burn_object'],
-        [HATCH_EGG, 'hatch_egg'],
     ];
-    // Four short of the enum: ROT_CORPSE, FIG_TRANSFORM, SHRINK_GLOB, MELT_ICE_AWAY.
-    assert.equal(rows.length, NUM_TIME_FUNCS - 4);
+    // Five enum rows have callbacks; the others remain named refusals.
+    assert.equal(rows.length, NUM_TIME_FUNCS - 5);
 
     for (const [index, name] of rows) {
         const state = rottingState(100);
@@ -1659,6 +1659,18 @@ test('every unported timeout row names its own C function', async () => {
             `row ${index}`,
         );
     }
+});
+
+test('run_timers dispatches a sterilized egg to timeout.c hatch_egg', async () => {
+    const state = timerState(20);
+    // NON_PM is C's sterilized-egg sentinel; it returns before location or RNG.
+    const egg = { corpsenm: NON_PM, where: OBJ_FLOOR, timed: 0 };
+    start_timer(0, TIMER_OBJECT, HATCH_EGG, egg, state);
+
+    await run_timers(state);
+
+    assert.equal(egg.timed, 0, 'the due object timer is released first');
+    assert.equal(state.gt.timer_base, null, 'the callback drains the timer');
 });
 
 test('run_timers fires equal expiries in the order start_timer built', async () => {

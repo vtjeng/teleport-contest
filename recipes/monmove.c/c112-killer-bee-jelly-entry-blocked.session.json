@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C112 follow-up, not recorded. monmove.c:bee_eat_jelly() is called when a killer bee stands on royal jelly, and dogmove.c:dog_eat() also consumes its result for a pet bee. The available recording named bee-eats-royal-jelly actually applies jelly to a bee egg and never reaches bee_eat_jelly(); C112 therefore makes no runtime-completion claim for this active helper.",
+  "segments": [
+    {
+      "seed": 202610061124,
+      "datetime": "20261006130200",
+      "nethackrc": "OPTIONS=name:C112BeeJelly,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizwish\nlump of royal jelly\ndol\u0007killer bee\n....."
+    }
+  ]
+}

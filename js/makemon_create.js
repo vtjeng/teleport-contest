@@ -1304,6 +1304,16 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (NO_MINVENT | MM_NOMSG);
+    // timeout.c:hatch_egg() supplies an enexto() coordinate and the exact
+    // inventoryless, silent runtime flags. Its source caller has already
+    // selected the adjacent square, so this call uses makemon's direct
+    // explicit-coordinate placement without generic level preflights.
+    const hatchEggCall = !state.in_mklev
+        && normalized._hatchEgg === true
+        && Boolean(ptr)
+        && !randomCoordinates
+        && isok(x, y)
+        && mmflags === (NO_MINVENT | MM_NOMSG);
     // C makemon() has no species admission rule for explicit runtime
     // coordinates. dig.c:dig uses this ordinary pointer/coordinate/flag
     // contract for its Earth-level elemental or xorn, but any non-genocided
@@ -1314,7 +1324,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && mmflags === MM_NOMSG;
     if (tutorialLevel && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !wereSummonCall && !explicitCoordinateNoFlagsRuntimeCall
-        && !explicitInventorylessHeroCall
+        && !explicitInventorylessHeroCall && !hatchEggCall
         && !explicitCoordinateRuntimeCall
         && (!state.in_mklev
             || randomCoordinates
@@ -1461,7 +1471,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || createParticularCall
         || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
         || figurineAnimationCall || explicitInventorylessHeroCall
-        || explicitCoordinateRuntimeCall
+        || hatchEggCall || explicitCoordinateRuntimeCall
         || cloneuCall || minionSummonCall
         || familiarCall || wereSummonCall
         // sp_lev.c finalizes topology before filling special rooms.  Those
@@ -1499,7 +1509,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         );
     }
     if (ptr?.pmidx === PM_SHOPKEEPER && !shopkeeperCall
-        && !explicitInventorylessHeroCall && !explicitCoordinateRuntimeCall
+        && !explicitInventorylessHeroCall && !hatchEggCall
+        && !explicitCoordinateRuntimeCall
         && !explicitCoordinateNoFlagsRuntimeCall) {
         throw new UnsupportedMonsterCreationError(
             'shopkeeper creation outside shkinit',
@@ -1522,6 +1533,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !familiarCall && !wereSummonCall
         && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !explicitInventorylessHeroCall && !randomCoordinates
+        && !hatchEggCall
         && !explicitCoordinateRuntimeCall
         && !explicitCoordinateNoFlagsRuntimeCall
         && !vaultGuardCall
@@ -1546,6 +1558,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         throw new Error('makemon requires initialized hero alignment and race');
     if (ptr?.pmidx === PM_CHAMELEON
         && !explicitInventorylessHeroCall
+        && !hatchEggCall
         && !explicitCoordinateNoFlagsRuntimeCall
         && !heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)) {
         if (isRogueLevel(state)) {
@@ -1582,6 +1595,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !runtimeGroupCall
             && !createParticularCall
             && !explicitInventorylessHeroCall
+            && !hatchEggCall
             && !explicitCoordinateRuntimeCall
             && !explicitCoordinateNoFlagsRuntimeCall
             && !familiarCall

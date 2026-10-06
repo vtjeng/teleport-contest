@@ -80,6 +80,7 @@ import {
 import { eatfood } from '../js/eat.js';
 import { game } from '../js/gstate.js';
 import { losehp } from '../js/hack.js';
+import { tamedog } from '../js/dog.js';
 import { new_light_source } from '../js/light.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -95,6 +96,7 @@ import {
     PM_FLOATING_EYE,
     PM_GELATINOUS_CUBE,
     PM_GIANT_EEL,
+    PM_GIANT_ANT,
     PM_HOMUNCULUS,
     PM_ACID_BLOB,
     PM_ALIGNED_CLERIC,
@@ -3859,6 +3861,34 @@ test('starting-pet adapter wires dog_move reflection to mon_reflects',
             x: target.destinationX,
             y: target.heroY,
         });
+    });
+
+test('a tame hatched species with edog state reaches dog_move planning',
+    async () => {
+        // The v20 hatch case produces a tame giant ant. C's m_move() dispatches
+        // every tame monster to dog_move(), while dog_move() requires an edog
+        // extension rather than membership in the starting-pet species list.
+        assert.match(MONMOVE_SOURCE,
+            /if \(mtmp->mtame\) \{\s*return postmov\([\s\S]*?dog_move\(mtmp, after\)/u);
+        assert.match(DOGMOVE_SOURCE,
+            /edog = \(mtmp->mtame && has_edog\(mtmp\)\) \? EDOG\(mtmp\) : 0/u);
+
+        const target = await prepareSelectedAction({ pmidx: PM_GIANT_ANT });
+        const { monster } = target;
+        // The selected species is the recorded hatchling, which is not one of
+        // the three new-game pets. Use C's tamedog initializer to create the
+        // required source edog state without inventing its field values.
+        assert.equal(await tamedog(monster, null, false, { state: game }), true);
+        assert.equal(monster.data.pmidx, PM_GIANT_ANT);
+        assert.ok(monster.mextra?.edog);
+
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            'planning the newly tame species leaves live state and RNG unchanged',
+        );
     });
 
 test('a mounted leashed pony passes preflight and live action guards', async () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C112 coverage note; not recorded. dogmove.c:dog_eat() has a separate devour entry from dog.c:tamedog() when a food object is offered during taming. C112's matching meal uses dog_move() with devour FALSE; the tamedog() call consumes dog_eat()'s result and is not covered by that recording.",
+  "segments": [
+    {
+      "seed": 202610061133,
+      "datetime": "20261006131300",
+      "nethackrc": "OPTIONS=name:C112DogEat,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "#wizwish\nfood ration\ndrop food ration\n....."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C112 coverage note; not recorded. The matching v20 route reaches dog.c:tamedog() for a hatchling with no food object and reaches dogfood() from an ordinary dog_move() floor meal. This planned route records the distinct object-fed tamedog() and dogfood() caller conditions; its source caller/result path is not represented by either matching range.",
+  "segments": [
+    {
+      "seed": 202610061132,
+      "datetime": "20261006131200",
+      "nethackrc": "OPTIONS=name:C112TameFood,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "#wizgenesis dog\n#wizwish\nfood ration\n........"
+    }
+  ]
+}

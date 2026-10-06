@@ -307,6 +307,10 @@ const DOKICK_C_SOURCE = readFileSync(
 );
 const WERE_C_SOURCE = readFileSync('nethack-c/upstream/src/were.c', 'utf8');
 const MAKEMON_JS_SOURCE = readFileSync('js/makemon_create.js', 'utf8');
+const TIMEOUT_C_SOURCE = readFileSync(
+    'nethack-c/upstream/src/timeout.c', 'utf8',
+);
+const TIMEOUT_JS_SOURCE = readFileSync('js/timeout.js', 'utf8');
 const MONSTERS_C_SOURCE = readFileSync(
     'nethack-c/upstream/include/monsters.h', 'utf8',
 );
@@ -2888,6 +2892,51 @@ test('makemon admits an explicit inventoryless hero-square species by source sha
         assert.equal(monster.minvent, null);
         assert.equal(state.mvitals[PM_FIRE_GIANT].born, 1);
         assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+    });
+
+test('timeout hatch uses its explicit enexto runtime creation contract',
+    async () => {
+        // timeout.c:hatch_egg passes enexto's chosen coordinates, this exact
+        // flag pair and a species pointer; the hatch marker distinguishes
+        // that caller from unrelated direct makemon calls.
+        assert.match(
+            TIMEOUT_C_SOURCE,
+            /makemon\(&mons\[mnum\],\s*cc\.x,\s*cc\.y,\s*NO_MINVENT\s*\|\s*MM_NOMSG\)/u,
+        );
+        assert.match(
+            TIMEOUT_JS_SOURCE,
+            /makemon_runtime\([\s\S]*?NO_MINVENT\s*\|\s*MM_NOMSG,\s*\{\s*\.\.\.env,\s*_hatchEgg:\s*true\s*\}/u,
+        );
+        assert.match(
+            MAKEMON_JS_SOURCE,
+            /const hatchEggCall = !state\.in_mklev[\s\S]*?normalized\._hatchEgg === true[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === \(NO_MINVENT \| MM_NOMSG\)/u,
+        );
+        assert.match(
+            MAKEMON_JS_SOURCE,
+            /\|\| hatchEggCall \|\| explicitCoordinateRuntimeCall/u,
+        );
+
+        const state = initialLevelState();
+        state.in_mklev = false;
+        // An in-bounds room cell away from the hero, as enexto supplies.
+        const x = MON_X + 4;
+        const y = MON_Y + 1;
+        state.level.at(x, y).typ = ROOM;
+        const random = recordingRandom();
+        const monster = await makemon_runtime(
+            state.mons[PM_NEWT], x, y, NO_MINVENT | MM_NOMSG, {
+                state,
+                random: random.random,
+                message: async () => {},
+                norepMessage: async () => {},
+                _hatchEgg: true,
+            },
+        );
+
+        assert.equal(monster.data, state.mons[PM_NEWT]);
+        assert.deepEqual([monster.mx, monster.my], [x, y]);
+        assert.equal(monster.minvent, null);
+        assert.equal(state.level.monsters[x][y], monster);
     });
 
 test('makemon admits the explicit hero-square NO_MM_FLAGS pointer from C',

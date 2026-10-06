@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C112 follow-up, not recorded. timeout.c:hatch_egg() and the due-timer callback are source-ported for elapsed-turn expiry and matched in v20, but full-save restoration needs restore.c:dorestore() to restore the timer chain and invoke due timers. dorestore() is synchronous and this assignment does not add a fabricated run_timers() call or claim a restored egg timer entry.",
+  "segments": [
+    {
+      "seed": 202610061123,
+      "datetime": "20261006130100",
+      "nethackrc": "OPTIONS=name:C112EggRestore,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "#wizwish\negg of giant ant\n."
+    }
+  ]
+}

@@ -116,7 +116,6 @@ import {
     PM_LARGE_CAT,
     PM_LARGE_DOG,
     PM_LITTLE_DOG,
-    PM_PONY,
     PM_FLOATING_EYE,
     PM_GELATINOUS_CUBE,
     PM_RUST_MONSTER,
@@ -205,7 +204,6 @@ const UNUSABLE_TOOL = Object.freeze({
 const DOG_WEAK = 500;
 const DOG_STARVE = 750;
 const DOG_HUNGRY = 300;
-const STARTING_PETS = new Set([PM_KITTEN, PM_LITTLE_DOG, PM_PONY]);
 const TARGET_DIRECTIONS = Object.freeze([
     [-1, -1], [0, -1], [1, -1],
     [-1, 0], [1, 0],
@@ -1096,15 +1094,14 @@ function targetingRefusal(rawEnv, reason) {
     throw new RangeError(`pet ranged targeting requires ${reason}`);
 }
 
-function admitOrdinaryStartingPet(monster, rawEnv) {
-    if (!STARTING_PETS.has(monster?.data?.pmidx)
-        || monster.isminion
+function admitOrdinaryPetRangedState(monster, rawEnv) {
+    if (monster.isminion
         || monster.ispriest
         || is_vampshifter(monster)) {
-        targetingRefusal(rawEnv, 'an ordinary starting pet');
+        targetingRefusal(rawEnv, 'an ordinary tame pet');
     }
     if (monster.mconf)
-        targetingRefusal(rawEnv, 'an unconfused starting pet');
+        targetingRefusal(rawEnv, 'an unconfused tame pet');
 }
 
 // C ref: dogmove.c find_friends(). Scan beyond a candidate along the same
@@ -1237,7 +1234,7 @@ export function score_targ(monster, target, rawEnv = {}) {
 export function best_target(monster, forced, rawEnv = {}) {
     if (!monster) return null;
     if (!monster.mcansee) return null;
-    admitOrdinaryStartingPet(monster, rawEnv);
+    admitOrdinaryPetRangedState(monster, rawEnv);
     let bestScore = -40000;
     let bestTarget = null;
     for (const [dx, dy] of TARGET_DIRECTIONS) {
@@ -1262,7 +1259,7 @@ export function best_target(monster, forced, rawEnv = {}) {
 // than the target's. A real ranged attack refuses inside mattackm().
 export async function pet_ranged_attk(monster, forced, rawEnv = {}) {
     if (forced) targetingRefusal(rawEnv, 'an unforced target scan');
-    admitOrdinaryStartingPet(monster, rawEnv);
+    admitOrdinaryPetRangedState(monster, rawEnv);
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, rnd };
     if (typeof random.rn2 !== 'function'

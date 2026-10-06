@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C112 follow-up, not recorded. This source candidate is intended to exercise dogmove.c:pet_ranged_attk() beyond its ordinary unforced distant-miss route. C112 preserves that matching miss route only. Forced targeting, a hero target, non-M_ATTK_MISS results, deaths, and retaliation consume mhitm.c:mattackm()/mhitu.c:mattacku() statuses that are outside this assignment; do not treat these inputs as reachability evidence until that combat closure is assigned.",
+  "segments": [
+    {
+      "seed": 202610061122,
+      "datetime": "20261006130000",
+      "nethackrc": "OPTIONS=name:C112PetCombat,role:Healer,race:human,gender:female,align:neutral,pettype:dog,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "....."
+    }
+  ]
+}

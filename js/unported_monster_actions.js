@@ -311,17 +311,20 @@ function assertSimpleActionState(monster, state) {
             unsupported('a trapped monster');
     }
     if (monster.mtame && !monster.isminion) {
-        if (!STARTING_PETS.has(monster.data?.pmidx))
-            unsupported('a non-starting pet');
+        // C monmove.c:m_move() sends every tame non-minion with an edog
+        // extension through dogmove.c:dog_move(); that path is not limited to
+        // the three species selected as a new game starting pet.
+        if (!monster.mextra?.edog)
+            unsupported('a tame pet without dog state');
         // C dogmove.c:dog_goal() aborts before goal setup or random draws
-        // for the current steed; dog_move() turns that into MMOVE_NOTHING.
-        // The planning clone maps both pointers to the same cloned monster.
+        // for the current steed. Keep this existing planning guard for both
+        // starting pets and later tame monsters; dog_move() owns other pet
+        // states. The planning clone maps both pointers to the same monster.
         if (monster.msleeping
             || (monster.mleashed && monster !== state.u?.usteed)) {
-            unsupported('special starting-pet state');
+            unsupported(STARTING_PETS.has(monster.data?.pmidx)
+                ? 'special starting-pet state' : 'special tame-pet state');
         }
-        if (!monster.mextra?.edog)
-            unsupported('missing starting-pet state');
         return;
     }
 
