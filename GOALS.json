@@ -98537,13 +98537,13 @@
     {
       "id": "port-trap-mintrap-hurtling-return-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port trap.c mintrap and its consumed trap-result dependencies for monster hurtling",
       "cFile": "trap.c",
       "sessions": [
         "synthetic/v9/kick-closed-door"
       ],
-      "selectionReason": "The refreshed v9 kick-closed-door investigation traces step 3 through uhitm.c:mhitm_knockback to dothrow.c:mhurtle and its mhurtle_step callback. That callback consumes trap.c:mintrap(mon,HURTLING) Trap_*_Mon status to decide whether the monster keeps moving. Current js/trap_effects.js:mintrap and its selector are partial, so the whole mintrap return contract is a prerequisite before mhurtle can be completed; this source dependency precedes the dothrow goal.",
+      "selectionReason": "B115 reconciles mintrap state-only live owners, selector return values, polymorph and newcham wiring, and held-trap preflight; the historical goal remains open for missing runtime entry paths.",
       "detail": "Complete trap.c:mintrap across trapped and untrapped monster arms, its consumed m_easy_escape_pit and trapeffect_selector return paths, and missing reachable selector effects including poly, vibrating, arrow, and magic/fire chains. Reuse closed branches, preserve the parked historical magic-trap goal evidence, and provide independent trap recordings. Do not specialize to the v9 case or HURTLING alone.",
       "openedAt": "35755719e0034381206d207019b8965c36ff2d48",
       "openStanding": {
@@ -98581,7 +98581,7 @@
         }
       },
       "activeStanding": {
-        "sha": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+        "sha": "bdfc1fd96c5f8bfa62e051b0cdc9936017b726dd",
         "screens": 11405,
         "rng": 792838
       },
