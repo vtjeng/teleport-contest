@@ -1229,6 +1229,24 @@ async function vomiting_dialogue(state, env = {}) {
     await exercise(A_CON, false, state, random, { encumberMessage });
 }
 
+// C ref: timeout.c phaze_texts[] and phaze_dialogue() (528-543).
+const phazeTexts = Object.freeze([
+    'You start to feel bloated.',
+    'You are feeling rather flabby.',
+]);
+
+export async function phaze_dialogue(state = game, env = {}) {
+    const property = state.u.uprops[PASSES_WALLS];
+    const timeout = property.intrinsic & TIMEOUT;
+    const i = Math.trunc(timeout / 2);
+    if (property.extrinsic || (property.intrinsic & ~TIMEOUT)) return;
+    if (timeout % 2 && i > 0 && i <= phazeTexts.length) {
+        const message = env.message
+            ?? (env.planning ? async () => {} : ttyPline);
+        await message(phazeTexts[phazeTexts.length - i], state);
+    }
+}
+
 // youprop.h: source-only properties do not consult their blocked field.
 function propertySource(state, index) {
     const property = state.u?.uprops?.[index];
@@ -1584,8 +1602,8 @@ export async function nh_timeout(state = game, env = {}) {
     }
     if (u.uprops?.[LEVITATION]?.intrinsic & TIMEOUT)
         await levitation_dialogue(state, displayEnv);
-    if ((u.uprops?.[PASSES_WALLS]?.intrinsic & TIMEOUT) && !env.planning)
-        note_unported('timeout.c phaze_dialogue');
+    if (u.uprops?.[PASSES_WALLS]?.intrinsic & TIMEOUT)
+        await phaze_dialogue(state, displayEnv);
     if ((u.uprops?.[MAGICAL_BREATHING]?.intrinsic & TIMEOUT) && !env.planning)
         note_unported('timeout.c region_dialogue');
     if (u.uprops?.[SLEEPY]?.intrinsic & TIMEOUT)

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent occupation route: a Valkyrie starts counted searching with seven Passes_walls turns, outside the source warning range. Five- and three-turn ordinary warnings leave occupation running; six searches leave timeout one for the separate expiry owner. The original Monk setup was unsuitable because a nearby monster stopped searching before a warning; this fresh setup changes the role/speed and level generation.",
+  "segments": [
+    {
+      "seed": 116261211,
+      "datetime": "20920620161200",
+      "nethackrc": "OPTIONS=name:PhazeWatch,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n>7f\n 6s"
+    }
+  ]
+}

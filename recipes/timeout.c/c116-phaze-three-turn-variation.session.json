@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap countdown and role variation: a Ranger starts at three turns and reaches the flabby ordinary warning directly, without the first bloated warning or unrelated actual-expiry behavior.",
+  "segments": [
+    {
+      "seed": 116261203,
+      "datetime": "20910519151100",
+      "nethackrc": "OPTIONS=name:PhazeWatch,role:Ranger,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n>3f\n ."
+    }
+  ]
+}

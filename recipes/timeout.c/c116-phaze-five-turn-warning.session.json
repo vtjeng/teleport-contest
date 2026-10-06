@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent phaze_dialogue witness: a Monk selects second-page Passes_walls with five turns, then six waits cover both ordinary warnings despite Monk speed allowing some actions without an elapsed clock tick. Independent role, seed, clock and input sequence differ from the admitted Wizard count-three case.",
+  "segments": [
+    {
+      "seed": 116261201,
+      "datetime": "20900418141000",
+      "nethackrc": "OPTIONS=name:PhazeWatch,role:Monk,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n>5f\n ......"
+    }
+  ]
+}
