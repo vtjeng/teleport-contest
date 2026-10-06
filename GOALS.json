@@ -179789,7 +179789,7 @@
     {
       "id": "port-steal-mdrop-obj-boulder-v22-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete monster inventory drops with boulder vision updates",
       "cFile": "steal.c",
       "sessions": [
@@ -179797,8 +179797,12 @@
       ],
       "selectionReason": "The refreshed v22 investigation at 5913841d traces the step-93 stop to steal.c mdrop_obj: the killed tame stone giant's first boulder reaches mkobj.c place_object without the canonical blockPoint environment, while C completes the drop before xkilled's next rn2(6).",
       "detail": "Port whole steal.c mdrop_obj and wire its relobj death and pet callers. Preserve extraction, floor effects, object placement, stacking, held-state cleanup, visibility, and redraw order. Reuse the existing objectGenerationEnv/place_object vision contract so a first boulder supplies blockPoint; do not claim whole relobj or unrelated monster-death behavior.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "06d5b2711daed9c2bb71b14b72d1c715f20708e6",
+      "openStanding": {
+        "sha": "f35e28081e8d63878ce53dfd814fefc7e9a8df4c",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -179827,7 +179831,160 @@
           "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
           "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f35e28081e8d63878ce53dfd814fefc7e9a8df4c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "session": "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recording": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingPath": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+          "recipe": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
+          "recipeSha256": "dd4337fb5504e488ff7adc498d9a500c3e3319802973cdd07ce23cf6f7e5c0a8",
+          "replayInputSha256": "8f72fbefc8cc71ea442ad025a0501ffef2395170690ed27bfd1056a2016c2fdc",
+          "evaluationPath": "challenges/evaluations/20261006184056-v22.json",
+          "evaluationCommit": "f35e28081e8d63878ce53dfd814fefc7e9a8df4c",
+          "evaluationArtifact": "challenges/evaluations/20261006184056-v22.json",
+          "evaluationUtc": "2026-10-06T18:42:24.207Z",
+          "remainingScreens": 8,
+          "recordedSteps": 101,
+          "previousScreensMatched": 93,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 93,
+              "total": 101
+            },
+            "rng": {
+              "matched": 2651,
+              "total": 2741
+            },
+            "cursors": {
+              "matched": 93,
+              "total": 101
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+            "step": 93
+          },
+          "step": 93,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.json",
+            "result": {
+              "session": "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+              "corpus": "synthetic",
+              "batch": "v22",
+              "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+              "remainingScreens": 8,
+              "recordedSteps": 101,
+              "manifestPath": "challenges/manifests/v22.json",
+              "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+              "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+              "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+              "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+              "status": "complete",
+              "commit": "5913841d2eeb8e82110208f1966bb47f08725368",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v22",
+                "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+                "session": "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+                "manifestPath": "challenges/manifests/v22.json",
+                "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+                "recording": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+                "recordingPath": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+                "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+                "recipe": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
+                "recipeSha256": "dd4337fb5504e488ff7adc498d9a500c3e3319802973cdd07ce23cf6f7e5c0a8",
+                "replayInputSha256": "a4de07e86e1a102a427012f613decfed4d464623cb75dc17236872f36190e8a2",
+                "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+                "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+                "evaluationArtifact": "challenges/evaluations/20261006180802-v22.json",
+                "evaluationUtc": "2026-10-06T18:09:23.546Z",
+                "remainingScreens": 8,
+                "recordedSteps": 101,
+                "previousScreensMatched": 93,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 93,
+                    "total": 101
+                  },
+                  "rng": {
+                    "matched": 2651,
+                    "total": 2741
+                  },
+                  "cursors": {
+                    "matched": 93,
+                    "total": 101
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+                  "step": 93
+                },
+                "step": 93,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After B116 completes the hero death-ray path, the same command kills the tame stone giant and drops its boulder. JavaScript stops before step 93 because steal.c:mdrop_obj calls place_object without the blockPoint hook required for a first boulder on a square. Port the whole mdrop_obj lifecycle composition and wire its relobj death and pet callers with the canonical object-generation environment.",
+              "source": {
+                "file": "steal.c",
+                "branch": "The killed tame stone giant releases its inventory through mon.c:m_detach -> steal.c:relobj -> mdrop_obj. For a carried boulder, mdrop_obj places the object before stacking it; mkobj.c:place_object calls vision.c:block_point when this is the square's first boulder.",
+                "functions": [
+                  "mdrop_obj"
+                ],
+                "callers": [
+                  "steal.c:relobj at 889 drops each monster inventory object through mdrop_obj during mon.c:m_detach after xkilled/mondead",
+                  "steal.c:relobj also supplies the existing pet and monster inventory-release paths; verify those callers while keeping their broader behavior outside the source claim"
+                ],
+                "dependencies": [
+                  "mkobj.c:place_object is an existing owner whose boulder branch consumes the blockPoint hook; reuse objectGenerationEnv rather than inventing a display update",
+                  "Existing extract_from_minvent, flooreffects, stackobj, newsym, cansee, obj_no_longer_held, dealloc_obj and naming owners remain in source order; port no unrelated relobj behavior"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current evaluation challenges/evaluations/20261006180802-v22.json at 5913841d2eeb8e82110208f1966bb47f08725368 records 93/101 matching screens, 2651/2741 RNG calls and a stop before zero-based step 93: blockPoint is not available for otyp 475. Otyp 475 is BOULDER.",
+                "A bounded C/JavaScript trace on published B116 saved at the worker as .cache/A112-v22-readonly-trace.log reaches wand command -> weffects -> buzz/dobuzz -> xkilled -> mondead -> m_detach -> relobj -> mdrop_obj -> place_object. The trace made no behavior edits.",
+                "Read steal.c:mdrop_obj 814-846 and its relobj caller. C calls place_object for the dropped boulder before stackobj and completes the death drop; JavaScript js/steal.js passes plain dropEnv to place_object while supplying objectGenerationEnv(env) only to the following stackobj call.",
+                "The canonical objectGenerationHooks owner supplies blockPoint. The failing value is the first boulder on its square, so mkobj.c:place_object 2331-2334 requires that hook to update vision; the missing environment is the first differing operation.",
+                "The immutable C recording next logs rn2(6)=5 in xkilled at mon.c:3587. JavaScript never reaches that draw, confirming that the boulder drop blocks before the later treasure and revival tail.",
+                "Smallest independently assignable scope is whole steal.c:mdrop_obj 814-846 with its relobj death and pet callers. Verify the existing mkobj.c:place_object/vision contract and preserve extraction, floor effects, stacking, held-state cleanup, visibility and redraw order."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-timeout-phaze-dialogue-v22-20261006",
