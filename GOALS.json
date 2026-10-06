@@ -173922,14 +173922,18 @@
     {
       "id": "div-monmove-dochug-swallowed-reattack-v21-20261005",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Restore swallowed monster reattack after movement",
       "cFile": "monmove.c",
       "sessions": [],
       "selectionReason": "The complete current investigation for the v21 Purple Worm case traces its three remaining screens to monmove.c dochug MMOVE_MOVED: C calls mattacku when engulfing_u remains true, while JavaScript returns zero after movement. See investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.json and challenges/evaluations/20261006013434-v21.json.",
       "detail": "At segment 0 step 105, C draws d(1,10) in mhitu.c gulpmu and displays continued digestion; JavaScript returns from js/monmove.js dochug before the engulfing_u reattack. Restore the source ordered post-move holder test through the existing attackHero callback, with focused tests for the matching holder, ordinary movement, mismatched holder, and the ranged attack exception.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "474682509b0a4eff31dbcbc3d08d11594e662298",
+      "openStanding": {
+        "sha": "99b6b6a9671cb29c375819f1dedbddfdeee7be1b",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "dochug",
@@ -173948,7 +173952,262 @@
           "evaluationPath": "challenges/evaluations/20261006013434-v21.json",
           "evaluationCommit": "7984fe77836aa184e4c4c9863f200430d9880167"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "99b6b6a9671cb29c375819f1dedbddfdeee7be1b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+          "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json",
+          "recipeSha256": "e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb",
+          "replayInputSha256": "a8f2782f654ebf65ea4bb9da555c31744c0195ec714cfc521aa53028dd343499",
+          "evaluationPath": "challenges/evaluations/20261006021016-v21.json",
+          "evaluationCommit": "99b6b6a9671cb29c375819f1dedbddfdeee7be1b",
+          "evaluationArtifact": "challenges/evaluations/20261006021016-v21.json",
+          "evaluationUtc": "2026-10-06T02:11:36.610Z",
+          "remainingScreens": 3,
+          "recordedSteps": 108,
+          "previousScreensMatched": 105,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 105,
+              "total": 108
+            },
+            "rng": {
+              "matched": 2591,
+              "total": 2630
+            },
+            "cursors": {
+              "matched": 107,
+              "total": 108
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 105,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 105,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2586,
+              "cEntry": "d(1,10)=2",
+              "cCaller": "gulpmu(mhitu.c:1292)",
+              "jsEntry": "rn2(5)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 105,
+                "key": "."
+              },
+              "stepIndex": 105
+            },
+            "cursor": {
+              "index": 107,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 107,
+                "key": "."
+              },
+              "cCursor": [
+                10,
+                7,
+                1
+              ],
+              "jsCursor": [
+                11,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 105,
+          "kind": "rng",
+          "sourceFile": "mhitu.c",
+          "function": "gulpmu",
+          "message": null,
+          "cFile": "mhitu.c",
+          "luaFile": null,
+          "line": 1292,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+              "evaluationPath": "challenges/evaluations/20261006002056-v21.json",
+              "evaluationCommit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+              "remainingScreens": 3,
+              "recordedSteps": 108,
+              "status": "complete",
+              "commit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+                "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+                "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+                "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json",
+                "recipeSha256": "e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb",
+                "replayInputSha256": "4f8afff76919390acfd4aa90ad2ced782589251da9f49de401299e32352243ff",
+                "evaluationPath": "challenges/evaluations/20261006002056-v21.json",
+                "evaluationCommit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+                "evaluationArtifact": "challenges/evaluations/20261006002056-v21.json",
+                "evaluationUtc": "2026-10-06T00:22:21.669Z",
+                "remainingScreens": 3,
+                "recordedSteps": 108,
+                "previousScreensMatched": 103,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 105,
+                    "total": 108
+                  },
+                  "rng": {
+                    "matched": 2591,
+                    "total": 2630
+                  },
+                  "cursors": {
+                    "matched": 107,
+                    "total": 108
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 105,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 105,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2586,
+                    "cEntry": "d(1,10)=2",
+                    "cCaller": "gulpmu(mhitu.c:1292)",
+                    "jsEntry": "rn2(5)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 105,
+                      "key": "."
+                    },
+                    "stepIndex": 105
+                  },
+                  "cursor": {
+                    "index": 107,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 107,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      10,
+                      7,
+                      1
+                    ],
+                    "jsCursor": [
+                      11,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 105,
+                "kind": "rng",
+                "sourceFile": "mhitu.c",
+                "function": "gulpmu",
+                "message": null,
+                "cFile": "mhitu.c",
+                "luaFile": null,
+                "line": 1292
+              },
+              "summary": "The earlier step-103 swallow and step-104 first digestion now match. The current first divergence is step 105: C’s moved swallowing monster resumes its attack through monmove.c:dochug()’s MMOVE_MOVED engulfing_u() arm, reaches gulpmu(), and draws d(1,10); JavaScript returns from dochug() before that reattack. The stale JavaScript comment says no ported path sets u.uswallow, but gulpmu() now sets it. The actionable owner is the missing dochug() continuation, not the already-matched initial swallow or gulpmu() damage roll itself.",
+              "source": {
+                "file": "monmove.c",
+                "branch": "When m_move() returns MMOVE_MOVED for the swallowing monster, dochug() first handles trap/readiness and the monster-may-shoot exception. If the moved monster is still engulfing the hero, C then returns mattacku(mtmp) instead of ending its turn. The matched prefix sets u.uswallow in gulpmu(); on step 105 the Purple Worm moves and must attack again, which enters gulpmu() with the hero already swallowed and draws the attack damage die.",
+                "functions": [
+                  "dochug"
+                ],
+                "callers": [
+                  "C mon.c:movemon_singlemon() calls monmove.c:dochugw(mtmp, TRUE) at mon.c:1320; monmove.c:dochugw() calls dochug() at monmove.c:214.",
+                  "JS allmain.js:moveElapsedTurnMonster() calls mon.js:movemon_singlemon(); its action adapter in js/unported_monster_actions.js:1501-1510 calls monmove.js:dochugw(), whose injected action calls monmove.js:dochug().",
+                  "Inside C monmove.c:dochug(), the MMOVE_MOVED branch calls mhitu.c:mattacku() at monmove.c:953-954 when engulfing_u(mtmp) remains true; the attack reaches mhitu.c:gulpmu() at mhitu.c:852."
+                ],
+                "dependencies": [
+                  "monmove.c:m_move() supplies MMOVE_MOVED and preserves the engulfing holder state; its relevant JS implementation is js/monmove.js:m_move().",
+                  "mhitu.c:mattacku() selects the holder’s AT_ENGL attack; its existing JS implementation is js/mhitu.js:mattacku().",
+                  "mhitu.c:gulpmu() sets u.uswallow on the matched initial swallow and consumes the later AD_DGST attack; its JS implementation is js/mhitu.js:gulpmu()."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The refreshed queue /home/vtjeng/development/vtjeng/teleport-contest/.cache/A102-work-mismatch-queue.json identifies this immutable v21 case at 3 remaining screens of 108 steps. Evaluation challenges/evaluations/20261006002056-v21.json is based on becc4c0510546bbf19aa297ded0a584395a7f959; it matches 105/108 screens, 2591/2630 RNG calls and 107/108 cursors. Its first screen mismatch is segment 0, zero-based step 105 (key \".\"): C cell row 0 column 0 is \"T\" while JS is blank. Its first RNG mismatch is flattened index 2586: C d(1,10)=2 @ gulpmu(mhitu.c:1292), JS rn2(5)=1.",
+                "The immutable C recording challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json (SHA-256 9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d) confirms that step 103 shows “The purple worm bites! The purple worm swallows you whole!” and step 104 shows “The purple worm digests you!”; these steps are before the current first divergence and match in the evaluated prefix. Step 103’s successful AT_ENGL attack calls gulpmu() and draws d(1,10)=1; step 104 continues the initial swallow after the pending message, draws rn2(20)=12 for the digestion timer and applies the first digestion.",
+                "At step 105, C’s draws before RNG index 2586 include the same three distfleeck draws, resist_conflict(), four m_move() draws, and the post-move distfleeck draw in both streams. C then reaches gulpmu() and draws d(1,10)=2 before its “thoroughly digests you” message. The bounded JS-only replay run-EkPVzS (receipt /tmp/teleport-validation-1000/run-EkPVzS/receipt.json, SHA-256 63d9429b4b9214877d48861a3c4af797fab782f9278f326b08493cc1582fe1f7; exit 0, reaped) confirms screens 103 and 104 match and step 105 is blank; its logged JS draw at index 2586 is rn2(5)=1. The JS RNG logger does not annotate that draw’s caller, so this record does not assign that extra draw to a specific helper.",
+                "C nethack-c/upstream/src/monmove.c:dochug() lines 938-955 handles MMOVE_MOVED; after the ranged-attack exception it tests engulfing_u(mtmp) and returns mattacku(mtmp) at lines 953-954. C mon.c:movemon_singlemon() calls dochugw(mtmp, TRUE) at mon.c:1320; monmove.c:dochugw() calls dochug() at line 214.",
+                "JS js/monmove.js:dochug() lines 2708-2724 handles MMOVE_MOVED but returns 0 at lines 2719-2724 without testing engulfing_u(monster,state). The comment at lines 2720-2723 says no ported path sets u.uswallow; that assumption is stale because js/mhitu.js:1738 sets u.uswallow=1 in gulpmu() during the now-matching initial swallow. The production chain is allmain.js:1182-1184 to mon.js:movemon_singlemon(), then js/unported_monster_actions.js:1501-1510 to js/monmove.js:dochugw()/dochug().",
+                "The matching recipe is challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.recipe.session.json (SHA-256 e403e74d87247fb3f06840361e55ac3740fe179e62a4f4eb9ccd09b0675efefb). The strict comparison tests the C recording without making a new C recording; the earlier first cause at step 103 is historical and resolved in the current evaluated replay."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-trap-drain-en-v19-20261005",
