@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B114 food-detection danger prompt. Blessed detection grants one-use smell; decline a cursed apple before any meal starts. This covers doeat -> edibility_prompts and smell reset.",
+  "segments": [
+    {
+      "seed": 13420117,
+      "datetime": "20580517145300",
+      "nethackrc": "OPTIONS=name:B114Smell,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n#wizwish\ncursed apple\n#wizwish\nblessed scroll of food detection\nrb ean "
+    }
+  ]
+}

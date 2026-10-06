@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent first-bite food family covering fprefx human tripe experience/vomiting draw, orc tripe, and elf lembas wording. Each recipe begins from fresh debug state and completes the meal.",
+  "segments": [
+    {
+      "seed": 13420303,
+      "datetime": "20580517145300",
+      "nethackrc": "OPTIONS=name:B114Smell,role:Wizard,race:elf,gender:female,align:chaotic,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n#wizwish\nblessed lembas wafer\nea  "
+    }
+  ]
+}

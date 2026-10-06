@@ -75,6 +75,11 @@ import {
     M_ATTK_MISS,
     NOT_HUNGRY,
     NO_KILLER_PREFIX,
+    NOSE,
+    OBJ_DELETED,
+    SELL_DONTSELL,
+    SELL_NORMAL,
+    EXPL_FIERY,
     PARANOID_EATING,
     POISON_RES,
     POISONING,
@@ -141,7 +146,7 @@ import {
 import { tinnable } from './apply.js';
 import { on_level,
     surface } from './dungeon.js';
-import { pluslvl } from './exper.js';
+import { pluslvl, more_experienced, newexplevel } from './exper.js';
 import { canseemon, canspotmon, newsym,
     see_monsters } from './display.js';
 import { can_reach_floor } from './engrave.js';
@@ -165,7 +170,7 @@ import {
     iter_mons_safe, mon_offmap, mondied, monstone, pm_to_cham, rescham,
 } from './mon.js';
 import {
-    acidic, attacktype, attacktype_fordmg, can_teleport, carnivorous, cantvomit, control_teleport, defended, dmgtype, flesh_petrifies, herbivorous, is_giant, is_rider, is_clinger, is_were, metallivorous, mindless, monsndx, noncorporeal, poisonous, poly_when_stoned, same_race, slimeproof, telepathic, type_is_pname, your_race, is_undead, olfaction, breathless, perceives, } from './mondata.js';
+    humanoid, is_elf, is_orc, acidic, attacktype, attacktype_fordmg, can_teleport, carnivorous, cantvomit, control_teleport, defended, dmgtype, flesh_petrifies, herbivorous, is_giant, is_rider, is_clinger, is_were, metallivorous, mindless, monsndx, noncorporeal, poisonous, poly_when_stoned, same_race, slimeproof, telepathic, type_is_pname, your_race, is_undead, olfaction, breathless, perceives, } from './mondata.js';
 import {
     AD_ACID, AD_BLND, AD_DISE, AD_POLY, AT_BREA, AT_ENGL, PM_KNIGHT,
     PM_PYROLISK, PM_QUEEN_BEE, PM_STONE_GOLEM, } from './monsters.js';
@@ -182,9 +187,9 @@ import { delayed_killer, done } from './end.js';
 import {
     carried, costly_alteration, bcsign, is_flammable, isMetallic, isRustprone, is_rottable, objectType, peek_at_iced_corpse_age, remove_object, set_bknown, splitobj, weight, g_at, mksobj, } from './obj.js';
 import {
-    an, ansimpleoname, corpse_xname, donameFresh, killer_xname, obj_is_pname, otense, safe_qbuf, singular, the, the_unique_pm, xnameFresh, yobjnam, } from './objnam.js';
+    Tobjnam, an, ansimpleoname, corpse_xname, donameFresh, killer_xname, obj_is_pname, otense, safe_qbuf, singular, the, the_unique_pm, xnameFresh, yobjnam, } from './objnam.js';
 import {
-    APPLE, AMULET_CLASS, AMULET_OF_CHANGE, AMULET_OF_FLYING, AMULET_OF_GUARDING, AMULET_OF_LIFE_SAVING, AMULET_OF_REFLECTION, AMULET_OF_RESTFUL_SLEEP, AMULET_OF_STRANGULATION, AMULET_OF_UNCHANGING, AMULET_OF_YENDOR, CANDY_BAR, CARROT, CLOVE_OF_GARLIC, COIN_CLASS, CORPSE, CRAM_RATION, CREAM_PIE, C_RATION, EGG, ENORMOUS_MEATBALL, EUCALYPTUS_LEAF, FAKE_AMULET_OF_YENDOR, BONE, DRAGON_HIDE, FLESH, FOOD_CLASS, BALL_CLASS, CHAIN_CLASS, GEM_CLASS, GLASS, FOOD_RATION, FORTUNE_COOKIE, K_RATION, LEATHER, LEMBAS_WAFER, LUMP_OF_ROYAL_JELLY, PAPER, POTION_CLASS, RIN_ADORNMENT, RIN_FREE_ACTION, RIN_GAIN_CONSTITUTION, RIN_GAIN_STRENGTH, RIN_INCREASE_ACCURACY, RIN_INCREASE_DAMAGE, RIN_INVISIBILITY, RIN_LEVITATION, RIN_PROTECTION_FROM_SHAPE_CHAN, RING_CLASS, RIN_SEE_INVISIBLE, RIN_SUSTAIN_ABILITY, SCROLL_CLASS, MEATBALL, MEAT_RING, MEAT_STICK, PANCAKE, PEAR, RIN_PROTECTION, RIN_SLOW_DIGESTION, SLIME_MOLD, SPRIG_OF_WOLFSBANE, TRIDENT, FLINT, LEASH, SCR_MAIL, SCR_SCARE_MONSTER, DAGGER, SILVER_DAGGER, ELVEN_DAGGER, ORCISH_DAGGER, ATHAME, KNIFE, STILETTO, CRYSKNIFE, PICK_AXE, AXE, TIN, TIN_OPENER, TRIPE_RATION, BEARTRAP, WAX, WOOD, WEAPON_CLASS, GOLD_PIECE, ORANGE, } from './objects.js';
+    GLOB_OF_GREEN_SLIME, APPLE, AMULET_CLASS, AMULET_OF_CHANGE, AMULET_OF_FLYING, AMULET_OF_GUARDING, AMULET_OF_LIFE_SAVING, AMULET_OF_REFLECTION, AMULET_OF_RESTFUL_SLEEP, AMULET_OF_STRANGULATION, AMULET_OF_UNCHANGING, AMULET_OF_YENDOR, CANDY_BAR, CARROT, CLOVE_OF_GARLIC, COIN_CLASS, CORPSE, CRAM_RATION, CREAM_PIE, C_RATION, EGG, ENORMOUS_MEATBALL, EUCALYPTUS_LEAF, FAKE_AMULET_OF_YENDOR, BONE, DRAGON_HIDE, FLESH, FOOD_CLASS, BALL_CLASS, CHAIN_CLASS, GEM_CLASS, GLASS, FOOD_RATION, FORTUNE_COOKIE, K_RATION, LEATHER, LEMBAS_WAFER, LUMP_OF_ROYAL_JELLY, PAPER, POTION_CLASS, RIN_ADORNMENT, RIN_FREE_ACTION, RIN_GAIN_CONSTITUTION, RIN_GAIN_STRENGTH, RIN_INCREASE_ACCURACY, RIN_INCREASE_DAMAGE, RIN_INVISIBILITY, RIN_LEVITATION, RIN_PROTECTION_FROM_SHAPE_CHAN, RING_CLASS, RIN_SEE_INVISIBLE, RIN_SUSTAIN_ABILITY, SCROLL_CLASS, MEATBALL, MEAT_RING, MEAT_STICK, PANCAKE, PEAR, RIN_PROTECTION, RIN_SLOW_DIGESTION, SLIME_MOLD, SPRIG_OF_WOLFSBANE, TRIDENT, FLINT, LEASH, SCR_MAIL, SCR_SCARE_MONSTER, DAGGER, SILVER_DAGGER, ELVEN_DAGGER, ORCISH_DAGGER, ATHAME, KNIFE, STILETTO, CRYSKNIFE, PICK_AXE, AXE, TIN, TIN_OPENER, TRIPE_RATION, BEARTRAP, WAX, WOOD, WEAPON_CLASS, GOLD_PIECE, ORANGE, } from './objects.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     discover_object, observe_object, objdescr_is, } from './o_init.js';
@@ -193,14 +198,15 @@ import {
     body_part, change_sex, polymon, rehumanize, } from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { fingers_or_gloves, toggle_displacement } from './do_wear.js';
-import { d, rn1, rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { fall_asleep, obj_stop_timers } from './timeout.js';
 import {
     Flying, Levitation, deltrap, float_up, reset_utrap, t_at, unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
-import { costly_spot } from './shk.js';
+import { costly_spot, sellobj_state } from './shk.js';
+import { explode } from './explode.js';
 import {
     cantwield, uwepgone, uswapwepgone, uqwepgone, welded, wield_tool,
 } from './wield.js';
@@ -1665,40 +1671,48 @@ export function adj_victual_nutrition(state) {
     return Math.max(nut, 1);
 }
 
-// C ref: eat.c touchfood() (359-393). Splits one item off the stack, marks it
-// partly eaten, and puts it back in inventory under its own letter so the rest
-// of the stack stays untouched.
-function touchfood(otmp, env) {
+// C ref: eat.c touchfood() (359-386). Separate one food object, mark its
+// nutrition, and preserve C's inventory or floor ownership.
+async function touchfood(otmp, env) {
     const { state } = env;
     if (otmp.quan > 1) {
-        // Only the inventory arm is reachable: floorfood() stops before it can
-        // offer a floor object, so carried() is always true here.
-        if (!carried(otmp)) {
-            throw new UnsupportedEatError(
-                'touchfood() splitting a stack on the floor',
-            );
-        }
-        otmp = splitobj(otmp, 1, env);
+        if (!carried(otmp)) splitobj(otmp, otmp.quan - 1, env);
+        else otmp = splitobj(otmp, 1, env);
     }
-
     if (!otmp.oeaten) {
         costly_alteration(otmp, COST_BITE, env);
         otmp.oeaten = obj_nutrition(otmp, state);
     }
-
     if (carried(otmp)) {
         freeinv(otmp, env);
         if (inv_cnt(false, state) >= INVLET_BASIC) {
-            // A full pack drops the bite on the floor instead, through
-            // sellobj_state() and dropy(); neither is ported, and the object
-            // has already left inventory by now.
-            throw new UnsupportedEatError(
-                'touchfood() dropping a bite from a full pack',
-            );
-        }
-        otmp = addinv_nomerge(otmp, env);
+            sellobj_state(SELL_DONTSELL, state);
+            await dropy(otmp, env);
+            sellobj_state(SELL_NORMAL, state);
+            if (otmp.where === OBJ_DELETED) otmp = null;
+        } else otmp = addinv_nomerge(otmp, env);
     }
     return otmp;
+}
+
+// C ref: eat.c do_reset_eat() (422-449). Interrupt a meal while keeping
+// its choke eligibility for a later attempt to eat the same object.
+export async function do_reset_eat(state = game, env = {}) {
+    env = { ...eatOperations(state, env.statusRefresh, env.message), ...env, state };
+    const meal = victual(state);
+    if (meal.piece) {
+        meal.o_id = 0;
+        const object = await touchfood(meal.piece, env);
+        meal.piece = object;
+        if (object) {
+            meal.o_id = object.o_id;
+            recalc_wt(env);
+        }
+    }
+    meal.fullwarn = meal.eating = meal.doreset = 0;
+    const { stop_occupation } = await import('./allmain.js');
+    await stop_occupation(state, env);
+    await newuhs(false, state, env);
 }
 
 // C ref: eat.c food_disappears() (394-402). js/invent.js obfree() is its only
@@ -2101,10 +2115,8 @@ async function bite(state, env) {
         return returned ? 1 : 2;
     }
     if (meal.doreset) {
-        // reset_eat() raises this when moveloop_core() interrupts a meal, so
-        // reaching it needs doeat()'s already-partly-eaten arm to resume that
-        // meal, which stops before it gets here.
-        throw new UnsupportedEatError('do_reset_eat()');
+        await do_reset_eat(state, env);
+        return 0;
     }
     state.force_save_hs = true;
     if (meal.nmod < 0) {
@@ -2813,17 +2825,6 @@ async function eatcorpse(otmp, state, env = {}) {
         && !propertyActive(state, STONE_RES)
         && !poly_when_stoned(uptr, state);
 
-    if (glob) {
-        // A glob's nutrition and delay come from its own owt rather than the
-        // species, it shrinks on a timer instead of rotting, and eating_glob()
-        // ties that timer to the meal.
-        throw new UnsupportedEatError('eatcorpse() for a glob');
-    }
-    if (stoneable) {
-        // cprefx() turns this hero to stone through done(STONING).
-        throw new UnsupportedEatError('done(STONING) for a petrifying corpse');
-    }
-
     /* KMH, conduct */
     // C's local ll_conduct suppresses the meat event only when the same
     // corpse also establishes the first animal-products conduct.
@@ -2951,7 +2952,7 @@ async function eatcorpse(otmp, state, env = {}) {
         && (otmp.orotten || !rn2(7))) {
         if (await rottenfood(otmp, state)) {
             otmp.orotten = true;
-            otmp = touchfood(otmp, { state });
+            otmp = await touchfood(otmp, eatOperations(state, env.statusRefresh, env.message));
             if (!otmp)
                 return 1;
             retcode = 1;
@@ -3159,137 +3160,155 @@ async function garlic_breath(monster, state) {
     }
 }
 
-// C ref: eat.c fprefx() (2091-2213), the message on the first bite of a
-// non-corpse, non-tin food. Answers false when eating must not proceed.
-//
-// The stale-egg vomiting and undead-garlic arms are wired here. The tripe
-// ration arm remains refused at its preceding experience helpers; other
-// unported food arms retain their existing refusals.
+// C ref: eat.c fprefx() (2099-2213). Feedback and immediate first-bite
+// effects for non-corpse food; false means the object was consumed early.
 async function fprefx(otmp, state, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = { d, rn1, rn2, rne, rnl, rnd, ...(env.random ?? {}) };
+    const uptr = state.youmonst.data;
+    const maybeRace = (predicate, race) => Upolyd(state.u)
+        ? predicate(uptr) : state.urace.mnum === race;
+    const feedback = async () => message(
+        `This ${singular(otmp, xnameFresh, state)} is ${otmp.cursed
+            ? (Hallucination(state) ? 'grody!' : 'terrible!')
+            : [CRAM_RATION, K_RATION, C_RATION].includes(otmp.otyp)
+                ? 'bland.' : Hallucination(state) ? 'gnarly!' : 'delicious!'}`,
+        state,
+    );
     switch (otmp.otyp) {
     case EGG:
-        // C checks the pyrolisk case first, then stale_egg() in an else-if.
-        // Keep both remaining unported egg arms behind the original refusal.
-        if (otmp.corpsenm !== PM_PYROLISK && staleEgg(otmp, state)) {
-            await (env.message ?? ttyPline)('Ugh.  Rotten egg.', state);
-            await make_vomiting(
-                (hungerProperty(state, VOMITING).intrinsic & TIMEOUT)
-                    + d(10, 4),
-                true,
-                state,
-                env,
-            );
-            break;
-        }
-        throw new UnsupportedEatError("fprefx()'s egg arms");
-    case FOOD_RATION: /* nutrition 800 */
-        /* 200+800 remains below 1000+1, the satiation threshold */
+        if (otmp.corpsenm === PM_PYROLISK) {
+            if (carried(otmp)) useup(otmp, env);
+            else await useupf(otmp, 1, env);
+            await explode(state.u.ux, state.u.uy, -11, random.d(3, 6), 0,
+                EXPL_FIERY, state, { ...env, random });
+            return false;
+        } else if (staleEgg(otmp, state)) {
+            await message('Ugh.  Rotten egg.', state);
+            await make_vomiting((hungerProperty(state, VOMITING).intrinsic & TIMEOUT)
+                + random.d(10, 4), true, state, env);
+        } else await feedback();
+        break;
+    case FOOD_RATION:
         if (state.u.uhunger <= 200) {
-            if (Hallucination(state)) {
-                // C spells this arm as one pline() whose text is a ternary on
-                // Hallucination, so the hallucinating wording replaces this
-                // message and no other. Nothing reachable on dungeon level one
-                // makes the hero hallucinate.
-                throw new UnsupportedEatError(
-                    "fprefx()'s hallucinating food ration message",
-                );
-            }
-            await ttyPline('This food really hits the spot!', state);
+            await message(`${Hallucination(state)
+                ? 'Oh wow, like, superior, man' : 'This food really hits the spot'}!`, state);
         } else if (state.u.uhunger < 700) {
-            /* 700-1+800 remains below 1500, the choking threshold which
-               triggers "you're having a hard time getting it down" feedback */
-            await ttyPline(
-                `This satiates your ${body_part(STOMACH, state.youmonst)}!`,
-                state,
-            );
+            await message(`This satiates your ${body_part(STOMACH, state.youmonst)}!`, state);
         }
         break;
     case TRIPE_RATION:
-        // The three wordings need carnivorous(), humanoid() and the orc race
-        // test, and the "Yak - dog food!" arm also calls more_experienced(),
-        // newexplevel() and, on rn2(2) outside CANNIBAL_ALLOWED(),
-        // make_vomiting().
-        throw new UnsupportedEatError("fprefx()'s tripe ration arm");
+        if (carnivorous(uptr) && !humanoid(uptr)) {
+            await message('This tripe ration is surprisingly good!', state);
+        } else if (maybeRace(is_orc, PM_ORC)) {
+            await message(Hallucination(state) ? 'Tastes great!  Less filling!' : 'Mmm, tripe... not bad!', state);
+        } else {
+            await message('Yak - dog food!', state);
+            more_experienced(1, 0, state);
+            await newexplevel(state, env);
+            if (random.rn2(2) && !CANNIBAL_ALLOWED(state)) {
+                await make_vomiting(random.rn1(victual(state).reqtime, 14), false, state, env);
+            }
+        }
+        break;
     case LEMBAS_WAFER:
-        // The orc and elf wordings, and the fall through to give_feedback for
-        // every other race.
-        throw new UnsupportedEatError("fprefx()'s lembas wafer arm");
+        if (maybeRace(is_orc, PM_ORC)) await message('!#?&* elf kibble!', state);
+        else if (maybeRace(is_elf, PM_ELF)) await message('A little goes a long way.', state);
+        else await feedback();
+        break;
     case MEATBALL:
     case MEAT_STICK:
     case ENORMOUS_MEATBALL:
     case MEAT_RING:
-        // These reach the same give_feedback label as the default arm, but
-        // every one of them is FLESH, which doeat() stops above.
-        throw new UnsupportedEatError("fprefx()'s meat arms");
+        await feedback();
+        break;
     case CLOVE_OF_GARLIC:
-        if (is_undead(state.youmonst.data)) {
-            await make_vomiting(
-                rn1(state.context.victual.reqtime, 5), false, state,
-            );
+        if (is_undead(uptr)) {
+            await make_vomiting(random.rn1(victual(state).reqtime, 5), false, state, env);
             break;
         }
-        await iter_mons_safe(
-            (monster) => garlic_breath(monster, state),
-            state,
-        );
-        // FALLTHROUGH to default (C's give_feedback label)
+        await iter_mons_safe((monster) => garlic_breath(monster, state), state);
+        // C falls through into the ordinary flavor feedback.
     default:
         if (otmp.otyp === SLIME_MOLD && !otmp.cursed
             && otmp.spe === state.context.current_fruit) {
-            // "My, this is a yummy <fruit>!", or "primo" while hallucinating.
-            // No role starts with a slime mold, and picking one up off the
-            // floor needs the unported autopickup and pickup commands, so no
-            // recorded case can check either wording or the fruit name
-            // singular() would format.
-            throw new UnsupportedEatError("fprefx()'s slime mold arm");
+            await message(`My, this is a ${Hallucination(state) ? 'primo' : 'yummy'} ${singular(otmp, xnameFresh, state)}!`, state);
         } else if (otmp.otyp === APPLE && otmp.cursed
             && !propertyActive(state, SLEEP_RES)) {
-            /* skip core joke; feedback deferred til fpostfx() */
+            // C defers this flavor feedback to fpostfx().
         } else if (otmp.otyp === APPLE) {
-            // The `#if defined(MACOS9) || defined(MACOS)` arm (2179-2185).
-            // build-recorder.sh:31-35 configures its Darwin host through
-            // sys/unix, so config.h:18 leaves UNIX defined while
-            // config1.h:43-45 adds MACOS on top of it from clang's __APPLE__
-            // and __MACH__; config1.h:64-67, the one #undef of UNIX, needs
-            // MACOS9 or __BEOS__. Both arms are therefore compiled, and C's
-            // comment at 2180-2182 says what their order then means: the
-            // apple is answered here, and "the '#if UNIX' code will still
-            // kick in for pear". Hallucination changes nothing on this arm.
-            await ttyPline('Delicious!  Must be a Macintosh!', state);
-        } else if (otmp.otyp === APPLE || otmp.otyp === PEAR) {
-            // The `#ifdef UNIX` arm (2187-2202). C tests the apple here too,
-            // but the MACOS arm above has already answered it, so the pear is
-            // the only food that arrives.
-            if (Hallucination(state)) {
-                // rnd(100) (2193) picks between three segmentation-fault
-                // wordings, and it is the only draw anywhere in this default
-                // arm. No u_init.c row holds a pear and picking one up needs
-                // the unported pickup commands, so no recorded case can check
-                // it; a wrong string would cost one screen, but a draw taken
-                // where C takes none shifts every call after it.
-                throw new UnsupportedEatError("fprefx()'s hallucinating pear");
+            // The recorded reference compiles MACOS before the UNIX arm.
+            await message('Delicious!  Must be a Macintosh!', state);
+        } else if (otmp.otyp === PEAR) {
+            if (!Hallucination(state)) await message('Core dumped.', state);
+            else {
+                const roll = random.rnd(100);
+                await message(`${roll <= 75 ? 'Segmentation fault'
+                    : roll <= 99 ? 'Bus error' : "Yo' mama"} -- core dumped.`, state);
             }
-            await ttyPline('Core dumped.', state);
-        } else {
-            // A fortune cookie is the only food that reaches this line
-            // cursed: doeat() (3027-3031) exempts it by otyp and sends every
-            // other cursed food to rottenfood() instead of to fprefx().
-            await ttyPline(
-                `This ${singular(otmp, xnameFresh, state)} is ${
-                    otmp.cursed
-                        ? (Hallucination(state) ? 'grody!' : 'terrible!')
-                        : (otmp.otyp === CRAM_RATION
-                            || otmp.otyp === K_RATION
-                            || otmp.otyp === C_RATION)
-                            ? 'bland.'
-                            : (Hallucination(state) ? 'gnarly!' : 'delicious!')
-                }`,
-                state,
-            );
-        }
+        } else await feedback();
         break;
     }
     return true;
+}
+
+// C ref: eat.c edibility_prompts() (2627-2730). Food detection checks
+// hazards in source order, then asks whether to consume dangerous food.
+export async function edibility_prompts(otmp, state = game, env = {}) {
+    const cadaver = otmp.otyp === CORPSE;
+    const material = objectType(otmp, state).oc_material;
+    const mnum = otmp.corpsenm;
+    const foodsmell = Tobjnam(otmp, 'smell', state);
+    const pronoun = otmp.quan === 1 ? 'it' : 'they';
+    let rotted = 0;
+    let stoneorslime = false;
+    if (cadaver || [EGG, TIN, GLOB_OF_GREEN_SLIME].includes(otmp.otyp)) {
+        stoneorslime = ismnum(mnum) && flesh_petrifies(state.mons[mnum])
+            && !propertyActive(state, STONE_RES)
+            && !poly_when_stoned(state.youmonst.data, state);
+        if (mnum === PM_GREEN_SLIME || otmp.otyp === GLOB_OF_GREEN_SLIME)
+            stoneorslime = !propertyActive(state, UNCHANGING)
+                && !slimeproof(state.youmonst.data);
+        if (cadaver && !nonrotting_corpse(mnum, state)) {
+            rotted = Math.trunc((state.moves - peek_at_iced_corpse_age(otmp, state)) / 10);
+            if (otmp.cursed) rotted += 2;
+            else if (otmp.blessed) rotted -= 2;
+        }
+    }
+    let text = '';
+    if (cadaver && rotted > 5 && !sickResistance(state)) {
+        text = `${foodsmell} like ${pronoun} could be tainted!`;
+    } else if (stoneorslime) {
+        text = `${foodsmell} like ${pronoun} could be something very dangerous!`;
+    } else if (cadaver && rotted > 5 && sickResistance(state)) {
+        text = `${foodsmell} like ${pronoun} could be tainted.`;
+    } else if (otmp.orotten || (cadaver && rotted > 3)) {
+        text = `${foodsmell} like ${pronoun} could be rotten!`;
+    } else if (cadaver && poisonous(state.mons[mnum]) && !propertyActive(state, POISON_RES)) {
+        text = `${foodsmell} like ${pronoun} might be poisonous!`;
+    } else if (otmp.otyp === APPLE && otmp.cursed && !propertyActive(state, SLEEP_RES)) {
+        text = `${foodsmell} like ${pronoun} might have been poisoned.`;
+    } else if (cadaver && !vegetarian(state.mons[mnum])
+        && !state.u.uconduct.unvegetarian && state.urole.mnum === PM_MONK) {
+        text = `${foodsmell} unhealthy.`;
+    } else if (cadaver && acidic(state.mons[mnum]) && !propertyActive(state, ACID_RES)) {
+        text = `${foodsmell} rather acidic.`;
+    } else if (Upolyd(state.u) && state.u.umonnum === PM_RUST_MONSTER
+        && isMetallic(otmp, state) && otmp.oerodeproof) {
+        text = `${foodsmell} disgusting to you right now.`;
+    } else if (!state.u.uconduct.unvegan
+        && ([LEATHER, BONE, DRAGON_HIDE, WAX].includes(material)
+            || (cadaver && !vegan(state.mons[mnum])))) {
+        text = `${foodsmell} foul and unfamiliar to you.`;
+    } else if (!state.u.uconduct.unvegetarian
+        && ([LEATHER, BONE, DRAGON_HIDE].includes(material)
+            || (cadaver && !vegetarian(state.mons[mnum])))) {
+        text = `${foodsmell} unfamiliar to you.`;
+    }
+    if (!text) return 0;
+    const prompt = `${text}  Eat ${otmp.quan === 1 ? 'it' : 'one'} anyway?`;
+    const query = env.ynFunction ?? yn_function;
+    return await query(prompt, 'yn', 'n', true, state) === 'n'.charCodeAt(0) ? 1 : 2;
 }
 
 // The operations eat.c's own code reaches through globals. doeat() and
@@ -3307,20 +3326,18 @@ function eatOperations(state, statusRefresh, message = ttyPline) {
         // ate off the floor; and timeout.c obj_stop_timers(), which
         // done_eating() reaches through useup() -> obfree() for a corpse,
         // whose ROT_CORPSE timer mkobj.c start_corpse_timeout() hung on it.
-        // No other hook is reachable: a food carries no light, no shop bill
-        // and no worn mask, so freeinv(), addinv_nomerge() and splitobj() take
-        // their hookless path, and a hook this meal did need would stop the
-        // command rather than be skipped.  costlyAlteration covers
-        // touchfood()'s COST_BITE: C returns early from costly_alteration()
-        // when the object is not in a shop (the common case for a floor
-        // corpse), so a no-op is correct for non-shop items.
+        // Billing a bite is a discarded-return mkobj.c call; retain its gap
+        // explicitly until costly_alteration is implemented. Floor ownership
+        // and full-pack drops use the ordinary inventory/display hooks.
         hooks: {
             eatenStat: eaten_stat,
             extractExternalObject: remove_object,
             stopObjectTimers: (obj, hookEnv) => {
                 obj_stop_timers(obj, hookEnv.state, hookEnv);
             },
-            costlyAlteration: () => {},
+            costlyAlteration: () => note_unported('mkobj.c costly_alteration'),
+            newsym,
+            encumberMessage: encumber_msg,
         },
         message,
         // C fpostfx()'s gainstr() can reach adjattrib() and then
@@ -3356,20 +3373,10 @@ export async function eatfood(state = game, env = {}) {
         if (!here) food = null;
     }
     if (!food) {
-        /* maybe it was stolen? */
-        // food_disappears() zeroes the victual without clearing the
-        // occupation, which is how C reaches this arm; obfree() is its only
-        // caller and, during a meal, done_eating()'s own useup() is the only
-        // ported route into obfree().
-        throw new UnsupportedEatError(
-            'do_reset_eat() for a meal whose food went away',
-        );
+        await do_reset_eat(state, eatEnv);
+        return 0;
     }
-    if (!meal.eating) {
-        // do_reset_eat() lowers `eating` when an interruption abandons the
-        // meal, and nothing ported calls it.
-        throw new UnsupportedEatError("eatfood()'s abandoned meal");
-    }
+    if (!meal.eating) return 0;
 
     if (++meal.usedtime <= meal.reqtime) {
         if (await bite(state, eatEnv)) return 0;
@@ -3433,10 +3440,7 @@ async function start_eating(otmp, already_partly_eaten, state, env) {
 
     if (otmp.otyp === CORPSE || otmp.globby) {
         await cprefx(victual(state).piece.corpsenm, state, env);
-        // C ref: `if (!svc.context.victual.piece
-        //           || !svc.context.victual.eating) return;`, the rider
-        // revived or the hero died and was lifesaved. cprefx() stops on both
-        // of the arms that clear either field.
+        if (!meal.piece || !meal.eating) return;
     }
 
     const oldNomovemsg = state.nomovemsg;
@@ -4138,9 +4142,8 @@ export async function doeat_nonfood(otmp, state = game, env = {}) {
     return ECMD_TIME;
 }
 
-// C ref: eat.c doeat() (2815-3084), the #eat command. A glob, a tin and a
-// resumed meal each stop at their own arm below, and so does anything the
-// ordinary path cannot reach.
+// C ref: eat.c doeat() (2817-3084), the #eat command, including danger
+// prompts, object access, fresh food, and resuming an interrupted meal.
 //
 // `env` supplies statusRefresh(), which newuhs() calls as C's bot(); the other
 // two operations newuhs() needs are this file's own.
@@ -4162,11 +4165,12 @@ export async function doeat(state = game, env = {}) {
         return ECMD_OK;
 
     if (u.uedibility) {
-        // edibility_prompts() reads the corpse age, the petrification and
-        // slime tests and eight message arms, and then asks yn_function().
-        // Only blessed food detection sets u.uedibility, and neither the
-        // potion nor the scroll that grants it is ported.
-        throw new UnsupportedEatError('edibility_prompts()');
+        const result = await edibility_prompts(otmp, state, eatEnv);
+        if (result) {
+            await eatEnv.message(`Your ${body_part(NOSE, state.youmonst)} stops tingling and your sense of smell returns to normal.`, state);
+            u.uedibility = 0;
+            if (result === 1) return ECMD_OK;
+        }
     }
 
     /* from floorfood(), &hands_obj means iron bars at current spot; the
@@ -4189,21 +4193,17 @@ export async function doeat(state = game, env = {}) {
         return ECMD_OK;
     } else if ((otmp.owornmask
         & (W_ARMOR | W_TOOL | W_AMUL | W_SADDLE)) !== 0) {
-        // C answers You_cant("eat %s you're wearing.", something). is_edible()
-        // admits only FOOD_CLASS above, and no comestible can carry any of
-        // those four masks, so this arm has no reachable input.
-        throw new UnsupportedEatError("doeat()'s worn-object arm");
+        await eatEnv.message("You can't eat something you're wearing.", state);
+        return ECMD_OK;
     }
-    // C ref: `!(carried(otmp) ? retouch_object(&otmp, FALSE)
-    //           : touch_artifact(otmp, &gy.youmonst))`, which spends a turn
-    // when the hero is blasted. floorfood() cannot answer a floor object, and
-    // artifact.c retouch_object() (2510-2528) returns 1 with no side effect
-    // for anything that is neither an artifact nor SILVER carried against
-    // Hate_silver. objects.h's FOOD rows are ten FLESH, twenty-one VEGGY and
-    // the METAL tin (1117), so none is SILVER, and no food is an artifact.
-    // The stop below keeps that derivation honest.
-    if (otmp.oartifact)
-        throw new UnsupportedEatError('retouch_object() for an artifact');
+    const { retouch_object, touch_artifact } = await import('./artifacts.js');
+    if (carried(otmp)) {
+        const selected = { obj: otmp };
+        if (!await retouch_object(selected, false, state)) return ECMD_TIME;
+        otmp = selected.obj;
+    } else if (!await touch_artifact(otmp, state.youmonst, state)) {
+        return ECMD_TIME;
+    }
 
     // C ref: eat.c rust-monster arm (2876-2907).  A rust monster can eat a
     // rustproof metallic object, but spits it back out without nutrition.
@@ -4272,10 +4272,18 @@ export async function doeat(state = game, env = {}) {
         return doeat_nonfood(otmp, state, eatEnv);
 
     if (otmp === victual(state).piece) {
-        // A meal interrupted and then resumed, which needs touchfood() against
-        // a partly eaten piece and the "You resume your meal." wording. Only a
-        // meal of more than one turn can be interrupted.
-        throw new UnsupportedEatError("doeat()'s resumed meal");
+        const meal = victual(state);
+        const oneBiteLeft = meal.usedtime + 1 >= meal.reqtime;
+        if (u.uhs !== SATIATED) meal.canchoke = 0;
+        meal.o_id = 0;
+        otmp = await touchfood(otmp, eatEnv);
+        if (otmp) {
+            meal.piece = otmp;
+            meal.o_id = otmp.o_id;
+        } else await do_reset_eat(state, eatEnv);
+        await eatEnv.message(`You ${oneBiteLeft ? 'consume the last bite of' : 'resume'} your meal.`, state);
+        if (otmp) await start_eating(otmp, false, state, eatEnv);
+        return ECMD_TIME;
     }
 
     /* nothing in progress - so try to find something. */
@@ -4300,12 +4308,11 @@ export async function doeat(state = game, env = {}) {
     u.uconduct.food = Math.trunc(u.uconduct.food ?? 0) + 1;
 
     const already_partly_eaten = Boolean(otmp.oeaten);
-    if (already_partly_eaten) {
-        // Only an interrupted meal leaves oeaten set on an object doeat() then
-        // meets fresh; the resume arm above covers the rest.
-        throw new UnsupportedEatError("doeat()'s partly eaten food");
+    otmp = await touchfood(otmp, eatEnv);
+    if (!otmp) {
+        await do_reset_eat(state, eatEnv);
+        return ECMD_TIME;
     }
-    otmp = touchfood(otmp, eatEnv);
     const meal = victual(state);
     meal.piece = otmp;
     meal.o_id = otmp.o_id;
@@ -4379,13 +4386,11 @@ export async function doeat(state = game, env = {}) {
             consume_oeaten(otmp, 1, state); /* oeaten >>= 1 */
         } else if (!already_partly_eaten) {
             if (!await fprefx(otmp, state, eatEnv)) {
-                throw new UnsupportedEatError('do_reset_eat() after fprefx()');
+                await do_reset_eat(state, eatEnv);
+                return ECMD_TIME;
             }
         } else {
-            // You("%s %s.", reqtime == 1 ? "eat" : "begin eating",
-            // doname(otmp)); unreachable: the partly eaten stop above precedes
-            // it.
-            throw new UnsupportedEatError("doeat()'s resumed-meal wording");
+            await eatEnv.message(`You ${meal.reqtime === 1 ? 'eat' : 'begin eating'} ${donameFresh(otmp, state)}.`, state);
         }
     }
 

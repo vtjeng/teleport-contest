@@ -841,7 +841,7 @@ test('fprefx sends an apple to the Mac arm and a pear to the Unix arm',
 // hallucinating hero eating an apple gets the same string and the same draws
 // as a sober one. The Unix arm's hallucinating half (2191-2201) holds the
 // rnd(100) at 2193, the only draw anywhere in fprefx()'s default arm, so it is
-// the only path this port still refuses.
+// the only path in that arm that draws.
 test('hallucination reaches the draw through the pear alone', async () => {
     const apples = segmentFor('ek');
     // youprop.h:115-116 makes HHallucination the timeout by itself, so any
@@ -866,22 +866,15 @@ test('hallucination reaches the draw through the pear alone', async () => {
     await runSegment({ ...apples, moves: '.' });
     hallucinate();
     const pears = retypeApplesToPears();
-    let refusal = null;
-    // Measure the refusal the way the two meals above are measured, catching
-    // it inside the callback so the count is still read. C draws twice here:
-    // touchfood()'s next_ident() rnd(2) and then eat.c:2193's rnd(100). The
-    // port must stop between them, so it spends exactly what a sober apple
-    // spends and nothing more -- a refusal that fired late would show up as
-    // an extra draw rather than as a wrong string.
-    const pearDraws = await drawsFor(async () => {
-        try {
-            await eatSlot(pears);
-        } catch (error) {
-            refusal = error;
-        }
-    });
-    assert.match(String(refusal?.message), /hallucinating pear/u);
-    assert.equal(pearDraws, soberDraws);
+    // C draws once to split the stack and once for the pear's Unix joke.
+    const pearDraws = await drawsFor(() => eatSlot(pears));
+    assert.equal(pearDraws, soberDraws + 1);
+    assert.ok([
+        "Yo' mama -- core dumped.",
+        'Segmentation fault -- core dumped.',
+        'Bus error -- core dumped.',
+    ].includes(mealMessage()), mealMessage());
+
 });
 
 // C ref: eat.c fprefx()'s give_feedback pline (2205-2212). Once the Mac arm
@@ -1123,6 +1116,7 @@ test('fpostfx keeps the source order for sickness and vomiting cures', async () 
             assert.equal(game.u.uprops[VOMITING].intrinsic, 0,
                 'make_vomiting clears the active timeout');
             assert.deepEqual(messages, [
+                'This eucalyptus leaf is delicious!',
                 'You feel much less nauseated now.',
             ]);
         }
@@ -1139,6 +1133,7 @@ test('fpostfx keeps the source order for sickness and vomiting cures', async () 
     assert.equal(game.u.uprops[VOMITING].intrinsic, 0,
         'C reaches the vomiting cure after the preceding make_sick call');
     assert.deepEqual(combined.messages, [
+        'This eucalyptus leaf is delicious!',
         'You feel cured.  What a relief!',
         'You feel much less nauseated now.',
     ]);

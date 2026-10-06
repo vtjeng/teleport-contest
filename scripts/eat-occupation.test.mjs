@@ -41,7 +41,6 @@ import {
     CRAM_RATION, FOOD_RATION, PANCAKE, SLIME_MOLD,
 } from '../js/objects.js';
 import {
-    UnsupportedEatError,
     doeat,
     eatfood,
     lesshungry,
@@ -49,7 +48,6 @@ import {
     zero_victual,
 } from '../js/eat.js';
 import {
-    UnsupportedTurnBoundaryError,
     moveloop_core,
     stop_occupation,
 } from '../js/allmain.js';
@@ -462,21 +460,21 @@ test('eatfood stops on each state a meal can be missing', async () => {
     const piece = game.context.victual.piece;
 
     // `if (!svc.context.victual.eating) return 0;` -- do_reset_eat() lowers
-    // that flag and has no port.
+    // that flag when the occupation stops.
     game.context.victual.eating = 0;
-    await assert.rejects(() => eatfood(game), UnsupportedEatError);
+    assert.equal(await eatfood(game, recordingEnv()), 0);
     game.context.victual.eating = 1;
 
     // `if (food && !carried(food) && !obj_here(...)) food = 0;`
     const where = piece.where;
     piece.where = 0 /* OBJ_FREE */;
-    await assert.rejects(() => eatfood(game), UnsupportedEatError);
+    assert.equal(await eatfood(game, recordingEnv()), 0);
     piece.where = where;
 
     // `if (!food) { do_reset_eat(); return 0; }` -- food_disappears() is what
     // empties the piece under a running occupation.
     game.context.victual.piece = null;
-    await assert.rejects(() => eatfood(game), UnsupportedEatError);
+    assert.equal(await eatfood(game, recordingEnv()), 0);
 });
 
 test('refusing a full-meal prompt flags reset before the next bite',
@@ -484,7 +482,7 @@ test('refusing a full-meal prompt flags reset before the next bite',
         // The occupation callback reaches lesshungry()'s paranoid_query()
         // while the meal is active. A negative answer finishes this bite,
         // clears its completion message, and raises victual.doreset; C's
-        // separate do_reset_eat() gap is reached only on the following bite.
+        // do_reset_eat() is reached only on the following bite.
         const segment = segmentFor(5820011, 'ed ');
         await runSegment({ ...segment, moves: '.' });
         // doeat() sets victual.canchoke from `u.uhs == SATIATED`, so a hero
@@ -510,16 +508,15 @@ test('refusing a full-meal prompt flags reset before the next bite',
         assert.equal(game.nomovemsg, null);
         assert.notEqual(game.go.occupation, null);
 
-        // The next bite encounters the existing do_reset_eat() refusal in
-        // bite(); that separate source unit is not part of this task.
+        // The next bite resets the occupation without spending nutrition.
+        const hunger = game.u.uhunger;
         game.context.move = 0;
-        await assert.rejects(() => moveloop_core(), (error) => {
-            assert.ok(error instanceof UnsupportedTurnBoundaryError,
-                `${error.constructor.name} is not a turn boundary`);
-            assert.match(error.message,
-                /^an occupation reached .*do_reset_eat/u);
-            return true;
-        });
+        await moveloop_core();
+        assert.equal(game.go.occupation, null);
+        assert.equal(game.context.victual.eating, 0);
+        assert.equal(game.context.victual.doreset, 0);
+        assert.equal(game.context.victual.fullwarn, 0);
+        assert.equal(game.u.uhunger, hunger);
     });
 
 test('ParanoidEating accepts only the spelled affirmative', async () => {
@@ -716,16 +713,12 @@ test('stop_occupation clears the occupation before the meal it hands off',
         //
         // Everywhere else the argument is invisible, because done_eating()
         // clears go.occupation itself before its first observable act. That is
-        // why the assertion below reads the state left behind by the refusal
-        // rather than any message.
+        // why the assertion below reads the occupation after the reset.
         await startMeal(segmentFor(5820011, 'ed '), 'd');
         const meal = game.context.victual;
         meal.usedtime = meal.reqtime;
         meal.piece = null;
-        await assert.rejects(
-            () => stop_occupation(game, recordingEnv()),
-            UnsupportedEatError,
-        );
+        await stop_occupation(game, recordingEnv());
         assert.equal(game.go.occupation, null);
     });
 
@@ -770,15 +763,14 @@ test('fprefx names the spot a food ration hits when the hero is hungry',
         //
         // C reads Hallucination only inside the `u.uhunger <= 200` arm, as the
         // ternary that swaps one wording for another, so the hallucinating
-        // rows below differ from the plain ones at 200 and nowhere else. A
-        // null expectation is the refusal the unported wording raises.
+        // rows below differ from the plain ones at 200 and nowhere else.
         const segment = segmentFor(5820011, 'ed ');
         for (const [uhunger, hallucinating, expected] of [
             [200, false, 'This food really hits the spot!'],
             [201, false, 'This satiates your stomach!'],
             [699, false, 'This satiates your stomach!'],
             [700, false, 'What do you want to eat? [d or ?*] '],
-            [200, true, null] /* "Oh wow, like, superior, man" */,
+            [200, true, 'Oh wow, like, superior, man!'],
             [201, true, 'This satiates your stomach!'],
             [699, true, 'This satiates your stomach!'],
             [700, true, 'What do you want to eat? [d or ?*] '],
@@ -790,10 +782,6 @@ test('fprefx names the spot a food ration hits when the hero is hungry',
             const eat = () => doeat(game, { statusRefresh: async () => {} });
             const label = `u.uhunger ${uhunger}`
                 + (hallucinating ? ' hallucinating' : '');
-            if (expected === null) {
-                await assert.rejects(eat, UnsupportedEatError, label);
-                continue;
-            }
             await eat();
             // fprefx() replaces the answered getobj() prompt when it emits a
             // message; when it says nothing, C leaves that prompt pending.
