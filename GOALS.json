@@ -42589,7 +42589,15 @@
         "sha": "1e053b46f91f5850d247903f63e70eddb6f4b598",
         "screens": 8688,
         "rng": 640306
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "eatcorpse",
+          "reason": "Whole-source review found that the historical mildly sickening corpse evidence covered only one branch and retained excluded glob and petrification guards; B114 completes and re-verifies the whole eatcorpse function.",
+          "followupGoal": "port-eat-doeat-resumed-meals-v20-20261006",
+          "at": "4d281a88e71cd8236c027161065cc3b3fd78326e"
+        }
+      ]
     },
     {
       "id": "port-potion-fruit-juice-seed0002",
@@ -178023,6 +178031,270 @@
           "evaluationCommit": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8"
         }
       }
+    },
+    {
+      "id": "port-eat-doeat-resumed-meals-v20-20261006",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete resumed meals and source-ordered eating helpers",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v20/cursed-apple-fpostfx-after-rottenfood-v20"
+      ],
+      "selectionReason": "The highest remaining admitted mismatch is the v20 cursed-apple case with 11 unmatched screens at doeat resumed-meal handling. The complete caller requires touchfood, do_reset_eat, eatcorpse, fprefx, edibility_prompts, eatfood, bite and start_eating.",
+      "detail": "Port eat.c doeat lines 2817-3084 and the complete required helper family. Preserve prompt, object-stack, rot, nutrition, occupation and reset order and consumed return values. Reconcile historical eatcorpse evidence that retained glob and petrification guards. Retain cprefx petrification and Rider gaps outside this family, keep mkobj.c costly_alteration as a discarded-return gap, and preserve the blocked normal-apple recipe documenting the Macintosh versus current Linux reference-build discrepancy without adding platform or session special cases.",
+      "openedAt": "4d281a88e71cd8236c027161065cc3b3fd78326e",
+      "openStanding": {
+        "sha": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doeat",
+          "line": 2817,
+          "endLine": 3087,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2817,
+        "to": 3087
+      },
+      "requiredFunctions": [
+        {
+          "name": "touchfood",
+          "line": 360,
+          "endLine": 395,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "do_reset_eat",
+          "line": 422,
+          "endLine": 452,
+          "declared": false,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "eatcorpse",
+          "line": 1855,
+          "endLine": 2021,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "fprefx",
+          "line": 2099,
+          "endLine": 2220,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "edibility_prompts",
+          "line": 2627,
+          "endLine": 2733,
+          "declared": false,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "eatfood",
+          "line": 519,
+          "endLine": 543,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "bite",
+          "line": 3133,
+          "endLine": 3162,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "start_eating",
+          "line": 2022,
+          "endLine": 2077,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v20/cursed-apple-fpostfx-after-rottenfood-v20": {
+          "session": "synthetic/v20/cursed-apple-fpostfx-after-rottenfood-v20",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "cursed-apple-fpostfx-after-rottenfood-v20",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/cursed-apple-fpostfx-after-rottenfood-v20.session.json",
+          "recordingSha256": "130facda1159e122ca998d57646fc0788df9ab87173cbc9bf7c2c14ec786be70",
+          "evaluationPath": "challenges/evaluations/20261006145213-v20.json",
+          "evaluationCommit": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8"
+        }
+      },
+      "activeStanding": {
+        "sha": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "cursed-apple-fpostfx-after-rottenfood-v20",
+          "session": "synthetic/v20/cursed-apple-fpostfx-after-rottenfood-v20",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/cursed-apple-fpostfx-after-rottenfood-v20.session.json",
+          "recordingPath": "challenges/cases/v20/cursed-apple-fpostfx-after-rottenfood-v20.session.json",
+          "recordingSha256": "130facda1159e122ca998d57646fc0788df9ab87173cbc9bf7c2c14ec786be70",
+          "recipe": "challenges/cases/v20/cursed-apple-fpostfx-after-rottenfood-v20.recipe.session.json",
+          "recipeSha256": "5be0917a75739cc89b6981c5b31168c117318cca4152f5c170f3c8b203004fb7",
+          "replayInputSha256": "c4dd234c5bb867e39f2904fd11052e6c2782b97f210bd4ee86009f338f984c30",
+          "evaluationPath": "challenges/evaluations/20261006145213-v20.json",
+          "evaluationCommit": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8",
+          "evaluationArtifact": "challenges/evaluations/20261006145213-v20.json",
+          "evaluationUtc": "2026-10-06T14:53:23.125Z",
+          "remainingScreens": 11,
+          "recordedSteps": 31,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2743,
+              "total": 2761
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: eating requires doeat()'s resumed meal",
+            "step": 20
+          },
+          "step": 20,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "doeat",
+          "message": "unsupported hero command: an unported branch of this command: eating requires doeat()'s resumed meal",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/cursed-apple-fpostfx-after-rottenfood-v20.json",
+            "result": {
+              "session": "synthetic/v20/cursed-apple-fpostfx-after-rottenfood-v20",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "cursed-apple-fpostfx-after-rottenfood-v20",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "130facda1159e122ca998d57646fc0788df9ab87173cbc9bf7c2c14ec786be70",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 11,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "cursed-apple-fpostfx-after-rottenfood-v20",
+                "session": "synthetic/v20/cursed-apple-fpostfx-after-rottenfood-v20",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/cursed-apple-fpostfx-after-rottenfood-v20.session.json",
+                "recordingPath": "challenges/cases/v20/cursed-apple-fpostfx-after-rottenfood-v20.session.json",
+                "recordingSha256": "130facda1159e122ca998d57646fc0788df9ab87173cbc9bf7c2c14ec786be70",
+                "recipe": "challenges/cases/v20/cursed-apple-fpostfx-after-rottenfood-v20.recipe.session.json",
+                "recipeSha256": "5be0917a75739cc89b6981c5b31168c117318cca4152f5c170f3c8b203004fb7",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 11,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2743,
+                    "total": 2761
+                  },
+                  "cursors": {
+                    "matched": 20,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: eating requires doeat()'s resumed meal",
+                  "step": 20
+                },
+                "step": 20,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "doeat",
+                "message": "unsupported hero command: an unported branch of this command: eating requires doeat()'s resumed meal",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 20, JavaScript stops in doeat()’s resumed-meal branch before reaching fpostfx(); C continues into the cursed-apple post-effect and puts the hero to sleep. The immediate source owner is the whole doeat() function, with fpostfx() as a downstream gap shared with the royal-jelly case.",
+              "source": {
+                "file": "eat.c",
+                "branch": "When the selected FOOD_CLASS object is svc.context.victual.piece, doeat() treats it as a resumed meal. In this recording an earlier cursed-apple attempt ran rottenfood() and set dont_start; the retry has one bite left, so C prints “You consume the last bite of your meal.” and calls start_eating(). That function counts its bite, then calls done_eating(), whose non-corpse path calls fpostfx(). fpostfx() applies its APPLE arm when the object is cursed and the hero lacks Sleep_resistance; after its race, deafness, and acoustics message branch it calls fall_asleep(-rn1(11, 20), TRUE).",
+                "functions": [
+                  "doeat"
+                ],
+                "callers": [
+                  "C nethack-c/upstream/src/cmd.c:1712-1713 maps key e to doeat(); cmd.c:4803-4805 also enqueues doeat() for MCMD_EAT. JavaScript js/cmd.js:3223-3229 calls doeat() from runEatCommand(), and js/cmd.js:5102-5103 dispatches the command to that wrapper."
+                ],
+                "dependencies": [
+                  "C eat.c:1813-1851 rottenfood() participates in the prior cursed-food attempt; eat.c:3026-3036 sets dont_start and consumes oeaten after that result. This setup path is already implemented in js/eat.js and is not the current first stop.",
+                  "C eat.c:2022-2074 start_eating() calls bite() and, when the bite reaches reqtime, calls done_eating(). JavaScript js/eat.js:3366-3435 provides these resumed-meal operations after doeat() returns from its matching-piece branch.",
+                  "C eat.c:544-573 done_eating() calls fpostfx() for non-corpse food at lines 562-565. The cursed-APPLE behavior is in eat.c:2582-2597. JavaScript js/eat.js:3032-3216 still throws for that APPLE branch; fpostfx() is one whole static C function, and its royal-jelly branch is assigned to the other investigator. Coordinate that shared whole-function scope through the orchestrator."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261003003219-v20.json is for commit b5bb23ff11504c300f032b10b1e17c99b06fc97e and reports 20/31 screens and cursors matched, 2743/2761 RNG calls matched, and a stop at zero-based step 20: “eating requires doeat()’s resumed meal.” The selected cache entry .cache/v20-work-queue.json records the same first mismatch and 11 remaining screens.",
+                "The C recording challenges/cases/v20/cursed-apple-fpostfx-after-rottenfood-v20.session.json has key o at step 20. Its response is “You consume the last bite of your meal.”; its RNG log begins rn2(11)=10 @ fpostfx(eat.c:2595), and its screen then says “You fall asleep.” The immutable prior C63 packet records the independent C replay of this same route.",
+                "Upstream nethack-c/upstream/src/eat.c:2923-2950 owns the same-piece resumed-meal path and calls start_eating(); eat.c:2022-2074 reaches done_eating() when the one-bite meal completes; eat.c:544-573 calls fpostfx() for the non-corpse apple. The current JavaScript counterpart js/eat.js:4213-4217 throws before start_eating(), so doeat() is the actual first mismatch owner at this commit.",
+                "The required source scope is the complete eat.c:doeat() function (2817-3084), including existing partial branches, with its current command callers. After that earlier refusal is removed, this recording also exercises the APPLE branch of the complete eat.c:fpostfx() function (2510-2600). Keep fpostfx() with the shared royal-jelly whole-function task; this finding does not claim that the current first mismatch is already inside fpostfx()."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
