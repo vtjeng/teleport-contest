@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -77,6 +78,10 @@ import {
     SKELETON_KEY,
 } from '../js/objects.js';
 import { loadPetCursedStepRecipe } from './run-pet-cursed-step.mjs';
+
+const DOGMOVE_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/dogmove.c', import.meta.url), 'utf8',
+);
 
 function petState() {
     const level = new GameMap();
@@ -1144,8 +1149,7 @@ test('dog_move skips goals and ranged attacks after inventory eating',
 // mondata.c max_passive_dmg() answers 1 * 8 * (one melee attack) = 8 against a
 // little dog, which is exactly this fixture's hit points and reaches the balk
 // on the `>=`. A dog with one more hit point walks past it and attacks, which
-// is what the second half asserts; mhitm.c mattackm() then answers M_ATTK_MISS
-// because the blob is two squares away.
+// lets the now-ported floating acid passive damage the dog.
 test('dog_move rejects lethal passive damage before attacking', async () => {
     const { state, monster } = activePetState();
     const defender = {
@@ -1173,12 +1177,57 @@ test('dog_move rejects lethal passive damage before attacking', async () => {
     assert.equal(result, MMOVE_MOVED);
 
     monster.mhp = 9;
-    await assert.rejects(
-        dog_move(monster, false, movementEnv(state, {
-            findPositions: candidate,
-        })),
-        /an acid splash from the monster attacked/u,
+    const attackResult = await dog_move(monster, false, movementEnv(state, {
+        findPositions: candidate,
+    }));
+    assert.equal(attackResult, MMOVE_DONE);
+});
+
+// dogmove.c:dog_move() checks mon_reflects() in the floating-eye target gate.
+test('dog_move awaits the floating-eye reflection result', async () => {
+    const { state, monster } = activePetState();
+    // Match the starting kitten's source level so the ordinary target gate
+    // reaches the asynchronous reflection callback.
+    monster.m_lev = 2;
+    const eye = {
+        data: state.mons[PM_FLOATING_EYE],
+        mnum: PM_FLOATING_EYE,
+        m_lev: Math.max(1, state.mons[PM_FLOATING_EYE].mlevel),
+        // These hit points keep the eye alive so this test isolates the gate.
+        mhp: 12,
+        mhpmax: 12,
+        mcanmove: true,
+        mcansee: true,
+        mpeaceful: false,
+        mtame: 0,
+        mx: 6,
+        my: 5,
+    };
+    // The pet starts at (5,5), the eye occupies adjacent candidate (6,5),
+    // and the hero is at (7,5), so the reflection conjunct is reachable.
+    monster.nmon = eye;
+    place_monster(eye, eye.mx, eye.my, state);
+    const cStart = DOGMOVE_SOURCE.indexOf(
+        'if ((mtmp2->data == &mons[PM_FLOATING_EYE]',
     );
+    const cReflection = DOGMOVE_SOURCE.indexOf(
+        '!mon_reflects(mtmp, (char *) NULL)', cStart,
+    );
+    assert.ok(cStart >= 0 && cReflection > cStart);
+
+    const result = await dog_move(monster, false, movementEnv(state, {
+        findPositions: fixedCandidates([{
+            x: eye.mx,
+            y: eye.my,
+            info: ALLOW_M,
+        }]),
+        // An unequipped pet does not reflect, so C treats the eye as hazardous.
+        monsterReflects: async () => false,
+    }));
+
+    assert.equal(result, MMOVE_MOVED);
+    assert.deepEqual([monster.mx, monster.my], [5, 5]);
+    assert.equal(eye.mhp, 12);
 });
 
 test('dog_move makes a leashed pet whimper at a trap before moving',

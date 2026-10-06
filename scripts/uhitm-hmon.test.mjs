@@ -67,6 +67,7 @@ import {
     AT_ENGL,
     AT_HUGS,
     M1_UNSOLID,
+    MZ_HUGE,
     PM_BABY_GRAY_DRAGON,
     PM_BLACK_PUDDING,
     PM_BROWN_PUDDING,
@@ -152,6 +153,10 @@ import { will_hurtle } from '../js/dothrow.js';
 
 const UHITM_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url),
+    'utf8',
+);
+const DOTHROW_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url),
     'utf8',
 );
 const MON_SOURCE = readFileSync(
@@ -816,10 +821,45 @@ test('a shade uses the source zero-damage feedback arm', async () => {
 // mutate the state. The tests pin the source's artifact, inventory, terrain,
 // size and trapped guards.
 test('steadfast and will_hurtle predicates follow source state', async () => {
+    const steadfastAt = UHITM_SOURCE.indexOf('\nm_is_steadfast(');
+    const steadfastEnd = UHITM_SOURCE.indexOf(
+        '\n/* monster hits another monster hard enough to knock it back? */',
+        steadfastAt,
+    );
+    const steadfastSource = UHITM_SOURCE.slice(steadfastAt, steadfastEnd);
+    assert.match(steadfastSource,
+        /is_flyer\(mtmp->data\) \|\| is_floater\(mtmp->data\)/u);
+    assert.match(steadfastSource,
+        /is_art\(otmp, ART_GIANTSLAYER\)[\s\S]*?m_carrying\(mtmp, LOADSTONE\)/u);
+    assert.match(steadfastSource,
+        /mtmp == u\.usteed && carrying\(LOADSTONE\)/u);
+
+    const hurtleAt = DOTHROW_SOURCE.indexOf('\nwill_hurtle(');
+    const hurtleEnd = DOTHROW_SOURCE.indexOf('\nstaticfn boolean\nmhurtle_step', hurtleAt);
+    const hurtleSource = DOTHROW_SOURCE.slice(hurtleAt, hurtleEnd);
+    assert.match(hurtleSource,
+        /if \(!isok\(x, y\)\)\s+return FALSE;[\s\S]*?mon->data->msize >= MZ_HUGE[\s\S]*?mon == u\.ustuck[\s\S]*?mon->mtrapped/u);
+    assert.match(hurtleSource,
+        /return goodpos\(x, y, mon, MM_IGNOREWATER \| MM_IGNORELAVA\);/u);
+
     await hero();
     const mon = target(PM_GRID_BUG, { mtrapped: false });
     assert.equal(m_is_steadfast(mon, game), false);
     assert.equal(will_hurtle(mon, mon.mx + 1, mon.my, game), true);
+
+    // uhitm.c tests the current level before equipment: even an artifact or
+    // loadstone does not make a flyer, air-level target, or non-pool water
+    // level target steadfast.
+    const floater = target(PM_FLOATING_EYE);
+    assert.equal(m_is_steadfast(floater, game), false);
+    const previousAirLevel = game.air_level;
+    game.air_level = { ...game.u.uz };
+    assert.equal(m_is_steadfast(game.youmonst, game), false);
+    game.air_level = previousAirLevel;
+    const previousWaterLevel = game.water_level;
+    game.water_level = { ...game.u.uz };
+    assert.equal(m_is_steadfast(game.youmonst, game), false);
+    game.water_level = previousWaterLevel;
 
     const giantSlayer = mksobj(LONG_SWORD, true, false, { state: game });
     giantSlayer.oartifact = ART_GIANTSLAYER;
@@ -835,9 +875,21 @@ test('steadfast and will_hurtle predicates follow source state', async () => {
 
     mon.minvent = mksobj(LOADSTONE, true, false, { state: game });
     assert.equal(m_is_steadfast(mon, game), true);
+    const riderLoadstone = mksobj(LOADSTONE, true, false, { state: game });
+    addinv(riderLoadstone, game);
+    game.u.usteed = mon;
+    assert.equal(m_is_steadfast(mon, game), true);
+    game.u.usteed = null;
+
+    const huge = target(PM_PURPLE_WORM);
+    assert.ok(huge.data.msize >= MZ_HUGE);
+    assert.equal(will_hurtle(huge, huge.mx + 1, huge.my, game), false);
     mon.mtrapped = true;
     assert.equal(will_hurtle(mon, mon.mx + 1, mon.my, game), false);
     mon.mtrapped = false;
+    game.u.ustuck = mon;
+    assert.equal(will_hurtle(mon, mon.mx + 1, mon.my, game), false);
+    game.u.ustuck = null;
     assert.equal(will_hurtle(mon, 0, 0, game), false);
 });
 

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first entry witness for dogmove.c:dog_move's floating-eye target gate and its dogmove.c:1133 mon_reflects call. This debug Wizard creates one hostile floating eye while the Wizard’s starting pet is present, then yields monster turns. The seed, date, and command sequence were chosen for this pet-action route rather than copied from an existing session.",
+  "segments": [
+    {
+      "seed": 2026100507,
+      "datetime": "20361005120000",
+      "nethackrc": "OPTIONS=name:PetEyeOne,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,playmode:debug,pettype:dog\n",
+      "moves": " #wizgenesis\nhostile floating eye\n....."
+    }
+  ]
+}

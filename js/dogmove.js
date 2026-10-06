@@ -1441,10 +1441,10 @@ export async function dog_move(monster, after, rawEnv = {}) {
                     && haseyes(monster.data)
                     && occupant.mcansee
                     && (!occupant.minvis || perceives(monster.data))
-                    && !petMoveOperation(env, 'monsterReflects')(
+                    && !(await petMoveOperation(env, 'monsterReflects')(
                         monster,
                         env,
-                    )
+                    ))
             ) || (occupant.data?.pmidx === PM_GELATINOUS_CUBE
                 && random.rn2(10))
                 || (touch_petrifies(occupant.data)

@@ -2923,18 +2923,26 @@ export function searches_for_item(monster, obj, state = game) {
 // arti_reflects(MON_WEP(mon)) checks whether a wielded artifact weapon
 // reflects. Its boolean return is used here exactly as in C; callers may pass
 // a planning message/display environment so naming stays on the clone.
+function formatReflectionMessage(format, values) {
+    let nextValue = 0;
+    return format.replace(/%%|%s/gu, (placeholder) => {
+        if (placeholder === '%%') return '%';
+        return String(values[nextValue++]);
+    });
+}
+
 export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const reflectMessage = (kind) => formatReflectionMessage(str, [
+        s_suffix(monsterCommonName(mon, state, 0, rawEnv)),
+        kind,
+    ]);
     let orefl = which_armor(mon, W_ARMS, state);
 
     if (orefl && orefl.otyp === O.SHIELD_OF_REFLECTION) {
         if (str) {
-            const msg = str.replace('%s', s_suffix(monsterCommonName(
-                mon, state, 0, rawEnv,
-            )))
-                .replace('%s', 'shield');
-            await message(msg, state, rawEnv);
+            await message(reflectMessage('shield'), state, rawEnv);
             // makeknown(SHIELD_OF_REFLECTION)
             discover_object(O.SHIELD_OF_REFLECTION, true, true, true, state);
         }
@@ -2944,21 +2952,14 @@ export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
     const monwep = mon.mw; /* MON_WEP() */
     if (monwep && arti_reflects(monwep, state)) {
         if (str) {
-            const msg = str.replace('%s', s_suffix(monsterCommonName(
-                mon, state, 0, rawEnv,
-            ))).replace('%s', 'weapon');
-            await message(msg, state, rawEnv);
+            await message(reflectMessage('weapon'), state, rawEnv);
         }
         return true;
     }
     orefl = which_armor(mon, W_AMUL, state);
     if (orefl && orefl.otyp === O.AMULET_OF_REFLECTION) {
         if (str) {
-            const msg = str.replace('%s', s_suffix(monsterCommonName(
-                mon, state, 0, rawEnv,
-            )))
-                .replace('%s', 'amulet');
-            await message(msg, state, rawEnv);
+            await message(reflectMessage('amulet'), state, rawEnv);
             discover_object(O.AMULET_OF_REFLECTION, true, true, true, state);
         }
         return true;
@@ -2967,11 +2968,7 @@ export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
     if (orefl && (orefl.otyp === O.SILVER_DRAGON_SCALES
                   || orefl.otyp === O.SILVER_DRAGON_SCALE_MAIL)) {
         if (str) {
-            const msg = str.replace('%s', s_suffix(monsterCommonName(
-                mon, state, 0, rawEnv,
-            )))
-                .replace('%s', 'armor');
-            await message(msg, state, rawEnv);
+            await message(reflectMessage('armor'), state, rawEnv);
         }
         return true;
     }
@@ -2979,11 +2976,7 @@ export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
         || mon.data === state.mons?.[M.PM_CHROMATIC_DRAGON]) {
         /* Silver dragons only reflect when mature; babies do not */
         if (str) {
-            const msg = str.replace('%s', s_suffix(monsterCommonName(
-                mon, state, 0, rawEnv,
-            )))
-                .replace('%s', 'scales');
-            await message(msg, state, rawEnv);
+            await message(reflectMessage('scales'), state, rawEnv);
         }
         return true;
     }

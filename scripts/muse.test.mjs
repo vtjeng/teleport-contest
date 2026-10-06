@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -48,6 +49,7 @@ import {
     searches_for_item,
     select_fresh_monster_item_action,
     find_misc,
+    mon_reflects,
     ureflects,
 } from '../js/muse.js';
 import { can_blow } from '../js/mondata.js';
@@ -73,6 +75,7 @@ import {
     PM_JACKAL,
     PM_NURSE,
     PM_SOLDIER,
+    PM_SILVER_DRAGON,
     PM_KI_RIN,
     PM_LIZARD,
     PM_STONE_GOLEM,
@@ -131,6 +134,34 @@ import {
     SHIELD_OF_REFLECTION,
     objects_globals_init,
 } from '../js/objects.js';
+
+const MUSE_C = readFileSync(
+    new URL('../nethack-c/upstream/src/muse.c', import.meta.url), 'utf8',
+);
+
+test('mon_reflects preserves C printf escapes and substitutes both values',
+    async () => {
+        // muse.c:mon_reflects() passes its source format to pline(), whose
+        // printf parser turns %% into a literal percent and each %s into the
+        // two reflected-item values.
+        const sourceAt = MUSE_C.indexOf('\nmon_reflects(');
+        const sourceEnd = MUSE_C.indexOf('\nboolean\nureflects(', sourceAt);
+        const source = MUSE_C.slice(sourceAt, sourceEnd);
+        assert.match(source,
+            /pline\(str, s_suffix\(mon_nam\(mon\)\), "scales"\)/u);
+
+        const state = await offensiveHero();
+        const dragon = offensiveMonster(state, PM_SILVER_DRAGON);
+        const lines = [];
+        // The two %s markers and escaped %% mirror C's variadic pline call.
+        assert.equal(await mon_reflects(
+            dragon,
+            'Reflection: %s %s %%',
+            state,
+            { message: async (line) => lines.push(line) },
+        ), true);
+        assert.deepEqual(lines, ["Reflection: the silver dragon's scales %"]);
+    });
 
 const AT_GAZE = 15;
 const MS_BUZZ = 10;

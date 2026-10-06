@@ -144,7 +144,12 @@ import {
 } from './monmove.js';
 import { m_at } from './monst.js';
 import {
-    find_defensive, find_misc, use_defensive, use_misc, use_offensive,
+    find_defensive,
+    find_misc,
+    mon_reflects,
+    use_defensive,
+    use_misc,
+    use_offensive,
 } from './muse.js';
 import {
     clear_dknown,
@@ -1196,7 +1201,14 @@ async function moveSimplePet(monster, after, env) {
         // live game's, so the planned pass must write neither half; the live
         // replay of the same turn writes both.
         markInvisible: env.planning ? () => {} : map_invisible,
-        monsterReflects: () => unsupported('pet combat evaluation'),
+        // C ref: dogmove.c:1133. The reflection predicate consumes the pet's
+        // own worn equipment, just as the monster attack callers do.
+        monsterReflects: (subject, moveEnv) => mon_reflects(
+            subject,
+            null,
+            moveEnv.state,
+            moveEnv,
+        ),
         petRangedAttack: pet_ranged_attk,
         redraw: env.planning ? () => {} : newsym,
         // C ref: dogmove.c dog_hunger() (360-394). Its middle arm confuses a

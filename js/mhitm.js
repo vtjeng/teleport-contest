@@ -4,8 +4,12 @@
 // are named where the arm that needs them refuses.
 
 import {
+    ACID_RES,
+    COLD_RES,
     CONFLICT,
     DEAF,
+    ERODE_CORRODE,
+    FIRE_RES,
     engulfing_u,
     IRONBARS,
     IS_OBSTRUCTED,
@@ -19,11 +23,14 @@ import {
     M_ATTK_DEF_DIED,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    M_AP_NOTHING,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
+    NC_SHOW_MSG,
     NATTK,
     NORMAL_SPEED,
     PASSES_WALLS,
+    SHOCK_RES,
     SLEEP_RES,
     STONE_RES,
     STRAT_WAITFORU,
@@ -36,7 +43,9 @@ import {
     ismnum,
 } from './const.js';
 import {
+    Adjmonnam,
     capitalizedMonsterName,
+    hliquid,
     Monnam,
     mon_nam,
     mon_nam_too,
@@ -53,11 +62,14 @@ import {
 import { grow_up } from './makemon.js';
 import { could_seduce, getmattk, mtrapped_in_pit } from './mhitu.js';
 import {
+    golemeffects,
+    healmon,
     mon_givit,
     mon_offmap,
     monkilled,
     mon_to_stone,
     monstone,
+    newcham,
     set_ustuck,
     unstuck,
     zombie_maker,
@@ -79,6 +91,11 @@ import {
     Resists_Elem,
     poly_when_stoned,
     defended,
+    haseyes,
+    perceives,
+    resists_blnd,
+    slimeproof,
+    stagger,
 } from './mondata.js';
 import { closed_door, itsstuck, monnear, youHear } from './monmove.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
@@ -116,6 +133,8 @@ import {
     MZ_HUGE,
     NON_PM,
     PM_GRID_BUG,
+    PM_ARCHON,
+    PM_FLOATING_EYE,
     PM_GREEN_SLIME,
     PM_MEDUSA,
     PM_NURSE,
@@ -126,9 +145,16 @@ import {
 import { ART_TROLLSBANE } from './artifacts.js';
 import { objectType } from './obj.js';
 import { SILVER } from './objects.js';
+import { makeplural } from './fruit.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 
-import { mhitm_adtyping, mhitm_knockback, shade_miss } from './uhitm.js';
+import {
+    erode_armor,
+    mhitm_ad_blnd,
+    mhitm_adtyping,
+    mhitm_knockback,
+    shade_miss,
+} from './uhitm.js';
 import { cansee, unblock_point } from './vision.js';
 import { breamm, spitmm, thrwmm } from './mthrowu.js';
 import { possibly_unwield } from './weapon.js';
@@ -138,7 +164,10 @@ import { place_worm_tail_randomly, remove_worm } from './worm.js';
 import { newsym, flush_screen, shieldeff } from './display.js';
 import { drain_item, resist } from './zap.js';
 import { ttyPline } from './tty_message.js';
-import { canspotmon } from './display.js';
+import { canseemon, canspotmon } from './display.js';
+import { mon_reflects } from './muse.js';
+import { split_mon } from './potion.js';
+import { note_unported } from './unported.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
 // that protects a target from the attack type. This is a pure source helper;
@@ -150,7 +179,7 @@ export function attk_protection(aatyp) {
     case AT_SPIT:
     case AT_EXPL:
     case AT_BOOM:
-    case AT_GAZE:
+        case AT_GAZE:
     case AT_BREA:
     case AT_MAGC:
         return ~0;
@@ -804,7 +833,8 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
             break;
 
         case AT_GAZE:
-            unsupported('a monster gazing at another monster');
+            strike = 0;
+            res[i] = await gazemm(magr, mdef, mattk, env);
             break;
 
         case AT_EXPL:
@@ -1044,28 +1074,103 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
     return mdamagem(magr, mdef, mattk, mwep, dieroll, env);
 }
 
-// C ref: mhitm.c mdamagem() (1014-1120). One landed blow's damage, the death
-// it may cause, and the experience the killer earns for it.
-//
-// Partial: what an AD_PHYS attack reaches. Two arms refuse:
-//
-//   1031-1057  the petrification pre-check, for an attacker that bites a
-//              cockatrice or digests Medusa. It needs mondata.c resists_ston(),
-//              polymon.c mon_to_stone() and mon.c monstone().
-//   1093-1108  the AD_DGST tail: newcham(), healmon() and mon_givit() after a
-//              digesting attack.
-//
-// Two blocks are ported although no melee blow can make either do anything,
-// because both are cheap and stopping on them would end a segment C plays
-// through. gm.mkcorpstat_norevive at 1080-1081 is written for AT_WEAP and
-// AT_CLAW alone, and its only setter here, monst.h troll_baned(), needs the
-// wielded Trollsbane that mattackm()'s refused AT_WEAP arm would have to
-// supply; js/corpstat.js mkcorpstat() is its only reader. The gulpmm() square
-// swap at 1073-1078 tests whether the defender stands on the aggressor's
-// square, which no melee blow arranges.
+// C ref: mhitm.c gazemm() (736-805). The gaze dispatch returns its own result,
+// then mattackm() still passes the defender's passive slot using strike=FALSE.
+// This deliberately keeps the gaze's hit result separate from the passive's
+// return mask, as the C loop does.
+async function gazemm(magr, mdef, mattk, env) {
+    const { state } = env;
+    const random = env.random;
+    const message = requireAttackOperation(env, 'message');
+    const archon = magr.data === state.mons?.[PM_ARCHON]
+        && mattk.adtyp === AD_BLND;
+    const altmesg = archon && !magr.mcansee;
+
+    if (mdef.data?.mlet === S_MIMIC
+        && M_AP_TYPE(mdef) !== M_AP_NOTHING) {
+        seemimic(mdef, state, env);
+    }
+    mdef.mundetected = 0;
+
+    if (state.gv?.vis) {
+        const attacker = altmesg
+            ? Adjmonnam(magr, 'blinded', state, env)
+            : Monnam(magr, state, env);
+        const target = canspotmon(mdef, state)
+            ? mon_nam(mdef, state, env) : 'something';
+        await message(`${attacker} gazes ${altmesg ? 'toward' : 'at'} ${target}...`, state);
+    }
+
+    if (magr.mcan || !mdef.mcansee
+        || (archon ? resists_blnd(mdef, state) : !magr.mcansee)
+        || (magr.minvis && !perceives(mdef.data))
+        || mdef.msleeping) {
+        if (state.gv?.vis && canspotmon(mdef, state))
+            await message('but nothing happens.', state);
+        return M_ATTK_MISS;
+    }
+
+    if (magr.data === state.mons?.[PM_MEDUSA]
+        && await mon_reflects(mdef, null, state, env)) {
+        if (canseemon(mdef, state)) {
+            await mon_reflects(
+                mdef,
+                'The gaze is reflected away by %s %s.',
+                state,
+                env,
+            );
+        }
+        if (mdef.mcansee) {
+            if (await mon_reflects(magr, null, state, env)) {
+                if (canseemon(magr, state)) {
+                    await mon_reflects(
+                        magr,
+                        'The gaze is reflected away by %s %s.',
+                        state,
+                        env,
+                    );
+                }
+                return M_ATTK_MISS;
+            }
+            if (mdef.minvis && !perceives(magr.data)) {
+                if (canseemon(magr, state)) {
+                    const pronounEnv = {
+                        ...env,
+                        state,
+                        canSpotMonster: env.canSpotMonster ?? canspotmon,
+                    };
+                    await message(
+                        `${Monnam(magr, state, env)} doesn't seem to notice `
+                            + `that ${mhis(magr, pronounEnv)} gaze was reflected.`,
+                        state,
+                    );
+                }
+                return M_ATTK_MISS;
+            }
+            if (canseemon(magr, state)) {
+                await message(
+                    `${Monnam(magr, state, env)} is turned to stone!`,
+                    state,
+                );
+            }
+            await monstone(magr, state, env);
+            if (magr.mhp >= 1) return M_ATTK_MISS;
+            return M_ATTK_AGR_DIED;
+        }
+    } else if (archon) {
+        await mhitm_ad_blnd(magr, mattk, mdef, null, state, env);
+        // The radiance stun is independent of the blinding resistance result.
+        if (random.rn2(2)) mdef.mstun = 1;
+    }
+
+    return mdamagem(magr, mdef, mattk, null, 0, env);
+}
+
+// C ref: mhitm.c mdamagem() (1014-1120). Apply attack-typed damage, the
+// petrification contact guard, death bookkeeping, digestion effects and killer
+// growth in the same order as the monster-versus-monster source.
 async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
     const { state, random } = env;
-    const unsupported = requireAttackOperation(env, 'unsupported');
     const pd = mdef.data;
     const mhm = {
         damage: random.d(mattk.damn, mattk.damd),
@@ -1076,11 +1181,33 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
         done: false,
     };
 
-    if (touch_petrifies(pd)
-        || (mattk.adtyp === AD_DGST && pd === state.mons[PM_MEDUSA])) {
-        // C tests !resists_ston(magr) next and, when the attacker's gloves or
-        // wielded weapon do not cover the attack, turns it to stone.
-        unsupported('an attack on a petrifying monster');
+    if ((touch_petrifies(pd)
+         || (mattk.adtyp === AD_DGST && pd === state.mons?.[PM_MEDUSA]))
+        && !Resists_Elem(magr, STONE_RES, state)) {
+        const protector = attk_protection(mattk.aatyp);
+        let wornitems = magr.misc_worn_check ?? 0;
+        if (mwep) wornitems |= W_ARMG; /* wielded weapon protects like gloves */
+        if (protector === 0
+            || (protector !== ~0 && (wornitems & protector) !== protector)) {
+            if (poly_when_stoned(magr.data, state)) {
+                await mon_to_stone(magr, state, env);
+                return M_ATTK_HIT;
+            }
+            if (state.gv?.vis && canspotmon(magr, state)) {
+                await requireAttackOperation(env, 'message')(
+                    `${Monnam(magr, state, env)} turns to stone!`, state,
+                );
+            }
+            await monstone(magr, state, env);
+            if (magr.mhp >= 1) return M_ATTK_HIT;
+            if (magr.mtame && !state.gv?.vis) {
+                await requireAttackOperation(env, 'message')(
+                    'You have a peculiarly sad feeling for a moment, then it passes.',
+                    state,
+                );
+            }
+            return M_ATTK_AGR_DIED;
+        }
     }
 
     await mhitm_adtyping(magr, mattk, mdef, mhm, state, env);
@@ -1130,15 +1257,29 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
             return M_ATTK_DEF_DIED | M_ATTK_AGR_DIED;
 
         if (mattk.adtyp === AD_DGST) {
-            /* The transformation, growth and healing arms remain deferred;
-             * ordinary corpses still reach mon_givit() here. */
-            if (ismnum(mdef.cham)
-                || mdef.data === state.mons?.[PM_GREEN_SLIME]
-                || mdef.data === state.mons?.[PM_WRAITH]
-                || mdef.data === state.mons?.[PM_NURSE]) {
-                unsupported('a monster digesting a special corpse');
+            /* C performs these effects after monkilled() so their messages
+             * follow the death message. Their return values are discarded. */
+            if (ismnum(mdef.cham)) {
+                await newcham(magr, null, {
+                    ...env,
+                    state,
+                    ncflags: NC_SHOW_MSG,
+                });
+            } else if (pd === state.mons?.[PM_GREEN_SLIME]
+                       && !slimeproof(magr.data)) {
+                await newcham(magr, state.mons[PM_GREEN_SLIME], {
+                    ...env,
+                    state,
+                    ncflags: NC_SHOW_MSG,
+                });
+            } else if (pd === state.mons?.[PM_WRAITH]) {
+                await grow_up(magr, null, env);
+                return M_ATTK_DEF_DIED
+                    | (magr.mhp >= 1 ? 0 : M_ATTK_AGR_DIED);
+            } else if (pd === state.mons?.[PM_NURSE]) {
+                healmon(magr, magr.mhpmax, 0);
             }
-            await mon_givit(magr, mdef.data, { ...env, state });
+            await mon_givit(magr, pd, { ...env, state });
         }
 
         return M_ATTK_DEF_DIED
@@ -1147,26 +1288,12 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
     return (mhm.hitflags === M_ATTK_AGR_DIED) ? M_ATTK_AGR_DIED : M_ATTK_HIT;
 }
 
-// C ref: mhitm.c passivemm() (1301-1408). "Passive responses by defenders.
-// Does not replicate responses already handled above. Returns same values as
-// mattackm."
-//
-// `i` lands on the defender's first empty attack slot, whose damage dice
-// decide `tmp` and whose damage type selects the arms below. A species whose
-// attack list is full has no such slot and returns at 1315-1316.
-//
-// AD_PHYS is the empty slot's own damage type and takes the default arm of
-// both switches, so an ordinary defender's whole live contribution is the
-// rn2(3) that guards the second switch, and only while it is alive.
-//
-// AD_ENCH is the one other damage type this port follows. Its whole body is a
-// drain_item() call C guards on the aggressor's wielded weapon. The rest refuse: AD_ACID in the first switch
-// (1330-1348) needs erode_armor() and acid_damage(), and the second switch
-// (1362-1443) needs mon_reflects(), paralyze_monst(), golemeffects(),
-// healmon() and split_mon().
+// C ref: mhitm.c passivemm() (1304-1460). Run the defender's first AT_NONE
+// response after active-attack effects, retaining the source damage and return
+// mask even when a discarded helper remains a named gap.
 async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
     const { state, random } = env;
-    const unsupported = requireAttackOperation(env, 'unsupported');
+    const message = requireAttackOperation(env, 'message');
     const mddat = mdef.data;
     let i;
     let tmp;
@@ -1184,10 +1311,34 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
     else
         tmp = 0;
 
-    /* These affect the enemy even if defender killed */
+    /* These affect the enemy even if defender killed. */
     switch (mddat.mattk[i].adtyp) {
     case AD_ACID:
-        unsupported('an acid splash from the monster attacked');
+        if (mhitb && !random.rn2(2)) {
+            const attackerName = Monnam(magr, state, env);
+            if (canseemon(magr, state)) {
+                await message(
+                    `${attackerName} is splashed by `
+                        + `${s_suffix(mon_nam(mdef, state, env))} `
+                        + `${hliquid('acid', { ...env, state })}!`,
+                    state,
+                );
+            }
+            if (Resists_Elem(magr, ACID_RES, state)) {
+                if (canseemon(magr, state)) {
+                    await message(
+                        `${Monnam(magr, state, env)} is not affected.`, state,
+                    );
+                }
+                tmp = 0;
+            }
+        } else {
+            tmp = 0;
+        }
+        if (!random.rn2(30))
+            await erode_armor(magr, ERODE_CORRODE, state, env);
+        if (!random.rn2(6) && magr.mw)
+            note_unported('trap.c acid_damage');
         break;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
         if (mhitb && !mdef.mcan && mwep)
@@ -1196,25 +1347,129 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
     default:
         break;
     }
+    if (mddat.mattk[i].adtyp === AD_ACID) {
+        /* C's acid arm jumps directly to assess_dmg, before the cancellation
+         * and dead-defender checks or the common rn2(3) gate. */
+        magr.mhp -= tmp;
+        if (magr.mhp <= 0) {
+            await monkilled(magr, '', mddat.mattk[i].adtyp, state, env);
+            return mdead | mhit | M_ATTK_AGR_DIED;
+        }
+        return mdead | mhit;
+    }
     if (mdead || mdef.mcan) return mdead | mhit;
 
     /* These affect the enemy only if defender is still alive */
     if (random.rn2(3)) {
         switch (mddat.mattk[i].adtyp) {
         case AD_PLYS: /* Floating eye */
-            unsupported("a paralyzing monster's passive attack");
-            break;
+            if (tmp > 127) tmp = 127;
+            if (mddat === state.mons?.[PM_FLOATING_EYE]) {
+                if (!random.rn2(4)) tmp = 127;
+                if (magr.mcansee && haseyes(magr.data) && mdef.mcansee
+                    && (perceives(magr.data) || !mdef.minvis)) {
+                    const format = s_suffix(Monnam(mdef, state, env))
+                        .replaceAll('%', '%%')
+                        + ' gaze is reflected by %s %s.';
+                    if (await mon_reflects(
+                        magr,
+                        canseemon(magr, state) ? format : null,
+                        state,
+                        env,
+                    )) {
+                        return mdead | mhit;
+                    }
+                    if (canseemon(magr, state)) {
+                        await message(
+                            `${Monnam(magr, state, env)} is frozen by `
+                                + `${s_suffix(mon_nam(mdef, state, env))} gaze!`,
+                            state,
+                        );
+                    }
+                    paralyze_monst(magr, tmp);
+                    return mdead | mhit;
+                }
+            } else {
+                /* C's else arm covers the non-floating-eye AD_PLYS response;
+                 * gel cubes are the ordinary species which reaches it. */
+                if (canseemon(magr, state)) {
+                    await message(
+                        `${Monnam(magr, state, env)} is frozen by `
+                            + `${mon_nam(mdef, state, env)}.`,
+                        state,
+                    );
+                }
+                paralyze_monst(magr, tmp);
+                return mdead | mhit;
+            }
+            return M_ATTK_HIT;
         case AD_COLD:
-            unsupported("a cold monster's passive attack");
+            if (Resists_Elem(magr, COLD_RES, state)) {
+                if (canseemon(magr, state)) {
+                    await message(
+                        `${Monnam(magr, state, env)} is mildly chilly.`, state,
+                    );
+                    await golemeffects(magr, AD_COLD, tmp, { ...env, state });
+                }
+                tmp = 0;
+                break;
+            }
+            if (canseemon(magr, state)) {
+                await message(
+                    `${Monnam(magr, state, env)} is suddenly very cold!`, state,
+                );
+            }
+            healmon(mdef, Math.trunc(tmp / 2), Math.trunc(tmp / 2));
+            if (mdef.mhpmax > ((mdef.m_lev + 1) * 8))
+                await split_mon(mdef, magr, { ...env, state });
             break;
         case AD_STUN:
-            unsupported("a stunning monster's passive attack");
+            if (!magr.mstun) {
+                magr.mstun = 1;
+                if (canseemon(magr, state)) {
+                    await message(
+                        `${Monnam(magr, state, env)} `
+                            + `${makeplural(stagger(magr.data, 'stagger'))}...`,
+                        state,
+                    );
+                }
+            }
+            tmp = 0;
             break;
         case AD_FIRE:
-            unsupported("a fiery monster's passive attack");
+            if (Resists_Elem(magr, FIRE_RES, state)) {
+                if (canseemon(magr, state)) {
+                    await message(
+                        `${Monnam(magr, state, env)} is mildly warmed.`, state,
+                    );
+                    await golemeffects(magr, AD_FIRE, tmp, { ...env, state });
+                }
+                tmp = 0;
+                break;
+            }
+            if (canseemon(magr, state)) {
+                await message(
+                    `${Monnam(magr, state, env)} is suddenly very hot!`, state,
+                );
+            }
             break;
         case AD_ELEC:
-            unsupported("a shocking monster's passive attack");
+            if (Resists_Elem(magr, SHOCK_RES, state)) {
+                if (canseemon(magr, state)) {
+                    await message(
+                        `${Monnam(magr, state, env)} is mildly tingled.`, state,
+                    );
+                    await golemeffects(magr, AD_ELEC, tmp, { ...env, state });
+                }
+                tmp = 0;
+                break;
+            }
+            if (canseemon(magr, state)) {
+                await message(
+                    `${Monnam(magr, state, env)} is jolted with electricity!`,
+                    state,
+                );
+            }
             break;
         default:
             tmp = 0;

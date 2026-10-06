@@ -42,6 +42,7 @@ import {
 import { zombie_form } from '../js/mon.js';
 import { accessible } from '../js/monmove.js';
 import {
+    AD_FIRE,
     AD_DGST,
     AD_ENCH,
     AD_PHYS,
@@ -67,6 +68,7 @@ import {
     PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
     PM_GIANT_ANT,
+    PM_FLOATING_EYE,
     PM_GRID_BUG,
     PM_GIANT_RAT,
     PM_ICE_VORTEX,
@@ -78,6 +80,7 @@ import {
     PM_KOBOLD_ZOMBIE,
     PM_LITTLE_DOG,
     PM_PONY,
+    PM_PYROLISK,
     PM_SEWER_RAT,
     PM_WATER_NYMPH,
     PM_WOODLAND_ELF,
@@ -988,7 +991,7 @@ test("an elf's blow against an orc gains one point of accuracy", async () => {
 // defender survived. An acid blob's only slot is
 // ATTK(AT_NONE, AD_ACID, 1, 8), so its AD_ACID arm is the first thing the
 // port cannot follow.
-test('a defender with an acid passive stops the attack', async () => {
+test('a defender with an acid passive resolves its damage rolls', async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);
     const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
@@ -996,13 +999,11 @@ test('a defender with an acid passive stops the attack', async () => {
     aim(blob);
     const env = attackEnv([20]);
 
-    await assert.rejects(
-        mattackm(pet, blob, env),
-        /an acid splash from the monster attacked/u,
-    );
-    // The damage roll for the passive attack precedes the refusal, because C
-    // makes it above its own switch at :1316-1321.
-    assert.deepEqual(env.bounds, ['rnd(20)', 'd(1,8)']);
+    assert.equal(await mattackm(pet, blob, env), M_ATTK_MISS);
+    // C consumes the acid passive die, armor-corrosion chance and weapon-acid
+    // chance after the missed hit; null MON_WEP makes acid_damage return.
+    assert.deepEqual(env.bounds,
+        ['rnd(20)', 'd(1,8)', 'rn2(30)', 'rn2(6)']);
 });
 
 // mhitm.c passivemm():1349-1354, the AD_ENCH arm. Its whole body is a
@@ -1323,9 +1324,9 @@ test('mattackm keeps unsupported arms closed and gates HUGS by prior hits',
         const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
         const ant = fixture(PM_GIANT_ANT, dx, y);
         aim(ant);
-        // These three arms still refuse with unsupported().
+        // AT_GAZE is covered by the live C-aligned route below; these later
+        // arms still refuse with unsupported().
         const refusingRows = [
-            [AT_GAZE, 'a monster gazing at another monster'],
             [AT_EXPL, 'a monster exploding at another monster'],
             [AT_ENGL, 'a monster engulfing another monster'],
         ];
@@ -1377,6 +1378,60 @@ test('mattackm keeps unsupported arms closed and gates HUGS by prior hits',
         }
         pet.data = ordinary;
         assert.equal(ordinary.mattk.length, NATTK);
+    });
+
+test('mattackm dispatches Pyrolisk gaze damage before floating-eye passive',
+    async () => {
+        // This source pin covers the C call chain exercised by the concrete
+        // Pyrolisk→floating-eye fixture: AT_GAZE dispatch, gaze damage, then
+        // the adjacent defender's passive response.
+        const dispatchAt = MHITM_C.indexOf('case AT_GAZE:',
+            MHITM_C.indexOf('mattackm('));
+        const dispatch = MHITM_C.slice(
+            dispatchAt,
+            MHITM_C.indexOf('case AT_EXPL:', dispatchAt),
+        );
+        const gazeAt = MHITM_C.indexOf('\ngazemm(');
+        const damageAt = MHITM_C.indexOf('\nmdamagem(', gazeAt);
+        const passiveAt = MHITM_C.indexOf('\npassivemm(', damageAt);
+        const gaze = MHITM_C.slice(gazeAt, damageAt);
+        const damage = MHITM_C.slice(damageAt, passiveAt);
+        const passiveEnd = MHITM_C.indexOf('\n/*', passiveAt);
+        const passive = MHITM_C.slice(passiveAt, passiveEnd);
+        assert.match(dispatch, /case AT_GAZE:\s*strike = 0;[\s\S]*res\[i\] = gazemm\(/u);
+        assert.match(gaze, /mdef->mundetected = 0;/u);
+        assert.match(gaze, /return mdamagem\(magr, mdef, mattk/u);
+        assert.match(damage,
+            /mhitm_adtyping\(magr, mattk, mdef, &mhm\);[\s\S]*?mhitm_knockback\(/u);
+        assert.match(passive,
+            /mddat == &mons\[PM_FLOATING_EYE\][\s\S]*?mon_reflects\(magr,[\s\S]*?paralyze_monst\(magr, tmp\)/u);
+
+        // A Pyrolisk's first slot is its 2d6 fire gaze; the adjacent floating
+        // eye's passive 3d70 roll and rn2 gates exercise passivemm afterwards.
+        await hero(7710060);
+        const { ax, dx, y } = battlefield(1);
+        const pyrolisk = fixture(PM_PYROLISK, ax, y, {
+            mhp: 30, mhpmax: 30,
+        });
+        const eye = fixture(PM_FLOATING_EYE, dx, y, {
+            mhp: 100, mhpmax: 100,
+        });
+        assert.equal(pyrolisk.data.mattk[0].aatyp, AT_GAZE);
+        assert.equal(pyrolisk.data.mattk[0].adtyp, AD_FIRE);
+        aim(eye);
+
+        // Each low scripted value is valid for its C draw and retains the
+        // floating eye so the passive's paralyzing branch can be observed.
+        const env = attackEnv([1, 1, 1, 1, 1, 1, 1]);
+        assert.equal(await mattackm(pyrolisk, eye, env), M_ATTK_MISS);
+        assert.deepEqual(env.bounds, [
+            'd(2,6)', 'rn2(10)', 'rn2(5)', 'rn2(3)', 'rn2(6)',
+            'd(3,70)', 'rn2(3)', 'rn2(4)',
+        ]);
+        assert.equal(pyrolisk.mcanmove, false);
+        assert.ok(pyrolisk.mfrozen > 0);
+        assert.ok(env.lines.some((line) => line.includes('gazes at')));
+        assert.ok(env.lines.some((line) => line.includes('is frozen by')));
     });
 
 // mhitm.c mattackm():337-359. A defender that was hiding is noticed as it is
@@ -1792,10 +1847,9 @@ test('damage that leaves one hit point does not kill', async () => {
                      ['rnd(20)', 'd(1,6)', 'rn2(3)', 'rn2(6)', 'rn2(3)']);
 });
 
-// mhitm.c mdamagem():1031-1032. The petrification pre-check runs above
-// mhitm_adtyping(), so an attack on a cockatrice stops before its damage type
-// is dispatched.
-test('an attack on a petrifying defender stops above the damage type',
+// mhitm.c mdamagem():1031-1058. An unprotected attacker is stoned before
+// mhitm_adtyping() when it bites a cockatrice.
+test('an unprotected attacker is stoned before damage typing',
     async () => {
         await hero();
         const { ax, dx, y } = battlefield(1);
@@ -1805,12 +1859,15 @@ test('an attack on a petrifying defender stops above the damage type',
         assert.equal(touch_petrifies(cockatrice.data), true);
         const env = attackEnv([1]);
 
-        await assert.rejects(
-            mattackm(pet, cockatrice, env),
-            /an attack on a petrifying monster/u,
-        );
-        // The damage roll at :1025 precedes the check, so it is spent.
-        assert.deepEqual(env.bounds, ['rnd(20)', 'd(1,6)']);
+        assert.equal(await mattackm(pet, cockatrice, env), M_ATTK_AGR_DIED);
+        // The damage roll precedes stone-form and death processing. The
+        // later bounded draws are C's ordinary corpse/statue bookkeeping.
+        assert.deepEqual(env.bounds, [
+            'rnd(20)', 'd(1,6)', 'rnd(2)', 'rn2(3)', 'rn2(4)',
+            'rn2(5)', 'rn2(7)', 'rn2(8)', 'rn2(11)', 'rn2(15)',
+            'rn2(16)', 'rn2(21)', 'rn2(2)',
+        ]);
+        assert.equal(pet.mhp, 0);
 
         // C's second disjunct needs both AD_DGST and Medusa. A digesting bite
         // against an ordinary defender therefore passes the check and stops

@@ -71,6 +71,7 @@ import {
     UNCHANGING,
     W_NONDIGGABLE,
     W_NONPASSWALL,
+    W_ARMS,
     WEB,
     W_WEP,
 } from '../js/const.js';
@@ -88,6 +89,7 @@ import {
     PM_DISPLACER_BEAST,
     PM_EARTH_ELEMENTAL,
     PM_FOG_CLOUD,
+    PM_FLOATING_EYE,
     PM_GELATINOUS_CUBE,
     PM_GIANT_EEL,
     PM_HOMUNCULUS,
@@ -143,6 +145,7 @@ import {
     ORCISH_HELM,
     POT_HEALING,
     ROCK,
+    SHIELD_OF_REFLECTION,
     SPE_BOOK_OF_THE_DEAD,
     WAX_CANDLE,
     STATUE,
@@ -195,6 +198,10 @@ const DOGMOVE_SOURCE = readFileSync(
 );
 const DOGMOVE_JS_SOURCE = readFileSync(
     new URL('../js/dogmove.js', import.meta.url),
+    'utf8',
+);
+const SIMPLE_ACTIONS_JS_SOURCE = readFileSync(
+    new URL('../js/unported_monster_actions.js', import.meta.url),
     'utf8',
 );
 const MONMOVE_SOURCE = readFileSync(
@@ -3655,6 +3662,63 @@ test('dogmove preserves source order before the mounted-steed no-op', () => {
     assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
 });
 
+test('starting-pet adapter wires dog_move reflection to mon_reflects',
+    async () => {
+        const target = await prepareStartingPetAction(PM_LITTLE_DOG);
+        const { monster } = target;
+        // C mon_allowflags() admits hostile monster targets for this pet
+        // turn only while Conflict is active; the intrinsic bit is its live
+        // source predicate, with no blocked alias.
+        game.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        const shield = monsterObject(SHIELD_OF_REFLECTION);
+        shield.owornmask = W_ARMS;
+        monster.minvent = shield;
+
+        // The occupied destination is the one legal move candidate. A worn
+        // reflection shield makes muse.c:mon_reflects() return true, so the
+        // floating-eye hazard gate must admit the pet's attack attempt.
+        const eye = ordinaryMonster(
+            PM_FLOATING_EYE,
+            target.destinationX,
+            target.heroY,
+            {
+                // This fixture identity is distinct from its starting pet.
+                m_id: 9002,
+                mpeaceful: false,
+                mtame: 0,
+                // Keep the eye alive through the pet's target/reflection gate.
+                mhp: 12,
+                mhpmax: 12,
+            },
+        );
+        monster.nmon = eye;
+        game.level.monsters[eye.mx][eye.my] = eye;
+
+        const adapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
+            'async function moveSimplePet(',
+        );
+        const adapterEnd = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
+            '\nasync function ',
+            adapterStart + 1,
+        );
+        const adapter = SIMPLE_ACTIONS_JS_SOURCE.slice(
+            adapterStart,
+            adapterEnd,
+        );
+        assert.match(adapter,
+            /monsterReflects: \(subject, moveEnv\) => mon_reflects\(\s*subject,\s*null,\s*moveEnv\.state,\s*moveEnv,/u);
+
+        // The source-admitted pet is on x=7 with the eye at x=8. dochug()
+        // consumes dog_move()'s completed attack and itself returns zero
+        // because the pet did not relocate.
+        const result = await runSimpleMonsterAction(monster, { state: game });
+        assert.equal(result, MMOVE_NOTHING);
+        assert.deepEqual(game.gb.bhitpos, {
+            x: target.destinationX,
+            y: target.heroY,
+        });
+    });
+
 test('a mounted leashed pony passes preflight and live action guards', async () => {
     const target = await prepareStartingPetAction(PM_PONY);
     const { monster: steed } = target;
@@ -3879,12 +3943,11 @@ test('non-tame EMIN roamers use ordinary movement and avoid known fire traps',
         }
     });
 
-test('simple preflight keeps starting-pet owner seams retryable',
+test('simple preflight plans starting-pet passive effects without live writes',
     async () => {
         const cases = [
             {
                 name: 'dog passive acid response',
-                reason: 'an acid splash from the monster attacked',
                 prepare: async () => {
                     const target = await prepareStartingPetAction(
                         PM_LITTLE_DOG,
@@ -3900,7 +3963,6 @@ test('simple preflight keeps starting-pet owner seams retryable',
                 // ALLOW_MDISP. Keep that source precedence explicit instead
                 // of fabricating an unreachable pet displacement callback.
                 name: 'pony occupied-square displacement precedence',
-                reason: 'an acid splash from the monster attacked',
                 prepare: async () => {
                     const target = await prepareStartingPetAction(PM_PONY);
                     // AT_KICK and AT_BITE double the balk to 16.
@@ -3913,21 +3975,15 @@ test('simple preflight keeps starting-pet owner seams retryable',
         for (const actionCase of cases) {
             const target = await actionCase.prepare();
             const before = completeSecondTurnSnapshot(game, target.replay);
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === actionCase.reason
-                    ),
-                    `${actionCase.name}, attempt ${attempt + 1}`,
-                );
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, target.replay),
-                    before,
-                    `${actionCase.name}, attempt ${attempt + 1}`,
-                );
-            }
+            await assert.doesNotReject(
+                preflightSimpleMonsterActions(game),
+                actionCase.name,
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                actionCase.name,
+            );
         }
     });
 
@@ -3938,7 +3994,8 @@ test('simple preflight keeps starting-pet owner seams retryable',
 // timestamp alone would silence the line the live pass owes.
 test('a dry run leaves the noise rate limit alone', async () => {
     const target = await prepareStartingPetAction(PM_LITTLE_DOG);
-    // The acid blob's passive is what makes the plan refuse and roll back.
+    // The acid passive runs in the planning clone, so this verifies that its
+    // noise-rate writes do not leak into the live state.
     installPetDefender(target, 12);
     // Neither combatant's square carries IN_SIGHT, so mattackm() leaves gv.vis
     // clear and the blow reaches noises() instead of a named line. The fight
@@ -3948,21 +4005,10 @@ test('a dry run leaves the noise rate limit alone', async () => {
     (game.gn ??= {}).noisetime = 0;
     const before = completeSecondTurnSnapshot(game, target.replay);
 
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'an acid splash from the monster attacked',
-            `attempt ${attempt + 1}`,
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            `attempt ${attempt + 1}`,
-        );
-        assert.deepEqual(game.gf, { far_noise: true }, `attempt ${attempt + 1}`);
-        assert.equal(game.gn.noisetime, 0, `attempt ${attempt + 1}`);
-    }
+    await assert.doesNotReject(preflightSimpleMonsterActions(game));
+    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
+    assert.deepEqual(game.gf, { far_noise: true });
+    assert.equal(game.gn.noisetime, 0);
 });
 
 // C ref: dogmove.c dog_move():1298-1312, which prints through pline.c
@@ -4865,7 +4911,7 @@ test('a planned arrow trap writes nothing to frozen live state', async () => {
     assert.equal(game.level.objects[target.destinationX][target.heroY], null);
 });
 
-test('a planned unspottable defender is not marked on frozen live state',
+test('a planned unspottable defender leaves frozen live state unmarked',
     async () => {
         // mhitm.c pre_mm_attack():67-68 writes GLYPH_INVISIBLE into the
         // defender's square through display.c map_invisible(), which also
@@ -4878,20 +4924,15 @@ test('a planned unspottable defender is not marked on frozen live state',
         // The pet's square is in sight and the acid blob's is not, so
         // mattackm():355-357 sets gv.vis from the attacker's half alone and
         // the defender fails canspotmon() -- the one combination that reaches
-        // the arm. The blob's passive then refuses the plan, which is what
-        // makes a leak here matter: the live game would keep a remembered 'I'
-        // from a turn that never happened.
+        // the arm. The completed passive lets planning finish, while the
+        // clone-only invisible marker must leave the live map untouched.
         const target = await prepareStartingPetAction(PM_LITTLE_DOG);
         installPetDefender(target, 12);
         game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
         const guard = freezeLiveState(game);
         assertDetectorReachedTheGraph(guard);
 
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'an acid splash from the monster attacked',
-        );
+        await assert.doesNotReject(preflightSimpleMonsterActions(game));
 
         guard.assertNoLeak(assert);
     });
