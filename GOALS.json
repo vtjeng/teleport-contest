@@ -177553,7 +177553,7 @@
     {
       "id": "port-were-you-were-v17-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole were.c you_were and wire every production caller",
       "cFile": "were.c",
       "sessions": [
@@ -177567,15 +177567,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "you_were",
           "line": 192,
           "endLine": 212,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -177850,7 +177853,115 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "you_were",
+            "implementation": "js/were.js",
+            "symbol": "you_were",
+            "sourceReview": "Read were.c:191-212 completely. Preserve Polymorph_control && !(Stunned || Unaware), Unchanging/current-form return, four-character were-prefix stripping from the neutral monster name, Boolean ParanoidWerechange confirmation before monster_nearby, and were_changes increment before discarded polymon. Compared the complete consumed-return monster_nearby (hack.c:4105-4130) and paranoid_query (cmd.c:5652-5658) implementations with their source; an has existing source-complete implementation, and heroUnaware follows youprop.h:399. Existing polymon is called directly with the caller RNG/message environment. Replaced every production you_were gap. you_unwere remains a separate discarded-void gap in potion and mon_poly; this task adds no gap. Read whole mhitm.c:mon_poly:1122-1207 and JS counterpart after B113 accepted merge; its urge branch now awaits you_were and preserves zero damage and cooldown checks.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_water",
+                "source": "potion.c:744 and :764 curse-water branches -> you_were; production command dispatch doquaff -> peffects -> peffect_water."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "potionbreathe",
+                "source": "potion.c:2089 cursed-water vapor -> you_were; dothrow.c:throwit -> toss_up -> breakobj -> potionbreathe, with potion in_use restored after the call."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurnAfterTimeout",
+                "source": "allmain.c:moveloop_core:336 delayed lycanthropy dispatch -> you_were, after stop_occupation and before clearing mvl_change. Planning input boundary defers transition to live turn."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mon_poly",
+                "source": "mhitm.c:1139 lycanthropic hero whose current form differs -> you_were. Production mhitu.c:hitmu -> uhitm.c:mhitm_adtyping/mhitm_ad_poly -> mon_poly -> you_were."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/were-you-were.test.mjs"
+            ],
+            "recordings": [
+              "recordings/were.c/a106-delayed-were.session.json",
+              "recordings/were.c/a106-water-vapor.session.json",
+              "recordings/were.c/a106-mon-poly-lycan.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+                "segment": 0,
+                "fromStep": 77,
+                "throughStep": 77,
+                "source": "potion.c:peffect_water:764 -> were.c:you_were -> polyself.c:polymon"
+              }
+            ],
+            "checkedAt": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8"
+          }
+        ],
+        "entryPointReview": "you_were is a helper with four active callers: both curse-water alignment branches of peffect_water, cursed-water inhalation in potionbreathe, delayed lycanthropy dispatch in allmain.c, and incoming AD_POLY in mon_poly. C recipes show the delayed daytime rn2(80)=0 transformation at step 95; upward-water vapor transforms at step 79; the pauper human Wizard combat setup produces unnatural-urge messages at steps 101, 110 and 119, entering the nearby hostile gate and returning without transformation. Both controlled-answer forms, Unchanging, current-form return and stunned-control suppression have direct initialized-state tests. All recipes match C completely. No source caller is excluded as inactive.",
+        "entryPoints": [
+          {
+            "name": "cursed-water drinking",
+            "functions": [
+              "you_were"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+                "segment": 0,
+                "fromStep": 77,
+                "throughStep": 77,
+                "source": "potion.c:peffect_water:764 -> were.c:you_were -> polyself.c:polymon"
+              }
+            ]
+          },
+          {
+            "name": "cursed-water vapor",
+            "functions": [
+              "you_were"
+            ],
+            "recordings": [
+              "recordings/were.c/a106-water-vapor.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "delayed lycanthropy turn",
+            "functions": [
+              "you_were"
+            ],
+            "recordings": [
+              "recordings/were.c/a106-delayed-were.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "incoming polymorph attack while lycanthropic",
+            "functions": [
+              "you_were"
+            ],
+            "recordings": [
+              "recordings/were.c/a106-mon-poly-lycan.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

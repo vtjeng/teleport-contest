@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T14:31:30.057Z",
+  "capturedAt": "2026-10-06T15:01:59.277Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -21226,12 +21226,125 @@
         "at": "2026-10-06T14:30:40.250Z",
         "task": "B114",
         "delivery": "a26689263ea5bac55a1297d75f9cf5d101572e56"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-publish-C113-20261006",
+        "type": "published",
+        "at": "2026-10-06T14:34:03.665Z",
+        "task": "C113",
+        "commit": "40dbbbbcf8ea2ef1b332021e80efe1b13fdd002f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-receive-A107-20261006",
+        "type": "received",
+        "at": "2026-10-06T14:34:48.786Z",
+        "task": "A107",
+        "delivery": "9b487f6d1e9e808592a669257120864cb72557a9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A107-clean-package-20261006",
+        "type": "feedback",
+        "at": "2026-10-06T14:37:58.821Z",
+        "task": "A107",
+        "delivery": "9b487f6d1e9e808592a669257120864cb72557a9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A107-clean-package-20261006",
+        "type": "resume",
+        "at": "2026-10-06T14:40:04.220Z",
+        "task": "A107"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bab75effa77c134c27c57251f02d568cfa3addd4",
+        "type": "ready",
+        "at": "2026-10-06T14:40:05.860Z",
+        "task": "A107",
+        "delivery": "bab75effa77c134c27c57251f02d568cfa3addd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-receive-A107-clean-20261006",
+        "type": "received",
+        "at": "2026-10-06T14:40:36.105Z",
+        "task": "A107",
+        "delivery": "bab75effa77c134c27c57251f02d568cfa3addd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-park-A107-ancestry-20261006",
+        "type": "park",
+        "at": "2026-10-06T14:41:06.174Z",
+        "task": "A107"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A109-clean-package-20261006",
+        "type": "assign",
+        "at": "2026-10-06T14:41:45.434Z",
+        "task": "A109",
+        "worker": "A2",
+        "goal": "port-were-you-were-v17-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f14d372bbf35af12b7f77ab5cc239fe9192b02a4",
+        "type": "ready",
+        "at": "2026-10-06T14:42:47.178Z",
+        "task": "A109",
+        "delivery": "f14d372bbf35af12b7f77ab5cc239fe9192b02a4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-receive-A109-20261006",
+        "type": "received",
+        "at": "2026-10-06T14:43:10.037Z",
+        "task": "A109",
+        "delivery": "f14d372bbf35af12b7f77ab5cc239fe9192b02a4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-integrating-A109-20261006",
+        "type": "integrating",
+        "at": "2026-10-06T14:43:20.596Z",
+        "task": "A109",
+        "integration": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B115-20261006",
+        "type": "assign",
+        "at": "2026-10-06T14:53:56.644Z",
+        "task": "B115",
+        "worker": "B",
+        "goal": "port-trap-mintrap-hurtling-return-synthetic-v9-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-validated-A109-20261006",
+        "type": "validated",
+        "at": "2026-10-06T15:01:27.707Z",
+        "task": "A109",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "orchestrator-accept-A109-20261006",
+        "type": "accepted",
+        "at": "2026-10-06T15:01:37.546Z",
+        "task": "A109"
       }
     ]
   },
   "development": {
-    "executionCommit": "e2e7e8d71198067023356a879d205205d2d01c84",
-    "measuredAt": "2026-10-06T14:29:44.240Z",
+    "executionCommit": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8",
+    "measuredAt": "2026-10-06T14:51:43.262Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
