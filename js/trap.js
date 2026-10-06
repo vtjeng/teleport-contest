@@ -105,6 +105,7 @@ import {
     MM_NOCOUNTBIRTH,
     MM_NOMSG,
     NO_MINVENT,
+    NO_PART,
     NON_PM,
     OBJ_AT,
     NOWEBMSG,
@@ -2995,8 +2996,7 @@ async function untrap(force, rx, ry, container, state = game) {
                            || rnd(75 + Math.trunc(level_difficulty(state) / 2))
                               > ch)) {
                 await ttyPline('You set it off!', state);
-                // C: b_trapped("door", FINGER). trap.c, not ported.
-                note_unported('trap.c b_trapped');
+                await b_trapped('door', FINGER, state);
                 loc.flags = D_NODOOR;
                 loc.doormask = D_NODOOR;
                 unblock_point(x, y, state);
@@ -3473,6 +3473,30 @@ export async function activate_statue_trap(
     }
     feel_newsym(x, y, state);
     return monster;
+}
+
+// C ref: trap.c b_trapped() (6694-6709), shared by trapped doors and tins.
+export async function b_trapped(item, bodypart, state = game, env = {}) {
+    const random = env.random ?? { rnd, rn2 };
+    const message = env.message ?? ttyPline;
+    const lvl = level_difficulty(state);
+    const dmg = random.rnd(5 + (lvl < 5 ? lvl : 2 + Math.trunc(lvl / 2)));
+
+    // Soundeffect(se_kaboom, 80) is a sound-backend macro; it has no
+    // screen, state, or RNG effect in the reference recorder.
+    await message(`KABOOM!!  ${The(item)} was booby-trapped!`, state);
+    await wake_nearby(false, { ...env, state, random, message });
+    await losehp(Maybe_Half_Phys(dmg, state), 'explosion', KILLED_BY_AN,
+        state, { ...env, message });
+    const exerciseEnv = {
+        encumberMessage: env.encumberMessage
+            ?? (subject => encumber_msg(subject, { message })),
+    };
+    await exercise(A_STR, false, state, random, exerciseEnv);
+    if (bodypart !== NO_PART)
+        await exercise(A_CON, false, state, random, exerciseEnv);
+    await make_stunned((state.u.uprops[STUNNED].intrinsic & TIMEOUT) + dmg,
+        true, state, { ...env, message });
 }
 
 export async function chest_trap(obj, bodypart, disarm, state = game) {

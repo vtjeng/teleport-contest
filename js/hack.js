@@ -6,6 +6,7 @@ import {
     A_CON,
     A_DEX,
     A_STR,
+    NO_PART,
     ARTICLE_NONE,
     ARTICLE_A,
     ARTICLE_THE,
@@ -420,6 +421,7 @@ import {
 } from './timeout.js';
 import {
     back_on_ground,
+    b_trapped,
     climb_pit,
     drown,
     lava_effects,
@@ -1980,7 +1982,7 @@ export async function still_chewing(x, y, state = game) {
         if ((lev.doormask ?? lev.flags ?? 0) & D_TRAPPED) {
             lev.doormask = D_NODOOR;
             lev.flags = D_NODOOR;
-            note_unported('trap.c b_trapped');
+            await b_trapped('secret door', NO_PART, state);
         } else {
             digtxt = 'You chew through the secret door.';
             lev.doormask = D_BROKEN;
@@ -1995,7 +1997,7 @@ export async function still_chewing(x, y, state = game) {
         if ((lev.doormask ?? lev.flags ?? 0) & D_TRAPPED) {
             lev.doormask = D_NODOOR;
             lev.flags = D_NODOOR;
-            note_unported('trap.c b_trapped');
+            await b_trapped('door', NO_PART, state);
         } else {
             digtxt = 'You chew through the door.';
             lev.doormask = D_BROKEN;

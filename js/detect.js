@@ -29,6 +29,7 @@ import {
     ECMD_TIME,
     FOOT,
     NOSE,
+    NO_PART,
     GPCOORDS_COMFULL,
     GPCOORDS_COMPASS,
     GPCOORDS_MAP,
@@ -216,7 +217,7 @@ import {
 import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
 import { heroIsBlind } from './startup_a11y.js';
 import {
-    openfallingtrap, openholdingtrap, t_at, trapname,
+    b_trapped, openfallingtrap, openholdingtrap, t_at, trapname,
 } from './trap.js';
 import { wake_nearto } from './mon.js';
 import { digests } from './dothrow.js';
@@ -2564,7 +2565,7 @@ export async function openone(x, y, counter, state) {
         if (location.typ === SDOOR) cvt_sdoor_to_door(location, state);
         if ((location.flags ?? location.doormask ?? 0) & D_TRAPPED) {
             if (dist2(x, y, state.u.ux, state.u.uy) < 3) {
-                note_unported('trap.c b_trapped');
+                await b_trapped('door', NO_PART, state);
             } else {
                 const deaf = Boolean(state.u.uprops?.[DEAF]?.intrinsic
                     || state.u.uprops?.[DEAF]?.extrinsic

@@ -829,8 +829,8 @@ test('a locked door can be kicked open the same way a closed one can',
 test('a trapped door in the success branch refuses before b_trapped()',
     async () => {
     // dokick.c:934-939. D_TRAPPED is checked first in the if-chain.
-    // b_trapped() fires the trap and draws RNG that this port has not
-    // translated, so the arm throws before any message or draw.
+    // b_trapped() is translated, but this kick_door() caller branch remains
+    // unported, so the arm throws before any trap message or draw.
     await replay(VALKYRIE(), '');
     // D_CLOSED | D_TRAPPED is the common trapped-closed combination.
     setDoorWest(D_CLOSED | D_TRAPPED);

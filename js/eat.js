@@ -75,6 +75,7 @@ import {
     M_ATTK_MISS,
     NOT_HUNGRY,
     NO_KILLER_PREFIX,
+    NO_PART,
     NOSE,
     OBJ_DELETED,
     SELL_DONTSELL,
@@ -202,7 +203,7 @@ import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { fall_asleep, obj_stop_timers } from './timeout.js';
 import {
-    Flying, Levitation, deltrap, float_up, reset_utrap, t_at, unconscious } from './trap.js';
+    Flying, Levitation, b_trapped, deltrap, float_up, reset_utrap, t_at, unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
 import { costly_spot, sellobj_state } from './shk.js';
@@ -1060,8 +1061,7 @@ async function consume_tin(mesg, state = game, env = {}) {
 
     if (tin.otrapped
         || (tin.cursed && variety !== HOMEMADE_TIN && !random.rn2(8))) {
-        // trap.c b_trapped() is a discarded void call and remains unported.
-        note_unported('trap.c b_trapped');
+        await b_trapped('tin', NO_PART, state, { ...eatEnv, random, message });
         tin = costly_tin(COST_DSTROY, state);
         await use_up_tin(tin, state);
         return;

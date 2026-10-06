@@ -656,10 +656,11 @@ async function kick_door(x, y, avrg_attrib, state) {
         const shopdoor = in_rooms(x, y, SHOPBASE, state).length > 0;
 
         // 934-939. D_TRAPPED: the hero kicks a trapped door. b_trapped()
-        // fires the trap and draws RNG; deferred.
+        // is ported, but this caller branch and its ordered side effects
+        // still belong to the incomplete kick_door() port.
         if (mask & D_TRAPPED) {
             throw new UnsupportedKickError(
-                "kick_door()'s D_TRAPPED arm, which needs b_trapped()",
+                "kick_door()'s D_TRAPPED caller branch",
             );
         }
 

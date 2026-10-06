@@ -54,6 +54,7 @@ import {
     ECMD_TIME,
     N_DIRS,
     FOOT,
+    NO_PART,
     FUMBLING,
     FORCETRAP,
     F_WARNED,
@@ -182,6 +183,7 @@ import { set_voice } from './sounds.js';
 import {
     Flying,
     Levitation,
+    b_trapped,
     conjoined_pits,
     deltrap,
     maketrap,
@@ -691,7 +693,7 @@ export async function dig(state = game, rawEnv = {}) {
         if (IS_DOOR(location.typ, state) && (location.doormask & D_TRAPPED)) {
             location.doormask = D_NODOOR;
             location.flags = D_NODOOR;
-            note_unported('trap.c b_trapped');
+            await b_trapped('door', NO_PART, state, { ...rawEnv, random, message });
             recalc_block_point(x, y, state);
             newsym(x, y, state);
         }

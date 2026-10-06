@@ -130,6 +130,7 @@ import { is_quest_artifact } from './questpgr.js';
 import { rn2, rnl } from './rng.js';
 import { costly_spot } from './shk.js';
 import {
+    b_trapped,
     chest_trap,
     t_at,
     unconscious,
@@ -494,9 +495,7 @@ function lock_action(state = game) {
 }
 
 // C ref: lock.c picklock() (68-160). This is the occupation callback installed
-// by pick_lock(). C calls b_trapped() for a trapped door but discards its
-// result; preserve that source gap, then continue the door destruction and
-// redraw sequence.
+// by pick_lock(). A trapped door explodes before its destruction and redraw.
 async function picklock(state = game) {
     const xlock = xlockContext(state);
     const u = state.u;
@@ -589,9 +588,7 @@ async function picklock(state = game) {
     await ttyPline(`You succeed in ${lock_action(state)}.`, state);
     if (xlock.door) {
         if (doorMask(xlock.door) & D_TRAPPED) {
-            // C discards b_trapped()'s void result, so keep its explosion
-            // behavior as a named gap and preserve the remaining source order.
-            note_unported('trap.c b_trapped');
+            await b_trapped('door', FINGER, state);
             setDoorMask(xlock.door, D_NODOOR);
             unblock_point(u.ux + u.dx, u.uy + u.dy, state);
             if (in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE, state).length)
@@ -1172,7 +1169,7 @@ export async function doopen(state = game) {
 // outcomes.
 //
 // Not covered, each throwing: the D_TRAPPED half of the success arm with its
-// b_trapped() and shop add_damage() bookkeeping, and the AUTOUNLOCK_KICK path
+// trapped-door opening and shop add_damage() bookkeeping, and the AUTOUNLOCK_KICK path
 // that queues dokick with cmdq_add_dir().
 export async function doopen_indir(x, y, state = game, env = {}) {
     // Reject unknown keys so a test substitution cannot silently fall through
@@ -1319,9 +1316,8 @@ export async function doopen_indir(x, y, state = game, env = {}) {
             messageAt('The door opens.', cc.x, cc.y, state), state,
         );
         if (doorMask(door) & D_TRAPPED) {
-            // lock.c:908-911. b_trapped() fires the door trap, then
-            // door->doormask = D_NODOOR and add_damage() for shops. This path
-            // needs b_trapped(), in_rooms(), and add_damage().
+            // lock.c:908-911. The whole trapped-door opening branch remains
+            // unported; b_trapped() is available for its eventual caller.
             throw new UnsupportedLockError(
                 'D_TRAPPED door trap in doopen_indir()',
             );
