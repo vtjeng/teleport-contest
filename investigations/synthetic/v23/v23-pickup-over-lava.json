@@ -1,0 +1,97 @@
+{
+  "session": "synthetic/v23/v23-pickup-over-lava",
+  "corpus": "synthetic",
+  "batch": "v23",
+  "caseId": "v23-pickup-over-lava",
+  "remainingScreens": 1,
+  "recordedSteps": 41,
+  "manifestPath": "challenges/manifests/v23.json",
+  "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+  "recordingSha256": "a7bd7ab16deee54d90e8c22b111998acefc2bb3319fcff21608b3360ec5ff46a",
+  "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+  "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+  "status": "complete",
+  "commit": "5862a1154f03695d0506303a6909a3838eebaaa6",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v23",
+    "caseId": "v23-pickup-over-lava",
+    "session": "synthetic/v23/v23-pickup-over-lava",
+    "manifestPath": "challenges/manifests/v23.json",
+    "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+    "recording": "challenges/cases/v23/v23-pickup-over-lava.session.json",
+    "recordingPath": "challenges/cases/v23/v23-pickup-over-lava.session.json",
+    "recordingSha256": "a7bd7ab16deee54d90e8c22b111998acefc2bb3319fcff21608b3360ec5ff46a",
+    "recipe": "challenges/cases/v23/v23-pickup-over-lava.recipe.session.json",
+    "recipeSha256": "8b26b44bcdec73ab6c609d9d1776824809798f2e68d18af37fc97d4f030f1c31",
+    "replayInputSha256": "b21aa49a44b7596be8d00ac1b3bd0373b2684515573eb1fb30942261d96cfadb",
+    "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+    "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+    "evaluationArtifact": "challenges/evaluations/20261006212455-v23.json",
+    "evaluationUtc": "2026-10-06T21:26:24.973Z",
+    "remainingScreens": 1,
+    "recordedSteps": 41,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 40,
+        "total": 41
+      },
+      "rng": {
+        "matched": 2613,
+        "total": 2613
+      },
+      "cursors": {
+        "matched": 40,
+        "total": 41
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over lava",
+      "step": 40
+    },
+    "step": 40,
+    "kind": "stop",
+    "sourceFile": "hack.c",
+    "function": "pickup_checks",
+    "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over lava",
+    "cFile": "hack.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At segment 0 step 40 comma pickup over lava stops at the JS pickup_checks terrain refusal. C prints that pickup would burn the hero to a crisp and returns 0 without using a turn. This is the same coherent whole hack.c:pickup_checks/dopickup task as the water case, including consumed-return pickup.c:loot_mon and its bounded caller wiring.",
+  "source": {
+    "file": "hack.c",
+    "branch": "Explicit comma pickup on a pool or lava square; the hero is an ordinary human, not underwater in the pool case and not lava-loving in the lava case. No surface-walking/floating/clinging or applicable flying predicate intercepts the observed branch. C prints a refusal and returns 0 without advancing time.",
+    "functions": [
+      "pickup_checks",
+      "dopickup"
+    ],
+    "callers": [
+      "cmd.c command dispatch invokes hack.c:dopickup for comma; js/hack.js:dopickup already awaits pickup_checks but maps every negative result to floor pickup. Preserve count capture and multi=0, map results 0/1 to ECMD_OK/ECMD_TIME, and wire the -2 swallowed result through loot_mon with the negated count pointer.",
+      "pickup.c:doloot_core 2311 consumes loot_mon(mtmp,&inquiry,&prev_loot) for an adjacent monster. js/pickup.js:3549-3553 currently refuses that caller. Include its bounded caller correction when adding whole loot_mon, preserving inquiry/prev_loot and elapsed-time aggregation; do not claim whole doloot_core.",
+      "hack.c:pickup_checks calls steed.c:rider_cant_reach on the unskilled riding branch. If including this tiny whole helper, also wire existing discarded callers pickup.c:able_to_loot 2050 (JS pickup.js:1748), potion.c:dodip 2346 (JS potion.js:3327), and trap.c:try_disarm 5473 (JS trap.js:2483). These are bounded caller corrections, not claims of those whole functions."
+    ],
+    "dependencies": [
+      "Include whole pickup.c:loot_mon 2431-2481: dopickup consumes its return for the -2 swallowed-inventory path, so skipping it cannot complete whole pickup_checks/dopickup. Preserve saddle prompt y/n/q, no-limbs/cursed refusals, extract_from_minvent, verbose message, hold_another_object, rnd(3), then swallowed pickup(count) overriding elapsed time. Preserve optional passed_info and prev_loot pointers as canonical mutable values.",
+      "Reuse existing pickup.c:pickup for floor and swallowed monster inventory, worn.c:which_armor/extract_from_minvent, and invent.c:hold_another_object. The latter pointer is assigned then discarded via nhUse; retain its real ownership and inventory side effects. No additional missing consumed-return helper was identified after adding loot_mon.",
+      "Reuse source-pinned can_reach_floor in engrave.js, uteetering_at_seen_pit/t_at/is_pit, dungeon terrain predicates/surface, object-presence checks, hliquid and monster naming. The digests macro means attacktype_fordmg(AT_ENGL,AD_DGST), whose owner already exists in mondata.js; preserve real Flying (including mount/blocking), Wwalking Water Plane exclusion, and Breathless intrinsic/extrinsic/species semantics.",
+      "Recommended same-task small void helper steed.c:rider_cant_reach 17-20 is currently missing. Port it whole and wire its bounded existing callers, or explicitly retain its discarded-call gap and riding evidence limit. Do not substitute an invented message/RNG operation for the gap.",
+      "Shared contracts: pickup return values 1/0/-1/-2 and ECMD_TIME versus ECMD_OK; command count and multi; floor-object versus engulfer-minvent ownership; saddle extraction and mutable inquiry/prev_loot; awaited prompts/messages and canonical core versus display RNG. Remove the owned UnsupportedPickupError throw sites; other class uses remain outside this task until their last-site audit."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Evaluation challenges/evaluations/20261006212455-v23.json at 40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e reports 40/41 screens, 2613/2613 RNG calls and 40/41 cursors; exactly 1 screens remain. Examined publication 5862a1154f03695d0506303a6909a3838eebaaa6 has identical js/frozen blobs to the saved evaluation commit.",
+    "Only these three assigned recordings were replayed against an exported exact-publication js/frozen snapshot with official frozen runtime modules. Diagnostic /tmp/teleport-loop-worker-a46-20260929/.cache/A2-liquid-investigation-replay.log, bounded run-5S2vNG, reproduces the saved boundaries. This is mismatch diagnosis, not implementation completion or a passing validation claim.",
+    "First missing JS screen/cursor is segment 0 zero-based step 40, key comma: unsupported hero command: an unported branch of this command: unsupported pickup: pickup_checks() over lava. There is no RNG mismatch. C prints You would burn to a crisp trying to pick things up. and leaves the hero command at ECMD_OK.",
+    "Replay state is hero (58,2), LAVAPOOL, uinwater=false and uswallow=false. C hack.c:pickup_checks lava arm 3829-3840 reaches !likes_lava after its surface/flying predicate, then prints the burn refusal and returns 0. The existing trap.c fire_damage_chain discarded gap appears earlier in this matching setup; preserve it as a separate evidence limit.",
+    "Read whole hack.c:pickup_checks 3788-3871 and dopickup 3876-3891. Current JS hack.js:4266 has terrain/swallow/reachability refusals around an already ported no-object message arm; this is a whole-function port, not two message replacements. Cover swallowed-empty return 1, swallowed-inventory return -2, pool/lava surface gates, normal fallthrough, terrain no-object messages, and unreachable-floor/pit/riding/blind branches in source order.",
+    "dopickup captures count, clears multi and consumes all four pickup_checks results. The missing -2 branch consumes loot_mon(u.ustuck,&tmpcount,NULL), so whole pickup.c:loot_mon is a required prerequisite in this same coherent task. Its adjacent-monster caller in doloot_core also consumes the result and inquiry/prev_loot pointers and needs a bounded correction. The water and lava sessions share these exact source owners/contracts; combine them as one task while retaining separate cache identities.",
+    "Independent completion evidence must exercise comma pickup floor success/refusal, pool underwater fallthrough versus surface/flying refusal, lava-loving fallthrough, swallowed empty versus nonempty minvent including count/menu, and unreachable-floor/pit/blind/riding branches. Whole loot_mon additionally needs adjacent saddled-monster yes/no/q, cursed saddle/no limbs and saddle acquisition/drop entries through doloot. Use independent inputs and cheap relevant variations; retain blocked recipes for unported setup functions. These two current cases cover only no-time human terrain refusals, not swallowed or saddle production entries."
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "session": "synthetic/v23/v23-underwater-display-on-pool-entry",
+  "corpus": "synthetic",
+  "batch": "v23",
+  "caseId": "v23-underwater-display-on-pool-entry",
+  "remainingScreens": 2,
+  "recordedSteps": 33,
+  "manifestPath": "challenges/manifests/v23.json",
+  "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+  "recordingSha256": "be41e228a387701c32181a6ac4f03ac74901e5ad4e7605128acb6c22b5b44b4e",
+  "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+  "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+  "status": "complete",
+  "commit": "5862a1154f03695d0506303a6909a3838eebaaa6",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v23",
+    "caseId": "v23-underwater-display-on-pool-entry",
+    "session": "synthetic/v23/v23-underwater-display-on-pool-entry",
+    "manifestPath": "challenges/manifests/v23.json",
+    "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+    "recording": "challenges/cases/v23/v23-underwater-display-on-pool-entry.session.json",
+    "recordingPath": "challenges/cases/v23/v23-underwater-display-on-pool-entry.session.json",
+    "recordingSha256": "be41e228a387701c32181a6ac4f03ac74901e5ad4e7605128acb6c22b5b44b4e",
+    "recipe": "challenges/cases/v23/v23-underwater-display-on-pool-entry.recipe.session.json",
+    "recipeSha256": "1afcfdf594557edd1c7019530477ac98de06437b7ccd91e281be0ed81e2e05aa",
+    "replayInputSha256": "b21aa49a44b7596be8d00ac1b3bd0373b2684515573eb1fb30942261d96cfadb",
+    "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+    "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e",
+    "evaluationArtifact": "challenges/evaluations/20261006212455-v23.json",
+    "evaluationUtc": "2026-10-06T21:26:24.973Z",
+    "remainingScreens": 2,
+    "recordedSteps": 33,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 31,
+        "total": 33
+      },
+      "rng": {
+        "matched": 2798,
+        "total": 2798
+      },
+      "cursors": {
+        "matched": 32,
+        "total": 33
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 31,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 31,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 17,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 31,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 31,
+          "key": " "
+        },
+        "cCursor": [
+          25,
+          0,
+          1
+        ],
+        "jsCursor": [
+          45,
+          18,
+          1
+        ]
+      }
+    },
+    "step": 31,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At segment 0 step 31 C waits at “You touch bottom.--More--”, while JS omits the pager. The skipped display.c:under_water(1) call omits cls() and its pending-message flush/map clear; step 32 then becomes an unknown space command and leaves old map cells visible. Port whole under_water with all four production callers and preserve the cls message boundary and transient glyph-buffer contract.",
+  "source": {
+    "file": "display.c",
+    "branch": "Hero has just become underwater in trap.c:drown on an ordinary pool level, is not swallowed and is not on the Water Plane. under_water(1) must perform a full display update, flushing the pending “You touch bottom” message through cls before drawing nearby water/lava/ice.",
+    "functions": [
+      "under_water"
+    ],
+    "callers": [
+      "trap.c:drown 5123 calls under_water(1) after water-entry messages and the sight-state transition. js/trap.js:1398 skips it using incorrectly attributed note_unported(vision.c under_water). Wire an awaited display.c call at that source site; do not claim whole drown.",
+      "display.c:docrt_flags 1731 calls under_water(1) with swallowed display taking precedence and underground display following. js/display.js:docrt currently redraws ordinary remembered cells. Wire the underwater branch while preserving in_docrt and post_map handling and avoiding a subsequent normal redraw.",
+      "detect.c:map_redisplay 99 calls under_water(2) after reconstrain_map and docrt. js/detect.js:1314 names the gap. Wire the delayed-full-update request at that exact point.",
+      "allmain.c:moveloop_core 432 calls under_water(0) after stationary pooleffects/lava sinking and before see_nearby_monsters in the actual-time block. js/allmain.js:advanceElapsedTurn currently runs finishHeroTimeEffects then see_nearby_monsters; insert the bounded underwater display caller between those operations, preserving the source time gate and water transition order."
+    ],
+    "dependencies": [
+      "Read whole display.c:under_water 1395-1434. Preserve static lastx/lasty/dela, Water Plane and swallowed early exits, mode 1 or pending dela before mode 2, old 3x3 erase in y/x order, and new 3x3 pool/lava/ice draw in x/y order. Blindness shows only the hero among those cells. Store these C locals once in game state and preserve startup/reset semantics without erasing permanent map memory.",
+      "Reuse and audit existing display.c:cls, show_glyph/newsym, terrain predicates, isok and u_at. All returned predicates already have owners; no missing consumed-return callee blocks under_water. cls must remain awaited because its pending-message flush can wait for input. Its C source 2189-2204 has an in_cls recursion guard and disp.botlx=TRUE; audit the existing JS cls for those source details and include the complete helper in the task if correcting it. Do not fabricate a separate pager to replace cls.",
+      "Shared contract: pending top-line state, input continuation, transient glyph buffer versus remembered map, underwater display precedence, and cached prior-position/delayed flag. Existing show_glyph/newsym/cls use live global display state: planner calls must remain clone-only and silent, handing off real display/input at the established live boundary.",
+      "Explicit separate limits: vision.c:vision_recalc underwater visibility path 589-606 remains unported in current JS, and drown still skips display.c:feel_newsym. Their broader whole-source closure is outside this display helper task; record these gaps rather than claiming whole vision_recalc or drown. A later blind/vision recipe blocked by them is not passing entry-point evidence."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Evaluation challenges/evaluations/20261006212455-v23.json at 40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e reports 31/33 screens, 2798/2798 RNG calls and 32/33 cursors; exactly 2 screens remain. Examined publication 5862a1154f03695d0506303a6909a3838eebaaa6 has identical js/frozen blobs to the saved evaluation commit.",
+    "Only these three assigned recordings were replayed against an exported exact-publication js/frozen snapshot with official frozen runtime modules. Diagnostic /tmp/teleport-loop-worker-a46-20260929/.cache/A2-liquid-investigation-replay.log, bounded run-5S2vNG, reproduces the saved boundaries. This is mismatch diagnosis, not implementation completion or a passing validation claim.",
+    "First difference is zero-based screen index/step 31, key space, row 0 column 17: C has the first dash of --More--; JS has a blank. C cursor is [25,0,1], JS [45,18,1]. All 2798 RNG calls match. Final hero is at (46,17), uinwater=true, uswallow=false, on POOL; JS unported includes display.c feel_newsym and misnamed vision.c under_water.",
+    "At step 32 C has cleared the message and old room cells, while JS prints Unknown command space and retains old room/wall glyphs in rows 16-20. The first defect is the missing flush/input boundary at step 31; the stale map is its following display consequence. Do not start from a remembered-wall glyph workaround.",
+    "Source trace: pool entry -> trap.c:drown -> display.c:under_water(1) -> cls -> display_nhwindow(WIN_MESSAGE,FALSE). TTY win/tty/wintty.c:1855-1883 forces more() for TOPLINE_NEED_MORE even with blocking=FALSE, then clears the message. Existing JS cls already awaits its pending-message dismissal; the source call is entirely skipped in drown.",
+    "Whole-helper completion needs independent recordings for underwater entry/full update, movement/limited update, detector map redisplay/delayed update, and redraw. Add cheap blind/adjacent pool-lava-ice variations and test Water Plane/swallowed precedence plus game-reset state. This admitted case currently covers only the entry setup; its failing steps 31-32 cannot establish the new helper until matched. Separate vision_recalc/feel_newsym gaps limit what blind and sight tests can prove."
+  ]
+}
