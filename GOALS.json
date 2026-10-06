@@ -174697,7 +174697,7 @@
     {
       "id": "port-mhitm-gazemm-mdamagem-passivemm-v21-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster gaze damage and passive retaliation",
       "cFile": "mhitm.c",
       "sessions": [
@@ -174711,15 +174711,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "gazemm",
           "line": 736,
           "endLine": 806,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -174733,7 +174736,7 @@
           "endLine": 1121,
           "declared": true,
           "sourceFile": "mhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "passivemm",
@@ -174741,7 +174744,7 @@
           "endLine": 1460,
           "declared": true,
           "sourceFile": "mhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "mon_reflects",
@@ -174749,7 +174752,7 @@
           "endLine": 2835,
           "declared": true,
           "sourceFile": "muse.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "mhitm_knockback",
@@ -174757,7 +174760,7 @@
           "endLine": 5423,
           "declared": true,
           "sourceFile": "uhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "m_is_steadfast",
@@ -174765,7 +174768,7 @@
           "endLine": 5246,
           "declared": true,
           "sourceFile": "uhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "will_hurtle",
@@ -174773,7 +174776,7 @@
           "endLine": 991,
           "declared": true,
           "sourceFile": "dothrow.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -174949,7 +174952,354 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "gazemm",
+            "implementation": "js/mhitm.js",
+            "symbol": "gazemm",
+            "sourceReview": "Read the complete mhitm.c:736-805 body. Preserved disguise clearing before the gaze gates, cancellation/vision/resistance/invisibility/sleep checks, the Medusa reflection and attacker-petrification path, the Archon blinding and stun path, and the final mdamagem return. The selected Pyrolisk trace reaches AT_GAZE through mattackm and the mdamagem return; no gaze behavior is selected by seed or input special cases.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm AT_GAZE dispatch, lines 493-495"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+                "segment": 0,
+                "fromStep": 133,
+                "throughStep": 133,
+                "source": "mattackm AT_GAZE -> gazemm -> mdamagem; C records the conflict roll and gaze damage at normalized step 133"
+              }
+            ],
+            "checkedAt": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c"
+          },
+          {
+            "name": "mdamagem",
+            "implementation": "js/mhitm.js",
+            "symbol": "mdamagem",
+            "sourceReview": "Read the complete mhitm.c:1016-1121 body. Preserved the initial damage roll, petrification protection decision, mhitm_adtyping invocation, physical-result and growth bookkeeping, attack result flags, and the postdamage mhitm_knockback call in C order. C-discarded effects stay explicitly named at their call sites; no omitted result is synthesized.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "hitmm",
+                "source": "mhitm.c:hitmm returns mdamagem at line 731"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "gazemm",
+                "source": "mhitm.c:gazemm returns mdamagem at line 802"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+                "segment": 0,
+                "fromStep": 133,
+                "throughStep": 134,
+                "source": "gazemm returns through mdamagem; damage is logged at step 133 and destroy_items plus mhitm_knockback are logged as the More is acknowledged at step 134"
+              }
+            ],
+            "checkedAt": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c"
+          },
+          {
+            "name": "passivemm",
+            "implementation": "js/mhitm.js",
+            "symbol": "passivemm",
+            "sourceReview": "Read the complete mhitm.c:1304-1460 body. Preserved the first AT_NONE selection, damage dice, the before/after-death gates, floating-eye reflection and paralyze order, acid/cold/stun/fire/electric arms, and final damage/death result in source order. C-discarded void calls do not supply invented effects.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm calls passivemm after each selected attack at lines 570-575"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+                "segment": 0,
+                "fromStep": 134,
+                "throughStep": 136,
+                "source": "mattackm postattack passivemm against the floating eye; step 134 records the passive die and paralyze gates and step 136 shows the freeze message"
+              }
+            ],
+            "checkedAt": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c"
+          },
+          {
+            "name": "mon_reflects",
+            "implementation": "js/muse.js",
+            "symbol": "mon_reflects",
+            "sourceReview": "Read the complete muse.c:2797-2835 body. The implementation checks reflection shield, wielded artifact, amulet, silver armor, and silver/chromatic dragon form in source order; non-null messages substitute both C %s values and preserve escaped %% before object discovery. The Pyrolisk/floating-eye passive calls this helper with a message format and consumes its false result before paralyzing the attacker. Existing direct zap, mhitu, and apply use_mirror callers continue to use the shared helper. The dog_move call is covered as caller-only wiring below; other starting-pet combat callbacks remain outside this task. Added caller-only dog_move coverage: dogmove.c:1133 invokes mon_reflects(mtmp, NULL) after the floating-eye visibility gates; the matching starting-kitten recording reaches that gate at segment 0, step 36. With no worn reflection source and a kitten form, the null-message helper returns false without output.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "passivemm",
+                "source": "mhitm.c:passivemm calls mon_reflects for the floating-eye passive at line 1377"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "gazemm",
+                "source": "mhitm.c:gazemm calls mon_reflects in the Medusa reflection branch at lines 766-772"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "buzzmonst",
+                "source": "zap.c:buzzmonst reflection handling at lines 4873-4877"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c monster attack reflection paths at lines 1728 and 2546"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_mirror",
+                "source": "apply.c:use_mirror calls mon_reflects for the Medusa mirror reflection message at line 1133"
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c:dog_move checks !mon_reflects(mtmp, NULL) at line 1133; JavaScript awaits the corresponding monsterReflects callback in the floating-eye gate."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "moveSimplePet",
+                "source": "dogmove.c:dog_move caller adapter supplies mon_reflects(subject, NULL, state, env) at line 1206; the live starting-pet route enters this callback through runSimpleMonsterAction."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/pet-floating-eye-reflection-c88-cfirst.session.json"
+            ],
+            "sourceFile": "muse.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+                "segment": 0,
+                "fromStep": 134,
+                "throughStep": 136,
+                "source": "passivemm's floating-eye response calls mon_reflects with a format string and consumes the false return before paralyze_monst"
+              }
+            ],
+            "checkedAt": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c"
+          },
+          {
+            "name": "mhitm_knockback",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_knockback",
+            "sourceReview": "Read the complete uhitm.c:5247-5423 body. Preserved its initial distance/chance draws, attack-type/grab/door/alive/size/weapon/hitflag gates, steadfast decision, will_hurtle message choice, message draw order, actual hero/monster movement, hitflag updates, and final success value. Traced all H-to-M, M-to-H, and M-to-M production callers. Matching current recordings show all three directions; the older C64 Yeenoghu candidate is excluded because it diverges at normalized step 39 before mhitm_knockback.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem invokes mhitm_knockback at line 1061, M-to-M"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas invokes mhitm_knockback at line 5833, H-to-M"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:hitmu invokes mhitm_knockback at line 1193, M-to-H"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-fire-hero-to-monster-fire-elemental-c86-force-fight-cfirst.session.json",
+              "recordings/uhitm.c/mhitm-ad-fire-monster-to-monster-straw-golem-c86-pager-ack2-cfirst.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+                "segment": 0,
+                "fromStep": 134,
+                "throughStep": 134,
+                "source": "M-to-M gazemm damage calls mhitm_knockback at C uhitm.c:5247"
+              }
+            ],
+            "checkedAt": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c"
+          },
+          {
+            "name": "m_is_steadfast",
+            "implementation": "js/uhitm.js",
+            "symbol": "m_is_steadfast",
+            "sourceReview": "Read the complete uhitm.c:5218-5246 body. This helper is a pure predicate over ground/water/air state, Giantslayer, carried loadstones, and a mounted steed's carried loadstone.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_knockback",
+                "source": "uhitm.c:mhitm_knockback checks m_is_steadfast at line 5342"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "uhitm.c",
+            "synthetic": [],
+            "checkedAt": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c"
+          },
+          {
+            "name": "will_hurtle",
+            "implementation": "js/dothrow.js",
+            "symbol": "will_hurtle",
+            "sourceReview": "Read the complete dothrow.c:977-991 body. This pure predicate checks bounds, huge size, stuck/trapped state, then goodpos with the source water/lava ignore flags.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_knockback",
+                "source": "uhitm.c:mhitm_knockback selects the back/backward message with will_hurtle at line 5357"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "mhurtle",
+                "source": "dothrow.c:mhurtle validates the next square with will_hurtle at line 1000"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "dothrow.c",
+            "synthetic": [],
+            "checkedAt": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c"
+          }
+        ],
+        "entryPointReview": "The selected runtime entry is monster-to-monster AT_GAZE: mattackm -> gazemm -> mdamagem, followed by mattackm's ordinary postattack passive call -> passivemm. The admitted Pyrolisk/floating-eye recording has gazemm and mdamagem source draws at segment 0 step 133; after the gaze More acknowledgement at step 134 it records mdamagem's knockback attempt, passivemm's passive die and gates, and the floating-eye mon_reflects call; step 136 confirms the freeze result. mhitm_knockback's other live callers are hmonas (H-to-M), hitmu (M-to-H), and mdamagem (M-to-M). The fully matching C86 Fire Elemental recording reaches H-to-M at step 55; the fully matching Straw Golem recording reaches M-to-M at step 139 and M-to-H hitmu at step 160. Its full 172-boundary replay matches. m_is_steadfast and will_hurtle are pure and have source-pinned branch tests. C64 Yeenoghu is not cited: current replay diverges at step 39 before its alleged knockback. The caller-only dog_move reflection gate is now wired through moveSimplePet to mon_reflects; its independent recording matches all 40 boundaries and reaches dogmove.c:1133 at segment 0, step 36. This adds no whole dog_move completion credit. The starting-pet caller is exercised by recordings/dogmove.c/pet-floating-eye-reflection-c88-cfirst.session.json: at zero-based segment 0, step 36, C records rn2(10)=1 at dogmove.c:1130 and the source-visible adjacent floating eye then passes the remaining visibility predicates to the null-message mon_reflects call at dogmove.c:1133. The kitten has no reflection equipment and does not match either reflecting dragon form, so mon_reflects returns false without a message.",
+        "entryPoints": [
+          {
+            "name": "mattackm AT_GAZE to floating-eye passive",
+            "functions": [
+              "gazemm",
+              "mdamagem",
+              "passivemm",
+              {
+                "sourceFile": "muse.c",
+                "name": "mon_reflects"
+              },
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_knockback"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+                "segment": 0,
+                "fromStep": 133,
+                "throughStep": 136,
+                "source": "mattackm AT_GAZE -> gazemm -> mdamagem -> mhitm_knockback -> passivemm -> mon_reflects -> paralyze_monst"
+              }
+            ]
+          },
+          {
+            "name": "hero-to-monster physical knockback",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_knockback"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-fire-hero-to-monster-fire-elemental-c86-force-fight-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-monster physical knockback",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_knockback"
+              },
+              {
+                "sourceFile": "uhitm.c",
+                "name": "m_is_steadfast"
+              },
+              {
+                "sourceFile": "dothrow.c",
+                "name": "will_hurtle"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-fire-monster-to-monster-straw-golem-c86-pager-ack2-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-hero physical knockback",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_knockback"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-fire-monster-to-monster-straw-golem-c86-pager-ack2-cfirst.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "starting-pet floating-eye reflection gate",
+            "functions": [
+              {
+                "sourceFile": "muse.c",
+                "name": "mon_reflects"
+              }
+            ],
+            "recordings": [
+              "recordings/dogmove.c/pet-floating-eye-reflection-c88-cfirst.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
