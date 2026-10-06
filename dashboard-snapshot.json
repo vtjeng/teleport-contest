@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T06:07:20.039Z",
+  "capturedAt": "2026-10-06T06:24:31.492Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -20704,6 +20704,24 @@
         "type": "accepted",
         "at": "2026-10-06T06:06:58.479Z",
         "task": "B111"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B111-ced681f1-20261006",
+        "type": "published",
+        "at": "2026-10-06T06:08:48.133Z",
+        "task": "B111",
+        "commit": "ced681f15af8b19b5885d2764aa317c82f342342"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C112-hatch-egg-pet-closure-20261006",
+        "type": "assign",
+        "at": "2026-10-06T06:24:20.899Z",
+        "task": "C112",
+        "worker": "C",
+        "goal": "port-timeout-hatch-egg-pet-closure-v20-20261006",
+        "kind": "implementation"
       }
     ]
   },
