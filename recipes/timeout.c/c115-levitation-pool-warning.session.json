@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent terrain variation: with a three-turn levitation countdown active, wizard wish turns the square into a pool without spending a turn; the next wait must use urgent over-the-water wording from dungeon.c:surface.",
+  "segments": [
+    {
+      "seed": 115261105,
+      "datetime": "20810510121200",
+      "nethackrc": "OPTIONS=name:LeviWatch,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n3q\n \u0017pool\n .   "
+    }
+  ]
+}

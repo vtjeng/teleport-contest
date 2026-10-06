@@ -7,6 +7,7 @@
 // and obj_stop_timers() also accept cleanup integration through `{ hooks }`.
 
 import {
+    ACCESSIBLE,
     ACID_RES,
     A_CON,
     A_DEX,
@@ -103,8 +104,10 @@ import {
     } from './const.js';
 import {
     is_pool,
+    is_pool_or_lava,
     is_ice,
 } from './dbridge.js';
+import { surface } from './dungeon.js';
 import { stop_occupation } from './allmain.js';
 import { confdir } from './cmd.js';
 import { Stone_resistance, artifact_light } from './artifacts.js';
@@ -1054,6 +1057,35 @@ export async function sickness_dialogue(state = game, env = {}) {
     await exercise(A_CON, false, state, random, { encumberMessage });
 }
 
+// C ref: timeout.c levi_texts[] and levitation_dialogue() (347-378).
+// The final descent message belongs to float_down(), not this countdown.
+export async function levitation_dialogue(state = game, env = {}) {
+    const u = state.u;
+    const timeout = u.uprops[LEVITATION].intrinsic & TIMEOUT;
+    const i = Math.trunc((timeout - 1) / 2);
+    if (u.uprops[LEVITATION].extrinsic) return;
+    if (!ACCESSIBLE(state.level.at(u.ux, u.uy).typ)
+        && !is_pool_or_lava(u.ux, u.uy, state)) return;
+
+    if (timeout % 2 && i > 0 && i <= 2) {
+        const message = env.message
+            ?? (env.planning ? async () => {} : ttyPline);
+        if (i === 1) {
+            const danger = is_pool_or_lava(u.ux, u.uy, state)
+                && !Is_waterlevel(u.uz);
+            const urgentMessage = env.urgentMessage
+                ?? (env.planning ? message : ttyUrgentPline);
+            await urgentMessage(
+                `You wobble unsteadily ${danger ? 'over' : 'in'} the ${danger
+                    ? surface(u.ux, u.uy, state) : 'air'}.`, state,
+            );
+        } else {
+            await message('You float slightly lower.', state);
+        }
+        await stop_occupation(state, { ...env, message });
+    }
+}
+
 // C ref: timeout.c choke_texts, choke_texts2 and choke_dialogue() (278-314).
 // Preserve the C countdown index (the final element is the first warning),
 // Breathless short-circuit, and the unconditional trailing exercise call.
@@ -1224,6 +1256,14 @@ export function nh_timeout_requires_live_state(state = game) {
         && !is_were(state.youmonst.data)) return true;
     if (u.uprops?.[STRANGLED]?.intrinsic) return true;
     if (u.uprops?.[VOMITING]?.intrinsic) return true;
+    // Warnings at five and three turns stop occupations after displaying
+    // their message. Run that source effect live before planning the tail.
+    const levitation = u.uprops?.[LEVITATION];
+    const levitationTimeout = levitation?.intrinsic & TIMEOUT;
+    if ((levitationTimeout === 5 || levitationTimeout === 3)
+        && !levitation.extrinsic
+        && (ACCESSIBLE(state.level.at(u.ux, u.uy).typ)
+            || is_pool_or_lava(u.ux, u.uy, state))) return true;
     for (const index of [
         STONED, SICK, BLINDED, INVIS, SEE_INVIS, HALLUC, LEVITATION,
         FLYING, DETECT_MONSTERS, DISPLACED, GLIB,
@@ -1542,8 +1582,8 @@ export async function nh_timeout(state = game, env = {}) {
                 })),
         });
     }
-    if ((u.uprops?.[LEVITATION]?.intrinsic & TIMEOUT) && !env.planning)
-        note_unported('timeout.c levitation_dialogue');
+    if (u.uprops?.[LEVITATION]?.intrinsic & TIMEOUT)
+        await levitation_dialogue(state, displayEnv);
     if ((u.uprops?.[PASSES_WALLS]?.intrinsic & TIMEOUT) && !env.planning)
         note_unported('timeout.c phaze_dialogue');
     if ((u.uprops?.[MAGICAL_BREATHING]?.intrinsic & TIMEOUT) && !env.planning)

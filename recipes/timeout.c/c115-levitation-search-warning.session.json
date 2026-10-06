@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent levitation_dialogue witness: start a seven-turn intrinsic, then counted searching. The source five-turn ordinary warning must interrupt the active occupation before the property decrement; later waits reach the three-turn urgent warning. Count seven starts outside the emitted warning range, unlike the admitted case.",
+  "segments": [
+    {
+      "seed": 115261101,
+      "datetime": "20790209090800",
+      "nethackrc": "OPTIONS=name:LeviWatch,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n7q\n 10s   .  .  "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap countdown variation: three instead of seven levitation turns selects urgent_pline, leaving final descent to the existing timeout-one float_down handler. Independent role, seed, clock and input sequence.",
+  "segments": [
+    {
+      "seed": 115261103,
+      "datetime": "20800309101000",
+      "nethackrc": "OPTIONS=name:LeviWatch,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n3q\n .   "
+    }
+  ]
+}
