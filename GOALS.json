@@ -181917,39 +181917,46 @@
     {
       "id": "port-timeout-burn-object-v23-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port timed lamp and candle burn callbacks and their messages",
       "cFile": "timeout.c",
       "sessions": [
         "synthetic/v23/v23-burn-object-expiry"
       ],
-      "selectionReason": "The current v23 evaluation leaves 341 screens after burn_object becomes due at step 364; investigations/synthetic/v23/v23-burn-object-expiry.json traces the whole source scope through see_lamp_flicker, lantern_message, burn_object, timer dispatch, and existing burn lifecycle owners.",
+      "selectionReason": "v23 burn object expiry is source-traced to timeout.c burn_object and its threshold message helpers",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "c78f463ea340f06efd8705335aaf0180613f043b",
+      "openStanding": {
+        "sha": "c78f463ea340f06efd8705335aaf0180613f043b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c78f463ea340f06efd8705335aaf0180613f043b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "see_lamp_flicker",
           "line": 1345,
           "endLine": 1359,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "lantern_message",
           "line": 1360,
           "endLine": 1382,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "burn_object",
           "line": 1383,
           "endLine": 1711,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -181969,6 +181976,159 @@
           "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
           "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e"
         }
+      },
+      "activeStanding": {
+        "sha": "c78f463ea340f06efd8705335aaf0180613f043b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "see_lamp_flicker",
+            "implementation": "js/timeout.js",
+            "symbol": "see_lamp_flicker",
+            "sourceReview": "Read whole timeout.c1345-1356. Inventory/monster ownership Yname2 and floor an(xname) messages match; tailer remains source-owned; ordinary awaited output, planning silent with display RNG preserved. Read timeout.c whole definitions1345-1375 and1383-1680, with begin_burn1712-1800, end_burn1804-1823, cleanup_burn and timeout_funcs1984/run_timers2222-2240. Read existing object, light, inventory, worn-slot and ownership helpers rather than substituting their effects. Source order preserved: late catch-up before location/naming; Shk_Your formatting even for an invisible located owner; tactile gating excludes brass lantern; awaited feedback before end_burn/deletion; candle post-message Hallucination precedes Blind; floor maybe_unhide_at precedes obfree on time but follows obfree while late; candelabrum spe/weight retained; restart from remaining age; final map then inventory updates. No extra RNG. Remove BURN_OBJECT refusal and install the source callback in the existing table. Compose existing objectGenerationEnv and setwornEnv/setnotworn against the callback state. Planning mutates only its cloned objects/timers/light graph and suppresses messages, inventory and map writes; optional displayRandom reaches existing Shk_Your/Yname2 -> shk_your/mon_owns -> y_monnam. Read mkobj.c obj_extract_self migrating branch and use the existing extract_nobj on gm.migrating_objs; clear migrating destination masks in source order. These narrow caller/owner changes have no additional source-unit credit. The impossible() discarded-return diagnostic is recorded with note_unported(pline.c impossible) for the invalid object-type arm. Existing maybe_unhide_at retains its named hero hideunder gap; no hidden-monster or unrelated owner completion is claimed. Inherited due-object admission still requires exactly its own one timer; the focused test pins atomic refusal for a second future timer, without claiming wider admission.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "burn_object",
+                "source": "timeout.c1479-1480: visible oil lamp at ages150/100/50 calls see_lamp_flicker, considerably only at50."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-burn-object.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c121-burn-oil-lamp.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "c78f463ea340f06efd8705335aaf0180613f043b"
+          },
+          {
+            "name": "lantern_message",
+            "implementation": "js/timeout.js",
+            "symbol": "lantern_message",
+            "sourceReview": "Read whole timeout.c1360-1375. Carried Your with hallucinated batteries after its awaited line; floor You_see; monster s_suffix(Monnam) using forwarded display RNG. Read timeout.c whole definitions1345-1375 and1383-1680, with begin_burn1712-1800, end_burn1804-1823, cleanup_burn and timeout_funcs1984/run_timers2222-2240. Read existing object, light, inventory, worn-slot and ownership helpers rather than substituting their effects. Source order preserved: late catch-up before location/naming; Shk_Your formatting even for an invisible located owner; tactile gating excludes brass lantern; awaited feedback before end_burn/deletion; candle post-message Hallucination precedes Blind; floor maybe_unhide_at precedes obfree on time but follows obfree while late; candelabrum spe/weight retained; restart from remaining age; final map then inventory updates. No extra RNG. Remove BURN_OBJECT refusal and install the source callback in the existing table. Compose existing objectGenerationEnv and setwornEnv/setnotworn against the callback state. Planning mutates only its cloned objects/timers/light graph and suppresses messages, inventory and map writes; optional displayRandom reaches existing Shk_Your/Yname2 -> shk_your/mon_owns -> y_monnam. Read mkobj.c obj_extract_self migrating branch and use the existing extract_nobj on gm.migrating_objs; clear migrating destination masks in source order. These narrow caller/owner changes have no additional source-unit credit. The impossible() discarded-return diagnostic is recorded with note_unported(pline.c impossible) for the invalid object-type arm. Existing maybe_unhide_at retains its named hero hideunder gap; no hidden-monster or unrelated owner completion is claimed. Inherited due-object admission still requires exactly its own one timer; the focused test pins atomic refusal for a second future timer, without claiming wider admission.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "burn_object",
+                "source": "timeout.c1477,1488: visible brass lantern thresholds150/100/50/25 dispatch lantern_message."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-burn-object.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c121-burn-lantern.session.json",
+              "recordings/timeout.c/c121-burn-hallucinated-lantern.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "c78f463ea340f06efd8705335aaf0180613f043b"
+          },
+          {
+            "name": "burn_object",
+            "implementation": "js/timeout.js",
+            "symbol": "burn_object",
+            "sourceReview": "Read timeout.c whole definitions1345-1375 and1383-1680, with begin_burn1712-1800, end_burn1804-1823, cleanup_burn and timeout_funcs1984/run_timers2222-2240. Read existing object, light, inventory, worn-slot and ownership helpers rather than substituting their effects. Source order preserved: late catch-up before location/naming; Shk_Your formatting even for an invisible located owner; tactile gating excludes brass lantern; awaited feedback before end_burn/deletion; candle post-message Hallucination precedes Blind; floor maybe_unhide_at precedes obfree on time but follows obfree while late; candelabrum spe/weight retained; restart from remaining age; final map then inventory updates. No extra RNG. Remove BURN_OBJECT refusal and install the source callback in the existing table. Compose existing objectGenerationEnv and setwornEnv/setnotworn against the callback state. Planning mutates only its cloned objects/timers/light graph and suppresses messages, inventory and map writes; optional displayRandom reaches existing Shk_Your/Yname2 -> shk_your/mon_owns -> y_monnam. Read mkobj.c obj_extract_self migrating branch and use the existing extract_nobj on gm.migrating_objs; clear migrating destination masks in source order. These narrow caller/owner changes have no additional source-unit credit. The impossible() discarded-return diagnostic is recorded with note_unported(pline.c impossible) for the invalid object-type arm. Existing maybe_unhide_at retains its named hero hideunder gap; no hidden-monster or unrelated owner completion is claimed. Inherited due-object admission still requires exactly its own one timer; the focused test pins atomic refusal for a second future timer, without claiming wider admission.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "run_timers",
+                "source": "timeout.c timeout_funcs1984 BURN_OBJECT callback table; run_timers2222-2240 unlinks the due timer and decrements obj.timed before dispatch."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c947 ordinary turn drain; js/allmain.js finishElapsedTurn invokes the planning and live nh_timeout allocation with matching message/display owners."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c1823 drains expired timers after object delivery, losedogs and kill_genocided_monsters; existing awaited caller passes ordinary live feedback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-burn-object.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c121-burn-tallow-carried.session.json",
+              "recordings/timeout.c/c121-burn-candelabrum.session.json",
+              "recordings/timeout.c/c121-burn-oil-potion.session.json",
+              "recordings/timeout.c/c121-burn-oil-lamp.session.json",
+              "recordings/timeout.c/c121-burn-lantern.session.json",
+              "recordings/timeout.c/c121-burn-blind-tallow.session.json",
+              "recordings/timeout.c/c121-burn-wax-floor-stack.session.json",
+              "recordings/timeout.c/c121-burn-floor-away.session.json",
+              "recordings/timeout.c/c121-burn-hallucinated-lantern.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-burn-object-expiry",
+                "segment": 0,
+                "fromStep": 350,
+                "throughStep": 704,
+                "source": "Carried candle apply -> timeout.c begin_burn -> allmain.c moveloop_core -> nh_timeout947 -> run_timers2222 -> BURN_OBJECT1984 -> burn_object on-time 75/15/0 warnings and deletion."
+              }
+            ],
+            "checkedAt": "c78f463ea340f06efd8705335aaf0180613f043b"
+          }
+        ],
+        "entryPointReview": "This helper-only timeout.c range has two active callback routes: ordinary nh_timeout run_timers and level-arrival goto_level run_timers; both are listed explicitly for review. Existing apply.c lamp/candle/candelabrum/oil paths schedule begin_burn timers. The floor variation drops an unlit candle and then uses the existing fire beam ignite_objects owner, because do.c dropx refuses direct lit-object dropping; both exact blocked recipes remain under recipes/timeout.c. The corrected floor-away route raises wizard HP before the bouncing beam so teleport input cannot be swallowed by a death prompt: C leaves Dlvl1 atstep81 and returns atstep1017 after expiry, without ordinary warning output. Interactive mO>qr toggles source wizard hunger/generation flags; startup config cannot set them (options.c set_wiznofuz) and no options or command owner was edited. Helpers execute through the same ordinary callback, with oil lamp and hallucinated lantern recordings. Rare monster ownership, migrating destination, quivered equipment, unseen/tactile and refuelling branches are pinned by focused source tests; these are branch variations of the same two entries. No build-excluded callers were found. Direct lit dropping, monster combat, menu-search rendering and #optionsfull gaps observed during recipe preparation are outside this source claim. BURN_OBJECT admission retains its previous one-timer-object boundary.",
+        "entryPoints": [
+          {
+            "name": "ordinary turn BURN_OBJECT callback",
+            "functions": [
+              "see_lamp_flicker",
+              "lantern_message",
+              "burn_object"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c121-burn-tallow-carried.session.json",
+              "recordings/timeout.c/c121-burn-candelabrum.session.json",
+              "recordings/timeout.c/c121-burn-oil-potion.session.json",
+              "recordings/timeout.c/c121-burn-oil-lamp.session.json",
+              "recordings/timeout.c/c121-burn-lantern.session.json",
+              "recordings/timeout.c/c121-burn-blind-tallow.session.json",
+              "recordings/timeout.c/c121-burn-wax-floor-stack.session.json",
+              "recordings/timeout.c/c121-burn-hallucinated-lantern.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-burn-object-expiry",
+                "segment": 0,
+                "fromStep": 350,
+                "throughStep": 704,
+                "source": "Carried candle apply -> timeout.c begin_burn -> allmain.c moveloop_core -> nh_timeout947 -> run_timers2222 -> BURN_OBJECT1984 -> burn_object on-time 75/15/0 warnings and deletion."
+              }
+            ]
+          },
+          {
+            "name": "level arrival late BURN_OBJECT catch-up",
+            "functions": [
+              "burn_object"
+            ],
+            "recordings": [
+              "recordings/timeout.c/c121-burn-floor-away.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c78f463ea340f06efd8705335aaf0180613f043b",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -182289,6 +182449,122 @@
         "rng": 792838
       },
       "parkedReason": "Validated B121 fixes the v23 welded-weapon case and verifies empty_handed plus weldmsg; cant_wield_corpse, ready_weapon, and arti_speak remain source-incomplete on named trap.c instapetrify, artifact carried-property, lit Sunsword shutdown, and do_wear takeoff dependencies."
+    },
+    {
+      "id": "port-display-under-water-v23-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port transient underwater map display and its active callers",
+      "cFile": "display.c",
+      "sessions": [
+        "synthetic/v23/v23-underwater-display-on-pool-entry"
+      ],
+      "selectionReason": "investigations/synthetic/v23/v23-underwater-display-on-pool-entry.json traces the two remaining screens to whole display.c under_water, its cls boundary, and four active caller sites",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "under_water",
+          "line": 1395,
+          "endLine": 1444,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1395,
+        "to": 1444
+      },
+      "syntheticProvenance": {
+        "synthetic/v23/v23-underwater-display-on-pool-entry": {
+          "session": "synthetic/v23/v23-underwater-display-on-pool-entry",
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-underwater-display-on-pool-entry",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recordingPath": "challenges/cases/v23/v23-underwater-display-on-pool-entry.session.json",
+          "recordingSha256": "be41e228a387701c32181a6ac4f03ac74901e5ad4e7605128acb6c22b5b44b4e",
+          "evaluationPath": "challenges/evaluations/20261006223245-v23.json",
+          "evaluationCommit": "c78f463ea340f06efd8705335aaf0180613f043b"
+        }
+      }
+    },
+    {
+      "id": "port-hack-pickup-checks-v23-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port pickup reachability checks, command dispatch, and monster inventory looting",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v23/v23-pickup-over-water",
+        "synthetic/v23/v23-pickup-over-lava"
+      ],
+      "selectionReason": "the paired v23 water and lava investigations trace both final one-screen refusals to whole hack.c pickup_checks/dopickup with consumed-return pickup.c loot_mon and bounded caller wiring",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pickup_checks",
+          "line": 3788,
+          "endLine": 3875,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dopickup",
+          "line": 3876,
+          "endLine": 3897,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3788,
+        "to": 3897
+      },
+      "requiredFunctions": [
+        {
+          "name": "loot_mon",
+          "line": 2431,
+          "endLine": 2487,
+          "declared": false,
+          "sourceFile": "pickup.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v23/v23-pickup-over-water": {
+          "session": "synthetic/v23/v23-pickup-over-water",
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-pickup-over-water",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recordingPath": "challenges/cases/v23/v23-pickup-over-water.session.json",
+          "recordingSha256": "d4a8f39a9707b25215cfd5e78cf4f368718499ec50e24f804411f3da3fb10ec0",
+          "evaluationPath": "challenges/evaluations/20261006223245-v23.json",
+          "evaluationCommit": "c78f463ea340f06efd8705335aaf0180613f043b"
+        },
+        "synthetic/v23/v23-pickup-over-lava": {
+          "session": "synthetic/v23/v23-pickup-over-lava",
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-pickup-over-lava",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recordingPath": "challenges/cases/v23/v23-pickup-over-lava.session.json",
+          "recordingSha256": "a7bd7ab16deee54d90e8c22b111998acefc2bb3319fcff21608b3360ec5ff46a",
+          "evaluationPath": "challenges/evaluations/20261006223245-v23.json",
+          "evaluationCommit": "c78f463ea340f06efd8705335aaf0180613f043b"
+        }
+      }
     }
   ]
 }
