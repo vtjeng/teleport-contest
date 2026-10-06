@@ -181913,6 +181913,138 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-timeout-burn-object-v23-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port timed lamp and candle burn callbacks and their messages",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v23/v23-burn-object-expiry"
+      ],
+      "selectionReason": "The current v23 evaluation leaves 341 screens after burn_object becomes due at step 364; investigations/synthetic/v23/v23-burn-object-expiry.json traces the whole source scope through see_lamp_flicker, lantern_message, burn_object, timer dispatch, and existing burn lifecycle owners.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "see_lamp_flicker",
+          "line": 1345,
+          "endLine": 1359,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "lantern_message",
+          "line": 1360,
+          "endLine": 1382,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "burn_object",
+          "line": 1383,
+          "endLine": 1711,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1345,
+        "to": 1711
+      },
+      "syntheticProvenance": {
+        "synthetic/v23/v23-burn-object-expiry": {
+          "session": "synthetic/v23/v23-burn-object-expiry",
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-burn-object-expiry",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recordingPath": "challenges/cases/v23/v23-burn-object-expiry.session.json",
+          "recordingSha256": "99e8dcc8e99050c1679dc8ab64a000a35a212202c5bb825d7c9e47bb04c3e05d",
+          "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+          "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e"
+        }
+      }
+    },
+    {
+      "id": "port-wield-ready-weapon-v23-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port weapon readiness, welded weapon messages, and artifact speech",
+      "cFile": "wield.c",
+      "sessions": [
+        "synthetic/v23/v23-cursed-welded-weapon-attempt"
+      ],
+      "selectionReason": "The current v23 evaluation stops with three screens remaining at the first cursed weapon weld; investigations/synthetic/v23/v23-cursed-welded-weapon-attempt.json traces whole ready_weapon and cant_wield_corpse behavior, required weldmsg callers, and the consumed arti_speak return.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cant_wield_corpse",
+          "line": 138,
+          "endLine": 157,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "empty_handed",
+          "line": 158,
+          "endLine": 168,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "ready_weapon",
+          "line": 169,
+          "endLine": 275,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 138,
+        "to": 275
+      },
+      "requiredFunctions": [
+        {
+          "name": "weldmsg",
+          "line": 1061,
+          "endLine": 1077,
+          "declared": true,
+          "sourceFile": "wield.c",
+          "complete": false
+        },
+        {
+          "name": "arti_speak",
+          "line": 2279,
+          "endLine": 2298,
+          "declared": true,
+          "sourceFile": "artifact.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v23/v23-cursed-welded-weapon-attempt": {
+          "session": "synthetic/v23/v23-cursed-welded-weapon-attempt",
+          "corpus": "synthetic",
+          "batch": "v23",
+          "caseId": "v23-cursed-welded-weapon-attempt",
+          "manifestPath": "challenges/manifests/v23.json",
+          "manifestSha256": "cefdaa863f5a0f6e6abf37806cb749d9275b1edd4bc86e188d776014a629e8d5",
+          "recordingPath": "challenges/cases/v23/v23-cursed-welded-weapon-attempt.session.json",
+          "recordingSha256": "1938a2d7c705964e9e7cf873fc4356a9231caa8ca4d24cbd5a76e273e733972f",
+          "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
+          "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e"
+        }
+      }
     }
   ]
 }
