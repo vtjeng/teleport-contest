@@ -32,7 +32,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { count_unpaid } from '../js/invent.js';
-import { AT_ENGL, PM_WOOD_NYMPH } from '../js/monsters.js';
+import { AT_ENGL, PM_WOOD_NYMPH, monst_globals_init } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import {
     findgold,
@@ -49,6 +49,7 @@ import { init_objects } from '../js/o_init.js';
 import {
     APPLE,
     ARMOR_CLASS,
+    BOULDER,
     FIGURINE,
     FOOD_CLASS,
     GOLD_DRAGON_SCALE_MAIL,
@@ -59,6 +60,7 @@ import {
     SPEED_BOOTS,
     POTION_CLASS,
     POT_BOOZE,
+    ROCK_CLASS,
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
@@ -575,6 +577,61 @@ test('relobj drops a pet object onto the floor and announces it', async () => {
     // relobj()'s trailing newsym() is behind `show`, which dogmove.c passes as
     // mtmp->minvis; a visible pet leaves the square to m_move()'s redraw.
     assert.deepEqual(redraws, []);
+});
+
+test('relobj supplies canonical boulder vision handling for death and pet drops', async () => {
+    // steal.c:relobj uses the same mdrop_obj call for a dead monster's pack
+    // and a pet's droppable items. A first boulder needs place_object's
+    // blockPoint owner, which sets vision_full_recalc on this visible square.
+    for (const isPet of [false, true]) {
+        const { carrier, held, gameState, env, redraws } = dropFixture({
+            carried: { otyp: BOULDER, oclass: ROCK_CLASS },
+            carrier: { mhp: isPet ? 1 : 0 },
+        });
+        await relobj(carrier, 1, isPet, env);
+        assert.equal(carrier.minvent, null);
+        assert.equal(held.ocarry, null);
+        assert.equal(held.where, OBJ_FLOOR);
+        assert.equal(gameState.level.objects[DROP_X][DROP_Y], held);
+        assert.equal(gameState.level.objlist, held);
+        assert.equal(gameState.vision_full_recalc, 1);
+        assert.deepEqual(redraws, [[DROP_X, DROP_Y]]);
+    }
+});
+
+test('a monster drop preserves the caller blockPoint operation and placement order', async () => {
+    const { carrier, held, gameState, env } = dropFixture({
+        carried: { otyp: BOULDER, oclass: ROCK_CLASS },
+        carrier: { mhp: 0 }, // DEADMONSTER skips post-drop extrinsics.
+    });
+    const calls = [];
+    env.hooks = { blockPoint: (x, y, operationEnv) => {
+        calls.push([x, y]);
+        assert.equal(operationEnv.state, gameState);
+        // The canonical JS placement owner rebuilds vision after indexing the
+        // boulder, so it sees the new opaque pile before relobj redraws it.
+        assert.equal(held.where, OBJ_FLOOR);
+        assert.equal(carrier.minvent, null);
+        assert.equal(held.ocarry, null);
+        assert.equal(gameState.level.objects[x][y], held);
+    } };
+    env.redraw = (x, y) => calls.push(['redraw', x, y]);
+    await relobj(carrier, 1, false, env);
+    assert.deepEqual(calls, [[DROP_X, DROP_Y], ['redraw', DROP_X, DROP_Y]]);
+});
+
+test('a verbose monster drop names hallucinated monsters with caller display RNG', async () => {
+    const { carrier, gameState, env, messages } = dropFixture();
+    // One remaining hallucination turn makes Monnam select a display name.
+    // Index zero selects the first species and then its male name: the two
+    // rndmonnam draws belong to this environment, not the live display RNG.
+    monst_globals_init(gameState);
+    gameState.u.uprops[HALLUC].intrinsic = 1;
+    const calls = [];
+    env.displayRandom = (bound) => { calls.push(bound); return 0; };
+    await relobj(carrier, 0, true, env);
+    assert.equal(calls.length, 2);
+    assert.ok(messages[0].endsWith(' drops an uncursed apple.'));
 });
 
 // An unidentified potion. Its appearance is "brown potion" under the zero

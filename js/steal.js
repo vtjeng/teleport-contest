@@ -50,7 +50,6 @@ import {
 } from './do_wear.js';
 import {
     Adjmonnam,
-    capitalizedMonsterName,
     Monnam,
     Some_Monnam,
 } from './do_name.js';
@@ -852,9 +851,7 @@ function dropEnv(rawEnv = {}) {
 // wielded weapon's name. extractionEnv() supplies the weapon.c implementation
 // so the object can finish the drop after it is unwielded.
 //
-// Composed at the call site rather than in dropEnv(), as the stackobj()
-// comment below does, so every other call in this function keeps running on
-// the caller's own environment.
+// This extraction-only hook leaves the caller's other operations intact.
 function extractionEnv(env) {
     return {
         ...env,
@@ -865,11 +862,13 @@ function extractionEnv(env) {
     };
 }
 
-// C ref: steal.c mdrop_obj() (812-846). Drop one object taken from a
+// C ref: steal.c mdrop_obj() (814-846). Drop one object taken from a
 // (possibly dead) monster's inventory onto the square the monster stands on.
 export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
-    const env = dropEnv(rawEnv);
-    const { state, unsupported } = env;
+    // place_object needs the canonical blockPoint owner for a boulder, and
+    // stackobj needs the same lifecycle owners when it merges a floor object.
+    const env = objectGenerationEnv(dropEnv(rawEnv));
+    const { state } = env;
     const message = env.message ?? ttyPline;
     const omx = mon.mx;
     const omy = mon.my;
@@ -914,7 +913,7 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
     if (verbosely && cansee(omx, omy, state)) {
         await message(
             messageAt(
-                `${capitalizedMonsterName(mon, state)} drops ${objName}.`,
+                `${Monnam(mon, state, env)} drops ${objName}.`,
                 omx,
                 omy,
                 state,
@@ -924,13 +923,7 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
     }
     if (!await flooreffects(obj, omx, omy, 'fall', env)) {
         place_object(obj, omx, omy, env);
-        // A drop is the inverse of dog_invent()'s pickup and needs the same
-        // object-lifecycle owners that arm composes: merged() unlinks the
-        // older pile member through remove_object() and frees it, and a
-        // lamplit or timed member releases its light source and its timers on
-        // the way out. Composing them here rather than in dropEnv() keeps
-        // every other call in this function on the caller's own environment.
-        stackobj(obj, objectGenerationEnv(env));
+        stackobj(obj, env);
     }
     /* do this last, after placing obj on floor; removing steed's saddle
        throws rider, possibly inflicting fatal damage and producing bones; this
