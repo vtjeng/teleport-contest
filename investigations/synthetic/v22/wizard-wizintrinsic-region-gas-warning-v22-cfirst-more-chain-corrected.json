@@ -1,0 +1,116 @@
+{
+  "session": "synthetic/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected",
+  "corpus": "synthetic",
+  "batch": "v22",
+  "caseId": "wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected",
+  "remainingScreens": 1,
+  "recordedSteps": 56,
+  "manifestPath": "challenges/manifests/v22.json",
+  "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+  "recordingSha256": "709241e806cddd2c3348ab169e13aaf65d56d8264e40b2656e293fe6e4f2c56c",
+  "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+  "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+  "status": "complete",
+  "commit": "dd773aa907ac51eed9884ff821b6161457c9d888",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v22",
+    "caseId": "wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected",
+    "session": "synthetic/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected",
+    "manifestPath": "challenges/manifests/v22.json",
+    "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+    "recording": "challenges/cases/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.session.json",
+    "recordingPath": "challenges/cases/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.session.json",
+    "recordingSha256": "709241e806cddd2c3348ab169e13aaf65d56d8264e40b2656e293fe6e4f2c56c",
+    "recipe": "challenges/cases/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.recipe.session.json",
+    "recipeSha256": "66b72a11a9265ed38d3957ff97276d0a2f18480d693eb409bdb6bdc47324a0b0",
+    "replayInputSha256": "95e601d652ecd5bef4db004f4b10f27fca78dc0a408fc07bfe10a748ce0baedf",
+    "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+    "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368",
+    "evaluationArtifact": "challenges/evaluations/20261006180802-v22.json",
+    "evaluationUtc": "2026-10-06T16:33:08.254Z",
+    "remainingScreens": 1,
+    "recordedSteps": 56,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 55,
+        "total": 56
+      },
+      "rng": {
+        "matched": 2784,
+        "total": 2784
+      },
+      "cursors": {
+        "matched": 56,
+        "total": 56
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 55,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 55,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": null
+    },
+    "step": 55,
+    "kind": "screen",
+    "sourceFile": "timeout.c",
+    "function": "region_dialogue",
+    "message": null,
+    "cFile": "timeout.c",
+    "luaFile": null,
+    "line": 554
+  },
+  "summary": "At step55 the hero stands in a poison-gas cloud with magical-breathing timeout5. C temporarily removes that timed protection, checks region danger, restores the property and prints You seem to have some trouble breathing. JavaScript skips timeout.c:region_dialogue entirely. Port the whole helper and its nh_timeout caller; the consumed region_danger predicate already has a source owner.",
+  "source": {
+    "file": "timeout.c",
+    "branch": "HMagical_breathing has a nonzero timed component. After temporarily clearing only TIMEOUT bits, the hero still needs to breathe and region_danger finds an inside gas cloud with no poison resistance. At odd timeout5, floor(r/2)=2 indexes the first region warning.",
+    "functions": [
+      "region_dialogue"
+    ],
+    "callers": [
+      "timeout.c:nh_timeout638-639 calls region_dialogue whenever HMagical_breathing & TIMEOUT is nonzero, before decrementing all property clocks. JS nh_timeout1589-1590 records the named gap.",
+      "allmain.c:moveloop_core273 -> nh_timeout. js/allmain.js advanceHeroUpkeep906 supplies cloned or live state plus message/random owners; wire the warning to this existing caller without leaking output from planning."
+    ],
+    "dependencies": [
+      "Reuse region.c:region_danger1340-1362, the consumed pure result. js/region.js833 handles hero_inside, callbackName INSIDE_GAS_CLOUD, nonliving/breathless, magical-breathing intrinsic/extrinsic and poison resistance. Existing scripts/region.test.mjs840-888 pins gas-cloud and immunity branches.",
+      "Translate youprop.h276 Breathless from the whole magical-breathing intrinsic/extrinsic and species breathless flag. Temporarily clear only TIMEOUT bits before both Breathless and region_danger checks, restore exactly the saved timeout before either return or message, and preserve unrelated intrinsic flags in the single u.uprops[MAGICAL_BREATHING] owner.",
+      "The helper calls pline only and draws no RNG. Reuse ordinary message output with a silent planning sink; do not add urgency, occupation cancellation or attribute exercise. No new return-valued source helper is missing."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Assigned saved evaluation challenges/evaluations/20261006180802-v22.json at 5913841d2eeb8e82110208f1966bb47f08725368 reports55/56 matched screens with2784/2784 RNG and56/56 cursors. The1 remaining screen is the investigation count, not delivered progress.",
+    "Replayed only the assigned immutable recording in exact published dd773aa907ac51eed9884ff821b6161457c9d888 git-archive snapshot with official frozen isaac64/terminal/storage overlays. Bounded run-UFzMDE, .cache/A2-gas-investigation-replay.log, reproduces screen mismatch segment0 step55 key . at top-row column0 C Y vs JS space. No boundary refusal, RNG mismatch, cursor mismatch or animation mismatch occurred; both produced56 screens and2784 RNG calls. Parked A112 source changes were excluded from the snapshot.",
+    "Immutable C step53 confirms current-square stinking-cloud creation through region.c create_gas_cloud and the You are enveloped in a cloud of noxious gas message; the cloud remains on the map at54. Step55 prints You seem to have some trouble breathing. The debug setup supplied seven-turn magical breathing; after intervening upkeep, the source reaches the first five-turn warning. JS follows the same map and random calls but leaves the message row blank.",
+    "Read whole timeout.c region_dialogue554-569 plus region_texts548-551 and nh_timeout588-646. The helper snapshots r=HMagical_breathing&TIMEOUT and i=r/2, clears only timed bits, evaluates Breathless then region_danger in order, restores r, returns when either immune or outside danger, and prints one of two ordinary messages only for odd r with1<=i<=2. It mutates the property temporarily but leaves its final value unchanged and has no random calls.",
+    "Read region.c region_danger1340-1362 and full js/region.js833-850. The source counts only hero-inside regions with inside_f INSIDE_GAS_CLOUD; nonliving, Breathless and Poison_resistance suppress danger. JavaScript checks those same branches and returns true on the first qualifying region, equivalent because this pure scan has no side effects. No region_danger implementation change is needed for this mismatch.",
+    "Current published timeout.js1589-1590 records note_unported(timeout.c region_dialogue) only outside planning. Thus it omits the only source message while preserving RNG. The whole port must execute the source property checks on the supplied state and use the existing silent planning message environment; a hardcoded warning or a gas-damage change would not reproduce extrinsic/non-timeout breathing protection, poison resistance, leaving the cloud, even clocks or the second warning.",
+    "Actionable independently assignable scope is whole timeout.c region_dialogue554-569 with its two fixed texts and active nh_timeout caller. No whole nh_timeout or region.c completion is implied. This case verifies inside-cloud first warning; new completion evidence should cheaply vary timeout3 for the second message, even values, no cloud and surviving external/non-timeout protection, with source-pinned state-restoration checks.",
+    "The immutable recording SHA256 equals709241e806cddd2c3348ab169e13aaf65d56d8264e40b2656e293fe6e4f2c56c; admitted v22 manifest corpus digest equals5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0. Both identities were verified against current files."
+  ]
+}
