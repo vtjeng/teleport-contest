@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { FORCETRAP, HURTLING, PIT, Trap_Effect_Finished } from '../js/const.js';
+import { FORCETRAP, HURTLING, PIT, Trap_Caught_Mon, Trap_Effect_Finished } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_GIANT_RAT } from '../js/monsters.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';
 
 // trap.c:3739-3740 clears a stale held bit without touching any operation.
@@ -47,4 +48,19 @@ test('injected RNG remains complete and never borrows missing live draws', async
         { state: game, random: { rn2: () => assert.fail('before validation') } }),
     /mintrap requires/);
     assert.equal(monster.mtrapseen, undefined);
+});
+
+// trap.c:3751 spends rn2(40), and :3788 returns Caught while still held.
+// muse.c/trap.c supply only state; the default environment must run the live
+// RNG owner rather than require an injected operation set from those callers.
+test('state-only mintrap preserves the caught result and live escape draw', async () => {
+    const monster = await initialize();
+    monster.mtrapped = true;
+    game.level.traps.push({ tx: monster.mx, ty: monster.my, ttyp: PIT,
+        tseen: true });
+    initRng(8811123);
+    enableRngLog();
+    assert.equal(await mintrap(monster, 0, { state: game }), Trap_Caught_Mon);
+    assert.equal(monster.mtrapped, true);
+    assert.deepEqual(getRngLog(), ['rn2(40)=27']);
 });
