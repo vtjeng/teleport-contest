@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T19:55:47.973Z",
+  "capturedAt": "2026-10-06T20:18:41.728Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -21996,12 +21996,69 @@
         "type": "accepted",
         "at": "2026-10-06T19:52:52.044Z",
         "task": "B118"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B118-32e4112a",
+        "type": "published",
+        "at": "2026-10-06T19:56:56.622Z",
+        "task": "B118",
+        "commit": "32e4112a8accb037c4f455fb0b99cd4e6bc02b65"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7a354a978ca084ce0c701ec18e6f4de7b12548f6",
+        "type": "ready",
+        "at": "2026-10-06T19:59:03.927Z",
+        "task": "C118",
+        "delivery": "7a354a978ca084ce0c701ec18e6f4de7b12548f6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C118-7a354a97",
+        "type": "received",
+        "at": "2026-10-06T19:59:31.265Z",
+        "task": "C118",
+        "delivery": "7a354a978ca084ce0c701ec18e6f4de7b12548f6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B119-20261006",
+        "type": "assign",
+        "at": "2026-10-06T20:02:57.354Z",
+        "task": "B119",
+        "worker": "B",
+        "goal": "port-dog-wary-dog-v22-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C118-8bc29407",
+        "type": "integrating",
+        "at": "2026-10-06T20:03:33.628Z",
+        "task": "C118",
+        "integration": "8bc294073ca87c9522932d48d48c118f596e7ae0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C118-8bc29407",
+        "type": "validated",
+        "at": "2026-10-06T20:17:51.954Z",
+        "task": "C118",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C118-8bc29407",
+        "type": "accepted",
+        "at": "2026-10-06T20:18:03.863Z",
+        "task": "C118"
       }
     ]
   },
   "development": {
-    "executionCommit": "89e08848f84d398e136b109857aa54eb87c1c4fc",
-    "measuredAt": "2026-10-06T19:46:48.821Z",
+    "executionCommit": "8bc294073ca87c9522932d48d48c118f596e7ae0",
+    "measuredAt": "2026-10-06T20:12:04.855Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

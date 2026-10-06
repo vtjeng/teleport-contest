@@ -181268,7 +181268,7 @@
     {
       "id": "port-mon-kill-genocided-monsters-v22-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Complete genocided monster removal across live and stored objects",
       "cFile": "mon.c",
       "sessions": [
@@ -181276,8 +181276,12 @@
       ],
       "selectionReason": "The current v22 queue has one unmatched screen at step 72; the complete investigation traces it to skipped mon.c kill_genocided_monsters, which leaves the genocided newt live and shifts later allmain movement RNG.",
       "detail": "Port whole mon.c kill_genocided_monsters and wire read.c single/class genocide, do.c goto_level, and cmd.c wiz_makemap callers. Preserve saved-next traversal, original-versus-current form handling, mondead/newcham dispatch, and surviving inventory plus hero/floor/migrating/buried kill_eggs sweeps. Remove the private do.js stub and retain the explicit kill_egg gap.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "8bc294073ca87c9522932d48d48c118f596e7ae0",
+      "openStanding": {
+        "sha": "8bc294073ca87c9522932d48d48c118f596e7ae0",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -181306,7 +181310,78 @@
           "evaluationPath": "challenges/evaluations/20261006184056-v22.json",
           "evaluationCommit": "f35e28081e8d63878ce53dfd814fefc7e9a8df4c"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "8bc294073ca87c9522932d48d48c118f596e7ae0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [],
+        "entryPointReview": "The selected source helper is reached by species genocide, class genocide, level arrival and the existing post-map callback. Matching admitted v22 steps62-72 exercise uncursed genocide of a present newt. Five independent debug recordings plus the committed run-mon-genocide matrix establish actual scroll reading, monster death counters, no surviving genocided current species, no hero-kill experience/conduct, level-one retained newt removal after genocide on level two, and both original/current-form chameleon branches. Goblin and class-newt recordings cover cheap independent variations; source-pinned tests cover dead-node skipping, saved next pointer, raw current data versus stale mnum, extinction suppression, full object-list order and the existing life-saving boundary. #wizmakemap is an active C command whose JS dispatcher/owner wizcmds.c:wiz_makemap is absent; the committed blocked recipe names this enclosing blocker. makemap_prepost(false) is source-wired and tested, including its existing Lua finalization route, but no matching C command recording is claimed for the map path. Egg finding/traversal is tested, but timeout.c:kill_egg remains unported and its cancellation/hatch effects are not credited; a separate blocked recipe preserves that future route. Other inherited special-monster death limits remain the existing source owner limits. None of these missing behaviors was mislabeled compile-time inactive.",
+        "entryPoints": [
+          {
+            "name": "single-species genocide of a present monster",
+            "functions": [
+              "kill_genocided_monsters"
+            ],
+            "recordings": [
+              "recordings/mon.c/c118-genocide-live-goblin.session.json",
+              "recordings/mon.c/c118-genocide-chameleon-current-form.session.json",
+              "recordings/mon.c/c118-genocide-chameleon-original-species.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v22",
+                "caseId": "wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected",
+                "segment": 0,
+                "fromStep": 62,
+                "throughStep": 72,
+                "source": "read.c do_genocide -> mon.c kill_genocided_monsters -> mondead"
+              }
+            ]
+          },
+          {
+            "name": "blessed class genocide of a present monster",
+            "functions": [
+              "kill_genocided_monsters"
+            ],
+            "recordings": [
+              "recordings/mon.c/c118-genocide-class-live-newt.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "level arrival after genocide while away",
+            "functions": [
+              "kill_genocided_monsters"
+            ],
+            "recordings": [
+              "recordings/mon.c/c118-genocide-level-arrival.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "wizard map replacement post-map sweep",
+            "functions": [
+              "kill_genocided_monsters"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8bc294073ca87c9522932d48d48c118f596e7ae0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole kill_genocided_monsters and all four existing callers are integrated and replay-verified for species genocide, class genocide, and level arrival. Completion remains blocked on production evidence for the unported wizcmds.c:wiz_makemap dispatcher; the committed blocker recipe preserves that entry."
     },
     {
       "id": "port-dog-wary-dog-v22-20261006",
