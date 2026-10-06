@@ -125,6 +125,7 @@ import {
 import { night, midnight } from './calendar.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { could_seduce, doseduce } from './mhitu.js';
 import { nomul } from './hack.js';
 import { youHear } from './pline.js';
 import {
@@ -1305,10 +1306,14 @@ export async function domonnoise(mtmp, state = game) {
     case MS_SEDUCE: {
         const seductionEnabled = state.sysopt?.seduce === undefined
             ? true : Boolean(state.sysopt.seduce);
-        if (seductionEnabled && ptr?.mlet !== S_NYMPH) {
-            throw new UnsupportedChatError(
-                'mhitu.c could_seduce()/doseduce()',
-            );
+        if (seductionEnabled && ptr?.mlet !== S_NYMPH
+            && could_seduce(
+                mtmp, state.youmonst, null, { state },
+            ) === 1) {
+            // sounds.c discards doseduce()'s return; domonnoise() still
+            // reaches its shared ECMD_TIME tail after this caller-only arm.
+            await doseduce(mtmp, state);
+            break;
         }
         const swval = seductionEnabled
             ? poly_gender(state) !== Number(Boolean(mtmp.female)) ? rn2(3) : 0

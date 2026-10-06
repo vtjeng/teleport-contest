@@ -242,6 +242,7 @@ import { hurtle, mhurtle, will_hurtle } from './dothrow.js';
 // reads them at module scope.
 import {
     could_seduce,
+    doseduce,
     diseasemu,
     getmattk,
     hitmsg,
@@ -4011,6 +4012,40 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
     mhm.damage = 0;
 }
 
+// C ref: uhitm.c mhitm_ad_ssex() (4751-4779). AD_SSEX delegates to the
+// ordinary seduce/steal handler except when a monster attacks the hero with
+// seduction enabled and could_seduce() selects the full seduction path.
+export async function mhitm_ad_ssex(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    if (magr === state.youmonst) {
+        await mhitm_ad_sedu(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    } else if (mdef === state.youmonst) {
+        if (state.sysopt?.seduce ?? true) {
+            if (could_seduce(magr, mdef, mattk, { ...env, state }) === 1
+                && !magr.mcan) {
+                if (await doseduce(magr, state, env)) {
+                    mhm.hitflags = M_ATTK_AGR_DONE;
+                    mhm.done = true;
+                    return;
+                }
+            }
+            return;
+        }
+        await mhitm_ad_sedu(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    } else {
+        await mhitm_ad_sedu(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_fire() (2521-2623). Handles fire damage in all
 // three combat directions, including completely flammable golems, resistance
 // observations, inventory damage and fire's slime cure.
@@ -6569,7 +6604,9 @@ export async function mhitm_adtyping(
     case AD_STON:
         await mhitm_ad_ston(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_SSEX: unported('mhitm_ad_ssex'); break;
+    case AD_SSEX:
+        await mhitm_ad_ssex(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_SITM:
     case AD_SEDU:
         await mhitm_ad_sedu(magr, mattk, mdef, mhm, state, env);
