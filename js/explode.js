@@ -504,43 +504,48 @@ export async function explode(
     }
 
     if (visible) {
-        let starting = true;
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                if (masks[i][j] === EXPL_SKIP) continue;
-                const xx = x + i - 1;
-                const yy = y + j - 1;
-                await tmp_at(starting ? DISP_BEAM : DISP_CHANGE,
-                    explosion_to_glyph(expltype, explosion[i][j], state), state);
-                await tmp_at(xx, yy, state);
-                starting = false;
+        // The planning clone shares the live terminal. Keep C's visible
+        // classification and all later blast mechanics, but do not paint
+        // animation frames through that shared display while planning.
+        if (!env.planning) {
+            let starting = true;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (masks[i][j] === EXPL_SKIP) continue;
+                    const xx = x + i - 1;
+                    const yy = y + j - 1;
+                    await tmp_at(starting ? DISP_BEAM : DISP_CHANGE,
+                        explosion_to_glyph(expltype, explosion[i][j], state), state);
+                    await tmp_at(xx, yy, state);
+                    starting = false;
+                }
             }
-        }
-        await curs_on_u(state);
-        if (anyShield && state.flags?.sparkle) {
-            for (const shield of shieldStatic) {
+            await curs_on_u(state);
+            if (anyShield && state.flags?.sparkle) {
+                for (const shield of shieldStatic) {
+                    for (let i = 0; i < 3; i++) {
+                        for (let j = 0; j < 3; j++) {
+                            if (!(masks[i][j] & (EXPL_MON | EXPL_HERO))) continue;
+                            show_glyph_cell(x + i - 1, y + j - 1,
+                                map_glyphinfo(cmap_to_glyph(shield, state), state));
+                        }
+                    }
+                    await curs_on_u(state);
+                    await nh_delay_output(state);
+                }
                 for (let i = 0; i < 3; i++) {
                     for (let j = 0; j < 3; j++) {
                         if (!(masks[i][j] & (EXPL_MON | EXPL_HERO))) continue;
                         show_glyph_cell(x + i - 1, y + j - 1,
-                            map_glyphinfo(cmap_to_glyph(shield, state), state));
+                            explosion_to_glyph(expltype, explosion[i][j], state));
                     }
                 }
-                await curs_on_u(state);
+            } else {
+                await nh_delay_output(state);
                 await nh_delay_output(state);
             }
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    if (!(masks[i][j] & (EXPL_MON | EXPL_HERO))) continue;
-                    show_glyph_cell(x + i - 1, y + j - 1,
-                        explosion_to_glyph(expltype, explosion[i][j], state));
-                }
-            }
-        } else {
-            await nh_delay_output(state);
-            await nh_delay_output(state);
+            await tmp_at(DISP_END, 0, state);
         }
-        await tmp_at(DISP_END, 0, state);
     } else {
         if (olet === MON_EXPLODE || olet === TRAP_EXPLODE) {
             str = 'explosion';

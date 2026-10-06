@@ -162,11 +162,13 @@ import { find_mac, which_armor } from './worn.js';
 import { finish_meating } from './dogmove.js';
 import { place_worm_tail_randomly, remove_worm } from './worm.js';
 import { newsym, flush_screen, shieldeff } from './display.js';
+import { mon_explodes } from './explode.js';
 import { drain_item, resist } from './zap.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
 import { mon_reflects } from './muse.js';
 import { split_mon } from './potion.js';
+import { messageAt } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
@@ -838,7 +840,16 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
             break;
 
         case AT_EXPL:
-            unsupported('a monster exploding at another monster');
+            if (distmin(magr.mx, magr.my, mdef.mx, mdef.my) > 1)
+                continue;
+
+            res[i] = await explmm(magr, mdef, mattk, env);
+            if (res[i] === M_ATTK_MISS) {
+                strike = 0;
+                attk = 0;
+            } else {
+                strike = 1;
+            }
             break;
 
         case AT_ENGL:
@@ -889,6 +900,54 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
     } /* for (;i < NATTK;) loop */
 
     return struck ? M_ATTK_HIT : M_ATTK_MISS;
+}
+
+// C ref: mhitm.c explmm() (970-1009). An elemental blast uses the common
+// monster explosion path; other explosion attacks use the returned
+// mdamagem() flags before the aggressor's separate death/lifesaving step.
+async function explmm(magr, mdef, mattk, env) {
+    const { state } = env;
+    const message = requireAttackOperation(env, 'message');
+
+    if (magr.mcan) return M_ATTK_MISS;
+
+    if (cansee(magr.mx, magr.my, state)) {
+        const text = `${Monnam(magr, state, env)} explodes!`;
+        await message(messageAt(text, magr.mx, magr.my, state), state, env);
+    } else {
+        await noises(magr, mattk, env);
+    }
+
+    let result;
+    if (mattk.adtyp === AD_FIRE || mattk.adtyp === AD_COLD
+        || mattk.adtyp === AD_ELEC) {
+        await mon_explodes(magr, mattk, state, env);
+        // C marks the aggressor dead even if explosion damage was lifesaved.
+        result = M_ATTK_AGR_DIED
+            | (mdef.mhp < 1 ? M_ATTK_DEF_DIED : 0);
+    } else {
+        result = await mdamagem(magr, mdef, mattk, null, 0, env);
+    }
+
+    if (!(result & M_ATTK_AGR_DIED)) {
+        const wasLeashed = Boolean(magr.mleashed);
+        await mondead(magr, state, env);
+        if (magr.mhp >= 1) return result; // C's aggressor lifesaving return.
+        result |= M_ATTK_AGR_DIED;
+
+        // mondead() suppresses m_unleash()'s slack line on this path.
+        if (wasLeashed)
+            await message('Your leash falls slack.', state, env);
+    }
+
+    if (magr.mtame)
+        await message(
+            'You have a melancholy feeling for a moment, then it passes.',
+            state,
+            env,
+        );
+
+    return result;
 }
 
 // C ref: mhitm.c failed_grab() (597-640). "can't hold an unsolid target

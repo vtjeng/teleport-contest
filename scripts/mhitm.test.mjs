@@ -51,7 +51,6 @@ import {
     AT_BITE,
     AT_BREA,
     AT_ENGL,
-    AT_EXPL,
     AT_CLAW,
     AT_GAZE,
     AT_HUGS,
@@ -1310,7 +1309,7 @@ test('mattackm keeps every continuation past the wield turn closed',
         }
     });
 
-// mhitm.c mattackm()'s four wholly refusing arms, each at the `case` label.
+// mhitm.c mattackm()'s remaining refusing arms, each at the `case` label.
 // AT_WEAP has a narrow wielding-turn arm above, but its armed continuation
 // still refuses separately. AT_BREA and AT_SPIT are ported (breamm/spitmm);
 // at gap=1 they take the monnear else-branch (strike=0, no attack). The
@@ -1324,10 +1323,9 @@ test('mattackm keeps unsupported arms closed and gates HUGS by prior hits',
         const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
         const ant = fixture(PM_GIANT_ANT, dx, y);
         aim(ant);
-        // AT_GAZE is covered by the live C-aligned route below; these later
-        // arms still refuse with unsupported().
+        // AT_GAZE and AT_EXPL are covered by live C-aligned routes; AT_ENGL
+        // remains the unported refusal.
         const refusingRows = [
-            [AT_EXPL, 'a monster exploding at another monster'],
             [AT_ENGL, 'a monster engulfing another monster'],
         ];
         const ordinary = pet.data;
@@ -1379,6 +1377,41 @@ test('mattackm keeps unsupported arms closed and gates HUGS by prior hits',
         pet.data = ordinary;
         assert.equal(ordinary.mattk.length, NATTK);
     });
+
+test('mattackm AT_EXPL and explmm preserve the complete C result flow', () => {
+    const explmmStart = MHITM_C.indexOf('\nstaticfn int\nexplmm(');
+    const explmmEnd = MHITM_C.indexOf(
+        '\n}\n\n/*\n *  See comment at top of mattackm()', explmmStart,
+    );
+    assert.notEqual(explmmStart, -1, 'mhitm.c must define explmm');
+    assert.notEqual(explmmEnd, -1, 'explmm must end before mdamagem');
+    const explmm = MHITM_C.slice(explmmStart, explmmEnd + 2);
+
+    // This source pin keeps cancellation, visible/noise output, elemental
+    // dispatch and the non-elemental consumed return tied to mhitm.c:970-1009.
+    assert.match(explmm, /if \(magr->mcan\)\s*return M_ATTK_MISS;/u);
+    assert.match(explmm,
+        /if \(cansee\(magr->mx, magr->my\)\)[\s\S]*?pline_mon\(magr,[\s\S]*?else\s*noises\(magr, mattk\);/u);
+    assert.match(explmm,
+        /mattk->adtyp == AD_FIRE \|\| mattk->adtyp == AD_COLD[\s\S]*?mon_explodes\(magr, mattk\);[\s\S]*?result = M_ATTK_AGR_DIED \| \(DEADMONSTER\(mdef\) \? M_ATTK_DEF_DIED : 0\);/u);
+    assert.match(explmm,
+        /\}\s*else\s*\{\s*result = mdamagem\(magr, mdef, mattk, \(struct obj \*\) 0, 0\);/u);
+    assert.match(explmm,
+        /if \(!\(result & M_ATTK_AGR_DIED\)\)[\s\S]*?mondead\(magr\);[\s\S]*?if \(!DEADMONSTER\(magr\)\)\s*return result;/u);
+    assert.match(explmm,
+        /if \(was_leashed\)\s*Your\("leash falls slack\."\);[\s\S]*?if \(magr->mtame\)[\s\S]*?You\(brief_feeling, "melancholy"\);/u);
+
+    // The caller's adjacency gate and result-sensitive strike state are the
+    // production wiring; AT_ENGL remains a separately unported arm.
+    const dispatchAt = MHITM_C.indexOf('case AT_EXPL:',
+        MHITM_C.indexOf('mattackm('));
+    const dispatchEnd = MHITM_C.indexOf('case AT_ENGL:', dispatchAt);
+    const dispatch = MHITM_C.slice(dispatchAt, dispatchEnd);
+    assert.match(dispatch,
+        /if \(distmin\(magr->mx, magr->my, mdef->mx, mdef->my\) > 1\)\s*continue;/u);
+    assert.match(dispatch,
+        /res\[i\] = explmm\(magr, mdef, mattk\);[\s\S]*?if \(res\[i\] == M_ATTK_MISS\)[\s\S]*?strike = 1;/u);
+});
 
 test('mattackm dispatches Pyrolisk gaze damage before floating-eye passive',
     async () => {

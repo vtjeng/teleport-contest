@@ -18,6 +18,7 @@ import {
     SCATTER_VIS_EFFECTS,
 } from '../js/explode.js';
 import { runSegment } from '../js/jsmain.js';
+import { planningState } from '../js/unported_monster_actions.js';
 import {
     AD_COLD,
     AD_DRST,
@@ -42,6 +43,7 @@ import {
     OBJ_INVENT,
     PHYS_EXPL_TYPE,
     W_ARM,
+    MON_EXPLODE,
 } from '../js/const.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { mksobj, place_object } from '../js/obj.js';
@@ -115,6 +117,96 @@ test('magical shield frames map C cmap indices through cmap_to_glyph', async () 
         decodeScreen(frame)[heroRow][heroColumn]);
     assert.deepEqual(cells, Array.from({ length: 3 }, () => shieldSequence)
         .flat().map((ch) => ({ ch, color: HI_ZAP, attr: 0, decgfx: 0 })));
+});
+
+test('planned visible explosions apply clone mechanics without painting', async () => {
+    // This seed and fixed date create an ordinary visible map; neither value
+    // drives the explosion result, which depends on visibility and this fixture.
+    await runSegment({
+        seed: 30303031,
+        datetime: '20310102030405',
+        // These identity and option values avoid startup effects; the test
+        // installs its own target and requires a visible square.
+        nethackrc: [
+            'OPTIONS=name:PlannedBlast,role:Wizard,race:human,gender:female,align:chaotic',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup',
+            '',
+        ].join('\n'),
+        moves: '', // No elapsed turns; the fixture supplies the only blast target.
+    });
+
+    // A newt with 30 HP survives the one-point blast, exposing damage on the
+    // planning clone without making death cleanup part of this display test.
+    const target = newMonster({
+        data: game.mons[PM_NEWT],
+        cham: NON_PM,
+        m_lev: game.mons[PM_NEWT].mlevel,
+        m_id: 8801, // A test-only identity distinct from this fresh game's monsters.
+        // One square east keeps the target inside the 3-by-3 explosion mask.
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mhp: 30,
+        mhpmax: 30,
+        mcanmove: 1,
+        mcansee: 1,
+    });
+    place_monster(target, target.mx, target.my, game);
+    target.nmon = game.level.monlist;
+    game.level.monlist = target;
+
+    const planned = planningState(game);
+    const plannedTarget = planned.level.monsters[target.mx][target.my];
+    const liveHitPoints = target.mhp;
+    const liveScreen = game.nhDisplay.serialize();
+    let animationFrames = 0;
+    const messages = [];
+    const previousHook = game._animationFrameHook;
+    game._animationFrameHook = () => {
+        previousHook?.();
+        animationFrames++;
+    };
+    try {
+        // The center is the hero square, which makes the C `visible` branch
+        // true; type 1 selects AD_FIRE and dam 1 keeps the nearby actors alive.
+        // Fixed-one helper results make any incidental damage checks deterministic.
+        await explode(
+            game.u.ux,
+            game.u.uy,
+            1,
+            1,
+            MON_EXPLODE,
+            EXPL_FIERY,
+            planned,
+            {
+                planning: true,
+                message: async (line) => messages.push(line),
+                random: {
+                    d: () => 1,
+                    rn1: (_range, base) => base,
+                    rn2: () => 1,
+                    rnd: () => 1,
+                    rnl: () => 1,
+                    rne: () => 1,
+                },
+            },
+        );
+    } finally {
+        game._animationFrameHook = previousHook;
+    }
+
+    assert.ok(plannedTarget.mhp < liveHitPoints,
+        'explode.c damage still changes the planned monster');
+    assert.equal(target.mhp, liveHitPoints,
+        'planning does not apply explosion damage to the live monster');
+    // explode.c keeps the visible-branch Boom message while omitting only
+    // the blast line used when no square in the mask can be seen.
+    assert.ok(messages.includes('Boom!'), JSON.stringify(messages));
+    assert.equal(messages.includes('You hear a blast.'), false,
+        'the visible classification remains active during planning');
+    assert.equal(animationFrames, 0,
+        'planning skips visible animation callbacks that draw on the live display');
+    assert.equal(game.nhDisplay.serialize(), liveScreen,
+        'planning leaves the live terminal screen unchanged');
 });
 
 test('scatter flags preserve explode.c hack.h bit assignments', () => {
