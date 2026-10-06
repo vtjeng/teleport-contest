@@ -174697,7 +174697,7 @@
     {
       "id": "port-mhitm-gazemm-mdamagem-passivemm-v21-20261005",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port monster gaze damage and passive retaliation",
       "cFile": "mhitm.c",
       "sessions": [
@@ -174705,8 +174705,12 @@
       ],
       "selectionReason": "The current v21 Pyrolisk case stops at mattackm AT_GAZE before gazemm, M-to-M fire damage, and the floating-eye AD_PLYS passive. A read-only whole-source audit bounds the task to mhitm.c:gazemm, mdamagem, passivemm, the AT_GAZE/passive caller wiring, result-bearing mon_reflects and mhitm_knockback, and knockback predicates m_is_steadfast and will_hurtle; accepted C86 evidence supplies the existing AD_FIRE and grow_up closure.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "919ebe5c374e1523fcb0a019191e59501d9544a6",
+      "openStanding": {
+        "sha": "a2784766f703430c0dfbf1359e3256335a387eee",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -174785,7 +174789,167 @@
           "evaluationPath": "challenges/evaluations/20261006022715-v21.json",
           "evaluationCommit": "a2784766f703430c0dfbf1359e3256335a387eee"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "a2784766f703430c0dfbf1359e3256335a387eee",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+          "session": "synthetic/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.session.json",
+          "recordingSha256": "b3b3e1773ebd6dc68e138d81acadbf6bd2f62dbf76524b55dc25c9ae0e0e0a15",
+          "recipe": "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.recipe.session.json",
+          "recipeSha256": "798f79d450005f2dc27b992090eb1cc8af320d3479c281c519766461b9415a39",
+          "replayInputSha256": "5f8d3b2cd4e56005862726de9a52e1810c0e5d7b2a2af8b1fa97a1286cc0c58a",
+          "evaluationPath": "challenges/evaluations/20261006022715-v21.json",
+          "evaluationCommit": "a2784766f703430c0dfbf1359e3256335a387eee",
+          "evaluationArtifact": "challenges/evaluations/20261006022715-v21.json",
+          "evaluationUtc": "2026-10-06T02:28:28.925Z",
+          "remainingScreens": 45,
+          "recordedSteps": 178,
+          "previousScreensMatched": 133,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 133,
+              "total": 178
+            },
+            "rng": {
+              "matched": 3122,
+              "total": 3517
+            },
+            "cursors": {
+              "matched": 133,
+              "total": 178
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster gazing at another monster",
+            "step": 133
+          },
+          "step": 133,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster gazing at another monster",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.json",
+            "result": {
+              "session": "synthetic/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "b3b3e1773ebd6dc68e138d81acadbf6bd2f62dbf76524b55dc25c9ae0e0e0a15",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "remainingScreens": 45,
+              "recordedSteps": 178,
+              "status": "complete",
+              "commit": "ee3dc7db5cacad4d18557379dd75b9558de8d421",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+                "session": "synthetic/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.session.json",
+                "recordingSha256": "b3b3e1773ebd6dc68e138d81acadbf6bd2f62dbf76524b55dc25c9ae0e0e0a15",
+                "recipe": "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.recipe.session.json",
+                "recipeSha256": "798f79d450005f2dc27b992090eb1cc8af320d3479c281c519766461b9415a39",
+                "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationUtc": "2026-10-03T18:29:21.226Z",
+                "remainingScreens": 45,
+                "recordedSteps": 178,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 133,
+                    "total": 178
+                  },
+                  "rng": {
+                    "matched": 3122,
+                    "total": 3517
+                  },
+                  "cursors": {
+                    "matched": 133,
+                    "total": 178
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a monster gazing at another monster",
+                  "step": 133
+                },
+                "step": 133,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a monster gazing at another monster",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 133, active Conflict sends the visible Pyrolisk’s AT_GAZE/AD_FIRE attack through mattackm(), where JavaScript stops at the monster-on-monster gaze refusal before gazemm(), fire damage resolution, and the floating eye’s passive. The actionable source family is whole mhitm.c:gazemm(), mdamagem(), and passivemm(), with mattackm() AT_GAZE caller wiring and uhitm.c:mhitm_ad_fire()’s AD_FIRE path. This recorded nonlethal route does not reach A83’s reserved mondead()/xkilled() effects.",
+              "source": {
+                "file": "mhitm.c",
+                "branch": "C mon.c:movemon_singlemon() enters fightm() only when Conflict is active, the mover is not the Wizard, it can see the hero and its square, and it is within BOLT_LIM. fightm() passes resist_conflict() and selects the first living adjacent target, here a floating eye. The Pyrolisk’s first attack is AT_GAZE/AD_FIRE 2d6; gazemm() requires the aggressor not canceled or blind, the defender able to see and awake, and no unseen-invisible failure. The recorded gaze message and following AD_FIRE effects establish that those gates passed. The eye survives the fire and reaches its AD_PLYS passive branch; its m_cansee/madat eye checks pass and it paralyzes the Pyrolisk.",
+                "functions": [
+                  "gazemm",
+                  "mdamagem",
+                  "passivemm"
+                ],
+                "callers": [
+                  "C: mon.c:movemon_singlemon() at 1306-1318 applies the Conflict visibility/range gates and calls mhitm.c:fightm(). JS equivalent: mon.js:movemon_singlemon() at 1359-1371 receives fightMonster from allmain.js:moveElapsedTurnMonster().",
+                  "C: mhitm.c:fightm() at 106-169 checks Conflict resistance, scans living monsters in list order, selects the first adjacent target, and calls mattackm(); it may call mattackm() for a retaliation. The corresponding JS fightm() is already implemented in js/mhitm.js:396-445.",
+                  "C: mhitm.c:mattackm() AT_GAZE at 492-495 assigns gazemm()’s return to the attack result; after an adjacent attack it calls passivemm() at 572-575 and consumes its status at 577-583. JS js/mhitm.js:795 currently refuses AT_GAZE; keep caller wiring on this arm distinct from completion credit for the whole mattackm() function.",
+                  "JS boundary route: allmain.js:1246 preflights the elapsed turn through unported_monster_actions.js:preflightSimpleMonsterActions()/planSimpleMonsterScan(); that clone calls mon.js:movemon_singlemon() and binds fightMonster to js/mhitm.js:fightm(). The live elapsed-turn path calls the same source gates through allmain.js:1373-1376."
+                ],
+                "dependencies": [
+                  "mhitm.c:gazemm() returns mdamagem() status; the caller consumes it. mdamagem() initializes damage from the Pyrolisk’s 2d6, dispatches AD_FIRE, calls uhitm.c:mhitm_knockback() and consumes its boolean, then applies the resulting damage. The saved C sequence includes d(2,6)=7 and the knockback rn2(3)/rn2(6) draws.",
+                  "uhitm.c:mhitm_adtyping() at 4786-4792 dispatches AD_FIRE to mhitm_ad_fire(). Though the dispatcher’s C return is void/discarded, the helper mutates mhitm_data and emits the message/items effects needed here. The M-to-M mhitm_ad_fire() branch consumes mhitm_mgc_atk_negated() and destroy_items() results, then calls ignite_items(); JS js/uhitm.js:5338 still marks this AD_FIRE arm unported.",
+                  "mhitm.c:passivemm() returns flags consumed by mattackm(). The floating-eye AD_PLYS path draws d(3,70), rn2(3), then rn2(4) on the recorded path; its reflection result controls whether paralyze_monst() runs. JS js/mhitm.js:1185 still refuses this passive branch.",
+                  "A75’s historical source reservation includes mhitm.c:mattackm for the AT_WEAP/mon_wield_item path; this case takes AT_GAZE. B88’s AD_ENCH work touched passivemm()/mhitm_adtyping() on separate branches; preserve those existing branches when extending the helpers.",
+                  "Actual A83 reservation check: .cache/A83-bear-trap-region-query-test-scope-event.json reserves mon.c:mondead and mon.c:xkilled and permits js/uhitm.js, js/mon.js, js/allmain.js, and js/unported_monster_actions.js, but reserves no gaze, AD_FIRE, or AD_PLYS source function. It is a JS-file-level collision on uhitm.js only; the C65 trace shows the floating eye remains alive, so this assigned recording does not reach A83’s mondead()/xkilled() effects."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Identity and first mismatch: .cache/v21-first-work-queue.json and challenges/evaluations/20261003183000-v21.json bind this session to manifest SHA-256 d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac and recording SHA-256 b3b3e1773ebd6dc68e138d81acadbf6bd2f62dbf76524b55dc25c9ae0e0e0a15 at evaluated commit b0fd76f6091376c07bf54e8d3061aa5a9c9957d0. The exact count is 45 unmatched of 178; screens and cursors match 133/178, RNG 3122/3517. First stop is step 133, key “.”, with “simple monster action requires a monster gazing at another monster”.",
+                "Saved C65 case verification .cache/C65-pyrolisk-runtime-root-verification.json reports C output 178 screens/3517 RNG/178 cursors versus JS 133/3122/133, boundary UnsupportedTurnBoundaryError with the same step-133 reason, and source adjudication mhitm.c:mattackm AT_GAZE -> gazemm -> mdamagem AD_FIRE -> passivemm. Existing receipt handles: run-rJc0Bl (record C), run-qATkv9 (independent C replay), run-Yu6N46 (C/JS comparison), run-X8AszU (JS boundary diagnostic); no new replay was needed.",
+                "The assigned recording normalized from challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.session.json confirms step 133: rnd(20)=11 at resist_conflict(), d(2,6)=7 at mdamagem(), rn2(10)=6 at mhitm_mgc_atk_negated(), and screen text “The pyrolisk gazes at the floating eye...”. On the acknowledgement C draws rn2(5)=2 in destroy_items(), rn2(3)=2 and rn2(6)=0 in mhitm_knockback(), then d(3,70)=122, rn2(3)=2, rn2(4)=2 in passivemm(); it prints “The floating eye is on fire!” and then “The pyrolisk is frozen by the floating eye’s gaze!”. This establishes a nonlethal fire gaze followed by the floating-eye passive, without asserting an exact target coordinate.",
+                "nethack-c/upstream/include/monsters.h:187-194 defines Pyrolisk slot 0 as AT_GAZE/AD_FIRE/2d6; :333-340 defines floating eye AT_NONE/AD_PLYS/0d70. nethack-c/upstream/src/mon.c:1306-1318 is the Conflict caller; mhitm.c:fightm at 106-169 calls mattackm; mhitm.c:492-495 dispatches AT_GAZE to gazemm; gazemm at 736-803 calls mdamagem at 802; mdamagem at 1025-1065 calls AD typing and knockback; mattackm at 572-583 calls and consumes passivemm; passivemm at 1362-1385 contains the reached AD_PLYS branch.",
+                "At examined main ee3dc7db5cacad4d18557379dd75b9558de8d421, js/mhitm.js:795 throws the exact observed gaze refusal; js/mhitm.js:1185 refuses the floating-eye passive; js/uhitm.js:5338 leaves AD_FIRE routed to unported mhitm_ad_fire. Existing JS fightm() at js/mhitm.js:396-445 and Conflict caller gates are already wired, so the actionable source path is the missing gaze/damage/passive helpers plus caller-arm wiring, not a new fightm() implementation.",
+                "A83 comparison is grounded in .cache/A83-bear-trap-region-query-test-scope-event.json: source reservations intersect none of gazemm, mdamagem, passivemm, mhitm_ad_fire, or their called mon.c death handlers. Although A83 permits edits to js/uhitm.js and several elapsed-turn caller files, its source reservations are separate; the assigned C trace is nonlethal and does not call mon.c:mondead() or xkilled()."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
