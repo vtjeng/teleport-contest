@@ -582,7 +582,7 @@ export function dmgval(otmp, mon, state = game, env = {}) {
         /* if the weapon is going to get a double damage bonus, adjust
            this bonus so that effectively it's added after the doubling */
         if (bonus > 1 && otmp.oartifact
-            && spec_dbon(otmp, mon, 25, state) >= 25)
+            && spec_dbon(otmp, mon, 25, state, env) >= 25)
             bonus = Math.trunc((bonus + 1) / 2);
 
         tmp += bonus;

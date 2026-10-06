@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    ART_MAGICBANE,
     ART_STING,
     ART_SUNSWORD,
     init_artifacts,
@@ -81,6 +82,7 @@ import { light_globals_init, new_light_source } from '../js/light.js';
 import { newObject } from '../js/obj.js';
 import {
     ACID_VENOM,
+    ATHAME,
     AXE,
     ARROW,
     BATTLE_AXE,
@@ -1766,6 +1768,34 @@ test('dmgval zeroes shade damage and halves only an applicable artifact bonus', 
             { random: plainRoller.random, ...refuseUnsupported }),
         5,
     );
+});
+
+test('dmgval keeps artifact resistance rolls on its injected random stream', () => {
+    const state = makeState();
+    state.flags = { initalign: 1 };
+    state.urole = { mnum: PM_VALKYRIE };
+    state.urace = { mnum: 0 };
+    init_artifacts(state);
+    const target = monster(state, PM_WRAITH);
+    target.data = { ...target.data, mr: 50 };
+    const roller = scriptedRandom([2, 3, 99, 4]);
+
+    // Base d4, blessed-versus-undead d4, Magicbane's resistance d100, then
+    // its special d4. The last result is below weapon.c's 25 threshold, so
+    // the ordinary bonus remains three and the total is five.
+    assert.equal(
+        dmgval(object(state, ATHAME, {
+            oartifact: ART_MAGICBANE,
+            blessed: 1,
+        }), target, state, {
+            random: roller.random,
+            ...refuseUnsupported,
+        }),
+        5,
+    );
+    assert.deepEqual(roller.calls, [
+        'rnd(4)', 'rnd(4)', 'rn2(100)', 'rnd(4)',
+    ]);
 });
 
 // weapon.c:357-425. special_dmgval() answers with the bonus and writes the

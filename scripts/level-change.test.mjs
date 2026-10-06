@@ -36,6 +36,7 @@ import {
     LAST_PROP,
     MAXULEV,
     N_ACH,
+    NO_KILLER_PREFIX,
     P_QUARTERSTAFF,
     POISON_RES,
     SEARCHING,
@@ -45,6 +46,7 @@ import {
     STEALTH,
     TELEPORT_CONTROL,
     TIMEOUT,
+    UNCHANGING,
     WARNING,
 } from '../js/const.js';
 import { xlev_to_rank } from '../js/display.js';
@@ -697,6 +699,37 @@ test('fatal planned level-one drain stops at the injected death boundary',
     });
     assert.equal(state.u.ulevel, 1);
     assert.equal(state.u.uexp, 123);
+});
+
+test('planned level loss carries its death boundary through rehumanize',
+    async () => {
+    const state = heroState();
+    state.u.ulevel = 2;
+    state.u.ulevelmax = 2;
+    state.u.uexp = 40;
+    state.u.umonnum = PM_GNOME;
+    state.u.umonster = PM_HUMAN;
+    state.u.mh = 1;
+    state.u.mhmax = 1;
+    state.u.uprops[UNCHANGING].intrinsic = 1;
+    state.youmonst = {
+        data: { pmidx: PM_GNOME, mflags2: 0, mlevel: 1, mlet: 'G' },
+        m_lev: 1,
+    };
+    const boundary = new Error('planned polymorph drain death');
+    const caught = await losexp('#levelchange', state, {
+        planning: true,
+        random: { rnd: () => 1, rn2: () => 1 },
+        message: async () => {},
+        planningDeath: () => boundary,
+    }).then(() => null, (error) => error);
+
+    assert.equal(caught, boundary);
+    assert.equal(state.u.mh, 0);
+    assert.deepEqual(state.killer, {
+        format: NO_KILLER_PREFIX,
+        name: 'killed while stuck in creature form',
+    });
 });
 
 test('adjabil uses the dreaming prefix for a fainted hero losing an ability',

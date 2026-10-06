@@ -517,6 +517,12 @@ export function planningState(state) {
             monsterMap.set(monster, cloneMonster(monster));
         }
     }
+    // C's youmonst is a separate struct monst rather than an entry in the
+    // level monster chain. Shape reversion writes its data pointer, mimic
+    // fields, and cancellation state, so a planned hero attack needs its own
+    // copy just as planned level monsters do.
+    const heroMonster = state.youmonst
+        ? cloneMonster(state.youmonst) : state.youmonst;
     const objectMap = cloneObjects(state, monsterMap);
     const context = structuredClone(state.context ?? {});
     const remapContextObject = (target, source, field) => {
@@ -548,6 +554,10 @@ export function planningState(state) {
         // MON_WEP(). A wielded weapon is also in minvent, so the clone's
         // pointer has to name the copy the pack now holds.
         clone.mw = objectMap.get(original.mw) ?? null;
+    }
+    if (heroMonster) {
+        heroMonster.minvent = objectMap.get(state.youmonst.minvent) ?? null;
+        heroMonster.mw = objectMap.get(state.youmonst.mw) ?? null;
     }
 
     const level = Object.assign(
@@ -794,6 +804,7 @@ export function planningState(state) {
         } : state.svs,
         track: structuredClone(state.track),
         u: hero,
+        youmonst: heroMonster,
         // The admitted naming path writes the discovery ledger:
         // distant_name() reaches xname(), which calls observe_object() and
         // o_init.c discover_object(), setting objects[otyp].oc_encountered and

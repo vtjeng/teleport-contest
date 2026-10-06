@@ -4067,15 +4067,21 @@ export function seemimic(mtmp, state = game, env = {}) {
 // an asynchronous owner, so callers can preserve C's state and output order.
 export function normal_shape(mon, state = game, rawEnv = {}) {
     const mcham = Number(mon.cham);
+    const redrawSquare = rawEnv.redrawSquare
+        ?? rawEnv.redraw
+        ?? (rawEnv.planning
+            ? () => {}
+            : (x, y) => newsym(x, y, state));
     const finishMimic = () => {
         if (M_AP_TYPE(mon) !== M_AP_NOTHING) {
             if (!mon.meating) {
                 if (M_AP_TYPE(mon) !== M_AP_MONSTER) mon.msleeping = 1;
-                seemimic(mon, state);
-            } else {
-                finish_meating(mon, {
-                    redraw: (x, y) => newsym(x, y, state),
+                seemimic(mon, state, {
+                    ...rawEnv,
+                    newsym: redrawSquare,
                 });
+            } else {
+                finish_meating(mon, { ...rawEnv, redraw: redrawSquare });
             }
         }
         return undefined;
@@ -4083,8 +4089,6 @@ export function normal_shape(mon, state = game, rawEnv = {}) {
     const finishWere = () => {
         if (!(is_were(mon.data) && mon.data.mlet !== S_HUMAN))
             return finishMimic();
-        const redrawSquare = rawEnv.redrawSquare
-            ?? ((x, y) => newsym(x, y, state));
         return new_were(mon, {
             ...rawEnv,
             state,
@@ -4098,13 +4102,13 @@ export function normal_shape(mon, state = game, rawEnv = {}) {
         const pending = newcham(
             mon,
             target,
-            { ...rawEnv, state, ncflags: NC_SHOW_MSG },
+            { ...rawEnv, state, ncflags: NC_SHOW_MSG, redrawSquare },
         );
         const afterShape = () => {
             mon.cham = NON_PM;
             // newcham() may uncancel a polymorphing monster; C overrides that.
             if (mcan) mon.mcan = 1;
-            newsym(mon.mx, mon.my, state);
+            redrawSquare(mon.mx, mon.my);
             return finishWere();
         };
         if (pending && typeof pending.then === 'function')

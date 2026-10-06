@@ -23,6 +23,7 @@ import {
     D_NODOOR,
     D_TRAPPED,
     DUST,
+    DRAIN_RES,
     DOOR,
     FIRE_RES,
     FIRE_TRAP,
@@ -86,6 +87,7 @@ import {
     AT_NONE,
     AT_WEAP,
     PM_COBRA,
+    PM_CHAMELEON,
     PM_DISPLACER_BEAST,
     PM_EARTH_ELEMENTAL,
     PM_FOG_CLOUD,
@@ -121,6 +123,7 @@ import {
     PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
     M1_TPORT,
+    NON_PM,
     S_HUMAN,
     SPECIAL_PM,
 } from '../js/monsters.js';
@@ -135,7 +138,7 @@ import {
 import { cloneu, MonsterDeathPlanningError } from '../js/mhitu.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
-import { ART_STING } from '../js/artifacts.js';
+import { ART_STING, ART_STORMBRINGER } from '../js/artifacts.js';
 import {
     ARROW,
     BOW,
@@ -145,6 +148,7 @@ import {
     ORCISH_HELM,
     POT_HEALING,
     ROCK,
+    RUNESWORD,
     SHIELD_OF_REFLECTION,
     SPE_BOOK_OF_THE_DEAD,
     WAX_CANDLE,
@@ -156,6 +160,7 @@ import {
     minliquid,
     movemon_singlemon,
 } from '../js/mon.js';
+import { cancel_monst } from '../js/zap.js';
 import { clear_bypasses } from '../js/worn.js';
 import {
     create_region,
@@ -842,6 +847,108 @@ test('a planned hallucinated hit keeps the live display RNG unchanged',
 
         assert.deepEqual(game.displayCtx, displayBefore);
     });
+
+test('planningState gives hero monster form changes their own owner',
+    async () => {
+    await prepareSelectedAction({ adjacentHero: true });
+    const liveForm = game.youmonst.data;
+    const planned = planningState(game);
+
+    assert.notStrictEqual(planned.youmonst, game.youmonst);
+    planned.youmonst.data = game.mons[PM_CHAMELEON];
+    planned.youmonst.mcan = 1;
+
+    assert.equal(game.youmonst.data, liveForm);
+    assert.notEqual(game.youmonst.mcan, 1);
+});
+
+test('planned cancellation routes chameleon redraws through its injected seam',
+    async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+    target.monster.cham = PM_CHAMELEON;
+    const liveForm = target.monster.data;
+    const planned = planningState(game);
+    const clone = planned.level.monlist;
+    const redraws = [];
+    const random = {
+        rn2: (bound) => bound - 1,
+        rnd: () => 1,
+        d: (number) => number,
+        rn1: (_range, base) => base,
+        rne: () => 1,
+        rnl: () => 1,
+        rnz: (value) => value,
+    };
+
+    assert.equal(await cancel_monst(
+        clone,
+        null,
+        true,
+        false,
+        false,
+        planned,
+        {
+            planning: true,
+            random,
+            message: async () => {},
+            redraw: (x, y) => { redraws.push([x, y]); },
+        },
+    ), true);
+
+    assert.equal(clone.cham, NON_PM);
+    assert.equal(clone.data, planned.mons[PM_CHAMELEON]);
+    assert.ok(redraws.some(([x, y]) => x === clone.mx && y === clone.my));
+    assert.equal(target.monster.data, liveForm);
+    assert.equal(target.monster.cham, PM_CHAMELEON);
+});
+
+test('planned Stormbringer monster action reports its attacker at fatal drain',
+    async () => {
+    const target = await prepareSelectedAction({
+        adjacentHero: true,
+        pmidx: PM_GNOME,
+    });
+    const attacks = sourceInertAttacks();
+    attacks[0] = { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 1, damd: 1 };
+    target.monster.data = { ...target.monster.data, mattk: attacks };
+    target.monster.m_lev = 30;
+    const weapon = newObject({
+        ...monsterObject(RUNESWORD, 9212),
+        oartifact: ART_STORMBRINGER,
+        owornmask: W_WEP,
+    });
+    weapon.ocarry = target.monster;
+    target.monster.minvent = weapon;
+    target.monster.mw = weapon;
+    game.artiexist[ART_STORMBRINGER].exists = 1;
+    game.u.ulevel = 1;
+    game.u.uexp = 123;
+    game.u.uprops[DRAIN_RES].intrinsic = 0;
+    game.u.uprops[DRAIN_RES].extrinsic = 0;
+    game.u.uprops[DRAIN_RES].blocked = 0;
+    const planned = planningState(game);
+    const random = {
+        rn2: () => 1,
+        rnd: () => 1,
+        d: (number) => number,
+        rn1: (_range, base) => base,
+        rne: () => 1,
+        rnl: () => 1,
+        rnz: (value) => value,
+    };
+
+    const caught = await runSimpleMonsterAction(planned.level.monlist, {
+        state: planned,
+        planning: true,
+        random,
+    }).then(() => null, (error) => error);
+
+    assert.ok(caught instanceof MonsterDeathPlanningError,
+        caught?.stack ?? String(caught));
+    assert.equal(caught.monsterId, target.monster.m_id);
+    assert.equal(game.u.ulevel, 1);
+    assert.equal(game.u.uexp, 123);
+});
 
 test('planned lethal poison stops before polymorph rehumanization',
     async () => {

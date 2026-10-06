@@ -59,9 +59,10 @@ import {
 } from '../js/artifacts.js';
 import {
     A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ANTIMAGIC, BLND_RES,
-    ENERGY_REGENERATION,
+    ENERGY_REGENERATION, FLYING,
     BLINDED, HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM,
     OBJ_MINVENT, SLIMED,
+    UNCHANGING,
     W_ARM, W_ARMC, W_ART, W_WEP,
 } from '../js/const.js';
 import {
@@ -70,6 +71,7 @@ import {
     M2_DEMON,
     M3_COVETOUS,
     PM_ELF,
+    PM_CLAY_GOLEM,
     PM_KITTEN,
     PM_ORC,
     PM_WEREWOLF,
@@ -87,6 +89,7 @@ import {
     SCR_TELEPORTATION,
     SILVER_DRAGON_SCALE_MAIL,
     SILVER_SABER,
+    WEAPON_CLASS,
 } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
@@ -1205,6 +1208,120 @@ test('Magicbane planning keeps bonus, special, and cancellation effects injected
         assert.equal(result.state.u.uen, 1);
         assert.equal(result.state.disp.botl, true);
     }
+});
+
+test('Magicbane monster cancellation uses injected resistance randomness',
+    async () => {
+    const state = stateFor('Val', 'lawful');
+    state.flags.verbose = false;
+    state.disp = {};
+    state.u = {
+        uprops: [], ulevel: 7, ulycn: NON_PM, ustuck: null,
+        umonnum: PM_WIZARD, umonster: PM_WIZARD,
+        uen: 2, uenmax: 3, uenpeak: 3, ux: 4, uy: 5,
+    };
+    state.youmonst = { data: {}, mx: 4, my: 5, minvent: null };
+    state.mons = [];
+    init_artifacts(state);
+    const target = {
+        data: { mr: 50, mattk: [], mname: 'test monster' },
+        m_lev: 5,
+        mx: 5,
+        my: 5,
+        mhp: 10,
+        mhpmax: 10,
+        minvent: null,
+        cham: NON_PM,
+        m_ap_type: 0,
+    };
+    const draws = [];
+    const random = {
+        rn2(bound) {
+            draws.push(`rn2(${bound})`);
+            return bound === 11 ? 1 : bound - 1;
+        },
+        rnd(bound) {
+            draws.push(`rnd(${bound})`);
+            return 1;
+        },
+    };
+    initRng(114);
+    enableRngLog();
+    const globalBefore = getRngLog().length;
+    const damage = { value: 3 };
+
+    const special = await artifact_hit(
+        state.youmonst,
+        target,
+        { oartifact: ART_MAGICBANE, oclass: WEAPON_CLASS, spe: 0 },
+        damage,
+        1,
+        state,
+        { planning: true, random, message: async () => {} },
+    );
+
+    assert.equal(special, true);
+    assert.equal(target.mcan, 1);
+    assert.equal(getRngLog().length, globalBefore);
+    assert.deepEqual(draws, [
+        'rn2(100)', 'rnd(4)', 'rn2(11)',
+        'rnd(4)', 'rnd(4)', 'rnd(4)', 'rnd(4)',
+        'rn2(105)', 'rn2(12)',
+    ]);
+});
+
+test('Magicbane planned clay-golem cancellation keeps the attacker on death',
+    async () => {
+    const state = stateFor('Val', 'lawful');
+    state.flags.verbose = false;
+    state.disp = {};
+    state.u = {
+        uprops: [], ulycn: NON_PM, ustuck: null,
+        umonnum: PM_CLAY_GOLEM, umonster: PM_WIZARD,
+        mh: 8, mhmax: 8, uen: 2, uenmax: 3, uenpeak: 3, ux: 4, uy: 5,
+    };
+    state.u.uprops[UNCHANGING] = {
+        intrinsic: 1, extrinsic: 0, blocked: 0,
+    };
+    state.u.uprops[FLYING] = {
+        intrinsic: 0, extrinsic: 0, blocked: 0,
+    };
+    state.mons = [];
+    state.mons[PM_CLAY_GOLEM] = {
+        pmidx: PM_CLAY_GOLEM, mflags2: 0, mresists: 0,
+    };
+    state.youmonst = {
+        data: state.mons[PM_CLAY_GOLEM], mx: 4, my: 5, minvent: null,
+    };
+    init_artifacts(state);
+    const attacker = {
+        m_id: 11204, data: {}, mx: 5, my: 5, mhp: 10, mhpmax: 10,
+    };
+    const boundary = new Error('planned clay-golem cancellation death');
+    let deathSubject = null;
+    const damage = { value: 3 };
+    const caught = await artifact_hit(
+        attacker,
+        state.youmonst,
+        { oartifact: ART_MAGICBANE, oclass: WEAPON_CLASS, spe: 0 },
+        damage,
+        1,
+        state,
+        {
+            planning: true,
+            random: { rn2: () => 1, rnd: () => 1 },
+            message: async () => {},
+            planningDeath(subject) {
+                deathSubject = subject;
+                return boundary;
+            },
+        },
+    ).then(() => null, (error) => error);
+
+    assert.equal(caught, boundary);
+    assert.equal(deathSubject, attacker);
+    assert.equal(state.u.mh, 0);
+    assert.equal(state.killer.name, 'killed while stuck in creature form');
 });
 
 test('Stormbringer planning hands fatal level-one drain back with its attacker',

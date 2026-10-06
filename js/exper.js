@@ -136,7 +136,7 @@ export async function losexp(drainer = null, state = game, env = {}) {
         u.mh -= num;
         if (u.mh <= 0) {
             const { rehumanize } = await import('./polyself.js');
-            await rehumanize(state);
+            await rehumanize(state, env);
         }
     }
     state.disp ??= {};

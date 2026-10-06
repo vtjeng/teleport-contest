@@ -2123,6 +2123,14 @@ export async function rehumanize(state = game, rawEnv = {}) {
             state.killer ??= {};
             state.killer.format = NO_KILLER_PREFIX;
             state.killer.name = 'killed while stuck in creature form';
+            if (env.planning) {
+                if (typeof env.planningDeath !== 'function') {
+                    throw new TypeError(
+                        'rehumanize requires planningDeath for a fatal planned reversion',
+                    );
+                }
+                throw env.planningDeath();
+            }
             await done(DIED, state);
             /* can get to here if declining to die in explore or wizard
                mode; since we're wearing an amulet of unchanging we can't
@@ -2157,6 +2165,14 @@ export async function rehumanize(state = game, rawEnv = {}) {
         state.killer ??= {};
         state.killer.name = `reverting to unhealthy ${state.urace.adj} form`;
         state.killer.format = KILLED_BY;
+        if (env.planning) {
+            if (typeof env.planningDeath !== 'function') {
+                throw new TypeError(
+                    'rehumanize requires planningDeath for a fatal planned reversion',
+                );
+            }
+            throw env.planningDeath();
+        }
         await done(DIED, state);
     }
     nomul(0, state);

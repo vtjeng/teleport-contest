@@ -1731,7 +1731,15 @@ const fakename = ['mon', 'you'];
 export async function Mb_hit(
     magr, mdef, mb, dmgptr, dieroll, vis, hittee, state = game, rawEnv = {},
 ) {
-    const env = { ...rawEnv, state };
+    const env = typeof rawEnv.planningDeath === 'function'
+        ? {
+            ...rawEnv,
+            state,
+            // Cancellation can fatally rehumanize the hero. Preserve the
+            // attacking monster at that non-returning planning boundary.
+            planningDeath: () => rawEnv.planningDeath(magr),
+        }
+        : { ...rawEnv, state };
     const random = env.random ?? { rn2, rnd };
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
