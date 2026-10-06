@@ -179828,6 +179828,49 @@
           "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368"
         }
       }
+    },
+    {
+      "id": "port-timeout-phaze-dialogue-v22-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete wall-passing timeout warning dialogue",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected"
+      ],
+      "selectionReason": "The current v22 queue has one unmatched screen at step 20; the complete investigation traces it to the omitted timeout.c phaze_dialogue call and identifies an independent whole-function scope.",
+      "detail": "Port timeout.c phaze_texts and whole phaze_dialogue, then wire nh_timeout before property decrements. Preserve odd timeout warnings and suppression by extrinsic or permanent intrinsic wall passing. The helper has no RNG, state mutation, or occupation cancellation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "phaze_dialogue",
+          "line": 534,
+          "endLine": 553,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 534,
+        "to": 553
+      },
+      "syntheticProvenance": {
+        "synthetic/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected": {
+          "session": "synthetic/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recordingPath": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.session.json",
+          "recordingSha256": "c7954bc564b80af6279477eea7cbb7dc8339bf7e23f84a70b690feadd3eb7be2",
+          "evaluationPath": "challenges/evaluations/20261006180802-v22.json",
+          "evaluationCommit": "5913841d2eeb8e82110208f1966bb47f08725368"
+        }
+      }
     }
   ]
 }
