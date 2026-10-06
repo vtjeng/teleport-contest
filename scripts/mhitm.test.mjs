@@ -14,6 +14,7 @@ import {
     NEED_WEAPON,
     NATTK,
     PIT,
+    VIBRATING_SQUARE,
     STRAT_WAITFORU,
 } from '../js/const.js';
 import {
@@ -27,6 +28,7 @@ import { runSegment } from '../js/jsmain.js';
 import {
     attk_protection,
     engulf_target,
+    gulpmm,
     failed_grab,
     fightm,
     mattackm,
@@ -69,6 +71,13 @@ import {
     PM_GIANT_ANT,
     PM_FLOATING_EYE,
     PM_GRID_BUG,
+    PM_TRAPPER,
+    PM_PURPLE_WORM,
+    PM_STONE_GOLEM,
+    PM_GAS_SPORE,
+    PM_SHADE,
+    PM_VAMPIRE,
+    PM_VAMPIRE_BAT,
     PM_GIANT_RAT,
     PM_ICE_VORTEX,
     PM_HILL_ORC,
@@ -204,6 +213,7 @@ function scripted(rolls = [], fallback = 1) {
         random: {
             d: (n, x) => take(`d(${n},${x})`),
             rn1: (x, from) => take(`rn1(${x},${from})`) + from,
+            rnl: (b) => take(`rnl(${b})`),
             rn2: (b) => take(`rn2(${b})`),
             rnd: (b) => take(`rnd(${b})`),
             rne: (b) => take(`rne(${b})`),
@@ -1309,42 +1319,16 @@ test('mattackm keeps every continuation past the wield turn closed',
         }
     });
 
-// mhitm.c mattackm()'s remaining refusing arms, each at the `case` label.
-// AT_WEAP has a narrow wielding-turn arm above, but its armed continuation
-// still refuses separately. AT_BREA and AT_SPIT are ported (breamm/spitmm);
-// at gap=1 they take the monnear else-branch (strike=0, no attack). The
-// attack records are fabricated because no species this port can place carries
-// one of them beside a pet's melee slot; mondata.h reads the list off the
-// species record, so replacing that record is enough.
-test('mattackm keeps unsupported arms closed and gates HUGS by prior hits',
+// mhitm.c mattackm() gates automatic HUGS by earlier successful slots and
+// prevents point-blank breath/spit. The fabricated slots isolate each gate.
+test('mattackm gates HUGS by prior hits and ranged attacks by distance',
     async () => {
         await hero();
         const { ax, dx, y } = battlefield(1);
         const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
         const ant = fixture(PM_GIANT_ANT, dx, y);
         aim(ant);
-        // AT_GAZE and AT_EXPL are covered by live C-aligned routes; AT_ENGL
-        // remains the unported refusal.
-        const refusingRows = [
-            [AT_ENGL, 'a monster engulfing another monster'],
-        ];
         const ordinary = pet.data;
-        for (const [aatyp, reason] of refusingRows) {
-            pet.data = {
-                ...ordinary,
-                mattk: [
-                    { aatyp, adtyp: AD_PHYS, damn: 1, damd: 4 },
-                    ...ordinary.mattk.slice(1),
-                ],
-            };
-            await assert.rejects(
-                mattackm(pet, ant, attackEnv()),
-                (error) => {
-                    assert.equal(error.message, reason, `aatyp ${aatyp}`);
-                    return true;
-                },
-            );
-        }
         // C's AT_HUGS gate needs two prior successful attack slots. With
         // this fabricated slot at index zero, mattackm returns a miss without
         // an attack roll or calling failed_grab/hitmm. The ordinary passive
@@ -1402,7 +1386,7 @@ test('mattackm AT_EXPL and explmm preserve the complete C result flow', () => {
         /if \(was_leashed\)\s*Your\("leash falls slack\."\);[\s\S]*?if \(magr->mtame\)[\s\S]*?You\(brief_feeling, "melancholy"\);/u);
 
     // The caller's adjacency gate and result-sensitive strike state are the
-    // production wiring; AT_ENGL remains a separately unported arm.
+    // production wiring; the next AT_ENGL arm has its own dispatcher tests.
     const dispatchAt = MHITM_C.indexOf('case AT_EXPL:',
         MHITM_C.indexOf('mattackm('));
     const dispatchEnd = MHITM_C.indexOf('case AT_ENGL:', dispatchAt);
@@ -2024,4 +2008,132 @@ test('a defender with a full attack list has no passive response', async () => {
     assert.equal(await mattackm(pet, ant, env), M_ATTK_MISS);
     // The to-hit roll alone: passivemm() returns before its own d().
     assert.deepEqual(env.bounds, ['rnd(20)']);
+});
+
+// gulpmm's common damage owner runs in these fixtures; no damage or placement
+// callback substitutes for the source path under test.
+test('gulpmm rejects a trapped target before messages or placement', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield();
+    const worm = fixture(PM_PURPLE_WORM, ax, y);
+    const ant = fixture(PM_GIANT_ANT, dx, y, { mtrapped: true });
+    const env = attackEnv();
+    assert.equal(await gulpmm(worm, ant, worm.data.mattk[1], env), M_ATTK_MISS);
+    assert.deepEqual(env.lines, []);
+    assert.deepEqual(env.bounds, []);
+    assert.equal(m_at(ax, y, game), worm);
+    assert.equal(m_at(dx, y, game), ant);
+});
+
+test('gulpmm encloses then releases surviving monsters to their original squares', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield();
+    // Trapper's AT_ENGL/AD_WRAP deals 1d10. A 100 HP target survives the
+    // source draw of one and reaches the both-alive placement arm.
+    const trapper = fixture(PM_TRAPPER, ax, y, { mhp: 100 });
+    const ant = fixture(PM_GIANT_ANT, dx, y, { mhp: 100 });
+    game.gv.vis = true;
+    const env = attackEnv();
+    assert.equal(await gulpmm(trapper, ant, trapper.data.mattk[0], env), M_ATTK_HIT);
+    assert.match(env.lines[0], /encloses the giant ant\./u);
+    assert.match(env.lines.at(-1), /giant ant is released!/u);
+    assert.equal(m_at(ax, y, game), trapper);
+    assert.equal(m_at(dx, y, game), ant);
+    assert.equal(game.gm.mswallower, null);
+    assert.deepEqual(env.redraws, [[ax, y], [dx, y], [ax, y], [dx, y]]);
+});
+
+test('gulpmm leaves a surviving worm on the digested defenders square', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield();
+    // A non-pet avoids nutrition-only inventory setup. Stone golem has a
+    // guaranteed corpse in corpse_chance and AD_DGST consumes its whole HP.
+    const worm = fixture(PM_PURPLE_WORM, ax, y, { mhp: 100 });
+    const golem = fixture(PM_STONE_GOLEM, dx, y, { mhp: 20 });
+    game.gv.vis = true;
+    const env = attackEnv();
+    const result = await gulpmm(worm, golem, worm.data.mattk[1], env);
+    assert.equal(result, M_ATTK_DEF_DIED);
+    assert.ok(golem.mhp < 1);
+    assert.equal(m_at(ax, y, game), null);
+    assert.equal(m_at(dx, y, game), worm);
+    assert.equal(game.gm.mswallower, null);
+});
+
+test('gulpmm contains the gas spore explosion and removes both dead monsters', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield();
+    // The gas spore's 4d6 roll exceeds this 1 HP worm and exercises the
+    // combined death flags after corpse_chance consumes gm.mswallower.
+    const worm = fixture(PM_PURPLE_WORM, ax, y, { mhp: 1 });
+    const spore = fixture(PM_GAS_SPORE, dx, y, { mhp: 1 });
+    game.gv.vis = true;
+    const env = attackEnv([], 4);
+    const result = await gulpmm(worm, spore, worm.data.mattk[1], env);
+    assert.equal(result, M_ATTK_AGR_DIED | M_ATTK_DEF_DIED);
+    assert.ok(worm.mhp < 1);
+    assert.ok(spore.mhp < 1);
+    assert.equal(m_at(ax, y, game), null);
+    assert.equal(m_at(dx, y, game), null);
+    assert.equal(game.gm.mswallower, null);
+    assert.ok(env.bounds.includes('d(4,6)'));
+});
+
+// The defender is digested before mintrap examines the aggressor's new square.
+test('gulpmm consumes mintrap on its surviving aggressors landing square', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield();
+    const worm = fixture(PM_PURPLE_WORM, ax, y, { mhp: 100 });
+    const golem = fixture(PM_STONE_GOLEM, dx, y, { mhp: 20 });
+    // A vibrating square has no injury or movement result; source mintrap
+    // still teaches its trap bit after gulpmm moves the worm to the square.
+    game.level.traps.push({ tx: dx, ty: y, ttyp: VIBRATING_SQUARE,
+        tseen: true, madeby_u: false });
+    game.gv.vis = true;
+    const env = attackEnv();
+    assert.equal(await gulpmm(worm, golem, worm.data.mattk[1], env), M_ATTK_DEF_DIED);
+    assert.ok(worm.mtrapseen & (1 << (VIBRATING_SQUARE - 1)));
+    assert.equal(m_at(dx, y, game), worm);
+});
+
+test('mattackm AT_ENGL preserves source gates and its attack-roll order', async () => {
+    const start = MHITM_C.indexOf('case AT_ENGL:', MHITM_C.indexOf('mattackm('));
+    const source = MHITM_C.slice(start, MHITM_C.indexOf('case AT_BREA:', start));
+    assert.match(source, /PM_SHADE[\s\S]*u\.usteed[\s\S]*distmin[\s\S]*engulfing_u/u);
+    assert.match(source, /tmp > rnd\(20 \+ i\)[\s\S]*failed_grab[\s\S]*gulpmm/u);
+    for (const gate of ['shade', 'steed', 'distance']) {
+        await hero();
+        // Trapper has only its single engulfing attack. The distant pair is
+        // two squares apart, just outside C's distmin > 1 adjacency limit.
+        const { ax, dx, y } = battlefield(gate === 'distance' ? 2 : 1);
+        const trapper = fixture(PM_TRAPPER, ax, y);
+        const defender = fixture(gate === 'shade' ? PM_SHADE : PM_GIANT_ANT, dx, y);
+        assert.equal(trapper.data.mattk[0].aatyp, AT_ENGL);
+        aim(defender);
+        if (gate === 'steed') game.u.usteed = defender;
+        const env = attackEnv();
+        await mattackm(trapper, defender, env);
+        assert.equal(env.bounds.some(bound => bound.startsWith('rnd(')), false, gate);
+        assert.equal(m_at(ax, y, game), trapper, gate);
+        assert.equal(m_at(dx, y, game), defender, gate);
+        if (gate === 'shade') assert.match(env.lines[0], /attempt to engulf .* is futile\./u);
+    }
+});
+
+test('gulpmm expels a vampire shapechanger before the damage and placement path', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield();
+    const worm = fixture(PM_PURPLE_WORM, ax, y, { mhp: 100 });
+    // monmove.h is_vampshifter reads cham, independently of current form.
+    // A vampire bat is smaller than HUGE, so engulf_target admits the form.
+    const vampire = fixture(PM_VAMPIRE_BAT, dx, y, { mhp: 100, cham: PM_VAMPIRE });
+    game.gv.vis = true;
+    const env = attackEnv();
+    assert.equal(await gulpmm(worm, vampire, worm.data.mattk[1], env), M_ATTK_HIT);
+    assert.equal(vampire.data, game.mons[PM_VAMPIRE]);
+    assert.equal(m_at(ax, y, game), worm);
+    assert.equal(m_at(dx, y, game), vampire);
+    assert.ok(env.lines.some(line => /expels it\./u.test(line)));
+    assert.ok(env.lines.some(line => /It turns into a vampire\./u.test(line)));
+    assert.deepEqual(env.redraws, []);
 });

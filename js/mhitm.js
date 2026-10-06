@@ -35,6 +35,9 @@ import {
     M_ATTK_DEF_DIED,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    MM_IGNOREWATER,
+    NO_TRAP_FLAGS,
+    Trap_Killed_Mon,
     M_AP_NOTHING,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
@@ -80,6 +83,7 @@ import {
     mon_givit,
     mon_offmap,
     monkilled,
+    minliquid,
     mon_to_stone,
     monstone,
     newcham,
@@ -94,6 +98,8 @@ import {
 } from './mon.js';
 import {
     is_elf,
+    is_vampshifter,
+    flaming,
     can_teleport,
     resists_magm,
     is_rider,
@@ -152,6 +158,7 @@ import {
     MZ_HUGE,
     NON_PM,
     PM_GRID_BUG,
+    PM_SHADE,
     PM_ARCHON,
     PM_FLOATING_EYE,
     PM_GREEN_SLIME,
@@ -191,7 +198,9 @@ import { messageAt } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { polyself } from './polyself.js';
 import { you_were } from './were.js';
-import { rloc, tele, tele_restrict } from './teleport.js';
+import { goodpos, rloc, tele, tele_restrict } from './teleport.js';
+import { t_at } from './trap.js';
+import { mintrap } from './trap_effects.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
 // that protects a target from the attack type. This is a pure source helper;
@@ -679,10 +688,7 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
 //            through to the physical group below it. The distant half still
 //            needs mthrowu.c thrwmm(), and a selected/current weapon still
 //            needs mswingsm() and hitval().
-//   AT_GAZE  gazemm().
-//   AT_EXPL  explmm().
-//   AT_ENGL  gulpmm().
-//   AT_BREA and AT_SPIT  breamm() and spitmm().
+// The gaze, explosion, engulf, breath and spit arms use their source owners.
 //
 // `strike` is C's, declared once above the loop and never re-initialized
 // inside it, and every arm that reaches passivemm() assigns it in the same
@@ -875,7 +881,31 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
             break;
 
         case AT_ENGL:
-            unsupported('a monster engulfing another monster');
+            if (mdef.data === state.mons[PM_SHADE]) {
+                if (state.gv.vis) {
+                    await requireAttackOperation(env, 'message')(
+                        `${s_suffix(Monnam(magr, state, env))} attempt to engulf `
+                            + `${mon_nam(mdef, state, env)} is futile.`, state, env);
+                }
+                strike = 0;
+                break;
+            }
+            if (state.u.usteed && mdef === state.u.usteed) {
+                strike = 0;
+                break;
+            }
+            if (distmin(magr.mx, magr.my, mdef.mx, mdef.my) > 1)
+                continue;
+            if (engulfing_u(magr, state)) {
+                strike = 0;
+            } else if ((strike = tmp > random.rnd(20 + i) ? 1 : 0)) {
+                if (await failed_grab(magr, mdef, mattk, env))
+                    strike = 0;
+                else
+                    res[i] = await gulpmm(magr, mdef, mattk, env);
+            } else {
+                await missmm(magr, mdef, mattk, env);
+            }
             break;
 
         case AT_BREA:
@@ -1025,8 +1055,7 @@ export async function failed_grab(magr, mdef, mattk, env = {}) {
 // C ref: mhitm.c engulf_target() (805-845). The target must fit inside the
 // engulfer, neither combatant may be trapped, and the two occupied squares
 // must be places from which both combatants can later be separated. The hero
-// half is the only one used by mhitu.c gulpmu() here; the monster half stays
-// source-faithful because gulpmm() will eventually share this predicate.
+// and monster callers share the same placement gates.
 export function engulf_target(magr, mdef, state = game) {
     const defenderIsHero = mdef === state.youmonst;
     const attackerIsHero = magr === state.youmonst;
@@ -1074,6 +1103,92 @@ export function engulf_target(magr, mdef, state = game) {
     }
 
     return true;
+}
+
+// C ref: mhitm.c gulpmm() (849-969). The defender remains in the monster
+// chain while the aggressor occupies its square. gm.mswallower is C's temporary
+// owner for corpse_chance(), cleared after the common damage path returns.
+export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
+    const env = attackEnv(rawEnv);
+    const { state } = env;
+    if (!engulf_target(magr, mdef, state)) return M_ATTK_MISS;
+    const message = requireAttackOperation(env, 'message');
+    const redraw = env.redraw ?? newsym;
+    // mondata.h digests()/enfolds() test the engulf attack's damage type.
+    const digests = () => magr.data.mattk.some(
+        attack => attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST);
+    const enfolds = () => magr.data.mattk.some(
+        attack => attack.aatyp === AT_ENGL && attack.adtyp === AD_WRAP);
+    if (state.gv.vis) {
+        await message(`${Monnam(magr, state, env)} `
+            + `${digests() ? 'swallows' : enfolds() ? 'encloses' : 'engulfs'} `
+            + `${mon_nam(mdef, state, env)}.`, state, env);
+    }
+    if (!flaming(magr.data)) {
+        for (let obj = mdef.minvent; obj; obj = obj.nobj)
+            note_unported('apply.c snuff_lit');
+    }
+    if (is_vampshifter(mdef)
+        && await newcham(mdef, state.mons[mdef.cham], {
+            ...env, ncflags: NO_NC_FLAGS,
+        })) {
+        if (state.gv.vis) {
+            await message(`${Monnam(magr, state, env)} expels `
+                + `${canspotmon(mdef, state) ? 'it' : 'something'}.`, state, env);
+            if (canspotmon(mdef, state)) {
+                await message(`It turns into ${x_monnam(mdef, ARTICLE_A,
+                    null, SUPPRESS_NAME | SUPPRESS_IT | SUPPRESS_INVISIBLE,
+                    false, state, env)}.`, state, env);
+            }
+        }
+        return M_ATTK_HIT;
+    }
+    const ax = magr.mx, ay = magr.my;
+    let dx = mdef.mx, dy = mdef.my;
+    remove_monster(dx, dy, state);
+    remove_monster(ax, ay, state);
+    place_monster(magr, dx, dy, state);
+    redraw(ax, ay, state);
+    redraw(dx, dy, state);
+    state.gm.mswallower = magr;
+    let status = await mdamagem(magr, mdef, mattk, null, 0, env);
+    state.gm.mswallower = null;
+    if ((status & (M_ATTK_AGR_DIED | M_ATTK_DEF_DIED))
+        === (M_ATTK_AGR_DIED | M_ATTK_DEF_DIED)) {
+        // Both died; their death paths already removed them.
+    } else if (status & M_ATTK_DEF_DIED) {
+        if (!goodpos(dx, dy, magr, MM_IGNOREWATER, env)) {
+            if (m_at(dx, dy, state) === magr) {
+                remove_monster(dx, dy, state);
+                redraw(dx, dy, state);
+            }
+            dx = ax;
+            dy = ay;
+        }
+        if (m_at(dx, dy, state) !== magr) {
+            place_monster(magr, dx, dy, state);
+            redraw(dx, dy, state);
+        }
+        if (await minliquid(magr, env)
+            || (t_at(dx, dy, state)
+                && await mintrap(magr, NO_TRAP_FLAGS, env) === Trap_Killed_Mon))
+            status |= M_ATTK_AGR_DIED;
+    } else if (status & M_ATTK_AGR_DIED) {
+        place_monster(mdef, dx, dy, state);
+        redraw(dx, dy, state);
+    } else {
+        if (cansee(dx, dy, state)) {
+            await message(`${Monnam(mdef, state, env)} is `
+                + `${digests() ? 'regurgitated' : enfolds() ? 'released' : 'expelled'}!`,
+            state, env);
+        }
+        remove_monster(dx, dy, state);
+        place_monster(magr, ax, ay, state);
+        place_monster(mdef, dx, dy, state);
+        redraw(ax, ay, state);
+        redraw(dx, dy, state);
+    }
+    return status;
 }
 
 // C ref: mhitm.c hitmm() (642-731). "Returns the result of mdamagem()."
