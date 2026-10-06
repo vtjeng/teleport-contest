@@ -1,0 +1,1411 @@
+{
+  "version": 1,
+  "batch": "v23",
+  "status": "prepared-unadmitted",
+  "comparisonBase": "919ebe5c374e1523fcb0a019191e59501d9544a6",
+  "priorBatch": {
+    "batch": "v22",
+    "manifestSha256": "a0304fae53b2888387cdc721eaac8ff80b547a0acd0c80d150c70f01390dc103",
+    "casesCompared": 18,
+    "caseIds": [
+      "wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected",
+      "wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected",
+      "wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page",
+      "wizard-eats-wished-cockatrice-egg-v22-cfirst",
+      "wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected",
+      "wizard-invokes-sunsword-ray-at-orc-v22-cfirst",
+      "wizard-reads-blessed-remove-curse-scroll-v22-cfirst",
+      "wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected",
+      "wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring",
+      "wizard-reads-uncursed-punishment-scroll-v22-cfirst",
+      "wizard-reads-wished-scroll-of-mail-v22-cfirst",
+      "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+      "wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected",
+      "wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+      "wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+      "wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected",
+      "wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst",
+      "wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst"
+    ]
+  },
+  "unresolvedOlderCaseIds": [
+    "v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+    "v17/tin-human-wererat-cpostfx-slot-n",
+    "v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+    "v20/cursed-apple-fpostfx-after-rottenfood-v20",
+    "v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+    "v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+    "v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+    "v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+    "v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst",
+    "v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+    "v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation"
+  ],
+  "cases": [
+    {
+      "id": "v23-acid-potion-resistance",
+      "title": "Acid potion while acid-resistant",
+      "mission": "Quaff an acid potion while the Wizard has source-observed Acid resistance, reaching the resistance-conditioned peffect_acid result.",
+      "selectionRationale": "The source candidate was frozen before JavaScript comparison. C showed Acid resistance on the intrinsic-properties page and assigned the wished potion to o; the case quaffs that observed item.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_acid()"
+      ],
+      "cOutcome": "C says “This tastes sour.” with Acid resistance, then reaches the potion-identification prompt. The potion effect follows the resistance branch rather than damage.",
+      "outcome": "C says “This tastes sour.” with Acid resistance, then reaches the potion-identification prompt. The potion effect follows the resistance branch rather than damage.",
+      "inputs": {
+        "seed": 92300617,
+        "datetime": "20730714101500",
+        "role": "Wizard",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 37,
+        "boundaries": 38
+      },
+      "recipe": "challenges/cases/v23/v23-acid-potion-resistance.recipe.session.json",
+      "recipeSha256": "56ed3263531c023a210b5ad742fb411e6b6669352c95c51e63a4394b5d29e8b3",
+      "recording": "challenges/cases/v23/v23-acid-potion-resistance.session.json",
+      "recordingSha256": "01df6f743ec68492fc48a88264620f75d345e7b63c8b6343e01c4a01bbe64d33",
+      "reproducibility": "Independent patched-C replay pTgHf1 exited 0. The output at /tmp/A104-v23-replays/v23-acid-potion-resistance.session.json is byte-identical to the committed recording (SHA-256 01df6f743ec68492fc48a88264620f75d345e7b63c8b6343e01c4a01bbe64d33); see /tmp/A104-v23-replays/v23-acid-potion-resistance.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-acid-potion-resistance.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-acid-potion-resistance.session.json"
+        ],
+        "runId": "pTgHf1",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-pTgHf1/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-acid-potion-resistance.session.json",
+        "outputSha256": "01df6f743ec68492fc48a88264620f75d345e7b63c8b6343e01c4a01bbe64d33",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-acid-potion-resistance.c-replay.log",
+        "logSha256": "e3a3c0528135b1b49fd0aa9496f404977ca925352aeb960b2d9daea537ce504b"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-acid-potion-resistance.recipe.session.json"
+        ],
+        "runId": "acnV2n",
+        "receipt": "/tmp/teleport-validation-1000/run-acnV2n/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-acid-potion-resistance.diff.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v9/acid-potion-quaff-damages-hero",
+            "difference": "That case quaffs acid without this source-observed resistance setup and reaches damage; this case reaches the resistance result."
+          },
+          {
+            "id": "v12/acid-potion-thrown-at-hostile-monster",
+            "difference": "That case throws acid at a monster through potionhit; this case uses hero quaff and peffect_acid."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-amnesia-scroll",
+      "title": "Blessed amnesia clears map memory",
+      "mission": "Read a blessed scroll of amnesia after exploring while preserving a known spell.",
+      "selectionRationale": "The source candidate was frozen before JavaScript comparison. The C-observed inventory letter and pager acknowledgement are preserved in the recipe.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c: seffect_amnesia()"
+      ],
+      "cOutcome": "C consumes the blessed scroll and reports “Who was that Maud person anyway?” while taking the blessed map-only forgetting branch.",
+      "outcome": "C consumes the blessed scroll and reports “Who was that Maud person anyway?” while taking the blessed map-only forgetting branch.",
+      "inputs": {
+        "seed": 92300614,
+        "datetime": "20730407125500",
+        "role": "Wizard",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 32,
+        "boundaries": 33
+      },
+      "recipe": "challenges/cases/v23/v23-amnesia-scroll.recipe.session.json",
+      "recipeSha256": "811d52607f27158cfa8ebb0c9ff1becce6c656dcdfc45e1512317de2b39ec410",
+      "recording": "challenges/cases/v23/v23-amnesia-scroll.session.json",
+      "recordingSha256": "283478fa69bf94cb4f88d5f882176477163d32ab6a155f93acdf16df57465c32",
+      "reproducibility": "Independent patched-C replay SwteTJ exited 0. The output at /tmp/A104-v23-replays/v23-amnesia-scroll.session.json is byte-identical to the committed recording (SHA-256 283478fa69bf94cb4f88d5f882176477163d32ab6a155f93acdf16df57465c32); see /tmp/A104-v23-replays/v23-amnesia-scroll.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-amnesia-scroll.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-amnesia-scroll.session.json"
+        ],
+        "runId": "SwteTJ",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-SwteTJ/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-amnesia-scroll.session.json",
+        "outputSha256": "283478fa69bf94cb4f88d5f882176477163d32ab6a155f93acdf16df57465c32",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-amnesia-scroll.c-replay.log",
+        "logSha256": "9a61baaba7786a0b66b0249e186dd01d4b026a84fef7119f7b966155c11de48b"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-amnesia-scroll.recipe.session.json"
+        ],
+        "runId": "mnr8tf",
+        "receipt": "/tmp/teleport-validation-1000/run-mnr8tf/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-amnesia-scroll.diff.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v9/read-amnesia-forgets-known-spells",
+            "difference": "That case uses uncursed all-spell forgetting; this case uses blessed forget(0), retaining known spells and clearing map memory."
+          },
+          {
+            "id": "v16/wizard-reads-uncursed-scroll-of-amnesia",
+            "difference": "That case reads an uncursed scroll; this case exercises the blessed argument branch."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-blessed-polymorph-potion",
+      "title": "Blessed polymorph potion with controlled form choice",
+      "mission": "Quaff a blessed polymorph potion with polymorph control and select the C-observed newt form.",
+      "selectionRationale": "The C-first recipe freezes the blessed potion setup and a terminated newt selection before JS comparison.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_polymorph()"
+      ],
+      "cOutcome": "C presents the controlled monster prompt, transforms the Wizard into a male newt, and reports the cloak shrinking away.",
+      "outcome": "C presents the controlled monster prompt, transforms the Wizard into a male newt, and reports the cloak shrinking away.",
+      "inputs": {
+        "seed": 92300627,
+        "datetime": "20740417123000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 39,
+        "boundaries": 40
+      },
+      "recipe": "challenges/cases/v23/v23-blessed-polymorph-potion.recipe.session.json",
+      "recipeSha256": "50622214aaea01ba21c080e687048d6eac9f835edf1ba15c5fd8f09920b94fd2",
+      "recording": "challenges/cases/v23/v23-blessed-polymorph-potion.session.json",
+      "recordingSha256": "352aca8ef40c41e666aed8f0b3dbf378cd38122f1214b93ec83ed8ad19edfe60",
+      "reproducibility": "Independent patched-C replay jeFLSO exited 0. The output at /tmp/A104-v23-replays/v23-blessed-polymorph-potion.session.json is byte-identical to the committed recording (SHA-256 352aca8ef40c41e666aed8f0b3dbf378cd38122f1214b93ec83ed8ad19edfe60); see /tmp/A104-v23-replays/v23-blessed-polymorph-potion.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-blessed-polymorph-potion.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-blessed-polymorph-potion.session.json"
+        ],
+        "runId": "jeFLSO",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-jeFLSO/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-blessed-polymorph-potion.session.json",
+        "outputSha256": "352aca8ef40c41e666aed8f0b3dbf378cd38122f1214b93ec83ed8ad19edfe60",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-blessed-polymorph-potion.c-replay.log",
+        "logSha256": "38f61354148b22db797f4324da9960f429d15bb025591b16506dae890ca9d10d"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-blessed-polymorph-potion.recipe.session.json"
+        ],
+        "runId": "jrk2wr",
+        "receipt": "/tmp/teleport-validation-1000/run-jrk2wr/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-blessed-polymorph-potion.diff.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v7/hero-polymorph-form",
+            "difference": "That case quaffs an uncursed potion and receives a random form; this case follows the blessed controlled-form query."
+          },
+          {
+            "id": "v14/tourist-quaffs-polymorph-potion",
+            "difference": "That case uses a Tourist and a separate form result; this case tests blessed controlled selection."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-burn-object-expiry",
+      "title": "Tallow candle fuel expires",
+      "mission": "Light a wished tallow candle and wait through its first source-calculated burn callback.",
+      "selectionRationale": "C source fixes the tallow candle age and callback schedule; the recipe uses a level-10 Barbarian, an independently selected seed/date, and forced rest through the warning and later expiry callbacks.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/timeout.c: burn_object()",
+        "nethack-c/upstream/src/apply.c: begin_burn()"
+      ],
+      "cOutcome": "C reaches timeout.c:burn_object and emits “Your candle is getting short.” The first visible C/JS difference is the following turn’s mcalcmove rn2(12), before the later expiry and extinction result preserved in the recording.",
+      "outcome": "C reaches timeout.c:burn_object and emits “Your candle is getting short.” The first visible C/JS difference is the following turn’s mcalcmove rn2(12), before the later expiry and extinction result preserved in the recording.",
+      "inputs": {
+        "seed": 64920731,
+        "datetime": "20920413120600",
+        "role": "Barbarian",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "",
+        "keyCount": 704,
+        "boundaries": 705
+      },
+      "recipe": "challenges/cases/v23/v23-burn-object-expiry.recipe.session.json",
+      "recipeSha256": "3ce9b5f0fd020df71249cb4c4169df75b2d3177cd6c94cd616734fc3e39c07b6",
+      "recording": "challenges/cases/v23/v23-burn-object-expiry.session.json",
+      "recordingSha256": "99e8dcc8e99050c1679dc8ab64a000a35a212202c5bb825d7c9e47bb04c3e05d",
+      "reproducibility": "Independent patched-C replay Lm2m7n exited 0. The output at /tmp/A104-v23-replays/v23-burn-object-expiry.session.json is byte-identical to the committed recording (SHA-256 99e8dcc8e99050c1679dc8ab64a000a35a212202c5bb825d7c9e47bb04c3e05d); see /tmp/A104-v23-replays/v23-burn-object-expiry.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-burn-object-expiry.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-burn-object-expiry.session.json"
+        ],
+        "runId": "Lm2m7n",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-Lm2m7n/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-burn-object-expiry.session.json",
+        "outputSha256": "99e8dcc8e99050c1679dc8ab64a000a35a212202c5bb825d7c9e47bb04c3e05d",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-burn-object-expiry.c-replay.log",
+        "logSha256": "32f56c524f168822e85dbc24f2677fb85b8b99275f98128c58a7995ff5983791"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-burn-object-expiry.recipe.session.json"
+        ],
+        "runId": "R8zKKV",
+        "receipt": "/tmp/teleport-validation-1000/run-R8zKKV/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-burn-object-expiry.diff.log",
+        "outcome": "FAIL",
+        "exitCode": 1,
+        "sourceBucket": "timeout.c:burn_object -> turn continuation",
+        "countsTowardDistinctMismatchTarget": true,
+        "closestEarlierCases": [
+          {
+            "id": "v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+            "difference": "That case throws a lit wax candle and extinguishes it through object impact; this case reaches timed fuel expiry in burn_object."
+          },
+          {
+            "id": "v13/empty-candelabrum-no-candles",
+            "difference": "That case examines an empty candelabrum, not a timed candle callback."
+          },
+          {
+            "id": "v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+            "difference": "That case expires a hero property timer; this case expires a burning object timer."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.",
+        "firstMismatch": {
+          "kind": "PRNG",
+          "index": 4601,
+          "segment": 1,
+          "step": 365,
+          "key": "."
+        },
+        "firstMismatchText": "First PRNG mismatch at call 4601 (segment 1, step 365, key \".\")",
+        "distinctFirstMismatch": {
+          "bucket": "timeout.c:burn_object -> turn continuation",
+          "sourceBehavior": "timeout.c:burn_object -> turn continuation",
+          "owner": "timeout.c:burn_object",
+          "detail": "The age-75 burn_object warning is reached before C continues into mcalcmove; that following turn performs rn2(12) at the first visible mismatch. Candle expiry occurs later in the recording."
+        }
+      }
+    },
+    {
+      "id": "v23-confused-gold-detection-trap-detect",
+      "title": "Confused gold-detection scroll uses trap detection",
+      "mission": "Read a gold-detection scroll while confused and reach the source-selected trap-detection path.",
+      "selectionRationale": "This additional candidate was source-frozen before its own JS comparison. The action history sets Confusion before reading and acknowledges the mispronunciation page so C enters trap_detect rather than gold_detect.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c: seffect_gold_detection()",
+        "nethack-c/upstream/src/detect.c: trap_detect()"
+      ],
+      "cOutcome": "C says “Being confused, you mispronounce the magic words...”, enters trap_detect, and reports “You feel entrapped.”",
+      "outcome": "C says “Being confused, you mispronounce the magic words...”, enters trap_detect, and reports “You feel entrapped.”",
+      "inputs": {
+        "seed": 92300612,
+        "datetime": "20730205111000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 59,
+        "boundaries": 60
+      },
+      "recipe": "challenges/cases/v23/v23-confused-gold-detection-trap-detect.recipe.session.json",
+      "recipeSha256": "2b6bde939bbfb92d020fa28edd73e1ec40446b8ffd35a3d4675ad23689f90c2d",
+      "recording": "challenges/cases/v23/v23-confused-gold-detection-trap-detect.session.json",
+      "recordingSha256": "c71fd8ad500e8c6c478129d3b479525730bd132114b9645a54c62a11a3c0ab4d",
+      "reproducibility": "Independent patched-C replay aBniPw exited 0. Its output is byte-identical to the committed corrected recording (SHA-256 c71fd8ad500e8c6c478129d3b479525730bd132114b9645a54c62a11a3c0ab4d).",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-confused-gold-detection-trap-detect.recipe.session.json",
+          "/tmp/v23-confused-gold-detection-trap-detect.independent.session.json"
+        ],
+        "runId": "aBniPw",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-aBniPw/receipt.json",
+        "output": "/tmp/v23-confused-gold-detection-trap-detect.independent.session.json",
+        "outputSha256": "c71fd8ad500e8c6c478129d3b479525730bd132114b9645a54c62a11a3c0ab4d",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/teleport-validation-1000/run-aBniPw/stderr.log",
+        "logSha256": "018bcbbe33035e32c8ef9d594daeb8537f110693ff1dc4e4a7f953c39b056589"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-confused-gold-detection-trap-detect.recipe.session.json"
+        ],
+        "runId": "k3iJjy",
+        "receipt": "/tmp/teleport-validation-1000/run-k3iJjy/receipt.json",
+        "log": "/tmp/teleport-validation-1000/run-k3iJjy/stdout.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v9/gold-detection-scroll-maps-floor-gold",
+            "difference": "That unconfused case enters gold_detect and maps floor gold; this case enters trap_detect because the hero is confused."
+          },
+          {
+            "id": "v16/wizard-reads-gold-detection-with-inventory-coins",
+            "difference": "That case reads the scroll unconfused with carried coins; this case exercises the confused dispatcher."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-cursed-potion-enlightenment",
+      "title": "Cursed enlightenment potion gives an uneasy feeling",
+      "mission": "Quaff a cursed potion of enlightenment and observe its cursed early return.",
+      "selectionRationale": "The C-first seed/date and wish are frozen before comparison; the recipe follows the C-observed inventory letter.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_enlightenment()"
+      ],
+      "cOutcome": "C says “You have an uneasy feeling...” and returns through the cursed branch without the ordinary enlightenment report.",
+      "outcome": "C says “You have an uneasy feeling...” and returns through the cursed branch without the ordinary enlightenment report.",
+      "inputs": {
+        "seed": 92300611,
+        "datetime": "20730117104500",
+        "role": "Wizard",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 35,
+        "boundaries": 36
+      },
+      "recipe": "challenges/cases/v23/v23-cursed-potion-enlightenment.recipe.session.json",
+      "recipeSha256": "4eb62c5c4f6af12af559d5e059fb4693a971913a470ce02ad20b1cbddc6c3ed0",
+      "recording": "challenges/cases/v23/v23-cursed-potion-enlightenment.session.json",
+      "recordingSha256": "9ec0b62ac11a8192deb412b861af0b350de10d9896f68d6eb97e4d37e7c8907b",
+      "reproducibility": "Independent patched-C replay incDNS exited 0. The output at /tmp/A104-v23-replays/v23-cursed-potion-enlightenment.session.json is byte-identical to the committed recording (SHA-256 9ec0b62ac11a8192deb412b861af0b350de10d9896f68d6eb97e4d37e7c8907b); see /tmp/A104-v23-replays/v23-cursed-potion-enlightenment.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-cursed-potion-enlightenment.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-cursed-potion-enlightenment.session.json"
+        ],
+        "runId": "incDNS",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-incDNS/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-cursed-potion-enlightenment.session.json",
+        "outputSha256": "9ec0b62ac11a8192deb412b861af0b350de10d9896f68d6eb97e4d37e7c8907b",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-cursed-potion-enlightenment.c-replay.log",
+        "logSha256": "05bade86109ca7b5088750d560dcbaa0ba11d6652fe5615423c6f7d39d435e09"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-cursed-potion-enlightenment.recipe.session.json"
+        ],
+        "runId": "o61r1f",
+        "receipt": "/tmp/teleport-validation-1000/run-o61r1f/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-cursed-potion-enlightenment.diff.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v16/wizard-quaffs-uncursed-enlightenment-potion",
+            "difference": "That case is uncursed and reports enlightenment; this case exercises the cursed early return."
+          },
+          {
+            "id": "v11/wand-enlightenment-reports-status",
+            "difference": "That case reports status through a wand, not a cursed potion."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-cursed-welded-weapon-attempt",
+      "title": "Cursed weapon refuses an attempted replacement",
+      "mission": "Wield a cursed long sword, then attempt to replace it with a second weapon.",
+      "selectionRationale": "C inventory inspection fixes the two item letters before comparison. The first mismatch follows the initial cursed long-sword wield and weld message on key n; the later replacement refusal is also preserved in the recording.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/wield.c: welded()",
+        "nethack-c/upstream/src/wield.c: weldmsg()",
+        "nethack-c/upstream/src/wield.c: dowield()"
+      ],
+      "cOutcome": "C wields the cursed long sword and reports that it welds itself to the hero’s hand. The first observable divergence is C’s following mcalcmove rn2(12); a later attempt to wield the second weapon reaches the separate welded refusal.",
+      "outcome": "C wields the cursed long sword and reports that it welds itself to the hero’s hand. The first observable divergence is C’s following mcalcmove rn2(12); a later attempt to wield the second weapon reaches the separate welded refusal.",
+      "inputs": {
+        "seed": 92300626,
+        "datetime": "20740320120000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 32,
+        "boundaries": 33
+      },
+      "recipe": "challenges/cases/v23/v23-cursed-welded-weapon-attempt.recipe.session.json",
+      "recipeSha256": "dcab1d4916dd841297e83f310eb99215062462d9d6b148a345acb757cfed90f5",
+      "recording": "challenges/cases/v23/v23-cursed-welded-weapon-attempt.session.json",
+      "recordingSha256": "1938a2d7c705964e9e7cf873fc4356a9231caa8ca4d24cbd5a76e273e733972f",
+      "reproducibility": "Independent patched-C replay QoGyTg exited 0. The output at /tmp/A104-v23-replays/v23-cursed-welded-weapon-attempt.session.json is byte-identical to the committed recording (SHA-256 1938a2d7c705964e9e7cf873fc4356a9231caa8ca4d24cbd5a76e273e733972f); see /tmp/A104-v23-replays/v23-cursed-welded-weapon-attempt.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-cursed-welded-weapon-attempt.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-cursed-welded-weapon-attempt.session.json"
+        ],
+        "runId": "QoGyTg",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-QoGyTg/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-cursed-welded-weapon-attempt.session.json",
+        "outputSha256": "1938a2d7c705964e9e7cf873fc4356a9231caa8ca4d24cbd5a76e273e733972f",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-cursed-welded-weapon-attempt.c-replay.log",
+        "logSha256": "76558b9baa9114c2408273365a3d852f84fe1d8219d2a7eaddafa28558d41a4e"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-cursed-welded-weapon-attempt.recipe.session.json"
+        ],
+        "runId": "ApIfNd",
+        "receipt": "/tmp/teleport-validation-1000/run-ApIfNd/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-cursed-welded-weapon-attempt.diff.log",
+        "outcome": "FAIL",
+        "exitCode": 1,
+        "sourceBucket": "wield.c:setuwep/weldmsg -> turn continuation",
+        "countsTowardDistinctMismatchTarget": true,
+        "closestEarlierCases": [
+          {
+            "id": "v18/wizard-conflict-silver-saber-m2m-c59",
+            "difference": "That case includes a silver-saber combat action; this case directly attempts to replace a cursed wielded weapon."
+          },
+          {
+            "id": "v21/wet-towel-wields-wet-weapon",
+            "difference": "That case changes a weapon with a towel; this case reaches welded refusal from dowield."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.",
+        "firstMismatch": {
+          "kind": "PRNG",
+          "index": 3584,
+          "segment": 1,
+          "step": 31,
+          "key": "n"
+        },
+        "firstMismatchText": "First PRNG mismatch at call 3584 (segment 1, step 31, key \"n\")",
+        "distinctFirstMismatch": {
+          "bucket": "wield.c:setuwep/weldmsg -> turn continuation",
+          "sourceBehavior": "wield.c:setuwep/weldmsg -> turn continuation",
+          "owner": "wield.c:setuwep/weldmsg",
+          "detail": "The initial cursed wield on key n reaches setuwep and the weld message before C continues into mcalcmove; rn2(12) is the first visible mismatch. The later key o reaches the replacement refusal."
+        }
+      }
+    },
+    {
+      "id": "v23-destroy-armor-scroll",
+      "title": "Blessed destroy-armor scroll selects among worn armor",
+      "mission": "Read a blessed scroll of destroy armor while wearing multiple eligible armor pieces.",
+      "selectionRationale": "The C-observed setup identifies the scroll and armor letters; the frozen action removes starter gear, wears two armor pieces, and reads the scroll.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c: seffect_destroy_armor()",
+        "nethack-c/upstream/src/do_wear.c: disintegrate_arm()"
+      ],
+      "cOutcome": "C opens the armor selection prompt and disintegrates the selected leather armor, reporting that it falls to the stairs.",
+      "outcome": "C opens the armor selection prompt and disintegrates the selected leather armor, reporting that it falls to the stairs.",
+      "inputs": {
+        "seed": 92300620,
+        "datetime": "20731023101500",
+        "role": "Wizard",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 80,
+        "boundaries": 81
+      },
+      "recipe": "challenges/cases/v23/v23-destroy-armor-scroll.recipe.session.json",
+      "recipeSha256": "f4783d3650157a40020ac6486eff55aeb6f310e3cddbc5a2527dea7d339ff061",
+      "recording": "challenges/cases/v23/v23-destroy-armor-scroll.session.json",
+      "recordingSha256": "034fc9a7de432071ee1fa2f3f149d62417835e5e65cffaf9cc88d72b40a5e4e4",
+      "reproducibility": "Independent patched-C replay Oqdvk2 exited 0. The output at /tmp/A104-v23-replays/v23-destroy-armor-scroll.session.json is byte-identical to the committed recording (SHA-256 034fc9a7de432071ee1fa2f3f149d62417835e5e65cffaf9cc88d72b40a5e4e4); see /tmp/A104-v23-replays/v23-destroy-armor-scroll.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-destroy-armor-scroll.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-destroy-armor-scroll.session.json"
+        ],
+        "runId": "Oqdvk2",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-Oqdvk2/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-destroy-armor-scroll.session.json",
+        "outputSha256": "034fc9a7de432071ee1fa2f3f149d62417835e5e65cffaf9cc88d72b40a5e4e4",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-destroy-armor-scroll.c-replay.log",
+        "logSha256": "ad2a50262b41b44c5929e1aa9cc183763448364f32423659b6819af3eaef2e98"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-destroy-armor-scroll.recipe.session.json"
+        ],
+        "runId": "mxTkv5",
+        "receipt": "/tmp/teleport-validation-1000/run-mxTkv5/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-destroy-armor-scroll.diff.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v8/read-cursed-destroy-armor-scroll",
+            "difference": "That older case uses a cursed scroll; this case reaches the blessed multiple-armor chooser."
+          },
+          {
+            "id": "v16/wizard-reads-destroy-armor-scroll-on-cloak",
+            "difference": "That case destroys a single cloak; this case selects among multiple worn armor pieces."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-eatcorpse-glob",
+      "title": "Eat a gray ooze glob",
+      "mission": "Eat a C-observed small glob of gray ooze as a high-HP Barbarian.",
+      "selectionRationale": "The C-first setup uses an independently chosen seed/date and a Barbarian with sufficient HP; the inventory letter comes from C’s inventory screen.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c: eatcorpse()"
+      ],
+      "cOutcome": "C reaches the globby-object eating branch. The first mismatch is the source rn2(20)=13 draw in eatcorpse at step 24.",
+      "outcome": "C reaches the globby-object eating branch. The first mismatch is the source rn2(20)=13 draw in eatcorpse at step 24.",
+      "inputs": {
+        "seed": 84027311,
+        "datetime": "20861002140700",
+        "role": "Barbarian",
+        "race": null,
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "",
+        "keyCount": 23,
+        "boundaries": 24
+      },
+      "recipe": "challenges/cases/v23/v23-eatcorpse-glob.recipe.session.json",
+      "recipeSha256": "285a6d14aea6735527f784f8b27559434e0e31d9c58645071a7a875bf834e16c",
+      "recording": "challenges/cases/v23/v23-eatcorpse-glob.session.json",
+      "recordingSha256": "14f09a46d82f9d7edc8115d62dc543043f3741865dc25de9ae2287b8265bee7b",
+      "reproducibility": "Independent patched-C replay ARe9vP exited 0. The output at /tmp/A104-v23-replays/v23-eatcorpse-glob.session.json is byte-identical to the committed recording (SHA-256 14f09a46d82f9d7edc8115d62dc543043f3741865dc25de9ae2287b8265bee7b); see /tmp/A104-v23-replays/v23-eatcorpse-glob.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-eatcorpse-glob.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-eatcorpse-glob.session.json"
+        ],
+        "runId": "ARe9vP",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-ARe9vP/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-eatcorpse-glob.session.json",
+        "outputSha256": "14f09a46d82f9d7edc8115d62dc543043f3741865dc25de9ae2287b8265bee7b",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-eatcorpse-glob.c-replay.log",
+        "logSha256": "e64a7bf6db29a6938a479a5352be15532d98a77bb950c2da36463a61325ed229"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-eatcorpse-glob.recipe.session.json"
+        ],
+        "runId": "bxegE8",
+        "receipt": "/tmp/teleport-validation-1000/run-bxegE8/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-eatcorpse-glob.diff.log",
+        "outcome": "FAIL",
+        "exitCode": 1,
+        "sourceBucket": "eat.c:eatcorpse globby object branch",
+        "countsTowardDistinctMismatchTarget": true,
+        "closestEarlierCases": [
+          {
+            "id": "v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+            "difference": "That case removes an egg from an icebox; this case eats a glob through eatcorpse."
+          },
+          {
+            "id": "v22/wizard-eats-wished-cockatrice-egg-v22-cfirst",
+            "difference": "That case eats a cockatrice egg; this case uses a globby gray-ooze corpse object."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.",
+        "firstMismatch": {
+          "kind": "PRNG",
+          "index": 2792,
+          "segment": 1,
+          "step": 24,
+          "key": "e"
+        },
+        "firstMismatchText": "First PRNG mismatch at call 2792 (segment 1, step 24, key \"e\")",
+        "distinctFirstMismatch": {
+          "bucket": "eat.c:eatcorpse globby object branch",
+          "sourceBehavior": "eat.c:eatcorpse globby object branch",
+          "owner": "eat.c:eatcorpse globby object branch",
+          "detail": "  C: rn2(20)=13   C caller: eatcorpse(eat.c:1887)"
+        }
+      }
+    },
+    {
+      "id": "v23-fprefx-tripe-ration",
+      "title": "Hero eats a tripe ration",
+      "mission": "Eat a C-observed tripe ration and reach the TRIPE_RATION feedback branch.",
+      "selectionRationale": "The C-first Healer recipe freezes the item letter after the inventory observation; it independently reaches the hero tripe first-bite path.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c: fprefx()"
+      ],
+      "cOutcome": "C reaches the human tripe-ration feedback and draws rn2(2)=0 in fprefx at step 18.",
+      "outcome": "C reaches the human tripe-ration feedback and draws rn2(2)=0 in fprefx at step 18.",
+      "inputs": {
+        "seed": 70831429,
+        "datetime": "20841123170900",
+        "role": "Healer",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 17,
+        "boundaries": 18
+      },
+      "recipe": "challenges/cases/v23/v23-fprefx-tripe-ration.recipe.session.json",
+      "recipeSha256": "4ecc4942dbf02be1ea009d467182738f70ebed30da065c505487bd9739484804",
+      "recording": "challenges/cases/v23/v23-fprefx-tripe-ration.session.json",
+      "recordingSha256": "c2732ef799c4781c285696650364c1f648f76629d9dbcdfa69c67575834ef19e",
+      "reproducibility": "Independent patched-C replay hrl8fk exited 0. The output at /tmp/A104-v23-replays/v23-fprefx-tripe-ration.session.json is byte-identical to the committed recording (SHA-256 c2732ef799c4781c285696650364c1f648f76629d9dbcdfa69c67575834ef19e); see /tmp/A104-v23-replays/v23-fprefx-tripe-ration.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-fprefx-tripe-ration.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-fprefx-tripe-ration.session.json"
+        ],
+        "runId": "hrl8fk",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-hrl8fk/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-fprefx-tripe-ration.session.json",
+        "outputSha256": "c2732ef799c4781c285696650364c1f648f76629d9dbcdfa69c67575834ef19e",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-fprefx-tripe-ration.c-replay.log",
+        "logSha256": "daedcd40a87e192adb337d1b4d4039ec266fd67251cfcecc2e80ca8815d87487"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-fprefx-tripe-ration.recipe.session.json"
+        ],
+        "runId": "RMvYhv",
+        "receipt": "/tmp/teleport-validation-1000/run-RMvYhv/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-fprefx-tripe-ration.diff.log",
+        "outcome": "FAIL",
+        "exitCode": 1,
+        "sourceBucket": "eat.c:fprefx TRIPE_RATION feedback",
+        "countsTowardDistinctMismatchTarget": true,
+        "closestEarlierCases": [
+          {
+            "id": "v18/wizard-dog-eats-wished-tripe-ration-c59-hero-vacates",
+            "difference": "That case has a pet eat tripe through dog_eat; this case has the hero eat the ration through fprefx."
+          },
+          {
+            "id": "v22/wizard-eats-wished-cockatrice-egg-v22-cfirst",
+            "difference": "That case eats an egg; this case reaches tripe feedback."
+          },
+          {
+            "id": "v20/cursed-apple-fpostfx-after-rottenfood-v20",
+            "difference": "That case is a later cursed-apple fpostfx path, not first-bite tripe feedback."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.",
+        "firstMismatch": {
+          "kind": "PRNG",
+          "index": 2331,
+          "segment": 1,
+          "step": 18,
+          "key": "k"
+        },
+        "firstMismatchText": "First PRNG mismatch at call 2331 (segment 1, step 18, key \"k\")",
+        "distinctFirstMismatch": {
+          "bucket": "eat.c:fprefx TRIPE_RATION feedback",
+          "sourceBehavior": "eat.c:fprefx TRIPE_RATION feedback",
+          "owner": "eat.c:fprefx TRIPE_RATION feedback",
+          "detail": "  C: rn2(2)=0   C caller: fprefx(eat.c:2143)"
+        }
+      }
+    },
+    {
+      "id": "v23-gold-material-detection",
+      "title": "Blessed gold detection finds a gold ring",
+      "mission": "Read a blessed gold-detection scroll after placing a gold ring on the floor away from the hero.",
+      "selectionRationale": "The C-observed inventory letters and a move away from the dropped ring are frozen before comparison, so the scan exercises material-GOLD detection rather than coin-only setup.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c: seffect_gold_detection()",
+        "nethack-c/upstream/src/detect.c: gold_detect()"
+      ],
+      "cOutcome": "C says “You feel very greedy, and sense gold!” and maps the floor gold ring.",
+      "outcome": "C says “You feel very greedy, and sense gold!” and maps the floor gold ring.",
+      "inputs": {
+        "seed": 92300618,
+        "datetime": "20730820113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 53,
+        "boundaries": 54
+      },
+      "recipe": "challenges/cases/v23/v23-gold-material-detection.recipe.session.json",
+      "recipeSha256": "ad098238233764dc2c43f30efc6bfb75b4beea8c0e61b8a5b248f3804a4b4234",
+      "recording": "challenges/cases/v23/v23-gold-material-detection.session.json",
+      "recordingSha256": "45431426d0dcf24edd490907e08ce8ad24c366b854acd95b76a9d7a43c4e90d1",
+      "reproducibility": "Independent patched-C replay mIEDP7 exited 0. The output at /tmp/A104-v23-replays/v23-gold-material-detection.session.json is byte-identical to the committed recording (SHA-256 45431426d0dcf24edd490907e08ce8ad24c366b854acd95b76a9d7a43c4e90d1); see /tmp/A104-v23-replays/v23-gold-material-detection.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-gold-material-detection.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-gold-material-detection.session.json"
+        ],
+        "runId": "mIEDP7",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-mIEDP7/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-gold-material-detection.session.json",
+        "outputSha256": "45431426d0dcf24edd490907e08ce8ad24c366b854acd95b76a9d7a43c4e90d1",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-gold-material-detection.c-replay.log",
+        "logSha256": "2defca7386a4a65d5e89b68be725aa29cbdc0eb1ac26bc6f3de94d22ce152631"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-gold-material-detection.recipe.session.json"
+        ],
+        "runId": "bqOD7j",
+        "receipt": "/tmp/teleport-validation-1000/run-bqOD7j/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-gold-material-detection.diff.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v9/gold-detection-scroll-maps-floor-gold",
+            "difference": "That case maps coin gold; this case maps a floor object because its material is GOLD."
+          },
+          {
+            "id": "v16/wizard-reads-gold-detection-with-inventory-coins",
+            "difference": "That case tests carried coins; this case exercises the noncoin material scan."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-oil-potion-quaff",
+      "title": "Quaff unlit potion of oil",
+      "mission": "Quaff an uncursed unlit potion of oil and reach its taste branch.",
+      "selectionRationale": "The C-first recipe uses the C-observed potion letter and stops after the quaff result.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_oil()"
+      ],
+      "cOutcome": "C reports “That was smooth!” and takes the unlit, noncursed taste branch.",
+      "outcome": "C reports “That was smooth!” and takes the unlit, noncursed taste branch.",
+      "inputs": {
+        "seed": 92300613,
+        "datetime": "20730309132000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v23/v23-oil-potion-quaff.recipe.session.json",
+      "recipeSha256": "52599d550485040d37bdf1c4e4b3e309f14dbd674493405812ad3ce6a1098d75",
+      "recording": "challenges/cases/v23/v23-oil-potion-quaff.session.json",
+      "recordingSha256": "1a2cbe780350bcf9986ef01168b1a92d359adcf3a302ab8455745b96795bf9fd",
+      "reproducibility": "Independent patched-C replay u9NHJ8 exited 0. The output at /tmp/A104-v23-replays/v23-oil-potion-quaff.session.json is byte-identical to the committed recording (SHA-256 1a2cbe780350bcf9986ef01168b1a92d359adcf3a302ab8455745b96795bf9fd); see /tmp/A104-v23-replays/v23-oil-potion-quaff.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-oil-potion-quaff.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-oil-potion-quaff.session.json"
+        ],
+        "runId": "u9NHJ8",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-u9NHJ8/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-oil-potion-quaff.session.json",
+        "outputSha256": "1a2cbe780350bcf9986ef01168b1a92d359adcf3a302ab8455745b96795bf9fd",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-oil-potion-quaff.c-replay.log",
+        "logSha256": "1f1ba50b44c7f28db19cb36af4253ca5379b217a2a407c7f1234ef5ff8fb671c"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-oil-potion-quaff.recipe.session.json"
+        ],
+        "runId": "Lm3U8I",
+        "receipt": "/tmp/teleport-validation-1000/run-Lm3U8I/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-oil-potion-quaff.diff.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+            "difference": "That case handles a lit candle impact; this case quaffs an unlit oil potion."
+          },
+          {
+            "id": "v13/empty-candelabrum-no-candles",
+            "difference": "That case is candle equipment inspection; this case is the oil potion quaff branch."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-pickup-over-lava",
+      "title": "Attempt pickup while standing on lava",
+      "mission": "Use a levitation potion to remain safe on a lava tile, then issue pickup as a nonflying, nonlava-loving human.",
+      "selectionRationale": "The C-first recipe is based on the lava refusal gates: Levitation avoids damage but does not satisfy the pickup_checks immunity predicates. The observed potion letter and initial welcome pager are accounted for.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/hack.c: pickup_checks()"
+      ],
+      "cOutcome": "C prints “You would burn to a crisp trying to pick things up.” at the lava gate. This is a distinct first mismatch from the pool gate.",
+      "outcome": "C prints “You would burn to a crisp trying to pick things up.” at the lava gate. This is a distinct first mismatch from the pool gate.",
+      "inputs": {
+        "seed": 27181463,
+        "datetime": "20910814153022",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "",
+        "keyCount": 40,
+        "boundaries": 41
+      },
+      "recipe": "challenges/cases/v23/v23-pickup-over-lava.recipe.session.json",
+      "recipeSha256": "8b26b44bcdec73ab6c609d9d1776824809798f2e68d18af37fc97d4f030f1c31",
+      "recording": "challenges/cases/v23/v23-pickup-over-lava.session.json",
+      "recordingSha256": "a7bd7ab16deee54d90e8c22b111998acefc2bb3319fcff21608b3360ec5ff46a",
+      "reproducibility": "Independent patched-C replay 16xEZI exited 0. The output at /tmp/A104-v23-replays/v23-pickup-over-lava.session.json is byte-identical to the committed recording (SHA-256 a7bd7ab16deee54d90e8c22b111998acefc2bb3319fcff21608b3360ec5ff46a); see /tmp/A104-v23-replays/v23-pickup-over-lava.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-pickup-over-lava.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-pickup-over-lava.session.json"
+        ],
+        "runId": "16xEZI",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-16xEZI/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-pickup-over-lava.session.json",
+        "outputSha256": "a7bd7ab16deee54d90e8c22b111998acefc2bb3319fcff21608b3360ec5ff46a",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-pickup-over-lava.c-replay.log",
+        "logSha256": "d079b319b3d21f2940dcb1367ebbb56ecd31202ce6b5c9efc6261375ad362eb3"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-pickup-over-lava.recipe.session.json"
+        ],
+        "runId": "2sb0oZ",
+        "receipt": "/tmp/teleport-validation-1000/run-2sb0oZ/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-pickup-over-lava.diff.log",
+        "outcome": "FAIL",
+        "exitCode": 1,
+        "sourceBucket": "hack.c:pickup_checks lava refusal",
+        "countsTowardDistinctMismatchTarget": true,
+        "closestEarlierCases": [
+          {
+            "id": "v16/ordinary-floor-pickup",
+            "difference": "That case is ordinary floor pickup; this case enters the lava refusal before object selection."
+          },
+          {
+            "id": "v20/liquid-flow-pickup",
+            "difference": "That case follows liquid-flow object handling; this case is the likes_lava refusal in pickup_checks."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.",
+        "firstMismatch": {
+          "kind": "screen",
+          "index": 41,
+          "segment": 1,
+          "step": 41,
+          "key": ","
+        },
+        "firstMismatchText": "First screen mismatch at boundary 41 (segment 1, step 41, key \",\")",
+        "distinctFirstMismatch": {
+          "bucket": "hack.c:pickup_checks lava refusal",
+          "sourceBehavior": "hack.c:pickup_checks lava refusal",
+          "owner": "hack.c:pickup_checks lava refusal",
+          "detail": "  C: screen present   C: [57,3,1]"
+        }
+      }
+    },
+    {
+      "id": "v23-pickup-over-water",
+      "title": "Attempt pickup while standing in a pool",
+      "mission": "Wish a pool underfoot as a nonwaterwalking human and issue pickup before any object selector.",
+      "selectionRationale": "The source-first recipe enters the pool branch before the floor-object check. It is a separate gate from the lava refusal recipe.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/hack.c: pickup_checks()"
+      ],
+      "cOutcome": "C prints “You can’t even see the bottom, let alone pick up something.” at the pool gate.",
+      "outcome": "C prints “You can’t even see the bottom, let alone pick up something.” at the pool gate.",
+      "inputs": {
+        "seed": 38057241,
+        "datetime": "20900302081700",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "",
+        "keyCount": 8,
+        "boundaries": 9
+      },
+      "recipe": "challenges/cases/v23/v23-pickup-over-water.recipe.session.json",
+      "recipeSha256": "584b658048f83aff1b0c6356c439c7e673f05bcf07f48e286f9c444b8a3d4685",
+      "recording": "challenges/cases/v23/v23-pickup-over-water.session.json",
+      "recordingSha256": "d4a8f39a9707b25215cfd5e78cf4f368718499ec50e24f804411f3da3fb10ec0",
+      "reproducibility": "Independent patched-C replay LzfxDB exited 0. The output at /tmp/A104-v23-replays/v23-pickup-over-water.session.json is byte-identical to the committed recording (SHA-256 d4a8f39a9707b25215cfd5e78cf4f368718499ec50e24f804411f3da3fb10ec0); see /tmp/A104-v23-replays/v23-pickup-over-water.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-pickup-over-water.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-pickup-over-water.session.json"
+        ],
+        "runId": "LzfxDB",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-LzfxDB/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-pickup-over-water.session.json",
+        "outputSha256": "d4a8f39a9707b25215cfd5e78cf4f368718499ec50e24f804411f3da3fb10ec0",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-pickup-over-water.c-replay.log",
+        "logSha256": "0bf06f970758bc1cc23a7e60335080c5e2c1e8b8f8bfb785741dea62334c3493"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-pickup-over-water.recipe.session.json"
+        ],
+        "runId": "2oNB8z",
+        "receipt": "/tmp/teleport-validation-1000/run-2oNB8z/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-pickup-over-water.diff.log",
+        "outcome": "FAIL",
+        "exitCode": 1,
+        "sourceBucket": "hack.c:pickup_checks pool refusal",
+        "countsTowardDistinctMismatchTarget": true,
+        "closestEarlierCases": [
+          {
+            "id": "v16/ordinary-floor-pickup",
+            "difference": "That case reaches floor pickup; this case refuses at pickup_checks because the hero is in a pool."
+          },
+          {
+            "id": "v20/liquid-flow-pickup",
+            "difference": "That case tests liquid-flow behavior; this case reaches the pool pickup refusal."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.",
+        "firstMismatch": {
+          "kind": "screen",
+          "index": 9,
+          "segment": 1,
+          "step": 9,
+          "key": ","
+        },
+        "firstMismatchText": "First screen mismatch at boundary 9 (segment 1, step 9, key \",\")",
+        "distinctFirstMismatch": {
+          "bucket": "hack.c:pickup_checks pool refusal",
+          "sourceBehavior": "hack.c:pickup_checks pool refusal",
+          "owner": "hack.c:pickup_checks pool refusal",
+          "detail": "  C: screen present   C: [9,19,1]"
+        }
+      }
+    },
+    {
+      "id": "v23-restore-ability-potion",
+      "title": "Blessed restore-ability potion with no eligible stat",
+      "mission": "Quaff a blessed restore-ability potion when all base abilities are already at their maxima.",
+      "selectionRationale": "The C status screen showed each base ability at maximum before the quaff. The recipe records the source-valid no-restoration branch and does not claim a stat increased.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_restore_ability()",
+        "nethack-c/upstream/src/attrib.c: restore_attrib()"
+      ],
+      "cOutcome": "C says “Wow! This makes you feel great!” but restores no ability because none is eligible.",
+      "outcome": "C says “Wow! This makes you feel great!” but restores no ability because none is eligible.",
+      "inputs": {
+        "seed": 92300615,
+        "datetime": "20730512114500",
+        "role": "Wizard",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 39,
+        "boundaries": 40
+      },
+      "recipe": "challenges/cases/v23/v23-restore-ability-potion.recipe.session.json",
+      "recipeSha256": "1ffae04ecf1d05aee08618c43b4bd34187498a3085e504f32cc60ed30efedcfd",
+      "recording": "challenges/cases/v23/v23-restore-ability-potion.session.json",
+      "recordingSha256": "0c4ce05a092ed0e582a0d2c38fea3c71a6268cd326fafba90328227011d4dc15",
+      "reproducibility": "Independent patched-C replay LsqPNX exited 0. The output at /tmp/A104-v23-replays/v23-restore-ability-potion.session.json is byte-identical to the committed recording (SHA-256 0c4ce05a092ed0e582a0d2c38fea3c71a6268cd326fafba90328227011d4dc15); see /tmp/A104-v23-replays/v23-restore-ability-potion.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-restore-ability-potion.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-restore-ability-potion.session.json"
+        ],
+        "runId": "LsqPNX",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-LsqPNX/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-restore-ability-potion.session.json",
+        "outputSha256": "0c4ce05a092ed0e582a0d2c38fea3c71a6268cd326fafba90328227011d4dc15",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-restore-ability-potion.c-replay.log",
+        "logSha256": "2d2180544e23db8d66748bd1bd015263cc11609d642d98c17c15c2f4ef1f46f0"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-restore-ability-potion.recipe.session.json"
+        ],
+        "runId": "iUTMfs",
+        "receipt": "/tmp/teleport-validation-1000/run-iUTMfs/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-restore-ability-potion.diff.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v9/restore-ability-potion-recovers-stats",
+            "difference": "That case restores lost stats; this case has no eligible attribute and records the no-op result."
+          },
+          {
+            "id": "v16/wizard-quaffs-full-healing-after-acid-damage",
+            "difference": "That case restores HP; this case uses the distinct restore-ability effect with all base abilities capped."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-sickness-potion-healer",
+      "title": "Healer quaffs a sickness potion",
+      "mission": "Quaff a sickness potion as a Healer with Poison resistance and observe both the class immunity and its pager sequence.",
+      "selectionRationale": "C-first source selection uses a Healer; its Poison resistance is also present and is documented rather than attributing every line solely to the role.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_sickness()",
+        "nethack-c/upstream/src/mondata.c: sickness-resistance predicates"
+      ],
+      "cOutcome": "C reports poison taste, biologically contaminated slime mold juice, and “Fortunately, you have been immunized.”",
+      "outcome": "C reports poison taste, biologically contaminated slime mold juice, and “Fortunately, you have been immunized.”",
+      "inputs": {
+        "seed": 92300616,
+        "datetime": "20730602152000",
+        "role": "Healer",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 25,
+        "boundaries": 26
+      },
+      "recipe": "challenges/cases/v23/v23-sickness-potion-healer.recipe.session.json",
+      "recipeSha256": "bfd340498ad571a0d59f87d3929f81feeabf24a6223fcd25c641ff2d490cbeab",
+      "recording": "challenges/cases/v23/v23-sickness-potion-healer.session.json",
+      "recordingSha256": "3b03a209dc2bcaff1a2c41b0ef778e563a5b36b6a4c2b8ff8a1d8ddfe4720756",
+      "reproducibility": "Independent patched-C replay mvKyDv exited 0. The output at /tmp/A104-v23-replays/v23-sickness-potion-healer.session.json is byte-identical to the committed recording (SHA-256 3b03a209dc2bcaff1a2c41b0ef778e563a5b36b6a4c2b8ff8a1d8ddfe4720756); see /tmp/A104-v23-replays/v23-sickness-potion-healer.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-sickness-potion-healer.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-sickness-potion-healer.session.json"
+        ],
+        "runId": "mvKyDv",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-mvKyDv/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-sickness-potion-healer.session.json",
+        "outputSha256": "3b03a209dc2bcaff1a2c41b0ef778e563a5b36b6a4c2b8ff8a1d8ddfe4720756",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-sickness-potion-healer.c-replay.log",
+        "logSha256": "c17514e2bdd39abe2a8096ee96eb1eccccfaffdae765f3e9ad8a35acb62e81f5"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-sickness-potion-healer.recipe.session.json"
+        ],
+        "runId": "pwCJRl",
+        "receipt": "/tmp/teleport-validation-1000/run-pwCJRl/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-sickness-potion-healer.diff.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v9/sickness-potion-poisons-hero",
+            "difference": "That case uses an unresistant hero and takes the poison effect; this case has Healer and Poison resistance protections."
+          },
+          {
+            "id": "v14/barbarian-quaffs-sickness-potion",
+            "difference": "That case uses a Barbarian; this case observes the Healer result and poison-resistance pager."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-throne-no-special-effect",
+      "title": "Throne visit misses the special-effect roll",
+      "mission": "Sit on a wished throne as a Valkyrie and record a C-observed miss of the special-effect gate.",
+      "selectionRationale": "This additional candidate was source-frozen before its own JS comparison. C records rnd(6)=4, which misses the special-effect branch; the trailing 2 remains an attempted prompt key, not a stat selection.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: throne_sit_effect()"
+      ],
+      "cOutcome": "C reaches the ordinary throne result after rnd(6)=4 and produces no special effect.",
+      "outcome": "C reaches the ordinary throne result after rnd(6)=4 and produces no special effect.",
+      "inputs": {
+        "seed": 92300624,
+        "datetime": "20740120120000",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": null,
+        "alignment": null,
+        "playmode": "debug",
+        "keyCount": 15,
+        "boundaries": 16
+      },
+      "recipe": "challenges/cases/v23/v23-throne-no-special-effect.recipe.session.json",
+      "recipeSha256": "dcb2afa806beaed7ba6c98d9c4b277374d01c339fc0d7b1e01a58b24af743024",
+      "recording": "challenges/cases/v23/v23-throne-no-special-effect.session.json",
+      "recordingSha256": "40b776925c66cc2e441ea19cf5a6a40b6fa848c16552fee78e5b3a4e675d601a",
+      "reproducibility": "Independent patched-C replay jM1Buo exited 0. The output at /tmp/A104-v23-replays/v23-throne-no-special-effect.session.json is byte-identical to the committed recording (SHA-256 40b776925c66cc2e441ea19cf5a6a40b6fa848c16552fee78e5b3a4e675d601a); see /tmp/A104-v23-replays/v23-throne-no-special-effect.c-replay.log.",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-throne-no-special-effect.recipe.session.json",
+          "/tmp/A104-v23-replays/v23-throne-no-special-effect.session.json"
+        ],
+        "runId": "jM1Buo",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-jM1Buo/receipt.json",
+        "output": "/tmp/A104-v23-replays/v23-throne-no-special-effect.session.json",
+        "outputSha256": "40b776925c66cc2e441ea19cf5a6a40b6fa848c16552fee78e5b3a4e675d601a",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/A104-v23-replays/v23-throne-no-special-effect.c-replay.log",
+        "logSha256": "5f8ebb463885b404a8944208659ba07cc009c5a06f44e0d2abf0398109279027"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-throne-no-special-effect.recipe.session.json"
+        ],
+        "runId": "Q7HyLf",
+        "receipt": "/tmp/teleport-validation-1000/run-Q7HyLf/receipt.json",
+        "log": "/tmp/A104-v23-replays/v23-throne-no-special-effect.diff.log",
+        "outcome": "PASS",
+        "exitCode": 0,
+        "sourceBucket": null,
+        "countsTowardDistinctMismatchTarget": false,
+        "closestEarlierCases": [
+          {
+            "id": "v6/wizard-sit-throne",
+            "difference": "That case uses another role and throne outcome; this case records the source gate miss with the C-observed Valkyrie history."
+          },
+          {
+            "id": "v10/wizard-throne-effect-five-take-gold",
+            "difference": "That case reaches effect five; this case misses the special-effect gate."
+          },
+          {
+            "id": "v14/sit-on-throne-effect",
+            "difference": "That case reaches an electric-chair effect; this case has no special effect."
+          },
+          {
+            "id": "v21/wizard-sits-wished-throne-case9-rndcurse-v21-cfirst",
+            "difference": "That case reaches the throne curse result; this case records rnd(6)=4 and the ordinary result."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation."
+      }
+    },
+    {
+      "id": "v23-underwater-display-on-pool-entry",
+      "title": "Underwater display after entering a pool",
+      "mission": "Set Magical breathing, enter a pool, and continue the C-observed water-entry pager chain.",
+      "selectionRationale": "The C-first recipe selects the page-local Magical breathing option, wishes a pool underfoot, and acknowledges the six observed entry pages. The first mismatch occurs in the underwater redraw at the final acknowledgement.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/trap.c: drown()",
+        "nethack-c/upstream/src/display.c: under_water(1)"
+      ],
+      "cOutcome": "C reaches drown and display.c:under_water(1). C retains a dim dash in the underwater map cell; JS leaves the cell blank at boundary 32.",
+      "outcome": "C reaches drown and display.c:under_water(1). C retains a dim dash in the underwater map cell; JS leaves the cell blank at boundary 32.",
+      "inputs": {
+        "seed": 47128031,
+        "datetime": "20910928141500",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "",
+        "keyCount": 32,
+        "boundaries": 33
+      },
+      "recipe": "challenges/cases/v23/v23-underwater-display-on-pool-entry.recipe.session.json",
+      "recipeSha256": "1afcfdf594557edd1c7019530477ac98de06437b7ccd91e281be0ed81e2e05aa",
+      "recording": "challenges/cases/v23/v23-underwater-display-on-pool-entry.session.json",
+      "recordingSha256": "be41e228a387701c32181a6ac4f03ac74901e5ad4e7605128acb6c22b5b44b4e",
+      "reproducibility": "Independent patched-C replay WOwzs6 exited 0. Its output is byte-identical to the committed corrected recording (SHA-256 be41e228a387701c32181a6ac4f03ac74901e5ad4e7605128acb6c22b5b44b4e).",
+      "cReplay": {
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v23/v23-underwater-display-on-pool-entry.recipe.session.json",
+          "/tmp/v23-underwater-display-on-pool-entry.independent.session.json"
+        ],
+        "runId": "WOwzs6",
+        "profile": "focused",
+        "exitCode": 0,
+        "receipt": "/tmp/teleport-validation-1000/run-WOwzs6/receipt.json",
+        "output": "/tmp/v23-underwater-display-on-pool-entry.independent.session.json",
+        "outputSha256": "be41e228a387701c32181a6ac4f03ac74901e5ad4e7605128acb6c22b5b44b4e",
+        "byteIdenticalToCommittedRecording": true,
+        "log": "/tmp/teleport-validation-1000/run-WOwzs6/stderr.log",
+        "logSha256": "1b6c53bc8ad05a30aaca68b4836af4be9e5997ee2cda11049a1653678b4bf639"
+      },
+      "localComparison": {
+        "command": [
+          "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node",
+          "/tmp/teleport-loop-worker-a46-20260929/scripts/diff-fresh.mjs",
+          "challenges/cases/v23/v23-underwater-display-on-pool-entry.recipe.session.json"
+        ],
+        "runId": "bNSa18",
+        "receipt": "/tmp/teleport-validation-1000/run-bNSa18/receipt.json",
+        "log": "/tmp/teleport-validation-1000/run-bNSa18/stdout.log",
+        "outcome": "FAIL",
+        "exitCode": 1,
+        "sourceBucket": "trap.c:drown -> display.c:under_water(1)",
+        "countsTowardDistinctMismatchTarget": true,
+        "closestEarlierCases": [
+          {
+            "id": "v14/valkyrie-reads-fire-scroll",
+            "difference": "That case reads a fire scroll on dry terrain; this case reaches pool entry and underwater redraw before any scroll effect."
+          },
+          {
+            "id": "v16/wizard-reads-fire-scroll",
+            "difference": "That case follows read.c:seffect_fire; this case stops at trap.c:drown -> display.c:under_water(1)."
+          }
+        ],
+        "unresolvedOlderComparison": "All current failing cases in the saved v1-v21 evaluations were reviewed; closest source-related cases are named per v23 entry. Unresolved older IDs: v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, v17/tin-human-wererat-cpostfx-slot-n, v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits, v20/cursed-apple-fpostfx-after-rottenfood-v20, v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20, v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued, v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst, v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5, v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst, v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected, v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.",
+        "firstMismatch": {
+          "kind": "screen",
+          "index": 32,
+          "segment": 1,
+          "step": 32,
+          "key": " "
+        },
+        "firstMismatchText": "First screen mismatch at boundary 32 (segment 1, step 32, key \" \")",
+        "distinctFirstMismatch": {
+          "bucket": "trap.c:drown -> display.c:under_water(1)",
+          "sourceBehavior": "trap.c:drown -> display.c:under_water(1)",
+          "owner": "trap.c:drown",
+          "detail": "  C: {ch:\"-\", rendered:\"-\", color:8, attr:0 (none), decgfx:0}   C: [25,0,1]"
+        }
+      }
+    }
+  ]
+}
