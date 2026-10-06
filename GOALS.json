@@ -173922,7 +173922,7 @@
     {
       "id": "div-monmove-dochug-swallowed-reattack-v21-20261005",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore swallowed monster reattack after movement",
       "cFile": "monmove.c",
       "sessions": [],
@@ -173934,8 +173934,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a2784766f703430c0dfbf1359e3256335a387eee",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dochug",
       "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
       "step": 105,
@@ -174207,7 +174210,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a2784766f703430c0dfbf1359e3256335a387eee",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-trap-drain-en-v19-20261005",
