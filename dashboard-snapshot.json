@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T16:37:58.790Z",
+  "capturedAt": "2026-10-06T16:42:16.545Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -21521,6 +21521,26 @@
         "at": "2026-10-06T16:24:45.133Z",
         "task": "A110",
         "commit": "7691f705a778ba711e577690ea9fe6a4217af74d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B116-20261006",
+        "type": "assign",
+        "at": "2026-10-06T16:42:01.042Z",
+        "task": "B116",
+        "worker": "B",
+        "goal": "port-zap-zhitu-death-ray-v22-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A111-A2-20261006",
+        "type": "assign",
+        "at": "2026-10-06T16:42:15.304Z",
+        "task": "A111",
+        "worker": "A2",
+        "goal": "port-mhitm-gulpmm-monster-engulf-v21-20261006",
+        "kind": "implementation"
       }
     ]
   },

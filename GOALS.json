@@ -179057,6 +179057,145 @@
           "evaluationCommit": "58941777a28f7fdcbf578f7f288223a02ccd88e2"
         }
       }
+    },
+    {
+      "id": "port-zap-zhitu-death-ray-v22-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete hero-directed beam effects and death-ray handling",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst"
+      ],
+      "selectionReason": "The largest current v22 mismatch stops at step 89 when a rebounding death ray reaches the Antimagic hero. The completed investigation traces the first cause to missing zap.c zhitu ZT_DEATH behavior, before the later corpse revival and wary_dog actions.",
+      "detail": "Port whole zap.c zhitu lines 4401-4591 for all eight beam types and shared tail, wire dobuzz and ubreatheu callers, and replace the simplified killer formatter with whole pure mcastu.c death_inflicted_by. Preserve type dispatch, resistance and inventory order, integer arithmetic, messages, blindness and sleep effects, armor and item destruction, hero death ownership, and planning/live handoff. Keep acid_damage as a named discarded-return gap if still unported.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "zhitu",
+          "line": 4401,
+          "endLine": 4597,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4401,
+        "to": 4597
+      },
+      "requiredFunctions": [
+        {
+          "name": "death_inflicted_by",
+          "line": 358,
+          "endLine": 388,
+          "declared": false,
+          "sourceFile": "mcastu.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst": {
+          "session": "synthetic/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recordingPath": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+          "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
+          "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb"
+        }
+      }
+    },
+    {
+      "id": "port-trap-b-trapped-callers-v22-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete trapped-container and trapped-door explosion effects",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page"
+      ],
+      "selectionReason": "The completed v22 trapped-door investigation finds that dig skips trap.c b_trapped at step 62, omitting the explosion draw and KABOOM continuation before door cleanup. The whole helper and its source callers form an independent task.",
+      "detail": "Port whole trap.c b_trapped and replace source-named caller gaps in dig.c, eat.c, hack.c, lock.c, detect.c, trap.c and dokick.c where their enclosing paths are active. Preserve damage calculation, message and wake order, Maybe_Half_Phys damage, Strength and conditional Constitution exercise, unhalved stun timeout increment, body-part arguments, and asynchronous continuation ordering. Retain source-named discarded sound gaps when sound output is unavailable.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "b_trapped",
+          "line": 6694,
+          "endLine": 6710,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 6694,
+        "to": 6710
+      },
+      "syntheticProvenance": {
+        "synthetic/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page": {
+          "session": "synthetic/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page",
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recordingPath": "challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.session.json",
+          "recordingSha256": "158c7b9202afc5f7d31b54efdeeab70f4124a376583beb2c79732753c9db24a4",
+          "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
+          "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb"
+        }
+      }
+    },
+    {
+      "id": "port-timeout-levitation-dialogue-v22-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete levitation timeout warnings and occupation cancellation",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected"
+      ],
+      "selectionReason": "The completed v22 investigation traces the step-20 screen mismatch to nh_timeout skipping timeout.c levitation_dialogue at a five-turn intrinsic timeout. The whole warning helper and its planning/live caller wiring are independently assignable.",
+      "detail": "Port whole timeout.c levitation_dialogue and wire nh_timeout before the common decrement loop. Preserve extrinsic and terrain suppression, odd timeout warning selection, ordinary versus urgent messages, pool/lava and Plane of Water wording, stop_occupation ordering, and planning/live state ownership. Keep final timeout-one descent in the existing float_down expiry path.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "levitation_dialogue",
+          "line": 353,
+          "endLine": 388,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 353,
+        "to": 388
+      },
+      "syntheticProvenance": {
+        "synthetic/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected": {
+          "session": "synthetic/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recordingPath": "challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.session.json",
+          "recordingSha256": "76a69b499c40322ca856031510a0608c567dd8f5cad561552c7dc2164fedc260",
+          "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
+          "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb"
+        }
+      }
     }
   ]
 }

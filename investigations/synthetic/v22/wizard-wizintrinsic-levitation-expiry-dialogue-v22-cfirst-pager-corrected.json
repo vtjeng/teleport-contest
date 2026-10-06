@@ -1,0 +1,118 @@
+{
+  "session": "synthetic/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+  "corpus": "synthetic",
+  "batch": "v22",
+  "caseId": "wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+  "remainingScreens": 1,
+  "recordedSteps": 21,
+  "manifestPath": "challenges/manifests/v22.json",
+  "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+  "recordingSha256": "76a69b499c40322ca856031510a0608c567dd8f5cad561552c7dc2164fedc260",
+  "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
+  "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb",
+  "commit": "9758aabc188413626cbf908f909e9448412c9fdb",
+  "status": "complete",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v22",
+    "caseId": "wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+    "session": "synthetic/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+    "manifestPath": "challenges/manifests/v22.json",
+    "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+    "recording": "challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.session.json",
+    "recordingPath": "challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.session.json",
+    "recordingSha256": "76a69b499c40322ca856031510a0608c567dd8f5cad561552c7dc2164fedc260",
+    "recipe": "challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.recipe.session.json",
+    "recipeSha256": "a34469d73f4056d686baa731d78be607660b56614d1c3a5c1f1f4f3eeb021ec9",
+    "replayInputSha256": "95e601d652ecd5bef4db004f4b10f27fca78dc0a408fc07bfe10a748ce0baedf",
+    "evaluationPath": "challenges/evaluations/20261006163300-v22.json",
+    "evaluationCommit": "9758aabc188413626cbf908f909e9448412c9fdb",
+    "evaluationArtifact": "challenges/evaluations/20261006163300-v22.json",
+    "evaluationUtc": "2026-10-06T16:33:08.254Z",
+    "remainingScreens": 1,
+    "recordedSteps": 21,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 20,
+        "total": 21
+      },
+      "rng": {
+        "matched": 2563,
+        "total": 2563
+      },
+      "cursors": {
+        "matched": 21,
+        "total": 21
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 20,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 20,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": null
+    },
+    "step": 20,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "goalKind": "file-port",
+  "summary": "At segment 0 step 20, the five-turn levitation timeout should print \"You float slightly lower.\" before decrementing. JavaScript skips timeout.c:levitation_dialogue(), leaving the message row blank while RNG and cursor match. Port the whole dialogue function and wire nh_timeout(), including ordinary versus urgent warnings, extrinsic and terrain suppression, occupation stopping, and planning/live execution.",
+  "source": {
+    "file": "timeout.c",
+    "functions": [
+      "levitation_dialogue"
+    ],
+    "branch": "nh_timeout() calls the dialogue whenever HLevitation & TIMEOUT is nonzero, before property decrements. levitation_dialogue computes i=((timeout-1)/2), returns for any ELevitation, and returns when the hero terrain is inaccessible and is neither pool nor lava. Only odd timeout values with i in 1..2 print: timeout 5 uses ordinary pline1(\"You float slightly lower.\"); timeout 3 uses urgent_pline(\"You wobble unsteadily %s the %s.\"). The latter says \"over\" plus surface() above pool/lava outside the Plane of Water, otherwise \"in\" and \"air\". Each emitted warning then calls stop_occupation(). Timeout 1 leaves the final descent message to float_down().",
+    "callers": [
+      "C timeout.c:nh_timeout():633-634 tests HLevitation & TIMEOUT and calls levitation_dialogue(), between sickness_dialogue and phaze_dialogue, before the common property decrement loop at 670-672. At examined commit 9758aabc, js/timeout.js:nh_timeout():1545-1546 instead records note_unported(\"timeout.c levitation_dialogue\") on the live path and does nothing for that call during planning.",
+      "C allmain.c:moveloop_core():273 calls nh_timeout() during each elapsed game turn before run_regions(). JS js/allmain.js:finishElapsedTurn() calls nh_timeout() at 906, with planning-safe message callbacks, and consults timeout.js:nh_timeout_requires_live_state() at 904 before that call. The assigned final dot command reaches this production turn path with levitation timeout 5."
+    ],
+    "dependencies": [
+      "Use HLevitation as u.uprops[LEVITATION].intrinsic masked with TIMEOUT, and ELevitation as the raw extrinsic field. Preserve the C guards rather than substituting the combined Levitation predicate or changing blocked-property semantics.",
+      "ACCESSIBLE is available from const.js; dbridge.js:is_pool_or_lava() implements the consumed terrain predicate, including water/lava beneath raised drawbridges. Is_waterlevel is already available to timeout.js. dungeon.js:surface() implements the danger-branch noun; preserve any display-RNG behavior from its hallucinated liquid name when used on a planning clone.",
+      "ttyPline and ttyUrgentPline supply different source message operations. Pass ordinary and urgent callbacks through the existing timeout environment, await each warning before stop_occupation(), and retain silent callbacks for planning.",
+      "allmain.js:stop_occupation() is already imported by timeout.js. Dialogue warnings can cancel an active occupation, so production wiring must account for this state effect in nh_timeout_requires_live_state() and the elapsed-turn planning/live handoff; its present LEVITATION check covers only timeout==1, not the warnings at 5 and 3.",
+      "The existing common timeout decrement and LEVITATION expiry arm should remain in C order: dialogue first, decrement later, float_down(I_SPECIAL|TIMEOUT,0) at actual expiry. This recording establishes the five-turn warning, not float_down runtime coverage."
+    ]
+  },
+  "evidence": [
+    "Saved queue .cache/v22-work-queue.json and complete evaluation challenges/evaluations/20261006163300-v22.json at 9758aabc188413626cbf908f909e9448412c9fdb record 20/21 matching screens, 2563/2563 RNG entries, and 21/21 cursors. The first difference is segment 0 step 20, key dot, message row 0 column 0: C Y, JavaScript space; there is no RNG or cursor difference.",
+    "Frozen recording challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.session.json has SHA-256 76a69b499c40322ca856031510a0608c567dd8f5cad561552c7dc2164fedc260. Step 18 shows \"Timeout for levitating set to 5.--More--\"; step 19 dismisses that page without RNG; step 20 displays the full \"You float slightly lower.\" line, retains Lev status, and consumes only the five ordinary turn RNG entries. The Y is the first letter of that message, not a map glyph.",
+    "Read whole C timeout.c:levitation_dialogue() at 353-378 and levi_texts[] at 347-350. With timeout 5, i=(5-1)/2=2 selects levi_texts[0]; the odd-value guard succeeds. Its five-turn branch is ordinary pline1, followed by stop_occupation, and makes no RNG call. Both the three-turn urgent branch and the suppressing extrinsic/terrain branches belong to the same whole function.",
+    "git show 9758aabc188413626cbf908f909e9448412c9fdb:js/timeout.js locates the skipped dialogue call at 1545-1546. Searching js/timeout.js and the other JavaScript source for levitation_dialogue finds that source-named gap but no function implementation; this is missing source behavior rather than a terminal drawing defect.",
+    "Reused the admitted v22 manifest preparation evidence: independent C replay run-B7wfJH was byte-identical to the frozen recording; original strict run-YaUb8v found the same final screen-only mismatch at displayed step 21, zero-based step 20. Its description calls this an expiry/map transition, but the recorded intrinsic value and exact C text establish a countdown warning before expiry.",
+    "At examined commit, timeout.js:nh_timeout_requires_live_state():1227-1232 includes LEVITATION only when its timeout is 1. allmain.js:finishElapsedTurn():904-927 uses that predicate to switch to live execution before nh_timeout. A complete warning port must preserve both message waits and stop_occupation effects when integrating with that existing handoff; do not emit a live warning from a speculative planning clone.",
+    "The independently assignable whole-function scope is timeout.c:levitation_dialogue() with nh_timeout production wiring and the relevant timeout execution handoff. A runtime-ledger search found no levitation_dialogue reservation. Recheck reservations before implementation; same-file unrelated timeout functions do not require bundling.",
+    "No new replay, C recording, aggregate scan, full validation, or scoring was needed to identify this cause. This investigation establishes the actionable scope from saved measurements and C source; source-completion validation must also cover the three-turn warning, terrain/extrinsic suppression, and occupation cancellation."
+  ]
+}
