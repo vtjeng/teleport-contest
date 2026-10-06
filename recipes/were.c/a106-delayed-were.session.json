@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent daytime tin and waiting route for allmain.c:moveloop_core -> were.c:you_were. The tin inventory letter is provisional and must be confirmed from C before any correction. The first C record assigned the tin slot o, so this C-confirmed correction eats o. C reached its transformation at step 95; acknowledge both transformation/cloak messages and advance one turn to cover the caller aftermath. The C transformation aftermath has additional More boundaries for weapon/load changes; acknowledge those before one normal elapsed turn.",
+  "segments": [
+    {
+      "seed": 681107,
+      "datetime": "20911006113000",
+      "nethackrc": "OPTIONS=name:a106-delayed-were,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017blessed homemade tin of human wererat meat\neo  y.............................................  .      ."
+    }
+  ]
+}

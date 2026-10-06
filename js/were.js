@@ -1,8 +1,11 @@
-// Lycanthrope summoning.
-// C ref: were.c were_summon(). were_change() and its helpers were ported
+// Hero lycanthropy and lycanthrope summoning.
+// C ref: were.c you_were(), set_ulycn(), were_summon(). were_change() and its helpers were ported
 // earlier into js/mon.js; that split predates this file.
 
-import { NO_MM_FLAGS, NON_PM, PROT_FROM_SHAPE_CHANGERS } from './const.js';
+import {
+    NEUTRAL, NO_MM_FLAGS, NON_PM, PARANOID_WERECHANGE,
+    POLYMORPH_CONTROL, PROT_FROM_SHAPE_CHANGERS, STUNNED, UNCHANGING,
+} from './const.js';
 import { tamedog } from './dog.js';
 import { game } from './gstate.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -26,8 +29,34 @@ import {
 } from './monsters.js';
 import { rn2, rnd } from './rng.js';
 
-import { set_uasmon } from './polyself.js';
+import { polymon, set_uasmon } from './polyself.js';
 import { canseemon } from './display.js';
+import { monster_nearby } from './hack.js';
+import { paranoid_query } from './cmd.js';
+import { an } from './objnam.js';
+import { heroUnaware } from './pline.js';
+
+// C ref: were.c you_were() (192-212). Controlled changes ask before testing
+// nearby monsters; an uncontrolled change is suppressed by that test.
+export async function you_were(state = game, env = {}) {
+    const active = (property) => Boolean(state.u.uprops[property].intrinsic
+        || state.u.uprops[property].extrinsic);
+    const controllable_poly = active(POLYMORPH_CONTROL)
+        && !(active(STUNNED) || heroUnaware(state));
+    if (active(UNCHANGING) || state.u.umonnum === state.u.ulycn)
+        return;
+    if (controllable_poly) {
+        const beast = state.mons[state.u.ulycn].pmnames[NEUTRAL].slice(4);
+        if (!await paranoid_query(
+            Boolean(state.flags.paranoia_bits & PARANOID_WERECHANGE),
+            `Do you want to change into ${an(beast)}?`, state,
+        )) return;
+    } else if (monster_nearby(state)) {
+        return;
+    }
+    state.gw.were_changes++;
+    await polymon(state.u.ulycn, state, env);
+}
 
 // C ref: were.c set_ulycn() (232-237). Keep u.ulycn in its canonical state
 // field, then refresh form-derived properties such as drain resistance.

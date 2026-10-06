@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent human Wizard tin followed by upward cursed-water throw, for dothrow.c:toss_up -> breakobj -> potion.c:potionbreathe -> were.c:you_were. Inventory letters are provisional C setup. The C transformation aftermath has additional More boundaries for weapon/load changes; acknowledge those before one normal elapsed turn.",
+  "segments": [
+    {
+      "seed": 681108,
+      "datetime": "20911006113000",
+      "nethackrc": "OPTIONS=name:a106-water-vapor,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017blessed homemade tin of human wererat meat\nen  y \u0017cursed potion of water\nto<        ."
+    }
+  ]
+}

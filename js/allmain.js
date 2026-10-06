@@ -70,6 +70,7 @@ import { maybe_shuffle_customizations } from './glyphs.js';
 import { UnsupportedObjectNameError } from './objnam.js';
 import { remove_object, UnsupportedObjectOperationError } from './obj.js';
 import { polyself } from './polyself.js';
+import { you_were } from './were.js';
 import { UnsupportedMonsterPickupOperationError } from './steal.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
@@ -1051,9 +1052,11 @@ async function finishElapsedTurnAfterTimeout(
                 elapsedTurnBoundary('delayed polymorph needs clone-owned RNG');
             await polyself(POLY_NOFLAGS, state);
         } else {
-            // were.c:you_were() is a discarded void call and has no JS body.
-            // Record the source gap instead of fabricating a transformation.
-            note_unported('were.c you_were');
+            // Confirmation reads input, so defer the transition to the live
+            // turn just as the polymorph dispatch above does.
+            if (planning)
+                elapsedTurnBoundary('delayed lycanthropy needs live input');
+            await you_were(state, { random, message: turnMessage });
         }
         state.mvl_change = 0;
     }

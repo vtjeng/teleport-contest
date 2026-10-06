@@ -210,7 +210,7 @@ import { is_boots, is_gloves } from './obj.js';
 import { discover_object, observe_object } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import { body_part, float_vs_flight, polyself } from './polyself.js';
-import { set_ulycn } from './were.js';
+import { set_ulycn, you_were } from './were.js';
 import {
     dealloc_killer,
     delayed_killer,
@@ -1102,8 +1102,7 @@ async function peffect_hallucination(otmp, state = game, rawEnv = {}) {
     }
 }
 
-// C ref: potion.c peffect_water() (717-767). The lycanthropy mutators remain
-// named void gaps where their source calls are still unported.
+// C ref: potion.c peffect_water() (717-767).
 async function peffect_water(otmp, state = game, rawEnv = {}) {
     state.gp ??= {};
     state.gp.potion_nothing ??= 0;
@@ -1155,7 +1154,7 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
             await message('You feel quite proud of yourself.', state);
             await healup(random.d(2, 6), 0, 0, 0, state);
             if (ismnum(u.ulycn) && !Upolyd(u))
-                note_unported('were.c you_were');
+                await you_were(state, rawEnv);
             await exercise(A_CON, true, state, random, { encumberMessage });
         }
     } else if (otmp.blessed) {
@@ -1182,7 +1181,7 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
             await message('You feel full of dread.', state);
         }
         if (ismnum(u.ulycn) && !Upolyd(u))
-            note_unported('were.c you_were');
+            await you_were(state, rawEnv);
         await exercise(A_CON, false, state, random, { encumberMessage });
     }
 }
@@ -2852,7 +2851,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
 
 // C ref: potion.c potionbreathe() (1932-2118). Preserve every vapor arm,
 // fallthrough, random call, hero update and naming step. The discarded void
-// calls to were.c transformations remain named gaps.
+// call to were.c:you_unwere remains a named gap.
 //
 // obj stays in the caller's inventory: C sets in_use so that a wielded
 // potion of unholy water cannot be dropped out from under maybe_destroy_item(),
@@ -3055,7 +3054,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
                 && state.youmonst.data === state.mons[state.u.ulycn]) {
                 note_unported('were.c you_unwere');
             } else if (obj.cursed && !Upolyd(state.u)) {
-                note_unported('were.c you_were');
+                await you_were(state, { ...env, random, message });
             }
         }
         break;
