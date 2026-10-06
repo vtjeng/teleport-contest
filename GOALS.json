@@ -173953,7 +173953,7 @@
     {
       "id": "port-trap-drain-en-v19-20261005",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Verify energy drain and wire engulfing attacks",
       "cFile": "trap.c",
       "sessions": [
@@ -173961,8 +173961,12 @@
       ],
       "selectionReason": "The complete current investigation for the one-screen v19 Energy Vortex case traces mhitu.c gulpmu AD_DREN to its discarded-result trap.c drain_en call. JavaScript has a source-shaped drain_en body but the production caller records a gap and GOALS.json has no whole-function completion evidence. Verify the whole helper and replace that caller gap. See investigations/synthetic/v19/energy-vortex-engulfs-and-drains-energy-c62-more.json and challenges/evaluations/20261006013434-v19.json.",
       "detail": "At segment 0 step 43, C calls trap.c drain_en from mhitu.c gulpmu after the matching rn2(4) gate, reduces Pw from 8/8 to 6/8, and shows the drain message pager. JavaScript records note_unported instead of invoking its existing drain_en helper. Cover the complete helper, its state and message behavior, and the active engulfing caller; preserve the existing random order.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "d6390fd58c699fcfc43ea04c1aca57093d3f38f4",
+      "openStanding": {
+        "sha": "7984fe77836aa184e4c4c9863f200430d9880167",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -173991,7 +173995,246 @@
           "evaluationPath": "challenges/evaluations/20261006013434-v19.json",
           "evaluationCommit": "7984fe77836aa184e4c4c9863f200430d9880167"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "7984fe77836aa184e4c4c9863f200430d9880167",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "energy-vortex-engulfs-and-drains-energy-c62-more",
+          "session": "synthetic/v19/energy-vortex-engulfs-and-drains-energy-c62-more",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+          "recordingPath": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+          "recordingSha256": "5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62",
+          "recipe": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.recipe.session.json",
+          "recipeSha256": "a12789cc7b7515d1e474e2839b04e744547dd21c27172c4e419616a3ba513ce2",
+          "replayInputSha256": "2030edcabce301e679c43106b3afffd5c9063e11fae29e0f0c32ffeef9d19d30",
+          "evaluationPath": "challenges/evaluations/20261006013434-v19.json",
+          "evaluationCommit": "7984fe77836aa184e4c4c9863f200430d9880167",
+          "evaluationArtifact": "challenges/evaluations/20261006013434-v19.json",
+          "evaluationUtc": "2026-10-06T01:35:43.742Z",
+          "remainingScreens": 1,
+          "recordedSteps": 44,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2731,
+              "total": 2731
+            },
+            "cursors": {
+              "matched": 43,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2731,
+              "cCaller": null,
+              "jsEntry": "rn2(12)=3",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": " "
+              },
+              "cCursor": [
+                48,
+                0,
+                1
+              ],
+              "jsCursor": [
+                33,
+                12,
+                1
+              ]
+            }
+          },
+          "step": 43,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/energy-vortex-engulfs-and-drains-energy-c62-more.json",
+            "result": {
+              "session": "synthetic/v19/energy-vortex-engulfs-and-drains-energy-c62-more",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "energy-vortex-engulfs-and-drains-energy-c62-more",
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62",
+              "evaluationPath": "challenges/evaluations/20261006002056-v19.json",
+              "evaluationCommit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+              "remainingScreens": 1,
+              "recordedSteps": 44,
+              "status": "complete",
+              "commit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "energy-vortex-engulfs-and-drains-energy-c62-more",
+                "session": "synthetic/v19/energy-vortex-engulfs-and-drains-energy-c62-more",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+                "recordingPath": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+                "recordingSha256": "5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62",
+                "recipe": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.recipe.session.json",
+                "recipeSha256": "a12789cc7b7515d1e474e2839b04e744547dd21c27172c4e419616a3ba513ce2",
+                "replayInputSha256": "49358d9a4f802679caf5017d3cd7782cd62a079f8528ebcc7082c031fbe244b4",
+                "evaluationPath": "challenges/evaluations/20261006002056-v19.json",
+                "evaluationCommit": "becc4c0510546bbf19aa297ded0a584395a7f959",
+                "evaluationArtifact": "challenges/evaluations/20261006002056-v19.json",
+                "evaluationUtc": "2026-10-06T00:22:05.160Z",
+                "remainingScreens": 1,
+                "recordedSteps": 44,
+                "previousScreensMatched": 42,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 2731,
+                    "total": 2731
+                  },
+                  "cursors": {
+                    "matched": 43,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2731,
+                    "cCaller": null,
+                    "jsEntry": "rn2(12)=3",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      48,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      33,
+                      12,
+                      1
+                    ]
+                  }
+                },
+                "step": 43,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The current remaining screen mismatch is in the engulfed Energy Vortex AD_DREN path, not the older passive-counterattack mismatch. At segment 0 step 43, C shows “You feel your magical energy drain away.--More--” and updates Pw from 8/8 to 6/8; JavaScript shows no corresponding drain message/state change. C mhitu.c:1540 calls the void trap.c:drain_en() after the successful !mcan && rn2(4) gate. JS gulpmu() at js/mhitu.js:1896-1899 currently records note_unported instead of calling the existing JS drain_en() helper in js/trap_effects.js:4225. This is a caller-wiring divergence. The helper body and focused tests exist, but current GOALS.json has no accepted whole-function evidence row for drain_en, so a later implementation task should verify that complete helper against C before awarding it completion credit.",
+              "source": {
+                "file": "mhitu.c",
+                "branch": "While the hero is swallowed by an Energy Vortex and the engulfing attack is AD_DREN, each !mtmp->mcan && rn2(4) success calls drain_en(tmp, FALSE). The recorded step 43 has successful gates and no RNG divergence, but the JavaScript branch skips the void effect.",
+                "functions": [
+                  "gulpmu"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku() dispatches AT_ENGL attacks to gulpmu(); js/mhitu.js:mattacku() awaits gulpmu().",
+                  "mhitu.c:gulp_blnd_check() also calls gulpmu() and discards its return; js/mhitu.js:gulp_blnd_check() awaits that call."
+                ],
+                "dependencies": [
+                  "trap.c:drain_en() (5201-5244) is the void helper whose effects are missing at the caller; JS js/trap_effects.js:drain_en() already implements it and scripts/hero-antimagic-trap.test.mjs pins its throttle, underflow, and message behavior. Current GOALS.json has no accepted whole-function evidence.functions row for drain_en, so read/verify its complete body before claiming helper completion."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "challenges/evaluations/20261006002056-v19.json at becc4c0510546bbf19aa297ded0a584395a7f959 identifies the current first mismatch as segment 0, zero-based step 43, key space: 43/44 screens matched, all 2731/2731 RNG calls matched, and the first cursor mismatch is at the same pager screen.",
+                "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json, segment 0 step 43, records two gulpmu AD_DREN successful gates (rn2(4)=3), and C screen text “You feel your magical energy drain away.--More--” with Pw 6/8. Step 42 shows the initial “The energy vortex engulfs you!” pager and d(1,6)=1; the following space continues the same engulfing turn.",
+                "nethack-c/upstream/src/mhitu.c:1289-1587 defines gulpmu(); its AD_DREN arm at 1537-1542 calls drain_en(tmp,FALSE) after the RNG gate, then clears damage before common mdamageu().",
+                "nethack-c/upstream/src/trap.c:5201-5244 defines drain_en(): it adjusts u.uen/u.uenmax, sets disp.botl, applies the low-energy throttle and prints with You_feel(). js/trap_effects.js:4222-4265 contains the existing corresponding helper.",
+                "js/mhitu.js:1896-1899 is the divergence: it enters the same !mtmp.mcan && random.rn2(4) gate, but calls note_unported with the incorrect owner path uhitm.c drain_en instead of invoking the existing helper. scripts/hero-antimagic-trap.test.mjs:160-205 directly pins the helper’s source-derived RNG, state, and message behavior. The current GOALS.json evidence.functions entries contain no drain_en row; an existing declaration/body alone does not establish whole-source completion."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
