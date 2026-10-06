@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Unexecuted route plan for mhitu.c:cloneu as consumed by uhitm.c:mhitm_ad_phys. The Wizard uses #polyself to select black pudding, creates a hostile soldier and waits for a hit. C must confirm the hero form, a metallic weapon, the monster-to-hero attack and the cloneu call; none of those conditions were observed in B112, so this file is an explicit runtime-evidence gap, not a failed comparison.",
+  "segments": [
+    {
+      "seed": 12841036,
+      "datetime": "20550309141800",
+      "nethackrc": "OPTIONS=name:B112Pudding,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#polyself\nblack pudding\n#wizgenesis\nhostile soldier\n........\n"
+    }
+  ]
+}

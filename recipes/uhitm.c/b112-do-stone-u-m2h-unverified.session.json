@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Unexecuted route plan for the uncovered M-to-H uhitm.c:do_stone_u branch reached from uhitm.c:mhitm_ad_phys. It follows the B112 source plan for wishing a cockatrice corpse onto the floor, moving away and kicking it east, then creating a hostile sandestin and waiting for a corpse-weapon hit. C has not confirmed corpse pickup, weapon selection or an attack on the hero, so this recipe records an evidence gap rather than a failed comparison or runtime witness.",
+  "segments": [
+    {
+      "seed": 12841035,
+      "datetime": "20550309141700",
+      "nethackrc": "OPTIONS=name:B112StoneHero,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n>>h\n #wizwish\ncockatrice corpse\nh\u0004l#wizgenesis\nhostile sandestin\n........\n"
+    }
+  ]
+}

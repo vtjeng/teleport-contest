@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Unexecuted route plan for the uncovered hero-to-monster uhitm.c:mhitm_ad_phys entry. The Wizard wishes a long sword, creates a hostile newt, then requests a westward force-fight. C must establish that the newt occupies that direction and that damageum dispatches AD_PHYS before this can become runtime evidence; B112 made no C recording for this route.",
+  "segments": [
+    {
+      "seed": 12841034,
+      "datetime": "20550309141600",
+      "nethackrc": "OPTIONS=name:B112HeroHit,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nlong sword\n#wizgenesis\nhostile newt\nFh\n"
+    }
+  ]
+}
