@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T05:26:37.775Z",
+  "capturedAt": "2026-10-06T05:42:09.946Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -20647,6 +20647,24 @@
         "type": "accepted",
         "at": "2026-10-06T05:26:09.180Z",
         "task": "B110"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B110-c793a994-20261006",
+        "type": "published",
+        "at": "2026-10-06T05:27:50.079Z",
+        "task": "B110",
+        "commit": "c793a994467290afaf6272d7120b67b8fa63dda6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B112-mhitm-ad-phys-20261006",
+        "type": "assign",
+        "at": "2026-10-06T05:42:01.350Z",
+        "task": "B112",
+        "worker": "B",
+        "goal": "port-uhitm-mhitm-ad-phys-v21-20261006",
+        "kind": "implementation"
       }
     ]
   },
