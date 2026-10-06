@@ -175909,7 +175909,7 @@
     {
       "id": "port-mhitm-explmm-v21-20261005",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port monster-versus-monster explosion attacks",
       "cFile": "mhitm.c",
       "sessions": [
@@ -175918,8 +175918,12 @@
       ],
       "selectionReason": "The current synthetic work queue stops both v21 AT_EXPL monster-duel cases at the same unsupported mattackm dispatch arm; the accepted C88 mdamagem closure bounds explmm's consumed return dependency. See the current investigation records for both batch-qualified cases.",
       "detail": "Implement whole mhitm.c:explmm and its caller-only mattackm AT_EXPL dispatch contract. Existing accepted explosion, noise, monster-death, naming, damage, knockback, petrification, zombie, and growth helpers bound the closure. The admitted Flaming Sphere AD_FIRE and Shocking Sphere AD_ELEC cases provide M-to-M elemental variation; pin the non-elemental mdamagem fallback in a source test or add independent runtime evidence if an active species reaches it.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "5322c5eb02add224988c12671c595c0e83615f91",
+      "openStanding": {
+        "sha": "5322c5eb02add224988c12671c595c0e83615f91",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -175960,7 +175964,13 @@
           "evaluationPath": "challenges/evaluations/20261006050923-v21.json",
           "evaluationCommit": "482f9f019aa0eeb4691fda203392488df869b3f7"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "5322c5eb02add224988c12671c595c0e83615f91",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": []
     },
     {
       "id": "port-uhitm-mhitm-ad-phys-v21-20261006",
