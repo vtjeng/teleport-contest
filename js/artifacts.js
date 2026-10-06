@@ -122,6 +122,7 @@ import {
     PM_CLAY_GOLEM,
     PM_CLERIC,
     PM_ELF,
+    PM_GREMLIN,
     PM_HEALER,
     PM_KNIGHT,
     PM_MONK,
@@ -219,6 +220,7 @@ import {
 import { In_hell, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeon.js';
 import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
+import { do_blinding_ray } from './apply.js';
 import { glyph_at, glyph_is_trap, newsym, shieldeff } from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
 import { float_down, float_up, t_at } from './trap.js';
@@ -231,13 +233,13 @@ import {
     hcolor as nameColor,
     monsterCommonName,
 } from './do_name.js';
-import { cancel_monst, resist, Fire_resistance, Cold_resistance } from './zap.js';
+import { cancel_monst, resist, Fire_resistance, Cold_resistance, flashburn, lightdamage } from './zap.js';
 import { healmon, migrate_mon, set_ustuck, wake_nearto } from './mon.js';
 import { monflee } from './monmove.js';
 import { hitfloor, throwit } from './dothrow.js';
 import { P_MAX_SKILL, spell_skilltype } from './startup_skills.js';
 import { spelleffects } from './spell.js';
-import { seffects } from './read.js';
+import { litroom, seffects } from './read.js';
 import { charge_ok, recharge } from './read.js';
 import {
     healup, make_blinded, make_sick, make_slimed, make_stunned,
@@ -2593,21 +2595,24 @@ async function invoke_storm_spell(obj, state) {
     return ECMD_TIME;
 }
 
-// C ref: artifact.c invoke_blinding_ray() (2053-2086).
-async function invoke_blinding_ray(obj, state) {
+// C ref: artifact.c invoke_blinding_ray() (2054-2087).
+export async function invoke_blinding_ray(obj, state = game) {
     if (await getdir(null, state)) {
         if (state.u.dx || state.u.dy) {
-            note_unported('artifact.c do_blinding_ray');
+            await do_blinding_ray(obj, state);
         } else if (state.u.dz) {
-            note_unported('light.c litroom');
-            await ttyPline(nothing_seems_to_happen, state);
+            await litroom(true, obj, state);
+            const spot = state.level.at(state.u.ux, state.u.uy);
+            await ttyPline(!Blind(state) && spot.lit && !spot.waslit
+                ? 'It is lit here now.' : nothing_seems_to_happen, state);
         } else {
+            // Capture vulnerability before lightdamage can rehumanize the hero.
+            const vulnerable = state.u.umonnum === PM_GREMLIN;
             const damg = obj.blessed ? 15 : !obj.cursed ? 10 : 5;
-            // rnd(damg) consumed by flashburn argument
-            rnd(damg);
-            note_unported('zap.c flashburn');
-            note_unported('light.c lightdamage');
-            await ttyPline(nothing_seems_to_happen, state);
+            if (vulnerable) await lightdamage(obj, true, 2 * damg, state);
+            if (!await flashburn(damg + rnd(damg), false, state)
+                && !vulnerable)
+                await ttyPline(nothing_seems_to_happen, state);
         }
     } else {
         await ttyPline(Never_mind, state);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Knight debug seed chosen directly without a seed search. Horizontal empty ray executes the shared traversal and transient-light cleanup without a monster hit.",
+  "segments": [
+    {
+      "seed": 119026101,
+      "datetime": "21040909130000",
+      "nethackrc": "OPTIONS=name:RayInvoke,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed Sunsword\n#invoke\nil"
+    }
+  ]
+}

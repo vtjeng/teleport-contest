@@ -258,3 +258,55 @@ test('finesse_ahriman returns false when a worn item also grants levitation', ()
     s.u.uprops[LEVITATION].extrinsic = W_ARTI | W_ARMF;
     assert.equal(finesse_ahriman({ oartifact: ART_HEART_OF_AHRIMAN }, s), false);
 });
+
+// Whole artifact.c invoke_blinding_ray caller evidence. These independently
+// designed inputs assert state after the real #invoke dispatcher, including
+// canceled cooldown, vertical light and gremlin damage before blindness.
+import {readFileSync} from 'node:fs';
+import {game} from '../js/gstate.js';
+import {runSegment} from '../js/jsmain.js';
+import {cmdq_add_key} from '../js/cmd.js';
+import {invoke_blinding_ray} from '../js/artifacts.js';
+import {BLINDED,CQ_CANNED,ECMD_TIME,IN_SIGHT} from '../js/const.js';
+import {loadBlindingRayCases,verifyBlindingRaySegment} from './run-blinding-ray.mjs';
+
+test('independent Sunsword inputs reach every invocation direction and self effect',async()=>{
+    for(const{recipe}of loadBlindingRayCases())
+        await verifyBlindingRaySegment(recipe.segments[0]);
+});
+
+test('Sunsword self invocation consumes the flashburn artifact-resistance result',async()=>{
+    const entry=loadBlindingRayCases().find(({name})=>name==='self');
+    // Stop after the independent wish. Wielding Sunsword in production remains
+    // blocked at wield.c setuwep's begins-to-shine refusal, so construct only
+    // that equipment state while invoking the actual source function.
+    const prefix=entry.recipe.segments[0].moves.split('#invoke')[0];
+    const replay=await runSegment({...entry.recipe.segments[0],moves:prefix});
+    let sword;for(let obj=game.invent;obj;obj=obj.nobj)if(obj.oartifact===ART_SUNSWORD)sword=obj;
+    game.uwep=sword;game.flags.sparkle=true;
+    game.viz_array[game.u.uy][game.u.ux]|=IN_SIGHT;
+    const frames=[];game._animationFrameHook=()=>frames.push('frame');
+    const before=replay.getRngLog().length;
+    cmdq_add_key(CQ_CANNED,'.'.charCodeAt(0),game); // getdir's self key, not a movement.
+    try{
+        assert.equal(await invoke_blinding_ray(sword,game),ECMD_TIME);
+        assert.equal(game.u.uprops[BLINDED].intrinsic,0);
+        assert.equal(frames.length,21,'display.c shieldeff uses 21 sparkle frames');
+        assert.match(replay.getRngLog()[before],/^rnd\(10\)=/u,'uncursed self duration draws once before flashburn');
+        assert.equal(replay.getRngLog().length,before+1);
+        assert.doesNotMatch(replay.getScreens().at(-1),/Nothing seems to happen/u);
+    }finally{game._animationFrameHook=null;}
+});
+
+test('blinding-ray source order wires owners and captures gremlin form before damage',()=>{
+    const path=new URL('../js/artifacts.js',import.meta.url);
+    const source=readFileSync(path,'utf8').split('export async function invoke_blinding_ray')[1]
+        .split('// C ref: artifact.c arti_invoke_cost_pw')[0];
+    assert.match(source,/await do_blinding_ray\(obj, state\)/u);
+    assert.match(source,/await litroom\(true, obj, state\)[\s\S]*spot\.lit && !spot\.waslit/u);
+    assert.match(source,/const vulnerable = state\.u\.umonnum === PM_GREMLIN[\s\S]*if \(vulnerable\) await lightdamage[\s\S]*flashburn\(damg \+ rnd\(damg\)/u);
+    assert.doesNotMatch(source,/note_unported/u);
+    const c=readFileSync(new URL('../nethack-c/upstream/src/artifact.c',import.meta.url),'utf8');
+    assert.match(c,/boolean vulnerable = \(u\.umonnum == PM_GREMLIN\)/u);
+    assert.match(c,/obj->blessed \? 15 : !obj->cursed \? 10 : 5/u);
+});

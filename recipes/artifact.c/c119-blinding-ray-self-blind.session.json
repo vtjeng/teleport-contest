@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Knight debug seed; a wished blindfold produces blindness before self invocation so flashburn returns false and the non-gremlin gets the source nothing-seems-to-happen message.",
+  "segments": [
+    {
+      "seed": 119026101,
+      "datetime": "21040909130000",
+      "nethackrc": "OPTIONS=name:RayInvoke,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed Sunsword\n\u0017blindfold\nPj#invoke\ni."
+    }
+  ]
+}

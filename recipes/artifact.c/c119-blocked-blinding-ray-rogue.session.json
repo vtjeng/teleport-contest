@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED: vision.c rogue_vision (314-365), invoked by vision_recalc on the Rogue level, reveals every boundary of the lit room with SVALL. The current JavaScript vision owner uses ordinary line of sight and leaves room-boundary doors blank. read.c litroom correctly lights the room through Sunsword; RNG/cursors match, but the final map does not. This independent recipe is not passing completion evidence.",
+  "segments": [
+    {
+      "seed": 119026101,
+      "datetime": "21040909130000",
+      "nethackrc": "OPTIONS=name:RayInvoke,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed Sunsword\n\u0016rogue\n #invoke\ni>"
+    }
+  ]
+}

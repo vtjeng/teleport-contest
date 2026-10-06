@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED: wield.c setuwep refuses an artifact that begins to shine before #invoke. The artifact-resisted flashburn arm is covered by a constructed caller test, not by this recipe.",
+  "segments": [
+    {
+      "seed": 119026101,
+      "datetime": "21040909130000",
+      "nethackrc": "OPTIONS=name:RayInvoke,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed Sunsword\nwi#invoke\ni.  "
+    }
+  ]
+}
