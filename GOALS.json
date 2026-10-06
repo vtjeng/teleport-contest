@@ -175471,6 +175471,62 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mhitm-explmm-v21-20261005",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port monster-versus-monster explosion attacks",
+      "cFile": "mhitm.c",
+      "sessions": [
+        "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+        "synthetic/v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst"
+      ],
+      "selectionReason": "The current synthetic work queue stops both v21 AT_EXPL monster-duel cases at the same unsupported mattackm dispatch arm; the accepted C88 mdamagem closure bounds explmm's consumed return dependency. See the current investigation records for both batch-qualified cases.",
+      "detail": "Implement whole mhitm.c:explmm and its caller-only mattackm AT_EXPL dispatch contract. Existing accepted explosion, noise, monster-death, naming, damage, knockback, petrification, zombie, and growth helpers bound the closure. The admitted Flaming Sphere AD_FIRE and Shocking Sphere AD_ELEC cases provide M-to-M elemental variation; pin the non-elemental mdamagem fallback in a source test or add independent runtime evidence if an active species reaches it.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "explmm",
+          "line": 970,
+          "endLine": 1015,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 970,
+        "to": 1015
+      },
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5": {
+          "session": "synthetic/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+          "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50",
+          "evaluationPath": "challenges/evaluations/20261006050923-v21.json",
+          "evaluationCommit": "482f9f019aa0eeb4691fda203392488df869b3f7"
+        },
+        "synthetic/v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst": {
+          "session": "synthetic/v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst.session.json",
+          "recordingSha256": "5f1c0744b10c0293ffba9f77e30e6ceb7297fc80c4cf8c79a1a49afacfa11f50",
+          "evaluationPath": "challenges/evaluations/20261006050923-v21.json",
+          "evaluationCommit": "482f9f019aa0eeb4691fda203392488df869b3f7"
+        }
+      }
     }
   ]
 }
