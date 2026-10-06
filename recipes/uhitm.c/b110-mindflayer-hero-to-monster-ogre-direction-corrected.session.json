@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation after the preserved direction miss. The preceding C map put the Wizard-shaped mind flayer immediately west of the hostile ogre, so this input acknowledges the polymorph pager and moves east into that adjacent target. The exact C recording must show the AD_DRIN attack; it is not evidence unless the complete JavaScript replay matches.",
+  "segments": [
+    {
+      "seed": 713580,
+      "datetime": "20471102100000",
+      "nethackrc": "OPTIONS=name:BrainBiter2,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile ogre\n#polyself\nmind flayer\n l"
+    }
+  ]
+}

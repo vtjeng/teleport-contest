@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -66,7 +67,9 @@ import {
     PM_VAMPIRE,
     PM_GIANT,
     PM_GIANT_EEL,
+    PM_HUMAN,
     PM_HUMAN_WEREWOLF,
+    PM_MIND_FLAYER,
     PM_NEWT,
     PM_WOOD_GOLEM,
     PM_WRAITH,
@@ -145,6 +148,17 @@ import {
 } from '../js/weapon.js';
 import { mwelded } from '../js/wield.js';
 import { which_armor } from '../js/worn.js';
+
+const WEAPON_C = readFileSync(
+    new URL('../nethack-c/upstream/src/weapon.c', import.meta.url), 'utf8',
+);
+
+function cFunction(source, name, nextName) {
+    const start = source.indexOf(`\n${name}(`);
+    const end = source.indexOf(`\n${nextName}(`, start + 1);
+    assert.ok(start >= 0 && end > start, `extract C ${name} definition`);
+    return source.slice(start, end);
+}
 
 function makeState() {
     const state = {
@@ -1004,6 +1018,27 @@ test('abon reads the Strength and Dexterity ladders at their boundaries',
         assert.equal(at(10, 10, 3), 0);
     });
 
+test('abon uses adj_lev for a polymorphed hero', () => {
+    const source = cFunction(WEAPON_C, 'abon', 'dbon');
+    assert.match(source,
+        /if \(Upolyd\)\s*return \(adj_lev\(&mons\[u\.umonnum\]\) - 3\);/u);
+
+    const state = heroState({ ulevel: 1 });
+    // Keep the C dungeon at D:1 (depth 1) so a level-9 mind flayer has
+    // adjusted level 8: adj_lev decrements once when mlevel exceeds depth.
+    state.dungeons = [{
+        depth_start: 1,
+        entry_lev: 1,
+        num_dunlevs: 20,
+    }];
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    state.u.umonnum = PM_MIND_FLAYER;
+    state.u.umonster = PM_HUMAN;
+
+    // C weapon.c:abon() returns adj_lev(&mons[u.umonnum]) - 3.
+    assert.equal(abon(state), 5);
+});
+
 // weapon.c:1556-1636. Each skill level is a separate constant in C, and the
 // two-weapon and bare-handed ladders are separate tables again.
 test('weapon_hit_bonus reads one bonus per skill level', () => {
@@ -1204,6 +1239,10 @@ test('hitval reads the trident bonus off the target square', () => {
 // ACURR(A_STR) is the 3..125 encoding, in which 18 is plain 18, STR18(x) is
 // 18+x, and 19..25 come back as 119..125.
 test('dbon reads every Strength band and its exact boundaries', () => {
+    const source = cFunction(WEAPON_C, 'dbon', 'finish_towel_change');
+    assert.match(source,
+        /int str = ACURR\(A_STR\);\s*if \(Upolyd\)\s*return 0;/u);
+
     const at = (str) => dbon(heroState({ str }));
 
     // str < 6. acurr() floors Strength at 3, so 3 is the lowest
@@ -1235,6 +1274,25 @@ test('dbon reads every Strength band and its exact boundaries', () => {
     assert.equal(at(STR18(100)), 6);
     // 25 is the encoding's ceiling, which acurr() also caps at.
     assert.equal(at(125), 6);
+});
+
+test('dbon returns zero for Upolyd despite ordinary high Strength', () => {
+    const source = cFunction(WEAPON_C, 'dbon', 'finish_towel_change');
+    assert.match(source,
+        /int str = ACURR\(A_STR\);\s*if \(Upolyd\)\s*return 0;/u);
+
+    // weapon.c:dbon returns zero for any polymorph form, even though the
+    // maximum ACURR(A_STR) encoding (125) normally produces a +6 bonus.
+    const polymorphed = heroState({ str: 125 });
+    polymorphed.u.umonnum = PM_MIND_FLAYER;
+    polymorphed.u.umonster = PM_HUMAN;
+    assert.equal(dbon(polymorphed), 0);
+
+    // The same encoded Strength on the normal form follows the source ladder.
+    const human = heroState({ str: 125 });
+    human.u.umonnum = PM_HUMAN;
+    human.u.umonster = PM_HUMAN;
+    assert.equal(dbon(human), 6);
 });
 
 // weapon.c:1638-1729, the damage-side twin of weapon_hit_bonus(). Each arm

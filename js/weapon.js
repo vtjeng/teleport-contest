@@ -68,10 +68,12 @@ import {
     W_RINGL,
     W_RINGR,
     W_WEP,
+    Upolyd,
 } from './const.js';
 import { game } from './gstate.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { hands_obj, update_inventory } from './invent.js';
+import { adj_lev } from './makemon.js';
 import { m_carrying } from './mon.js';
 import { Monnam, mon_nam } from './do_name.js';
 import {
@@ -956,13 +958,14 @@ export async function mwepgone(monster, env = {}) {
 }
 
 // C ref: weapon.c abon() (949-987), the hero's Strength and Dexterity attack
-// bonus. C's Upolyd arm returns adj_lev(&mons[u.umonnum]) - 3; polyself is
-// unported, so Upolyd() is constantly false (js/regen.js:52 records the same
-// fact) and that arm is left out rather than restated.
+// bonus, or the current polymorph's adjusted monster level minus three.
 //
 // ACURR(A_STR) is the 3..125 encoding, which is what STR18() indexes, so this
 // reads acurr() rather than acurrstr().
 export function abon(state = game) {
+    if (Upolyd(state.u))
+        return adj_lev(state.mons[state.u.umonnum], state) - 3;
+
     const str = acurr(state, A_STR);
     const dex = acurr(state, A_DEX);
     let sbon;
@@ -985,11 +988,13 @@ export function abon(state = game) {
     return sbon + dex - 14;
 }
 
-// C ref: weapon.c dbon() (991-1014), the hero's Strength damage bonus. As with
-// abon() above, C's Upolyd arm -- here a flat 0 -- is left out because polyself
-// is unported and Upolyd() is constantly false.
+// C ref: weapon.c dbon() (993-1016), the hero's Strength damage bonus.
 export function dbon(state = game) {
     const str = acurr(state, A_STR);
+
+    // weapon.c:dbon() checks this after reading ACURR(A_STR), and returns
+    // zero while Upolyd compares the hero's monster indexes, not its timer.
+    if (Upolyd(state.u)) return 0;
 
     if (str < 6) return -1;
     if (str < 16) return 0;

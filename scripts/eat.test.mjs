@@ -8,7 +8,10 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_SUGGEST,
+    A_INT,
     A_STR,
+    M_ATTK_HIT,
+    M_ATTK_MISS,
     CONFLICT,
     FAINTED,
     FROMFORM,
@@ -39,7 +42,7 @@ import {
 } from '../js/const.js';
 import {
     eatfood, eating_dangerous_corpse, Finish_digestion, gethungry, is_fainted, offer_ok,
-    set_tin_variety, temp_resist, tin_ok,
+    eat_brains, eating_conducts, set_tin_variety, temp_resist, tin_ok,
 } from '../js/eat.js';
 import {
     AMULET_CLASS,
@@ -59,6 +62,7 @@ import {
 import { tinnable } from '../js/apply.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { planningState } from '../js/unported_monster_actions.js';
 
 const EAT_C = readFileSync(
     new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
@@ -83,6 +87,9 @@ import {
     PM_LICHEN,
     PM_LIZARD,
     PM_MEDUSA,
+    PM_NEWT,
+    PM_MONK,
+    PM_SHADE,
     PM_PONY,
     PM_RUST_MONSTER,
     PM_VALKYRIE,
@@ -96,6 +103,144 @@ function state() {
     monst_globals_init(result);
     return result;
 }
+
+test('eat_brains preserves source order and the three-valued result', async () => {
+    assert.match(EAT_C,
+        /eat_brains\([\s\S]*?int result = M_ATTK_HIT, xtra_dmg = rnd\(10\);[\s\S]*?if \(noncorporeal\(pd\)\)[\s\S]*?return M_ATTK_MISS;[\s\S]*?if \(magr == &gy\.youmonst\)[\s\S]*?eating_conducts\(pd\);[\s\S]*?morehungry\(-rnd\(30\)\);[\s\S]*?else if \(mdef == &gy\.youmonst\)[\s\S]*?exercise\(A_WIS, FALSE\);[\s\S]*?else \{ \/\* mhitm \*\/[\s\S]*?if \(give_nutrit && magr->mtame && !magr->isminion\)/u);
+    const jsStart = EAT_JS.indexOf('export async function eat_brains(');
+    const jsEnd = EAT_JS.indexOf('\n}', jsStart) + 2;
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsBody = EAT_JS.slice(jsStart, jsEnd);
+    assert.match(jsBody, /let extraDamage = random\.rnd\(10\)/u);
+    assert.match(jsBody, /if \(magr === state\.youmonst\)[\s\S]*?eating_conducts\(pd, state, effectEnv\)/u);
+    assert.match(jsBody, /else if \(mdef === state\.youmonst\)[\s\S]*?giveNutrit = true/u);
+
+    // This independently chosen seed creates the deterministic game state
+    // used by the direct H→M and noncorporeal source-branch checks.
+    await runSegment({
+        seed: 7711140, datetime: '20300102030405',
+        nethackrc: 'OPTIONS=name:BrainOrder,role:Healer,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: '',
+    });
+    const target = {
+        data: game.mons[PM_NEWT],
+        m_id: 991101, // Unique fixture identity; the C result uses target data.
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mhp: 20, // Keep the target alive through this source call.
+        mhpmax: 20,
+        minvent: null,
+        mextra: {},
+        mtame: false,
+        female: false,
+    };
+    const calls = [];
+    const messages = [];
+    const random = {
+        rnd: (bound) => { calls.push(`rnd(${bound})`); return 1; }, // C accepts this d10 and adds one damage.
+        rn2: (bound) => { calls.push(`rn2(${bound})`); return 0; }, // Select C's first nutrition and Int outcomes.
+        rn1: (bound, base) => {
+            calls.push(`rn1(${bound},${base})`);
+            return base;
+        },
+    };
+    const damage = { value: 5 }; // C's caller-owned damage slot receives the d10 result.
+    assert.equal(
+        await eat_brains(game.youmonst, target, false, damage, game, {
+            random,
+            message: async (line) => { messages.push(line); },
+        }),
+        M_ATTK_HIT,
+    );
+    assert.equal(damage.value, 6); // 5 + C's selected extra damage of 1.
+    assert.deepEqual(calls.slice(0, 3), ['rnd(10)', 'rnd(30)', 'rn2(19)']);
+    assert.match(messages[0], /^You eat .* newt.* brain!$/u);
+
+    const shade = {
+        ...target,
+        data: game.mons[PM_SHADE],
+        m_id: 991102, // Separate identity for the noncorporeal target.
+    };
+    calls.length = 0;
+    messages.length = 0;
+    const unchangedDamage = { value: 7 }; // This C branch returns before mutating damage.
+    assert.equal(
+        await eat_brains(game.youmonst, shade, true, unchangedDamage, game, {
+            random,
+            message: async (line) => { messages.push(line); },
+        }),
+        M_ATTK_MISS,
+    );
+    assert.equal(unchangedDamage.value, 7);
+    assert.deepEqual(calls, ['rnd(10)']);
+    assert.match(messages[0], /brain is unharmed\./u);
+});
+
+test('brain conduct and cannibal output use the supplied planning environment', async () => {
+    // A second independent seed keeps the planning fixture separate from the
+    // preceding direct source behavior check.
+    await runSegment({
+        seed: 7711141, datetime: '20300102030405',
+        nethackrc: 'OPTIONS=name:BrainEnv,role:Healer,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: '',
+    });
+    const clone = planningState(game);
+    const before = {
+        hunger: game.u.uhunger,
+        intelligence: game.u.acurr.a[A_INT],
+        toplines: game._ttyToplines,
+        queue: game.nhDisplay.inputQueueLength,
+    };
+    const monster = {
+        data: clone.mons[PM_HUMAN],
+        m_id: 991103, // Unique fixture identity for this planning-only target.
+        mx: clone.u.ux + 1,
+        my: clone.u.uy,
+        mhp: 20, // Survive the source brain-damage amount.
+        mhpmax: 20,
+        minvent: null,
+        mextra: {},
+        mtame: false,
+        female: false,
+    };
+    const messages = [];
+    const draws = [];
+    const random = {
+        rnd: (bound) => { draws.push(`rnd(${bound})`); return 1; },
+        rn2: (bound) => { draws.push(`rn2(${bound})`); return 0; },
+        rn1: (bound, base) => {
+            draws.push(`rn1(${bound},${base})`);
+            return base + 1; // C's own-race branch applies one deterministic luck penalty.
+        },
+    };
+    const damage = { value: 3 };
+    await eat_brains(clone.youmonst, monster, false, damage, clone, {
+        planning: true,
+        random,
+        message: async (line) => { messages.push(line); },
+    });
+    assert.ok(messages.some((line) => line.includes('You cannibal!')));
+    assert.ok(draws.includes('rn1(4,2)'),
+        'maybe_cannibal receives the supplied cloned random source');
+    assert.equal(game.u.uhunger, before.hunger);
+    assert.equal(game.u.acurr.a[A_INT], before.intelligence);
+    assert.equal(game._ttyToplines, before.toplines);
+    assert.equal(game.nhDisplay.inputQueueLength, before.queue);
+
+    const monk = planningState(game);
+    monk.urole.mnum = PM_MONK;
+    monk.u.uconduct = { food: 0, unvegan: 0, unvegetarian: 0 };
+    const guilt = [];
+    await eating_conducts(monk.mons[PM_NEWT], monk, {
+        planning: true,
+        message: async (line) => { guilt.push(line); },
+    });
+    assert.deepEqual(guilt, ['You feel guilty.']);
+    assert.equal(monk.u.uconduct.food, 1);
+    assert.equal(monk.u.uconduct.unvegan, 1);
+    assert.equal(monk.u.uconduct.unvegetarian, 1);
+    assert.equal(game._ttyToplines, before.toplines);
+});
 
 test('Finish_digestion runs pending corpse effects and clears C state', async () => {
     const start = EAT_C.indexOf('Finish_digestion(void)');

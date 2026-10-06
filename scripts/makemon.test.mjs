@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -16,6 +17,7 @@ import {
 import { level_difficulty } from '../js/dungeon.js';
 import { adj_erinys } from '../js/mon.js';
 import {
+    adj_lev,
     align_shift,
     golemhp,
     grow_up,
@@ -75,6 +77,7 @@ import {
     PM_LITTLE_DOG,
     PM_LURKER_ABOVE,
     PM_MAIL_DAEMON,
+    PM_MIND_FLAYER,
     PM_NEWT,
     PM_NAZGUL,
     PM_ORC,
@@ -95,6 +98,20 @@ import {
     reset_mvitals,
 } from '../js/monsters.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
+
+const MAKEMON_C = readFileSync(
+    new URL('../nethack-c/upstream/src/makemon.c', import.meta.url), 'utf8',
+);
+const MAKEMON_JS = readFileSync(
+    new URL('../js/makemon.js', import.meta.url), 'utf8',
+);
+
+function cFunction(source, name, nextName) {
+    const start = source.indexOf(`\n${name}(`);
+    const end = source.indexOf(`\n${nextName}(`, start + 1);
+    assert.ok(start >= 0 && end > start, `extract C ${name} definition`);
+    return source.slice(start, end);
+}
 
 function startingState() {
     const state = {
@@ -122,6 +139,42 @@ test('raw monster-generation fixtures do not share nested state', () => {
     assert.equal(second.u.ualign.record, 0);
     assert.deepEqual(second.specialLevels, []);
 });
+
+test('adj_lev follows the level, player, special-monster and cap branches',
+    () => {
+        const source = cFunction(MAKEMON_C, 'adj_lev', 'grow_up');
+        assert.match(source,
+            /if \(ptr == &mons\[PM_WIZARD_OF_YENDOR\]\)[\s\S]*?svm\.mvitals\[PM_WIZARD_OF_YENDOR\]\.died[\s\S]*?if \(\(tmp = ptr->mlevel\) > 49\)[\s\S]*?level_difficulty\(\) - tmp[\s\S]*?u\.ulevel - ptr->mlevel[\s\S]*?\(3 \* \(\(int\) ptr->mlevel\)\) \/ 2[\s\S]*?tmp > 0 \? tmp : 0/u);
+        const jsStart = MAKEMON_JS.indexOf('export function adj_lev(');
+        const jsEnd = MAKEMON_JS.indexOf('\n}', jsStart) + 2;
+        assert.ok(jsStart >= 0 && jsEnd > jsStart);
+        const jsBody = MAKEMON_JS.slice(jsStart, jsEnd);
+        assert.match(jsBody, /if \(monster\.pmidx === PM_WIZARD_OF_YENDOR\)/u);
+        assert.match(jsBody, /level_difficulty\(state\) - adjusted/u);
+        assert.match(jsBody,
+            /Math\.trunc\(state\.u\.ulevel\) - monster\.mlevel/u);
+
+        const state = startingState();
+        const mindFlayer = state.mons[PM_MIND_FLAYER];
+
+        // At D:1, a level-9 monster is lowered by one because mlevel exceeds
+        // level difficulty; the level-1 hero adds no player-level bonus.
+        assert.equal(adj_lev(mindFlayer, state), 8);
+
+        // At depth 26 with a level-21 hero, source integer division adds
+        // floor((26 - 9) / 5) and floor((21 - 9) / 4), then the 3/2 cap wins.
+        state.u.uz = { dnum: 0, dlevel: 26 };
+        state.dungeons[0].num_dunlevs = 30; // Keep test depth 26 inside this source-shaped dungeon.
+        state.u.ulevel = 21;
+        assert.equal(adj_lev(mindFlayer, state), 13);
+
+        // Ordinary special demons/devils above level 49 return 50 directly.
+        assert.equal(adj_lev({ ...mindFlayer, mlevel: 50 }, state), 50);
+
+        // The Wizard's level uses his death count and has its separate cap.
+        state.mvitals[PM_WIZARD_OF_YENDOR].died = 25; // Pushes base level beyond the separate 49 cap.
+        assert.equal(adj_lev(state.mons[PM_WIZARD_OF_YENDOR], state), 49);
+    });
 
 function scriptedRandom(steps) {
     let offset = 0;

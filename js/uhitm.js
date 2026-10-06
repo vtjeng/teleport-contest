@@ -19,9 +19,10 @@ import {
     is_waterwall,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
-import { adjalign, exercise } from './attrib.js';
+import { adjalign, adjattrib, exercise } from './attrib.js';
 import { some_armor, setwornEnv } from './do_wear.js';
 import {
+    A_INT,
     A_CON,
     A_DEX,
     A_LAWFUL,
@@ -147,6 +148,7 @@ import {
     W_ARMF,
     W_ARMG,
     W_ARMH,
+    W_AMUL,
     W_ARMS,
     W_RINGL,
     W_RINGR,
@@ -322,6 +324,7 @@ import {
     completelyrots,
     completelyrusts,
     monsndx,
+    mhis,
     monstseesu,
     monstunseesu,
     on_fire,
@@ -530,9 +533,11 @@ import {
     isPoisonable,
     the,
     cloak_simple_name,
+    helm_simple_name,
     xnameFresh,
 } from './objnam.js';
 import {
+    AMULET_OF_LIFE_SAVING,
     ACID_VENOM,
     BLINDING_VENOM,
     BOOMERANG,
@@ -540,6 +545,7 @@ import {
     CLOVE_OF_GARLIC,
     CORPSE,
     CREAM_PIE,
+    DUNCE_CAP,
     EGG,
     ELVEN_ARROW,
     EXPENSIVE_CAMERA,
@@ -555,6 +561,7 @@ import {
     METAL,
     MIRROR,
     NO_MATERIAL,
+    OILSKIN_CLOAK,
     PAPER,
     POTION_CLASS,
     ROCK,
@@ -628,7 +635,8 @@ import {
     Cold_resistance, Fire_resistance, drain_item, exclam, hit, resist,
 } from './zap.js';
 import {
-    Finish_digestion, eating_conducts, is_fainted, morehungry, newuhs,
+    Finish_digestion, eating_conducts, eat_brains, is_fainted, morehungry,
+    newuhs,
 } from './eat.js';
 import { note_unported } from './unported.js';
 import { m_useup } from './mthrowu.js';
@@ -5288,6 +5296,176 @@ async function mhitm_ad_were(magr, mattk, mdef, mhm, state = game, env = {}) {
     }
 }
 
+// C ref: uhitm.c mhitm_ad_drin() (3168-3303). The monster's brain is eaten
+// only after head targeting, slipping gear, helmet protection, and the
+// orientation-specific physical damage path have been resolved.
+export async function mhitm_ad_drin(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn1, rn2, rnd };
+    const message = env.message ?? (env.planning ? async () => {}
+        : ttyPline);
+    const effectEnv = {
+        ...env,
+        state,
+        random,
+        message,
+        canSpotMonster: env.canSpotMonster
+            ?? ((monster, currentState) => canspotmon(monster, currentState)),
+    };
+    const pd = mdef.data;
+    const damage = Object.defineProperty({}, 'value', {
+        get: () => mhm.damage,
+        set: (value) => { mhm.damage = value; },
+    });
+
+    if (magr === state.youmonst) {
+        if (state.gn?.notonhead || !has_head(pd)) {
+            await message(`${Monnam(mdef, state, effectEnv)} doesn't seem harmed.`,
+                state, effectEnv);
+            state.gs.skipdrin = true;
+            mhm.damage = 0;
+            if (!propertyPresent(state.u, UNCHANGING)
+                && pd === state.mons?.[PM_GREEN_SLIME]
+                && !state.u.uprops?.[SLIMED]?.intrinsic) {
+                await message(
+                    "You suck in some slime and don't feel very well.",
+                    state,
+                    effectEnv,
+                );
+                await make_slimed(10, null, state, effectEnv);
+            }
+            return;
+        }
+        if (await m_slips_free(mdef, mattk, state, effectEnv)) return;
+
+        const helmet = which_armor(mdef, W_ARMH, state);
+        if (helmet && random.rn2(8)) {
+            await message(
+                `${s_suffix(Monnam(mdef, state, effectEnv))} `
+                    + `${helm_simple_name(helmet, state)} blocks your attack `
+                    + `to ${mhis(mdef, effectEnv)} head.`,
+                state,
+                effectEnv,
+            );
+            return;
+        }
+        const amulet = which_armor(mdef, W_AMUL, state);
+        const hadLifeSaver = amulet?.otyp === AMULET_OF_LIFE_SAVING;
+        await eat_brains(magr, mdef, true, damage, state, effectEnv);
+        if (hadLifeSaver && !which_armor(mdef, W_AMUL, state))
+            state.gs.skipdrin = true;
+        return;
+    }
+
+    if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, effectEnv);
+        if (defends(AD_DRIN, state.uwep, state) || !has_head(pd)) {
+            await message("You don't seem harmed.", state, effectEnv);
+            state.gs.skipdrin = true;
+            return;
+        }
+        if (await u_slip_free(magr, mattk, effectEnv)) return;
+        if (state.uarmh && random.rn2(8)) {
+            await message(
+                `Your ${helm_simple_name(state.uarmh, state)} `
+                    + 'blocks the attack to your head.',
+                state,
+                effectEnv,
+            );
+            return;
+        }
+        if (propertyPresent(state.u, HALF_PHDAM))
+            mhm.damage = Math.trunc((mhm.damage + 1) / 2);
+        await mdamageu(magr, mhm.damage, state, effectEnv);
+        mhm.damage = 0;
+        if (state.program_state?.gameover) {
+            mhm.done = true;
+            return;
+        }
+
+        if (state.uarmh?.otyp !== DUNCE_CAP) {
+            const oldMortality = state.u.umortality;
+            const hitResult = await eat_brains(
+                magr,
+                mdef,
+                true,
+                null,
+                state,
+                effectEnv,
+            );
+            if (state.u.umortality > oldMortality)
+                state.gs.skipdrin = true;
+            if (hitResult === M_ATTK_MISS) return;
+            if (state.program_state?.gameover) {
+                mhm.done = true;
+                return;
+            }
+        }
+        await adjattrib(A_INT, -random.rnd(2), false, state, effectEnv);
+        if (!random.rn2(5)) {
+            // C discards both void results; retain the gap after its gate.
+            note_unported('spell.c losespells');
+            state.gs.skipdrin = true;
+        }
+        if (!random.rn2(5)) {
+            const skill = random.rnd(2);
+            void skill;
+            note_unported('weapon.c drain_weapon_skill');
+            state.gs.skipdrin = true;
+        }
+        return;
+    }
+
+    if (state.gn?.notonhead || !has_head(pd)) {
+        if (state.gv?.vis && canspotmon(mdef, state)) {
+            await message(
+                messageAt(
+                    `${Monnam(mdef, state, effectEnv)} doesn't seem harmed.`,
+                    mdef.mx,
+                    mdef.my,
+                    state,
+                ),
+                state,
+                effectEnv,
+            );
+        }
+        mhm.damage = 0;
+        state.gs.skipdrin = true;
+        return;
+    }
+    if ((mdef.misc_worn_check & W_ARMH) && random.rn2(8)) {
+        if (state.gv?.vis && canspotmon(magr, state)
+            && canseemon(mdef, state)) {
+            await message(
+                `${s_suffix(Monnam(mdef, state, effectEnv))} helmet `
+                    + `blocks ${s_suffix(mon_nam(magr, state, effectEnv))} `
+                    + `attack to ${mhis(mdef, effectEnv)} head.`,
+                state,
+                effectEnv,
+            );
+        }
+        return;
+    }
+    const amulet = which_armor(mdef, W_AMUL, state);
+    const hadLifeSaver = amulet?.otyp === AMULET_OF_LIFE_SAVING;
+    mhm.hitflags = await eat_brains(
+        magr,
+        mdef,
+        Boolean(state.gv?.vis),
+        damage,
+        state,
+        effectEnv,
+    );
+    if (hadLifeSaver && !which_armor(mdef, W_AMUL, state))
+        state.gs.skipdrin = true;
+}
+
 // C ref: uhitm.c mhitm_ad_stck() (3305-3334). Preserve all three attack
 // directions and cache the same entry data pointers before hitmsg() can await.
 export async function mhitm_ad_stck(
@@ -6639,7 +6817,9 @@ export async function mhitm_adtyping(
     case AD_DRCO:
         await mhitm_ad_drst(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_DRIN: unported('mhitm_ad_drin'); break;
+    case AD_DRIN:
+        await mhitm_ad_drin(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_STCK:
         await mhitm_ad_stck(magr, mattk, mdef, mhm, state, env);
         break;

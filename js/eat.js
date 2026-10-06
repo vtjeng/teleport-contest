@@ -1,6 +1,6 @@
 // The #eat command, the hunger clock, and the food helpers that object
 // creation and naming share.
-// C refs: src/eat.c is_edible(), gethungry(), newuhs(), nonrotting_corpse(),
+// C refs: src/eat.c is_edible(), gethungry(), newuhs(), eat_brains(), nonrotting_corpse(),
 //         vegan(), vegetarian(), tin_variety(), set_tin_variety(),
 //         tin_details(), opentin(), Popeye(), eat_ok(), floorfood(), doeat(),
 //         and vomit().
@@ -12,6 +12,7 @@ import {
     A_CON,
     A_LAWFUL,
     A_DEX,
+    A_INT,
     A_STR,
     A_WIS,
     CHOKING,
@@ -24,6 +25,7 @@ import {
     CONFUSION,
     CONFLICT,
     COST_BITE,
+    DIED,
     CXN_NORMAL,
     CXN_PFX_THE,
     CXN_SINGULAR,
@@ -62,12 +64,17 @@ import {
     Is_waterlevel,
     KILLED_BY_AN,
     KILLED_BY,
+    LIFESAVED,
     LL_CONDUCT,
     LAST_PROP,
     LIGHT_HEADED,
     MAGICAL_BREATHING,
     M_AP_OBJECT,
+    M_ATTK_AGR_DIED,
+    M_ATTK_HIT,
+    M_ATTK_MISS,
     NOT_HUNGRY,
+    NO_KILLER_PREFIX,
     PARANOID_EATING,
     POISON_RES,
     POISONING,
@@ -135,7 +142,7 @@ import { tinnable } from './apply.js';
 import { on_level,
     surface } from './dungeon.js';
 import { pluslvl } from './exper.js';
-import { newsym,
+import { canseemon, canspotmon, newsym,
     see_monsters } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
@@ -147,20 +154,24 @@ import { unpunish } from './read.js';
 import { heroDeaf, livelog_printf, verbalize, youHear } from './pline.js';
 import {
     check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
-import { dist2, lcase } from './hacklib.js';
+import { dist2, lcase, s_suffix } from './hacklib.js';
 import {
     INVLET_BASIC, addinv_nomerge, carrying, feel_cockatrice, freeinv, getobj, hands_obj, obj_extract_self, obj_here, stackobj, useup, useupall, useupf, will_feel_cockatrice, } from './invent.js';
 import { dropx, dropy, heal_legs, trycall } from './do.js';
 import { makeplural } from './fruit.js';
 import { set_ulycn, were_beastie } from './were.js';
 import { staleEgg } from './dogfood.js';
-import { iter_mons_safe, mon_offmap, pm_to_cham, rescham } from './mon.js';
 import {
-    acidic, attacktype, attacktype_fordmg, can_teleport, carnivorous, cantvomit, control_teleport, defended, dmgtype, flesh_petrifies, herbivorous, is_giant, is_rider, is_clinger, is_were, metallivorous, poisonous, poly_when_stoned, same_race, slimeproof, telepathic, type_is_pname, your_race, is_undead, olfaction, breathless, perceives, } from './mondata.js';
+    iter_mons_safe, mon_offmap, mondied, monstone, pm_to_cham, rescham,
+} from './mon.js';
+import {
+    acidic, attacktype, attacktype_fordmg, can_teleport, carnivorous, cantvomit, control_teleport, defended, dmgtype, flesh_petrifies, herbivorous, is_giant, is_rider, is_clinger, is_were, metallivorous, mindless, monsndx, noncorporeal, poisonous, poly_when_stoned, same_race, slimeproof, telepathic, type_is_pname, your_race, is_undead, olfaction, breathless, perceives, } from './mondata.js';
 import {
     AD_ACID, AD_BLND, AD_DISE, AD_POLY, AT_BREA, AT_ENGL, PM_KNIGHT,
     PM_PYROLISK, PM_QUEEN_BEE, PM_STONE_GOLEM, } from './monsters.js';
-import { hcolor, Mgender, pmname, rndmonnam } from './do_name.js';
+import {
+    hcolor, Mgender, Monnam, mon_nam, pmname, rndmonnam,
+} from './do_name.js';
 import { monflee } from './monmove.js';
 import {
     AD_HALU, AD_STUN, AT_MAGC, LOW_PM, M1_CARNIVORE, M1_HERBIVORE, M1_METALLIVORE, MR_ACID, MR_COLD, MR_DISINT, MR_ELEC, MR_FIRE, MR_POISON, MR_SLEEP, MR_STONE, NON_PM, NUMMONS, PM_ACID_BLOB, PM_BAT, PM_CHAMELEON, PM_DEATH, PM_DISENCHANTER, PM_DISPLACER_BEAST, PM_DOG, PM_DOPPELGANGER, PM_FAMINE, PM_GENETIC_ENGINEER, PM_GIANT_BAT, PM_GIANT_MIMIC, PM_GELATINOUS_CUBE, PM_GHOUL, PM_HOUSECAT, PM_HUMAN_WEREJACKAL, PM_HUMAN_WERERAT, PM_HUMAN_WEREWOLF, PM_KITTEN, PM_LARGE_CAT, PM_LARGE_DOG, PM_LARGE_MIMIC, PM_LITTLE_DOG, PM_MASTER_MIND_FLAYER, PM_MIND_FLAYER, PM_KILLER_BEE, PM_SCORPION, PM_NURSE, PM_PESTILENCE, PM_QUANTUM_MECHANIC, PM_RUST_MONSTER, PM_SANDESTIN, PM_SMALL_MIMIC, PM_WRAITH, PM_YELLOW_LIGHT, PM_BLACK_PUDDING, PM_CAVE_DWELLER, PM_CHICKATRICE, PM_COCKATRICE, PM_DWARF, PM_FIRE_ELEMENTAL, PM_FLESH_GOLEM, PM_FLOATING_EYE, PM_ELF, PM_GREEN_SLIME, PM_LEATHER_GOLEM, PM_LICHEN, PM_LIZARD, PM_MONK, PM_NEWT, PM_ORC, PM_RAVEN, PM_STALKER, PM_TIGER, PM_VALKYRIE, PM_VIOLET_FUNGUS, PM_WIZARD, PM_WERERAT, PM_WEREJACKAL, PM_WEREWOLF, S_MIMIC, S_BLOB, S_ELEMENTAL, S_FUNGUS, S_GHOST, S_GOLEM, S_JELLY, S_LIGHT, S_PUDDING, S_VORTEX, } from './monsters.js';
@@ -713,12 +724,10 @@ export function vegetarian(monster) {
             && monster.pmidx !== PM_BLACK_PUDDING);
 }
 
-// C ref: eat.c eating_conducts() (576-599).  The helper is used by the
-// mind-flayer brain attack and by start_tin(); those callers remain explicit
-// unsupported boundaries until their surrounding effects are ported.  Keep
-// this helper source-complete so both callers can share the conduct state and
-// first-event suppression when they are admitted.
-export async function eating_conducts(pd, state = game) {
+// C ref: eat.c eating_conducts() (576-599). The helper is used by mind-flayer
+// brain attacks as well as the existing food paths. Its caller supplies the
+// message environment so planning clones keep Monk conduct feedback private.
+export async function eating_conducts(pd, state = game, env = {}) {
     const u = state.u;
     u.uconduct ??= {};
     let ll_conduct = 0;
@@ -748,8 +757,192 @@ export async function eating_conducts(pd, state = game) {
                 `tasted meat (${name}) for the first time`,
                 state,
             );
-        await violated_vegetarian(state);
+        await violated_vegetarian(state, env);
     }
+}
+
+// C ref: eat.c eat_brains() (603-757). A mind-flayer bite shares one source
+// sequence across hero, incoming-monster, and monster-duel attacks. `dmg`
+// is the caller-owned damage slot that receives nutrition damage; the hero
+// defender instead receives physical damage first and then the Int/memory
+// effects here.
+export async function eat_brains(magr, mdef, visflag, dmg, state = game, env = {}) {
+    const random = env.random ?? { rn1, rn2, rnd };
+    const message = env.message ?? (env.planning ? async () => {}
+        : ttyPline);
+    const effectEnv = { ...env, random, message };
+    const pd = mdef.data;
+    let giveNutrit = false;
+    let result = M_ATTK_HIT;
+    let extraDamage = random.rnd(10);
+
+    // The rnd(10) is before C's dead-attacker and noncorporeal checks.
+    if (magr !== state.youmonst && magr.mhp < 1)
+        return M_ATTK_AGR_DIED;
+
+    if (noncorporeal(pd)) {
+        if (visflag) {
+            const subject = mdef === state.youmonst
+                ? 'Your' : `${s_suffix(Monnam(mdef, state, effectEnv))}`;
+            await message(`${subject} brain is unharmed.`, state, effectEnv);
+        }
+        return M_ATTK_MISS;
+    } else if (magr === state.youmonst) {
+        await message(
+            `You eat ${s_suffix(mon_nam(mdef, state, effectEnv))} brain!`,
+            state,
+            effectEnv,
+        );
+    } else if (mdef === state.youmonst) {
+        await message('Your brain is eaten!', state, effectEnv);
+    } else if (visflag && canspotmon(mdef, state)) {
+        await message(
+            `${s_suffix(Monnam(mdef, state, effectEnv))} brain is eaten!`,
+            state,
+            effectEnv,
+        );
+    }
+
+    if (flesh_petrifies(pd)) {
+        if (magr === state.youmonst) {
+            if (!propertyActive(state, STONE_RES)
+                && !hungerProperty(state, STONED).intrinsic) {
+                await make_stoned(
+                    5,
+                    null,
+                    KILLED_BY_AN,
+                    pmname(pd, Mgender(mdef, state)),
+                    state,
+                );
+            }
+        } else {
+            if (visflag && canseemon(magr, state)) {
+                await message(
+                    `${Monnam(magr, state, effectEnv)} turns to stone!`,
+                    state,
+                    effectEnv,
+                );
+            }
+            await monstone(magr, state, effectEnv);
+            if (magr.mhp >= 1)
+                return M_ATTK_MISS; // life-saved; don't continue eating
+            if (magr.mtame && !visflag) {
+                await message(
+                    'You have a sad thought for a moment, then it passes.',
+                    state,
+                    effectEnv,
+                );
+            }
+            return M_ATTK_AGR_DIED;
+        }
+    }
+
+    if (magr === state.youmonst) {
+        await eating_conducts(pd, state, effectEnv);
+        if (mindless(pd)) {
+            await message(`${Monnam(mdef, state, effectEnv)} doesn't notice.`,
+                state, effectEnv);
+            return M_ATTK_MISS;
+        }
+        if (is_rider(pd)) {
+            await message('Ingesting that is fatal.', state, effectEnv);
+            state.killer ??= {};
+            state.killer.name = `unwisely ate the brain of ${pmname(pd, Mgender(mdef, state))}`;
+            state.killer.format = NO_KILLER_PREFIX;
+            if (env.planning) {
+                if (typeof env.planningDeath !== 'function')
+                    throw new TypeError('eat_brains requires planningDeath for fatal planned Rider ingestion');
+                throw env.planningDeath(state.youmonst, DIED);
+            }
+            await done(DIED, state, effectEnv);
+            if (state.program_state?.gameover) return result;
+            await exercise(A_WIS, false, state, random);
+            dmg.value += extraDamage;
+        } else {
+            await morehungry(-random.rnd(30), state, effectEnv);
+            if (state.u.acurr.a[A_INT] < state.u.amax.a[A_INT]) {
+                state.u.acurr.a[A_INT] += random.rnd(4);
+                if (state.u.acurr.a[A_INT] > state.u.amax.a[A_INT])
+                    state.u.acurr.a[A_INT] = state.u.amax.a[A_INT];
+                state.disp.botl = true;
+            }
+            await exercise(A_WIS, true, state, random);
+            dmg.value += extraDamage;
+        }
+        // C discards maybe_cannibal()'s boolean result.
+        await maybe_cannibal(monsndx(pd), true, state, effectEnv);
+    } else if (mdef === state.youmonst) {
+        if (state.u.acurr.a[A_INT] <= (state.urace.attrmin[A_INT] ?? 0)) {
+            const lifeSaved = Boolean(
+                state.u.uprops?.[LIFESAVED]?.extrinsic,
+            );
+            if (lifeSaved) {
+                state.killer ??= {};
+                state.killer.name = 'brainlessness';
+                state.killer.format = KILLED_BY;
+                if (env.planning) {
+                    if (typeof env.planningDeath !== 'function')
+                        throw new TypeError('eat_brains requires planningDeath for fatal planned brain loss');
+                    throw env.planningDeath(magr, DIED);
+                }
+                await done(DIED, state, { ...effectEnv, fromMonster: true });
+                if (state.program_state?.gameover) return result;
+                await message('Unfortunately your brain is still gone.',
+                    state, effectEnv);
+                // C clears LIFESAVED after its first done() return.
+                state.u.uprops[LIFESAVED].extrinsic = 0;
+                state.u.uprops[LIFESAVED].intrinsic = 0;
+            } else {
+                await message('Your last thought fades away.', state, effectEnv);
+            }
+            state.killer ??= {};
+            state.killer.name = 'brainlessness';
+            state.killer.format = KILLED_BY;
+            if (env.planning) {
+                if (typeof env.planningDeath !== 'function')
+                    throw new TypeError('eat_brains requires planningDeath for fatal planned brain loss');
+                throw env.planningDeath(magr, DIED);
+            }
+            await done(DIED, state, { ...effectEnv, fromMonster: true });
+            if (state.program_state?.gameover) return result;
+            state.u.acurr.a[A_INT] = (state.urace.attrmin[A_INT] ?? 0) + 2;
+            await message('You feel like a scarecrow.', state, effectEnv);
+        }
+        giveNutrit = true;
+        await exercise(A_WIS, false, state, random);
+    } else {
+        if (mindless(pd)) {
+            if (visflag && canspotmon(mdef, state)) {
+                await message(
+                    `${Monnam(mdef, state, effectEnv)} doesn't notice.`,
+                    state,
+                    effectEnv,
+                );
+            }
+            return M_ATTK_MISS;
+        }
+        if (is_rider(pd)) {
+            await mondied(magr, state, effectEnv);
+            if (magr.mhp < 1) result = M_ATTK_AGR_DIED;
+            dmg.value += extraDamage;
+        } else {
+            dmg.value += extraDamage;
+            giveNutrit = true;
+            if (dmg.value >= mdef.mhp && visflag && canspotmon(mdef, state)) {
+                await message(
+                    `${s_suffix(Monnam(mdef, state, effectEnv))} last thought fades away...`,
+                    state,
+                    effectEnv,
+                );
+            }
+        }
+    }
+
+    if (giveNutrit && magr.mtame && !magr.isminion) {
+        magr.mextra.edog.hungrytime += random.rnd(60);
+        magr.mconf = 0;
+    }
+    return result;
 }
 
 // C ref: eat.c tin_details(). Appends the contents to a tin's name; the
@@ -1941,9 +2134,12 @@ function CANNIBAL_ALLOWED(state) {
 // replaces for every runSegment(), so a new game starts it absent; C starts it
 // at 0, and neither value is a turn number, so the first meal's
 // `svm.moves == ate_brains` test is false either way.
-async function maybe_cannibal(pm, allowmsg, state) {
+async function maybe_cannibal(pm, allowmsg, state, env = {}) {
     const u = state.u;
     const fptr = state.mons[pm]; /* food type */
+    const random = env.random ?? { rn1 };
+    const message = env.message ?? (env.planning ? async () => {}
+        : ttyPline);
 
     /* when poly'd into a mind flayer, multiple tentacle hits in one
        turn cause multiple digestion checks to occur; avoid giving
@@ -1963,16 +2159,18 @@ async function maybe_cannibal(pm, allowmsg, state) {
         if (own_kind) {
             if (allowmsg) {
                 if (Upolyd(u) && your_race(fptr, state)) {
-                    await ttyPline(
+                    await message(
                         'You have a bad feeling deep inside.', state,
+                        env,
                     );
                 }
-                await ttyPline(
+                await message(
                     'You cannibal!  You will regret this!', state,
+                    env,
                 );
             }
             hungerProperty(state, AGGRAVATE_MONSTER).intrinsic |= FROMOUTSIDE;
-            change_luck(-rn1(4, 2), state); /* -5..-2 */
+            change_luck(-random.rn1(4, 2), state); /* -5..-2 */
             return true;
         }
     }
@@ -2572,10 +2770,12 @@ export async function Finish_digestion(state = game, env = {}) {
 
 // C ref: eat.c violated_vegetarian() (1375-1384). Both callers -- doeat()'s
 // FLESH arm and eatcorpse() -- reach it for any food that is not vegetarian.
-async function violated_vegetarian(state) {
+async function violated_vegetarian(state, env = {}) {
+    const message = env.message ?? (env.planning ? async () => {}
+        : ttyPline);
     state.u.uconduct.unvegetarian++;
     if (state.urole.mnum === PM_MONK) {
-        await ttyPline('You feel guilty.', state);
+        await message('You feel guilty.', state, env);
         adjalign(-1, state);
     }
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Final bounded B110 M-to-M setup correction. The newt route reached only the weapon attack because its 1d4 hit killed the target; this route uses three hostile wolves, which have no C-defined armor or helmet and enough hit points to survive that first blow. The genesis quantity remains inside the prompt text per read.c:create_particular_parse. After two wait turns, a space acknowledges the expected attack More prompt. Completion requires a C-traced mind-flayer AT_TENT/AD_DRIN call to eat_brains against a wolf.",
+  "segments": [
+    {
+      "seed": 10875932,
+      "datetime": "20540620123000",
+      "nethackrc": "OPTIONS=name:BrainPairProbe2,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\n>>h\n #wizgenesis\n3 hostile wolf\n#wizgenesis\nhostile mind flayer\n.. "
+    }
+  ]
+}

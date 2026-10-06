@@ -37,6 +37,7 @@ import {
     TIMEOUT,
     W_ARM,
     W_ARMC,
+    W_ARMH,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import {
@@ -54,10 +55,12 @@ import {
     AD_DRST,
     AD_WERE,
     AD_WRAP,
+    AD_DRIN,
     AT_BITE,
     AT_CLAW,
     AT_WEAP,
     AT_TUCH,
+    AT_TENT,
     PM_GELATINOUS_CUBE,
     PM_GIANT_EEL,
     PM_GHOUL,
@@ -65,6 +68,8 @@ import {
     PM_COCKATRICE,
     PM_DWARF_LEADER,
     PM_HUMAN,
+    PM_MIND_FLAYER,
+    PM_NEWT,
     PM_IRON_GOLEM,
     PM_STONE_GOLEM,
     PM_TOURIST,
@@ -89,6 +94,7 @@ import {
     SCR_ENCHANT_ARMOR,
     SCR_SCARE_MONSTER,
     SILVER_DAGGER,
+    HELMET,
     LEATHER_ARMOR,
 } from '../js/objects.js';
 import { dmgval } from '../js/weapon.js';
@@ -884,6 +890,204 @@ test('mhitm_ad_were preserves all three source direction arms and infection orde
     assert.equal(game.u.ulycn, PM_WEREJACKAL);
     assert.equal(game.u.uprops[DRAIN_RES].intrinsic & FROMFORM, FROMFORM);
     assert.ok(game.unported.has('artifact.c retouch_equipment'));
+});
+
+test('mhitm_ad_drin preserves source order in all three attack directions', async () => {
+    assert.match(UHITM_C,
+        /mhitm_ad_drin\([\s\S]*?if \(magr == &gy\.youmonst\)[\s\S]*?gn\.notonhead \|\| !has_head\(pd\)[\s\S]*?m_slips_free\(mdef, mattk\)[\s\S]*?rn2\(8\)[\s\S]*?eat_brains\(&gy\.youmonst, mdef, TRUE, &mhm->damage\)[\s\S]*?else if \(mdef == &gy\.youmonst\)[\s\S]*?hitmsg\(magr, mattk\)[\s\S]*?u_slip_free\(magr, mattk\)[\s\S]*?mdamageu\(magr, mhm->damage\)[\s\S]*?eat_brains\(magr, mdef, TRUE, \(int \*\) 0\)[\s\S]*?else\s*\{\s*\/\* mhitm \*\/[\s\S]*?mhm->hitflags = eat_brains\(magr, mdef, gv\.vis, &mhm->damage\)/u);
+    assert.match(UHITM_C,
+        /m_slips_free\(struct monst \*mdef, struct attack \*mattk\)[\s\S]*?if \(mattk->adtyp == AD_DRIN\)[\s\S]*?which_armor\(mdef, W_ARMH\)[\s\S]*?obj->greased \|\| obj->otyp == OILSKIN_CLOAK[\s\S]*?rn2\(3\)[\s\S]*?rn2\(2\)/u);
+    assert.match(MHITU_C,
+        /u_slip_free\(\s*struct monst \*mtmp,\s*struct attack \*mattk\)[\s\S]*?if \(mattk->aatyp == AT_ENGL\)[\s\S]*?obj = uarmh[\s\S]*?obj->greased \|\| obj->otyp == OILSKIN_CLOAK[\s\S]*?rn2\(3\)[\s\S]*?rn2\(2\)[\s\S]*?update_inventory\(\)/u);
+    assert.match(UHITM_C,
+        /case AD_DRIN:\s*mhitm_ad_drin\(magr, mattk, mdef, mhm\); break;/u);
+    assert.match(UHITM_C,
+        /mhitm_adtyping\(&gy\.youmonst, mattk, mdef, &mhm\);/u);
+    assert.match(MHITU_C,
+        /mhitm_adtyping\(mtmp, mattk, &gy\.youmonst, &mhm\);/u);
+    assert.match(MHITM_C,
+        /mhitm_adtyping\(magr, mattk, mdef, &mhm\);/u);
+
+    // Independent fixture seed for the H→M helper and dispatcher route.
+    await runSegment({
+        seed: 8806420, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const events = [];
+    const random = {
+        rnd: (bound) => { events.push(`rnd(${bound})`); return 1; },
+        rn2: (bound) => { events.push(`rn2(${bound})`); return bound - 1; },
+        rn1: (bound, base) => {
+            events.push(`rn1(${bound},${base})`);
+            return base;
+        },
+    };
+    const messages = [];
+    const env = {
+        random,
+        message: async (line) => { messages.push(line); },
+        unsupported: (reason) => assert.fail(reason),
+    };
+    const newt = (id, x) => ({
+        data: game.mons[PM_NEWT],
+        m_id: id, // Unique fixture identity; C branches on species and position.
+        mx: x,
+        my: game.u.uy,
+        mhp: 20, // Survive the one brain attack for the helper's damage result.
+        mhpmax: 20,
+        minvent: null,
+        mextra: {},
+        misc_worn_check: 0,
+        mtame: false,
+        mcan: false,
+        female: false,
+    });
+
+    // H→M enters through the real AD_DRIN dispatcher. The first d10 is the
+    // consumed helper's extra damage; the C helper adds it to the caller slot.
+    const heroTarget = newt(93210, game.u.ux + 1); // Adjacent east, within C attack range.
+    const heroDamage = { damage: 4, specialdmg: 0, done: false, hitflags: 0 }; // C carries four physical damage into eat_brains.
+    events.length = 0;
+    await mhitm_adtyping(
+        game.youmonst,
+        { aatyp: AT_TENT, adtyp: AD_DRIN },
+        heroTarget,
+        heroDamage,
+        game,
+        env,
+    );
+    assert.equal(heroDamage.damage, 5); // The selected C d10 contributes one point.
+    assert.equal(events[0], 'rnd(10)');
+    assert.match(messages[0], /^You eat .* newt.* brain!$/u);
+
+    // C m_slips_free selects the target's helmet for AD_DRIN. A greased
+    // helmet stops the source arm before eat_brains and can lose its grease.
+    const greasedHelmetTarget = newt(93214, game.u.ux + 1); // Adjacent target reaches m_slips_free first.
+    const greasedHelmet = mksobj(HELMET, false, false, { state: game });
+    greasedHelmet.greased = true;
+    greasedHelmet.owornmask = W_ARMH;
+    greasedHelmetTarget.minvent = greasedHelmet;
+    greasedHelmetTarget.misc_worn_check = W_ARMH;
+    events.length = 0;
+    messages.length = 0;
+    await mhitm_adtyping(
+        game.youmonst,
+        { aatyp: AT_TENT, adtyp: AD_DRIN },
+        greasedHelmetTarget,
+        { damage: 4, specialdmg: 0, done: false, hitflags: 0 },
+        game,
+        { ...env, random: { rn2: bound => {
+            events.push(`rn2(${bound})`);
+            assert.equal(bound, 2);
+            return 1; // C's rn2(2) miss keeps the grease and refuses the grip.
+        } } },
+    );
+    assert.deepEqual(events, ['rn2(2)']);
+    assert.match(messages[0], /grab, but cannot hold onto/u);
+    assert.equal(greasedHelmet.greased, true);
+
+    const helmetTarget = newt(93215, game.u.ux + 1); // Ungreased helmet reaches C's rn2(8) block.
+    const helmet = mksobj(HELMET, false, false, { state: game });
+    helmet.owornmask = W_ARMH;
+    helmetTarget.minvent = helmet;
+    helmetTarget.misc_worn_check = W_ARMH;
+    events.length = 0;
+    messages.length = 0;
+    await mhitm_adtyping(
+        game.youmonst,
+        { aatyp: AT_TENT, adtyp: AD_DRIN },
+        helmetTarget,
+        { damage: 4, specialdmg: 0, done: false, hitflags: 0 },
+        game,
+        { ...env, random: { rn2: bound => {
+            events.push(`rn2(${bound})`);
+            return 1; // C's nonzero block roll rejects the attack.
+        } } },
+    );
+    assert.deepEqual(events, ['rn2(8)']);
+    assert.match(messages[0], /blocks your attack/u);
+
+    // M→H checks the hit message and physical damage before eating brains,
+    // then runs the Int/memory tail. Failed 1-in-5 gates preserve order.
+    // New independent seed for the incoming-monster source direction.
+    await runSegment({
+        seed: 8806421, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const flayer = {
+        data: game.mons[PM_MIND_FLAYER], m_id: 93211, // Unique source attacker identity.
+        mx: game.u.ux + 1, my: game.u.uy,
+        mhp: 20, mhpmax: 20, minvent: null, mextra: {}, mcan: false, // Survive the tested bite.
+    };
+    const tentacle = flayer.data.mattk.find((entry) => entry.adtyp === AD_DRIN);
+    assert.ok(tentacle);
+
+    // The source u_slip_free special case selects only the hero helmet for
+    // AD_DRIN. Its message is emitted and the bite stops before mdamageu.
+    const heroHelmet = mksobj(HELMET, false, false, { state: game }); // C selects a greased hero helmet for AD_DRIN.
+    heroHelmet.greased = true;
+    heroHelmet.owornmask = W_ARMH;
+    game.uarmh = heroHelmet;
+    events.length = 0;
+    messages.length = 0;
+    const slippedDamage = { damage: 3, specialdmg: 0, done: false, hitflags: 0 }; // The C grip refusal leaves damage unchanged.
+    await mhitm_adtyping(flayer, tentacle, game.youmonst, slippedDamage, game, {
+        ...env,
+        random: { rn2: bound => {
+            events.push(`rn2(${bound})`);
+            assert.equal(bound, 2);
+            return 1; // C's rn2(2) result reports a failed hold.
+        } },
+    });
+    assert.deepEqual(events, ['rn2(2)']);
+    assert.equal(slippedDamage.damage, 3);
+    assert.match(messages.join(' '), /grabs you, but cannot hold onto/u);
+    assert.equal(heroHelmet.greased, true);
+    game.uarmh = null;
+
+    const heroDamageFromFlayer = { // Low prior damage keeps the C physical-hit path alive for the brain effect.
+        damage: 1, specialdmg: 0, done: false, hitflags: 0,
+    };
+    events.length = 0;
+    messages.length = 0;
+    await mhitm_adtyping(
+        flayer,
+        tentacle,
+        game.youmonst,
+        heroDamageFromFlayer,
+        game,
+        env,
+    );
+    assert.equal(heroDamageFromFlayer.damage, 0);
+    assert.equal(events[0], 'rnd(10)');
+    assert.ok(events.indexOf('rn2(5)') > events.indexOf('rnd(2)'));
+    assert.ok(messages.some((line) => line.includes('Your brain is eaten!')));
+
+    // M→M returns eat_brains' result in hitflags and mutates the same damage
+    // slot; no hero-only nutrition, Int, or conduct branch runs.
+    // Third independent seed isolates monster-versus-monster dispatch.
+    await runSegment({
+        seed: 8806422, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const attacker = {
+        data: game.mons[PM_MIND_FLAYER], m_id: 93212, // Unique attacker identity for this direction.
+        mx: game.u.ux + 1, my: game.u.uy,
+        mhp: 20, mhpmax: 20, minvent: null, mextra: {}, mcan: false, // Survive the M→M brain attack.
+        mtame: false,
+    };
+    const monsterTarget = newt(93213, game.u.ux - 1); // Adjacent west target for C mattackm.
+    game.gv.vis = false;
+    const monsterDamage = { damage: 4, specialdmg: 0, done: false, hitflags: 0 };
+    events.length = 0;
+    await mhitm_adtyping(
+        attacker,
+        { aatyp: AT_TENT, adtyp: AD_DRIN },
+        monsterTarget,
+        monsterDamage,
+        game,
+        env,
+    );
+    assert.equal(monsterDamage.damage, 5);
+    assert.equal(monsterDamage.hitflags, M_ATTK_HIT);
+    assert.deepEqual(events, ['rnd(10)']);
 });
 
 test('mhitm_ad_wrap dispatches slippery and planned drowning source arms', async () => {
