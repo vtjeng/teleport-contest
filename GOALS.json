@@ -174588,7 +174588,7 @@
     {
       "id": "port-uhitm-mhitm-ad-drin-eat-brains-v18-20261005",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port brain-eating attacks in all combat directions",
       "cFile": "uhitm.c",
       "sessions": [
@@ -174596,8 +174596,12 @@
       ],
       "selectionReason": "The current v18 mind-flayer case stops in the unported AD_DRIN dispatcher. The coherent task covers uhitm.c:mhitm_ad_drin, eat.c:eat_brains, both slip helpers, dispatcher wiring, and all three combat directions. Planning requires env threading through eat.c:eating_conducts, maybe_cannibal, and violated_vegetarian. Independent H-to-M evidence proves that the polymorphed hero caller consumes weapon.c:abon, makemon.c:adj_lev, and weapon.c:dbon before the AD_DRIN hit, so their whole source behavior is required in the same task.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "e0392e5029fee031284a3d083ef603ba3a3ee570",
+      "openStanding": {
+        "sha": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -174700,7 +174704,166 @@
           "evaluationPath": "challenges/evaluations/20261006043147-v18.json",
           "evaluationCommit": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+          "session": "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.session.json",
+          "recordingSha256": "b1cc90c4d15255a78d9c4b52745cabc3966fc3d708fcf79319805b1023677bd0",
+          "recipe": "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.recipe.session.json",
+          "recipeSha256": "5db7b695b64f7283fad0bc5ba2487bf85f0ffbe8328798a3866d78da3afa00b9",
+          "replayInputSha256": "9c1f9b3595b61c5c530c3f15fff0a6e41f1fdfc2dd78e110550831d5aafde779",
+          "evaluationPath": "challenges/evaluations/20261006043147-v18.json",
+          "evaluationCommit": "64f238b5c982af3b6b62458529b1ee9cccd1ef9c",
+          "evaluationArtifact": "challenges/evaluations/20261006043147-v18.json",
+          "evaluationUtc": "2026-10-06T04:32:44.899Z",
+          "remainingScreens": 1,
+          "recordedSteps": 35,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2279,
+              "total": 2288
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_drin()",
+            "step": 34
+          },
+          "step": 34,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_drin",
+          "message": "simple monster action requires uhitm.c mhitm_ad_drin()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits.json",
+            "result": {
+              "session": "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+              "remainingScreens": 1,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+                "session": "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.session.json",
+                "recordingSha256": "b1cc90c4d15255a78d9c4b52745cabc3966fc3d708fcf79319805b1023677bd0",
+                "recipe": "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.recipe.session.json",
+                "recipeSha256": "5db7b695b64f7283fad0bc5ba2487bf85f0ffbe8328798a3866d78da3afa00b9",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 1,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2279,
+                    "total": 2288
+                  },
+                  "cursors": {
+                    "matched": 34,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_drin()",
+                  "step": 34
+                },
+                "step": 34,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_drin",
+                "message": "simple monster action requires uhitm.c mhitm_ad_drin()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The current stop is the AD_DRIN refusal in js/uhitm.js:mhitm_adtyping; the source owner is the whole uhitm.c:mhitm_ad_drin function. The assigned case reaches its monster-to-hero branch after the second wait. Implementing the whole function requires its return-valued C callees m_slips_free (uhitm.c), u_slip_free (mhitu.c), and eat_brains (eat.c); eat_brains results are consumed in the monster-to-hero and monster-to-monster modes, so the source rule requires that helper in the same task. The C scope therefore crosses three source files. Preserve all three attacker/defender modes and their callers. The saved case covers only monster-to-hero; the other production modes need their own runtime coverage. eat_brains has additional discarded-return helper calls and rare petrification/death branches that must be preserved or explicitly recorded as allowed gaps.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "mhitm_ad_drin"
+                ],
+                "branch": "Whole-function scope at uhitm.c:3168-3302. Hero attacks monster (magr == &gy.youmonst): notonhead/headless target sets skipdrin and zeroes damage, with a green-slime special case; otherwise m_slips_free and a helmet-block roll can stop the attack, then eat_brains() changes damage while its return is discarded, and loss of a life-saving amulet sets skipdrin. Monster attacks hero (mdef == &gy.youmonst): hitmsg, weapon defense or headless target sets skipdrin; then u_slip_free and helmet-block checks; otherwise Half_physical_damage/health damage is handled, and eat_brains() is called unless the hero wears a dunce cap. Its M_ATTK_MISS return exits this branch; mortality changes, intelligence drain, spell loss, and weapon-skill drain update skipdrin. Monster attacks monster: headless target/helmet checks can stop the attack; otherwise eat_brains() supplies mhm.hitflags, and consumed life-saving amulet sets skipdrin. Preserve branch order and RNG draws. The case exercises the monster-to-hero branch; there is no mhitm_mgc_atk_negated gate in this function.",
+                "callers": [
+                  "Direct C dispatch: uhitm.c:mhitm_adtyping AD_DRIN at :4812. Current JS dispatcher is js/uhitm.js:mhitm_adtyping at :4776, whose AD_DRIN arm at :4833 refuses with the exact missing-function message.",
+                  "Monster-to-hero route exercised by the case: monmove.c:dochug at :971 -> mhitu.c:mattacku at :491 -> mhitu.c:hitmu at :1144, calling uhitm.c:mhitm_adtyping at :1191 -> mhitm_ad_drin. JS route: js/mhitu.js:hitmu at :1650 calls the dispatcher at :1707.",
+                  "Hero-to-monster route: uhitm.c:damageum at :4835 calls mhitm_adtyping at :4854; hmonas calls damageum at :5546, :5587, :5664, :5727, :5745, and :5757, and dokick.c calls it at :212. JS dispatch is js/uhitm.js:damageum at :4858 -> mhitm_adtyping at :4886; js/dokick.js calls damageum at :419.",
+                  "Monster-to-monster route: mhitm.c:mdamagem at :1016 calls mhitm_adtyping at :1059. JS dispatch is js/mhitm.js:mdamagem at :1037 -> mhitm_adtyping at :1057.",
+                  "eat.c:eat_brains has exactly three C call sites, all inside uhitm.c:mhitm_ad_drin at :3216, :3249, and :3297. Its result is explicitly discarded at :3216 and consumed at :3249-3260 and :3297."
+                ],
+                "dependencies": [
+                  "uhitm.c:m_slips_free() at :2056-2093 returns the Boolean consumed at mhitm_ad_drin :3204 in hero-to-monster mode. It draws for cursed slippery armor, emits a message, and may wear off grease. It is also called by mhitm_ad_wrap at :3350; retain that active source caller if porting this helper. No JS m_slips_free implementation or call was found.",
+                  "mhitu.c:u_slip_free() at :1046-1085 returns the Boolean consumed at uhitm.c:mhitm_ad_drin :3232 in monster-to-hero mode. It has cursed-armor RNG, output, possible grease mutation, and inventory update. Other C callers are uhitm.c:mhitm_ad_wrap :3380 and mhitm_ad_phys :4025; retain these production call sites if porting it. No JS u_slip_free implementation or call was found.",
+                  "eat.c:eat_brains() at :603-754 returns an M_ATTK_* result. mhitm_ad_drin compares it with M_ATTK_MISS in the monster-to-hero branch and assigns it to mhm.hitflags in the monster-to-monster branch; the hero-to-monster branch discards it. Because two branches consume the return, AGENTS.md requires this whole cross-file callee in the same implementation task.",
+                  "Within eat_brains(), rnd(10) initializes xtra_dmg; monster-to-hero and monster-to-monster branches may add it through dmg_p, while hero-to-monster also uses rnd(30), rnd(4), and (for a tame eater) rnd(60). noncorporeal(), flesh_petrifies(), mindless(), and is_rider() predicates control early returns and special outcomes. Preserve the returned M_ATTK_* value and damage-pointer mutations together.",
+                  "eat_brains() also calls eating_conducts(), morehungry(), exercise(), and maybe_cannibal(); their results are discarded, while their side effects affect conduct, hunger, attributes, and luck. It may call make_stoned(), monstone(), mondied(), and done() in petrifying or fatal branches. Where any callee remains unported, apply the void/discarded-return gap rule and keep that behavior explicitly unresolved.",
+                  "Other consumed mhitm_ad_drin() values are has_head() Boolean, m_slips_free()/u_slip_free() Booleans, which_armor() object pointers, defends(AD_DRIN, uwep) Boolean, rn2(8) helmet-block rolls, rnd(2) attribute/skill drain values, and two rn2(5) chances for spell and weapon-skill loss. Preserve their order. The C source does not apply generic magic cancellation to AD_DRIN."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20261002065911-v18.json records 34/35 screens, 2279/2288 RNG calls, and 34/35 cursors matched, then stops at zero-based step 34 with “simple monster action requires uhitm.c mhitm_ad_drin()”. This is a missing AD_DRIN source arm, not a completed-behavior divergence.",
+                "challenges/manifests/v18.json identifies the second source-frozen wait as reaching the mind-flayer tentacle AD_DRIN arm; the one-wait setup is a separate retained matching target miss. The saved manifest records an independent patched-C replay byte-identical to the recording. Its historical next C-only draw is rn2(5)=0 at RNG index 2279 in distfleeck(monmove.c:538), after the missing attack behavior, so that call-site annotation is downstream evidence rather than the owner.",
+                "Upstream uhitm.c:mhitm_ad_drin is the whole source unit at :3168-3302; the AD_DRIN dispatcher is uhitm.c:mhitm_adtyping :4812. The function explicitly separates hero-to-monster, monster-to-hero, and monster-to-monster paths, with different guards, helpers, result handling, and skipdrin updates. Current JS refusal is js/uhitm.js:mhitm_adtyping :4833.",
+                "The source rule makes return-valued helper scope cross-file: mhitu.c:u_slip_free returns a consumed Boolean from the monster-to-hero mode, and eat.c:eat_brains returns a consumed status in two modes. Same-file uhitm.c:m_slips_free returns a consumed Boolean in the hero-to-monster mode. Their source definitions and callers are cited in source.dependencies; searches found no JS implementations or calls for these three helpers, and no JS eat_brains().",
+                "The assigned evidence route covers only monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> mhitm_ad_drin. AGENTS.md and .agents/validation.md require production caller and runtime evidence for every active entry point in scope, so hero-to-monster and monster-to-monster modes remain separate coverage requirements."
+              ],
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "b1cc90c4d15255a78d9c4b52745cabc3966fc3d708fcf79319805b1023677bd0",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d"
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-mhitm-gazemm-mdamagem-passivemm-v21-20261005",
