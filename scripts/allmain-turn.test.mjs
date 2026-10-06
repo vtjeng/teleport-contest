@@ -16,7 +16,7 @@ import {
 import {
     A_STR,
     A_DEX,
-    BURN_OBJECT,
+    REVIVE_MON,
     COULD_SEE,
     CLAIRVOYANT,
     COLNO,
@@ -117,7 +117,6 @@ import {
     BOULDER,
     CORPSE,
     DAGGER,
-    OIL_LAMP,
     SACK,
     TOOL_CLASS,
 } from '../js/objects.js';
@@ -1778,13 +1777,13 @@ test('due timeout retries stop at the elapsed coordinator before mutation',
         game.context.move = 1;
         game.context.seer_turn = 1000;
         game.u.umovement = NORMAL_SPEED;
-        // A lit lamp burning down. timeout.c timeout_funcs[]'s BURN_OBJECT row
-        // is unported, so the whole turn stops rather than draining the queue.
+        // REVIVE_MON remains unported, so the whole elapsed turn stops
+        // atomically; BURN_OBJECT now dispatches the source callback.
         game.gt.timer_base = {
             timeout: game.moves + 1,
             kind: TIMER_OBJECT,
-            func_index: BURN_OBJECT,
-            arg: { otyp: OIL_LAMP, timed: 1 },
+            func_index: REVIVE_MON,
+            arg: { otyp: CORPSE, timed: 1 },
             next: null,
         };
         const before = completeSecondTurnSnapshot(game, replay);
@@ -1795,7 +1794,7 @@ test('due timeout retries stop at the elapsed coordinator before mutation',
                 moveloop_core(),
                 (error) => error instanceof UnsupportedTurnBoundaryError
                     && error.reason
-                        === 'a ported timeout function, but burn_object() '
+                        === 'a ported timeout function, but revive_mon() '
                             + 'is due',
             );
             assert.deepEqual(

@@ -1645,16 +1645,15 @@ test('run_timers drains the due prefix head-first and stops at the future',
 // Every unported row is driven through run_timers() here, indexed by the
 // js/const.js constant, so the table is pinned against the enum rather than
 // against itself. ROT_CORPSE, HATCH_EGG, FIG_TRANSFORM, SHRINK_GLOB, and
-// MELT_ICE_AWAY are absent because their callbacks are ported.
+// MELT_ICE_AWAY and BURN_OBJECT are absent because their callbacks are ported.
 test('every unported timeout row names its own C function', async () => {
     const rows = [
         [ROT_ORGANIC, 'rot_organic'],
         [REVIVE_MON, 'revive_mon'],
         [ZOMBIFY_MON, 'zombify_mon'],
-        [BURN_OBJECT, 'burn_object'],
     ];
-    // Five enum rows have callbacks; the others remain named refusals.
-    assert.equal(rows.length, NUM_TIME_FUNCS - 5);
+    // Six enum rows have callbacks; the others remain named refusals.
+    assert.equal(rows.length, NUM_TIME_FUNCS - 6);
 
     for (const [index, name] of rows) {
         const state = rottingState(100);
@@ -1719,24 +1718,24 @@ test('run_timers refuses the whole due prefix before draining any of it', async 
     // The first element is drainable and the second is not, so a per-element
     // check would delete the first corpse and then stop with the queue half
     // drained. C cannot fail partway through run_timers(), so neither may this.
-    // The corpse expires a turn earlier than the lamp, so the queue really
+    // The rotting corpse expires a turn before the reviving corpse, so the queue really
     // does hold the drainable element ahead of the refused one; equal expiries
     // would put the newest first and leave the refusal at the head, where even
     // a head-only check would find it.
     const corpse = rottingCorpse(state, 25, 6, -1);
-    const lamp = newObject({
+    const later = newObject({
         o_id: nextTimerObjectId++,
-        oclass: state.objects[OIL_LAMP].oc_class,
-        otyp: OIL_LAMP,
+        oclass: state.objects[CORPSE].oc_class,
+        otyp: CORPSE,
         quan: 1,
     });
-    start_timer(0, TIMER_OBJECT, BURN_OBJECT, lamp, state);
+    start_timer(0, TIMER_OBJECT, REVIVE_MON, later, state);
     assert.equal(state.gt.timer_base.arg, corpse);
     const queueBefore = queue(state).map((timer) => timer.tid);
 
     await assert.rejects(
         run_timers(state, { newsym: () => {} }),
-        /a ported timeout function, but burn_object\(\) is due/u,
+        /a ported timeout function, but revive_mon\(\) is due/u,
     );
 
     assert.equal(corpse.where, OBJ_FLOOR);

@@ -3341,7 +3341,6 @@ function preflightObjectExtraction(obj, env) {
         preflightFreeinvCore(obj, env);
         break;
     case OBJ_FLOOR:
-    case OBJ_MIGRATING:
         requiredHook(env, 'extractExternalObject', obj);
         break;
     case OBJ_ONBILL:
@@ -3389,7 +3388,6 @@ export function obj_extract_self(obj, env = {}) {
         );
         return obj;
     case OBJ_FLOOR:
-    case OBJ_MIGRATING:
         requiredHook(normalized, 'extractExternalObject', obj)(obj, normalized);
         if (obj.where !== OBJ_FREE)
             throw new Error('extractExternalObject must leave object OBJ_FREE');
@@ -3398,6 +3396,13 @@ export function obj_extract_self(obj, env = {}) {
                 'extractExternalObject must clear object chain links',
             );
         }
+        return obj;
+    case OBJ_MIGRATING:
+        // C ref: mkobj.c obj_extract_self():2581-2583. Migration follows
+        // nobj on gm.migrating_objs, not the floor's nexthere pile.
+        normalized.state.gm.migrating_objs = extract_nobj(
+            obj, normalized.state.gm.migrating_objs,
+        );
         return obj;
     case OBJ_ONBILL:
         normalized.state.gb.billobjs = extract_nobj(

@@ -2303,9 +2303,9 @@ function shk_owns(obj, state) {
 }
 
 // C ref: shk.c mon_owns() (5899-5905).
-function mon_owns(obj, state) {
+function mon_owns(obj, state, env = {}) {
     if (obj.where === OBJ_MINVENT)
-        return s_suffix(y_monnam(obj.ocarry, state));
+        return s_suffix(y_monnam(obj.ocarry, state, env));
     return null;
 }
 
@@ -2316,7 +2316,7 @@ function mon_owns(obj, state) {
 // Personal-name corpses need no prefix, and a unique unnamed corpse gets
 // "the". Other objects try shop ownership, monster ownership, and then the
 // ordinary carried or uncarried prefix in C's short-circuit order.
-export function shk_your(obj, state = game) {
+export function shk_your(obj, state = game, env = {}) {
     const corpseSpecies = obj?.otyp === CORPSE && ismnum(obj.corpsenm)
         ? state.mons?.[obj.corpsenm] : null;
     const namedCorpse = Boolean(corpseSpecies);
@@ -2325,15 +2325,15 @@ export function shk_your(obj, state = game) {
 
     const shopOwner = shk_owns(obj, state);
     if (shopOwner) return shopOwner + ' ';
-    const monsterOwner = mon_owns(obj, state);
+    const monsterOwner = mon_owns(obj, state, env);
     if (monsterOwner) return monsterOwner + ' ';
     return the_your[carried(obj) ? 1 : 0] + ' ';
 }
 
 // C ref: shk.c Shk_Your() (5877-5882). Capitalize only the first byte of
 // shk_your()'s source-owned prefix; names such as "Ozzy's " retain their case.
-export function Shk_Your(obj, state = game) {
-    return upstart(shk_your(obj, state));
+export function Shk_Your(obj, state = game, env = {}) {
+    return upstart(shk_your(obj, state, env));
 }
 
 function heroIsInvisible(state) {

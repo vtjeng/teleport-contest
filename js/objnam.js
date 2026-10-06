@@ -1715,13 +1715,13 @@ export function Tobjnam(otmp, verb, state = game) {
 // artifacts last, from The Orb of Detection at 219 onward, so one comparison
 // separates them. C evaluates carried() first, which is why an artifact lying
 // on the floor keeps the prefix without obj_is_pname() being asked at all.
-export function yname(obj, state = game) {
+export function yname(obj, state = game, env = {}) {
     const s = cxname(obj, state);
 
     if (!carried(obj)
         || !obj_is_pname(obj, state)
         || obj.oartifact >= ART_ORB_OF_DETECTION) {
-        const prefix = shk_your(obj, state);
+        const prefix = shk_your(obj, state, env);
         const remaining = BUFSZ - 1 - Strlen_(prefix, 'yname', 2368);
         return prefix + truncateByteString(s, Math.min(
             remaining, Strlen_(s, 'yname', 2368),
@@ -1732,8 +1732,8 @@ export function yname(obj, state = game) {
 
 // C ref: objnam.c Yname2() (2376-2383). yname() with its first character
 // capitalized, so that the name can open a sentence.
-export function Yname2(obj, state = game) {
-    const s = yname(obj, state);
+export function Yname2(obj, state = game, env = {}) {
+    const s = yname(obj, state, env);
 
     return highc(s[0]) + s.slice(1);
 }
