@@ -190,6 +190,7 @@ import { split_mon } from './potion.js';
 import { messageAt } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { polyself } from './polyself.js';
+import { you_were } from './were.js';
 import { rloc, tele, tele_restrict } from './teleport.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
@@ -1397,7 +1398,7 @@ export async function mon_poly(magr, mdef, damage, state = game, rawEnv = {}) {
                 await polyself(POLY_NOFLAGS, state);
             } else if (state.u.umonnum !== state.u.ulycn) {
                 await message('You feel an unnatural urge coming on.', state);
-                note_unported('were.c you_were');
+                await you_were(state, env);
             } else {
                 await message('You feel a natural urge coming on.', state);
                 note_unported('were.c you_unwere');

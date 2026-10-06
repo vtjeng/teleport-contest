@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-defined hero lycanthrope route: eat blessed human wererat meat, generate a hostile genetic engineer, then wait for AD_POLY. mhitm.c:mon_poly must call were.c:you_were; its uncontrolled adjacent-monster gate prevents transformation. Seed, clock and setup are independent of the admitted Tourist case. Inventory letter is provisional pending C inspection. First C-only observation confirmed tin slot n, one smell More, then Eat it?; this correction supplies y at that exact C prompt rather than the prior extra space. The equipped Wizard has Antimagic from the initial cloak, so mon_poly cannot reach its urge branch. The pauper option removes equipment; the independently wished tin starts at slot a. Frozen source-based second setup before C comparison. C start_tin uses a 50/50 one-turn delay for blessed tins without a blessed opener, and the queued next input interrupts that occupation. A wielded blessed tin opener makes access immediate by source, keeping the lycanthropy setup repeatable.",
+  "segments": [
+    {
+      "seed": 681109,
+      "datetime": "20911006123000",
+      "nethackrc": "OPTIONS=name:A106Engineer,role:Wizard,race:human,gender:male,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n\u0017blessed tin opener\n\u0017blessed homemade tin of human wererat meat\nwa eb y \u0007hostile genetic engineer\n..        .        .        "
+    }
+  ]
+}

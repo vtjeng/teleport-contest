@@ -140,3 +140,18 @@ test('the admitted cursed-water command matches through the transformation bound
         assert.equal(game.u.umonnum, PM_WERERAT);
         assert.equal(game.gw.were_changes, 0); // set_uasmon consumes it.
     });
+
+test('incoming genetic-engineer attacks reach the lycanthrope adjacent-monster gate',
+    async () => {
+        restoreReadKey?.();
+        const session = JSON.parse(readFileSync(new URL(
+            '../recordings/were.c/a106-mon-poly-lycan.session.json',
+            import.meta.url,
+        ), 'utf8'));
+        await runSegment(session.segments[0]);
+        assert.equal(game.u.ulycn, PM_WERERAT);
+        // The hostile engineer remains adjacent: were.c returns before
+        // transforming, while mon_poly sets the AD_POLY damage to zero.
+        assert.equal(game.u.umonnum, game.u.umonster);
+        assert.equal(game.unported?.has('were.c you_were') ?? false, false);
+    });
