@@ -174594,7 +174594,7 @@
       "sessions": [
         "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits"
       ],
-      "selectionReason": "The current v18 mind-flayer case stops in the unported AD_DRIN dispatcher. A completed source audit bounds the coherent task to uhitm.c:mhitm_ad_drin, eat.c:eat_brains, uhitm.c:m_slips_free, mhitu.c:u_slip_free, dispatcher wiring, and independent runtime evidence for hero-to-monster, monster-to-hero, and monster-to-monster directions.",
+      "selectionReason": "The current v18 mind-flayer case stops in the unported AD_DRIN dispatcher. A completed source audit bounds the coherent task to uhitm.c:mhitm_ad_drin, eat.c:eat_brains, uhitm.c:m_slips_free, mhitu.c:u_slip_free, dispatcher wiring, and independent runtime evidence for hero-to-monster, monster-to-hero, and monster-to-monster directions. The pre-edit planning audit also requires env threading through eat.c:eating_conducts, maybe_cannibal, and violated_vegetarian so clone planning cannot touch the live terminal or global RNG.",
       "detail": "",
       "openedAt": null,
       "openStanding": null,
@@ -174636,6 +174636,30 @@
           "endLine": 1088,
           "declared": true,
           "sourceFile": "mhitu.c",
+          "complete": false
+        },
+        {
+          "name": "eating_conducts",
+          "line": 576,
+          "endLine": 602,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "maybe_cannibal",
+          "line": 758,
+          "endLine": 790,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "violated_vegetarian",
+          "line": 1376,
+          "endLine": 1388,
+          "declared": true,
+          "sourceFile": "eat.c",
           "complete": false
         }
       ],
