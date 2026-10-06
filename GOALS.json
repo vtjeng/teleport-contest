@@ -177549,6 +177549,308 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-were-you-were-v17-20261006",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port whole were.c you_were and wire every production caller",
+      "cFile": "were.c",
+      "sessions": [
+        "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters"
+      ],
+      "selectionReason": "The admitted v17 cursed-water tail reaches were.c you_were after matching 77 of 78 screens. Existing monster_nearby and paranoid_query return dependencies are complete; accepted B113 provides the mon_poly caller.",
+      "detail": "Port were.c you_were lines 191-212 completely. Preserve control, awareness, Unchanging and current-form gates; paranoid confirmation before monster_nearby; were_changes update before polymon; and source messages. Wire both potion.c peffect_water branches, potionbreathe, allmain.c delayed lycanthropy dispatch, and the accepted mhitm.c mon_poly caller. Keep you_unwere as separate source work. Verify all four active caller families with independent recordings or admitted synthetic evidence.",
+      "openedAt": "40dbbbbcf8ea2ef1b332021e80efe1b13fdd002f",
+      "openStanding": {
+        "sha": "e2e7e8d71198067023356a879d205205d2d01c84",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "you_were",
+          "line": 192,
+          "endLine": 212,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 192,
+        "to": 212
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters": {
+          "session": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+          "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+          "evaluationPath": "challenges/evaluations/20261006141335-v17.json",
+          "evaluationCommit": "f090c5e3dac898f0a7a9313809defbf18d293a5d"
+        }
+      },
+      "activeStanding": {
+        "sha": "e2e7e8d71198067023356a879d205205d2d01c84",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+          "session": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+          "recordingPath": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+          "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+          "recipe": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.recipe.session.json",
+          "recipeSha256": "b2ac2d535918bf55bf9cebcd14460c857b9455463d70e0fd1be37f2cf8093dcd",
+          "replayInputSha256": "296a8d6bde9ec72d5265cf600404f226aa375d7c21728e32c4d76bcbf0531e55",
+          "evaluationPath": "challenges/evaluations/20261006141335-v17.json",
+          "evaluationCommit": "f090c5e3dac898f0a7a9313809defbf18d293a5d",
+          "evaluationArtifact": "challenges/evaluations/20261006141335-v17.json",
+          "evaluationUtc": "2026-10-06T14:14:23.172Z",
+          "remainingScreens": 1,
+          "recordedSteps": 78,
+          "previousScreensMatched": 77,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 77,
+              "total": 78
+            },
+            "rng": {
+              "matched": 2690,
+              "total": 2694
+            },
+            "cursors": {
+              "matched": 77,
+              "total": 78
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 77,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 77,
+                "key": "p"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 33,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2690,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(19)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 77,
+                "key": "p"
+              },
+              "stepIndex": 77
+            },
+            "cursor": {
+              "index": 77,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 77,
+                "key": "p"
+              },
+              "cCursor": [
+                67,
+                0,
+                1
+              ],
+              "jsCursor": [
+                41,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 77,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.json",
+            "result": {
+              "session": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+              "evaluationPath": "challenges/evaluations/20261002152420-v17.json",
+              "evaluationCommit": "068504cf1fc7aac157918a9a81b3ce562f87cf42",
+              "remainingScreens": 1,
+              "recordedSteps": 78,
+              "status": "complete",
+              "commit": "068504cf1fc7aac157918a9a81b3ce562f87cf42",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+                "session": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+                "recordingPath": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+                "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+                "recipe": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.recipe.session.json",
+                "recipeSha256": "b2ac2d535918bf55bf9cebcd14460c857b9455463d70e0fd1be37f2cf8093dcd",
+                "replayInputSha256": "5a8878ab53849370f8e0895b1750321da0f4a6699a57ebaa26f66be995f5acec",
+                "evaluationPath": "challenges/evaluations/20261002152420-v17.json",
+                "evaluationCommit": "068504cf1fc7aac157918a9a81b3ce562f87cf42",
+                "evaluationArtifact": "challenges/evaluations/20261002152420-v17.json",
+                "evaluationUtc": "2026-10-02T15:25:02.900Z",
+                "remainingScreens": 1,
+                "recordedSteps": 78,
+                "previousScreensMatched": 77,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 77,
+                    "total": 78
+                  },
+                  "rng": {
+                    "matched": 2682,
+                    "total": 2694
+                  },
+                  "cursors": {
+                    "matched": 77,
+                    "total": 78
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 77,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 77,
+                      "key": "p"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 33,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2682,
+                    "cEntry": "rn2(80)=73",
+                    "cCaller": "moveloop_core(allmain.c:328)",
+                    "jsEntry": "rn2(20)=13",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "y"
+                    },
+                    "stepIndex": 50
+                  },
+                  "cursor": {
+                    "index": 77,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 77,
+                      "key": "p"
+                    },
+                    "cCursor": [
+                      67,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      41,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 50,
+                "kind": "rng",
+                "sourceFile": "allmain.c",
+                "function": "moveloop_core",
+                "message": null,
+                "cFile": "allmain.c",
+                "luaFile": null,
+                "line": 328
+              },
+              "summary": "The tin path now calls eat.c:cpostfx() and were.c:set_ulycn(), but JavaScript still skips the delayed polymorph and lycanthropy block in allmain.c:moveloop_core(). At step 50, C consumes rn2(80)=73 for the daytime change chance; JavaScript consumes the later hunger draw instead. Resume the parked whole moveloop_core source task, including pending-change state and ordered chance and dispatch gates. The final screen at step 77 is a separate potion.c:peffect_water() -> were.c:you_were() transformation gap.",
+              "source": {
+                "file": "allmain.c",
+                "branch": "The hero has eaten a human wererat tin, cpostfx has set u.ulycn=PM_WERERAT, and the hero is not polymorphed. After teleportation and before searching, C moveloop_core validates mvl_change, tests Polymorph, then draws rn2(80 - 20 * night()) for lycanthropy. The recorded daytime value 73 fails the change gate, so no you_were call occurs at step 50. JavaScript has no corresponding delayed-change block.",
+                "functions": [
+                  "moveloop_core"
+                ],
+                "callers": [
+                  "C allmain.c:moveloop() calls moveloop_core(); JS allmain.js:moveloop() calls moveloop_core(), whose elapsed-turn path reaches finishElapsedTurnAfterTimeout(). Its teleport handling is followed directly by searching, omitting C allmain.c:321-339.",
+                  "Production tin consumption reaches eat.c:consume_tin() -> cpostfx() -> were.c:set_ulycn(). JS eat.js:cpostfx() now calls were.js:set_ulycn(), which assigns state.u.ulycn and refreshes form-derived properties with set_uasmon()."
+                ],
+                "dependencies": [
+                  "The existing parked goal port-allmain-moveloop-core-synthetic-20260918 covers the whole moveloop_core function. Resume or rescope that goal; do not replace it with a thin chance-roll task. Preserve static mvl_change state, stale-state reset, polymorph-before-lycanthropy RNG order, Unchanging and multi gates, occupation cancellation and dispatch.",
+                  "were.c:you_were() is still a genuine discarded-return gap. The recorded rn2(80)=73 does not execute it at step 50, so this range provides no transformation coverage. Matching runtime evidence remains required for the selected function's active transformation entry points.",
+                  "C eat.c:cpostfx() calls artifact.c:retouch_equipment(2) after set_ulycn(); JS retains note_unported for this separate equipment-touch gap. It is not the first recorded RNG divergence.",
+                  "The later cursed-water command at step 77 reaches C potion.c:peffect_water() -> were.c:you_were() -> polyself.c:polymon(). JS peffect_water() still records the you_were gap. Preserve this downstream unmatched screen as separate source work."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20261002152420-v17.json at 068504cf1fc7aac157918a9a81b3ce562f87cf42 reports 77/78 screens and cursors and 2682/2694 RNG calls. Its first RNG mismatch is segment 0, step 50, index 2682: C rn2(80)=73 @ moveloop_core(allmain.c:328), JS rn2(20)=13. The recording SHA-256 remains 70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e.",
+                "Immutable C step 50 key y displays “You consume dried wererat.” After monster movement and generation draws, it records rn2(80)=73 @ moveloop_core(allmain.c:328), then rn2(20)=4 @ gethungry(eat.c:3191). This orders the missing chance draw before the hunger draw consumed by JavaScript.",
+                "Root source read of the unchanged implementation measured at 068504cf1fc7aac157918a9a81b3ce562f87cf42 confirms JS eat.js:cpostfx() calls set_ulycn(catch_lycanthropy,state). JS were.js:set_ulycn() assigns u.ulycn and calls set_uasmon(), matching C were.c:232-237. Counterevidence to the old investigation: the setter is implemented and wired; it must not be treated as an outstanding prerequisite.",
+                "Root compared the complete C delayed-change block allmain.c:321-339 with JS finishElapsedTurnAfterTimeout(): teleport handling is immediately followed by automatic searching. Pending mvl_change, the Polymorph rn2(100) gate, the lycanthropy rn2(80 - 20 * night()) gate and their deferred dispatch are absent there.",
+                "Immutable C step 77 key p records d(2,6)=11 @ peffect_water(potion.c:742), exercise draws, rn2(500)=112 @ polymon(polyself.c:813), d(2,8)=12 @ polymon(polyself.c:868), and “You turn into a wererat!” C potion.c:740-745 calls you_were(); JS peffect_water() retains note_unported for that source site. This explains the later unmatched screen and does not change the first RNG owner.",
+                "Historical hunger diagnosis remains superseded: the complete tintxts nutrition and greasy metadata is restored, and current C/JS play reaches cpostfx before the first RNG difference. Git retains prior investigation versions."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
