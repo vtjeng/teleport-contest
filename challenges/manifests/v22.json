@@ -1,0 +1,2157 @@
+{
+  "version": 1,
+  "batch": "v22",
+  "status": "prepared-unadmitted-unscored",
+  "comparisonBase": "75c6a65ea33016038327e65dd957906cd4c4d373",
+  "comparisonBases": [
+    {
+      "sha": "75c6a65ea33016038327e65dd957906cd4c4d373",
+      "measuredFor": "all18 selected v22 fresh strict comparisons after accepted C70 publication"
+    },
+    {
+      "sha": "6517190260a95343f1dfa45f68e47810ac853e6a",
+      "kind": "accepted report-only main ancestor merged at the measured worker head",
+      "engineInputsUnchanged": true,
+      "notMeasurementHead": true
+    }
+  ],
+  "sourcePlan": {
+    "path": ".cache/B98-final-mission-plan.json",
+    "sha256": "20ed6df9dd3128156069d5d3d68f1a8d12e5dcaa152707537a5b6dc5b5583795"
+  },
+  "historicalPriorUniverse": {
+    "caseCount": 68,
+    "caseIds": [
+      "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+      "wizard-offers-orc-corpse-lawful-altar-v21-misaligned-result-final",
+      "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+      "wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+      "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+      "wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+      "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+      "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+      "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+      "wizard-killer-bee-stings-poison-v21-cfirst",
+      "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+      "wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst",
+      "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+      "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+      "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+      "archon-gazes-at-fire-giant-under-conflict-v21-cfirst",
+      "hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+      "hostile-wizard-of-yendor-attempts-amulet-theft-v21-welcome-pager-corrected",
+      "wizard-arms-and-triggers-wished-land-mine-v21-cfirst",
+      "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+      "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst",
+      "wizard-confused-reads-light-scroll-v21-effect-result",
+      "wizard-dips-healing-potion-into-speed-v21-selector-menu",
+      "wizard-drinks-fountain-item-curse-v21-one-wait-variation",
+      "wizard-drinks-fountain-item-curse-v21-startup-pager-corrected",
+      "wizard-offers-fake-amulet-on-neutral-altar-v21-cfirst",
+      "wizard-offers-orc-corpse-lawful-altar-v21-misaligned-setup",
+      "wizard-offers-orc-corpse-neutral-altar-v21-aligned-orc-offering",
+      "wizard-offers-orc-corpse-neutral-altar-v21-result-continued",
+      "wizard-reads-blessed-identify-scroll-v21-slot-o-more-continued",
+      "wizard-reads-blessed-identify-scroll-v21",
+      "wizard-reads-taming-scroll-hostile-pair-v21-effect-continued",
+      "wizard-sits-wished-throne-case9-rndcurse-v21-cfirst",
+      "wizard-sits-wished-throne-case9-rndcurse-v21-seed-variation",
+      "wizard-sits-wished-throne-case9-rndcurse-v21-startup-more-corrected",
+      "wizard-triggers-anti-magic-trap-v21-no-resistance-cfirst",
+      "wizard-triggers-anti-magic-trap-v21-source-first",
+      "wizard-triggers-anti-magic-trap-v21-source-return-corrected-cfirst",
+      "wizard-wields-wet-towel-removes-cream-pie-v21-cfirst",
+      "wizard-wishes-statue-trap-releases-living-statue-v21-cfirst",
+      "wizard-wishes-statue-trap-releases-living-statue-v21-stairs-corrected-cfirst",
+      "wizard-zaps-already-locked-floor-chest-with-locking-wand-v21-variation",
+      "wizard-zaps-floor-chest-with-locking-wand-v21-cfirst",
+      "wizard-zaps-hostile-goblin-with-slow-monster-v21-carried-wand-corrected",
+      "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+      "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+      "green-slime-infects-wizard-c59-rest-prefix-corrected",
+      "quantum-mechanic-teleports-hero-c62",
+      "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+      "royal-jelly-consumption-effect-v20-selector-p-corrected",
+      "black-light-hallucination-blast-v20",
+      "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+      "cursed-apple-fpostfx-after-rottenfood-v20",
+      "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+      "python-wraps-with-hug-attack-c62",
+      "energy-vortex-engulfs-and-drains-energy-c62-more",
+      "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+      "spotted-jelly-acid-passive-c62-west-attack",
+      "black-pudding-corrosion-on-worn-chain-mail-c62",
+      "famine-touches-wizard-v20",
+      "wizard-applies-tin-opener-to-spinach-tin",
+      "wizard-hostile-fire-ant-ad-fire-c59",
+      "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+      "pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+      "large-mimic-sticks-valkyrie-c62-pager-corrected",
+      "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+      "wizard-wields-silver-saber-retries-succubus-strike-c59",
+      "tin-human-wererat-cpostfx-slot-n"
+    ],
+    "recordingPairs": [
+      {
+        "caseId": "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-mixture-result.session.json",
+        "recordingSha256": "1da19125d895a4ba98ceaa86db05cc4cc4d3c393390065a6594000330010e1cf"
+      },
+      {
+        "caseId": "wizard-offers-orc-corpse-lawful-altar-v21-misaligned-result-final",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-offers-orc-corpse-lawful-altar-v21-misaligned-result-final.session.json",
+        "recordingSha256": "0d42f12dc48f54021a32d24e0cbcefc526064dd27bb34bac6323b05ff62f5d3a"
+      },
+      {
+        "caseId": "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.session.json",
+        "recordingSha256": "1615189ddaee7cd27219a6dea269d553e617ed52ad7e8553995e3c38cfb6ce33"
+      },
+      {
+        "caseId": "wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected.session.json",
+        "recordingSha256": "77a0ef4747a8edfdfd52c9b4db408c8921313a52c1f83105ef2f8fe768fbb522"
+      },
+      {
+        "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.session.json",
+        "recordingSha256": "519cbcc0a68c203238b5c70fc574c8b3758c0e0f0f63c357d69b6f0c43c389cc"
+      },
+      {
+        "caseId": "wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst.session.json",
+        "recordingSha256": "d860dc7a4ce6b5431cd8506d89499a98de4079e2a5e12449742a6dd43244d64a"
+      },
+      {
+        "caseId": "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst.session.json",
+        "recordingSha256": "9ff9233f2a658ec6d3f37db7b75896a5aaa4cda4fadb9c81072d33acef9c3641"
+      },
+      {
+        "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+        "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d"
+      },
+      {
+        "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.session.json",
+        "recordingSha256": "a92669cbc1408c7b6512ddf48b5a239bccbe74f473f610961ebe047a5043b00f"
+      },
+      {
+        "caseId": "wizard-killer-bee-stings-poison-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-killer-bee-stings-poison-v21-cfirst.session.json",
+        "recordingSha256": "c2f81011a67c9c90524f9ada6447288f33d8da40e5d63e1185320931272d86d4"
+      },
+      {
+        "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5.session.json",
+        "recordingSha256": "feda298380f4512016ea2164d6f9f0b016b7eef6a64a4305e0348e7de6b76e50"
+      },
+      {
+        "caseId": "wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst.session.json",
+        "recordingSha256": "5f1c0744b10c0293ffba9f77e30e6ceb7297fc80c4cf8c79a1a49afacfa11f50"
+      },
+      {
+        "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected.session.json",
+        "recordingSha256": "b3b3e1773ebd6dc68e138d81acadbf6bd2f62dbf76524b55dc25c9ae0e0e0a15"
+      },
+      {
+        "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+        "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b"
+      },
+      {
+        "caseId": "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.session.json",
+        "recordingSha256": "9f409bbb21792da65d3c5532aac43ebb52ca5575b4480077558270cfa6863113"
+      },
+      {
+        "caseId": "archon-gazes-at-fire-giant-under-conflict-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-under-conflict-v21-cfirst.session.json",
+        "recordingSha256": "88ae8ffca680af409cc9f519dfc7588cd06b7bcc0253ac7798e26ae920464414"
+      },
+      {
+        "caseId": "hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation.session.json",
+        "recordingSha256": "dde027291c1e4acc27f079abd5b3cc4f131f1fda96821d81ddb78c990948981a"
+      },
+      {
+        "caseId": "hostile-wizard-of-yendor-attempts-amulet-theft-v21-welcome-pager-corrected",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/hostile-wizard-of-yendor-attempts-amulet-theft-v21-welcome-pager-corrected.session.json",
+        "recordingSha256": "369f0af5aa5661f4105a9efb790c310d757747cad0c8836e0e301e1fac7055a6"
+      },
+      {
+        "caseId": "wizard-arms-and-triggers-wished-land-mine-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-arms-and-triggers-wished-land-mine-v21-cfirst.session.json",
+        "recordingSha256": "7d930d54e59b3c6a9e957726b8f15d496ffd410ce535543c1df462557729f7e8"
+      },
+      {
+        "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.session.json",
+        "recordingSha256": "74b358246a488ea58385c6a9fd5f6add454f35e2336451880308c5b41691352f"
+      },
+      {
+        "caseId": "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst.session.json",
+        "recordingSha256": "72598054a63522f80efbe24892eee90676d60962f4b5fa97d99eaf1c3c19ee2c"
+      },
+      {
+        "caseId": "wizard-confused-reads-light-scroll-v21-effect-result",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-confused-reads-light-scroll-v21-effect-result.session.json",
+        "recordingSha256": "835ca901d0e5277566a42834e8c74674362244bae88897c13ba53d86e303a815"
+      },
+      {
+        "caseId": "wizard-dips-healing-potion-into-speed-v21-selector-menu",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-dips-healing-potion-into-speed-v21-selector-menu.session.json",
+        "recordingSha256": "78dc760726aeb3b27e339f07cbc4ef0cdb1717a651e874d74c99c8b30e69b7d1"
+      },
+      {
+        "caseId": "wizard-drinks-fountain-item-curse-v21-one-wait-variation",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-drinks-fountain-item-curse-v21-one-wait-variation.session.json",
+        "recordingSha256": "4c4a3dba969e135ec6fda8ba2dca4310dd1f8fcabd6d6c3ec2dd4a3a91492f6f"
+      },
+      {
+        "caseId": "wizard-drinks-fountain-item-curse-v21-startup-pager-corrected",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-drinks-fountain-item-curse-v21-startup-pager-corrected.session.json",
+        "recordingSha256": "bbfbe948b3525dcfb86ed07c7588b9c41bb834acb981d5d806187ec8aeb18a6a"
+      },
+      {
+        "caseId": "wizard-offers-fake-amulet-on-neutral-altar-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-cfirst.session.json",
+        "recordingSha256": "cc8d79216ad1d6f86de42732c26dfb10475f42b581606bef56858073fc470472"
+      },
+      {
+        "caseId": "wizard-offers-orc-corpse-lawful-altar-v21-misaligned-setup",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-offers-orc-corpse-lawful-altar-v21-misaligned-setup.session.json",
+        "recordingSha256": "f2ac25fc5476ddd28f5bc0f785ad7af3404c272c20f6e3c79997f3974e52e940"
+      },
+      {
+        "caseId": "wizard-offers-orc-corpse-neutral-altar-v21-aligned-orc-offering",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-offers-orc-corpse-neutral-altar-v21-aligned-orc-offering.session.json",
+        "recordingSha256": "5bebd5b10d6df85dce4c173cf5a8fd17ac79b4bb9784efeaac277afa9e80d82c"
+      },
+      {
+        "caseId": "wizard-offers-orc-corpse-neutral-altar-v21-result-continued",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-offers-orc-corpse-neutral-altar-v21-result-continued.session.json",
+        "recordingSha256": "53953a7ff5e7306f4657df5f64feb698e1c42da8d253966a509ff9e716ee12ac"
+      },
+      {
+        "caseId": "wizard-reads-blessed-identify-scroll-v21-slot-o-more-continued",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-reads-blessed-identify-scroll-v21-slot-o-more-continued.session.json",
+        "recordingSha256": "cca0c6e6f0ab03ff8e1734a91881c39a2afcddc03eb677caff0f168466fe7d2c"
+      },
+      {
+        "caseId": "wizard-reads-blessed-identify-scroll-v21",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-reads-blessed-identify-scroll-v21.session.json",
+        "recordingSha256": "a98c35a789728e50ecdcdbe268810fbd02e9e2d0773bea926ff2d68caa707a2e"
+      },
+      {
+        "caseId": "wizard-reads-taming-scroll-hostile-pair-v21-effect-continued",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-reads-taming-scroll-hostile-pair-v21-effect-continued.session.json",
+        "recordingSha256": "d2abf2d5e16c6eeeeda678f39e1f7eb68a0ba6361f232849e5b980793ee92080"
+      },
+      {
+        "caseId": "wizard-sits-wished-throne-case9-rndcurse-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-sits-wished-throne-case9-rndcurse-v21-cfirst.session.json",
+        "recordingSha256": "a82dd73595192296706c10b31a91eae14fef93a411f34d3e7195a04057529b22"
+      },
+      {
+        "caseId": "wizard-sits-wished-throne-case9-rndcurse-v21-seed-variation",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-sits-wished-throne-case9-rndcurse-v21-seed-variation.session.json",
+        "recordingSha256": "0086d654e4e9a0bc8fc8377f90c9ef8250e2d1eab646e0601bd483efaed8f5ac"
+      },
+      {
+        "caseId": "wizard-sits-wished-throne-case9-rndcurse-v21-startup-more-corrected",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-sits-wished-throne-case9-rndcurse-v21-startup-more-corrected.session.json",
+        "recordingSha256": "796df1d2ca8c73641793837a390ff0c1f8d4e12321cbdc769ae5f2a95471bcfd"
+      },
+      {
+        "caseId": "wizard-triggers-anti-magic-trap-v21-no-resistance-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-triggers-anti-magic-trap-v21-no-resistance-cfirst.session.json",
+        "recordingSha256": "bbabf4197eccdce1e8119bb86c7263133e846e0595c61fa5e065393371be59f4"
+      },
+      {
+        "caseId": "wizard-triggers-anti-magic-trap-v21-source-first",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-triggers-anti-magic-trap-v21-source-first.session.json",
+        "recordingSha256": "852e2855c3d07cfe3bd53e25800593a7a046a0941725c8202573a7fa4a0dfc00"
+      },
+      {
+        "caseId": "wizard-triggers-anti-magic-trap-v21-source-return-corrected-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-triggers-anti-magic-trap-v21-source-return-corrected-cfirst.session.json",
+        "recordingSha256": "afb35835be2f087272b9a06e513c3d49685ecaa0afebed1f7372022fe2857895"
+      },
+      {
+        "caseId": "wizard-wields-wet-towel-removes-cream-pie-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-wields-wet-towel-removes-cream-pie-v21-cfirst.session.json",
+        "recordingSha256": "0cfa792aa123fb8fd836b8b448f90fd74650755950d4da76316bce1dec00e852"
+      },
+      {
+        "caseId": "wizard-wishes-statue-trap-releases-living-statue-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-wishes-statue-trap-releases-living-statue-v21-cfirst.session.json",
+        "recordingSha256": "3558d195b756657dcad4ae147d046e8218a75d68800c5428db2cf6698083661f"
+      },
+      {
+        "caseId": "wizard-wishes-statue-trap-releases-living-statue-v21-stairs-corrected-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-wishes-statue-trap-releases-living-statue-v21-stairs-corrected-cfirst.session.json",
+        "recordingSha256": "aef915a99479b48a9167b93a7b6f04d10f6dfbd5bb643f5af67c8d0f9ed21061"
+      },
+      {
+        "caseId": "wizard-zaps-already-locked-floor-chest-with-locking-wand-v21-variation",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-zaps-already-locked-floor-chest-with-locking-wand-v21-variation.session.json",
+        "recordingSha256": "5cfa842e7fe3f693b8a81b3f0efacfcf0966d08ad73e1a61e9627ba63172db4a"
+      },
+      {
+        "caseId": "wizard-zaps-floor-chest-with-locking-wand-v21-cfirst",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-zaps-floor-chest-with-locking-wand-v21-cfirst.session.json",
+        "recordingSha256": "9e45b6f06fa30f7765dcefb88161324655197814b82e21a187d2bd38dc93af42"
+      },
+      {
+        "caseId": "wizard-zaps-hostile-goblin-with-slow-monster-v21-carried-wand-corrected",
+        "batch": "v21",
+        "recording": "challenges/cases/v21/wizard-zaps-hostile-goblin-with-slow-monster-v21-carried-wand-corrected.session.json",
+        "recordingSha256": "e3dcbca1d9809e67423c95422697dede0c362d5af2914f3fb35968f39a55a627"
+      },
+      {
+        "caseId": "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+        "batch": "v20",
+        "recording": "challenges/cases/v20/hatch-viable-giant-ant-egg-protection-pager-corrected-v20.session.json",
+        "recordingSha256": "fb88c4150fe6a1fa884b19c83648994cfa0a30ed0ce6d9d0aee77c0c9e83123e"
+      },
+      {
+        "caseId": "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+        "batch": "v20",
+        "recording": "challenges/cases/v20/nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected.session.json",
+        "recordingSha256": "98fe537d078f18a8c5aba5af28a5458fe44fbc4161ec4925e3062fe35f5c7b3a"
+      },
+      {
+        "caseId": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+        "batch": "v18",
+        "recording": "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+        "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca"
+      },
+      {
+        "caseId": "quantum-mechanic-teleports-hero-c62",
+        "batch": "v19",
+        "recording": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.session.json",
+        "recordingSha256": "bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922"
+      },
+      {
+        "caseId": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+        "batch": "v19",
+        "recording": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+        "recordingSha256": "ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484"
+      },
+      {
+        "caseId": "royal-jelly-consumption-effect-v20-selector-p-corrected",
+        "batch": "v20",
+        "recording": "challenges/cases/v20/royal-jelly-consumption-effect-v20-selector-p-corrected.session.json",
+        "recordingSha256": "b71addf0028e460f52df38a9e080fadcd9511fe947cc3e4e8a84118337698122"
+      },
+      {
+        "caseId": "black-light-hallucination-blast-v20",
+        "batch": "v20",
+        "recording": "challenges/cases/v20/black-light-hallucination-blast-v20.session.json",
+        "recordingSha256": "ac326b5b910c50d7df7f34deda0271054c080262b29e9c30c10713208e5182b9"
+      },
+      {
+        "caseId": "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+        "batch": "v20",
+        "recording": "challenges/cases/v20/abbot-kick-stuns-valkyrie-v20-survival-corrected.session.json",
+        "recordingSha256": "37d564a6fc52b871ad04582c173be2a9c29a251ab9ebc86a9da282e97d069f7a"
+      },
+      {
+        "caseId": "cursed-apple-fpostfx-after-rottenfood-v20",
+        "batch": "v20",
+        "recording": "challenges/cases/v20/cursed-apple-fpostfx-after-rottenfood-v20.session.json",
+        "recordingSha256": "130facda1159e122ca998d57646fc0788df9ab87173cbc9bf7c2c14ec786be70"
+      },
+      {
+        "caseId": "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+        "batch": "v20",
+        "recording": "challenges/cases/v20/icebox-restores-corpse-age-on-removal-v20-takeout-confirmed.session.json",
+        "recordingSha256": "308480fc042d2387604ee76f5b523fa732739edfd304bfcb78b71814c5d20568"
+      },
+      {
+        "caseId": "python-wraps-with-hug-attack-c62",
+        "batch": "v19",
+        "recording": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+        "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7"
+      },
+      {
+        "caseId": "energy-vortex-engulfs-and-drains-energy-c62-more",
+        "batch": "v19",
+        "recording": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+        "recordingSha256": "5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62"
+      },
+      {
+        "caseId": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+        "batch": "v19",
+        "recording": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+        "recordingSha256": "a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284"
+      },
+      {
+        "caseId": "spotted-jelly-acid-passive-c62-west-attack",
+        "batch": "v19",
+        "recording": "challenges/cases/v19/spotted-jelly-acid-passive-c62-west-attack.session.json",
+        "recordingSha256": "74fff48656e1780f3cb48dc59014b1edead682f710e83fe76f8eb33c4f064334"
+      },
+      {
+        "caseId": "black-pudding-corrosion-on-worn-chain-mail-c62",
+        "batch": "v19",
+        "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+        "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4"
+      },
+      {
+        "caseId": "famine-touches-wizard-v20",
+        "batch": "v20",
+        "recording": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+        "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7"
+      },
+      {
+        "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+        "batch": "v16",
+        "recording": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+        "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e"
+      },
+      {
+        "caseId": "wizard-hostile-fire-ant-ad-fire-c59",
+        "batch": "v18",
+        "recording": "challenges/cases/v18/wizard-hostile-fire-ant-AD-FIRE-c59.session.json",
+        "recordingSha256": "2e089f493a758b81379deef6739e2d35cfb17dede196be6ca6c725bbb4e5be10"
+      },
+      {
+        "caseId": "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+        "batch": "v18",
+        "recording": "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.session.json",
+        "recordingSha256": "b1cc90c4d15255a78d9c4b52745cabc3966fc3d708fcf79319805b1023677bd0"
+      },
+      {
+        "caseId": "pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+        "batch": "v20",
+        "recording": "challenges/cases/v20/pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup.session.json",
+        "recordingSha256": "3aa2cc068fff1e549763ce4b68c0e736765ad5560108f82f47fa3b58ae07bf1d"
+      },
+      {
+        "caseId": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+        "batch": "v19",
+        "recording": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+        "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b"
+      },
+      {
+        "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+        "batch": "v17",
+        "recording": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+        "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e"
+      },
+      {
+        "caseId": "wizard-wields-silver-saber-retries-succubus-strike-c59",
+        "batch": "v18",
+        "recording": "challenges/cases/v18/wizard-wields-silver-saber-retries-succubus-strike-c59.session.json",
+        "recordingSha256": "697e8aad18d9b7e64ac2d1f2b084d05fb91020d5438d73d45f72f32a46368cb3"
+      },
+      {
+        "caseId": "tin-human-wererat-cpostfx-slot-n",
+        "batch": "v17",
+        "recording": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+        "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0"
+      }
+    ],
+    "immediatelyPriorBatchCaseCount": 44,
+    "immediatelyPriorBatchCaseIds": [
+      "wizard-dips-healing-potion-into-speed-v21-mixture-result",
+      "wizard-offers-orc-corpse-lawful-altar-v21-misaligned-result-final",
+      "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+      "wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+      "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+      "wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+      "wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
+      "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+      "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+      "wizard-killer-bee-stings-poison-v21-cfirst",
+      "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+      "wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst",
+      "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst-pager-corrected",
+      "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+      "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+      "archon-gazes-at-fire-giant-under-conflict-v21-cfirst",
+      "hostile-wizard-of-yendor-attempts-amulet-theft-v21-five-turn-continuation",
+      "hostile-wizard-of-yendor-attempts-amulet-theft-v21-welcome-pager-corrected",
+      "wizard-arms-and-triggers-wished-land-mine-v21-cfirst",
+      "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst",
+      "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst",
+      "wizard-confused-reads-light-scroll-v21-effect-result",
+      "wizard-dips-healing-potion-into-speed-v21-selector-menu",
+      "wizard-drinks-fountain-item-curse-v21-one-wait-variation",
+      "wizard-drinks-fountain-item-curse-v21-startup-pager-corrected",
+      "wizard-offers-fake-amulet-on-neutral-altar-v21-cfirst",
+      "wizard-offers-orc-corpse-lawful-altar-v21-misaligned-setup",
+      "wizard-offers-orc-corpse-neutral-altar-v21-aligned-orc-offering",
+      "wizard-offers-orc-corpse-neutral-altar-v21-result-continued",
+      "wizard-reads-blessed-identify-scroll-v21-slot-o-more-continued",
+      "wizard-reads-blessed-identify-scroll-v21",
+      "wizard-reads-taming-scroll-hostile-pair-v21-effect-continued",
+      "wizard-sits-wished-throne-case9-rndcurse-v21-cfirst",
+      "wizard-sits-wished-throne-case9-rndcurse-v21-seed-variation",
+      "wizard-sits-wished-throne-case9-rndcurse-v21-startup-more-corrected",
+      "wizard-triggers-anti-magic-trap-v21-no-resistance-cfirst",
+      "wizard-triggers-anti-magic-trap-v21-source-first",
+      "wizard-triggers-anti-magic-trap-v21-source-return-corrected-cfirst",
+      "wizard-wields-wet-towel-removes-cream-pie-v21-cfirst",
+      "wizard-wishes-statue-trap-releases-living-statue-v21-cfirst",
+      "wizard-wishes-statue-trap-releases-living-statue-v21-stairs-corrected-cfirst",
+      "wizard-zaps-already-locked-floor-chest-with-locking-wand-v21-variation",
+      "wizard-zaps-floor-chest-with-locking-wand-v21-cfirst",
+      "wizard-zaps-hostile-goblin-with-slow-monster-v21-carried-wand-corrected"
+    ],
+    "currentUnresolvedOlderCaseCount": 24,
+    "currentUnresolvedOlderCaseIds": [
+      "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+      "nurse-heals-wizard-after-cloak-removal-v20-menu-order-corrected",
+      "green-slime-infects-wizard-c59-rest-prefix-corrected",
+      "quantum-mechanic-teleports-hero-c62",
+      "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+      "royal-jelly-consumption-effect-v20-selector-p-corrected",
+      "black-light-hallucination-blast-v20",
+      "abbot-kick-stuns-valkyrie-v20-survival-corrected",
+      "cursed-apple-fpostfx-after-rottenfood-v20",
+      "icebox-restores-corpse-age-on-removal-v20-takeout-confirmed",
+      "python-wraps-with-hug-attack-c62",
+      "energy-vortex-engulfs-and-drains-energy-c62-more",
+      "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+      "spotted-jelly-acid-passive-c62-west-attack",
+      "black-pudding-corrosion-on-worn-chain-mail-c62",
+      "famine-touches-wizard-v20",
+      "wizard-applies-tin-opener-to-spinach-tin",
+      "wizard-hostile-fire-ant-ad-fire-c59",
+      "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+      "pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+      "large-mimic-sticks-valkyrie-c62-pager-corrected",
+      "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+      "wizard-wields-silver-saber-retries-succubus-strike-c59",
+      "tin-human-wererat-cpostfx-slot-n"
+    ],
+    "comparisonArtifact": ".cache/B98-current-comparison-universe.json",
+    "comparisonArtifactSha256": "716459b9aa41369e44c50922aceebe601285eab31f9b55896d841964a549b5cf",
+    "currentUnresolvedCaseCount": 39,
+    "currentUnresolvedV21CaseCount": 15,
+    "currentComparisonUniversePath": ".cache/B98-current-comparison-universe.json",
+    "currentComparisonUniverseSha256": "716459b9aa41369e44c50922aceebe601285eab31f9b55896d841964a549b5cf"
+  },
+  "distinctFirstMismatchBuckets": [
+    {
+      "id": "B98-v22-b_trapped-trapped-door",
+      "sourceBehavior": "trap.c:b_trapped",
+      "owner": "trap.c:b_trapped",
+      "caseIds": [
+        "wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 62
+      }
+    },
+    {
+      "id": "B98-v22-fprefx-cockatrice-egg",
+      "sourceBehavior": "eat.c:fprefx EGG branch (non-Pyrolisk, non-stale egg)",
+      "owner": "eat.c:fprefx EGG branch (non-Pyrolisk, non-stale egg)",
+      "caseIds": [
+        "wizard-eats-wished-cockatrice-egg-v22-cfirst"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 27
+      }
+    },
+    {
+      "id": "B98-v22-kill_genocided_monsters",
+      "sourceBehavior": "mon.c:kill_genocided_monsters (species removal after seffect_genocide)",
+      "owner": "mon.c:kill_genocided_monsters (species removal after seffect_genocide)",
+      "caseIds": [
+        "wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 72
+      }
+    },
+    {
+      "id": "B98-v22-flash_hits_mon",
+      "sourceBehavior": "uhitm.c:flash_hits_mon",
+      "owner": "uhitm.c:flash_hits_mon",
+      "caseIds": [
+        "wizard-invokes-sunsword-ray-at-orc-v22-cfirst"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 125
+      }
+    },
+    {
+      "id": "B98-v22-zhitu-antimagic-death-ray",
+      "sourceBehavior": "zap.c:zhitu non-breath ZT_DEATH rebound against Antimagic",
+      "owner": "zap.c:zhitu non-breath ZT_DEATH rebound against Antimagic",
+      "caseIds": [
+        "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 89
+      }
+    },
+    {
+      "id": "B98-v22-release_camera_demon",
+      "sourceBehavior": "dothrow.c:release_camera_demon",
+      "owner": "dothrow.c:release_camera_demon",
+      "caseIds": [
+        "wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 29
+      }
+    },
+    {
+      "id": "B98-v22-levitation_dialogue",
+      "sourceBehavior": "timeout.c:levitation_dialogue / levitation expiry map transition",
+      "owner": "timeout.c:levitation_dialogue / levitation expiry map transition",
+      "caseIds": [
+        "wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 20
+      }
+    },
+    {
+      "id": "B98-v22-phaze_dialogue",
+      "sourceBehavior": "timeout.c:phaze_dialogue / Passes_walls transition",
+      "owner": "timeout.c:phaze_dialogue / Passes_walls transition",
+      "caseIds": [
+        "wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 20
+      }
+    },
+    {
+      "id": "B98-v22-region_dialogue",
+      "sourceBehavior": "timeout.c:region_dialogue (line 554)",
+      "owner": "timeout.c:region_dialogue (line 554)",
+      "caseIds": [
+        "wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 55
+      }
+    },
+    {
+      "id": "B98-v22-slime_dialogue",
+      "sourceBehavior": "timeout.c:slime_dialogue then attrib.c:exercise consequence",
+      "owner": "timeout.c:slime_dialogue then attrib.c:exercise consequence",
+      "caseIds": [
+        "wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 19
+      }
+    },
+    {
+      "id": "B98-v22-stoned_dialogue",
+      "sourceBehavior": "timeout.c:stoned_dialogue then attrib.c:exercise consequence",
+      "owner": "timeout.c:stoned_dialogue then attrib.c:exercise consequence",
+      "caseIds": [
+        "wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst"
+      ],
+      "cStep": {
+        "segment": 0,
+        "zeroBasedStep": 20
+      }
+    }
+  ],
+  "cases": [
+    {
+      "id": "wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected",
+      "title": "Confused enchant-weapon scroll chooses rustproofing behavior; full C/JS recording matches.",
+      "recipe": "challenges/cases/v22/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.recipe.session.json",
+      "recipeSha256": "13dd6ef77b99a5875ac3ad0f1e143e32577bd420c9e9b123b175a3735c5f84af",
+      "recording": "challenges/cases/v22/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.session.json",
+      "recordingSha256": "87a5feb5206544ced9c9e3e25ff93c8809a0e4a74d333aa13ed18b3c84304e06",
+      "sourcePointers": [
+        "read.c:seffect_enchant_weapon"
+      ],
+      "reachedBehavior": "Confused enchant-weapon scroll chooses rustproofing behavior; full C/JS recording matches.",
+      "cOutcome": "Confused enchant-weapon scroll chooses rustproofing behavior; full C/JS recording matches.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.recipe.session.json",
+        "recipeSha256": "13dd6ef77b99a5875ac3ad0f1e143e32577bd420c9e9b123b175a3735c5f84af",
+        "recording": "challenges/cases/v22/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.session.json",
+        "recordingSha256": "87a5feb5206544ced9c9e3e25ff93c8809a0e4a74d333aa13ed18b3c84304e06",
+        "independentReplay": {
+          "runId": "run-zKRgXx",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.session.json",
+          "outputSha256": "87a5feb5206544ced9c9e3e25ff93c8809a0e4a74d333aa13ed18b3c84304e06",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.receipt.json",
+          "receiptSha256": "a199cc3c5920d3ecd7db7fd9d0d51ed6aeb181d06ef3c8b4bfa72630e7e51a59",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.stderr.log",
+          "stderrSha256": "079c892877421a993a51a3cea6bdec0755c95ec5af3223be0418eb3f88498021",
+          "logPath": ".cache/B98-logs/replays/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.record-session.log",
+          "logSha256": "d7e9ec6eb3332740aa4e0feaae4f1b702909e528108725776e607a4304ef4d26",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript match",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": true,
+        "runId": "run-H0jwAh",
+        "receiptPath": ".cache/B98-logs/final-strict/run-H0jwAh/receipt.json",
+        "receiptSha256": "efd49f94f1c7d4b996485ca20e99dc2dadd42e3903a622b7624f15018b03f373",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-H0jwAh/stdout.log",
+        "stdoutSha256": "f0ce611450c5f661f39adc63a70f5ec878f6cc52c09dcd905d28f000b9bcef00",
+        "logPath": ".cache/B98-logs/final-strict/wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected.log",
+        "logSha256": "5f29c2dca6cca06e19038a83c6cbef61fcc5e2503129eee7a0ead88f4f7538c4",
+        "firstDifferenceLines": []
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+          "wizard-wields-wet-towel-removes-cream-pie-v21-cfirst"
+        ],
+        "sourceDistinction": "Scroll-driven weapon enchantment under confusion is distinct from applying/wielding wet towels.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": false,
+      "bucketId": null,
+      "firstMismatch": null,
+      "reproducibility": "Independent C replay run-zKRgXx completed with exit 0; output 87a5feb5206544ced9c9e3e25ff93c8809a0e4a74d333aa13ed18b3c84304e06 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected",
+      "title": "Ordinary dry-floor downward pickaxe digging reaches the C pit/hole result; full recording matches.",
+      "recipe": "challenges/cases/v22/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.recipe.session.json",
+      "recipeSha256": "ccdb851f8ff06aa48c76db8646a0fa8c83501d7d9a9a9050e9814ad2ebd8c742",
+      "recording": "challenges/cases/v22/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.session.json",
+      "recordingSha256": "d7cc62db88b7984668c7ecc68370bab6635ac16e884a1124c0bf73b6f4147198",
+      "sourcePointers": [
+        "dig.c:dighole",
+        "dig.c:digactualhole"
+      ],
+      "reachedBehavior": "Ordinary dry-floor downward pickaxe digging reaches the C pit/hole result; full recording matches.",
+      "cOutcome": "Ordinary dry-floor downward pickaxe digging reaches the C pit/hole result; full recording matches.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.recipe.session.json",
+        "recipeSha256": "ccdb851f8ff06aa48c76db8646a0fa8c83501d7d9a9a9050e9814ad2ebd8c742",
+        "recording": "challenges/cases/v22/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.session.json",
+        "recordingSha256": "d7cc62db88b7984668c7ecc68370bab6635ac16e884a1124c0bf73b6f4147198",
+        "independentReplay": {
+          "runId": "run-5frGD1",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.session.json",
+          "outputSha256": "d7cc62db88b7984668c7ecc68370bab6635ac16e884a1124c0bf73b6f4147198",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.receipt.json",
+          "receiptSha256": "7234d5072a9f388f430c2627f1541d22dc5d9c4bb958e8e27f7cb2df3c137891",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.stderr.log",
+          "stderrSha256": "7aa39d57cafdddcf9d71721983c53672935e680aa5f57c5ee0b57fd91fa99307",
+          "logPath": ".cache/B98-logs/replays/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.record-session.log",
+          "logSha256": "f811b0b91093896673ffe2498fcb744c32d44ef8dfe21ea85d7a7b081580fabd",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript match",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": true,
+        "runId": "run-Wth6ur",
+        "receiptPath": ".cache/B98-logs/final-strict/run-Wth6ur/receipt.json",
+        "receiptSha256": "ce4f99b0ab7e6bfb4cc8fcbb0b4270e732b479d074d9b3f5a3ed3c5963d3b7b4",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-Wth6ur/stdout.log",
+        "stdoutSha256": "288f11a58c55448c6a631e6caf3b9d80cba3de43ff0110af1b9abbeaf581c508",
+        "logPath": ".cache/B98-logs/final-strict/wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected.log",
+        "logSha256": "f6637400e1b61261c399edaa9a8ce1a0b11e28834d2cf41e8be6caa455c17127",
+        "firstDifferenceLines": []
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+          "wizard-wishes-statue-trap-releases-living-statue-v21-stairs-corrected-cfirst"
+        ],
+        "sourceDistinction": "A fresh dry-floor downward dig differs from flowing water into an existing lateral pit and breaking a wished statue trap.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": false,
+      "bucketId": null,
+      "firstMismatch": null,
+      "reproducibility": "Independent C replay run-5frGD1 completed with exit 0; output d7cc62db88b7984668c7ecc68370bab6635ac16e884a1124c0bf73b6f4147198 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page",
+      "title": "Digging a C-trapped door reaches b_trapped and its explosion branch.",
+      "recipe": "challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.recipe.session.json",
+      "recipeSha256": "18be533e7365296b84e668cbe2d0418ab8d5a3261c9f859621e0f2e9c6228830",
+      "recording": "challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.session.json",
+      "recordingSha256": "158c7b9202afc5f7d31b54efdeeab70f4124a376583beb2c79732753c9db24a4",
+      "sourcePointers": [
+        "dig.c:dig",
+        "trap.c:b_trapped"
+      ],
+      "reachedBehavior": "Digging a C-trapped door reaches b_trapped and its explosion branch.",
+      "cOutcome": "Digging a C-trapped door reaches b_trapped and its explosion branch.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.recipe.session.json",
+        "recipeSha256": "fc0b8466ae36d01070f3aec1086af2aaa4e30c978ddd3810b76357ad2cffdb67",
+        "recording": "challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.session.json",
+        "recordingSha256": "158c7b9202afc5f7d31b54efdeeab70f4124a376583beb2c79732753c9db24a4",
+        "independentReplay": {
+          "runId": "run-XGvwsU",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.session.json",
+          "outputSha256": "158c7b9202afc5f7d31b54efdeeab70f4124a376583beb2c79732753c9db24a4",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.receipt.json",
+          "receiptSha256": "06e6b7a18116ff1a9a9208db5f4b8ce11617152fcc0a4edbfe265245e941da8c",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.stderr.log",
+          "stderrSha256": "597a1e1c49620bec53785bb78d6546a5d5ccdf5018ae906a23712b8006c96291",
+          "logPath": ".cache/B98-logs/replays/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.record-session.log",
+          "logSha256": "e24b4cb5d020a173a8ac52c45222bfdbd8708bd7a05132f0bfbe0bee318cfef3",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-siFeQB",
+        "receiptPath": ".cache/B98-logs/final-strict/run-siFeQB/receipt.json",
+        "receiptSha256": "4576a61fcd700292db35d2ce8f902a11a3ba66a8832054744ac96b5e6dbc42bb",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-siFeQB/stdout.log",
+        "stdoutSha256": "58cac9e0e0b19000f662fd929f1778cf7f8741585dc100f7012afb2ef303234f",
+        "logPath": ".cache/B98-logs/final-strict/wizard-digs-through-wished-trapped-door-v22-cfirst-kaboom-page.log",
+        "logSha256": "9fcb63737b52e1b0c46a5b2d5bdd2ab611d5dc957ac943e035e68fe3f298af8d",
+        "firstDifferenceLines": [
+          "PRNG length mismatch: C=2483, JS=2487",
+          "First PRNG mismatch at call 2471 (segment 1, step 63, key \" \"):",
+          "First screen mismatch at boundary 63 (segment 1, step 63, key \" \"):",
+          "First cursor mismatch at boundary 63 (segment 1, step 63, key \" \"):"
+        ]
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-arms-and-triggers-wished-land-mine-v21-cfirst",
+          "wizard-wishes-statue-trap-releases-living-statue-v21-cfirst"
+        ],
+        "sourceDistinction": "The source target is a trapped-door excavation invoking b_trapped, separate from a land mine or object statue trap.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-b_trapped-trapped-door",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 62,
+        "key": " ",
+        "sourceBehavior": "trap.c:b_trapped",
+        "detail": "C rnd(6)=6 at b_trapped(trap.c:6697); JS rn2(5)=2; same boundary screen/cursor diverge."
+      },
+      "reproducibility": "Independent C replay run-XGvwsU completed with exit 0; output 158c7b9202afc5f7d31b54efdeeab70f4124a376583beb2c79732753c9db24a4 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-eats-wished-cockatrice-egg-v22-cfirst",
+      "title": "C consumes a cockatrice egg; its first unported behavior is the fprefx egg-feedback arm, before the later fpostfx stoning effect.",
+      "recipe": "challenges/cases/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst.recipe.session.json",
+      "recipeSha256": "3366856b7e80976e6af26e0eee0138fbbad7533b127282093af7bf465f98325f",
+      "recording": "challenges/cases/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst.session.json",
+      "recordingSha256": "717ac86e3559f1003533f33bcd30426a07cc43eb5b373378351a9696a75ebeb9",
+      "sourcePointers": [
+        "eat.c:fprefx",
+        "eat.c:fpostfx"
+      ],
+      "reachedBehavior": "C eats the cockatrice egg and first reaches eat.c:fprefx EGG feedback (give_feedback); later fpostfx adds finite Stoned state. The first JavaScript refusal is the fprefx egg arm, not fpostfx.",
+      "cOutcome": "C eats the cockatrice egg and first reaches eat.c:fprefx EGG feedback (give_feedback); later fpostfx adds finite Stoned state. The first JavaScript refusal is the fprefx egg arm, not fpostfx.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst.recipe.session.json",
+        "recipeSha256": "74504c7425af5c9898241f6347602351151149f22637fd390eaa369e02fd4b79",
+        "recording": "challenges/cases/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst.session.json",
+        "recordingSha256": "717ac86e3559f1003533f33bcd30426a07cc43eb5b373378351a9696a75ebeb9",
+        "independentReplay": {
+          "runId": "run-6boKnh",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-eats-wished-cockatrice-egg-v22-cfirst.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-eats-wished-cockatrice-egg-v22-cfirst.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-eats-wished-cockatrice-egg-v22-cfirst.session.json",
+          "outputSha256": "717ac86e3559f1003533f33bcd30426a07cc43eb5b373378351a9696a75ebeb9",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-eats-wished-cockatrice-egg-v22-cfirst.receipt.json",
+          "receiptSha256": "3b682ea6bd61a49b23153eb707583c15a9eaa7f18655231b43a97e1a0a5a1a62",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-eats-wished-cockatrice-egg-v22-cfirst.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-eats-wished-cockatrice-egg-v22-cfirst.stderr.log",
+          "stderrSha256": "d7a385c9a72eaa597c13a9279629bbec8d0fc92bfa72635f3414263c810d48b0",
+          "logPath": ".cache/B98-logs/replays/wizard-eats-wished-cockatrice-egg-v22-cfirst.record-session.log",
+          "logSha256": "f606024121c0f721d5e41a001494db43ebca2d89c234a3b633355a465c144ced",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-kFvulS",
+        "receiptPath": ".cache/B98-logs/final-strict/run-kFvulS/receipt.json",
+        "receiptSha256": "803263b98d3d5d65484077a86ac10e9ea73de690a1261d48cfd1049a51ff367e",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-kFvulS/stdout.log",
+        "stdoutSha256": "6dd1c8678a229d2c3153e406206fc9e97e254f1fea04af9daecf83cfed6d63ec",
+        "logPath": ".cache/B98-logs/final-strict/wizard-eats-wished-cockatrice-egg-v22-cfirst.log",
+        "logSha256": "1bbcd3668a0ceaabf2be6e7dfc384a2c43ae7b94b3fc977aec0bbfbcd11c53d8",
+        "firstDifferenceLines": [
+          "PRNG length mismatch: C=4188, JS=4182",
+          "First PRNG mismatch at call 4183 (segment 1, step 28, key \"o\"):",
+          "Screen length mismatch: C=28, JS=27",
+          "First screen mismatch at boundary 28 (segment 1, step 28, key \"o\"):",
+          "Cursor length mismatch: C=28, JS=27",
+          "First cursor mismatch at boundary 28 (segment 1, step 28, key \"o\"):"
+        ],
+        "sourceBoundaryDiagnostic": {
+          "artifactPath": ".cache/B98-logs/egg-boundary/B98-egg-boundary-verification.json",
+          "artifactSha256": "4fafe3e0a4e126a27aa3f3180de5b0131d407cdf7588bad2be03b273cdc0e82c",
+          "runId": "run-7Bt55M",
+          "receiptPath": ".cache/B98-logs/egg-boundary/run-7Bt55M/receipt.json",
+          "receiptSha256": "0cd66371d58a72de49160d7bad3ff4888305cef2c64ef2c2e90e8bfaaf1643a5",
+          "testedSource": "6517190260a95343f1dfa45f68e47810ac853e6a",
+          "zeroBasedSegment": 0,
+          "zeroBasedStep": 27,
+          "jsBoundary": "UnsupportedHeroCommandBoundaryError: eating requires fprefx()'s egg arms"
+        }
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "hatch-viable-giant-ant-egg-protection-pager-corrected-v20",
+          "cursed-apple-fpostfx-after-rottenfood-v20",
+          "royal-jelly-consumption-effect-v20-selector-p-corrected"
+        ],
+        "sourceDistinction": "fprefx EGG give_feedback before egg fpostfx is eating-consumption behavior; the hatch case reaches timeout.c:hatch_egg, the cursed-apple case concerns resumed meal/fpostfx after rottenfood, and royal jelly has its own fpostfx item effect. No case in the 44 v21 IDs is identified as the fprefx cockatrice-egg arm. Source-distinct first behavior against the full universe: all44 v21 plus39 current unresolved cases (15 v21 and24 older).",
+        "decision": "Counted as a source-attributed first mismatch; final uniqueness approval remains with orchestrator."
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-fprefx-cockatrice-egg",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 27,
+        "key": "o",
+        "sourceBehavior": "eat.c:fprefx EGG branch (non-Pyrolisk, non-stale egg)",
+        "detail": "The C action reaches fprefx and continues; JS runSegment returns UnsupportedHeroCommandBoundaryError requiring fprefx egg arms at 27 screens / 4182 RNG calls. The strict comparator reports segment1 step28 because its startup/setup segment numbering differs; its visible log shows C mcalcmove calls after the missing command boundary."
+      },
+      "reproducibility": "Independent C replay run-6boKnh completed with exit 0; output 717ac86e3559f1003533f33bcd30426a07cc43eb5b373378351a9696a75ebeb9 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected",
+      "title": "Cursed genocide scroll removes a present newt; next turn C has a normal monster-generation draw where JS retains the newt/map consequence.",
+      "recipe": "challenges/cases/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.recipe.session.json",
+      "recipeSha256": "93d2cfe15a5b2af74077e2e55ca322d68af3a803330f36102cf97d2bf62d1ea1",
+      "recording": "challenges/cases/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.session.json",
+      "recordingSha256": "477b3a67f08c0d927b452d07ea18eb61d3c3bdb81ddace9a9981d720af524034",
+      "sourcePointers": [
+        "read.c:seffect_genocide",
+        "mon.c:kill_genocided_monsters"
+      ],
+      "reachedBehavior": "Cursed genocide scroll removes a present newt; next turn C has a normal monster-generation draw where JS retains the newt/map consequence.",
+      "cOutcome": "Cursed genocide scroll removes a present newt; next turn C has a normal monster-generation draw where JS retains the newt/map consequence.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.recipe.session.json",
+        "recipeSha256": "93d2cfe15a5b2af74077e2e55ca322d68af3a803330f36102cf97d2bf62d1ea1",
+        "recording": "challenges/cases/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.session.json",
+        "recordingSha256": "477b3a67f08c0d927b452d07ea18eb61d3c3bdb81ddace9a9981d720af524034",
+        "independentReplay": {
+          "runId": "run-aNYa0G",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.session.json",
+          "outputSha256": "477b3a67f08c0d927b452d07ea18eb61d3c3bdb81ddace9a9981d720af524034",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.receipt.json",
+          "receiptSha256": "7086fc128083fe0f9b0e5238c2d9cf14cd8309bdf98e361cd048c24ee8494d32",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.stderr.log",
+          "stderrSha256": "8c992cc92a4272111b76e3507f34c47f4107555058322f294f37b40ec63ebe58",
+          "logPath": ".cache/B98-logs/replays/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.record-session.log",
+          "logSha256": "a4ecec54ab6f0c976a587b7681980d3f1e785846c90eec2392e9060e25003e2a",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-fXs1Lw",
+        "receiptPath": ".cache/B98-logs/final-strict/run-fXs1Lw/receipt.json",
+        "receiptSha256": "cbc2ff50f48bc89a4cf9449dac8b15880ec66b362cd875a47e69fb8ffad0098b",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-fXs1Lw/stdout.log",
+        "stdoutSha256": "707c9aa1a1f7abddeab6bf2b87841942f8c646b246f0ad1567719bffcbcc53bf",
+        "logPath": ".cache/B98-logs/final-strict/wizard-genocides-present-newt-with-scroll-v22-cfirst-pagers-corrected.log",
+        "logSha256": "01251fa74c412d69bbc65c1c33245397da7933a4ef3f4f84e04c4000efd60b1e",
+        "firstDifferenceLines": [
+          "PRNG length mismatch: C=3067, JS=3068",
+          "First PRNG mismatch at call 3065 (segment 1, step 73, key \"\\n\"):",
+          "First screen mismatch at boundary 73 (segment 1, step 73, key \"\\n\"):"
+        ]
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+          "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst"
+        ],
+        "sourceDistinction": "Species genocide/removal after the read effect differs from polymorphing a named monster or pyrolisk gaze.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-kill_genocided_monsters",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 72,
+        "key": "\n",
+        "sourceBehavior": "mon.c:kill_genocided_monsters (species removal after seffect_genocide)",
+        "detail": "C next calls rn2(70)=48 at maybe_generate_rnd_mon(allmain.c:166); JS instead calls rn2(12)=8 and still displays the newt glyph."
+      },
+      "reproducibility": "Independent C replay run-aNYa0G completed with exit 0; output 477b3a67f08c0d927b452d07ea18eb61d3c3bdb81ddace9a9981d720af524034 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-invokes-sunsword-ray-at-orc-v22-cfirst",
+      "title": "Invoked Sunsword ray reaches adjacent orc and its flash-hit chance.",
+      "recipe": "challenges/cases/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.recipe.session.json",
+      "recipeSha256": "5bd2112b00b33f563202a30d971d64bc5b99b5dd7152528fa397dbc25a43b8e8",
+      "recording": "challenges/cases/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.session.json",
+      "recordingSha256": "6720fd55c07e895615747a5f88bb15af6cdc2d4dd65c7b3246885588ba23cd15",
+      "sourcePointers": [
+        "artifact.c:invoke_blinding_ray",
+        "apply.c:do_blinding_ray",
+        "uhitm.c:flash_hits_mon"
+      ],
+      "reachedBehavior": "Invoked Sunsword ray reaches adjacent orc and its flash-hit chance.",
+      "cOutcome": "Invoked Sunsword ray reaches adjacent orc and its flash-hit chance.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.recipe.session.json",
+        "recipeSha256": "5bd2112b00b33f563202a30d971d64bc5b99b5dd7152528fa397dbc25a43b8e8",
+        "recording": "challenges/cases/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.session.json",
+        "recordingSha256": "6720fd55c07e895615747a5f88bb15af6cdc2d4dd65c7b3246885588ba23cd15",
+        "independentReplay": {
+          "runId": "run-rFJfhV",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.session.json",
+          "outputSha256": "6720fd55c07e895615747a5f88bb15af6cdc2d4dd65c7b3246885588ba23cd15",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.receipt.json",
+          "receiptSha256": "f792d7fb3589830078b9a711cc27219bcb8f07eb7c4cf6b0e9ec96e5db0c7043",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.stderr.log",
+          "stderrSha256": "b834331a53a478ac1ef188aa755c058b7289168e9cbbae84fb900a907324dce9",
+          "logPath": ".cache/B98-logs/replays/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.record-session.log",
+          "logSha256": "29e2a7ba01b70b20dcc662a1040b9309aac8841c75e98aa72c1d31dfa6a157b3",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-mX5gUP",
+        "receiptPath": ".cache/B98-logs/final-strict/run-mX5gUP/receipt.json",
+        "receiptSha256": "b70b50dcf85b7af17da4de30a317f70be13ab5161f2ee8795ad6a2c9d211c1ac",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-mX5gUP/stdout.log",
+        "stdoutSha256": "7761e224c18bede47f133aaf47977d573407a6684abe39a5d67cc7182e0565b0",
+        "logPath": ".cache/B98-logs/final-strict/wizard-invokes-sunsword-ray-at-orc-v22-cfirst.log",
+        "logSha256": "06618c5ea8d4f658a3120027321ebd0cc5577cf2199401d90465a917e60c9280",
+        "firstDifferenceLines": [
+          "PRNG length mismatch: C=2686, JS=2685",
+          "First PRNG mismatch at call 2678 (segment 1, step 126, key \"l\"):",
+          "First screen mismatch at boundary 126 (segment 1, step 126, key \"l\"):"
+        ]
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "black-light-hallucination-blast-v20",
+          "wizard-zaps-hostile-goblin-with-slow-monster-v21-carried-wand-corrected"
+        ],
+        "sourceDistinction": "A directional artifact ray targeting an adjacent orc differs from black-light explosion and wand slowing.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-flash_hits_mon",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 125,
+        "key": "l",
+        "sourceBehavior": "uhitm.c:flash_hits_mon",
+        "detail": "C rn2(4)=0 at flash_hits_mon(uhitm.c:6399); JS rn2(12)=4; target glyph differs."
+      },
+      "reproducibility": "Independent C replay run-rFJfhV completed with exit 0; output 6720fd55c07e895615747a5f88bb15af6cdc2d4dd65c7b3246885588ba23cd15 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-reads-blessed-remove-curse-scroll-v22-cfirst",
+      "title": "Blessed remove-curse reads/traverses inventory and full C/JS result matches.",
+      "recipe": "challenges/cases/v22/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.recipe.session.json",
+      "recipeSha256": "4bf8689c08d312592a8e220faba170911813ddb50d22b20788c68b6677f4246b",
+      "recording": "challenges/cases/v22/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.session.json",
+      "recordingSha256": "ef22d2b78eecd691d855684c33319c09be2661b60e3e1bf7d940219eab40b3d7",
+      "sourcePointers": [
+        "read.c:seffect_remove_curse"
+      ],
+      "reachedBehavior": "Blessed remove-curse reads/traverses inventory and full C/JS result matches.",
+      "cOutcome": "Blessed remove-curse reads/traverses inventory and full C/JS result matches.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.recipe.session.json",
+        "recipeSha256": "4bf8689c08d312592a8e220faba170911813ddb50d22b20788c68b6677f4246b",
+        "recording": "challenges/cases/v22/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.session.json",
+        "recordingSha256": "ef22d2b78eecd691d855684c33319c09be2661b60e3e1bf7d940219eab40b3d7",
+        "independentReplay": {
+          "runId": "run-9jnPpV",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.session.json",
+          "outputSha256": "ef22d2b78eecd691d855684c33319c09be2661b60e3e1bf7d940219eab40b3d7",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.receipt.json",
+          "receiptSha256": "edbf7932876ba28acb3a1435248477278280d876c3b07ef46da5494f398a134f",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.stderr.log",
+          "stderrSha256": "06acf3b74c8cf9a736327bae01e8922b9f9ae60a9b661b1df17c31372f4110c5",
+          "logPath": ".cache/B98-logs/replays/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.record-session.log",
+          "logSha256": "de39067fd278f8f82020adb8501bcb47f2b31f8879a3bf91adec605a29f0eaec",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript match",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": true,
+        "runId": "run-K9TdFg",
+        "receiptPath": ".cache/B98-logs/final-strict/run-K9TdFg/receipt.json",
+        "receiptSha256": "2f76496ad8e0de0ce2a9b07f362eb3a39a7c683a50f9df73f9d1ecf9a8bc29c7",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-K9TdFg/stdout.log",
+        "stdoutSha256": "27077af39a1ca859691617b0ecfed06057b935950f4427968b98f16fcfe3e4be",
+        "logPath": ".cache/B98-logs/final-strict/wizard-reads-blessed-remove-curse-scroll-v22-cfirst.log",
+        "logSha256": "c3ff3948d9dac0704697bf988dcf849fa318ad07a0641ee5d6d11d17d51efeda",
+        "firstDifferenceLines": []
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-drinks-fountain-item-curse-v21-one-wait-variation",
+          "wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected"
+        ],
+        "sourceDistinction": "Blessed scroll inventory curse removal is distinct from fountain curse transfer and altar offering.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": false,
+      "bucketId": null,
+      "firstMismatch": null,
+      "reproducibility": "Independent C replay run-9jnPpV completed with exit 0; output ef22d2b78eecd691d855684c33319c09be2661b60e3e1bf7d940219eab40b3d7 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected",
+      "title": "Cursed Earth scroll executes the cursed player-drop branch; complete C/JS recording matches.",
+      "recipe": "challenges/cases/v22/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.recipe.session.json",
+      "recipeSha256": "380d0fb91c1d220c7c11abe473ceb9c91be2e27a4dbd25247ea19894e9fdf39e",
+      "recording": "challenges/cases/v22/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.session.json",
+      "recordingSha256": "b4e0ecaf2de5536c35bc1d73e1294909e24e87af0a26d829f055495710bfa70f",
+      "sourcePointers": [
+        "read.c:seffect_earth"
+      ],
+      "reachedBehavior": "Cursed Earth scroll executes the cursed player-drop branch; complete C/JS recording matches.",
+      "cOutcome": "Cursed Earth scroll executes the cursed player-drop branch; complete C/JS recording matches.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.recipe.session.json",
+        "recipeSha256": "380d0fb91c1d220c7c11abe473ceb9c91be2e27a4dbd25247ea19894e9fdf39e",
+        "recording": "challenges/cases/v22/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.session.json",
+        "recordingSha256": "b4e0ecaf2de5536c35bc1d73e1294909e24e87af0a26d829f055495710bfa70f",
+        "independentReplay": {
+          "runId": "run-jllfQh",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.session.json",
+          "outputSha256": "b4e0ecaf2de5536c35bc1d73e1294909e24e87af0a26d829f055495710bfa70f",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.receipt.json",
+          "receiptSha256": "b7891e82efa3004df8983dbcb53afc006698ce201fafb56f991c6c1e49dfaf18",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.stderr.log",
+          "stderrSha256": "a19377f9d8e8d06246128ae1b3cd1c41b14af88e052f3fe6785b7c533eddcd2a",
+          "logPath": ".cache/B98-logs/replays/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.record-session.log",
+          "logSha256": "794b455434e3ade5bb826ea6586e83d76cba720466ad86cfb220f8a27de2c6c4",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript match",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": true,
+        "runId": "run-CIz6yE",
+        "receiptPath": ".cache/B98-logs/final-strict/run-CIz6yE/receipt.json",
+        "receiptSha256": "c2395524f27959260ba50979f5200b5de52ee0ddd7cc278abf2af971c429a425",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-CIz6yE/stdout.log",
+        "stdoutSha256": "45983335eeeb75779e8ccf7065164408bcf9a046e718d1984a4ef993350cdec5",
+        "logPath": ".cache/B98-logs/final-strict/wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected.log",
+        "logSha256": "0cfb181b943e82b68fb576bffc228802047e2ce69634b68d08e6dee0c8f9e9dc",
+        "firstDifferenceLines": []
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-wishes-statue-trap-releases-living-statue-v21-cfirst",
+          "wizard-arms-and-triggers-wished-land-mine-v21-cfirst"
+        ],
+        "sourceDistinction": "The cursed-beatitude Earth branch drops the player/boulders, unlike a statue trap or land mine.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": false,
+      "bucketId": null,
+      "firstMismatch": null,
+      "reproducibility": "Independent C replay run-jllfQh completed with exit 0; output b4e0ecaf2de5536c35bc1d73e1294909e24e87af0a26d829f055495710bfa70f is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring",
+      "title": "Uncursed Earth scroll produces the C boulder ring; complete C/JS recording matches.",
+      "recipe": "challenges/cases/v22/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.recipe.session.json",
+      "recipeSha256": "84a39e7535909979a3be278520af8136cacc0ba38c79c1215baf147f074f1067",
+      "recording": "challenges/cases/v22/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.session.json",
+      "recordingSha256": "44898157047d016b3642a48c67d5ef11dc9d56b615bde67b2062e83112143726",
+      "sourcePointers": [
+        "read.c:seffect_earth"
+      ],
+      "reachedBehavior": "Uncursed Earth scroll produces the C boulder ring; complete C/JS recording matches.",
+      "cOutcome": "Uncursed Earth scroll produces the C boulder ring; complete C/JS recording matches.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.recipe.session.json",
+        "recipeSha256": "84a39e7535909979a3be278520af8136cacc0ba38c79c1215baf147f074f1067",
+        "recording": "challenges/cases/v22/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.session.json",
+        "recordingSha256": "44898157047d016b3642a48c67d5ef11dc9d56b615bde67b2062e83112143726",
+        "independentReplay": {
+          "runId": "run-NkdEbP",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.session.json",
+          "outputSha256": "44898157047d016b3642a48c67d5ef11dc9d56b615bde67b2062e83112143726",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.receipt.json",
+          "receiptSha256": "f0d9e54251ddb60cc108a4134c45786a9415f2dbdcff05546ffc8e6b63fbcf75",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.stderr.log",
+          "stderrSha256": "86c4608c18c12a540f3a2772aeeef4831353c4f094bf1990facc167de228ffc2",
+          "logPath": ".cache/B98-logs/replays/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.record-session.log",
+          "logSha256": "e132258fb37ffe34a8e2329c3aafb46356eda1dbcfc574c7f8e7d0de58921892",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript match",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": true,
+        "runId": "run-64Wle6",
+        "receiptPath": ".cache/B98-logs/final-strict/run-64Wle6/receipt.json",
+        "receiptSha256": "934c19a6894aa79b840c6442addb9c05f1dea8e060447c8abc03902394252b5d",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-64Wle6/stdout.log",
+        "stdoutSha256": "a98ec5a3fe99a0510580ce3986366dc141519f5da0501d7579835ed0ae723c5d",
+        "logPath": ".cache/B98-logs/final-strict/wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring.log",
+        "logSha256": "1880c8116702f3e55b52e78ba0f6279a4ced08412e2eb3f34aca1ecc893deb2c",
+        "firstDifferenceLines": []
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-wishes-statue-trap-releases-living-statue-v21-stairs-corrected-cfirst",
+          "wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst"
+        ],
+        "sourceDistinction": "The uncursed-beatitude Earth branch creates its boulder ring, distinct from statue release and monster engulfing; paired with the cursed branch to vary source beatitude.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": false,
+      "bucketId": null,
+      "firstMismatch": null,
+      "reproducibility": "Independent C replay run-NkdEbP completed with exit 0; output 44898157047d016b3642a48c67d5ef11dc9d56b615bde67b2062e83112143726 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-reads-uncursed-punishment-scroll-v22-cfirst",
+      "title": "Uncursed punishment scroll result and any ball/chain state matches C completely.",
+      "recipe": "challenges/cases/v22/wizard-reads-uncursed-punishment-scroll-v22-cfirst.recipe.session.json",
+      "recipeSha256": "e7b1d7c260fe71b29121838ecbe5454d24e8029394d022517f6d120f0429f88f",
+      "recording": "challenges/cases/v22/wizard-reads-uncursed-punishment-scroll-v22-cfirst.session.json",
+      "recordingSha256": "714e7021677212b3fa19bb5544f8e62bbe49b5710f3e5d589cf5b857c2742360",
+      "sourcePointers": [
+        "read.c:seffect_punishment"
+      ],
+      "reachedBehavior": "Uncursed punishment scroll result and any ball/chain state matches C completely.",
+      "cOutcome": "Uncursed punishment scroll result and any ball/chain state matches C completely.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-reads-uncursed-punishment-scroll-v22-cfirst.recipe.session.json",
+        "recipeSha256": "e7b1d7c260fe71b29121838ecbe5454d24e8029394d022517f6d120f0429f88f",
+        "recording": "challenges/cases/v22/wizard-reads-uncursed-punishment-scroll-v22-cfirst.session.json",
+        "recordingSha256": "714e7021677212b3fa19bb5544f8e62bbe49b5710f3e5d589cf5b857c2742360",
+        "independentReplay": {
+          "runId": "run-MNQAW9",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-reads-uncursed-punishment-scroll-v22-cfirst.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-reads-uncursed-punishment-scroll-v22-cfirst.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-reads-uncursed-punishment-scroll-v22-cfirst.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-reads-uncursed-punishment-scroll-v22-cfirst.session.json",
+          "outputSha256": "714e7021677212b3fa19bb5544f8e62bbe49b5710f3e5d589cf5b857c2742360",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-reads-uncursed-punishment-scroll-v22-cfirst.receipt.json",
+          "receiptSha256": "a70cc0e44a78a3f4335e457e0db718f6dff51d57b538e77984954267d95dc6ad",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-reads-uncursed-punishment-scroll-v22-cfirst.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-reads-uncursed-punishment-scroll-v22-cfirst.stderr.log",
+          "stderrSha256": "e3f9063f5f41c6acdfd912901a247f1464d305d9a405ee2b89a12194b25d6d60",
+          "logPath": ".cache/B98-logs/replays/wizard-reads-uncursed-punishment-scroll-v22-cfirst.record-session.log",
+          "logSha256": "3751d15e56177efeea3ccfa37967bb2e59e5313789cb26c8f49bd89bf4cf85e5",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript match",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": true,
+        "runId": "run-xpnQqx",
+        "receiptPath": ".cache/B98-logs/final-strict/run-xpnQqx/receipt.json",
+        "receiptSha256": "74d5a684ee7054275a509708f194ed3082ad112efc2cb41d51505b91c981cb16",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-xpnQqx/stdout.log",
+        "stdoutSha256": "0f2f30e42ebdaf78b55860c1dac6cee8ce62bb3659d62d66b7fe445e36c31d07",
+        "logPath": ".cache/B98-logs/final-strict/wizard-reads-uncursed-punishment-scroll-v22-cfirst.log",
+        "logSha256": "224d215de2d28a8ce3e4310c831851686d7153613eec25d44cccd2271e4cf546",
+        "firstDifferenceLines": []
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-confused-reads-light-scroll-v21-effect-result",
+          "wizard-reads-blessed-identify-scroll-v21",
+          "wizard-reads-taming-scroll-hostile-pair-v21-effect-continued"
+        ],
+        "sourceDistinction": "Punishment is a separate read-effect dispatch/state change from light, identify, or taming.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": false,
+      "bucketId": null,
+      "firstMismatch": null,
+      "reproducibility": "Independent C replay run-MNQAW9 completed with exit 0; output 714e7021677212b3fa19bb5544f8e62bbe49b5710f3e5d589cf5b857c2742360 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-reads-wished-scroll-of-mail-v22-cfirst",
+      "title": "Wished mail scroll sends its C message and complete recording matches.",
+      "recipe": "challenges/cases/v22/wizard-reads-wished-scroll-of-mail-v22-cfirst.recipe.session.json",
+      "recipeSha256": "419314e6ad9fdf421cbc05e3c3c25b7bc278bce06867ec94128c8da70de85c0e",
+      "recording": "challenges/cases/v22/wizard-reads-wished-scroll-of-mail-v22-cfirst.session.json",
+      "recordingSha256": "aa403c853468a1eec8dac6c735b3ecb5345aa3fe1a3b1e69e9bd7d661a41eee0",
+      "sourcePointers": [
+        "read.c:seffect_mail"
+      ],
+      "reachedBehavior": "Wished mail scroll sends its C message and complete recording matches.",
+      "cOutcome": "Wished mail scroll sends its C message and complete recording matches.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-reads-wished-scroll-of-mail-v22-cfirst.recipe.session.json",
+        "recipeSha256": "419314e6ad9fdf421cbc05e3c3c25b7bc278bce06867ec94128c8da70de85c0e",
+        "recording": "challenges/cases/v22/wizard-reads-wished-scroll-of-mail-v22-cfirst.session.json",
+        "recordingSha256": "aa403c853468a1eec8dac6c735b3ecb5345aa3fe1a3b1e69e9bd7d661a41eee0",
+        "independentReplay": {
+          "runId": "run-nDPdRT",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-reads-wished-scroll-of-mail-v22-cfirst.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-reads-wished-scroll-of-mail-v22-cfirst.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-reads-wished-scroll-of-mail-v22-cfirst.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-reads-wished-scroll-of-mail-v22-cfirst.session.json",
+          "outputSha256": "aa403c853468a1eec8dac6c735b3ecb5345aa3fe1a3b1e69e9bd7d661a41eee0",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-reads-wished-scroll-of-mail-v22-cfirst.receipt.json",
+          "receiptSha256": "951d927792f8084eab6e4c69d66c9f50f82728e164eb46599654b26b0158fbab",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-reads-wished-scroll-of-mail-v22-cfirst.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-reads-wished-scroll-of-mail-v22-cfirst.stderr.log",
+          "stderrSha256": "147b3ba40becde1dbcd9f80644c08c7caa8b452e1ad9f94c174fe274a9e14397",
+          "logPath": ".cache/B98-logs/replays/wizard-reads-wished-scroll-of-mail-v22-cfirst.record-session.log",
+          "logSha256": "0c7b5093b7fc38867aee6a432219b61bb61e335823abe9201ea225c70cb43a70",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript match",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": true,
+        "runId": "run-3bxri3",
+        "receiptPath": ".cache/B98-logs/final-strict/run-3bxri3/receipt.json",
+        "receiptSha256": "062b6d767f33ab3c65231c27d57f02e6aa3a53695aeac5431ba9ee1941850be4",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-3bxri3/stdout.log",
+        "stdoutSha256": "0128347584777bdc2579a061721cb1f1c9bf6814a2e38d7698ed800180e198ac",
+        "logPath": ".cache/B98-logs/final-strict/wizard-reads-wished-scroll-of-mail-v22-cfirst.log",
+        "logSha256": "c1eb8046b6569745cc847d3a770f756633617fe58a5a879a1e83538e64647951",
+        "firstDifferenceLines": []
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-reads-blessed-identify-scroll-v21",
+          "wizard-confused-reads-light-scroll-v21-effect-result"
+        ],
+        "sourceDistinction": "Mail dispatches a message/mail effect, not identify or light; it is an additional matching read-effect case.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": false,
+      "bucketId": null,
+      "firstMismatch": null,
+      "reproducibility": "Independent C replay run-nDPdRT completed with exit 0; output aa403c853468a1eec8dac6c735b3ecb5345aa3fe1a3b1e69e9bd7d661a41eee0 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst",
+      "title": "The recording proceeds through a tame stone giant revival attempt, but the current first divergence is earlier: C ZT_DEATH ray rebound to an Antimagic hero; Wary Dog is downstream diagnostic only.",
+      "recipe": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
+      "recipeSha256": "dd4337fb5504e488ff7adc498d9a500c3e3319802973cdd07ce23cf6f7e5c0a8",
+      "recording": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+      "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+      "sourcePointers": [
+        "dog.c:wary_dog",
+        "zap.c:zhitu"
+      ],
+      "reachedBehavior": "The recording proceeds through a tame stone giant revival attempt, but the current first divergence is earlier: C ZT_DEATH ray rebound to an Antimagic hero; Wary Dog is downstream diagnostic only.",
+      "cOutcome": "The recording proceeds through a tame stone giant revival attempt, but the current first divergence is earlier: C ZT_DEATH ray rebound to an Antimagic hero; Wary Dog is downstream diagnostic only.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
+        "recipeSha256": "dd4337fb5504e488ff7adc498d9a500c3e3319802973cdd07ce23cf6f7e5c0a8",
+        "recording": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+        "recordingSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+        "independentReplay": {
+          "runId": "run-0VW711",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.session.json",
+          "outputSha256": "3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.receipt.json",
+          "receiptSha256": "21eebd2c67df80c05a08ae786559cd990cca75458af13d8222f74abed353bcec",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.stderr.log",
+          "stderrSha256": "4a2e1b6da846ce5e073df0ba191207d68d2953bcbb5bb2933750ab9289c99376",
+          "logPath": ".cache/B98-logs/replays/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.record-session.log",
+          "logSha256": "3943c50e66cd7deb46f96ae279b9a4cb3b586ec18884682921d67903742c0213",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-ab0xvy",
+        "receiptPath": ".cache/B98-logs/final-strict/run-ab0xvy/receipt.json",
+        "receiptSha256": "c9b956efdb7c252e8aa25f2703c592b47b36ec97f31208066d78940206c50918",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-ab0xvy/stdout.log",
+        "stdoutSha256": "a8b14cc6b86bf379e00ed9b44b3070a7830abf241da4ab09733ef56b1cb46cbf",
+        "logPath": ".cache/B98-logs/final-strict/wizard-revives-tame-stone-giant-wary-dog-pager-corrected-v22-cfirst.log",
+        "logSha256": "fca99417b683ccd062145ac02ff3a2928bb69645da5d17319115da89a87c94c9",
+        "firstDifferenceLines": [
+          "PRNG length mismatch: C=2741, JS=2638",
+          "First PRNG mismatch at call 2639 (segment 1, step 91, key \"\\n\"):",
+          "Screen length mismatch: C=101, JS=89",
+          "First screen mismatch at boundary 90 (segment 1, step 90, key \"\\n\"):",
+          "Cursor length mismatch: C=101, JS=89",
+          "First cursor mismatch at boundary 90 (segment 1, step 90, key \"\\n\"):",
+          "Animation frame length mismatch: C=54, JS=3"
+        ]
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "black-light-hallucination-blast-v20",
+          "wizard-conflict-pyrolisk-m2m-gaze-v21-cfirst"
+        ],
+        "sourceDistinction": "A non-breath death-ray rebound against Antimagic uses zap.c:zhitu; black-light is an explosion and Pyrolisk is a gaze. Later Wary Dog behavior does not own the first mismatch.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-zhitu-antimagic-death-ray",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 89,
+        "key": "\n",
+        "sourceBehavior": "zap.c:zhitu non-breath ZT_DEATH rebound against Antimagic",
+        "detail": "C boundary is absent in JS after the ray/message; next C step91 calls rn2(19)=0 at exercise(attrib.c:509). Keep boundary90 (screen/input) distinct from step91 RNG consequence."
+      },
+      "reproducibility": "Independent C replay run-0VW711 completed with exit 0; output 3d40c958c0cec0ee0664ccdaef3e93e029ab8036ea2b8878696c653c799836f4 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected",
+      "title": "Expensive camera breaks and reaches demon-release gate.",
+      "recipe": "challenges/cases/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.recipe.session.json",
+      "recipeSha256": "a3a7aaa6b820de65ef440fb60588a4a45ae3723f68ee6743e620bc3b7345b8f9",
+      "recording": "challenges/cases/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.session.json",
+      "recordingSha256": "8de3b5e46c289b37c00a6f26bc10e7ee96fadb01fad5ff209f2ae8789da12d26",
+      "sourcePointers": [
+        "dothrow.c:breakobj",
+        "dothrow.c:release_camera_demon"
+      ],
+      "reachedBehavior": "Expensive camera breaks and reaches demon-release gate.",
+      "cOutcome": "Expensive camera breaks and reaches demon-release gate.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.recipe.session.json",
+        "recipeSha256": "a3a7aaa6b820de65ef440fb60588a4a45ae3723f68ee6743e620bc3b7345b8f9",
+        "recording": "challenges/cases/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.session.json",
+        "recordingSha256": "8de3b5e46c289b37c00a6f26bc10e7ee96fadb01fad5ff209f2ae8789da12d26",
+        "independentReplay": {
+          "runId": "run-EmUVdz",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.session.json",
+          "outputSha256": "8de3b5e46c289b37c00a6f26bc10e7ee96fadb01fad5ff209f2ae8789da12d26",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.receipt.json",
+          "receiptSha256": "44be5d74d81ec9d14d33f732844f207c585b513f2570feac80a9fe7c8ae163e8",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.stderr.log",
+          "stderrSha256": "385e83c36f545a63883d4b088842a964bb25f67405cd21ad6d582c6266d32db7",
+          "logPath": ".cache/B98-logs/replays/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.record-session.log",
+          "logSha256": "057bdd80494cce37656b6dacc37a1fae8cccf34209b8273d67d66a81d024a212",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-j5jwoR",
+        "receiptPath": ".cache/B98-logs/final-strict/run-j5jwoR/receipt.json",
+        "receiptSha256": "39ecc2830b47758b811550fe7d6c15860e30eea1af0330cda91c4aa0fdd2d21d",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-j5jwoR/stdout.log",
+        "stdoutSha256": "356b14457d39808025296a49ea1e3dda951eb0115cd988cfe18fdd3ff9faf7a0",
+        "logPath": ".cache/B98-logs/final-strict/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.log",
+        "logSha256": "ecf2a1c340124cd1ad9592fb7e7a3039993c1e5d467e9b774c1ce02fc19ad644",
+        "firstDifferenceLines": [
+          "PRNG length mismatch: C=2754, JS=2753",
+          "First PRNG mismatch at call 2746 (segment 1, step 30, key \"j\"):"
+        ]
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-wishes-statue-trap-releases-living-statue-v21-cfirst",
+          "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation"
+        ],
+        "sourceDistinction": "Expensive-camera break uses release_camera_demon; statue breaking and Archon summon are separate creation effects.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-release_camera_demon",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 29,
+        "key": "j",
+        "sourceBehavior": "dothrow.c:release_camera_demon",
+        "detail": "C rn2(3)=2 at release_camera_demon(dothrow.c:2460); JS rn2(100)=52."
+      },
+      "reproducibility": "Independent C replay run-EmUVdz completed with exit 0; output 8de3b5e46c289b37c00a6f26bc10e7ee96fadb01fad5ff209f2ae8789da12d26 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected",
+      "title": "Temporary levitation reaches the low-countdown warning/expiry transition; C retains a Y glyph at the first map difference.",
+      "recipe": "challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.recipe.session.json",
+      "recipeSha256": "a34469d73f4056d686baa731d78be607660b56614d1c3a5c1f1f4f3eeb021ec9",
+      "recording": "challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.session.json",
+      "recordingSha256": "76a69b499c40322ca856031510a0608c567dd8f5cad561552c7dc2164fedc260",
+      "sourcePointers": [
+        "timeout.c:levitation_dialogue"
+      ],
+      "reachedBehavior": "Temporary levitation reaches the low-countdown warning/expiry transition; C retains a Y glyph at the first map difference.",
+      "cOutcome": "Temporary levitation reaches the low-countdown warning/expiry transition; C retains a Y glyph at the first map difference.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.recipe.session.json",
+        "recipeSha256": "a34469d73f4056d686baa731d78be607660b56614d1c3a5c1f1f4f3eeb021ec9",
+        "recording": "challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.session.json",
+        "recordingSha256": "76a69b499c40322ca856031510a0608c567dd8f5cad561552c7dc2164fedc260",
+        "independentReplay": {
+          "runId": "run-B7wfJH",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.session.json",
+          "outputSha256": "76a69b499c40322ca856031510a0608c567dd8f5cad561552c7dc2164fedc260",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.receipt.json",
+          "receiptSha256": "f8b6dd1e4ea1131740a6dd2870bf039f0f70b0f629fd847a67ef3f75f3ab9d73",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.stderr.log",
+          "stderrSha256": "145db6628f8932e5373374f0b8994556a2a0e4b1cf20a45009927e7b74bc222e",
+          "logPath": ".cache/B98-logs/replays/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.record-session.log",
+          "logSha256": "02e92513628bf4f4c123e2bdde319ae3aeecaaa7b87d72c3126aa0343b41dc9b",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-YaUb8v",
+        "receiptPath": ".cache/B98-logs/final-strict/run-YaUb8v/receipt.json",
+        "receiptSha256": "15dde75895046c4357b91e2dbde4ba51a37987d7c702dd5fddf3e7d2e8fa7ab3",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-YaUb8v/stdout.log",
+        "stdoutSha256": "248aa02b353353946767a48d99c318488814477ba618c5e5819ee98104a2959c",
+        "logPath": ".cache/B98-logs/final-strict/wizard-wizintrinsic-levitation-expiry-dialogue-v22-cfirst-pager-corrected.log",
+        "logSha256": "bfb60242171305c30beff53228b959c56db4e6807748ecb153cedf742ecac354",
+        "firstDifferenceLines": [
+          "First screen mismatch at boundary 21 (segment 1, step 21, key \".\"):"
+        ]
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-sits-wished-throne-case9-rndcurse-v21-cfirst",
+          "wizard-drinks-fountain-item-curse-v21-one-wait-variation"
+        ],
+        "sourceDistinction": "Temporary levitation timer expiry is distinct from a throne curse or fountain curse.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-levitation_dialogue",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 20,
+        "key": ".",
+        "sourceBehavior": "timeout.c:levitation_dialogue / levitation expiry map transition",
+        "detail": "PRNG/cursor remain equal; C cell row1 col1 is Y while JS is blank."
+      },
+      "reproducibility": "Independent C replay run-B7wfJH completed with exit 0; output 76a69b499c40322ca856031510a0608c567dd8f5cad561552c7dc2164fedc260 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected",
+      "title": "Short Passes_walls countdown reaches phaze dialogue; C keeps the Y glyph at first display divergence.",
+      "recipe": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.recipe.session.json",
+      "recipeSha256": "7c2666dc1f19bd74288c21c8cb77a2c5e3e164b6cf2b726ad934892d5593c52b",
+      "recording": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.session.json",
+      "recordingSha256": "c7954bc564b80af6279477eea7cbb7dc8339bf7e23f84a70b690feadd3eb7be2",
+      "sourcePointers": [
+        "timeout.c:phaze_dialogue"
+      ],
+      "reachedBehavior": "Short Passes_walls countdown reaches phaze dialogue; C keeps the Y glyph at first display divergence.",
+      "cOutcome": "Short Passes_walls countdown reaches phaze dialogue; C keeps the Y glyph at first display divergence.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.recipe.session.json",
+        "recipeSha256": "7c2666dc1f19bd74288c21c8cb77a2c5e3e164b6cf2b726ad934892d5593c52b",
+        "recording": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.session.json",
+        "recordingSha256": "c7954bc564b80af6279477eea7cbb7dc8339bf7e23f84a70b690feadd3eb7be2",
+        "independentReplay": {
+          "runId": "run-T6TPed",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.session.json",
+          "outputSha256": "c7954bc564b80af6279477eea7cbb7dc8339bf7e23f84a70b690feadd3eb7be2",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.receipt.json",
+          "receiptSha256": "727a8da9dd95b53a56ede935c718a5abda98b2aeae90a89ade19ad46fedb95b4",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.stderr.log",
+          "stderrSha256": "f71ba1f9b78b52ccb43f5f3cfef3fcb48c0852a234b388c4241a27d0d689bc7d",
+          "logPath": ".cache/B98-logs/replays/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.record-session.log",
+          "logSha256": "22560c4cfe3ec82e960d201b36d738c329b322726f3d7fadfc14eb3c1985a469",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-p2e9S9",
+        "receiptPath": ".cache/B98-logs/final-strict/run-p2e9S9/receipt.json",
+        "receiptSha256": "4035df0def039aaa30b74ae48a96a99ed31f51744b3bc69f5c684b46153d2d4f",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-p2e9S9/stdout.log",
+        "stdoutSha256": "f65b5493168d8994c4d4773e9e5b4235c18822a298a0961432d48f38619dd43e",
+        "logPath": ".cache/B98-logs/final-strict/wizard-wizintrinsic-phaze-timeout-dialogue-v22-cfirst-page2-corrected.log",
+        "logSha256": "8be9197c1654409e6884b177447e974d2405258a4108760e77cd3337a8e86410",
+        "firstDifferenceLines": [
+          "First screen mismatch at boundary 21 (segment 1, step 21, key \".\"):"
+        ]
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-triggers-anti-magic-trap-v21-no-resistance-cfirst",
+          "wizard-fire-ray-melts-wished-ice-slot-o"
+        ],
+        "sourceDistinction": "Prayer-created short wall-passing timeout differs from antimagic resistance and the fire-ray ice route.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-phaze_dialogue",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 20,
+        "key": ".",
+        "sourceBehavior": "timeout.c:phaze_dialogue / Passes_walls transition",
+        "detail": "PRNG/cursor match; C row1 col1 is Y and JS is blank."
+      },
+      "reproducibility": "Independent C replay run-T6TPed completed with exit 0; output c7954bc564b80af6279477eea7cbb7dc8339bf7e23f84a70b690feadd3eb7be2 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected",
+      "title": "Odd magical-breathing region countdown is reached; C preserves the Y glyph at the first screen difference.",
+      "recipe": "challenges/cases/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.recipe.session.json",
+      "recipeSha256": "66b72a11a9265ed38d3957ff97276d0a2f18480d693eb409bdb6bdc47324a0b0",
+      "recording": "challenges/cases/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.session.json",
+      "recordingSha256": "709241e806cddd2c3348ab169e13aaf65d56d8264e40b2656e293fe6e4f2c56c",
+      "sourcePointers": [
+        "timeout.c:region_dialogue"
+      ],
+      "reachedBehavior": "Odd magical-breathing region countdown is reached; C preserves the Y glyph at the first screen difference.",
+      "cOutcome": "Odd magical-breathing region countdown is reached; C preserves the Y glyph at the first screen difference.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.recipe.session.json",
+        "recipeSha256": "66b72a11a9265ed38d3957ff97276d0a2f18480d693eb409bdb6bdc47324a0b0",
+        "recording": "challenges/cases/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.session.json",
+        "recordingSha256": "709241e806cddd2c3348ab169e13aaf65d56d8264e40b2656e293fe6e4f2c56c",
+        "independentReplay": {
+          "runId": "run-vYTVJa",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.session.json",
+          "outputSha256": "709241e806cddd2c3348ab169e13aaf65d56d8264e40b2656e293fe6e4f2c56c",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.receipt.json",
+          "receiptSha256": "c2916e19be15fe3ecd0f15459ba8ab7bdfb54cb79b1f3fc912a06a9b8f663cf9",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.stderr.log",
+          "stderrSha256": "af8ae2c0a30bbf662bfdda68f53279831135f22a2ec127b13fe127def141ddd5",
+          "logPath": ".cache/B98-logs/replays/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.record-session.log",
+          "logSha256": "b05583d6ca5e74a9fedd5976ab7ca1943a8949783789625ee99250e4ac1cdf90",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-u1GwlW",
+        "receiptPath": ".cache/B98-logs/final-strict/run-u1GwlW/receipt.json",
+        "receiptSha256": "f20894078f88d42d66a29c250156f42bdfcd2d656af9a40ef3c55e5ecca69c13",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-u1GwlW/stdout.log",
+        "stdoutSha256": "5bd54377574ce64e50955fc404f4a4269164177b13b69edf694d98b714edccf9",
+        "logPath": ".cache/B98-logs/final-strict/wizard-wizintrinsic-region-gas-warning-v22-cfirst-more-chain-corrected.log",
+        "logSha256": "fd399c1b87301b3e6d5ac50f23d8cf657f80dadd7b7bb2a372a02d6bc4d5a57a",
+        "firstDifferenceLines": [
+          "First screen mismatch at boundary 56 (segment 1, step 56, key \".\"):"
+        ]
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "wizard-killer-bee-stings-poison-v21-cfirst",
+          "wizard-confused-reads-light-scroll-v21-effect-result"
+        ],
+        "sourceDistinction": "Region gas warning is a region timer/dialogue path, not poison attack or light reading.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-region_dialogue",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 55,
+        "key": ".",
+        "sourceBehavior": "timeout.c:region_dialogue (line 554)",
+        "detail": "PRNG/cursor match; C row1 col1 is Y while JS is blank."
+      },
+      "reproducibility": "Independent C replay run-vYTVJa completed with exit 0; output 709241e806cddd2c3348ab169e13aaf65d56d8264e40b2656e293fe6e4f2c56c is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst",
+      "title": "Finite Slimed countdown warning is reached; C and JS diverge on subsequent exercise call.",
+      "recipe": "challenges/cases/v22/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.recipe.session.json",
+      "recipeSha256": "45d933c1bdd09a906f697f4c44daa0dbb48eb048b424a647cd09bae2fe0c0adc",
+      "recording": "challenges/cases/v22/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.session.json",
+      "recordingSha256": "aa5c5ae31c26247e8715809d9164f0dbe0d8a50ce464e778ea37da550e86e9f9",
+      "sourcePointers": [
+        "timeout.c:slime_dialogue"
+      ],
+      "reachedBehavior": "Finite Slimed countdown warning is reached; C and JS diverge on subsequent exercise call.",
+      "cOutcome": "Finite Slimed countdown warning is reached; C and JS diverge on subsequent exercise call.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.recipe.session.json",
+        "recipeSha256": "45d933c1bdd09a906f697f4c44daa0dbb48eb048b424a647cd09bae2fe0c0adc",
+        "recording": "challenges/cases/v22/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.session.json",
+        "recordingSha256": "aa5c5ae31c26247e8715809d9164f0dbe0d8a50ce464e778ea37da550e86e9f9",
+        "independentReplay": {
+          "runId": "run-JkP6YP",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.session.json",
+          "outputSha256": "aa5c5ae31c26247e8715809d9164f0dbe0d8a50ce464e778ea37da550e86e9f9",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.receipt.json",
+          "receiptSha256": "f197c9fb1b53766a201a72466ac7504cb3d609594a2511afdb1071a4734546db",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.stderr.log",
+          "stderrSha256": "6ed6d42d17ca61df3f1844bee4c3400b7112ee22eca4901c31d579eada459447",
+          "logPath": ".cache/B98-logs/replays/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.record-session.log",
+          "logSha256": "be7a76770934b313006cd4e2e735f07186d1b8b85a190a96fdc364a746702163",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-TD24Qb",
+        "receiptPath": ".cache/B98-logs/final-strict/run-TD24Qb/receipt.json",
+        "receiptSha256": "f9a9d81cdfc8bc7d0c80bf39018000e1fe8a2c28f9074dcb62f99d0f790ac978",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-TD24Qb/stdout.log",
+        "stdoutSha256": "9827e8413dd7b2b5391073074ff6856af43add3e35dc7b6ecb28c39ac9f7e55c",
+        "logPath": ".cache/B98-logs/final-strict/wizard-wizintrinsic-slimed-timeout-dialogue-v22-cfirst.log",
+        "logSha256": "9c9a82dfc3cf5e09c4287889d9924ae977e79771bb6305721e8c3206a723f195",
+        "firstDifferenceLines": [
+          "PRNG length mismatch: C=3011, JS=3010",
+          "First PRNG mismatch at call 3009 (segment 1, step 20, key \".\"):",
+          "First screen mismatch at boundary 20 (segment 1, step 20, key \".\"):"
+        ]
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "wizard-killer-bee-stings-poison-v21-cfirst"
+        ],
+        "sourceDistinction": "This enters the later timed sliming warning rather than the earlier attack-time infection or poison attack.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-slime_dialogue",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 19,
+        "key": ".",
+        "sourceBehavior": "timeout.c:slime_dialogue then attrib.c:exercise consequence",
+        "detail": "C rn2(2)=1 at exercise(attrib.c:509); JS rn2(20)=17."
+      },
+      "reproducibility": "Independent C replay run-JkP6YP completed with exit 0; output aa5c5ae31c26247e8715809d9164f0dbe0d8a50ce464e778ea37da550e86e9f9 is byte-identical to the frozen recording."
+    },
+    {
+      "id": "wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst",
+      "title": "Direct finite Stoned countdown reaches its warning tick; C and JS exercise outcomes differ.",
+      "recipe": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.recipe.session.json",
+      "recipeSha256": "0ddd75ccec74bd292fc91542b869b74e05441d35cf8ef3c4324ed743e354ed63",
+      "recording": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.session.json",
+      "recordingSha256": "1f702867c752ca46121a1d8500a8b15f7feca99072476cfc62fee55d7a3368db",
+      "sourcePointers": [
+        "timeout.c:stoned_dialogue"
+      ],
+      "reachedBehavior": "Direct finite Stoned countdown reaches its warning tick; C and JS exercise outcomes differ.",
+      "cOutcome": "Direct finite Stoned countdown reaches its warning tick; C and JS exercise outcomes differ.",
+      "cRecording": {
+        "recipe": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.recipe.session.json",
+        "recipeSha256": "0ddd75ccec74bd292fc91542b869b74e05441d35cf8ef3c4324ed743e354ed63",
+        "recording": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.session.json",
+        "recordingSha256": "1f702867c752ca46121a1d8500a8b15f7feca99072476cfc62fee55d7a3368db",
+        "independentReplay": {
+          "runId": "run-3MbWKz",
+          "command": [
+            "node",
+            "scripts/record-session.mjs",
+            "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.recipe.session.json",
+            ".cache/B98-logs/replays/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.session.json"
+          ],
+          "inputPath": "challenges/cases/v22/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.recipe.session.json",
+          "outputPath": ".cache/B98-logs/replays/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.session.json",
+          "outputSha256": "1f702867c752ca46121a1d8500a8b15f7feca99072476cfc62fee55d7a3368db",
+          "byteIdentical": true,
+          "receiptPath": ".cache/B98-logs/replays/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.receipt.json",
+          "receiptSha256": "5645403edd1c8f340485fc2859d9b39409aca7acae14135d78e55010a8344992",
+          "stdoutPath": ".cache/B98-logs/replays/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.stdout.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrPath": ".cache/B98-logs/replays/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.stderr.log",
+          "stderrSha256": "3270190dce033eee5a236a73af2857ed1dd6347a51c8b825d826253fa2372d12",
+          "logPath": ".cache/B98-logs/replays/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.record-session.log",
+          "logSha256": "5a17e75885b0805d447e49255ebd10032c269fe3a24545caa92069c0c610b4bb",
+          "exitCode": 0,
+          "cwd": "/tmp/teleport-loop-worker-b-20260925"
+        }
+      },
+      "targetStatus": "source-reached; strict JavaScript mismatch",
+      "comparisonEvidence": {
+        "artifact": ".cache/B98-final-strict-evidence.json",
+        "artifactSha256": "ba860a1d78038940df02046127ba82ce18ed063fb61cbd9668e35b3910532046",
+        "measuredHead": "75c6a65ea33016038327e65dd957906cd4c4d373",
+        "matchedRecording": false,
+        "runId": "run-f0jNs8",
+        "receiptPath": ".cache/B98-logs/final-strict/run-f0jNs8/receipt.json",
+        "receiptSha256": "f94766da1f0801a2006428e793b232f3ac4991f0b3a932b450727bfbf10fa35a",
+        "stdoutPath": ".cache/B98-logs/final-strict/run-f0jNs8/stdout.log",
+        "stdoutSha256": "e0256679945781ca7323152371b89adb2702ab04f8518e773ef9b7993ecdec41",
+        "logPath": ".cache/B98-logs/final-strict/wizard-wizintrinsic-stoned-timeout-dialogue-v22-cfirst.log",
+        "logSha256": "a7c2c0940685e95275714c3096a9171f75b3ae9fd5378de496cfba0c8d0e629b",
+        "firstDifferenceLines": [
+          "PRNG length mismatch: C=2860, JS=2859",
+          "First PRNG mismatch at call 2858 (segment 1, step 21, key \".\"):",
+          "First screen mismatch at boundary 21 (segment 1, step 21, key \".\"):"
+        ]
+      },
+      "withinBatchRelation": {
+        "caseCount": 18,
+        "closestEarlierCases": [
+          "green-slime-infects-wizard-c59-rest-prefix-corrected",
+          "hatch-viable-giant-ant-egg-protection-pager-corrected-v20"
+        ],
+        "sourceDistinction": "Direct Stoned countdown handling differs from green-slime infection and egg hatch timeout.",
+        "decision": "source behavior is distinguishable at the listed C owner; root retains final all-universe adjudication"
+      },
+      "countsTowardTwelve": true,
+      "bucketId": "B98-v22-stoned_dialogue",
+      "firstMismatch": {
+        "segment": 0,
+        "zeroBasedStep": 20,
+        "key": ".",
+        "sourceBehavior": "timeout.c:stoned_dialogue then attrib.c:exercise consequence",
+        "detail": "C rn2(2)=1 at exercise(attrib.c:509); JS rn2(20)=13."
+      },
+      "reproducibility": "Independent C replay run-3MbWKz completed with exit 0; output 1f702867c752ca46121a1d8500a8b15f7feca99072476cfc62fee55d7a3368db is byte-identical to the frozen recording."
+    }
+  ],
+  "countReconciliation": {
+    "includedValidCases": 18,
+    "strictMatches": 7,
+    "strictMismatches": 11,
+    "sourceAttributedDistinctFirstMismatchBuckets": 11,
+    "unresolvedFirstMismatchAttribution": 0,
+    "excludedSetupBlockedMissions": 4,
+    "plannedMinimum": 12,
+    "finalAttributedCount": 11,
+    "smallerBatchDecision": "Orchestrator authorized this smaller prepared batch after repeated independent C attempts yielded seven full JavaScript matches and four setup-blocked target families. Eleven source-attributed first-mismatch candidate buckets are documented; final all-universe novelty adjudication remains with the orchestrator.",
+    "currentUnresolvedComparisonCount": 39,
+    "currentUnresolvedV21Count": 15,
+    "currentUnresolvedOlderCount": 24
+  },
+  "reclassifiedValidCases": [
+    {
+      "caseId": "wizard-confused-enchant-weapon-rustproof-v22-cfirst-pager-corrected",
+      "reason": "source-reached; strict JavaScript match"
+    },
+    {
+      "caseId": "wizard-digs-floor-with-wished-pickaxe-v22-cfirst-down-corrected",
+      "reason": "source-reached; strict JavaScript match"
+    },
+    {
+      "caseId": "wizard-reads-blessed-remove-curse-scroll-v22-cfirst",
+      "reason": "source-reached; strict JavaScript match"
+    },
+    {
+      "caseId": "wizard-reads-cursed-earth-scroll-v22-cfirst-player-drop-pager-corrected",
+      "reason": "source-reached; strict JavaScript match"
+    },
+    {
+      "caseId": "wizard-reads-uncursed-earth-scroll-v22-cfirst-boulder-ring",
+      "reason": "source-reached; strict JavaScript match"
+    },
+    {
+      "caseId": "wizard-reads-uncursed-punishment-scroll-v22-cfirst",
+      "reason": "source-reached; strict JavaScript match"
+    },
+    {
+      "caseId": "wizard-reads-wished-scroll-of-mail-v22-cfirst",
+      "reason": "source-reached; strict JavaScript match"
+    }
+  ]
+}
