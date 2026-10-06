@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v23 candidate for read.c:seffect_amnesia blessed map-only branch. C directly assigned the wished scroll letter o, and the frozen action now acknowledges the consumption pager to reach the effect output. Frozen before JS comparison.",
+  "segments": [
+    {
+      "seed": 92300614,
+      "datetime": "20730407125500",
+      "nethackrc": "OPTIONS=name:V23Amnesia,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed scroll of amnesia\nr?o "
+    }
+  ]
+}

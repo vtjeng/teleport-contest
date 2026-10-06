@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v23 candidate for eat.c:eatcorpse() globby-object branch. Independent seed/date and Barbarian HP; no target outcome assumed until C confirms the wish and eat selector. C inventory screen showed the small glob of gray ooze at e; this input eats that observed object.",
+  "segments": [
+    {
+      "seed": 84027311,
+      "datetime": "20861002140700",
+      "nethackrc": "OPTIONS=name:V23Glob,role:Barbarian,race=human,gender=male,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017glob of gray ooze\niee"
+    }
+  ]
+}

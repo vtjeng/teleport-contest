@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-guided burn_object expiry. A C-observed level-10 Barbarian wishes a tallow candle, selects it at inventory letter e, and lights it. The tallow age is initialized to 20 * oc_cost = 200 turns, so begin_burn schedules the first callback at age-75 (125 turns); if this wish resolves to the longer candle class, the frozen wait still reaches its first callback. `m.` provides the source-supported forced-rest while monsters are nearby. The capture must show the timer callback before it is included as a burn-object candidate.",
+  "segments": [
+    {
+      "seed": 64920731,
+      "datetime": "20920413120600",
+      "nethackrc": "OPTIONS=name:V23TallowTimer,role:Barbarian,race:human,gender=male,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u001b#levelchange\n10\n         \u0017tallow candle\naem.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

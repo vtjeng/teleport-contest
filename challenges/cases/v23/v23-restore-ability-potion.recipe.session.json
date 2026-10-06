@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for potion.c:peffect_restore_ability with a blessed potion. C showed every base ability already at maximum, so this records the valid no-restoration result after the source's 'feel great' message; it does not claim an ability was restored. The wished potion was at h, and the frozen action acknowledges the post-wish page before selecting it.",
+  "segments": [
+    {
+      "seed": 92300615,
+      "datetime": "20730512114500",
+      "nethackrc": "OPTIONS=name:V23Restore,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed potion of restore ability\n qh"
+    }
+  ]
+}

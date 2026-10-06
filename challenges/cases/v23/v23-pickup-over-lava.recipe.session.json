@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-first pickup_checks lava gate. A levitation potion keeps the human Wizard safe while the terrain wish changes the current tile to lava; Levitation does not satisfy C's Wwalking/floater/clinger/Flying pickup refusal test, so comma reaches the distinct likes_lava refusal at hack.c:3817-3825. C exposed two input setup corrections without changing the selected setup: prefix Space to dismiss the welcome pager, and select the wished potion's observed inventory letter n from the quaff menu. The seed, date, role, target and remaining actions stay fixed.",
+  "segments": [
+    {
+      "seed": 27181463,
+      "datetime": "20910814153022",
+      "nethackrc": "OPTIONS=name:V23LavaPickup,role:Wizard,race:human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\npotion of levitation\nqn\u0017lava\n,"
+    }
+  ]
+}

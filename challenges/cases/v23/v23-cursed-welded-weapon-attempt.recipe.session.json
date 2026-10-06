@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for wield.c:dowield/welded. C inventory inspection assigned the wished cursed long sword to n and the second dagger to o; this frozen route wields n then attempts o.",
+  "segments": [
+    {
+      "seed": 92300626,
+      "datetime": "20740320120000",
+      "nethackrc": "OPTIONS=name:V23Weld,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017cursed long sword\n\u0017dagger\nwnwo"
+    }
+  ]
+}

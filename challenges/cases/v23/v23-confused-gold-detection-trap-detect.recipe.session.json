@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v23 candidate for the Confusion arm of read.c:seffect_gold_detection. The unconfused setup intentionally retained outside the manifest reaches the v9 gold_detect behavior; this frozen input sets Confusion before reading so C must select trap_detect.",
+  "segments": [
+    {
+      "seed": 92300612,
+      "datetime": "20730205111000",
+      "nethackrc": "OPTIONS=name:V23TrapGo,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\ng\n \u0017uncursed scroll of gold detection\n\nr?n "
+    }
+  ]
+}

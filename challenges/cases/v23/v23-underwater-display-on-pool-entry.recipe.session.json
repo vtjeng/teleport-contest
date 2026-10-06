@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-first underwater entry witness. timeout.c:propertynames orders MAGICAL_BREATHING after PASSES_WALLS; the C intrinsic menu shows it on page 2, where its page-local selector is g. This recipe selects that intrinsic, wishes a pool underfoot, then waits. trap.c:drown reaches display.c:under_water(1) after setting u.uinwater; the first screen mismatch is that full underwater redraw, before any fire-scroll read. The seven spaces dismiss exactly the source-observed More pages from pool entry and water_damage_chain.",
+  "segments": [
+    {
+      "seed": 47128031,
+      "datetime": "20910928141500",
+      "nethackrc": "OPTIONS=name:V23WetFire,role:Wizard,race:human,gender=male,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n>g\n \u0017pool\n.       "
+    }
+  ]
+}

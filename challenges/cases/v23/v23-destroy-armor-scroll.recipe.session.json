@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for blessed read.c:seffect_destroy_armor with multiple worn pieces. C showed wished scroll o, leather armor p, opera cloak q, and T removes the starter cloak. The frozen action takes off the starter, wears p and q, then reads o.",
+  "segments": [
+    {
+      "seed": 92300620,
+      "datetime": "20731023101500",
+      "nethackrc": "OPTIONS=name:V23Armor,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed scroll of destroy armor\n\u0017leather armor\n\u0017cloak of protection\nTWpWqro  p"
+    }
+  ]
+}

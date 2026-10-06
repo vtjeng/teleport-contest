@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first candidate for blessed potion.c:peffect_polymorph. C reached the controlled form query and the independent input selects the common newt form with an actual line terminator.",
+  "segments": [
+    {
+      "seed": 92300627,
+      "datetime": "20740417123000",
+      "nethackrc": "OPTIONS=name:V23PolyPot,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed potion of polymorph\nqo newt\n "
+    }
+  ]
+}

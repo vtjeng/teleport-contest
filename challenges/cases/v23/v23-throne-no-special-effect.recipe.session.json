@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first target miss for sit.c:throne_sit_effect's wizard override. The independently selected Valkyrie setup recorded rnd(6)=4, so C did not enter the special-effect prompt; it reached the ordinary throne result instead. The trailing 2 is preserved as the attempted prompt answer, not described as a stat increase.",
+  "segments": [
+    {
+      "seed": 92300624,
+      "datetime": "20740120120000",
+      "nethackrc": "OPTIONS=name:V23ThroneTwo,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0017throne\n#sit\n2\n"
+    }
+  ]
+}

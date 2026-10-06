@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-first pickup_checks water gate: a wizard pool wish changes the hero’s current tile, then comma (the NetHack pickup command) reaches hack.c:pickup_checks before any floor-object selector. A nonwaterwalking, nonflying human who is not underwater takes the pool branch and returns before the object-presence check.",
+  "segments": [
+    {
+      "seed": 38057241,
+      "datetime": "20900302081700",
+      "nethackrc": "OPTIONS=name:V23PoolPickup,role:Wizard,race:human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017pool\n,"
+    }
+  ]
+}

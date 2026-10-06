@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v23 candidate for eat.c:fprefx() TRIPE_RATION branch. New seed/date and Healer configuration are independent of the earlier potion cases; the item letter follows C-observed wished-object inventory placement. C probe step 15 showed the ration at k; this recipe uses that exact observed letter.",
+  "segments": [
+    {
+      "seed": 70831429,
+      "datetime": "20841123170900",
+      "nethackrc": "OPTIONS=name:V23Tripe,role:Healer,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017tripe ration\nek"
+    }
+  ]
+}
