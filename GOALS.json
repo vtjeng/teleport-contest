@@ -179000,7 +179000,7 @@
     {
       "id": "port-mhitm-gulpmm-monster-engulf-v21-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Complete monster-on-monster engulf and digestion placement",
       "cFile": "mhitm.c",
       "sessions": [
@@ -179008,8 +179008,12 @@
       ],
       "selectionReason": "The only fully investigated current mismatch stops at v21 step 136 in mattackm AT_ENGL before mhitm.c gulpmm. Accepted A110 supplies whole mhitm_ad_dgst and corpse_chance behavior, and accepted B115 supplies the live mintrap return owners; this task completes gulpmm, wires the AT_ENGL caller, and verifies the consumed digestion and trap-result path.",
       "detail": "Port whole mhitm.c gulpmm lines 849-967 and replace mattackm AT_ENGL refusal with the source caller. Preserve engulf_target gates, message and map movement order, gm.mswallower around mdamagem, DEF_DIED and AGR_DIED handling, goodpos, minliquid and mintrap consumed results, and placement cleanup. Reuse complete mdamagem and accepted A110/B115 helpers, finishing any reached missing branch from source. Record matching v21 runtime evidence and independent branch variations.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "e1a5e7c87ff0f0539381cd1363c8fcda184e2b04",
+      "openStanding": {
+        "sha": "e1a5e7c87ff0f0539381cd1363c8fcda184e2b04",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -179017,8 +179021,8 @@
           "name": "gulpmm",
           "line": 849,
           "endLine": 969,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -179032,7 +179036,7 @@
           "endLine": 4569,
           "declared": true,
           "sourceFile": "uhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "mintrap",
@@ -179056,7 +179060,158 @@
           "evaluationPath": "challenges/evaluations/20261006161601-v21.json",
           "evaluationCommit": "58941777a28f7fdcbf578f7f288223a02ccd88e2"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "e1a5e7c87ff0f0539381cd1363c8fcda184e2b04",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "gulpmm",
+            "implementation": "js/mhitm.js",
+            "symbol": "gulpmm",
+            "sourceReview": "Read whole mhitm.c:849-969 and compared every branch and placement transition. Preserve engulf_target gate; source digests/enfolds/flaming macros and ordered message; vampire newcham(NO_NC_FLAGS) consumed result and suppressed-name expulsion; original coordinate saves; remove both map occupants and place aggressor at defender square; redraw in source order; gm.mswallower assignment around unchanged mdamagem; combined death no-op; defender-death goodpos(MM_IGNOREWATER) fallback, map restoration, minliquid short-circuit before consumed mintrap status; aggressor-death defender placement; and both-alive visible expulsion plus original-square placement. Port complete mattackm AT_ENGL arm: shade and steed gates before distance, engulfing_u before rnd(20+i), failed_grab before gulpmm, otherwise missmm, then existing passive/flag flow. Removed obsolete AT_ENGL refusal and its stale test. Read accepted mdamagem and required mhitm_ad_dgst source/implementation; no mdamagem behavior changed. Read mintrap:3733-3843 and its exact status forwarding; reuse accepted B115 implementation and retain its completion limits. Inspected source owners engulf_target, failed_grab, newcham, is_vampshifter, goodpos, minliquid, m_at/t_at, place/remove_monster, newsym and naming helpers. C discards snuff_lit result; whole snuff_lit is unported, so each non-flaming inventory call records apply.c snuff_lit with no invented light change. C naming/display waits are awaited in source order.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "C mhitm.c:511-535 AT_ENGL -> gulpmm at531. Live dogmove.c dog_move pet combat and monmove.c conflict -> fightm enter mattackm; independent pet recordings and admitted v21 conflict case reach the dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/a111-tame-worm-digestion.session.json",
+              "recordings/mhitm.c/a111-trapper-enclosure.session.json",
+              "recordings/mhitm.c/a111-air-elemental-expulsion.session.json",
+              "recordings/mhitm.c/a111-worm-landing-trap.session.json"
+            ],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+                "segment": 0,
+                "fromStep": 137,
+                "throughStep": 138,
+                "source": "C mhitm.c mattackm AT_ENGL -> gulpmm -> mdamagem -> uhitm.c mhitm_ad_dgst"
+              }
+            ],
+            "checkedAt": "e1a5e7c87ff0f0539381cd1363c8fcda184e2b04"
+          },
+          {
+            "name": "mhitm_ad_dgst",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_dgst",
+            "sourceReview": "Read complete uhitm.c:4492-4567 and reuse A110 whole implementation. Hero-oriented zero damage; Rider death/lifesaving flags/done; verbose non-Deaf burp then wake_nearto squared radius4; defender whole HP damage and amulet consumption; corpse_chance then aggressor death short-circuit; tame non-minion/non-G_NOCORPSE virtual corpse nutrition, truncating quarter eating time/half nutrition. This task supplies the previously blocked production entry through mattackm AT_ENGL -> gulpmm -> unchanged mdamagem -> mhitm_adtyping. No injected damage, new RNG or source substitute. C nosound build excludes SetVoice effect.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "C uhitm.c:4827 AD_DGST dispatcher, entered from mhitm.c mdamagem at1051 after gulpmm at917."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-dgst.test.mjs",
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/a111-tame-worm-digestion.session.json",
+              "recordings/mhitm.c/a111-worm-landing-trap.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+                "segment": 0,
+                "fromStep": 137,
+                "throughStep": 138,
+                "source": "C mhitm.c mattackm AT_ENGL -> gulpmm -> mdamagem -> uhitm.c mhitm_ad_dgst"
+              }
+            ],
+            "checkedAt": "e1a5e7c87ff0f0539381cd1363c8fcda184e2b04"
+          }
+        ],
+        "entryPointReview": "The selected helper gulpmm has one direct production caller, mattackm AT_ENGL. It is reached by pet combat in dog_move and conflict combat through fightm; all active. Independent seed61106122/date20420217143000 was developed for A110 and differs from the selected v21 case. Tame worm -> stone golem steps114-116 supplies whole digestion and the required mhitm_ad_dgst runtime entry. Trapper -> giant ant steps144-145 supplies enclosure/defender death. Air elemental -> giant beetle steps113-114 and121-122 supplies generic engulf plus both-alive expulsion. Landing-trap variation steps220-223 supplies the consumed mintrap caller after defender death. Admitted v21 segment0 steps137-138 now matches through source digestion. Source-owner fixtures cover rejection, placement restoration, contained gas-spore combined death, vampire forced-form expulsion, and shade/steed/distance attack gates. No vampire-specific or contained-M2M-spore recording is claimed. Ice vortex recipe is blocked by uhitm.c mhitm_ad_cold; the outside-limit ordinary-bite gas-spore recipe reaches end.c savelife -> hack.c curs_on_u refusal while planning a fatal hero blast. Both failed inputs are committed without passing recordings. Whole required mintrap remains incomplete for inherited B115 entry gaps; its newly reached engulf caller is covered. Source task implements planned gulpmm and AT_ENGL wiring without changing verified mdamagem or central records.",
+        "entryPoints": [
+          {
+            "name": "monster digestion through pet or conflict combat",
+            "functions": [
+              "gulpmm",
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_dgst"
+              }
+            ],
+            "recordings": [
+              "recordings/mhitm.c/a111-tame-worm-digestion.session.json",
+              "recordings/mhitm.c/a111-worm-landing-trap.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+                "segment": 0,
+                "fromStep": 137,
+                "throughStep": 138,
+                "source": "C mhitm.c mattackm AT_ENGL -> gulpmm -> mdamagem -> uhitm.c mhitm_ad_dgst"
+              }
+            ]
+          },
+          {
+            "name": "monster enclosure",
+            "functions": [
+              "gulpmm"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/a111-trapper-enclosure.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "physical monster engulf and expulsion",
+            "functions": [
+              "gulpmm"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/a111-air-elemental-expulsion.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "surviving engulfer encounters its landing trap",
+            "functions": [
+              "gulpmm",
+              {
+                "sourceFile": "trap.c",
+                "name": "mintrap"
+              }
+            ],
+            "recordings": [
+              "recordings/mhitm.c/a111-worm-landing-trap.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e1a5e7c87ff0f0539381cd1363c8fcda184e2b04",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "A111 completes and verifies whole mhitm.c gulpmm plus uhitm.c mhitm_ad_dgst and the new gulpmm-to-mintrap landing caller. The goal remains open because trap.c mintrap still has inherited B115 whole-entry gaps outside this task; its broader completion is not claimed."
     },
     {
       "id": "port-zap-zhitu-death-ray-v22-20261006",
