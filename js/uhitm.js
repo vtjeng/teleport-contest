@@ -183,6 +183,7 @@ import {
     l_monnam,
     mon_nam,
     Monnam,
+    mon_nam_too,
     Some_Monnam,
     Mgender,
     monsterCommonName,
@@ -243,6 +244,7 @@ import { hurtle, mhurtle, will_hurtle } from './dothrow.js';
 // ES module cycle initializes before either module body runs, and nothing here
 // reads them at module scope.
 import {
+    cloneu,
     could_seduce,
     doseduce,
     diseasemu,
@@ -278,6 +280,8 @@ import {
     wakeup,
     wake_nearto,
     monkilled,
+    monstone,
+    mon_to_stone,
     shieldeff_mon,
     xkilled,
     were_change,
@@ -4401,34 +4405,74 @@ export async function mhitm_ad_drst(
     }
 }
 
-// C ref: uhitm.c mhitm_ad_phys() (3980-4200), its three arms: the
-// `mdef == &gy.youmonst` one (4021-4127), including an ordinary weapon hit,
-// and the mhitm one (4128-4200). An ordinary blow landing on the hero prints
-// its line and records the hit. A wielded ordinary weapon first adds dmgval()
-// to the damage hitmu() rolled. One monster's blow on another adjusts the
-// damage mdamagem() rolled and prints nothing, because mhitm.c hitmm() has
-// already printed.
-//
-// The hero's own physical arm is used by dokick.c's polymorphed kick path.
-//
-// AT_HUGS (4023-4037) requires two preceding successful attack slots or an
-// existing hold. mhitu.c mattacku() now preserves that gate, awaits
-// failed_grab(), and sends an admitted attack through this physical arm.
-// AT_WEAP with something wielded (4041-4121) admits the ordinary arm
-//     through dmgval() and hitmsg(). The petrifying-corpse pre-arm is also
-//     complete through do_stone_u() and the corpse's fall-through to
-//     dmgval()/hitmsg(); the later artifact, silver, pudding split, effective
-//     rust, poison, and potentially fatal branches remain explicit boundaries.
-//
-// An AT_WEAP attacker holding nothing is not that edge. It falls to the last
-// arm with everyone else and prints hitmsg()'s default verb, which is what
-// mattacku()'s AT_WEAP arm leaves behind when mon_wield_item() finds it no
-// weapon to wield.
-//
-// Neither gm.mhitu_dieroll is read on the admitted path. mhm->specialdmg's
-// readers sit inside the hero-attacker arm.
-// The dieroll's readers, 4069 and 4107, sit in the artifact and poison paths,
-// which remain refusal boundaries.
+// C ref: uhitm.c do_stone_mon() (3945-3978). The caller consumes the
+// helper's writes to mhm->damage, mhm->hitflags and mhm->done, so this is a
+// source unit rather than a discarded-void gap.
+export async function do_stone_mon(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const pd = mdef.data;
+    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    const { munstone } = await import('./muse.js');
+
+    // C's munstone() result jumps to post_stone; ordinary petrification
+    // reaches that same label after monstone(). This also checks lifesaving.
+    let reachedPostStone = await munstone(mdef, false, state, env);
+    if (!reachedPostStone && poly_when_stoned(pd, state)) {
+        await mon_to_stone(mdef, state, env);
+        mhm.damage = 0;
+        return;
+    }
+    if (!reachedPostStone && !Resists_Elem(mdef, STONE_RES, state)) {
+        if (state.gv?.vis && canseemon(mdef, state)) {
+            await message(
+                messageAt(
+                    `${Monnam(mdef, state, env)} turns to stone!`,
+                    mdef.mx,
+                    mdef.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+        await monstone(mdef, state, env);
+        reachedPostStone = true;
+    }
+
+    if (reachedPostStone) {
+        if (mdef.mhp >= 1) {
+            mhm.hitflags = M_ATTK_MISS;
+            mhm.done = true;
+            return;
+        }
+        if (mdef.mtame && !state.gv?.vis) {
+            await message(
+                'You have a peculiarly sad feeling for a moment, then it passes.',
+                state,
+                env,
+            );
+        }
+        mhm.hitflags = M_ATTK_DEF_DIED
+            | (await grow_up(magr, mdef, { ...env, state })
+                ? 0 : M_ATTK_AGR_DIED);
+        mhm.done = true;
+        return;
+    }
+
+    // C's final arm leaves a stone-resistant target on one point of damage,
+    // except an actual stone-damage attack, which is absorbed completely.
+    mhm.damage = mattk.adtyp === AD_STON ? 0 : 1;
+}
+// C ref: uhitm.c mhitm_ad_phys() (3981-4202), all three source directions.
+// Keep C's effects on the shared damage record in source order: uhitm's
+// already-computed special damage, mhitu's weapon/equipment continuation, and
+// mhitm's defender/attacker result flags.
 export async function mhitm_ad_phys(
     magr,
     mattk,
@@ -4437,8 +4481,7 @@ export async function mhitm_ad_phys(
     state = game,
     env = {},
 ) {
-    const unsupported = requireAttackOperation(env, 'unsupported');
-    const random = env.random ?? { rn2 };
+    const random = { d, rn1, rn2, rnd, ...(env.random ?? {}) };
     const pa = magr.data;
     const pd = mdef.data;
 
@@ -4446,14 +4489,15 @@ export async function mhitm_ad_phys(
         /* uhitm */
         if (pd === state.mons[PM_SHADE]) {
             mhm.damage = 0;
-            if (!mhm.specialdmg)
-                unsupported('a shade attack without special damage');
+            if (!mhm.specialdmg) {
+                // C calls impossible() and continues into special damage.
+                note_unported('pline.c impossible');
+            }
         }
         mhm.damage += mhm.specialdmg;
 
         if (mattk.aatyp === AT_WEAP) {
-            /* hmonas() deals the ordinary physical weapon damage itself;
-               damageum() contributes nothing for this unusual arm. */
+            /* hmonas() already dealt ordinary physical weapon damage. */
             mhm.damage = 0;
         } else if (mattk.aatyp === AT_KICK
                    || mattk.aatyp === AT_CLAW
@@ -4463,7 +4507,6 @@ export async function mhitm_ad_phys(
                 mhm.damage = mattk.aatyp === AT_KICK
                     ? 0 : Math.trunc((mhm.damage + 1) / 2);
             }
-            /* Ring(s) of increase damage apply even when damage is zero. */
             const udaminc = state.u.udaminc ?? 0;
             if (udaminc > 0) {
                 mhm.damage += udaminc;
@@ -4472,14 +4515,15 @@ export async function mhitm_ad_phys(
                 if (mhm.damage < 1) mhm.damage = 1;
             }
         }
-    } else if (mdef === state.youmonst) {
+        return;
+    }
+
+    if (mdef === state.youmonst) {
         /* mhitu */
         if (mattk.aatyp === AT_HUGS && !sticks(pd)) {
             if (!state.u.ustuck && random.rn2(2)) {
                 if (await u_slip_free(magr, mattk, {
-                    ...env,
-                    state,
-                    random,
+                    ...env, state, random,
                 })) {
                     mhm.damage = 0;
                     mhm.hitflags |= M_ATTK_MISS;
@@ -4506,120 +4550,194 @@ export async function mhitm_ad_phys(
                 const message = env.message ?? (env.planning
                     ? async () => {} : ttyPline);
                 await message(
-                    `You are being ${pa === state.mons[PM_ROPE_GOLEM]
-                        ? 'choked' : 'crushed'}.`,
+                    pa === state.mons[PM_ROPE_GOLEM]
+                        ? 'You are being choked.' : 'You are being crushed.',
                     state,
                     env,
                 );
             }
-        } else { /* hand to hand weapon */
-            const otmp = magr.mw; /* MON_WEP(magr) */
+            return;
+        }
 
-            if (mattk.aatyp === AT_WEAP && otmp) {
-                const petrifyingCorpse = otmp.otyp === CORPSE
-                    && touch_petrifies(state.mons?.[otmp.corpsenm]);
-                if (petrifyingCorpse) {
-                    // uhitm.c:4047-4059.  This damage is established before
-                    // do_stone_u(), and a successful petrification consumes
-                    // the rest of the attack through mhm.done.
-                    mhm.damage = 1;
+        const otmp = magr.mw; /* MON_WEP(magr) */
+        if (mattk.aatyp === AT_WEAP && otmp) {
+            let wasPoisoned = Boolean(otmp.opoisoned || permapoisoned(otmp));
+            const petrifyingCorpse = otmp.otyp === CORPSE
+                && touch_petrifies(state.mons?.[otmp.corpsenm]);
+            if (petrifyingCorpse) {
+                mhm.damage = 1;
+                const message = requireAttackOperation(env, 'message');
+                await message(
+                    `${Monnam(magr, state, env)} hits you with the `
+                    + `${pmname(state.mons[otmp.corpsenm], NEUTRAL)} corpse.`,
+                    state,
+                    env,
+                );
+                const stoned = Boolean(
+                    (state.u?.uprops?.[STONED]?.intrinsic ?? 0) & TIMEOUT,
+                );
+                if (!stoned && await do_stone_u(magr, state, env)) {
+                    mhm.hitflags = M_ATTK_HIT;
+                    mhm.done = true;
+                    return;
+                }
+            }
+
+            mhm.damage += dmgval(otmp, mdef, state, { ...env, random });
+            const marmg = which_armor(magr, W_ARMG, state);
+            if (marmg?.otyp === GAUNTLETS_OF_POWER)
+                mhm.damage += random.rn1(4, 3);
+            if (mhm.damage <= 0) mhm.damage = 1;
+
+            let artifactHit = false;
+            if (otmp.oartifact) {
+                const artifactDamage = { value: mhm.damage };
+                artifactHit = await artifact_hit(
+                    magr, mdef, otmp, artifactDamage,
+                    env.dieroll ?? state.gn?.mhitu_dieroll ?? 0,
+                    state,
+                    env,
+                );
+                mhm.damage = artifactDamage.value;
+            }
+            if (!artifactHit) {
+                await hitmsg(magr, mattk, state, env);
+                mhm.hitflags |= M_ATTK_HIT;
+            }
+            if (!mhm.damage) return;
+
+            if (objectType(otmp, state).oc_material === SILVER
+                && (state.u.ulycn >= LOW_PM
+                    || hates_silver(state.youmonst.data))) {
+                const message = requireAttackOperation(env, 'message');
+                await message('The silver sears your flesh!', state, env);
+                await exercise(A_CON, false, state, random, {
+                    encumberMessage: env.encumberMessage ?? encumber_msg,
+                });
+            }
+
+            // The pudding split applies armor and half-physical mitigation to
+            // a local copy before it spends hero HP; the caller then sees zero.
+            let tmp = mhm.damage;
+            if (state.u.uac < 0)
+                tmp -= random.rnd(-state.u.uac);
+            if (tmp < 1) tmp = 1;
+            const halfPhysical = state.u?.uprops?.[HALF_PHDAM];
+            if (halfPhysical?.intrinsic || halfPhysical?.extrinsic)
+                tmp = Math.trunc((tmp + 1) / 2);
+            if (state.u.mh - tmp > 1
+                && [IRON, METAL].includes(objectType(otmp, state).oc_material)
+                && (state.u.umonnum === PM_BLACK_PUDDING
+                    || state.u.umonnum === PM_BROWN_PUDDING)) {
+                if (tmp > 1)
+                    await exercise(A_STR, false, state, random, {
+                        encumberMessage: env.encumberMessage ?? encumber_msg,
+                    });
+                state.u.mh -= tmp;
+                state.disp ??= {};
+                state.disp.botl = true;
+                mhm.damage = 0;
+                if (await cloneu(state, { ...env, random })) {
                     const message = requireAttackOperation(env, 'message');
                     await message(
-                        `${Monnam(magr, state, env)} hits you with the `
-                        + `${pmname(state.mons[otmp.corpsenm], NEUTRAL)} corpse.`,
+                        `You divide as ${mon_nam(magr, state, env)} hits you!`,
                         state,
                         env,
                     );
-                    const stoned = Boolean(
-                        (state.u?.uprops?.[STONED]?.intrinsic ?? 0) & TIMEOUT,
+                }
+            }
+
+            // rustm() is a discarded void call in mhitm.c. Its own C random/
+            // erosion effect remains a named gap until that owner is ported.
+            note_unported('mhitm.c rustm');
+            if (wasPoisoned && (env.dieroll ?? 0) <= 5) {
+                const reason = `${s_suffix(Monnam(magr, state, env))} `
+                    + `${mpoisons_subj(magr, mattk, state)}`;
+                await requireAttackOperation(env, 'poisoned')(
+                    reason,
+                    A_STR,
+                    pmname(magr.data, Mgender(magr, state)),
+                    10,
+                    false,
+                    { ...env, state, random },
+                );
+            }
+        } else if (mattk.aatyp !== AT_TUCH || mhm.damage !== 0
+                   || magr !== state.u.ustuck) {
+            await hitmsg(magr, mattk, state, env);
+            mhm.hitflags |= M_ATTK_HIT;
+        }
+        return;
+    }
+
+    /* mhitm */
+    let mwep = magr.mw; /* MON_WEP(magr) */
+    const vis = canseemon(magr, state) && canseemon(mdef, state);
+    if (mattk.aatyp !== AT_WEAP && mattk.aatyp !== AT_CLAW)
+        mwep = null;
+
+    if (await shade_miss(magr, mdef, mwep, false, vis, state, env)) {
+        mhm.damage = 0;
+    } else if (mattk.aatyp === AT_KICK && thick_skinned(pd)) {
+        mhm.damage = 0;
+    } else if (mwep) {
+        if (mwep.otyp === CORPSE
+            && touch_petrifies(state.mons?.[mwep.corpsenm])) {
+            await do_stone_mon(magr, mattk, mdef, mhm, state, env);
+            if (mhm.done) return;
+        }
+
+        mhm.damage += dmgval(mwep, mdef, state, { ...env, random });
+        const marmg = which_armor(magr, W_ARMG, state);
+        if (marmg?.otyp === GAUNTLETS_OF_POWER)
+            mhm.damage += random.rn1(4, 3);
+        if (mhm.damage < 1) mhm.damage = 1;
+
+        if (mwep.oartifact) {
+            const artifactDamage = { value: mhm.damage };
+            const artifactHit = await artifact_hit(
+                magr, mdef, mwep, artifactDamage,
+                mhm.dieroll ?? env.dieroll ?? 0,
+                state,
+                env,
+            );
+            mhm.damage = artifactDamage.value;
+            if (!artifactHit) {
+                if (state.gv?.vis) {
+                    const message = requireAttackOperation(env, 'message');
+                    await message(
+                        messageAt(
+                            `${Monnam(magr, state, env)} hits `
+                            + `${mon_nam_too(mdef, magr, state, env)}.`,
+                            magr.mx,
+                            magr.my,
+                            state,
+                        ),
+                        state,
+                        env,
                     );
-                    if (!stoned && await do_stone_u(magr, state, env)) {
-                        mhm.hitflags = M_ATTK_HIT;
-                        mhm.done = true;
-                        return;
-                    }
                 }
-                // C4047-4061 continues through dmgval()/hitmsg() for the
-                // petrifying corpse even when do_stone_u() returns false
-                // (resistance, existing Stoned, or a golem transition).
-                // Keep the ordinary non-weapon boundary for every other
-                // object, whose later C arms remain outside this span.
-                if (!petrifyingCorpse
-                    && !(otmp.oclass === WEAPON_CLASS
-                         || is_weptool(otmp, state)))
-                    unsupported('a non-weapon object hitting the hero');
-
-                const gloves = which_armor(magr, W_ARMG, state);
-                if (gloves?.otyp === GAUNTLETS_OF_POWER) {
-                    unsupported('gauntlets of power adding weapon damage');
-                }
-                if (otmp.oartifact)
-                    unsupported('an artifact weapon hitting the hero');
-
-                const material = objectType(otmp, state).oc_material;
-                if (material === SILVER
-                    && (state.u.ulycn >= 0 || hates_silver(pd)))
-                    unsupported('a silver weapon hitting the hero');
-                if ((material === IRON || material === METAL)
-                    && (pd === state.mons[PM_BLACK_PUDDING]
-                        || pd === state.mons[PM_BROWN_PUDDING])) {
-                    unsupported('an iron or metal weapon splitting the hero');
-                }
-                if (dmgtype(pd, AD_CORR) || dmgtype(pd, AD_RUST)
-                    || (dmgtype(pd, AD_FIRE)
-                        && pd !== state.mons[PM_STEAM_VORTEX])) {
-                    unsupported('the hero eroding a monster weapon');
-                }
-                if (otmp.opoisoned || permapoisoned(otmp))
-                    unsupported('a poisoned weapon hitting the hero');
-
-                mhm.damage += dmgval(otmp, mdef, state, env);
-                if (mhm.damage <= 0) mhm.damage = 1;
-
-                await hitmsg(magr, mattk, state, env);
-                mhm.hitflags |= M_ATTK_HIT;
-            } else if (mattk.aatyp !== AT_TUCH || mhm.damage !== 0
-                       || magr !== state.u.ustuck) {
-                await hitmsg(magr, mattk, state, env);
-                /* C's mhitm_knockback() reads this at 5338, past the stop at
-                   js/uhitm.js:1689, and hitmu() returns it only for a `done`
-                   this arm never sets. It is written because C writes it, and
-                   because the two callers that will read it are the next work
-                   on this function. */
                 mhm.hitflags |= M_ATTK_HIT;
             }
+            if (mdef.mhp < 1) {
+                mhm.hitflags = M_ATTK_DEF_DIED
+                    | (await grow_up(magr, mdef, { ...env, state })
+                        ? 0 : M_ATTK_AGR_DIED);
+                mhm.done = true;
+                return;
+            }
         }
-    } else {
-        /* mhitm */
-        let mwep = magr.mw; /* MON_WEP(magr) */
-        /* C's own local, not gv.vis: this arm asks whether the hero sees both
-           combatants, while mhitm.c's gv.vis asks whether it sees either. */
-        const vis = canseemon(magr, state) && canseemon(mdef, state);
 
-        if (mattk.aatyp !== AT_WEAP && mattk.aatyp !== AT_CLAW) mwep = null;
-
-        if (await shade_miss(magr, mdef, mwep, false, vis, state, env)) {
-            mhm.damage = 0;
-        } else if (mattk.aatyp === AT_KICK && thick_skinned(pd)) {
-            /* [no 'kicking boots' check needed; monsters with kick attacks
-               can't wear boots and monsters that wear boots don't kick] */
-            mhm.damage = 0;
-        } else if (mwep) { /* non-Null 'mwep' implies AT_WEAP || AT_CLAW */
-            // uhitm.c:4145-4188 is the armed blow: a cockatrice corpse
-            // wielded as a club, dmgval(), the gauntlets of power,
-            // artifact_hit() with the grow_up() that follows it, rustm() and
-            // the poison tail. mhitm.c mattackm() refuses AT_WEAP outright,
-            // so the only way in is an AT_CLAW attacker holding a weapon.
-            unsupported("a monster's wielded weapon landing on another");
-        } else if (pa === state.mons[PM_PURPLE_WORM]
-                   && pd === state.mons[PM_SHRIEKER]) {
-            /* hack to enhance mm_aggression(); we don't want purple
-               worm's bite attack to kill a shrieker because then it
-               won't swallow the corpse; but if the target survives,
-               the subsequent engulf attack should accomplish that */
-            if (mhm.damage >= mdef.mhp && mdef.mhp > 1)
-                mhm.damage = mdef.mhp - 1;
-        }
+        if (mhm.damage)
+            note_unported('mhitm.c rustm');
+        if ((mwep.opoisoned || permapoisoned(mwep)) && !random.rn2(4))
+            await mhitm_really_poison(magr, mattk, mdef, mhm, state, {
+                ...env, random,
+            });
+    } else if (pa === state.mons[PM_PURPLE_WORM]
+               && pd === state.mons[PM_SHRIEKER]) {
+        if (mhm.damage >= mdef.mhp && mdef.mhp > 1)
+            mhm.damage = mdef.mhp - 1;
     }
 }
 

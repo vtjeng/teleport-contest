@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first M-to-M petrifying-corpse attempt. The previous frozen attempt stopped its wizard setup at the Conflict timeout --More--. This version explicitly acknowledges that pager with a space before issuing #wizwish, then keeps the same source-directed floor corpse, sandestin and newt plan. Runtime evidence requires C to show corpse pickup and wield, followed by the AD_PHYS call into do_stone_mon; this recipe does not assume the generated layout reaches it.",
+  "segments": [
+    {
+      "seed": 12841033,
+      "datetime": "20550309141500",
+      "nethackrc": "OPTIONS=name:B112StonePair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n>>h\n \n#wizwish\ncockatrice corpse\nh\\l#wizgenesis\nhostile sandestin\n#wizgenesis\nhostile newt\n...................."
+    }
+  ]
+}

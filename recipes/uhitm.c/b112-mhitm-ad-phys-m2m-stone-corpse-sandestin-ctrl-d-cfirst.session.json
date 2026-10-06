@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Final bounded B112 M-to-M setup attempt. It acknowledges the Conflict timeout pager, wishes a cockatrice corpse, then tries to step west before the C-bound Ctrl-D kick command and creates a hostile sandestin plus a newt. C shows the hero already on the westmost interior tile with a wall to the west; the step does not move, and the later eastward kick reports empty space. Thus mattackm never sees a wielded petrifying corpse and uhitm.c:do_stone_mon is not reached. Preserve this recipe as a source-traced setup miss; do not treat it as a matching recording.",
+  "segments": [
+    {
+      "seed": 12841033,
+      "datetime": "20550309141500",
+      "nethackrc": "OPTIONS=name:B112StonePair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n>>h\n \n#wizwish\ncockatrice corpse\nh\u0004l #wizgenesis\nhostile sandestin\n#wizgenesis\nhostile newt\n...................."
+    }
+  ]
+}

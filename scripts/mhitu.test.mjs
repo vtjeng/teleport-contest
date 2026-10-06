@@ -1613,17 +1613,19 @@ test('a raw fatal weapon roll survives negative-AC mitigation', async () => {
     state.u.uhp = 2;
     state.u.uhpmax = 2;
 
-    // rnd(1) fixes AC_VALUE at -1; rnd(20)=8 lands below tmp 9; rnd(4)=1
-    // supplies dagger damage; the final rnd(1)=1 is hitmu()'s mitigation.
-    const survived = meleeEnv(state, [1, 8, 1, 1]);
+    // rnd(1) fixes AC_VALUE at -1; rnd(20)=8 lands below tmp 9; d(1,4)=1
+    // supplies attack damage and rnd(4)=1 supplies dagger damage. C then
+    // rolls rnd(1) for the pudding-split damage calculation before knockback,
+    // followed by knockback's two gates and hitmu()'s AC mitigation roll.
+    const survived = meleeEnv(state, [1, 8, 1, 1, 1, 1, 1, 1]);
     assert.equal(await mattacku(goblin, survived.env), false);
     assert.deepEqual(survived.lines, [
         'The goblin thrusts his dagger.',
         'The goblin hits!',
     ]);
     assert.deepEqual(survived.bounds, [
-        'rnd(1)', 'rnd(20)', 'd(1,4)', 'rnd(4)', 'rn2(3)', 'rn2(6)',
-        'rnd(1)',
+        'rnd(1)', 'rnd(20)', 'd(1,4)', 'rnd(4)', 'rnd(1)', 'rn2(3)',
+        'rn2(6)', 'rnd(1)',
     ]);
     assert.equal(state.u.uhp, 1);
 });
@@ -3325,32 +3327,35 @@ test('mhitm_ad_phys adds an ordinary wielded weapon and not an empty hand',
         { lines: ['The goblin hits!'], hitflags: M_ATTK_HIT, reason: undefined });
 });
 
-test('mhitm_ad_phys keeps remaining special and fatal weapon hits fail-closed',
+test('mhitm_ad_phys continues source weapon branches after corpse handling',
     async () => {
-    // uhitm.c:4041-4121 contains the continuations beyond the ordinary
-    // weapon path. The petrifying-corpse pre-arm is now source-complete;
-    // every remaining fixture changes exactly the field that selects its
-    // unported continuation.
+    // uhitm.c:4056-4121 continues ordinary weapon damage after its optional
+    // cockatrice-corpse pre-arm. These cases pin that branch order and ensure
+    // the former fail-closed refusals do not swallow later source behavior.
     const state = await meleeHero();
     const goblin = meleeAttacker(state, PM_GOBLIN, 1, 0);
     const weap = goblin.data.mattk[0];
 
-    const stopped = async (weapon, configure = () => {}) => {
+    const attack = async (weapon, configure = () => {}) => {
         const savedData = state.youmonst.data;
         const savedHp = state.u.uhp;
         configure();
         goblin.mw = weapon;
-        const { env } = physEnv(state);
-        // weapon.c dmgval() rolls one die for every weapon used below.
-        env.random = { rnd: () => 1 };
+        const { env, lines } = physEnv(state);
+        // weapon.c uses one die for each ordinary weapon here; the minimum
+        // result makes the added weapon damage source-visible and repeatable.
+        env.random = { rnd: () => 1, rn1: (_range, base) => base };
+        // Keep this fixture outside the source's optional poison threshold.
+        env.dieroll = 20;
+        const mhm = physMhm(1);
         const error = await mhitm_ad_phys(
-            goblin, weap, state.youmonst, physMhm(1), state, env,
+            goblin, weap, state.youmonst, mhm, state, env,
         ).then(() => null, (caught) => caught);
         goblin.mw = null;
         goblin.minvent = null;
         state.youmonst.data = savedData;
         state.u.uhp = savedHp;
-        return error?.reason;
+        return { reason: error?.reason, lines, mhm };
     };
 
     const corpse = mksobj(CORPSE, false, false, { state });
@@ -3358,60 +3363,60 @@ test('mhitm_ad_phys keeps remaining special and fatal weapon hits fail-closed',
     // make_stoned() remains a named void gap, but do_stone_u() returns true
     // and handles this attack when the initialized hero is not resistant.
     corpse.corpsenm = PM_COCKATRICE;
-    assert.equal(await stopped(corpse), undefined);
+    assert.equal((await attack(corpse)).reason, undefined);
 
     const ordinaryCorpse = mksobj(CORPSE, false, false, { state });
     ordinaryCorpse.corpsenm = PM_LITTLE_DOG;
-    assert.equal(
-        await stopped(ordinaryCorpse), 'a non-weapon object hitting the hero',
-    );
+    const ordinaryCorpseHit = await attack(ordinaryCorpse);
+    assert.equal(ordinaryCorpseHit.reason, undefined);
+    assert.equal(ordinaryCorpseHit.mhm.hitflags, M_ATTK_HIT);
+    assert.deepEqual(ordinaryCorpseHit.lines, ['The goblin hits!']);
+    assert.ok(ordinaryCorpseHit.mhm.damage >= 1);
 
     const powered = mksobj(DAGGER, false, false, { state });
-    assert.equal(await stopped(powered, () => {
+    const poweredHit = await attack(powered, () => {
         const gloves = mksobj(GAUNTLETS_OF_POWER, false, false, { state });
         // W_ARMG is the slot which which_armor() tests for the 3..6 bonus.
         gloves.owornmask = W_ARMG;
         goblin.minvent = gloves;
-    }), 'gauntlets of power adding weapon damage');
-
-    const artifact = mksobj(DAGGER, false, false, { state });
-    // Any nonzero oartifact selects artifact_hit().
-    artifact.oartifact = 1;
-    assert.equal(await stopped(artifact), 'an artifact weapon hitting the hero');
+    });
+    assert.equal(poweredHit.reason, undefined);
+    assert.equal(poweredHit.mhm.hitflags, M_ATTK_HIT);
+    assert.ok(poweredHit.mhm.damage > ordinaryCorpseHit.mhm.damage);
 
     // objects.c declares the silver dagger separately from the iron dagger.
     // youprop.h Hate_silver also requires lycanthropy or a silver-hating hero
     // form, so an ordinary human stays on the normal weapon path.
     const silver = mksobj(SILVER_DAGGER, false, false, { state });
-    assert.equal(await stopped(silver), undefined);
-    assert.equal(await stopped(silver, () => {
+    assert.equal((await attack(silver)).reason, undefined);
+    assert.equal((await attack(silver, () => {
         // LOW_PM is zero; any valid lycanthrope monster index makes the
         // youprop.h macro true before it consults the current form.
         state.u.ulycn = 0;
-    }), 'a silver weapon hitting the hero');
+    })).reason, undefined);
     state.u.ulycn = NON_PM;
 
     const pudding = mksobj(DAGGER, false, false, { state });
-    assert.equal(await stopped(pudding, () => {
+    assert.equal((await attack(pudding, () => {
         state.youmonst.data = state.mons[PM_BLACK_PUDDING];
-    }), 'an iron or metal weapon splitting the hero');
+    })).reason, undefined);
 
     const rusty = mksobj(DAGGER, false, false, { state });
-    assert.equal(await stopped(rusty, () => {
+    assert.equal((await attack(rusty, () => {
         state.youmonst.data = state.mons[PM_RUST_MONSTER];
-    }), 'the hero eroding a monster weapon');
+    })).reason, undefined);
 
     const poisoned = mksobj(DAGGER, false, false, { state });
     poisoned.opoisoned = true;
-    assert.equal(await stopped(poisoned), 'a poisoned weapon hitting the hero');
+    assert.equal((await attack(poisoned)).reason, undefined);
 
     const fatal = mksobj(DAGGER, false, false, { state });
-    assert.equal(await stopped(fatal, () => {
+    assert.equal((await attack(fatal, () => {
         // mhitm_ad_phys() reports the hit before hitmu() applies armor and
         // half-damage mitigation; raw damage equal to HP is not itself a
         // special weapon continuation.
         state.u.uhp = 2;
-    }), undefined);
+    })).reason, undefined);
 });
 
 test('mhitm_ad_phys applies the monster HUGS arm to a solid hero',
@@ -3516,10 +3521,13 @@ test('mhitm_ad_phys adjusts one monster\'s blow on another in silence',
     const rat = meleeAttacker(state, PM_SEWER_RAT, 0, 1);
     const bite = python.data.mattk[0];
     assert.equal(bite.aatyp, AT_BITE);
-    const refused = async (magr, mattk, mdef) => {
+    const hit = async (magr, mattk, mdef) => {
         const { env } = physEnv(state);
-        return mhitm_ad_phys(magr, mattk, mdef, physMhm(1), state, env)
-            .then(() => null, (error) => error.reason);
+        env.random = { rnd: () => 1 };
+        const mhm = physMhm(1);
+        const error = await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env)
+            .then(() => null, (caught) => caught);
+        return { reason: error?.reason, mhm };
     };
 
     // The ordinary case: no weapon, no shade, no kick, so C falls off the end
@@ -3546,16 +3554,15 @@ test('mhitm_ad_phys adjusts one monster\'s blow on another in silence',
     await mhitm_ad_phys(python, kick, rat, soft, state, physEnv(state).env);
     assert.equal(soft.damage, 5);
 
-    // uhitm.c:4143-4188. A wielded weapon is this arm's fail-closed edge, and
-    // only AT_WEAP or AT_CLAW reads one: mhitm.c mattackm() refuses AT_WEAP
-    // outright, so an armed claw is the one way in.
+    // uhitm.c:4143-4188. AT_CLAW reads the wielded weapon too. The caller's
+    // already-printed hit remains silent here, while dmgval() adds the
+    // source-defined weapon damage to mdamagem()'s initial one point.
     const armed = meleeAttacker(state, PM_GOBLIN, 0, -1);
     armed.mw = mksobj(ORCISH_DAGGER, false, false, { state });
     const clawed = { aatyp: AT_CLAW, adtyp: AD_PHYS, damn: 1, damd: 3 };
-    assert.equal(
-        await refused(armed, clawed, rat),
-        "a monster's wielded weapon landing on another",
-    );
+    const clawHit = await hit(armed, clawed, rat);
+    assert.equal(clawHit.reason, undefined);
+    assert.ok(clawHit.mhm.damage > 1);
     // The same attacker biting rather than clawing drops the weapon from the
     // decision and lands an ordinary blow.
     const bit = physMhm(4);

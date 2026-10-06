@@ -1936,8 +1936,13 @@ function Slimed(state) {
 // magr may be null when a thrown artifact hits the hero (C callers in
 // dothrow.c and mthrowu.c pass (struct monst *) 0).
 export async function artifact_hit(
-    magr, mdef, otmp, dmgptr, dieroll, state = game,
+    magr, mdef, otmp, dmgptr, dieroll, state = game, rawEnv = {},
 ) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { rn2, rnd, d };
+    const effectEnv = { ...env, state, random };
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
     const youattack = (magr === state.youmonst);
     const youdefend = (mdef === state.youmonst);
     const vis = (!youattack && magr && cansee(magr.mx, magr.my, state))
@@ -1950,7 +1955,7 @@ export async function artifact_hit(
     /* The following takes care of most of the damage, but not all--
      * the exception being for level draining, which is specially
      * handled.  Messages are done in this function, however. */
-    dmgptr.value += spec_dbon(otmp, mdef, dmgptr.value, state);
+    dmgptr.value += spec_dbon(otmp, mdef, dmgptr.value, state, env);
 
     if (youattack && youdefend) {
         // C: impossible("attacking yourself with weapon?");
@@ -1970,29 +1975,31 @@ export async function artifact_hit(
                     ? 'vaporizes part of'
                     : 'burns';
             const punct = !state.spec_dbon_applies ? '.' : '!';
-            await ttyPline(`The fiery blade ${verb} ${hittee}${punct}`, state);
+            await message(`The fiery blade ${verb} ${hittee}${punct}`, state);
         }
-        if (!rn2(4)) {
-            const env = { state, random: { rn2, rnd, d } };
-            const itemdmg = await destroy_items(mdef, AD_FIRE, dmgptr.value, env);
+        if (!random.rn2(4)) {
+            const itemdmg = await destroy_items(
+                mdef, AD_FIRE, dmgptr.value, effectEnv,
+            );
             if (!youdefend)
                 dmgptr.value += itemdmg; /* item destruction dmg */
-            await ignite_items(mdef.minvent, env);
+            await ignite_items(mdef.minvent, effectEnv);
         }
         if (youdefend && Slimed(state))
-            await burn_away_slime(state, env);
+            await burn_away_slime(state, effectEnv);
         return realizes_damage;
     }
     if (attacks(AD_COLD, otmp, state)) {
         if (realizes_damage) {
             const verb = !state.spec_dbon_applies ? 'hits' : 'freezes';
             const punct = !state.spec_dbon_applies ? '.' : '!';
-            await ttyPline(
+            await message(
                 `The ice-cold blade ${verb} ${hittee}${punct}`, state);
         }
-        if (!rn2(4)) {
-            const env = { state, random: { rn2, rnd, d } };
-            const itemdmg = await destroy_items(mdef, AD_COLD, dmgptr.value, env);
+        if (!random.rn2(4)) {
+            const itemdmg = await destroy_items(
+                mdef, AD_COLD, dmgptr.value, effectEnv,
+            );
             if (!youdefend)
                 dmgptr.value += itemdmg; /* item destruction dmg */
         }
@@ -2003,14 +2010,15 @@ export async function artifact_hit(
             const extra = !state.spec_dbon_applies
                 ? '' : '!  Lightning strikes';
             const punct = !state.spec_dbon_applies ? '.' : '!';
-            await ttyPline(
+            await message(
                 `The massive hammer hits${extra} ${hittee}${punct}`, state);
         }
         if (state.spec_dbon_applies)
-            await wake_nearto(mdef.mx, mdef.my, 4 * 4, { state });
-        if (!rn2(5)) {
-            const env = { state, random: { rn2, rnd, d } };
-            const itemdmg = await destroy_items(mdef, AD_ELEC, dmgptr.value, env);
+            await wake_nearto(mdef.mx, mdef.my, 4 * 4, env);
+        if (!random.rn2(5)) {
+            const itemdmg = await destroy_items(
+                mdef, AD_ELEC, dmgptr.value, effectEnv,
+            );
             if (!youdefend)
                 dmgptr.value += itemdmg; /* item destruction dmg */
         }
@@ -2021,7 +2029,7 @@ export async function artifact_hit(
             const extra = !state.spec_dbon_applies
                 ? '' : '!  A hail of magic missiles strikes';
             const punct = !state.spec_dbon_applies ? '.' : '!';
-            await ttyPline(
+            await message(
                 `The imaginary widget hits${extra} ${hittee}${punct}`, state);
         }
         return realizes_damage;
@@ -2047,7 +2055,7 @@ export async function artifact_hit(
             wepdesc = 'The razor-sharp blade';
             /* not really beheading, but so close, why add another SPFX */
             if (youattack && engulfing_u(mdef, state)) {
-                await ttyPline(
+                await message(
                     `You slice ${monsterCommonName(mdef, state)} wide open!`,
                     state);
                 dmgptr.value = 2 * mdef.mhp + FATAL_DAMAGE_MODIFIER;
@@ -2060,11 +2068,11 @@ export async function artifact_hit(
 
                 if (bigmonst(mdef.data)) {
                     if (youattack) {
-                        await ttyPline(
+                        await message(
                             `You slice deeply into ${monsterCommonName(mdef, state)}!`,
                             state);
                     } else if (vis) {
-                        await ttyPline(
+                        await message(
                             `${capitalizedMonsterName(magr, state)} cuts deeply into ${hittee}!`,
                             state);
                     }
@@ -2072,14 +2080,14 @@ export async function artifact_hit(
                     return true;
                 }
                 dmgptr.value = 2 * mdef.mhp + FATAL_DAMAGE_MODIFIER;
-                await ttyPline(
+                await message(
                     `${wepdesc} cuts ${monsterCommonName(mdef, state)} in half!`,
                     state);
                 observe_object(otmp, state);
                 return true;
             } else {
                 if (bigmonst(state.youmonst.data)) {
-                    await ttyPline(
+                    await message(
                         `${magr ? capitalizedMonsterName(magr, state) : wepdesc} cuts deeply into you!`,
                         state);
                     dmgptr.value *= 2;
@@ -2092,7 +2100,7 @@ export async function artifact_hit(
                  * damage does not prevent death. */
                 dmgptr.value = 2 * (Upolyd(state) ? state.u.mh : state.u.uhp)
                              + FATAL_DAMAGE_MODIFIER;
-                await ttyPline(`${wepdesc} cuts you in half!`, state);
+                await message(`${wepdesc} cuts you in half!`, state);
                 observe_object(otmp, state);
                 return true;
             }
@@ -2109,11 +2117,11 @@ export async function artifact_hit(
                 if (!has_head(mdef.data) || state.gn.notonhead
                     || state.u.uswallow) {
                     if (youattack) {
-                        await ttyPline(
+                        await message(
                             `Somehow, you miss ${monsterCommonName(mdef, state)} wildly.`,
                             state);
                     } else if (vis) {
-                        await ttyPline(
+                        await message(
                             `Somehow, ${monsterCommonName(magr, state)} misses wildly.`,
                             state);
                     }
@@ -2121,26 +2129,26 @@ export async function artifact_hit(
                     return youattack || vis;
                 }
                 if (noncorporeal(mdef.data) || amorphous(mdef.data)) {
-                    await ttyPline(
+                    await message(
                         `${wepdesc} slices through ${s_suffix(monsterCommonName(mdef, state))} ${mbodypart(mdef, NECK)}.`,
                         state);
                     return true;
                 }
                 dmgptr.value = 2 * mdef.mhp + FATAL_DAMAGE_MODIFIER;
-                // C: ROLL_FROM(behead_msg) = behead_msg[rn2(2)]
-                const msg = behead_msg[rn2(2)];
-                await ttyPline(
+                // C: ROLL_FROM(behead_msg) = behead_msg[random.rn2(2)]
+                const msg = behead_msg[random.rn2(2)];
+                await message(
                     msg.replace('%wepdesc', wepdesc)
                        .replace('%target', monsterCommonName(mdef, state)),
                     state);
                 if (Hallucination(state) && !state.flags.female)
-                    await ttyPline(
+                    await message(
                         "Good job Henry, but that wasn't Anne.", state);
                 observe_object(otmp, state);
                 return true;
             } else {
                 if (!has_head(state.youmonst.data)) {
-                    await ttyPline(
+                    await message(
                         `Somehow, ${magr ? monsterCommonName(magr, state) : wepdesc} misses you wildly.`,
                         state);
                     dmgptr.value = 0;
@@ -2148,16 +2156,16 @@ export async function artifact_hit(
                 }
                 if (noncorporeal(state.youmonst.data)
                     || amorphous(state.youmonst.data)) {
-                    await ttyPline(
+                    await message(
                         `${wepdesc} slices through your ${body_part(NECK, state.youmonst)}.`,
                         state);
                     return true;
                 }
                 dmgptr.value = 2 * (Upolyd(state) ? state.u.mh : state.u.uhp)
                              + FATAL_DAMAGE_MODIFIER;
-                // C: ROLL_FROM(behead_msg) = behead_msg[rn2(2)]
-                const msg = behead_msg[rn2(2)];
-                await ttyPline(
+                // C: ROLL_FROM(behead_msg) = behead_msg[random.rn2(2)]
+                const msg = behead_msg[random.rn2(2)];
+                await message(
                     msg.replace('%wepdesc', wepdesc)
                        .replace('%target', 'you'),
                     state);
@@ -2189,11 +2197,11 @@ export async function artifact_hit(
                 const otmpname = distant_name(otmp, xnameFresh, state);
 
                 if (is_art(otmp, ART_STORMBRINGER)) {
-                    await ttyPline(
+                    await message(
                         `The ${hcolor('black', state)} blade draws the ${life} from ${monsterCommonName(mdef, state)}!`,
                         state);
                 } else {
-                    await ttyPline(
+                    await message(
                         `${The(otmpname, state)} draws the ${life} from ${monsterCommonName(mdef, state)}!`,
                         state);
                 }
@@ -2211,7 +2219,7 @@ export async function artifact_hit(
                 /* drain: was target's damage, now heal attacker by half */
                 drain = Math.trunc((drain + 1) / 2); /* drain/2 rounded up */
                 if (youattack) {
-                    await healup(drain, 0, false, false, state);
+                    await healup(drain, 0, false, false, state, env);
                 } else {
                     // C: assert(magr != 0);
                     healmon(magr, drain, 0);
@@ -2222,7 +2230,7 @@ export async function artifact_hit(
             const oldhpmax = state.u.uhpmax;
 
             if (Blind(state)) {
-                await ttyPline(
+                await message(
                     `You feel an ${is_art(otmp, ART_STORMBRINGER) ? 'unholy blade' : 'object'} drain your ${life}!`,
                     state);
             } else {
@@ -2231,16 +2239,16 @@ export async function artifact_hit(
                 const otmpname = distant_name(otmp, xnameFresh, state);
 
                 if (is_art(otmp, ART_STORMBRINGER)) {
-                    await ttyPline(
+                    await message(
                         `The ${hcolor('black', state)} blade drains your ${life}!`,
                         state);
                 } else {
-                    await ttyPline(
+                    await message(
                         `${The(otmpname, state)} drains your ${life}!`,
                         state);
                 }
             }
-            await losexp('life drainage', state);
+            await losexp('life drainage', state, env);
             if (magr && magr.mhp < magr.mhpmax) {
                 healmon(magr, Math.trunc((Math.abs(oldhpmax - state.u.uhpmax) + 1) / 2), 0);
             }

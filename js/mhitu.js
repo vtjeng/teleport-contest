@@ -1878,14 +1878,15 @@ export async function mattacku(monster, rawEnv = {}) {
                         tmp += hittmp;
                         await mswings(monster, mon_currwep, bash, env);
                     }
-                    // C also stores the roll in gm.mhitu_dieroll, whose only
-                    // readers are uhitm.c mhitm_ad_phys():4069 and :4107. Both
-                    // sit inside the AT_WEAP block that opens at :4041, which
-                    // that function refuses; the roll arrives with the armed
-                    // blow rather than with AD_PHYS.
+                    // C stores this attack roll in gm.mhitu_dieroll; the
+                    // AD_PHYS poison continuation reads it after artifact and
+                    // damage resolution. Keep the same roll with that attack.
                     const j = random.rnd(20 + i);
                     if (tmp > j)
-                        sum[i] = await hitmu(monster, mattk, env);
+                        sum[i] = await hitmu(monster, mattk, {
+                            ...env,
+                            dieroll: j,
+                        });
                     else
                         await missmu(monster, tmp === j, mattk, env);
                     /* KMH -- Don't accumulate to-hit bonuses */

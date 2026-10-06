@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B112 C-first attempt for monster-to-monster uhitm.c:do_stone_mon through mhitm_ad_phys. The source plan uses a wished cockatrice corpse on the floor, moves off that tile and kicks the corpse east, then enables Conflict and creates a sandestin plus a newt. `monmove.c:mpickstuff` permits cockatrice corpses, `weapon.c:select_hwep` prioritizes CORPSE for a stone-resistant wielder, and sandestin has MR_STONE, AT_WEAP and M2_COLLECT in monsters.h. Runtime evidence requires C to show the sandestin actually picks up and wields the corpse, then calls the AD_PHYS weapon arm against the newt; this input does not assume the generated placement reaches that branch.",
+  "segments": [
+    {
+      "seed": 12841033,
+      "datetime": "20550309141500",
+      "nethackrc": "OPTIONS=name:B112StonePair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n>>h\n#wizwish\ncockatrice corpse\nh\\l#wizgenesis\nhostile sandestin\n#wizgenesis\nhostile newt\n...................."
+    }
+  ]
+}

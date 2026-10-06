@@ -8,6 +8,7 @@ import {
     A_DEX,
     ALTAR,
     BLINDED,
+    DEAF,
     DETECT_MONSTERS,
     DRAIN_RES,
     FIRE_RES,
@@ -31,6 +32,8 @@ import {
     STRAT_WAITMASK,
     STRAT_WAITFORU,
     M_ATTK_HIT,
+    M_ATTK_MISS,
+    M_ATTK_DEF_DIED,
     THRONE,
     STONE_RES,
     STONED,
@@ -50,6 +53,7 @@ import { m_at, place_monster, remove_monster } from '../js/monst.js';
 import { monflee } from '../js/monmove.js';
 import {
     AD_CURS,
+    AD_PHYS,
     AD_PLYS,
     AD_STON,
     AD_DRST,
@@ -66,6 +70,7 @@ import {
     PM_GHOUL,
     PM_GREMLIN,
     PM_COCKATRICE,
+    PM_LIZARD,
     PM_DWARF_LEADER,
     PM_HUMAN,
     PM_MIND_FLAYER,
@@ -84,10 +89,12 @@ import {
     PM_WEREJACKAL,
     NON_PM,
 } from '../js/monsters.js';
+import { add_to_minv } from '../js/invent.js';
 import { mksobj, mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     MIRROR,
+    POT_ACID,
     CLOAK_OF_PROTECTION,
     CORPSE,
     ORCISH_DAGGER,
@@ -103,6 +110,7 @@ import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     do_attack,
+    do_stone_mon,
     mhitm_ad_phys,
     mhitm_ad_drst,
     mhitm_ad_ston,
@@ -1885,6 +1893,96 @@ test('mhitm_ad_ston preserves each source direction and gate draws',
     assert.equal(reverse.damage, 0);
     assert.equal(reverse.done, false);
     assert.ok(game.unported.has('trap.c minstapetrify'));
+});
+
+test('do_stone_mon runs post_stone checks after a curing item is consumed',
+    async () => {
+    // uhitm.c:3953-3978 jumps from munstone() to post_stone. The alive case
+    // uses a lizard corpse because muse.c:cures_stoning() accepts it; the dead
+    // case uses an acid potion and a source-pinned rnd(15)=15 damage draw.
+    async function cureOutcome({ itemType, defenderHp, acidDamage }) {
+        await runSegment({
+            seed: 7710061, datetime: DATETIME, nethackrc: RC, moves: '',
+        });
+        game.gv = { ...(game.gv ?? {}), vis: false };
+        game.u.uprops[DEAF] = { intrinsic: 1, extrinsic: 0 };
+        const location = [game.u.ux + 1, game.u.uy];
+        const defender = {
+            data: game.mons[PM_NEWT], m_id: 92010,
+            mx: location[0], my: location[1],
+            mhp: defenderHp, mhpmax: 20, m_lev: 1,
+            mcanmove: true, msleeping: false, mcan: false,
+            meating: 0, mstrategy: 0, mconf: 0, mstun: 0,
+            movement: 12, mlstmv: game.moves, mspeed: 12, permspeed: 0,
+            minvent: null, nmon: null, mtame: false, minvis: true,
+        };
+        const cure = mksobj(itemType, false, false, { state: game });
+        if (itemType === CORPSE) {
+            cure.corpsenm = PM_LIZARD;
+            // mkobj.c:start_corpse_timeout() gives lizard corpses no timer.
+            // mksobj() initialized this fixture before its species was set.
+            cure.timed = 0;
+        }
+        add_to_minv(defender, cure, { state: game });
+        game.level.monlist = defender;
+        place_monster(defender, ...location, game);
+
+        const attacker = {
+            data: game.mons[PM_COCKATRICE], m_id: 92011,
+            mhp: 20, m_lev: 5, mx: game.u.ux + 2, my: game.u.uy,
+        };
+        const draws = [];
+        const hit = { damage: 4, hitflags: 0, done: false };
+        if (acidDamage !== undefined)
+            game.nhDisplay.terminal._inputQueue.push(32);
+        await do_stone_mon(
+            attacker,
+            { adtyp: AD_PHYS },
+            defender,
+            hit,
+            game,
+            {
+                silent: true,
+                random: {
+                    rnd: (bound) => {
+                        draws.push(`rnd(${bound})`);
+                        return bound === 15 ? acidDamage ?? 1 : bound;
+                    },
+                    rn2: (bound) => {
+                        draws.push(`rn2(${bound})`);
+                        return 0;
+                    },
+                },
+                message: async () => {},
+                unsupported: (operation) => {
+                    assert.fail(`unexpected monster-death gap: ${operation}`);
+                },
+            },
+        );
+        return { defender, hit, draws, cureStillCarried: defender.minvent === cure };
+    }
+
+    const alive = await cureOutcome({
+        itemType: CORPSE, defenderHp: 20,
+    });
+    assert.deepEqual(alive.hit, {
+        damage: 4, hitflags: M_ATTK_MISS, done: true,
+    });
+    assert.deepEqual(alive.draws, []);
+    assert.equal(alive.cureStillCarried, false,
+        'munstone consumes the accepted lizard corpse before post_stone');
+    assert.equal(alive.defender.mhp, 20);
+
+    const dead = await cureOutcome({
+        itemType: POT_ACID, defenderHp: 5, acidDamage: 15,
+    });
+    assert.equal(dead.hit.done, true);
+    assert.ok(dead.hit.hitflags & M_ATTK_DEF_DIED,
+        'post_stone preserves the acid-killed defender result');
+    assert.deepEqual(dead.draws, ['rnd(15)', 'rnd(2)', 'rn2(2)']);
+    assert.equal(dead.cureStillCarried, false,
+        'munstone consumes the acid potion before resolving the kill');
+    assert.ok(dead.defender.mhp < 1);
 });
 
 test('mhitm_ad_phys handles a petrifying corpse weapon before ordinary damage',

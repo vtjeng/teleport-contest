@@ -6,6 +6,7 @@ import {
     ARTILIST_TEMPLATE,
     ART_DEMONBANE,
     ART_EXCALIBUR,
+    ART_FIRE_BRAND,
     ART_EYE_OF_THE_AETHIOPICA,
     ART_GRIMTOOTH,
     ART_MAGICBANE,
@@ -28,6 +29,7 @@ import {
     NROFARTIFACTS,
     UnsupportedArtifactDisplayError,
     artifactTouchable,
+    artifact_hit,
     artifact_defends,
     artifact_light,
     artifact_name,
@@ -58,7 +60,7 @@ import {
 import {
     A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ANTIMAGIC, BLND_RES,
     ENERGY_REGENERATION,
-    HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM,
+    HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM, SLIMED,
     W_ARM, W_ARMC, W_ART, W_WEP,
 } from '../js/const.js';
 import {
@@ -1055,6 +1057,119 @@ function artiState() {
     };
     return state;
 }
+
+test('artifact_hit uses the planned damage, random, and message environment',
+    async () => {
+    // artifact.c:1447-1726. Fire Brand's AD_FIRE branch adds max(tmp, 1),
+    // prints the fiery-blade message for the hero defender, then draws rn2(4)
+    // for carried-item damage. The clone call must use its injected operations.
+    const state = stateFor('Val', 'lawful');
+    state.u = { uprops: [], ulycn: -1, ustuck: null };
+    state.youmonst = {
+        data: {}, mx: 0, my: 0, minvent: null, misc_worn_check: 0,
+    };
+    state.uwep = null;
+    state.mons = [];
+    init_artifacts(state);
+    initRng(112);
+    enableRngLog();
+    const weapon = { oartifact: ART_FIRE_BRAND, otyp: LONG_SWORD };
+    const globalBefore = getRngLog().length;
+    const makeEnv = (planning) => {
+        const events = [];
+        const bounds = [];
+        return {
+            events,
+            bounds,
+            env: {
+                planning,
+                random: {
+                    rnd: (bound) => {
+                        bounds.push(`rnd(${bound})`);
+                        return 1;
+                    },
+                    rn2: (bound) => {
+                        bounds.push(`rn2(${bound})`);
+                        return 1;
+                    },
+                },
+                message: async (text, subject) => {
+                    events.push([text, subject]);
+                },
+            },
+        };
+    };
+
+    const planned = makeEnv(true);
+    const plannedDamage = { value: 3 };
+    const plannedSpecial = await artifact_hit(
+        null, state.youmonst, weapon, plannedDamage, 10, state, planned.env,
+    );
+    assert.equal(plannedSpecial, true);
+    assert.equal(plannedDamage.value, 6);
+    assert.deepEqual(planned.bounds, ['rn2(4)']);
+    assert.deepEqual(planned.events, [[
+        'The fiery blade burns you!', state,
+    ]]);
+    assert.equal(getRngLog().length, globalBefore,
+        'planning uses only the injected random stream');
+
+    const live = makeEnv(false);
+    const liveDamage = { value: 3 };
+    const liveSpecial = await artifact_hit(
+        null, state.youmonst, weapon, liveDamage, 10, state, live.env,
+    );
+    assert.equal(liveSpecial, true);
+    assert.equal(liveDamage.value, plannedDamage.value);
+    assert.deepEqual(live.bounds, ['rn2(4)']);
+    assert.deepEqual(live.events, [[
+        'The fiery blade burns you!', state,
+    ]]);
+});
+
+test('artifact_hit burns away Slimed when the fire destruction roll misses',
+    async () => {
+    // C artifact.c:1553-1569 draws rn2(4) before the separate Slimed check.
+    // Returning 1 selects no item destruction, but a nonzero Slimed intrinsic
+    // still reaches burn_away_slime() and clears the timeout.
+    const state = stateFor('Val', 'lawful');
+    state.u = { uprops: [], ulycn: -1, ustuck: null };
+    state.u.uprops[SLIMED] = { intrinsic: 20, extrinsic: 0 };
+    state.youmonst = {
+        data: {}, mx: 0, my: 0, minvent: null, misc_worn_check: 0,
+    };
+    state.uwep = null;
+    state.mons = [];
+    init_artifacts(state);
+    const draws = [];
+    const lines = [];
+    const damage = { value: 3 };
+    const special = await artifact_hit(
+        null,
+        state.youmonst,
+        { oartifact: ART_FIRE_BRAND, otyp: LONG_SWORD },
+        damage,
+        10,
+        state,
+        {
+            random: {
+                rn2: (bound) => {
+                    draws.push(`rn2(${bound})`);
+                    return 1;
+                },
+            },
+            message: async (line) => { lines.push(line); },
+        },
+    );
+
+    assert.equal(special, true);
+    assert.deepEqual(draws, ['rn2(4)']);
+    assert.equal(state.u.uprops[SLIMED].intrinsic, 0);
+    assert.deepEqual(lines, [
+        'The fiery blade burns you!',
+        'The slime that covers you is burned away!',
+    ]);
+});
 
 test('attacks() returns true when the artifact attack type matches', () => {
     // ART_FROST_BRAND has attk.adtyp = AD_COLD (3).
