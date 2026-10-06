@@ -1,0 +1,718 @@
+{
+  "version": 1,
+  "batch": "v11",
+  "manifestPath": "challenges/manifests/v11.json",
+  "sha": "7a0ddb9d2d965e8d3eea95666fec032af8be6b71",
+  "utc": "2026-10-06T11:26:31.112Z",
+  "status": "complete",
+  "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "065bcedc45b99244af2df27bad761164fd09c50c7664c9de30700f1c23568f15",
+  "inputFiles": [
+    "challenges/cases/v11/amulet-strangulation-starts-constriction.recipe.session.json",
+    "challenges/cases/v11/amulet-strangulation-starts-constriction.session.json",
+    "challenges/cases/v11/hero-antimagic-trap-drains-energy.recipe.session.json",
+    "challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json",
+    "challenges/cases/v11/hero-dart-trap-hits-hero.recipe.session.json",
+    "challenges/cases/v11/hero-dart-trap-hits-hero.session.json",
+    "challenges/cases/v11/hero-fire-trap-smoulders-cloak.recipe.session.json",
+    "challenges/cases/v11/hero-fire-trap-smoulders-cloak.session.json",
+    "challenges/cases/v11/hero-magic-trap-summons-monsters.recipe.session.json",
+    "challenges/cases/v11/hero-magic-trap-summons-monsters.session.json",
+    "challenges/cases/v11/hero-polymorph-trap-transforms-form.recipe.session.json",
+    "challenges/cases/v11/hero-polymorph-trap-transforms-form.session.json",
+    "challenges/cases/v11/hero-rock-trap-ceiling-fall.recipe.session.json",
+    "challenges/cases/v11/hero-rock-trap-ceiling-fall.session.json",
+    "challenges/cases/v11/hero-sleep-gas-trap.recipe.session.json",
+    "challenges/cases/v11/hero-sleep-gas-trap.session.json",
+    "challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json",
+    "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+    "challenges/cases/v11/hero-teleport-trap-displaces-hero.recipe.session.json",
+    "challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json",
+    "challenges/cases/v11/hero-web-trap-catches.recipe.session.json",
+    "challenges/cases/v11/hero-web-trap-catches.session.json",
+    "challenges/cases/v11/hostile-monster-picks-up-floor-weapon.recipe.session.json",
+    "challenges/cases/v11/hostile-monster-picks-up-floor-weapon.session.json",
+    "challenges/cases/v11/slow-monster-spell-changes-target-speed.recipe.session.json",
+    "challenges/cases/v11/slow-monster-spell-changes-target-speed.session.json",
+    "challenges/cases/v11/wand-create-monster-spawns-creature.recipe.session.json",
+    "challenges/cases/v11/wand-create-monster-spawns-creature.session.json",
+    "challenges/cases/v11/wand-enlightenment-reports-status.recipe.session.json",
+    "challenges/cases/v11/wand-enlightenment-reports-status.session.json",
+    "challenges/cases/v11/wand-light-room.recipe.session.json",
+    "challenges/cases/v11/wand-light-room.session.json",
+    "challenges/cases/v11/wand-locking-closes-open-door.recipe.session.json",
+    "challenges/cases/v11/wand-locking-closes-open-door.session.json",
+    "challenges/cases/v11/wand-probing-reports-hero-status.recipe.session.json",
+    "challenges/cases/v11/wand-probing-reports-hero-status.session.json",
+    "challenges/cases/v11/wand-stasis-freezes-level.recipe.session.json",
+    "challenges/cases/v11/wand-stasis-freezes-level.session.json",
+    "challenges/cases/v11/wand-wishing-makes-wish.recipe.session.json",
+    "challenges/cases/v11/wand-wishing-makes-wish.session.json",
+    "challenges/manifests/v11.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "amulet-strangulation-starts-constriction",
+      "recordingSha256": "00cb5c6bfd1e540728715cb4dd384219659e809a51f2456f958713c8d8120647",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2616,
+          "total": 2616
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-antimagic-trap-drains-energy",
+      "recordingSha256": "c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 25,
+          "total": 25
+        },
+        "rng": {
+          "matched": 2269,
+          "total": 2269
+        },
+        "cursors": {
+          "matched": 25,
+          "total": 25
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-dart-trap-hits-hero",
+      "recordingSha256": "ec1f267046431dc6c411b16443f72abd859020651f5ef4846b70ba26f4fe9ddd",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 18,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2758,
+          "total": 2758
+        },
+        "cursors": {
+          "matched": 18,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-fire-trap-smoulders-cloak",
+      "recordingSha256": "d7a006f09d4f1a69d4505d50ee3c9275326c6e2202a06ccd9aaad6ae540adea5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 17
+        },
+        "rng": {
+          "matched": 3486,
+          "total": 3486
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-magic-trap-summons-monsters",
+      "recordingSha256": "73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 17
+        },
+        "rng": {
+          "matched": 2703,
+          "total": 2703
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-polymorph-trap-transforms-form",
+      "recordingSha256": "a489a6cbf5d30018d1f82dc6f48b2c3579fd99d2541b656d0781237bb76f934a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 22,
+          "total": 22
+        },
+        "rng": {
+          "matched": 2328,
+          "total": 2328
+        },
+        "cursors": {
+          "matched": 22,
+          "total": 22
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-rock-trap-ceiling-fall",
+      "recordingSha256": "f58c86876bdbe83d6d2d6e25f11fd6dc24b8a17dbd9ea30a40b01ab6905b8bc2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 25,
+          "total": 25
+        },
+        "rng": {
+          "matched": 3100,
+          "total": 3100
+        },
+        "cursors": {
+          "matched": 25,
+          "total": 25
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-sleep-gas-trap",
+      "recordingSha256": "413115ec74b9f18ac98b28535179e88fc56ba70dee2a3d0b7dde5ff99dc226f2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 25,
+          "total": 25
+        },
+        "rng": {
+          "matched": 6392,
+          "total": 6392
+        },
+        "cursors": {
+          "matched": 25,
+          "total": 25
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-statue-trap-animates-statue",
+      "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2433,
+          "total": 2433
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-teleport-trap-displaces-hero",
+      "recordingSha256": "5d1e3a409ffee9a4f5ed5b2dbdac37221233b049b4508031f1dd42c7b5103bd7",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 26,
+          "total": 26
+        },
+        "rng": {
+          "matched": 2489,
+          "total": 2489
+        },
+        "cursors": {
+          "matched": 26,
+          "total": 26
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-web-trap-catches",
+      "recordingSha256": "9dcc95c0e6db89f1e15a189db7f8d3d557bbff32004cf91bcedab690d8a6850c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 16,
+          "total": 16
+        },
+        "rng": {
+          "matched": 2592,
+          "total": 2592
+        },
+        "cursors": {
+          "matched": 16,
+          "total": 16
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hostile-monster-picks-up-floor-weapon",
+      "recordingSha256": "b221c25af4f45b5fdc66e67c39ff39b428fed2b9bc114dfd3d340756bdaa3bc5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 2892,
+          "total": 2892
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "slow-monster-spell-changes-target-speed",
+      "recordingSha256": "526fdb6d28ae6f2ff3fd1f9d0ebb7c0ab54e18eca1c0a40876c0dd90aa9fd54e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 2382,
+          "total": 2382
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-create-monster-spawns-creature",
+      "recordingSha256": "a1c07e0a2ee3f316f94e3cb8f4c3ced1c1a99d9291bf6f4190bb83b1be3a124a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2340,
+          "total": 2340
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-enlightenment-reports-status",
+      "recordingSha256": "0825f81f6eed93f36a6b1d76dd2dde00fddd8b48fe2cfc5f14ac08b8dc919419",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 2258,
+          "total": 2258
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-light-room",
+      "recordingSha256": "94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 19
+        },
+        "rng": {
+          "matched": 2273,
+          "total": 2273
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-locking-closes-open-door",
+      "recordingSha256": "162cee8fb369b8f62557b3a80e460e4bb7da884869faf729efaa46d51827b30c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 43,
+          "total": 43
+        },
+        "rng": {
+          "matched": 2627,
+          "total": 2627
+        },
+        "cursors": {
+          "matched": 43,
+          "total": 43
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-probing-reports-hero-status",
+      "recordingSha256": "9acbb479959d366e21b63d93fa69949b63185e0bc45a8cb2ad0e49cdda82214f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 22,
+          "total": 22
+        },
+        "rng": {
+          "matched": 2990,
+          "total": 2990
+        },
+        "cursors": {
+          "matched": 22,
+          "total": 22
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-stasis-freezes-level",
+      "recordingSha256": "99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 20
+        },
+        "rng": {
+          "matched": 2796,
+          "total": 2796
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 20
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wand-wishing-makes-wish",
+      "recordingSha256": "fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2511,
+          "total": 2511
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 20,
+      "total": 20
+    },
+    "screens": {
+      "matched": 525,
+      "total": 525
+    },
+    "rng": {
+      "matched": 56235,
+      "total": 56235
+    },
+    "cursors": {
+      "matched": 525,
+      "total": 525
+    }
+  }
+}

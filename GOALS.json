@@ -176063,7 +176063,7 @@
     {
       "id": "port-uhitm-mhitm-ad-phys-v21-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete physical attacks in all combat directions",
       "cFile": "uhitm.c",
       "sessions": [
@@ -176099,7 +176099,7 @@
           "endLine": 2055,
           "declared": true,
           "sourceFile": "uhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "dmgval",
@@ -176107,7 +176107,7 @@
           "endLine": 360,
           "declared": true,
           "sourceFile": "weapon.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "do_stone_u",
@@ -176123,7 +176123,7 @@
           "endLine": 2643,
           "declared": true,
           "sourceFile": "mhitu.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "permapoisoned",
@@ -176131,7 +176131,7 @@
           "endLine": 2844,
           "declared": true,
           "sourceFile": "artifact.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "mpoisons_subj",
@@ -176139,7 +176139,7 @@
           "endLine": 162,
           "declared": true,
           "sourceFile": "mhitu.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -176319,7 +176319,284 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "shade_miss",
+            "implementation": "js/uhitm.js",
+            "symbol": "shade_miss",
+            "sourceReview": "Read the complete uhitm.c:shade_miss definition at 2016-2050. The species guard short-circuits before dmgval unless the defender is a shade; a damaging object returns FALSE. For a shade that the object cannot harm, the function selects attack/object wording, emits feedback only when verbose and visible under the source visibility expression, marks an unseen monster square invisible, clears a non-hero defender’s sleeping state, and returns TRUE. The JavaScript awaits the message operation before applying the map/sleep effects. No unported result-bearing callee is substituted.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon",
+                "source": "C uhitm.c:hitmm calls shade_miss at 1822 for a shade that took no damage; JavaScript hmon_hitmon awaits shade_miss at js/uhitm.js:3634."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "C mhitm.c:hitmm calls shade_miss at 660 before mdamagem; JavaScript mattackm awaits it at js/mhitm.js:1019."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "C uhitm.c:mhitm_ad_phys calls shade_miss at 4136 in its monster-versus-monster orientation; JavaScript awaits it at js/uhitm.js:4679."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "mhitm.c:hitmm -> uhitm.c:mhitm_adtyping(AD_PHYS) -> uhitm.c:mhitm_ad_phys:4136 shade_miss call; the Fire Giant hits the Silver Dragon and shade_miss takes its non-shade FALSE branch."
+              }
+            ],
+            "checkedAt": "f568bf8d346d69069b7d38ae065810fbf2c8730c"
+          },
+          {
+            "name": "dmgval",
+            "implementation": "js/weapon.js",
+            "symbol": "dmgval",
+            "sourceReview": "Read the complete weapon.c:dmgval definition at 216-355. It returns zero for cream pie, selects large- versus small-monster base dice, applies the listed weapon-specific extra dice or constants, adds enchantment only for weapons and clamps negative totals, zeroes soft-material and shade damage as prescribed, applies the heavy iron ball weight increment with a cap, adds the eligible blessed/wood/ silver/light bonuses (including artifact double-damage adjustment), then subtracts erosion with a minimum of one. The dice and conditional order are preserved.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "C uhitm.c:mhitm_ad_phys calls dmgval at 4061 for a monster weapon against the hero and at 4152 for an armed monster-versus-monster hit; JavaScript calls js/weapon.js:dmgval at 4586 and 4690."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "shade_miss",
+                "source": "C uhitm.c:shade_miss calls dmgval at 2026-2028 only after the defender is known to be a shade; JavaScript preserves that short-circuit at js/uhitm.js:4767-4768."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "weapon.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 143,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping(AD_PHYS) -> uhitm.c:mhitm_ad_phys:4061 -> weapon.c:dmgval; normalized step 143 records rnd(8)=6 at weapon.c:265 for the Archon’s long sword."
+              }
+            ],
+            "checkedAt": "f568bf8d346d69069b7d38ae065810fbf2c8730c"
+          },
+          {
+            "name": "permapoisoned",
+            "implementation": "js/artifacts.js",
+            "symbol": "permapoisoned",
+            "sourceReview": "Read the complete artifact.c:permapoisoned definition at 2837-2840. It returns whether a non-null object is permanently poisoned by ART_GRIMTOOTH; it reads the object/artifact identity and has no RNG, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "C uhitm.c:mhitm_ad_phys checks permapoisoned in its M-to-H weapon setup at 4044-4045 and M-to-M poison gate at 4184; JavaScript calls js/artifacts.js:permapoisoned from those corresponding branches at js/uhitm.js:4564 and 4733."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/artifact-generation.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "artifact.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 143,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping(AD_PHYS) -> uhitm.c:mhitm_ad_phys:4044-4045; the Archon attacks with its long sword and the permanent-poison predicate is consulted before dmgval."
+              }
+            ],
+            "checkedAt": "f568bf8d346d69069b7d38ae065810fbf2c8730c"
+          },
+          {
+            "name": "mpoisons_subj",
+            "implementation": "js/mhitu.js",
+            "symbol": "mpoisons_subj",
+            "sourceReview": "Read the complete mhitu.c:mpoisons_subj definition at 145-159. For AT_WEAP it selects uwep for the hero or MON_WEP for a monster and returns attack versus weapon according to opoisoned; other attack types map to contact, gaze, bite, or sting/default sting. It performs no RNG, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "C uhitm.c:mhitm_ad_phys calls mpoisons_subj at 4114 after its poisoned-weapon and dieroll gates; JavaScript evaluates it at js/uhitm.js:4655 in the corresponding M-to-H arm."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_really_poison",
+                "source": "C uhitm.c poison handling calls mpoisons_subj at 3109, 3132 and 3156; JavaScript keeps those existing source paths in js/uhitm.js:4333, 4370 and 4389."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mhitu.c",
+            "synthetic": [],
+            "checkedAt": "f568bf8d346d69069b7d38ae065810fbf2c8730c"
+          },
+          {
+            "name": "cloneu",
+            "implementation": "js/mhitu.js",
+            "symbol": "cloneu",
+            "sourceReview": "Read the complete mhitu.c:cloneu definition at 2616-2640. It returns null when the hero has at most one monster HP, the species is extinct, or makemon fails. Otherwise it creates the same species at the hero square without inventory, initializes the clone as a dog, then sets level and max HP from the hero and splits current monster HP using C integer division. The state change and the makemon RNG/output order are preserved.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_phys",
+                "source": "C uhitm.c:mhitm_ad_phys calls mhitu.c:cloneu at 4103 after a metal weapon hit on a black/brown pudding-form hero leaves u.mh above 1; JavaScript imports cloneu and awaits it at js/uhitm.js:4640. In production, mhitu.c:mattacku dispatches through hitmu to this source branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/b112-cloneu-m2h-metal-lieutenant-brown-split.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [],
+            "checkedAt": "f568bf8d346d69069b7d38ae065810fbf2c8730c"
+          }
+        ],
+        "entryPointReview": "The primary unit uhitm.c:mhitm_ad_phys (3981-4200) has three active orientations selected by uhitm.c:mhitm_adtyping: damageum:4854 (H-to-M), mhitu.c:mattacku:1191 (M-to-H), and mhitm.c:mdamagem:1059 (M-to-M). JavaScript routes these callers through uhitm.js:mhitm_adtyping and awaits mhitm_ad_phys. The admitted v21 case matches through step 128 for ordinary unarmed M-to-M physical combat, including the shade_miss non-shade return, and through step 143 for an ordinary M-to-H long-sword hit, including dmgval and permapoisoned. A fresh matching brown-pudding recording now exercises the M-to-H metal-hit branch: C makemon.c:m_initweap gives the lieutenant a broadsword (rn2(2)=1; include/objects.h defines it as IRON), and the step-61 “You divide as it hits you!” message proves mhitu.c:cloneu was called after the successful split preconditions. The black-pudding trial also reached the split, but the following AD_RUST rustm call diverged; the brown pudding uses AD_DCAY and gives strict parity. H-to-M remains uncovered: the direction-corrected C route prints “You miss the newt” at step 47, so known_hitum does not call hmon/mhitm_ad_phys. The M-to-H corpse route confirms gloves and corpse materialization but the sandestin never wields the corpse, so MON_WEP(magr) does not reach do_stone_u. The M-to-M corpse route reaches a wall and an empty-space kick before any corpse pickup. The B112 artifact_hit planning correction is supported by focused tests and the full 148-boundary v21 replay, but it earns no whole artifact_hit source credit. No whole hitmm, hitmu, damageum, mattacku, mattackm, mdamagem, or dispatcher completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Monster attacks a monster with an ordinary unarmed AD_PHYS hit",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_phys"
+              },
+              {
+                "sourceFile": "uhitm.c",
+                "name": "shade_miss"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 128,
+                "source": "mhitm.c:mdamagem -> uhitm.c:mhitm_adtyping(AD_PHYS) -> uhitm.c:mhitm_ad_phys M-to-M branch; hitmm’s shade_miss call at mhitm.c:660 runs before mdamagem."
+              }
+            ]
+          },
+          {
+            "name": "Monster attacks the hero with an ordinary weapon",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_phys"
+              },
+              {
+                "sourceFile": "weapon.c",
+                "name": "dmgval"
+              },
+              {
+                "sourceFile": "artifact.c",
+                "name": "permapoisoned"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 143,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping(AD_PHYS) -> uhitm.c:mhitm_ad_phys M-to-H weapon branch, including dmgval and permapoisoned checks."
+              }
+            ]
+          },
+          {
+            "name": "Hero attacks a monster with AD_PHYS",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_phys"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Monster hits the hero with a petrifying corpse weapon",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_phys"
+              },
+              {
+                "sourceFile": "uhitm.c",
+                "name": "do_stone_u"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Monster hits a pudding-form hero with a metal weapon and invokes cloneu",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_phys"
+              },
+              {
+                "sourceFile": "mhitu.c",
+                "name": "cloneu"
+              }
+            ],
+            "recordings": [
+              "recordings/mhitu.c/b112-cloneu-m2h-metal-lieutenant-brown-split.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster attacks a monster with a petrifying corpse weapon",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_phys"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f568bf8d346d69069b7d38ae065810fbf2c8730c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Runtime evidence remains incomplete for the hero-to-monster entry, which misses before hmon calls mhitm_ad_phys, and for do_stone_u and monster-to-monster corpse weapon entries, whose bounded C routes never equip a monster with the cockatrice corpse. The implemented M-to-M, M-to-H, artifact, and cloneu paths remain verified."
     },
     {
       "id": "port-timeout-hatch-egg-pet-closure-v20-20261006",

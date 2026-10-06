@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T12:02:19.017Z",
+  "capturedAt": "2026-10-06T12:58:11.310Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -20933,12 +20933,69 @@
         "type": "resume",
         "at": "2026-10-06T11:30:40.912Z",
         "task": "B112"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A105-allmain-delayed-change-v17-20261006",
+        "type": "assign",
+        "at": "2026-10-06T12:14:45.580Z",
+        "task": "A105",
+        "worker": "A2",
+        "goal": "fix-allmain-delayed-change-v17-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d6c09a2603d5aa3a3c8f889af2c75e9181ac2a2c",
+        "type": "ready",
+        "at": "2026-10-06T12:46:41.174Z",
+        "task": "B112",
+        "delivery": "d6c09a2603d5aa3a3c8f889af2c75e9181ac2a2c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B112-evidence-d6c09a26-20261006",
+        "type": "received",
+        "at": "2026-10-06T12:48:20.082Z",
+        "task": "B112",
+        "delivery": "d6c09a2603d5aa3a3c8f889af2c75e9181ac2a2c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B112-evidence-f568bf8d-20261006",
+        "type": "integrating",
+        "at": "2026-10-06T12:49:55.045Z",
+        "task": "B112",
+        "integration": "f568bf8d346d69069b7d38ae065810fbf2c8730c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6f1653773e9159b291e1e9ad69965817357c2f70",
+        "type": "ready",
+        "at": "2026-10-06T12:52:35.864Z",
+        "task": "A105",
+        "delivery": "6f1653773e9159b291e1e9ad69965817357c2f70"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B112-evidence-f568bf8d-20261006",
+        "type": "validated",
+        "at": "2026-10-06T12:56:37.154Z",
+        "task": "B112",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B112-evidence-f568bf8d-20261006",
+        "type": "accepted",
+        "at": "2026-10-06T12:57:31.339Z",
+        "task": "B112"
       }
     ]
   },
   "development": {
-    "executionCommit": "cb97aeec4d071e58dfd16fd1bfdc5b2df06259c8",
-    "measuredAt": "2026-10-06T06:06:45.168Z",
+    "executionCommit": "f568bf8d346d69069b7d38ae065810fbf2c8730c",
+    "measuredAt": "2026-10-06T12:56:18.690Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
