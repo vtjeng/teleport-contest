@@ -111,13 +111,10 @@ test('every matrix segment fires a dart trap and replays to its last key',
         }
     });
 
-// mintrap() proves every owner trapeffect_selector() can dispatch to before
-// its first write, because seetrap() and trapeffect_sqky_board() used to
-// resolve their own and put those throws after mintrap() had written
-// mtrapseen and spent rnl(5). Nothing pinned that proof: postmov() supplies
-// message, redraw, heroDeaf, mInAir and youHear itself, so only a direct
-// caller can leave one out, and deleting the loop left the whole suite green.
-test('mintrap refuses a missing owner before it writes mtrapseen', async () => {
+// mintrap() supplies omitted operations from its live environment. A planning
+// caller can still override them, so reject an invalid override before the
+// first mtrapseen write or rnl(5) draw.
+test('mintrap refuses an invalid owner before it writes mtrapseen', async () => {
     const owners = ['redraw', 'mInAir', 'heroDeaf', 'youHear', 'message'];
     for (const missing of owners) {
         const monster = {
@@ -149,12 +146,14 @@ test('mintrap refuses a missing owner before it writes mtrapseen', async () => {
             youHear: () => {},
             message: () => {},
         };
-        delete env[missing];
+        // null overrides the live default and proves that supplied operations
+        // remain subject to the complete environment check.
+        env[missing] = null;
 
         await assert.rejects(
             mintrap(monster, 0, env),
             (error) => error instanceof TypeError,
-            `a missing ${missing} must be refused`,
+            `an invalid ${missing} must be refused`,
         );
         assert.equal(monster.mtrapseen, 0, `${missing}: mtrapseen`);
         assert.equal(trap.tseen, false, `${missing}: tseen`);

@@ -58,10 +58,11 @@ test('trapeffect_poly_trap keeps the ordinary hero source order', () => {
     assert.ok(cOrder.every((position, i) => i === 0 || cOrder[i - 1] < position));
     assert.ok(jsOrder.every((position, i) => i === 0 || jsOrder[i - 1] < position));
 
-    // C discards steedintrap() and polyself() results. The monster's void
-    // newcham() call remains named at the exact unported side-effect boundary.
+    // C discards steedintrap(), polyself(), and newcham() results. The monster
+    // call still carries NC_SHOW_MSG through the ported shape-change owner.
     assert.match(C_BODY, /\(void\) newcham\(mtmp, \(struct permonst \*\) 0, NC_SHOW_MSG\);/u);
-    assert.match(JS_BODY, /note_unported\('mon\.c newcham'\);/u);
+    assert.match(JS_BODY,
+        /await newcham\(mtmp, null, \{ \.\.\.env, ncflags: NC_SHOW_MSG \}\);/u);
 });
 
 test('hero POLY_TRAP preflight admits unmounted and mounted source arms', () => {
