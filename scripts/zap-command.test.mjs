@@ -39,6 +39,7 @@ import {
     WAN_SECRET_DOOR_DETECTION,
     WAN_CREATE_MONSTER,
     WAN_SLEEP,
+    WEAPON_CLASS,
     POT_POLYMORPH,
     SPE_POLYMORPH,
     AMULET_OF_UNCHANGING,
@@ -310,6 +311,49 @@ test('self-cancellation runs cancel_item across the hero inventory chain', async
     ), true);
     assert.equal(potion.otyp, POT_FRUIT_JUICE);
     assert.equal(wandInPack.spe, -1);
+});
+
+test('planned monster cancellation uses the injected resistance draw',
+    async () => {
+    // zap.c:cancel_monst asks resist() before changing the defender.  A
+    // guaranteed resistance through the supplied draw must leave mcan clear
+    // and spend no value from the live game stream.
+    await liveGame(4);
+    const defender = {
+        data: { ...game.mons[PM_FOX], mr: 100 },
+        m_lev: 1,
+        mcan: 0,
+    };
+    const bounds = [];
+    initRng(114);
+    enableRngLog();
+    const globalBefore = getRngLog().length;
+    const result = await cancel_monst(
+        defender,
+        { oclass: WEAPON_CLASS },
+        true,
+        false,
+        false,
+        game,
+        {
+            planning: true,
+            random: {
+                rn2: (bound) => {
+                    bounds.push(bound);
+                    return 0;
+                },
+            },
+            message: async () => {
+                throw new Error('resisted cancellation must stay silent');
+            },
+        },
+    );
+
+    assert.equal(result, false);
+    assert.equal(defender.mcan, 0);
+    // resist(): 100 + WEAPON_CLASS attack level 10 - defender level 1.
+    assert.deepEqual(bounds, [109]);
+    assert.equal(getRngLog().length, globalBefore);
 });
 
 test('zappable refuses a spent wand without drawing', async () => {

@@ -226,7 +226,11 @@ import { level_tele } from './teleport.js';
 import { align_str, enlightenment } from './insight.js';
 import { carried, Is_dragon_armor, Is_dragon_mail, mksobj, objectType, weight } from './obj.js';
 import { obj_shuffle_range, observe_object } from './o_init.js';
-import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
+import {
+    capitalizedMonsterName,
+    hcolor as nameColor,
+    monsterCommonName,
+} from './do_name.js';
 import { cancel_monst, resist, Fire_resistance, Cold_resistance } from './zap.js';
 import { healmon, migrate_mon, set_ustuck, wake_nearto } from './mon.js';
 import { monflee } from './monmove.js';
@@ -1635,7 +1639,7 @@ export function spec_abon(otmp, mon, state = game, env = {}) {
 // C ref: artifact.c spec_dbon() (1091-1111). Special damage bonus.
 // Sets state.spec_dbon_applies as a side effect, read later by artifact_hit
 // and Mb_hit.
-export function spec_dbon(otmp, mon, tmp, state = game) {
+export function spec_dbon(otmp, mon, tmp, state = game, env = {}) {
     const weap = get_artifact(otmp, state);
     if ((weap === state.artilist[ART_NONARTIFACT])
         || (weap.attk.adtyp === AD_PHYS /* check for `NO_ATTK' */
@@ -1646,10 +1650,12 @@ export function spec_dbon(otmp, mon, tmp, state = game) {
            damage bonus to apply to all targets, so bypass spec_applies() */
         state.spec_dbon_applies = true;
     else
-        state.spec_dbon_applies = spec_applies(weap, mon, state);
+        state.spec_dbon_applies = spec_applies(weap, mon, state, env);
 
     if (state.spec_dbon_applies)
-        return weap.attk.damd ? rnd(weap.attk.damd) : Math.max(tmp, 1);
+        return weap.attk.damd
+            ? (env.random?.rnd ?? rnd)(weap.attk.damd)
+            : Math.max(tmp, 1);
     return 0;
 }
 
@@ -1723,8 +1729,12 @@ const mb_verb = [
 const fakename = ['mon', 'you'];
 
 export async function Mb_hit(
-    magr, mdef, mb, dmgptr, dieroll, vis, hittee, state = game,
+    magr, mdef, mb, dmgptr, dieroll, vis, hittee, state = game, rawEnv = {},
 ) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { rn2, rnd };
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
     const youattack = (magr === state.youmonst);
     const youdefend = (mdef === state.youmonst);
     let resisted = false;
@@ -1742,21 +1752,22 @@ export async function Mb_hit(
 
     /* might stun even when attempting a more severe effect, but
        in that case it will only happen if the other effect fails */
-    do_stun = (Math.max(mb.spe, 0) < rn2(state.spec_dbon_applies ? 11 : 7));
+    do_stun = (Math.max(mb.spe, 0)
+        < random.rn2(state.spec_dbon_applies ? 11 : 7));
 
     let attack_indx = MB_INDEX_PROBE;
-    dmgptr.value += rnd(4); /* (2..3)d4 */
+    dmgptr.value += random.rnd(4); /* (2..3)d4 */
     if (do_stun) {
         attack_indx = MB_INDEX_STUN;
-        dmgptr.value += rnd(4); /* (3..4)d4 */
+        dmgptr.value += random.rnd(4); /* (3..4)d4 */
     }
     if (dieroll <= scare_dieroll) {
         attack_indx = MB_INDEX_SCARE;
-        dmgptr.value += rnd(4); /* (3..5)d4 */
+        dmgptr.value += random.rnd(4); /* (3..5)d4 */
     }
     if (dieroll <= Math.trunc(scare_dieroll / 2)) {
         attack_indx = MB_INDEX_CANCEL;
-        dmgptr.value += rnd(4); /* (4..6)d4 */
+        dmgptr.value += random.rnd(4); /* (4..6)d4 */
     }
 
     /* give the hit message prior to inflicting the effects */
@@ -1766,9 +1777,9 @@ export async function Mb_hit(
     const verb = mb_verb[halluc ? 1 : 0][attack_indx];
     if (youattack || youdefend || vis) {
         result = true;
-        await ttyPline(
+        await message(
             `The magic-absorbing blade ${vtense(null, verb)} ${hittee.value}!`,
-            state);
+            state, env);
         /* assume probing has some sort of noticeable feedback
            even if it is being done by one monster to another */
         if (attack_indx === MB_INDEX_PROBE) {
@@ -1781,7 +1792,9 @@ export async function Mb_hit(
     switch (attack_indx) {
     case MB_INDEX_CANCEL: {
         const old_mdat = youdefend ? state.youmonst.data : mdef.data;
-        if (!await cancel_monst(mdef, mb, youattack, false, false, state)) {
+        if (!await cancel_monst(
+            mdef, mb, youattack, false, false, state, env,
+        )) {
             resisted = true;
         } else {
             do_stun = false;
@@ -1793,12 +1806,14 @@ export async function Mb_hit(
                     if (state.u.uen > 0)
                         state.u.uen--;
                     state.disp.botl = true;
-                    await ttyPline('You lose magical energy!', state);
+                    await message('You lose magical energy!', state, env);
                 }
             } else {
                 /* canceled shapeshifter/vamp may have changed forms */
                 if (mdef.data !== old_mdat)
-                    hittee.value = monsterCommonName(mdef, state);
+                    hittee.value = monsterCommonName(
+                        mdef, state, 0, env,
+                    );
                 if (mdef.data === state.mons[PM_CLAY_GOLEM])
                     mdef.mhp = 1; /* cancelled clay golems will die */
                 if (youattack && attacktype(mdef.data, AT_MAGC)) {
@@ -1807,7 +1822,7 @@ export async function Mb_hit(
                         state.u.uenpeak = state.u.uenmax;
                     state.u.uen++;
                     state.disp.botl = true;
-                    await ttyPline('You absorb magical energy!', state);
+                    await message('You absorb magical energy!', state, env);
                 }
             }
         }
@@ -1824,16 +1839,24 @@ export async function Mb_hit(
                 if (magr && magr === state.u.ustuck
                     && sticks(state.youmonst.data)) {
                     set_ustuck(null, state);
-                    await ttyPline(
-                        `You release ${monsterCommonName(magr, state)}!`,
-                        state);
+                    await message(
+                        `You release ${monsterCommonName(
+                            magr, state, 0, env,
+                        )}!`,
+                        state, env);
                 }
             }
         } else {
-            if (rn2(2) && await resist(mdef, WEAPON_CLASS, 0, NOTELL, state)) {
+            if (random.rn2(2)
+                && await resist(
+                    mdef, WEAPON_CLASS, 0, NOTELL, state, random, env,
+                )) {
                 resisted = true;
             } else {
-                await monflee(mdef, 3, false, (mdef.mhp > dmgptr.value), state);
+                await monflee(
+                    mdef, 3, false, mdef.mhp > dmgptr.value,
+                    { ...env, state, random },
+                );
             }
         }
         if (!resisted)
@@ -1845,8 +1868,9 @@ export async function Mb_hit(
         break;
 
     case MB_INDEX_PROBE:
-        if (youattack && (mb.spe === 0 || !rn2(3 * Math.abs(mb.spe)))) {
-            await ttyPline(`The ${verb} is insightful.`, state);
+        if (youattack && (mb.spe === 0
+            || !random.rn2(3 * Math.abs(mb.spe)))) {
+            await message(`The ${verb} is insightful.`, state, env);
             /* pre-damage status */
             note_unported('zap.c probe_monster');
         }
@@ -1859,7 +1883,7 @@ export async function Mb_hit(
             const stunTimeout = (
                 (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0) & TIMEOUT
             ) + 3;
-            await make_stunned(stunTimeout, false, state);
+            await make_stunned(stunTimeout, false, state, env);
         } else {
             mdef.mstun = 1;
         }
@@ -1869,7 +1893,7 @@ export async function Mb_hit(
     }
 
     /* lastly, all this magic can be confusing... */
-    let do_confuse = !rn2(12);
+    let do_confuse = !random.rn2(12);
     if (do_confuse) {
         if (youdefend) {
             note_unported('timeout.c make_confused');
@@ -1884,9 +1908,9 @@ export async function Mb_hit(
     if (youattack || youdefend || vis) {
         hittee.value = upstart(hittee.value); /* capitalize */
         if (resisted) {
-            await ttyPline(
+            await message(
                 `${hittee.value} ${vtense(fakename[fakeidx], 'resist')}!`,
-                state);
+                state, env);
             await shieldeff(
                 youdefend ? state.u.ux : mdef.mx,
                 youdefend ? state.u.uy : mdef.my,
@@ -1901,9 +1925,9 @@ export async function Mb_hit(
                 buf += ' and ';
             if (do_confuse)
                 buf += 'confused';
-            await ttyPline(
+            await message(
                 `${hittee.value} ${vtense(fakename[fakeidx], 'are')} ${buf}${(do_stun && do_confuse) ? '!' : '.'}`,
-                state);
+                state, env);
         }
     }
 
@@ -1950,12 +1974,13 @@ export async function artifact_hit(
               || (youattack && engulfing_u(mdef, state) && !Blind(state));
     let realizes_damage;
     let wepdesc;
-    let hittee = youdefend ? 'you' : monsterCommonName(mdef, state);
+    let hittee = youdefend ? 'you'
+        : monsterCommonName(mdef, state, 0, effectEnv);
 
     /* The following takes care of most of the damage, but not all--
      * the exception being for level draining, which is specially
      * handled.  Messages are done in this function, however. */
-    dmgptr.value += spec_dbon(otmp, mdef, dmgptr.value, state, env);
+    dmgptr.value += spec_dbon(otmp, mdef, dmgptr.value, state, effectEnv);
 
     if (youattack && youdefend) {
         // C: impossible("attacking yourself with weapon?");
@@ -2039,7 +2064,7 @@ export async function artifact_hit(
         /* Magicbane's special attacks (possibly modifies hittee[]) */
         const hitteeRef = { value: hittee };
         return await Mb_hit(magr, mdef, otmp, dmgptr, dieroll, vis,
-                            hitteeRef, state);
+                            hitteeRef, state, effectEnv);
     }
 
     if (!state.spec_dbon_applies) {
@@ -2198,7 +2223,7 @@ export async function artifact_hit(
 
                 if (is_art(otmp, ART_STORMBRINGER)) {
                     await message(
-                        `The ${hcolor('black', state)} blade draws the ${life} from ${monsterCommonName(mdef, state)}!`,
+                        `The ${nameColor('black', state, effectEnv)} blade draws the ${life} from ${monsterCommonName(mdef, state, 0, effectEnv)}!`,
                         state);
                 } else {
                     await message(
@@ -2240,7 +2265,7 @@ export async function artifact_hit(
 
                 if (is_art(otmp, ART_STORMBRINGER)) {
                     await message(
-                        `The ${hcolor('black', state)} blade drains your ${life}!`,
+                        `The ${nameColor('black', state, effectEnv)} blade drains your ${life}!`,
                         state);
                 } else {
                     await message(
@@ -2248,7 +2273,13 @@ export async function artifact_hit(
                         state);
                 }
             }
-            await losexp('life drainage', state, env);
+            const losexpEnv = typeof effectEnv.planningDeath === 'function'
+                ? {
+                    ...effectEnv,
+                    planningDeath: () => effectEnv.planningDeath(magr),
+                }
+                : effectEnv;
+            await losexp('life drainage', state, losexpEnv);
             if (magr && magr.mhp < magr.mhpmax) {
                 healmon(magr, Math.trunc((Math.abs(oldhpmax - state.u.uhpmax) + 1) / 2), 0);
             }

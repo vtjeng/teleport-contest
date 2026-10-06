@@ -32,6 +32,7 @@ import {
     FROMOUTSIDE,
     FROM_RACE,
     INFRAVISION,
+    KILLED_BY,
     LAST_PROP,
     MAXULEV,
     N_ACH,
@@ -668,6 +669,34 @@ test('losing level two retains the experience just below level two', async () =>
     assert.equal(state.u.ulevel, 1);
     assert.equal(state.u.uexp, 19);
     assert.deepEqual(messages, ['Goodbye level 2.']);
+});
+
+test('fatal planned level-one drain stops at the injected death boundary',
+    async () => {
+    // exper.c:losexp sets the killer after its level-loss message, then calls
+    // non-returning done(DIED).  Planning must preserve that order while
+    // handing control back before end.c touches the live terminal or asks for
+    // input.  The unchanged level and experience prove the post-done tail did
+    // not run on the clone.
+    const state = heroState();
+    state.youmonst = { data: { pmidx: PM_HUMAN } };
+    state.u.uexp = 123;
+    const messages = [];
+    const boundary = new Error('planned level-one life-drain death');
+    const caught = await losexp('life drainage', state, {
+        planning: true,
+        message: async (text) => { messages.push(text); },
+        planningDeath: () => boundary,
+    }).then(() => null, (error) => error);
+
+    assert.equal(caught, boundary);
+    assert.deepEqual(messages, ['Goodbye level 1.']);
+    assert.deepEqual(state.killer, {
+        format: KILLED_BY,
+        name: 'life drainage',
+    });
+    assert.equal(state.u.ulevel, 1);
+    assert.equal(state.u.uexp, 123);
 });
 
 test('adjabil uses the dreaming prefix for a fainted hero losing an ability',

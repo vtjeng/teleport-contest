@@ -60,7 +60,7 @@ import {
 import {
     A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ANTIMAGIC, BLND_RES,
     ENERGY_REGENERATION,
-    HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM,
+    BLINDED, HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM,
     OBJ_MINVENT, SLIMED,
     W_ARM, W_ARMC, W_ART, W_WEP,
 } from '../js/const.js';
@@ -1128,6 +1128,149 @@ test('artifact_hit uses the planned damage, random, and message environment',
     assert.deepEqual(live.events, [[
         'The fiery blade burns you!', state,
     ]]);
+});
+
+test('Magicbane planning keeps bonus, special, and cancellation effects injected',
+    async () => {
+    // artifact.c spec_dbon() and Mb_hit(): a natural 1 selects cancellation.
+    // A zero-enchantment Magicbane whose bonus applies spends one bonus d4,
+    // the stun gate, four cumulative special d4 rolls, and the final
+    // confusion gate.  cancel_monst() then drains one point from each hero
+    // energy maximum/current value without touching the live RNG or terminal.
+    async function run(planning) {
+        const state = stateFor('Val', 'lawful');
+        state.flags.verbose = true;
+        state.disp = {};
+        state.u = {
+            uprops: [],
+            ulycn: NON_PM,
+            ustuck: null,
+            umonnum: PM_WIZARD,
+            umonster: PM_WIZARD,
+            uen: 2,
+            uenmax: 3,
+            uenpeak: 3,
+            ux: 4,
+            uy: 5,
+        };
+        state.youmonst = { data: {}, mx: 4, my: 5, minvent: null };
+        state.mons = [];
+        init_artifacts(state);
+        const attacker = { data: {}, mx: 5, my: 5, mhp: 10, mhpmax: 10 };
+        const draws = [];
+        const messages = [];
+        const damage = { value: 3 };
+        initRng(113);
+        enableRngLog();
+        const globalBefore = getRngLog().length;
+        const special = await artifact_hit(
+            attacker,
+            state.youmonst,
+            { oartifact: ART_MAGICBANE, spe: 0 },
+            damage,
+            1,
+            state,
+            {
+                planning,
+                random: {
+                    rn2: (bound) => {
+                        draws.push(`rn2(${bound})`);
+                        return 1;
+                    },
+                    rnd: (bound) => {
+                        draws.push(`rnd(${bound})`);
+                        return 1;
+                    },
+                },
+                message: async (text) => { messages.push(text); },
+            },
+        );
+        assert.equal(getRngLog().length, globalBefore);
+        return { damage: damage.value, draws, messages, special, state };
+    }
+
+    for (const planning of [true, false]) {
+        const result = await run(planning);
+        assert.equal(result.special, true);
+        assert.equal(result.damage, 8);
+        assert.deepEqual(result.draws, [
+            'rnd(4)', 'rn2(11)', 'rnd(4)', 'rnd(4)', 'rnd(4)', 'rnd(4)',
+            'rn2(12)',
+        ]);
+        assert.deepEqual(result.messages, [
+            'The magic-absorbing blade cancels you!',
+            'You lose magical energy!',
+        ]);
+        assert.equal(result.state.u.uenmax, 2);
+        assert.equal(result.state.u.uen, 1);
+        assert.equal(result.state.disp.botl, true);
+    }
+});
+
+test('Stormbringer planning hands fatal level-one drain back with its attacker',
+    async () => {
+    // artifact.c:1713 calls losexp("life drainage") after its feedback.
+    // exper.c then reaches non-returning done(DIED) at level one.  The combat
+    // planner needs the monster identity so it can replay that exact attack on
+    // live state; a string-only killer would lose the source of the blow.
+    const state = stateFor('Val', 'lawful');
+    state.flags.verbose = true;
+    state.disp = {};
+    state.u = {
+        uprops: [],
+        ulycn: NON_PM,
+        ustuck: null,
+        umonnum: PM_WIZARD,
+        umonster: PM_WIZARD,
+        ulevel: 1,
+        uexp: 123,
+        uhp: 12,
+        uhpmax: 12,
+        ux: 4,
+        uy: 5,
+    };
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.youmonst = { data: { mflags2: 0 }, mx: 4, my: 5 };
+    state.mons = [];
+    init_artifacts(state);
+    const attacker = {
+        // A stable nonzero ID lets the planning boundary identify this exact
+        // attacker without relying on a generated monster fixture.
+        m_id: 11203,
+        data: {},
+        mx: 5,
+        my: 5,
+        mhp: 10,
+        mhpmax: 10,
+    };
+    const boundary = new Error('planned Stormbringer death');
+    const messages = [];
+    let deathSubject = null;
+    const damage = { value: 3 };
+    const caught = await artifact_hit(
+        attacker,
+        state.youmonst,
+        { oartifact: ART_STORMBRINGER, spe: 0 },
+        damage,
+        10,
+        state,
+        {
+            planning: true,
+            random: { rn2: () => 1, rnd: () => 1 },
+            message: async (text) => { messages.push(text); },
+            planningDeath: (subject) => {
+                deathSubject = subject;
+                return boundary;
+            },
+        },
+    ).then(() => null, (error) => error);
+
+    assert.equal(caught, boundary);
+    assert.equal(deathSubject, attacker);
+    assert.equal(messages[0], 'You feel an unholy blade drain your life!');
+    assert.match(messages[1], / level 1\.$/u);
+    assert.equal(state.u.ulevel, 1);
+    assert.equal(state.u.uexp, 123);
 });
 
 test('artifact_hit burns away Slimed when the fire destruction roll misses',

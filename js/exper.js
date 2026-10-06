@@ -59,7 +59,8 @@ export function newuexp(level) {
 // source HP/energy clamps, and the polymorph HP adjustment in order.
 export async function losexp(drainer = null, state = game, env = {}) {
     const u = state.u;
-    const message = env.message ?? ttyPline;
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
 
     // C explicitly overrides life-drain resistance for the debug command,
     // but that command is never fatal at level one.
@@ -85,6 +86,17 @@ export async function losexp(drainer = null, state = game, env = {}) {
             state.killer ??= {};
             state.killer.format = KILLED_BY;
             state.killer.name = drainer;
+            if (env.planning) {
+                if (typeof env.planningDeath !== 'function') {
+                    throw new TypeError(
+                        'losexp requires planningDeath for a fatal planned drain',
+                    );
+                }
+                // C's done(DIED) is a non-returning boundary. Planning state is
+                // cloned, but done() still acts on the live terminal and
+                // recovery flow, so replay the attack with its real source.
+                throw env.planningDeath();
+            }
             const { done } = await import('./end.js');
             await done(DIED, state);
             // A completed really_done() represents C's non-returning path.

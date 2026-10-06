@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Unexecuted route plan for mhitu.c:cloneu as consumed by uhitm.c:mhitm_ad_phys. The Wizard uses #polyself to select black pudding, creates a hostile soldier and waits for a hit. C must confirm the hero form, a metallic weapon, the monster-to-hero attack and the cloneu call; none of those conditions were observed in B112, so this file is an explicit runtime-evidence gap, not a failed comparison.",
+  "_comment": "Blocked route for mhitu.c:cloneu as consumed by uhitm.c:mhitm_ad_phys. The C replay reaches black-pudding form, but the post-polymorph pages consume the intended #wizgenesis input; the later monsters use bite attacks, so no metallic weapon hit or cloneu call occurs. The 62-boundary C and JavaScript replay matches exactly, but this file remains an explicit runtime-evidence gap rather than cloneu evidence.",
   "segments": [
     {
       "seed": 12841036,

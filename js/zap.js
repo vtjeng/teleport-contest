@@ -6419,13 +6419,20 @@ export async function weffects(
 // skipped. Returns true if cancellation was not resisted.
 export async function cancel_monst(
     mdef, obj, youattack, allow_cancel_kill, self_cancel, state = game,
+    rawEnv = {},
 ) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { rn2 };
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
     const youdefend = (mdef === state.youmonst);
 
     // Resistance check
     if (youdefend
         ? (!youattack && Antimagic_cancel(state))
-        : await resist(mdef, obj?.oclass ?? 0, 0, NOTELL, state))
+        : await resist(
+            mdef, obj?.oclass ?? 0, 0, NOTELL, state, random, env,
+        ))
         return false; /* resisted cancellation */
 
     if (self_cancel) {
@@ -6433,7 +6440,7 @@ export async function cancel_monst(
         // chain order before the later cancellation effects.
         for (let item = youdefend ? state.invent : mdef.minvent;
             item; item = item.nobj)
-            await cancel_item(item, state);
+            await cancel_item(item, state, env);
 
         if (youdefend) {
             state.disp.botl = true;
@@ -6449,34 +6456,44 @@ export async function cancel_monst(
         if (Upolyd(state.u)) {
             if (state.u.umonnum === PM_CLAY_GOLEM) {
                 if (!heroIsBlind(state)) {
-                    await ttyPline(
+                    await message(
                         'Some writing vanishes from your head!', state,
+                        env,
                     );
                 } else {
                     const hallucinating = Hallucination(state);
-                    await ttyPline(
+                    await message(
                         `You feel ${hallucinating ? 'dark' : 'light'} headed.`,
-                        state,
+                        state, env,
                     );
                 }
                 state.u.mh = 0;
             }
             if (heroHasProperty(state, UNCHANGING) && state.u.mh > 0) {
-                await ttyPline(
+                await message(
                     'Your amulet grows hot for a moment, then cools.', state,
+                    env,
                 );
             } else {
-                await rehumanize(state);
+                await rehumanize(state, env);
             }
         }
     } else {
         mdef.mcan = 1;
         /* force shapeshifter into its base form or mimic to unhide */
-        await normal_shape(mdef, state);
+        await normal_shape(mdef, state, env);
 
         if (mdef.data === state.mons[PM_CLAY_GOLEM]) {
-            // Display message for clay golem (allow_cancel_kill controls
-            // whether the golem is killed; Magicbane passes false)
+            if (canseemon(mdef, state)) {
+                await message(
+                    `Some writing vanishes from ${s_suffix(
+                        mon_nam(mdef, state, env),
+                    )} head!`,
+                    state, env,
+                );
+            }
+            // zap.c's kill/monkilled return is discarded; Magicbane passes
+            // allow_cancel_kill=false and keeps that source gap untouched.
             if (allow_cancel_kill) {
                 note_unported('zap.c cancel_monst kill path');
             }

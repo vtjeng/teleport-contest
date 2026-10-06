@@ -3407,6 +3407,9 @@ test('mhitm_ad_phys continues source weapon branches after corpse handling',
     const attack = async (weapon, configure = () => {}) => {
         const savedData = state.youmonst.data;
         const savedHp = state.u.uhp;
+        const savedMonnum = state.u.umonnum;
+        const savedMh = state.u.mh;
+        const savedMhmax = state.u.mhmax;
         configure();
         goblin.mw = weapon;
         const { env, lines } = physEnv(state);
@@ -3419,11 +3422,22 @@ test('mhitm_ad_phys continues source weapon branches after corpse handling',
         const error = await mhitm_ad_phys(
             goblin, weap, state.youmonst, mhm, state, env,
         ).then(() => null, (caught) => caught);
+        let clone = state.level.monlist;
+        while (clone && !clone.mcloned) clone = clone.nmon;
+        const split = clone ? {
+            cloneHp: clone.mhp,
+            cloneHpmax: clone.mhpmax,
+            cloneSpecies: clone.data.pmidx,
+            heroMh: state.u.mh,
+        } : null;
         goblin.mw = null;
         goblin.minvent = null;
         state.youmonst.data = savedData;
         state.u.uhp = savedHp;
-        return { reason: error?.reason, lines, mhm };
+        state.u.umonnum = savedMonnum;
+        state.u.mh = savedMh;
+        state.u.mhmax = savedMhmax;
+        return { reason: error?.reason, lines, mhm, split };
     };
 
     const corpse = mksobj(CORPSE, false, false, { state });
@@ -3464,11 +3478,6 @@ test('mhitm_ad_phys continues source weapon branches after corpse handling',
     })).reason, undefined);
     state.u.ulycn = NON_PM;
 
-    const pudding = mksobj(DAGGER, false, false, { state });
-    assert.equal((await attack(pudding, () => {
-        state.youmonst.data = state.mons[PM_BLACK_PUDDING];
-    })).reason, undefined);
-
     const rusty = mksobj(DAGGER, false, false, { state });
     assert.equal((await attack(rusty, () => {
         state.youmonst.data = state.mons[PM_RUST_MONSTER];
@@ -3485,6 +3494,27 @@ test('mhitm_ad_phys continues source weapon branches after corpse handling',
         // special weapon continuation.
         state.u.uhp = 2;
     })).reason, undefined);
+
+    const pudding = mksobj(DAGGER, false, false, { state });
+    const splitHit = await attack(pudding, () => {
+        // youprop.h Upolyd reads u.umonnum, while cloneu() and hit messages
+        // read youmonst.data.  uhitm.c requires more than one polymorph HP
+        // after immediate weapon damage before it splits the pudding pool.
+        state.u.umonnum = PM_BLACK_PUDDING;
+        state.youmonst.data = state.mons[PM_BLACK_PUDDING];
+        state.u.mh = 20;
+        state.u.mhmax = 20;
+    });
+    assert.equal(splitHit.reason, undefined);
+    assert.equal(splitHit.mhm.damage, 0,
+        'the split consumes the pending hit before hitmu can apply it again');
+    assert.deepEqual(splitHit.split, {
+        cloneHp: 9,
+        cloneHpmax: 20,
+        cloneSpecies: PM_BLACK_PUDDING,
+        heroMh: 9,
+    });
+    assert.match(splitHit.lines.at(-1), /^You divide as .* hits you!$/u);
 });
 
 test('mhitm_ad_phys applies the monster HUGS arm to a solid hero',
