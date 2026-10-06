@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-06T20:57:34.693Z",
+  "capturedAt": "2026-10-06T21:08:37.901Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -22190,12 +22190,45 @@
         "at": "2026-10-06T20:53:20.746Z",
         "task": "C119",
         "commit": "1a8ac9baec89e2c263ece634ef8837154a502301"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C120-20261006",
+        "type": "assign",
+        "at": "2026-10-06T20:59:09.603Z",
+        "task": "C120",
+        "worker": "C",
+        "goal": "port-dothrow-release-camera-demon-v22-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B120-6059b7e2",
+        "type": "integrating",
+        "at": "2026-10-06T21:00:27.154Z",
+        "task": "B120",
+        "integration": "6059b7e2d86b3b602b5f49d265914efeedc516bb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B120-6059b7e2",
+        "type": "validated",
+        "at": "2026-10-06T21:08:21.865Z",
+        "task": "B120",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B120-6059b7e2",
+        "type": "accepted",
+        "at": "2026-10-06T21:08:31.932Z",
+        "task": "B120"
       }
     ]
   },
   "development": {
-    "executionCommit": "d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8",
-    "measuredAt": "2026-10-06T20:47:19.824Z",
+    "executionCommit": "6059b7e2d86b3b602b5f49d265914efeedc516bb",
+    "measuredAt": "2026-10-06T21:08:09.598Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
