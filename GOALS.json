@@ -177982,16 +177982,20 @@
     {
       "id": "port-mon-corpse-chance-whole-v21-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete corpse chance and wire monster digestion death handling",
       "cFile": "mon.c",
       "sessions": [
         "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst"
       ],
-      "selectionReason": "The remaining v21 Purple Worm case requires gulpmm through mdamagem and uhitm.c mhitm_ad_dgst, which consumes mon.c corpse_chance. Later source tracing proved the historical corpse_chance completion evidence partial.",
+      "selectionReason": "A110 completes mon.c corpse_chance and implements the consumed uhitm.c mhitm_ad_dgst helper. Independent hero-engulf and gas-spore recordings now verify corpse_chance; monster-to-monster digestion remains blocked at mhitm.c gulpmm.",
       "detail": "Port mon.c corpse_chance lines 3181-3252 completely and required uhitm.c mhitm_ad_dgst lines 4492-4567 with AD_DGST dispatch. Correct lich and Vlad no-corpse behavior, source hearing gates, the post-mondied DEADMONSTER recheck after lifesaving, killer assignment order, digestion state and consumed return values. Existing mondied, xkilled and gulpum callers already await corpse_chance. Add independent hero-engulf and gas-spore evidence; preserve a blocked monster-digestion recipe until gulpmm and mintrap return handling land, and keep mhitm_ad_dgst evidence incomplete if its production entry remains blocked.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "cecbaecb8c02bb85b6dee676ae16a7675f98d329",
+      "openStanding": {
+        "sha": "58941777a28f7fdcbf578f7f288223a02ccd88e2",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -178030,7 +178034,168 @@
           "evaluationPath": "challenges/evaluations/20261006145213-v21.json",
           "evaluationCommit": "dbc89dbcbbaf8fe6d76b0eacd8d218afe5944bb8"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "58941777a28f7fdcbf578f7f288223a02ccd88e2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.session.json",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.session.json",
+          "recordingSha256": "a92669cbc1408c7b6512ddf48b5a239bccbe74f473f610961ebe047a5043b00f",
+          "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.recipe.session.json",
+          "recipeSha256": "24127fa7af530372cfe3c6181da6575a2359a645c20becd29be6c5c7b0961eb3",
+          "replayInputSha256": "6522452d7f06a620fc90dbe9f7236cccb9fc9d8e80be6ec643e1904175bc0f0f",
+          "evaluationPath": "challenges/evaluations/20261006161601-v21.json",
+          "evaluationCommit": "58941777a28f7fdcbf578f7f288223a02ccd88e2",
+          "evaluationArtifact": "challenges/evaluations/20261006161601-v21.json",
+          "evaluationUtc": "2026-10-06T16:17:15.780Z",
+          "remainingScreens": 3,
+          "recordedSteps": 139,
+          "previousScreensMatched": 136,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 136,
+              "total": 139
+            },
+            "rng": {
+              "matched": 2572,
+              "total": 2582
+            },
+            "cursors": {
+              "matched": 136,
+              "total": 139
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster engulfing another monster",
+            "step": 136
+          },
+          "step": 136,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster engulfing another monster",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.json",
+            "result": {
+              "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "a92669cbc1408c7b6512ddf48b5a239bccbe74f473f610961ebe047a5043b00f",
+              "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+              "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+              "remainingScreens": 3,
+              "recordedSteps": 139,
+              "status": "complete",
+              "commit": "4901dd542af51235daa15e837437a78fa6af5787",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+                "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.session.json",
+                "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.session.json",
+                "recordingSha256": "a92669cbc1408c7b6512ddf48b5a239bccbe74f473f610961ebe047a5043b00f",
+                "recipe": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-adjacent-correction-v21-cfirst.recipe.session.json",
+                "recipeSha256": "24127fa7af530372cfe3c6181da6575a2359a645c20becd29be6c5c7b0961eb3",
+                "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+                "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+                "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+                "evaluationUtc": "2026-10-03T18:29:21.226Z",
+                "remainingScreens": 3,
+                "recordedSteps": 139,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 136,
+                    "total": 139
+                  },
+                  "rng": {
+                    "matched": 2572,
+                    "total": 2582
+                  },
+                  "cursors": {
+                    "matched": 136,
+                    "total": 139
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a monster engulfing another monster",
+                  "step": 136
+                },
+                "step": 136,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a monster engulfing another monster",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 136, C’s Conflict-selected Purple Worm reaches its adjacent AT_ENGL/AD_DGST attack on the Stone Golem after the physical bite; JavaScript stops at mattackm()’s monster-engulf refusal. Port whole mhitm.c:gulpmm() and the consumed mdamagem()/uhitm.c:mhitm_ad_dgst() damage path, then wire mattackm()’s AT_ENGL arm. The lethal digestion reaches A83’s reserved mon.c monster-removal contract, which must be preserved when the attacker is restored to the swallowed monster’s square.",
+              "source": {
+                "file": "mhitm.c",
+                "branch": "With Conflict active, mon.c:movemon_singlemon() calls fightm() for a non-Wizard mover that can see the hero and its square within BOLT_LIM. The Purple Worm passes resist_conflict() and selects the adjacent Stone Golem. Its attacks are AT_BITE/AD_PHYS/2d8 followed by AT_ENGL/AD_DGST/1d10. The AT_ENGL arm applies the adjacent-distance guard, then requires the attack roll tmp > rnd(20+i), that the attacker is not already engulfing the hero, and that failed_grab() permits the target; the recorded rnd(21)=9 and subsequent swallow establish success. engulf_target() accepts the large Stone Golem because it is below MZ_HUGE, the Purple Worm is gigantic, neither is trapped, and both squares are legal. The M-to-M AD_DGST effect sets damage to the golem’s current hp; the Stone Golem is G_NOCORPSE, so it dies without leaving a corpse. gulpmm() then handles the returned defender-death status and keeps the living worm at the former defender square, as the step-137 screen shows.",
+                "functions": [
+                  "gulpmm",
+                  "mdamagem"
+                ],
+                "callers": [
+                  "C: mon.c:movemon_singlemon() at 1306-1318 applies the Conflict gates and calls mhitm.c:fightm(). JS follows the same path through mon.js:movemon_singlemon() and its fightMonster operation.",
+                  "C: mhitm.c:fightm() at 106-169 checks resistance, scans living monsters in list order, selects the first adjacent target, and calls mattackm(); it consumes the result flags. JS js/mhitm.js:fightm() at 396-445 is already implemented.",
+                  "C: mhitm.c:mattackm() AT_ENGL at 510-535 applies the adjacent range, successful-hit, engulfing_u(), and failed_grab() checks before assigning gulpmm()’s result. JS js/mhitm.js:802-804 currently raises the observed UnsupportedTurnBoundaryError at this arm.",
+                  "C: gulpmm() calls mdamagem() at mhitm.c:909-910 and consumes its status to select the defender-death, aggressor-death, or both-alive map-restoration arm at 913-964. mdamagem()’s return then contributes to mattackm()’s attack result and fightm()’s Conflict result."
+                ],
+                "dependencies": [
+                  "mhitm.c:engulf_target() returns the eligibility result consumed by gulpmm(). Its current JS implementation in js/mhitm.js:894-949 has both monster-side size, trap, and terrain checks and was written for this eventual gulpmm() caller; reuse it after verifying the live map-state inputs.",
+                  "gulpmm() consumes mdamagem()’s status. mdamagem() calls uhitm.c:mhitm_adtyping() for its side effects, then calls uhitm.c:mhitm_knockback() and consumes its Boolean before applying mhm.damage. The knockback function is already implemented in JS; the C recording draws rn2(3) and rn2(6) on the swallow path.",
+                  "uhitm.c:mhitm_adtyping() dispatches AD_DGST to the whole uhitm.c:mhitm_ad_dgst() helper at 4827. That helper sets mhm.damage to the defender’s current hp for M-to-M digestion, handles lifesaving and corpse/nutrition effects, and is still unported at js/uhitm.js:5403. gulpmm() sets gm.mswallower around mdamagem() because corpse_chance() reads that state; the Stone Golem’s G_NOCORPSE flag makes the no-corpse branch relevant.",
+                  "After AD_DGST sets lethal damage, mhitm.c:mdamagem() calls mon.c:monkilled(); for this non-Rider Stone Golem, monkilled() reaches mondead() and the m_detach()/relmon() removal chain. mhitm.c:gulpmm() then consumes the DEF_DIED status and restores or relocates the Purple Worm. A83’s contract:mon-removal-conditional-completion and reservations on mon.c:mondead, m_detach, mon_leaving_level, and relmon are directly in this route; preserve that behavior. The route calls monkilled(), not xkilled().",
+                  "gulpmm() also consumes goodpos(), minliquid(), and mintrap() results while recovering the attacker after a defender death; preserve their source order even though this recording leaves the worm at the golem’s former square without a liquid or trap transition."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Identity and evaluation: .cache/v21-first-work-queue.json and challenges/evaluations/20261003183000-v21.json bind this case to manifest SHA-256 d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac and recording SHA-256 a92669cbc1408c7b6512ddf48b5a239bccbe74f473f610961ebe047a5043b00f at engine commit b0fd76f6091376c07bf54e8d3061aa5a9c9957d0. The queue reports 3 unmatched screens of 139; screens/cursors match 136/139 and RNG 2572/2582. The first stop is step 136, key “.”, with “simple monster action requires a monster engulfing another monster”. Examined main commit is 4901dd542af51235daa15e837437a78fa6af5787; js/mhitm.js, js/uhitm.js, js/mon.js, and js/steed.js are unchanged from evaluated engine b0fd76f6091376c07bf54e8d3061aa5a9c9957d0.",
+                "The assigned C recording at segment 0, step 136 shows “The purple worm bites the stone golem.--More--”; its RNG includes rnd(20)=10 in resist_conflict(), rnd(20)=1 and d(2,8)=10 for the AT_BITE, the bite’s knockback/passive calls, then rnd(21)=9 for the AT_ENGL hit. At step 137, after the acknowledgement, C draws d(1,10)=5 in mdamagem() and the knockback rn2(3)/rn2(6), then displays “The purple worm swallows the stone golem.  \"Burrrrp!\"--More--”. This directly establishes the adjacent monster-on-monster gulp and AD_DGST continuation.",
+                ".cache/C65-new-cause-root-verification.json source adjudication passed and identifies the first cause as mhitm.c:mattackm AT_ENGL -> gulpmm/engulf_target; the C65 comparison records 139 C screens/2582 RNG/cursors versus 136 JS screens/2572 RNG/cursors and the exact step-136 refusal. It records an independent C replay as run-LqEqw4, receipt SHA-256 c29870ea565e751f989f95f6f26feaa50759ea41e36c5f378eb0b7ee875b7546. No replay was repeated for this investigation.",
+                "nethack-c/upstream/include/monsters.h:1138-1145 defines Purple Worm attacks as AT_BITE/AD_PHYS/2d8 then AT_ENGL/AD_DGST/1d10 and size MZ_GIGANTIC. :2570-2577 defines Stone Golem size MZ_LARGE and G_NOCORPSE. nethack-c/upstream/src/mhitm.c:492-536 contains attack dispatch, with the AT_ENGL gate at 510-535; engulf_target() is the whole eligibility predicate at 807-845; whole gulpmm() is at 849-967; mdamagem() initializes attack damage at 1025 and kills through monkilled() at 1073-1118.",
+                "nethack-c/upstream/src/uhitm.c:4492-4567 is the whole mhitm_ad_dgst() helper; :4782-4832 dispatches AD_DGST at 4827. The saved C path reaches it after gulpmm() installs gm.mswallower and calls mdamagem(); its lethal defender removal follows mhitm.c’s explicit comment at 918-926: mdamagem() -> monkilled() -> mondead() -> m_detach() -> relmon().",
+                "At examined commit 4901dd542af51235daa15e837437a78fa6af5787, js/mhitm.js:802-804 refuses M-to-M AT_ENGL; js/uhitm.js:5403 refuses mhitm_ad_dgst. The current js/mhitm.js:894-949 already implements the shared engulf_target() predicate, while mdamagem() at 1046-1130 is explicitly partial and its AD_DGST dispatch cannot proceed until the missing helper is wired.",
+                "The prior nonadjacent case investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-dgst-stone-golem-v21-cfirst.json concern a different recording/hash and stop first at step 135 on hero-directed mhitu.c:mattacku() AT_ENGL -> gulpmu(). This assigned recording/hash stops at step 136 on monster-directed mhitm.c:mattackm() AT_ENGL -> gulpmm(), with C showing the monster swallow on step 137. The hero-directed gulpmu() finding does not explain this case.",
+                "Actual A83 reservations in .cache/A83-bear-trap-region-query-test-scope-event.json include contract:mon-removal-conditional-completion and source:mon.c:mondead, m_detach, mon_leaving_level, and relmon. The assigned AD_DGST branch kills the Stone Golem through monkilled() -> mondead() and then gulpmm() handles the live worm’s placement, so this is a direct source-contract overlap. A83 does not reserve mhitm.c:gulpmm or uhitm.c:mhitm_ad_dgst; xkilled() is in A83’s list but is not called on this monster-kills-monster route."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-eat-doeat-resumed-meals-v20-20261006",
