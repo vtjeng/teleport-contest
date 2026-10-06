@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent monster digestion landing-trap variation. The hero creates a vibrating square north of the initial hero position and returns before summoning the pair. C steps 220-223 establish bite, engulf, golem death, then gulpmm -> mintrap -> trapeffect_vibrating_square under the surviving worm. The entire recording matches.",
+  "segments": [
+    {
+      "seed": 61106122,
+      "datetime": "20420217143000",
+      "nethackrc": "OPTIONS=name:MonsterDigestA110,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed +99 gray dragon scale mail\nWa   k\u0017vibrating square\nj#wizgenesis\nhostile stone golem\n #wizgenesis\ntame purple worm\n .   .   .   .   .   .   .   .   .   .   .   .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   "
+    }
+  ]
+}

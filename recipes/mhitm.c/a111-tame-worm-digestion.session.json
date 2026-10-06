@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent tame purple worm monster digestion entry, retained from A110 now that mhitm.c gulpmm can dispatch mhitm_ad_dgst. The hostile stone golem survives the ordinary bite and reaches engulf.",
+  "segments": [
+    {
+      "seed": 61106122,
+      "datetime": "20420217143000",
+      "nethackrc": "OPTIONS=name:MonsterDigestA110,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed +99 gray dragon scale mail\nWa   #wizgenesis\nhostile stone golem\n #wizgenesis\ntame purple worm\n .   .   .   .   .   .   .   .   .   .   .   .   "
+    }
+  ]
+}

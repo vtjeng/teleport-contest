@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent tame air elemental AT_ENGL/AD_PHYS monster engulf variation against a hostile giant beetle, exercising mhitm.c gulpmm generic engulf and survivor placement.",
+  "segments": [
+    {
+      "seed": 61106122,
+      "datetime": "20420217143000",
+      "nethackrc": "OPTIONS=name:MonsterDigestA110,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!safe_wait\n",
+      "moves": " \u0017blessed +99 gray dragon scale mail\nWa   #wizgenesis\nhostile giant beetle\n #wizgenesis\ntame air elemental\n .   .   .   .   .   .   .   .   .   .   .   .   "
+    }
+  ]
+}
