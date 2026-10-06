@@ -175909,7 +175909,7 @@
     {
       "id": "port-mhitm-explmm-v21-20261005",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster-versus-monster explosion attacks",
       "cFile": "mhitm.c",
       "sessions": [
@@ -175924,15 +175924,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "cb97aeec4d071e58dfd16fd1bfdc5b2df06259c8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "explmm",
           "line": 970,
           "endLine": 1015,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -175970,7 +175973,92 @@
         "screens": 11405,
         "rng": 792838
       },
-      "openMismatches": []
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "explmm",
+            "implementation": "js/mhitm.js",
+            "symbol": "explmm",
+            "sourceReview": "Compared the complete mhitm.c:970-1009 body and mattackm AT_EXPL caller at 497-508. Preserved cancellation, visible pline_mon versus noises, AD_FIRE/AD_COLD/AD_ELEC delegation to mon_explodes, the consumed mdamagem result on other types, aggressor death/lifesaving, leash and tame messages, and the returned attack flags. The non-elemental mdamagem return remains data; the C-discarded mon_explodes and mondead results are not used as substitutes. No whole mattackm or explode.c:explode completion is claimed.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm AT_EXPL arm, 497-508: adjacency gate, explmm call, cancelled miss state and automatic-hit state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mhitm.c",
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 167,
+                "source": "fightm -> mattackm AT_EXPL -> explmm AD_FIRE -> mon_explodes -> explode; normalized step 143 shows the visible C explosion and steps 144-149 record blast damage."
+              },
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 168,
+                "source": "fightm -> mattackm AT_EXPL -> explmm AD_ELEC -> mon_explodes -> explode; normalized step 144 shows the visible C explosion and steps 145-150 record blast damage."
+              }
+            ],
+            "checkedAt": "cb97aeec4d071e58dfd16fd1bfdc5b2df06259c8"
+          }
+        ],
+        "entryPointReview": "The selected C helper has one active production entry: monster-versus-monster AT_EXPL through mattackm. The two admitted v21 cases exercise the elemental AD_FIRE and AD_ELEC branches respectively, with complete C/JavaScript recordings. The non-elemental mdamagem result path is source-pinned in scripts/mhitm.test.mjs; neither sphere case is represented as executing it. The planner invokes these monster actions on a clone, so js/explode.js now omits only the visible tmp_at/curs_on_u/show_glyph_cell/nh_delay_output frame block when env.planning is true. The visible classification, mask construction, messages, RNG and damage mechanics still run on the clone; the existing live shield-frame recording and focused test verify that live animation remains enabled.",
+        "entryPoints": [
+          {
+            "name": "M→M Flaming Sphere AD_FIRE explosion",
+            "functions": [
+              "explmm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-flaming-sphere-m2m-explosion-v21-cfirst-clean-v5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 167,
+                "source": "mattackm AT_EXPL -> explmm AD_FIRE -> mon_explodes -> explode; visible explosion at normalized step 143."
+              }
+            ]
+          },
+          {
+            "name": "M→M Shocking Sphere AD_ELEC explosion",
+            "functions": [
+              "explmm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-conflict-shocking-sphere-m2m-explosion-v21-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 168,
+                "source": "mattackm AT_EXPL -> explmm AD_ELEC -> mon_explodes -> explode; visible explosion at normalized step 144."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "cb97aeec4d071e58dfd16fd1bfdc5b2df06259c8",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-uhitm-mhitm-ad-phys-v21-20261006",
