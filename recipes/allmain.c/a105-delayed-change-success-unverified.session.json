@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Unrecorded A105 source-blocked plan, not a C observation or runtime evidence. The Wizard wishes and eats a wererat tin, then advances source turns to attempt the delayed lycanthropy success roll. If allmain.c:moveloop_core obtains mvl_change == 2, C calls were.c:you_were(), whose body is still unported; the separate polymorph-success branch also stops planning before polyself.c:polyself because that body uses the live core RNG.",
+  "segments": [
+    {
+      "seed": 79106423,
+      "datetime": "21161006133000",
+      "nethackrc": "OPTIONS=name:A105DelayedBranch,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017blessed homemade tin of human wererat meat\nen  y................................................................................"
+    }
+  ]
+}
