@@ -181625,6 +181625,49 @@
         "rng": 792838
       },
       "parkedReason": "Whole invoke_blinding_ray and its caller chain are integrated; admitted v22 plus nine independent recordings verify ordinary horizontal, vertical, self, and cancellation routes. Completion remains blocked on Rogue-level vertical rendering through unported vision.c:rogue_vision, with the wielded-artifact entry blocker retained explicitly."
+    },
+    {
+      "id": "port-dothrow-release-camera-demon-v22-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port camera demon release behavior and wire the existing breakobj caller",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected"
+      ],
+      "selectionReason": "The latest admitted v22 evaluation has no unmatched screens and one RNG-only failing case; its complete investigation traces the first mismatch to the omitted dothrow.c release_camera_demon gate.",
+      "detail": "At step 29 C calls rn2(3)=2 in release_camera_demon while JavaScript skips the helper and begins the next turn. Port the whole function, preserve both rn2(3) draws, makemon return handling, visibility and hallucination messaging, cursed peacefulness, and set_malign order; replace the named breakobj gap.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "release_camera_demon",
+          "line": 2457,
+          "endLine": 2479,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2457,
+        "to": 2479
+      },
+      "syntheticProvenance": {
+        "synthetic/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected": {
+          "session": "synthetic/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected",
+          "corpus": "synthetic",
+          "batch": "v22",
+          "caseId": "wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected",
+          "manifestPath": "challenges/manifests/v22.json",
+          "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+          "recordingPath": "challenges/cases/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.session.json",
+          "recordingSha256": "8de3b5e46c289b37c00a6f26bc10e7ee96fadb01fad5ff209f2ae8789da12d26",
+          "evaluationPath": "challenges/evaluations/20261006204727-v22.json",
+          "evaluationCommit": "d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8"
+        }
+      }
     }
   ]
 }

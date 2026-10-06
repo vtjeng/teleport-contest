@@ -1,0 +1,103 @@
+{
+  "session": "synthetic/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected",
+  "corpus": "synthetic",
+  "batch": "v22",
+  "caseId": "wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected",
+  "remainingScreens": 0,
+  "recordedSteps": 30,
+  "manifestPath": "challenges/manifests/v22.json",
+  "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+  "recordingSha256": "8de3b5e46c289b37c00a6f26bc10e7ee96fadb01fad5ff209f2ae8789da12d26",
+  "evaluationPath": "challenges/evaluations/20261006204727-v22.json",
+  "evaluationCommit": "d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8",
+  "status": "complete",
+  "commit": "1a8ac9baec89e2c263ece634ef8837154a502301",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v22",
+    "caseId": "wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected",
+    "session": "synthetic/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected",
+    "manifestPath": "challenges/manifests/v22.json",
+    "manifestSha256": "5ff848f07c64ce52850381bc5902100d0dbc2792e0d79569f8e6de068487c6d0",
+    "recording": "challenges/cases/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.session.json",
+    "recordingPath": "challenges/cases/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.session.json",
+    "recordingSha256": "8de3b5e46c289b37c00a6f26bc10e7ee96fadb01fad5ff209f2ae8789da12d26",
+    "recipe": "challenges/cases/v22/wizard-throws-expensive-camera-at-wall-v22-cfirst-south-corrected.recipe.session.json",
+    "recipeSha256": "a3a7aaa6b820de65ef440fb60588a4a45ae3723f68ee6743e620bc3b7345b8f9",
+    "replayInputSha256": "f68062c1fbad08c261bea518155c9a946854471b4c4c7b376055fcc2596bfc07",
+    "evaluationPath": "challenges/evaluations/20261006204727-v22.json",
+    "evaluationCommit": "d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8",
+    "evaluationArtifact": "challenges/evaluations/20261006204727-v22.json",
+    "evaluationUtc": "2026-10-06T20:48:51.581Z",
+    "remainingScreens": 0,
+    "recordedSteps": 30,
+    "previousScreensMatched": 30,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 30,
+        "total": 30
+      },
+      "rng": {
+        "matched": 2748,
+        "total": 2754
+      },
+      "cursors": {
+        "matched": 30,
+        "total": 30
+      }
+    },
+    "firstMismatch": {
+      "screen": null,
+      "rng": {
+        "index": 2745,
+        "cEntry": "rn2(3)=2",
+        "cCaller": "release_camera_demon(dothrow.c:2460)",
+        "jsEntry": "rn2(100)=52",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 29,
+          "key": "j"
+        },
+        "stepIndex": 29
+      },
+      "cursor": null
+    },
+    "step": 29,
+    "kind": "rng",
+    "sourceFile": "dothrow.c",
+    "function": "release_camera_demon",
+    "cFile": "dothrow.c",
+    "line": 2460
+  },
+  "summary": "The camera case matches all 30 screens and cursors but still diverges in RNG at zero-based step 29. dothrow.c:breakobj skips release_camera_demon: C draws the helper’s rn2(3) gate, while JavaScript records a gap and begins the next turn. Port whole release_camera_demon and await it from the existing EXPENSIVE_CAMERA arm, preserving creation, visibility/hallucination messaging, cursed peacefulness and set_malign order.",
+  "source": {
+    "file": "dothrow.c",
+    "branch": "An expensive camera is thrown south into the nearby wall. Existing breaktest and breakmsg reach breakobj’s EXPENSIVE_CAMERA case; its discarded-result release_camera_demon call occurs before shop accounting and object deletion. In the recorded case rn2(3)=2, so C does not create a demon; the missing gate draw is still required. When the gate is zero, a second rn2(3) selects homunculus for nonzero or imp for zero, then makemon(MM_NOMSG) can return a monster or null. A returned monster is announced only when canspotmon is true, using a random monster name only under Hallucination, then its peacefulness becomes !obj.cursed and set_malign follows.",
+    "functions": [
+      "release_camera_demon"
+    ],
+    "callers": [
+      "dothrow.c2523: breakobj EXPENSIVE_CAMERA arm calls release_camera_demon(obj,x,y), then follows common breakage/shop/disposition tail. Existing js/dothrow.js breakobj1685 holds the obsolete named gap and must await the shared dothrow owner with its state/random/message environment.",
+      "Production throwing reaches cmd.c t command -> dothrow.c dothrow -> throwit; current js/dothrow.js throwit2802 already awaits breakobj after ray landing, breaktest, temporary glyph animation and breakmsg. breakobj’s other existing callers (hero_breaks, breaks, hitfloor and toss_up) use the same object arm and must retain their existing behavior."
+    ],
+    "dependencies": [
+      "Reuse existing makemon.c makemon owner through js/makemon_create.js makemon_runtime: return is consumed, MM_NOMSG suppresses generic creation feedback, and explicit-coordinate non-null runtime MM_NOMSG admission is already present. Do not substitute a monster or random draw for this owner.",
+      "Reuse display.c canspotmon, do_name.c rndmonnam and hack.h An capitalization, and makemon.c set_malign after changing mpeaceful. Hallucination must suppress random-name draws when false or when no visible monster is created.",
+      "Keep the existing breakobj object lifetime, shop accounting and explosion gaps outside this helper scope. Preserve caller state, random and live/planning message ownership instead of adding global substitute behavior."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Latest accepted evaluation challenges/evaluations/20261006204727-v22.json at d9a391f1a0b2ccef53569fcbd291dd7fb4732dd8 records screens30/30, cursors30/30, RNG2748/2754, and passed=false. remainingScreens is exactly zero; matching screens do not establish RNG parity.",
+    "Exact published-commit replay .cache/C120-camera-exact-replay.log, bounded run-Emq5mV (/tmp/teleport-validation-1000/run-Emq5mV/receipt.json), at 1a8ac9baec89e2c263ece634ef8837154a502301 emits all30 screens with no screen/cursor divergence and no refusal. First positional RNG mismatch is index2745, segment0 zero-based step29 key j: C rn2(3)=2 @ release_camera_demon(dothrow.c2460), JS rn2(100)=52. Sole unported marker is dothrow.c release_camera_demon.",
+    "Read whole dothrow.c release_camera_demon2457-2470. The first rn2(3) short-circuits the second selector and makemon unless zero. The second selector is exactly rn2(3), with PM_HOMUNCULUS for nonzero and PM_IMP for zero; preserve its expression order before awaited runtime creation. A null result suppresses visibility testing, message, peacefulness and malign updates.",
+    "Read the existing C breakobj EXPENSIVE_CAMERA call at2522-2524 and common tail through2578, plus JS breakobj1606 onward. Camera release must execute while obj.cursed is still available and before common object deletion; remove the named gap and update its stale camera-creation comment. Do not add a standalone gate draw beside the gap.",
+    "Existing throwit call at js/dothrow.js2802 awaits breakobj after breakmsg. The recorded smash presentation already matches; the responsible missing behavior is the camera-release callee, not the throw direction, smash screen or later rn2(100) owner.",
+    "Inspected existing makemon_create.js explicitCoordinateRuntimeCall admission (1317-1327) and runtime adapter3281-3334; the exact non-null species/MM_NOMSG call shape is admitted. Reuse this established async owner and its canonical state instead of introducing a camera-specific creation allowlist.",
+    "Whole-function implementation scope is release_camera_demon plus its existing breakobj caller in js/dothrow.js; no current worker reservation names that function or camera-release contract. New independent camera recipes must cover creation and no-creation, homunculus/imp selection, cursed versus uncursed peacefulness and visibility/hallucination message gates. The admitted case covers only the non-creation branch and supplies no positive demon-creation completion evidence.",
+    "Earlier read-only replay at worker commit f4c866c9cfd313be3a19e8bf4210c8f67d814fd3 (run-y4FTFV) found the same gate mismatch. The current published replay independently confirms the diagnosis after C119 integration; no game edits, fresh C recordings or aggregate scans were made during this investigation."
+  ]
+}
