@@ -2181,7 +2181,7 @@ async function maybe_cannibal(pm, allowmsg, state, env = {}) {
 // cannibalism penalty and the corpses that act before the first bite rather
 // than after the last one.
 async function cprefx(pm, state, env = {}) {
-    await maybe_cannibal(pm, true, state);
+    await maybe_cannibal(pm, true, state, env);
     if (flesh_petrifies(state.mons[pm])) {
         if (!propertyActive(state, STONE_RES)) {
             // eatcorpse()'s `stoneable` stop already covers the hero this arm
@@ -2847,7 +2847,7 @@ async function eatcorpse(otmp, state, env = {}) {
                 `tasted meat for the first time, by eating ${an(food_xname(otmp, false, state))}`,
                 state,
             );
-        await violated_vegetarian(state);
+        await violated_vegetarian(state, env);
     }
 
     if (!nonrotting_corpse(mnum, state)) {
@@ -2862,7 +2862,7 @@ async function eatcorpse(otmp, state, env = {}) {
 
     /* 5.0: globs don't become tainted, they shrink away */
     if (!glob && !stoneable && !slimeable && rotted > 5) {
-        const cannibal = await maybe_cannibal(mnum, false, state);
+        const cannibal = await maybe_cannibal(mnum, false, state, env);
         const food = state.mons[mnum].mlet === S_FUNGUS
             ? 'fungoid vegetation'
             : vegetarian(state.mons[mnum]) ? 'protoplasm' : 'meat';
@@ -4098,7 +4098,7 @@ export async function doeat_nonfood(otmp, state = game, env = {}) {
                     `tasted meat by-products for the first time, by eating ${an(food_xname(otmp, false, state))}`,
                     state,
                 );
-            await violated_vegetarian(state);
+            await violated_vegetarian(state, env);
         }
     }
 
@@ -4352,7 +4352,7 @@ export async function doeat(state = game, env = {}) {
                         `tasted meat for the first time, by eating ${an(food_xname(otmp, false, state))}`,
                         state,
                     );
-                await violated_vegetarian(state);
+                await violated_vegetarian(state, env);
             }
         } else if (otmp.otyp === PANCAKE
             || otmp.otyp === FORTUNE_COOKIE /*eggs*/

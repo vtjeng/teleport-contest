@@ -963,11 +963,12 @@ export async function mwepgone(monster, env = {}) {
 // ACURR(A_STR) is the 3..125 encoding, which is what STR18() indexes, so this
 // reads acurr() rather than acurrstr().
 export function abon(state = game) {
+    const str = acurr(state, A_STR);
+    const dex = acurr(state, A_DEX);
+
     if (Upolyd(state.u))
         return adj_lev(state.mons[state.u.umonnum], state) - 3;
 
-    const str = acurr(state, A_STR);
-    const dex = acurr(state, A_DEX);
     let sbon;
 
     if (str < 6) sbon = -2;

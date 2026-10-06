@@ -77,7 +77,7 @@ import {
 } from '../js/uhitm.js';
 import { skillSlot } from '../js/startup_skills.js';
 import { can_twoweapon } from '../js/wield.js';
-import { weapon_hit_bonus } from '../js/weapon.js';
+import { abon, weapon_hit_bonus } from '../js/weapon.js';
 
 const DATETIME = '20260214031500';
 const UHITM_C = readFileSync(
@@ -655,6 +655,7 @@ test('find_roll_to_hit selects maybe_polyd level and elf values from the form', 
     const targetLichen = target(PM_LICHEN);
     const unpolymorphedLevel = game.u.ulevel;
     const humanRoll = await roll(targetLichen);
+    const humanAbon = abon(game);
 
     // The independent B64 recipe attacks in Gremlin form; C maybe_polyd at
     // uhitm.c:378 uses the form's monster level instead of the hero's level.
@@ -663,7 +664,8 @@ test('find_roll_to_hit selects maybe_polyd level and elf values from the form', 
     game.youmonst.mnum = PM_GREMLIN;
     assert.equal(
         await roll(targetLichen),
-        humanRoll + game.mons[PM_GREMLIN].mlevel - unpolymorphedLevel,
+        humanRoll + game.mons[PM_GREMLIN].mlevel - unpolymorphedLevel
+            + abon(game) - humanAbon,
     );
 
     // C maybe_polyd at uhitm.c:404 checks the Elf form while polymorphed; an
@@ -672,12 +674,14 @@ test('find_roll_to_hit selects maybe_polyd level and elf values from the form', 
     const humanVsOrc = await roll(target(PM_HILL_ORC));
     const heroLevel = game.u.ulevel;
     const elfLevel = game.mons[PM_ELF].mlevel;
+    const humanVsOrcAbon = abon(game);
     game.u.umonnum = PM_ELF;
     game.youmonst.data = game.mons[PM_ELF];
     game.youmonst.mnum = PM_ELF;
     assert.equal(
         await roll(target(PM_HILL_ORC)),
-        humanVsOrc + elfLevel - heroLevel + 1,
+        humanVsOrc + elfLevel - heroLevel + 1
+            + abon(game) - humanVsOrcAbon,
     );
 });
 
