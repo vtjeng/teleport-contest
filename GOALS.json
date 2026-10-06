@@ -177198,6 +177198,220 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-poly-v21-20261006",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port polymorph attacks in all combat directions",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued"
+      ],
+      "selectionReason": "Post-A105 queue identifies the genetic engineer AD_POLY refusal at step 29; port whole mhitm_ad_poly and the return-valued mon_poly callee across hero, hero-target, and monster-pair routes.",
+      "detail": "The v21 recording reaches mhitu.c hitmu and uhitm.c mhitm_adtyping AD_POLY at step 29. JavaScript refused mhitm_ad_poly. Upstream mhitm_ad_poly consumes mon_poly returned damage, so this goal includes whole mhitm.c mon_poly and production dispatch wiring.",
+      "openedAt": "601266e81252cda571020f4211ef1ae9a8fd01a0",
+      "openStanding": {
+        "sha": "6e2ea3e43698fec12b7b498514120583b4345364",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_poly",
+          "line": 3729,
+          "endLine": 3776,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3729,
+        "to": 3776
+      },
+      "requiredFunctions": [
+        {
+          "name": "mon_poly",
+          "line": 1122,
+          "endLine": 1209,
+          "declared": false,
+          "sourceFile": "mhitm.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued": {
+          "session": "synthetic/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.session.json",
+          "recordingSha256": "1615189ddaee7cd27219a6dea269d553e617ed52ad7e8553995e3c38cfb6ce33",
+          "evaluationPath": "challenges/evaluations/20261006132943-v21.json",
+          "evaluationCommit": "6e2ea3e43698fec12b7b498514120583b4345364"
+        }
+      },
+      "activeStanding": {
+        "sha": "6e2ea3e43698fec12b7b498514120583b4345364",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+          "session": "synthetic/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recording": "challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.session.json",
+          "recordingPath": "challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.session.json",
+          "recordingSha256": "1615189ddaee7cd27219a6dea269d553e617ed52ad7e8553995e3c38cfb6ce33",
+          "recipe": "challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.recipe.session.json",
+          "recipeSha256": "e2cb42f55cca3ce11dc09a9373553136980c8214c34ba6922ddb9747f5f7d1fe",
+          "replayInputSha256": "26df4e33c87aa6cb08ee9e9436b9aba30db8618ce11bce5e22d39f67740a3348",
+          "evaluationPath": "challenges/evaluations/20261006132943-v21.json",
+          "evaluationCommit": "6e2ea3e43698fec12b7b498514120583b4345364",
+          "evaluationArtifact": "challenges/evaluations/20261006132943-v21.json",
+          "evaluationUtc": "2026-10-06T13:30:56.519Z",
+          "remainingScreens": 2,
+          "recordedSteps": 31,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2147,
+              "total": 2157
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_poly()",
+            "step": 29
+          },
+          "step": 29,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_poly",
+          "message": "simple monster action requires uhitm.c mhitm_ad_poly()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.json",
+            "result": {
+              "session": "synthetic/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+              "corpus": "synthetic",
+              "batch": "v21",
+              "caseId": "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+              "remainingScreens": 2,
+              "recordedSteps": 31,
+              "manifestPath": "challenges/manifests/v21.json",
+              "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+              "recordingSha256": "1615189ddaee7cd27219a6dea269d553e617ed52ad7e8553995e3c38cfb6ce33",
+              "evaluationPath": "challenges/evaluations/20261003200023-v21.json",
+              "evaluationCommit": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
+              "status": "complete",
+              "commit": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v21",
+                "caseId": "genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+                "session": "synthetic/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued",
+                "manifestPath": "challenges/manifests/v21.json",
+                "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+                "recording": "challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.session.json",
+                "recordingPath": "challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.session.json",
+                "recordingSha256": "1615189ddaee7cd27219a6dea269d553e617ed52ad7e8553995e3c38cfb6ce33",
+                "recipe": "challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.recipe.session.json",
+                "recipeSha256": "e2cb42f55cca3ce11dc09a9373553136980c8214c34ba6922ddb9747f5f7d1fe",
+                "replayInputSha256": "7c73feb3b711fe4dcc07dc996a201da9eb967efc4ab0c05ff4cae58650038cd1",
+                "evaluationPath": "challenges/evaluations/20261003200023-v21.json",
+                "evaluationCommit": "f6bd7d8b254913e53e05ca7fd0a7048eed7f8f34",
+                "evaluationArtifact": "challenges/evaluations/20261003200023-v21.json",
+                "evaluationUtc": "2026-10-03T20:01:35.509Z",
+                "remainingScreens": 2,
+                "recordedSteps": 31,
+                "previousScreensMatched": 29,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2147,
+                    "total": 2157
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_poly()",
+                  "step": 29
+                },
+                "step": 29,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_poly",
+                "message": "simple monster action requires uhitm.c mhitm_ad_poly()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The saved scan stops at the AD_POLY dispatch because uhitm.c:mhitm_ad_poly is unported. The assigned C trace reaches the monster-on-hero arm: a landed hit draws the existing magic-cancellation check, then the following pager step enters mon_poly/polyself and displays a freakish metamorphosis. Implement the complete mhitm_ad_poly function and wire the AD_POLY case in mhitm_adtyping. Since mhitm_ad_poly uses mon_poly’s returned damage in its branches and mon_poly has no JavaScript implementation, the whole mhitm.c:mon_poly callee is a required same-task dependency.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "mhitm_adtyping dispatches AD_POLY for a landed monster attack. mhitm_ad_poly first checks magical negation or attacker mspec_used. For a monster attacking the hero (mdef == &gy.youmonst), it emits hitmsg and applies the Maybe_Half_Phys(damage) < current hero HP gate; if the attack is not negated it calls mon_poly, then sets M_ATTK_HIT and done. The recording confirms this successful monster-on-hero branch. The whole source function also includes hero-on-monster weaponless/nonlethal and monster-on-monster/nonlethal branches.",
+                "functions": [
+                  "mhitm_ad_poly"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_adtyping AD_POLY case at line 4821 (direct caller)",
+                  "mhitu.c:hitmu at line 1191 calls mhitm_adtyping with the hero as defender; reached from mattacku during the monster turn",
+                  "mhitm.c:mdamagem at line 1059 calls mhitm_adtyping for monster-on-monster damage",
+                  "uhitm.c:damageum at line 4854 calls mhitm_adtyping for hero-on-monster damage"
+                ],
+                "dependencies": [
+                  "uhitm.c:mhitm_mgc_atk_negated (already ported; its rn2(10) draw is present at assigned step 29)",
+                  "mhitu.c:hitmsg, the Maybe_Half_Phys macro, hero current HP/Upolyd state, magr.mspec_used, uwep, mhm.damage/hitflags/done",
+                  "mhitm.c:mon_poly is a required whole-function dependency: mhitm_ad_poly assigns its returned damage in the applicable branches, and no JS mon_poly implementation exists. Its hero branch reaches polyself.c:polyself; its monster branches use mondata.c:resists_magm, zap.c:resist, mon.c:newcham, teleport helpers, and death handlers.",
+                  "polyself.c:polyself / lycanthropy helpers and shieldeff for the hero-target arm of mon_poly"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Exact assigned entry in .cache/C66-final-work-queue.json and its accepted evaluation challenges/evaluations/20261003200023-v21.json identify this case at 2 remaining screens of 31, with a stop at segment 0 step 29 for `simple monster action requires uhitm.c mhitm_ad_poly()`.",
+                "The case-specific cached scan .cache/synthetic-scans/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.json records key `.` at step 29, message `The genetic engineer hits!--More--`, and the exact mhitm_ad_poly boundary. It records no earlier divergence and identifies the ordinary wait command reaching the monster action.",
+                "The assigned C recording challenges/cases/v21/genetic-engineer-polymorphs-tourist-v21-hit-more-continued.session.json step 29 records `d(1,4)=1 @ hitmu(mhitu.c:1187)` and `rn2(10)=4 @ mhitm_mgc_atk_negated(uhitm.c:87)` with the genetic-engineer hit message. Step 30, after the saved pager acknowledgment, records polyself.c draws and `You are subjected to a freakish metamorphosis`, confirming the successful mhitu arm and continuation into mon_poly/polyself.",
+                "Upstream nethack-c/upstream/src/uhitm.c:mhitm_ad_poly (3729 onward) implements three whole branches: hero attacking a monster, a monster attacking the hero, and monster-on-monster. Its AD_POLY dispatch is in mhitm_adtyping at line 4821. mhitu.c:hitmu passes the hero as defender at line 1191; mhitm.c:mdamagem and uhitm.c:damageum are the other dispatcher paths.",
+                "JavaScript js/uhitm.js:mhitm_adtyping has `case AD_POLY: unported(\"mhitm_ad_poly\"); break;` at line 5393. The adjacent mhitm_mgc_atk_negated implementation already preserves the C cancellation draw, so the first missing behavior is the AD_POLY effect handler.",
+                "Upstream nethack-c/upstream/src/mhitm.c:mon_poly (1122 onward) is called by mhitm_ad_poly and its returned damage is assigned to mhm.damage. No JavaScript mon_poly implementation exists; under the source-port contract, port the whole callee as part of this task, then retain its source call to polyself for the hero-target branch."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
