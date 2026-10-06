@@ -181974,16 +181974,20 @@
     {
       "id": "port-wield-ready-weapon-v23-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port weapon readiness, welded weapon messages, and artifact speech",
       "cFile": "wield.c",
       "sessions": [
         "synthetic/v23/v23-cursed-welded-weapon-attempt"
       ],
-      "selectionReason": "The current v23 evaluation stops with three screens remaining at the first cursed weapon weld; investigations/synthetic/v23/v23-cursed-welded-weapon-attempt.json traces whole ready_weapon and cant_wield_corpse behavior, required weldmsg callers, and the consumed arti_speak return.",
+      "selectionReason": "v23 cursed welded weapon attempt is source-traced to wield.c ready_weapon and welded message handling",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "1e874d08b760b5f010c83b915391553194e732ab",
+      "openStanding": {
+        "sha": "1e874d08b760b5f010c83b915391553194e732ab",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -181999,7 +182003,7 @@
           "line": 158,
           "endLine": 168,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "ready_weapon",
@@ -182020,7 +182024,7 @@
           "endLine": 1077,
           "declared": true,
           "sourceFile": "wield.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "arti_speak",
@@ -182044,7 +182048,247 @@
           "evaluationPath": "challenges/evaluations/20261006212455-v23.json",
           "evaluationCommit": "40f2e7a47a1d058ae404a7d0c5efaf2511bb9e3e"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1e874d08b760b5f010c83b915391553194e732ab",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "empty_handed",
+            "implementation": "js/wield.js",
+            "symbol": "empty_handed",
+            "sourceReview": "Read whole wield.c:157-166. Verified the three literal outcomes in source order: gloves override shape, otherwise humanoid or the alternative wording. The C helper makes no random draw, output or mutation. Existing JavaScript body already matched; source-pinned tests now explicitly cover each result. Existing readiness, quiver, inventory and attributes callers use this one helper. The separate do_wear.c:do_takeoff W_WEP arm is still refused before its call and remains an outside-limit caller, without a whole do_takeoff claim.",
+            "callers": [
+              {
+                "path": "js/wield.js",
+                "symbol": "ready_weapon",
+                "source": "wield.c:178,182: NULL readiness messages"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "doquiver_core",
+                "source": "wield.c:672: primary weapon moved to quiver"
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "weapon_insight",
+                "source": "insight.c:1278: attributes weapon description"
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "doprwep",
+                "source": "invent.c:4553: inventory weapon description"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/ready-weapon.test.mjs",
+              "scripts/dowield.test.mjs",
+              "scripts/wield.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "1e874d08b760b5f010c83b915391553194e732ab"
+          },
+          {
+            "name": "weldmsg",
+            "implementation": "js/wield.js",
+            "symbol": "weldmsg",
+            "sourceReview": "Read whole wield.c:1061-1074. Name hands by hero body, pluralize only for bimanual objects, save owornmask, clear it before Yobjnam2/pline, then restore after output. Removed the UnsupportedWieldError stub and all existing discarded weldmsg substitutes. Traced all active callers: dowield, doswapweapon, doquiver_core, pickup.c:in_container, do.c:drop and dothrow.c:throw_obj. The last two are source-unreachable behind the identical canletgo welded guard; their canonical calls are nevertheless wired and focused regressions preserve the earlier guard. do_wear.c:2201 is inside the excluded C comment, not an active caller.",
+            "callers": [
+              {
+                "path": "js/wield.js",
+                "symbol": "dowield",
+                "source": "wield.c:383"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "doswapweapon",
+                "source": "wield.c:473"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "doquiver_core",
+                "source": "wield.c:572"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "pickup.c:2596: held primary cannot enter a container if welded"
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "drop",
+                "source": "do.c:724: unreachable after canletgo, preserved source branch"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_obj",
+                "source": "dothrow.c:151: unreachable after canletgo, preserved source branch"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ready-weapon.test.mjs",
+              "scripts/dowield.test.mjs",
+              "scripts/wield.test.mjs",
+              "scripts/pickup.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/drop-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wield.c/b121-weld-battle-axe.session.json",
+              "recordings/wield.c/b121-weld-club.session.json",
+              "recordings/wield.c/b121-weld-container.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-cursed-welded-weapon-attempt",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 32,
+                "source": "cmd.c:w -> wield.c:dowield:451 -> ready_weapon:196-209 welds the cursed long sword; the next wield attempt calls dowield:383 -> weldmsg:1061-1074 at step 32."
+              }
+            ],
+            "checkedAt": "1e874d08b760b5f010c83b915391553194e732ab"
+          }
+        ],
+        "entryPointReview": "Enumerated all source caller families. Runtime witnesses cover ordinary wield including safe corpses/empty hands/light start, ordinary swap, applied-tool readiness, and all reachable weldmsg families (wield/swap/quiver/container). Drop/throw weldmsg arms are unreachable behind identical earlier canletgo checks; do_wear.c:2201 is commented out. The additional do_wear.c:do_takeoff W_WEP -> empty_handed caller remains an explicit outside-limit refused owner; existing attributes, inventory and quiver pure-helper callers use the shared implementation. Unsafe corpse death, artifact speech via wield/apply, and lit-artifact shutdown are active blocked entries, not inactive source. Eight independently chosen recipes and matching C recordings cover the reachable scope; six C-only blocked recipes retain the limits and speaking-artifact variations. The task implements all selected source bodies but cannot claim whole ready_weapon/cant_wield_corpse/arti_speak completion until those dependencies yield matching runtime evidence.",
+        "entryPoints": [
+          {
+            "name": "hero wield readiness and empty/safe-corpse/light-start variants",
+            "functions": [
+              "ready_weapon",
+              "cant_wield_corpse",
+              "empty_handed"
+            ],
+            "recordings": [
+              "recordings/wield.c/b121-weld-battle-axe.session.json",
+              "recordings/wield.c/b121-weld-club.session.json",
+              "recordings/wield.c/b121-corpse-empty-hand.session.json",
+              "recordings/wield.c/b121-stone-resistant-corpse.session.json",
+              "recordings/wield.c/b121-sunsword-start.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v23",
+                "caseId": "v23-cursed-welded-weapon-attempt",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 32,
+                "source": "cmd.c:w -> wield.c:dowield:451 -> ready_weapon:196-209 welds the cursed long sword; the next wield attempt calls dowield:383 -> weldmsg:1061-1074 at step 32."
+              }
+            ]
+          },
+          {
+            "name": "swap primary and secondary weapons",
+            "functions": [
+              "ready_weapon",
+              "empty_handed",
+              "weldmsg"
+            ],
+            "recordings": [
+              "recordings/wield.c/b121-swap-readiness.session.json",
+              "recordings/wield.c/b121-weld-battle-axe.session.json",
+              "recordings/wield.c/b121-weld-club.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "quiver a welded primary weapon",
+            "functions": [
+              "weldmsg"
+            ],
+            "recordings": [
+              "recordings/wield.c/b121-weld-battle-axe.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "apply a tool that must be wielded (bullwhip)",
+            "functions": [
+              "ready_weapon"
+            ],
+            "recordings": [
+              "recordings/wield.c/b121-applied-bullwhip.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "stash a welded primary into a held container",
+            "functions": [
+              "weldmsg"
+            ],
+            "recordings": [
+              "recordings/wield.c/b121-weld-container.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "bare-handed unsafe petrifying corpse (blocked instapetrify)",
+            "functions": [
+              "cant_wield_corpse",
+              "ready_weapon"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "wield a speaking artifact (blocked carried display powers)",
+            "functions": [
+              {
+                "sourceFile": "artifact.c",
+                "name": "arti_speak"
+              },
+              "ready_weapon"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "apply a speaking artifact (blocked carried display powers)",
+            "functions": [
+              {
+                "sourceFile": "artifact.c",
+                "name": "arti_speak"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "unwield a shining Sunsword (blocked setuwep closure)",
+            "functions": [
+              "ready_weapon"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "take off primary weapon with A (outside-limit do_takeoff W_WEP owner)",
+            "functions": [
+              "empty_handed"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "1e874d08b760b5f010c83b915391553194e732ab",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Validated B121 fixes the v23 welded-weapon case and verifies empty_handed plus weldmsg; cant_wield_corpse, ready_weapon, and arti_speak remain source-incomplete on named trap.c instapetrify, artifact carried-property, lit Sunsword shutdown, and do_wear takeoff dependencies."
     }
   ]
 }
