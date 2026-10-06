@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked M-to-H corpse route. The added space acknowledges the C --More-- boundary, but the hero still kicks the corpse barefoot and enters the player-side uhitm.c:do_stone_u path before a monster can attack. Pager acknowledgment does not establish the intended M-to-H mhitm_ad_phys call.",
+  "segments": [
+    {
+      "seed": 12841035,
+      "datetime": "20550309141700",
+      "nethackrc": "OPTIONS=name:B112StoneHero,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n>>h\n #wizwish\ncockatrice corpse\nh\u0004l #wizgenesis\nhostile sandestin\n........\n"
+    }
+  ]
+}

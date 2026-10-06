@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked M-to-H corpse route. This attempted Wp, but C assigned the wished leather gloves to inventory letter n, so the hero was not wearing them before corpse contact. C then reaches the player kick/stones path through uhitm.c:do_stone_u before the intended monster attack can be tested.",
+  "segments": [
+    {
+      "seed": 12841037,
+      "datetime": "20550309141900",
+      "nethackrc": "OPTIONS=name:B112StoneGuard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\npair of leather gloves\nWp#wizwish\ncockatrice corpse\n#wizgenesis\nhostile sandestin\n............\n"
+    }
+  ]
+}

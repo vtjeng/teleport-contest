@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Matching trace-derived cloneu route using a brown pudding. At makemon.c:m_initweap:207 the hostile lieutenant receives a broadsword or long sword; this seed selects the broadsword (rn2(2)=1), and include/objects.h defines it as IRON. Brown pudding has AD_DCAY, avoiding the later AD_RUST rustm draw while satisfying uhitm.c:mhitm_ad_phys:4091-4104. C prints “You divide as it hits you!” at step 61. The recipe ends at the first post-hit boundary and strict C/JavaScript parity passes.",
+  "segments": [
+    {
+      "seed": 12841038,
+      "datetime": "20550309142000",
+      "nethackrc": "OPTIONS=name:B112BrownMetal,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#polyself\nbrown pudding\n    \n#wizgenesis\nhostile lieutenant\n.\n"
+    }
+  ]
+}

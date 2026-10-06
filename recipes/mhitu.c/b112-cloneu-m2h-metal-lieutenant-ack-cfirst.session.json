@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked-history full-tail version of the cloneu route. The C trace reaches “You divide as it hits you!” at step 61, then the next metal hit takes the black pudding through rustm(mhitm.c:1278); strict replay diverges on rn2(1) at step 62. The brown-pudding route avoids that AD_RUST branch and is the matching evidence.",
+  "segments": [
+    {
+      "seed": 12841038,
+      "datetime": "20550309142000",
+      "nethackrc": "OPTIONS=name:B112PuddingMetal,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#polyself\nblack pudding\n    \n#wizgenesis\nhostile lieutenant\n................\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked-history black-pudding prefix. C and JavaScript screens/cursors match through the split message, but the following post-hit rustm(mhitm.c:1278) draw differs (C rn2(1), JS rn2(3)) at call 2821. The brown-pudding route avoids AD_RUST and supplies the strict matching evidence.",
+  "segments": [
+    {
+      "seed": 12841038,
+      "datetime": "20550309142000",
+      "nethackrc": "OPTIONS=name:B112PuddingMetal,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#polyself\nblack pudding\n    \n#wizgenesis\nhostile lieutenant\n.\n"
+    }
+  ]
+}

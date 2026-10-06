@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked M-to-H corpse route. C confirms Wn finishes dressing with gloves before corpse contact, but the hostile sandestin shapeshifts and never wields the cockatrice corpse. MON_WEP(magr) therefore is not the corpse weapon required for uhitm.c:mhitm_ad_phys to call do_stone_u.",
+  "segments": [
+    {
+      "seed": 12841037,
+      "datetime": "20550309141900",
+      "nethackrc": "OPTIONS=name:B112StoneGuard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\npair of leather gloves\nWn#wizwish\ncockatrice corpse\n#wizgenesis\nhostile sandestin\n............\n"
+    }
+  ]
+}

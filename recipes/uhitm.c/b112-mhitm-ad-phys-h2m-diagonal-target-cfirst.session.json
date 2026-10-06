@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-screen-derived H-to-M target correction. The newt appears southwest of the Wizard, so Fb targets its square; C confirms the attack at step 47 with “You miss the newt.” This is blocked before uhitm.c:mhitm_ad_phys because known_hitum() calls hmon() only when *mhit is true; preserve the miss as route history, not entry-point evidence.",
+  "segments": [
+    {
+      "seed": 12841034,
+      "datetime": "20550309141600",
+      "nethackrc": "OPTIONS=name:B112HeroHit,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\nlong sword\n#wizgenesis\nhostile newt\nFb\n"
+    }
+  ]
+}
