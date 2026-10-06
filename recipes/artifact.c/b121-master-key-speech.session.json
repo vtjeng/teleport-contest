@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED by artifact.c:set_artifact_intrinsic carried WARN/TCTRL/HPHDAM before pickup finishes. C reaches wield.c:ready_weapon -> artifact.c:arti_speak and shows a blessed true rumor; JS first stops after the quest pickup pager. Whole speech is implemented but no matching runtime witness is claimed. Inputs and C recordings are independent of admitted challenges.",
+  "segments": [
+    {
+      "seed": 78121003,
+      "datetime": "20791007090200",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed Master Key of Thievery\n wg  "
+    }
+  ]
+}

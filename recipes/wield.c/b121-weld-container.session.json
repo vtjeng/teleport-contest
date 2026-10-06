@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent held-container caller. C assigned the one-handed cursed club n and empty sack o. Apply the sack and select stash n to reach pickup.c:in_container -> wield.c:weldmsg. The original two-handed attempt could not reach this caller because freehand rejected it; this source-required one-handed correction was chosen from C before JS comparison. Seeds, times, and initial inputs were chosen independently before any JS comparison.",
+  "segments": [
+    {
+      "seed": 78121007,
+      "datetime": "20791007090600",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017cursed club\n\u0017empty uncursed sack\nwnaosn\u001b"
+    }
+  ]
+}

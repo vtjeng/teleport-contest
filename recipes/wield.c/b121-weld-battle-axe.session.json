@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first two-handed welding variation. Wish a cursed battle-axe, select the C-observed o, then try swapping and quivering it. Exercises ready_weapon and weldmsg through dowield, doswapweapon, and dowieldquiver. Seeds, times, and initial inputs were chosen independently before any JS comparison.",
+  "segments": [
+    {
+      "seed": 78121001,
+      "datetime": "20791007090000",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017cursed battle-axe\nwoxQo"
+    }
+  ]
+}

@@ -249,7 +249,7 @@ import {
 import { livelog_printf } from './pline.js';
 import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
-import { welded } from './wield.js';
+import { welded, weldmsg } from './wield.js';
 import { setuqwep, setuswapwep, setuwep } from './worn.js';
 import { note_unported } from './unported.js';
 import { d } from './rng.js';
@@ -2903,8 +2903,7 @@ async function in_container(obj, state) {
         return 0;
     } else if (obj === state.uwep) {
         if (welded(obj, state)) {
-            // C discards weldmsg()'s result; its message body remains unported.
-            note_unported('wield.c weldmsg');
+            await weldmsg(obj, state);
             return 0;
         }
         setuwep(null, setwornEnv(state));

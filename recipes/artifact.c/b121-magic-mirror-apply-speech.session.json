@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED by artifact.c:set_artifact_intrinsic carried ESP before pickup finishes. C doapply -> use_mirror returns ECMD_CANCEL after Escape, then arti_speak preserves that bit and adds ECMD_TIME. No matching runtime witness is claimed. Inputs and C recordings are independent of admitted challenges.",
+  "segments": [
+    {
+      "seed": 78121004,
+      "datetime": "20791007090300",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017cursed Magic Mirror of Merlin\n ai\u001b  "
+    }
+  ]
+}

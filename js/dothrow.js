@@ -437,7 +437,7 @@ import {
 } from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { cansee, vision_recalc } from './vision.js';
-import { doquiver_core, welded } from './wield.js';
+import { doquiver_core, welded, weldmsg } from './wield.js';
 import { could_pole_mon, use_pole, use_whip } from './apply.js';
 import {
     find_mac, is_pole, set_twoweap, setuqwep, setuswapwep, setuwep,
@@ -2152,8 +2152,8 @@ export async function throw_obj(obj, shotlimit, state = game) {
     }
     if (welded(obj, state)) {
         // canletgo() above rejects an actually welded wielded item first. Keep
-        // this source branch and name its discarded void message helper.
-        note_unported('wield.c weldmsg');
+        // this source branch and call its canonical message helper.
+        await weldmsg(obj, state);
         res = ECMD_TIME;
         return finishThrowObj(res, unsplitTarget, save_osplit, state);
     }

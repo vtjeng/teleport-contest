@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary doswapweapon readiness entry. Wield C-observed club o, swap to an empty primary and swap back, then dismiss the secondary-slot message pager. Seeds, times, and initial inputs were chosen independently before any JS comparison.",
+  "segments": [
+    {
+      "seed": 78121010,
+      "datetime": "20791007090900",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed club\nwoxx "
+    }
+  ]
+}

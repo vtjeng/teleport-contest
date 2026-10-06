@@ -1,5 +1,5 @@
 // wield.c dowield(), wield_ok(), finish_splitting(), and the arti_speak()
-// early return. Every expected value comes from the C source and is cited at
+// rumor/message sequence. Every expected value comes from the C source and is cited at
 // the assertion that uses it.
 
 import assert from 'node:assert/strict';
@@ -9,6 +9,7 @@ import {
     CQ_CANNED,
     ECMD_CANCEL,
     ECMD_FAIL,
+    A_WIS,
     ECMD_OK,
     ECMD_TIME,
     GETOBJ_DOWNPLAY,
@@ -31,7 +32,6 @@ import {
 import {
     arti_speak,
     init_artifacts,
-    SPFX_SPEAK,
 } from '../js/artifacts.js';
 import {
     PM_SAMURAI,
@@ -230,7 +230,7 @@ function makeArtifactState() {
     return state;
 }
 
-test('arti_speak() returns ECMD_OK for a non-speaking artifact', () => {
+test('arti_speak() returns ECMD_OK for a non-speaking artifact', async () => {
     // artifact.c:2286 checks SPFX_SPEAK; Grayswandir has SPFX_RESTR |
     // SPFX_HALRES and no SPFX_SPEAK, so the function returns ECMD_OK
     // without printing or spending a turn.
@@ -242,26 +242,30 @@ test('arti_speak() returns ECMD_OK for a non-speaking artifact', () => {
     );
     assert.ok(grayIndex > 0, 'Grayswandir should be in the artilist');
     const saber = object(state, SILVER_SABER, { oartifact: grayIndex });
-    assert.equal(arti_speak(saber, state), ECMD_OK);
+    assert.equal(await arti_speak(saber, state), ECMD_OK);
 });
 
-test('arti_speak() stops for a speaking artifact', () => {
-    // artifact.c:2289-2295: a speaking artifact (Sting/Orcrist, both
-    // SPFX_SPEAK) reads getrumor() and verbalize1(), neither of which is
-    // ported.
+test('arti_speak() uses the source empty-file fallback and ordered messages', async () => {
+    // artifact.c:2289-2295 reads getrumor before naming the whisper and
+    // quoting the result. An unavailable rumors file selects its literal.
     const state = makeArtifactState();
-    // Find an artifact with SPFX_SPEAK.
-    const stingIndex = state.artilist.findIndex(
-        (a) => a && (a.spfx & SPFX_SPEAK),
-    );
-    assert.ok(stingIndex > 0, 'there should be a speaking artifact');
-    // Create a dummy object with that artifact index.
-    const sting = object(state, state.artilist[stingIndex].otyp,
-        { oartifact: stingIndex });
-    assert.throws(
-        () => arti_speak(sting, state),
-        /speaking artifact/u,
-    );
+    const keyIndex = state.artilist.findIndex((a) => a?.name === 'The Master Key of Thievery');
+    state.artiexist[keyIndex].exists = 1; // source fixture has created this artifact
+    state.artiexist[keyIndex].found = 1; // naming it need not run discovery
+    const key = object(state, state.artilist[keyIndex].otyp,
+        { oartifact: keyIndex });
+    const messages = [];
+    const calls = [];
+    assert.equal(await arti_speak(key, state, {
+        files: {},
+        random: { rn2: (n) => { calls.push(n); return 0; } },
+        message: async (line) => messages.push(line),
+    }), ECMD_TIME);
+    assert.deepEqual(calls, []); // getrumor returns before RNG if no file.
+    assert.deepEqual(messages, [
+        'The key whispers:', // un-named underlying skeleton key
+        '"NetHack rumors file closed for renovation."',
+    ]);
 });
 
 // ── dowield ──
@@ -414,4 +418,34 @@ test('dowield() dispatches to doswapweapon when wep is uswapwep', async () => {
     // doswapweapon() swaps the two slots.
     assert.equal(state.uwep, club);
     assert.equal(state.uswapwep, katana);
+});
+
+
+test('arti_speak preserves getrumor draws, wisdom exercise, and speech order', async () => {
+    const state = makeArtifactState();
+    const keyIndex = state.artilist.findIndex((a) => a?.name === 'The Master Key of Thievery');
+    state.artiexist[keyIndex].exists = 1;
+    state.artiexist[keyIndex].found = 1;
+    const key = object(state, state.artilist[keyIndex].otyp, { oartifact: keyIndex, blessed: 1 });
+    const events = [];
+    const draws = [
+        [2, 0], // bcsign=1 + rn2(2)=0 selects true rumors in rumors.c:getrumor
+        [24924, 0], // generated true-rumor byte size; zero selects second line
+    ];
+    assert.equal(await arti_speak(key, state, {
+        random: { rn2(n) {
+            const [bound, result] = draws.shift() ?? [];
+            assert.equal(n, bound);
+            events.push(['rn2', n]);
+            return result;
+        } },
+        exercise: (index, increase) => events.push(['exercise', index, increase]),
+        message: async (line) => events.push(['message', line]),
+    }), ECMD_TIME);
+    assert.deepEqual(draws, []);
+    assert.deepEqual(events, [
+        ['rn2', 2], ['rn2', 24924], ['exercise', A_WIS, true],
+        ['message', 'The key whispers:'],
+        ['message', '"A candelabrum affixed with seven candles shows the way with a magical light."'],
+    ]);
 });

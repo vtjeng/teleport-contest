@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent harmless-corpse readiness case. C assigned the wished newt corpse n. Wield it, wield nothing, then wield nothing again: cant_wield_corpse false guard, both ready_weapon NULL arms, and pure empty_handed through the command caller. Seeds, times, and initial inputs were chosen independently before any JS comparison.",
+  "segments": [
+    {
+      "seed": 78121006,
+      "datetime": "20791007090500",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed newt corpse\nwnw-w-"
+    }
+  ]
+}

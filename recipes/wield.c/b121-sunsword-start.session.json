@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent artifact-light startup entry. A lawful Knight wields the C-observed wished Sunsword i and dismisses prinv to reach ready_weapon -> timeout.c:begin_burn -> light.c:arti_light_description. This recording ends before the separate setuwep shutdown limit. Seeds, times, and initial inputs were chosen independently before any JS comparison.",
+  "segments": [
+    {
+      "seed": 78121005,
+      "datetime": "20791007090400",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed Sunsword\nwi "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent cheap one-handed variation of the axe case. The chosen role/right handedness and cursed club exercise the dominant-hand message, then doswapweapon calls weldmsg. Inventory o came from C only. Seeds, times, and initial inputs were chosen independently before any JS comparison.",
+  "segments": [
+    {
+      "seed": 78121002,
+      "datetime": "20791007090100",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017cursed club\nwox"
+    }
+  ]
+}

@@ -12,6 +12,8 @@ import {
     A_DEX,
     COST_DECHNT,
     COST_DEGRD,
+    CXN_PFX_THE,
+    RIGHT_HANDED,
     HALLUC_RES,
     OBJ_FREE,
     OBJ_INVENT,
@@ -43,6 +45,7 @@ import {
     is_art,
     restrict_name,
     retouch_object,
+    Stone_resistance,
 } from './artifacts.js';
 import { reset_remarm, setwornEnv } from './do_wear.js';
 import { acurr, exercise } from './attrib.js';
@@ -87,6 +90,11 @@ import {
 } from './obj.js';
 import {
     an,
+    aobjnam,
+    corpse_xname,
+    killer_xname,
+    The,
+    Tobjnam,
     donameFresh,
     is_plural,
     otense,
@@ -121,7 +129,12 @@ import {
     WORM_TOOTH,
 } from './objects.js';
 import { discover_object } from './o_init.js';
-import { alter_cost } from './shk.js';
+import { alter_cost, inside_shop, shop_keeper } from './shk.js';
+import { shkname } from './shknam.js';
+import { arti_light_description } from './light.js';
+import { begin_burn } from './timeout.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { body_part } from './polyself.js';
 import { strange_feeling } from './potion.js';
 import { rn2, rnd } from './rng.js';
@@ -226,7 +239,7 @@ export async function can_twoweapon(state = game, env = {}) {
             + 'another weapon!', state,
         );
     } else if (uswapwep.otyp === CORPSE
-        && cant_wield_corpse(uswapwep, state)) {
+        && await cant_wield_corpse(uswapwep, state)) {
         // wield.c:794-796 leaves this arm empty because !TWOWEAPOK() has
         // already rejected a corpse.
     } else if (Glib(state) || uswapwep.cursed) {
@@ -303,6 +316,24 @@ export function welded(obj, state = game, env = {}) {
         return 1;
     }
     return 0;
+}
+
+// C ref: wield.c cant_wield_corpse() (137-153).
+export async function cant_wield_corpse(obj, state = game) {
+    if (state.uarmg || obj.otyp !== CORPSE
+        || !touch_petrifies(state.mons[obj.corpsenm])
+        || Stone_resistance(state)) return false;
+
+    await ttyPline(
+        `You wield ${corpse_xname(obj, null, CXN_PFX_THE, state)} in your bare ${makeplural(body_part(HAND, state.youmonst))}.`,
+        state,
+    );
+    const kbuf = `wielding ${killer_xname(obj, state)} bare-handed`;
+    // C discards instapetrify's void result. Do not simulate its death or
+    // life-saving state; the caller still takes the source TRUE return.
+    void kbuf;
+    note_unported('trap.c instapetrify');
+    return true;
 }
 
 // C ref: wield.c empty_handed(). Describes hands that hold no weapon; the ^X
@@ -514,13 +545,15 @@ export function cantwield(species) {
 const are_no_longer_twoweap = 'are no longer using two weapons at once';
 const can_no_longer_twoweap = 'can no longer wield two weapons at once';
 
-// C ref: wield.c weldmsg() (1060-1074). Its message needs objnam.c
-// Yobjnam2(), which is yobjnam() over shk_your(); neither is ported, and
-// js/do.js dropx() already stops at this same function for the same reason.
-async function weldmsg(obj, state) {
-    void obj;
-    void state;
-    throw new UnsupportedWieldError('weldmsg()');
+// C ref: wield.c weldmsg() (1061-1074). Temporarily suppress the worn
+// annotation while naming the weapon; restore the source mask after output.
+export async function weldmsg(obj, state = game) {
+    let hand = body_part(HAND, state.youmonst);
+    if (bimanual(obj, state)) hand = makeplural(hand);
+    const savewornmask = obj.owornmask;
+    obj.owornmask = 0;
+    await ttyPline(`${Yobjnam2(obj, 'are', state)} welded to your ${hand}!`, state);
+    obj.owornmask = savewornmask;
 }
 
 // C ref: wield.c untwoweapon() (905-914).
@@ -532,27 +565,15 @@ export async function untwoweapon(state = game) {
     }
 }
 
-// Replaced by artifact.c retouch_object(), now ported in js/artifacts.js.
-
-// C ref: wield.c ready_weapon() (168-273). "Separated function so swapping
-// works easily": puts `wep` in the hero's hand and reports what happened,
-// ECMD_TIME on every path that spends the turn.
-//
-// The source refusal for a two-handed weapon under a shield returns ECMD_FAIL
-// without changing either weapon slot. The petrifying-corpse, welded-weapon,
-// artifact-light, and unpaid-item branches remain unsupported. The arti_speak()
-// path is ported for its early return (no SPFX_SPEAK), and the speaking case
-// stops. The bottom-line test at 270-271 is C's, and its condition never holds:
-// condtests[bl_bareh] is an opt-in status condition that botl.c leaves
-// disabled, so a hero who goes from armed to empty-handed marks nothing here.
-// setworn(), which setuwep() calls, is what actually marks the status line.
+// C ref: wield.c ready_weapon() (169-273). Message and curse knowledge
+// precede installing the new primary slot, as they do in C.
 export async function ready_weapon(wep, state = game) {
-    /* Separated function so swapping works easily */
     let res = ECMD_OK;
     const was_twoweap = state.u.twoweap;
+    const had_wep = Boolean(state.uwep);
+    const objp = { obj: wep };
 
     if (!wep) {
-        /* No weapon */
         if (state.uwep) {
             await ttyPline(`You are ${empty_handed(state)}.`, state);
             setuwep(null, setwornEnv(state));
@@ -560,30 +581,37 @@ export async function ready_weapon(wep, state = game) {
         } else {
             await ttyPline(`You are already ${empty_handed(state)}.`, state);
         }
-    } else if (wep.otyp === CORPSE && cant_wield_corpse(wep, state)) {
-        /* hero must have been life-saved to get here; use a turn */
-        res = ECMD_TIME; /* corpse won't be wielded */
+    } else if (wep.otyp === CORPSE && await cant_wield_corpse(wep, state)) {
+        res = ECMD_TIME; /* life-saved hero; corpse won't be wielded */
     } else if (state.uarms && bimanual(wep, state)) {
         const weaponType = is_sword(wep, state)
-            ? 'sword'
-            : wep.otyp === BATTLE_AXE ? 'axe' : 'weapon';
+            ? 'sword' : wep.otyp === BATTLE_AXE ? 'axe' : 'weapon';
         await ttyPline(
             `You cannot wield a two-handed ${weaponType} while wearing a shield.`,
             state,
         );
         res = ECMD_FAIL;
-    } else if (!await retouch_object({ obj: wep }, false, state)) {
-        res = ECMD_TIME; /* takes a turn even though it doesn't get wielded */
+    } else if (!await retouch_object(objp, false, state)) {
+        res = ECMD_TIME;
     } else {
-        /* Weapon WILL be wielded after this point */
+        wep = objp.obj; /* retouch_object receives C's &wep */
         res = ECMD_TIME;
         if (will_weld(wep, state)) {
-            throw new UnsupportedWieldError('a cursed weapon welding itself');
+            const name = xnameFresh(wep, state);
+            const prefix = !name.startsWith('The ')
+                && The(name, state).startsWith('The ') ? 'The ' : '';
+            const twoHands = bimanual(wep, state);
+            const hand = body_part(HAND, state.youmonst);
+            const dominant = twoHands ? ''
+                : state.u.uhandedness === RIGHT_HANDED
+                    ? 'dominant right ' : 'dominant left ';
+            await ttyPline(
+                `${prefix}${aobjnam(wep, 'weld', state)} ${wep.quan === 1 ? 'itself' : 'themselves'} to your ${dominant}${twoHands ? makeplural(hand) : hand}!`,
+                state,
+            );
+            set_bknown(wep, 1, { state });
         } else {
-            /* The message must say "weapon in hand", so give the object the
-               mask doname() reads before printing and take it away again. */
             const dummy = wep.owornmask;
-
             wep.owornmask |= W_WEP;
             if (wep.otyp === AKLYS && (wep.owornmask & W_WEP) !== 0)
                 await ttyPline('You secure the tether.', state);
@@ -592,44 +620,35 @@ export async function ready_weapon(wep, state = game) {
         }
 
         setuwep(wep, setwornEnv(state));
-        if (was_twoweap && !state.u.twoweap && state.flags.verbose) {
-            /* skip this message if we already got "empty handed" one above */
-            if (state.uwep) {
+        if (was_twoweap && !state.u.twoweap && state.flags.verbose && state.uwep) {
+            await ttyPline(
+                `You ${(TWOWEAPOK(state.uwep, state) && !bimanual(state.uwep, state))
+                    ? are_no_longer_twoweap : can_no_longer_twoweap}.`, state,
+            );
+        }
+        if (wep.oartifact) res |= await arti_speak(wep, state);
+        if (artifact_light(wep) && !wep.lamplit) {
+            begin_burn(wep, false, objectGenerationEnv({ state }));
+            if (!heroIsBlind(state)) {
                 await ttyPline(
-                    `You ${(TWOWEAPOK(state.uwep, state)
-                        && !bimanual(state.uwep, state))
-                        ? are_no_longer_twoweap
-                        : can_no_longer_twoweap}.`,
-                    state,
+                    `${Tobjnam(wep, 'begin', state)} to shine ${arti_light_description(wep, state)}!`, state,
                 );
             }
         }
-
-        /* KMH -- Talking artifacts are finally implemented */
-        if (wep.oartifact) {
-            res |= arti_speak(wep, state);
-        }
-
-        if (artifact_light(wep) && !wep.lamplit) {
-            throw new UnsupportedWieldError('an artifact that begins to shine');
-        }
         if (wep.unpaid) {
-            throw new UnsupportedWieldError('wielding unpaid merchandise');
+            const this_shkp = shop_keeper(inside_shop(state.u.ux, state.u.uy, state), state);
+            if (this_shkp) {
+                await ttyPline(
+                    `${shkname(this_shkp, state)} says "You be careful with my ${xnameFresh(wep, state)}!"`, state,
+                );
+            }
         }
+    }
+    if (had_wep !== Boolean(state.uwep) && state.iflags?.status_conditions?.barehanded) {
+        state.disp ??= {};
+        state.disp.botl = true;
     }
     return res;
-}
-
-// C ref: wield.c cant_wield_corpse() (137-153). Every hero this port reaches
-// answers FALSE at the first test; the arm past it kills her.
-function cant_wield_corpse(obj, state) {
-    if (state.uarmg || obj.otyp !== CORPSE
-        || !touch_petrifies(state.mons[obj.corpsenm])) {
-        return false;
-    }
-    /* Stone_resistance, C's fourth disjunct, has no ported reader; a hero who
-       has it would answer FALSE here too, so stopping is never wrong. */
-    throw new UnsupportedWieldError('instapetrify()');
 }
 
 // C ref: wield.c ready_ok() (291-327). Null represents the '-' choice.

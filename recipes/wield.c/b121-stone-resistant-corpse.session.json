@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent cheap variation of the unsafe-corpse limit: same C-first setup and source-relevant input change, wield the cockatrice corpse while the three-turn stone resistance is still present. Exercises cant_wield_corpse Stone_resistance return and ready_weapon through ordinary dowield. The other variation waits for expiry and remains blocked by trap.c:instapetrify.",
+  "segments": [
+    {
+      "seed": 78121009,
+      "datetime": "20791007090800",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n 3d\n \u0017uncursed cockatrice corpse\nwo"
+    }
+  ]
+}

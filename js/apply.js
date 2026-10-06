@@ -4921,26 +4921,34 @@ export async function doapply(state = game, env = {}) {
         let result = ECMD_TIME;
         // apply.c's common tail remains after use_bell() and runs only when
         // the source pointer still names the object.
-        if (obj?.oartifact) result |= arti_speak(obj, state);
+        if (obj?.oartifact) result |= await arti_speak(obj, state);
         return result;
     }
     case EXPENSIVE_CAMERA:
         return use_camera(obj, state, env);
     case TOWEL:
         return use_towel(obj, state, env);
-    case MIRROR:
-        return use_mirror(obj, state, env);
+    case MIRROR: {
+        const result = await use_mirror(obj, state, env);
+        // apply.c:4331 and its common tail at 4422, including a canceled
+        // mirror direction: a speaking artifact still spends the turn.
+        return obj?.oartifact ? result | await arti_speak(obj, state) : result;
+    }
     case PICK_AXE:
     case DWARVISH_MATTOCK:
         return use_pick_axe(obj, state, env);
     case LOCK_PICK:
     case CREDIT_CARD:
-    case SKELETON_KEY:
+    case SKELETON_KEY: {
         // apply.c:4285-4289. Every pick_lock() answer except
         // PICKLOCK_DID_NOTHING spends the turn, which is what draws the next
         // turn's random numbers.
-        return (await pick_lock(obj, 0, 0, null, state) !== 0)
+        const result = (await pick_lock(obj, 0, 0, null, state) !== 0)
             ? ECMD_TIME : ECMD_OK;
+        // apply.c:4422 also runs after PICKLOCK_DID_NOTHING; the Master
+        // Key's speech can add ECMD_TIME to the operation's ECMD_OK result.
+        return obj?.oartifact ? result | await arti_speak(obj, state) : result;
+    }
     case LARGE_BOX:
     case CHEST:
     case ICE_BOX:
@@ -4997,7 +5005,7 @@ export async function doapply(state = game, env = {}) {
         // artifact-speech tail; use_tin_opener() selects a tin and calls
         // start_tin() for the source opening effect.
         const result = await use_tin_opener(obj, state, env);
-        return obj?.oartifact ? result | arti_speak(obj, state) : result;
+        return obj?.oartifact ? result | await arti_speak(obj, state) : result;
     }
     case FIGURINE:
         // apply.c:4367. use_figurine() updates the pointer to NULL after the

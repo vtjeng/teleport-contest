@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent applied-tool readiness entry. A lawful Knight wishes a cursed bullwhip (C inventory i); applying it enters apply.c:use_whip -> wield.c:wield_tool -> ready_weapon. Escape dismisses the weld pager and the recording ends at the queued direction prompt. Seeds, times, and initial inputs were chosen independently before any JS comparison.",
+  "segments": [
+    {
+      "seed": 78121011,
+      "datetime": "20791007091000",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017cursed bullwhip\nai\u001b"
+    }
+  ]
+}

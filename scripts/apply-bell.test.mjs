@@ -49,7 +49,7 @@ test('doapply wires both bell arms before its surviving-artifact tail', () => {
     assert.match(cDoapply,
         /case BELL:\s*case BELL_OF_OPENING:\s*use_bell\(&obj\);\s*break;/u);
     assert.match(jsDoapply,
-        /case BELL:\s*case BELL_OF_OPENING:\s*\{\s*await use_bell\(objp, state, env\);\s*obj = objp\.obj;\s*let result = ECMD_TIME;[\s\S]*if \(obj\?\.oartifact\) result \|= arti_speak\(obj, state\)/u);
+        /case BELL:\s*case BELL_OF_OPENING:\s*\{\s*await use_bell\(objp, state, env\);\s*obj = objp\.obj;\s*let result = ECMD_TIME;[\s\S]*if \(obj\?\.oartifact\) result \|= await arti_speak\(obj, state\)/u);
 });
 
 test('the Bell records its discarded shop check without replacing other callers', () => {

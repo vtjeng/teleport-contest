@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED by wield.c:setuwep in js/worn.js: the existing injected endArtifactLight operation is absent in production and its stop-shining message closure is unported. C unwields the shining Sunsword with ready_weapon(NULL). This task implements light-start only and does not expand the roughly twenty setter callers. Inputs and C recordings are independent of admitted challenges.",
+  "segments": [
+    {
+      "seed": 78121008,
+      "datetime": "20791007090700",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed Sunsword\nwi w-"
+    }
+  ]
+}

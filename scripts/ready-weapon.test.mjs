@@ -8,6 +8,8 @@ import test from 'node:test';
 
 import {
     ECMD_FAIL,
+    LEFT_HANDED,
+    STONE_RES,
     ECMD_OK,
     ECMD_TIME,
     LAST_PROP,
@@ -19,6 +21,7 @@ import {
 } from '../js/const.js';
 import {
     PM_GRID_BUG,
+    PM_COCKATRICE,
     PM_SAMURAI,
     PM_YELLOW_LIGHT,
     monst_globals_init,
@@ -27,6 +30,7 @@ import {
     BOW,
     BATTLE_AXE,
     CLUB,
+    CORPSE,
     HALBERD,
     KATANA,
     SMALL_SHIELD,
@@ -39,6 +43,9 @@ import {
 import {
     UnsupportedWieldError,
     cantwield,
+    cant_wield_corpse,
+    empty_handed,
+    weldmsg,
     doswapweapon,
     ready_weapon,
 } from '../js/wield.js';
@@ -228,17 +235,13 @@ test('ready_weapon() keeps its other wielding and weld behavior', async () => {
         ECMD_TIME,
     );
     drain(silver);
-    // wield.c:196-209, a cursed weapon welding itself to the hand remains an
-    // explicit unsupported branch, independent of the shield refusal.
+    // wield.c:196-209: the message and curse knowledge precede setuwep.
     const cursed = makeState();
-    await assert.rejects(
-        () => ready_weapon(object(cursed, KATANA, { cursed: 1 }), cursed),
-        /welding itself/u,
-    );
-    assert.equal(cursed.uwep, null);
-    // wield.c:260-268's shopkeeper warning has no case: prinv() runs before
-    // it, and objnam.c doname() stops on an unpaid item's price suffix, so the
-    // refusal that arrives is js/objnam.js's rather than this one.
+    const katana = object(cursed, KATANA, { cursed: 1 });
+    assert.equal(await ready_weapon(katana, cursed), ECMD_TIME);
+    assert.equal(drain(cursed), 'The samurai sword welds itself to your dominant right hand!');
+    assert.equal(katana.bknown, 1);
+    assert.equal(cursed.uwep, katana);
 });
 
 test('doswapweapon() exchanges the two slots and names both', async () => {
@@ -304,7 +307,11 @@ test('doswapweapon() refuses a form that cannot wield, and a welded hand',
 
         const welded = makeState();
         welded.uwep = object(welded, KATANA, { owornmask: W_WEP, cursed: 1 });
-        await assert.rejects(() => doswapweapon(welded), /weldmsg/u);
+        const primary = welded.uwep;
+        assert.equal(await doswapweapon(welded), ECMD_FAIL);
+        assert.equal(drain(welded), 'Your samurai sword is welded to your hand!');
+        assert.equal(welded.uwep, primary);
+        assert.equal(primary.owornmask, W_WEP);
     });
 
 test('doswapweapon() zeroes multi without calling nomul()', async () => {
@@ -324,4 +331,46 @@ test('a wielding refusal is one this port fails closed on', () => {
     // reaches one keeps every frame it already matched.
     assert.ok(new UnsupportedWieldError('x') instanceof Error);
     assert.equal(new UnsupportedWieldError('x').name, 'UnsupportedWieldError');
+});
+
+// wield.c:157-166 is pure: gloves take precedence over body shape.
+test('empty_handed follows the three literal source results', () => {
+    const state = makeState();
+    assert.equal(empty_handed(state), 'bare handed'); // humanoid Samurai
+    state.youmonst = { data: state.mons[PM_GRID_BUG] }; // no humanoid hands
+    assert.equal(empty_handed(state), 'not wielding anything');
+    state.uarmg = {}; // any glove object chooses C's first arm
+    assert.equal(empty_handed(state), 'empty handed');
+});
+
+test('welding retains left handed, plural, and bimanual source wording', async () => {
+    const left = makeState();
+    left.u.uhandedness = LEFT_HANDED;
+    const stack = object(left, CLUB, { cursed: 1, quan: 2 }); // a plural stack
+    assert.equal(await ready_weapon(stack, left), ECMD_TIME);
+    assert.equal(drain(left), 'The 2 clubs weld themselves to your dominant left hand!');
+    const two = makeState();
+    const sword = object(two, TWO_HANDED_SWORD, { cursed: 1 }); // bimanual
+    assert.equal(await ready_weapon(sword, two), ECMD_TIME);
+    assert.equal(drain(two), 'The two-handed sword welds itself to your hands!');
+    await weldmsg(sword, two);
+    assert.equal(drain(two), 'Your two-handed sword is welded to your hands!');
+    assert.equal(sword.owornmask, W_WEP); // source restores the saved mask
+});
+
+test('cant_wield_corpse reads the source stone resistance even when blocked', async () => {
+    const state = makeState();
+    const corpse = object(state, CORPSE, { corpsenm: PM_COCKATRICE });
+    // youprop.h Stone_resistance checks intrinsic/extrinsic without blocked.
+    state.u.uprops[STONE_RES].intrinsic = 1;
+    state.u.uprops[STONE_RES].blocked = 1;
+    assert.equal(await cant_wield_corpse(corpse, state), false);
+    assert.equal(state._pending_message, undefined);
+    state.u.uprops[STONE_RES].intrinsic = 0;
+    state.uarmg = {}; // C's first disjunct prevents unsafe bare-hand handling
+    assert.equal(await cant_wield_corpse(corpse, state), false);
+    state.uarmg = null;
+    assert.equal(await cant_wield_corpse(corpse, state), true);
+    assert.equal(drain(state), 'You wield the cockatrice corpse in your bare hands.');
+    assert.equal(state.uwep, null); // ready_weapon does not install unsafe corpse
 });

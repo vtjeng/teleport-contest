@@ -337,7 +337,7 @@ import { ttyNorep, ttyPline } from './tty_message.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
-import { welded } from './wield.js';
+import { welded, weldmsg } from './wield.js';
 import { bimanual, setuqwep, setuswapwep, setuwep } from './worn.js';
 import { resurrect } from './wizard.js';
 import {
@@ -1488,14 +1488,14 @@ async function drop(obj, state = game) {
     if (obj === state.uwep) {
         if (welded(state.uwep, state)) {
             // do.c:724 weldmsg() (wield.c:1061-1074), which names the weapon
-            // with objnam.c Yobjnam2(); yname() under it is not ported.
+            // with objnam.c Yobjnam2().
             //
             // Unreachable, in C too: canletgo() at :715 tests the identical
             // `obj == uwep && welded(uwep)` pair one branch earlier and
             // returns FALSE, so drop() has already answered ECMD_FAIL with the
             // Norep at do.c:677. The dead test is written out because the port
             // keeps C's structure; deleting it changes nothing.
-            throw new UnsupportedDropError('weldmsg()');
+            await weldmsg(obj, state);
         }
         setuwep(null, setwornEnv(state));
     }

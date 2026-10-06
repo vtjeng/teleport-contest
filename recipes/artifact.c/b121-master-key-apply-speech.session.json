@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED by artifact.c:set_artifact_intrinsic carried WARN before pickup finishes. Independent C apply.c:doapply -> pick_lock returns PICKLOCK_DID_NOTHING after Escape, then arti_speak adds ECMD_TIME and reads a blessed rumor. The caller is wired and tested with a source-state fixture, but that does not establish runtime completion. Inputs and C recordings are independent of admitted challenges.",
+  "segments": [
+    {
+      "seed": 78121003,
+      "datetime": "20791007090200",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed Master Key of Thievery\n ag\u001b  "
+    }
+  ]
+}

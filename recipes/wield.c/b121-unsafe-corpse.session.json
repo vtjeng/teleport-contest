@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED by discarded void trap.c:instapetrify in cant_wield_corpse. Use C-observed second intrinsic page 3d to gain three turns of stone resistance, wish a cockatrice corpse, wait for resistance to expire while the corpse is carried but unwielded, then wield it. C prints the bare-hand warning and turns the hero to stone; JS names the missing callee and does not simulate death or life-saving. This representative limit is kept outside the passing recording corpus. Inputs and C recordings are independent of admitted challenges.",
+  "segments": [
+    {
+      "seed": 78121009,
+      "datetime": "20791007090800",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n 3d\n \u0017uncursed cockatrice corpse\n....wo "
+    }
+  ]
+}

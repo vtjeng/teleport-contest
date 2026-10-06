@@ -104,6 +104,9 @@ import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
 import { use_crystal_ball } from './detect.js';
 import { inside_shop } from './shk.js';
+import { getrumor } from './random_text.js';
+import { verbalize } from './pline.js';
+import { bcsign } from './obj.js';
 import { HCOLORS } from './random_text_data.js';
 import {
     AT_MAGC,
@@ -2808,22 +2811,28 @@ export function artifact_light(obj) {
     return obj?.oartifact === ART_SUNSWORD;
 }
 
-// C ref: artifact.c arti_speak() (2279-2296). A speaking artifact (SPFX_SPEAK
-// set) whispers a rumor from the rumors file when wielded. The only two
-// speaking artifacts are Sting and Orcrist (both SPFX_WARN_OF_MON |
-// SPFX_SPEAK). This port handles the early return for non-speaking artifacts
-// and stops at the speaking path, which needs getrumor() and verbalize1().
-export function arti_speak(obj, state = game) {
+// C ref: artifact.c arti_speak() (2279-2296). Read the rumor before either
+// message, preserving getrumor's BUC choice and wisdom exercise.
+export async function arti_speak(obj, state = game, env = {}) {
     const normalized = artifactTables(state);
     const oart = get_artifact(obj, normalized);
-    /* Is this a speaking artifact? */
     if (oart === normalized.artilist[ART_NONARTIFACT]
-        || !(oart.spfx & SPFX_SPEAK))
-        return ECMD_OK; /* nothing happened */
+        || !(oart.spfx & SPFX_SPEAK)) return ECMD_OK;
 
-    // The speaking path reads a rumor and verbalize1()s it. getrumor() and
-    // verbalize1() are not ported.
-    throw new UnsupportedArtifactDisplayError('a speaking artifact (arti_speak)');
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { rn2 };
+    const rumor = getrumor(bcsign(obj), true, {
+        ...env, state, random,
+        exercise: env.exercise ?? ((index, increase) => exercise(
+            index, increase, state, { rn2: random.rn2.bind(random) },
+        )),
+    });
+    const line = rumor || 'NetHack rumors file closed for renovation.';
+    await message(`${Tobjnam(obj, 'whisper', state)}:`, state);
+    // sndprocs.h compiles SetVoice to an empty macro in the recorder's
+    // build without an integrated sound library.
+    await verbalize(line, state, { message });
+    return ECMD_TIME;
 }
 
 // --- artifact.c functions (C lines 2299-2502) ---
