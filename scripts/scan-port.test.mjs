@@ -68,22 +68,46 @@ test('scanSeeds finds the closed door the kick matrix recorded against', async (
         `expected seed 6600057 among ${JSON.stringify(kept)}`);
 });
 
-test('a seed a boundary ends is counted by error class, not passed to keep', async () => {
+test('scanSeeds counts a refused command by error class without calling keep', async () => {
     let keepCalls = 0;
     const { replayed, kept, stopped } = await scanSeeds({
         seeds: seedRange(6600001, 6600002),
         datetime: DATETIME,
         nethackrc: NETHACKRC,
-        // ^R is bound to redraw, which cmd.js admitParsedCommand() refuses, so
-        // every seed ends at UnsupportedHeroCommandBoundaryError on its first
-        // key.
-        moves: '\x12',
+        // cmd.c binds X to twoweapon, whose direct key is still omitted from
+        // cmd.js ADMITTED_COMMANDS. Both seeds stop at that command boundary.
+        moves: 'X',
         keep: () => { keepCalls++; return true; },
     });
     assert.equal(replayed, 2);
     assert.equal(kept.length, 0);
     assert.equal(keepCalls, 0);
     assert.deepEqual([...stopped], [['UnsupportedHeroCommandBoundaryError', 2]]);
+});
+
+test('scanSeeds passes redraw states to keep without a command boundary', async () => {
+    let keepCalls = 0;
+    const { replayed, kept, stopped } = await scanSeeds({
+        // Two existing scanner fixtures exercise the same no-time command.
+        seeds: seedRange(6600001, 6600002),
+        datetime: DATETIME,
+        nethackrc: NETHACKRC,
+        moves: '\x12', // cmd.c C('r') -> display.c doredraw -> ECMD_OK.
+        keep: (game) => {
+            keepCalls++;
+            return { moves: game.moves, commandTookTime: game.context.move };
+        },
+    });
+    assert.equal(replayed, 2);
+    assert.equal(keepCalls, 2);
+    assert.deepEqual(kept.map(({ seed }) => seed), [6600001, 6600002]);
+    // newgame starts at move 1; source doredraw returns ECMD_OK, so neither
+    // scanner fixture advances time or reports an unsupported boundary.
+    assert.deepEqual(kept.map(({ value }) => value), [
+        { moves: 1, commandTookTime: 0 },
+        { moves: 1, commandTookTime: 0 },
+    ]);
+    assert.equal(stopped.size, 0);
 });
 
 test('scanSeeds refuses a missing predicate or segment field', async () => {
