@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v25 independent mission: dokick.c:kick_door trapped. wish trapped locked door, move away, kick door. Expected: door explodes on successful kick. Inputs planned before JavaScript comparison. C-only correction: use observed inventory letter / source terrain precondition; no JavaScript comparison has run.",
+  "segments": [
+    {
+      "seed": 92520049,
+      "datetime": "20750918163000",
+      "nethackrc": "OPTIONS=name:V25CProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017wall\n\u0017trapped locked door\nl\u0004h\u0004h\u0004h    "
+    }
+  ]
+}

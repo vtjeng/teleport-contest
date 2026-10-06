@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v25 independent mission: dokick.c:kick_nondoor sink. wish sink, move east, kick west. Expected: sink pipe vibration or spawned drain inhabitant. Inputs planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92520032,
+      "datetime": "20750918163000",
+      "nethackrc": "OPTIONS=name:V25CProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017sink\nl\u0004h\u0004h\u0004h\u0004h    "
+    }
+  ]
+}

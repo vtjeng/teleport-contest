@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v25 independent mission: cmd.c:domonability gremlin -> mon.c:split_mon. polyself gremlin, wish fountain then monster ability. Expected: hero HP divides and tame gremlin appears. Inputs planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92520042,
+      "datetime": "20750918163000",
+      "nethackrc": "OPTIONS=name:V25CProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\ngremlin\n            \u0017fountain\n#monster\n    "
+    }
+  ]
+}

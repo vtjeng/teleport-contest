@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v25 independent mission: potion.c:dodip acid corrosion. wish acid and dagger, dip dagger into acid. Expected: metal dagger corrodes or acid consumed. Inputs planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92520047,
+      "datetime": "20750918163000",
+      "nethackrc": "OPTIONS=name:V25CProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed dagger\n\u0017uncursed potion of acid\n#dip\npq    "
+    }
+  ]
+}

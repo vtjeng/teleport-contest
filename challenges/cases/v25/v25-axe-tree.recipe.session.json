@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v25 independent mission: dig.c:dig tree -> mkobj.c:rnd_treefruit_at. wish axe, wield, create tree adjacent, apply axe toward tree. Expected: tree falls and fruit generated. Inputs planned before JavaScript comparison. C-only correction: use observed inventory letter / source terrain precondition; no JavaScript comparison has run.",
+  "segments": [
+    {
+      "seed": 92520046,
+      "datetime": "20750918163000",
+      "nethackrc": "OPTIONS=name:V25CProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed axe\nwo\u0017tree\nl aoh..............................    "
+    }
+  ]
+}

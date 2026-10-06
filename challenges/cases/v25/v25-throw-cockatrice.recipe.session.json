@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v25 independent mission: dothrow.c:hmon cockatrice -> trap.c:minstapetrify. wear gloves, wield cockatrice corpse, create hostile adjacent target, throw. Expected: hostile target turns into statue. Inputs planned before JavaScript comparison. C-only correction: use observed inventory letter / source terrain precondition; no JavaScript comparison has run. C-only pager/target-coordinate/floor-object correction.",
+  "segments": [
+    {
+      "seed": 92520039,
+      "datetime": "20750918163000",
+      "nethackrc": "OPTIONS=name:V25CProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed gloves\nWo    \u0017cockatrice corpse\n\u0007hostile acid blob\n        tpu    "
+    }
+  ]
+}

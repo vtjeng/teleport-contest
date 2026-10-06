@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v25 independent mission: eat.c:eatcorpse poly_when_stoned. polyself flesh golem, wish cockatrice corpse and eat. Expected: stone golem transformation. Inputs planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92520038,
+      "datetime": "20750918163000",
+      "nethackrc": "OPTIONS=name:V25CProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nflesh golem\n            \u0017cockatrice corpse\neyp    "
+    }
+  ]
+}

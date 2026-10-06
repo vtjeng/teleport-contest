@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v25 independent mission: dokick.c:kick_object -> dothrow.c:hero_breaks. wish healing potion, drop east, move east and kick west. Expected: floor potion break or propelled object. Inputs planned before JavaScript comparison. C-only correction: use observed inventory letter / source terrain precondition; no JavaScript comparison has run. C-only pager/target-coordinate/floor-object correction.",
+  "segments": [
+    {
+      "seed": 92520036,
+      "datetime": "20750918163000",
+      "nethackrc": "OPTIONS=name:V25CProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed potion of healing\n        dhl\u0004h    "
+    }
+  ]
+}

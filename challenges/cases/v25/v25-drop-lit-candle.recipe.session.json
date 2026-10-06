@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v25 independent mission: do.c:dropx lit-object cleanup. wish candle, light it, drop it. Expected: lit candle placed on floor still illuminated. Inputs planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92520044,
+      "datetime": "20750918163000",
+      "nethackrc": "OPTIONS=name:V25CProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed tallow candle\napdp    "
+    }
+  ]
+}

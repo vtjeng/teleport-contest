@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v25 independent mission: dokick.c:kick_nondoor altar -> pray.c:altar_wrath. wish chaotic altar, move east, kick west. Expected: altar wrath/wisdom loss. Inputs planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92520034,
+      "datetime": "20750918163000",
+      "nethackrc": "OPTIONS=name:V25CProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017chaotic altar\nl\u0004h   "
+    }
+  ]
+}
