@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first seen-web rejection: step off starting stairs before dropping the ration stack and wishing a web; step east back to stairs then kick west. C cannot create web traps on stairs. The source trap rejection precedes all item breakage/splitting. BLOCKED: C reaches the web kick, but JS first differs earlier at detect.c:find_trap More-wait floor-glyph restoration (C ration glyph, JS web glyph). This blocked recording is not passing entry evidence.",
+  "segments": [
+    {
+      "seed": 92681001,
+      "datetime": "20800304121000",
+      "nethackrc": "OPTIONS=name:KickProof,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".hdd\u0017web\nl  \u0004h"
+    }
+  ]
+}

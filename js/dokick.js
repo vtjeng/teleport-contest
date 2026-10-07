@@ -10,7 +10,8 @@
 // last of those five continues into kick_door() or kick_nondoor().
 // kick_door() and kick_nondoor() follow every terrain branch in source
 // order. Shop billing and town-watch callback calls retain named discarded
-// gaps. kick_object() and really_kick_object() remain unported.
+// gaps. Floor-object kicks share whole kick_object(), really_kick_object(),
+// and ghitm() with gold throwing.
 // Object shipping below ports drop_to(), ship_object(), otransit_msg(), and
 // down_gate(), shared by hero drops, throws, and monster missile settlement.
 
@@ -18,6 +19,7 @@ import { acurrstr, exercise, acurr, adjalign } from './attrib.js';
 import { isok } from './cmd_isok.js';
 import { getdir } from './cmd.js';
 import {
+    A_CHA, HALLUC, HALLUC_RES, LEG, OBJ_MINVENT, OBJ_MIGRATING, STATUE_TRAP, STONE_RES, WEB, ZAP_POS, KICKED_WEAPON, is_pit,
     A_LAWFUL,
     A_WIS,
     CORR,
@@ -102,37 +104,40 @@ import {
 import { feel_location, feel_newsym, glyph_at, glyph_is_invisible,
     map_invisible, newsym, unmap_invisible } from './display.js';
 import {
-    legs_in_no_shape,
+    flooreffects, legs_in_no_shape,
     set_wounded_legs,
 } from './do.js';
 import { del_engr_at, disturb_grave, u_wipe_engr } from './engrave.js';
-import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level } from './dungeon.js';
-import { breaktest, hurtle } from './dothrow.js';
+import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level, surface } from './dungeon.js';
+import { breaktest, hero_breaks, impact_disturbs_zombies, thitmonst, hurtle } from './dothrow.js';
 import { game } from './gstate.js';
 import { sgn, upstart } from './hacklib.js';
-import { currency, obj_extract_self, obfree, useup, sobj_at } from './invent.js';
+import { currency, money_cnt, obj_extract_self, obfree, stackobj, useup, sobj_at } from './invent.js';
 import {
     in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
 } from './hack.js';
 import {
     attacktype, bigmonst, can_teleport, haseyes, is_floater, is_flyer, is_giant,
     nohands, nolimbs, slithy, thick_skinned, verysmall,
+    likes_gold, is_mercenary, mhis, poly_when_stoned, touch_petrifies,
 } from './mondata.js';
 import { abuse_dog } from './dog.js';
 import {
-    monflee, set_apparxy, youHear,
+    closed_door, monflee, set_apparxy, youHear,
 } from './monmove.js';
 import {
     killed, m_in_air, maybe_mnexto, maybe_unhide_at, seemimic, setmangry,
-    wake_nearby, wake_nearto,
+    wake_nearby, wake_nearto, wakeup,
 } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
+    PM_SOLDIER, PM_SERGEANT, PM_LIEUTENANT, PM_CAPTAIN, PM_STONE_GOLEM,
     PM_KILLER_BEE, PM_BLACK_PUDDING, PM_AMOROUS_DEMON,
     PM_ARCHEOLOGIST, PM_SAMURAI,
     AT_KICK, PM_SASQUATCH, PM_SHADE, S_EEL, S_LIZARD,
 } from './monsters.js';
 import {
+    isBox, place_object, splitobj,
     dealloc_obj,
     mksobj,
     rnd_treefruit_at,
@@ -149,7 +154,7 @@ import {
     DILITHIUM_CRYSTAL, EGG, EXPENSIVE_CAMERA, GEM_CLASS, GLASS,
     KICKING_BOOTS, LUCKSTONE, MIRROR, ROCK,
 } from './objects.js';
-import { An, corpse_xname, is_plural, otense, Tobjnam, xname } from './objnam.js';
+import { An, corpse_xname, is_plural, otense, Tobjnam, xname, The, Doname2, donameFresh, distant_name, killer_xname, singular } from './objnam.js';
 import { change_luck } from './moveloop_preamble.js';
 import { encumber_msg } from './pickup.js';
 import { ok_to_quest } from './quest.js';
@@ -157,6 +162,7 @@ import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { obj_resists } from './bury.js';
 import {
+    addtobill, costly_adjacent, costly_gold, contained_gold, find_objowner, subfrombill,
     costly_spot, inside_shop, is_unpaid, picked_container, shop_keeper,
     stolen_value,
 } from './shk.js';
@@ -164,6 +170,7 @@ import { shkname } from './shknam.js';
 import { stairway_at } from './stairs.js';
 import { remove_worn_item } from './steal.js';
 import {
+    activate_statue_trap, chest_trap,
     b_trapped,
     fall_through,
     t_at,
@@ -172,12 +179,12 @@ import { m_in_out_region } from './region.js';
 import { mintrap } from './trap_effects.js';
 import {
     displayPendingTtyMessageWindow,
-    ttyPline,
+    ttyNorep, ttyPline,
 } from './tty_message.js';
 import {
     find_drawbridge,
     is_drawbridge_wall,
-    is_pool,
+    is_ice, is_pool,
 } from './dbridge.js';
 
 import { note_unported } from './unported.js';
@@ -189,13 +196,22 @@ import {
 } from './uhitm.js';
 import { a_monnam, hcolor, Monnam, mon_nam } from './do_name.js';
 import { enexto, noteleport_level, goodpos } from './teleport.js';
-import { canspotmon } from './display.js';
+import { canseemon, canspotmon } from './display.js';
 import { stop_occupation } from './allmain.js';
 import { cvt_sdoor_to_door } from './detect.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { scatter, SCATTER_MAY_HIT } from './explode.js';
+import { scatter, SCATTER_MAY_HIT, SCATTER_VIS_EFFECTS } from './explode.js';
 import { sink_backs_up } from './fountain.js';
-import { poly_gender } from './polyself.js';
+import { body_part, poly_gender, polymon } from './polyself.js';
+import { makeplural } from './fruit.js';
+import { bhit, miss } from './zap.js';
+import { verbalize } from './pline.js';
+import { mpickobj } from './steal.js';
+import { finish_meating } from './dogmove.js';
+import { hidden_gold } from './vault.js';
+import { snuff_candle } from './apply_splash_lit.js';
+import { breakchestlock } from './lock.js';
+import { is_art, ART_MJOLLNIR } from './artifacts.js';
 import { water_damage } from './trap_water_damage.js';
 import { makemon_runtime } from './makemon_create.js';
 
@@ -523,6 +539,272 @@ export async function kick_monster(mon, x, y, state = game) {
         }
     }
     await kickdmg(mon, clumsy, state);
+}
+
+// C ref: dokick.c ghitm() (295-407). Gold remains the caller's object until
+// mpickobj consumes it. The TRUE result prevents that caller placing it again.
+export async function ghitm(monster, gold, state = game, rawEnv = {}) {
+    const random = { d, rn1, rn2, rnd, rne, rnl, ...rawEnv.random };
+    const message = rawEnv.planning ? async () => {} : (rawEnv.message ?? ttyPline);
+    const env = { ...rawEnv, state, random, message };
+    let messageGiven = false;
+    if (!likes_gold(monster.data) && !monster.isshk && !monster.ispriest
+        && !monster.isgd && !is_mercenary(monster.data)) {
+        await wakeup(monster, true, env);
+    } else if (!monster.mcanmove) {
+        if (canseemon(monster, state)) {
+            await message(`The ${xname(gold, state)} harmlessly ${otense(gold, 'hit', state)} ${mon_nam(monster, state)}.`, state, env);
+            messageGiven = true;
+        }
+    } else {
+        const wasSleeping = monster.msleeping;
+        const value = gold.quan * objectType(gold, state).oc_cost;
+        monster.msleeping = 0;
+        finish_meating(monster, env);
+        if (!monster.isgd && !random.rn2(4))
+            await setmangry(monster, true, env);
+        if (cansee(monster.mx, monster.my, state))
+            await message(`${Monnam(monster, state)} ${wasSleeping ? 'awakens and ' : ''}catches the gold.`, state, env);
+        mpickobj(monster, gold, env);
+        gold = null;
+        if (monster.isshk) {
+            const eshk = monster.mextra.eshk;
+            let robbed = eshk.robbed;
+            if (robbed) {
+                robbed = Math.max(0, robbed - value);
+                await message(`The amount ${!robbed ? '' : 'partially '}covers ${mhis(monster, env)} recent losses.`, state, env);
+                eshk.robbed = robbed;
+                if (!robbed) note_unported('shk.c make_happy_shk');
+            } else if (monster.mpeaceful) {
+                eshk.credit += value;
+                await message(`You have ${eshk.credit} ${currency(eshk.credit, state)} in credit.`, state, env);
+            } else {
+                await verbalize('Thanks, scum!', state, env);
+            }
+        } else if (monster.ispriest) {
+            await verbalize(monster.mpeaceful ? 'Thank you for your contribution.' : 'Thanks, scum!', state, env);
+        } else if (monster.isgd) {
+            const money = money_cnt(state.invent);
+            await verbalize(money ? 'Drop the rest and follow me.'
+                : hidden_gold(true, state) ? 'You still have hidden gold.  Drop it now.'
+                    : monster.mpeaceful ? "I'll take care of that; please move along."
+                        : "I'll take that; now get moving.", state, env);
+        } else if (is_mercenary(monster.data)) {
+            const wasAngry = !monster.mpeaceful;
+            let required = monster.data === state.mons[PM_SOLDIER] ? 100
+                : monster.data === state.mons[PM_SERGEANT] ? 250
+                    : monster.data === state.mons[PM_LIEUTENANT] ? 500
+                        : monster.data === state.mons[PM_CAPTAIN] ? 750 : 0;
+            if (required && random.rn2(3)) {
+                const money = money_cnt(state.invent);
+                required += Math.trunc((money + state.u.ulevel * random.rn2(5))
+                    / acurr(state, A_CHA));
+                if (value > required) monster.mpeaceful = true;
+            }
+            if (!monster.mpeaceful) {
+                await verbalize(required ? "That's not enough, coward!"
+                    : "I don't take bribes from scum like you!", state, env);
+            } else if (wasAngry) {
+                await verbalize('That should do.  Now beat it!', state, env);
+            } else {
+                await verbalize(`Thanks for the tip, ${state.flags.female ? 'lady' : 'buddy'}.`, state, env);
+            }
+        }
+        // SetVoice is an empty macro in the reference sound build.
+        return true;
+    }
+    if (!messageGiven) await miss(xname(gold, state), monster, state, env);
+    return false;
+}
+
+// C ref: dokick.c kick_object() (489-503). This slot also lets done() find
+// an object whose kick killed the hero; clear it only after normal completion.
+export async function kick_object(x, y, kickName, state = game, rawEnv = {}) {
+    kickName.value = '';
+    state.gk ??= {};
+    state.gk.kickedobj = state.level.objects[x][y];
+    let result = 0;
+    if (state.gk.kickedobj) {
+        kickName.value = killer_xname(state.gk.kickedobj, state);
+        result = await really_kick_object(x, y, state, rawEnv);
+        state.gk.kickedobj = null;
+    }
+    return result;
+}
+
+// C ref: dokick.c really_kick_object() (508-790). Fragile objects break as
+// a whole stack before splitobj; the returned Boolean controls dokick's ouch.
+export async function really_kick_object(x, y, state = game, rawEnv = {}) {
+    const random = { d, rn1, rn2, rnd, rne, rnl, ...rawEnv.random };
+    const message = rawEnv.planning ? async () => {} : (rawEnv.message ?? ttyPline);
+    const redraw = rawEnv.planning ? () => {}
+        : (rawEnv.redraw ?? ((px, py) => newsym(px, py, state)));
+    const env = objectGenerationEnv({ ...rawEnv, state, random, message, redraw });
+    const u = state.u;
+    const object = () => state.gk.kickedobj;
+    if (!object() || object().otyp === BOULDER
+        || object() === state.uball || object() === state.uchain) return 0;
+    const trap = t_at(x, y, state);
+    if (trap) {
+        if ((is_pit(trap.ttyp) && !Passes_walls(state)) || trap.ttyp === WEB) {
+            if (!trap.tseen) note_unported('detect.c find_trap');
+            const hallu = u.uprops[HALLUC];
+            const halluRes = u.uprops[HALLUC_RES];
+            const hallucination = Boolean(hallu.intrinsic)
+                && !(halluRes.intrinsic || halluRes.extrinsic);
+            await message(`You can't kick something that's in a ${hallucination ? 'tizzy' : trap.ttyp === WEB ? 'web' : 'pit'}!`, state, env);
+            return 1;
+        }
+        if (trap.ttyp === STATUE_TRAP) {
+            await activate_statue_trap(trap, x, y, false, env);
+            return 1;
+        }
+    }
+    if (Fumbling(state) && !random.rn2(3)) {
+        await message('Your clumsy kick missed.', state, env);
+        return 1;
+    }
+    const stone = u.uprops[STONE_RES];
+    if (!state.uarmf && object().otyp === CORPSE
+        && touch_petrifies(state.mons[object().corpsenm])
+        && !(stone.intrinsic || stone.extrinsic)) {
+        await message(`You kick ${corpse_xname(object(), null, CXN_PFX_THE, state)} with your bare ${makeplural(body_part(FOOT, state.youmonst))}.`, state, env);
+        if (!(poly_when_stoned(state.youmonst.data, state)
+            && await polymon(PM_STONE_GOLEM, state, env))) {
+            state.killer ??= {};
+            state.killer.name = `kicking ${killer_xname(object(), state)} barefoot`;
+            note_unported('trap.c instapetrify');
+        }
+    }
+    const isGold = object().oclass === COIN_CLASS;
+    let kickWeight = object().owt;
+    if (object().quan > 1 && !isGold) {
+        const quantity = object().quan;
+        object().quan = 1;
+        kickWeight = weight(object(), env);
+        object().quan = quantity;
+    }
+    let range = Math.trunc(acurrstr(state) / 2) - Math.trunc(kickWeight / 40);
+    if (martial(state)) range += random.rnd(3);
+    let slide = false;
+    if (is_pool(x, y, state)) {
+        range = Math.trunc(range / 3) + 1;
+    } else if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
+        range += random.rnd(3);
+    } else {
+        if (is_ice(x, y, state)) { range += random.rnd(3); slide = true; }
+        if (object().greased) { range += random.rnd(3); slide = true; }
+    }
+    if (is_art(object(), ART_MJOLLNIR)) range = 1;
+    if (!isok(x + u.dx, y + u.dy)
+        || !ZAP_POS(state.level.at(x + u.dx, y + u.dy).typ)
+        || closed_door(x + u.dx, y + u.dy, state)) range = 1;
+    const keeper = find_objowner(object(), x, y, state);
+    let costly = Boolean(keeper && (costly_spot(x, y, state)
+        || (costly_adjacent(keeper, x, y, state) && object().unpaid)));
+    const kickLine = `You kick ${!isGold ? singular(object(), donameFresh, state) : donameFresh(object(), state)}.`;
+    await (rawEnv.planning ? message : (rawEnv.norepMessage ?? rawEnv.message ?? ttyNorep))(kickLine, state, env);
+    if (IS_OBSTRUCTED(state.level.at(x, y).typ) || closed_door(x, y, state)) {
+        if ((!martial(state) && random.rn2(20) > acurr(state, A_DEX))
+            || IS_OBSTRUCTED(state.level.at(u.ux, u.uy).typ)
+            || closed_door(u.ux, u.uy, state)) {
+            await message(Blind(state) ? "It doesn't come loose."
+                : `${The(distant_name(object(), xname, state), state)} ${otense(object(), 'do', state)}n't come loose.`, state, env);
+            return !random.rn2(3) || martial(state) ? 1 : 0;
+        }
+        await message(Blind(state) ? 'It comes loose.'
+            : `${The(distant_name(object(), xname, state), state)} ${otense(object(), 'come', state)} loose.`, state, env);
+        obj_extract_self(object(), env);
+        redraw(x, y);
+        if (costly && (!costly_spot(u.ux, u.uy, state)
+            || !u.urooms.includes(in_rooms(x, y, SHOPBASE, state)[0]))) {
+            if (!object().no_charge) await addtobill(object(), false, false, false, state, env);
+            else object().no_charge = 0;
+        }
+        if (!await flooreffects(object(), u.ux, u.uy, 'fall', env)) {
+            place_object(object(), u.ux, u.uy, env);
+            impact_disturbs_zombies(object(), true, state);
+            stackobj(object(), env);
+            redraw(u.ux, u.uy);
+        }
+        return 1;
+    }
+    if (isBox(object())) {
+        const trapped = object().otrapped;
+        if (range < 2) await message('THUD!', state, env);
+        await container_impact_dmg(object(), x, y, env);
+        if (object().olocked) {
+            if (!random.rn2(5) || (martial(state) && !random.rn2(2))) {
+                await message('You break open the lock!', state, env);
+                await breakchestlock(object(), false, state);
+                if (trapped) await chest_trap(object(), LEG, false, state);
+                return 1;
+            }
+        } else if (!random.rn2(3) || (martial(state) && !random.rn2(2))) {
+            await message('The lid slams open, then falls shut.', state, env);
+            object().lknown = 1;
+            if (trapped) await chest_trap(object(), LEG, false, state);
+            return 1;
+        }
+        if (range < 2) return 1;
+    }
+    if (await hero_breaks(object(), object().ox, object().oy, 0, env)) return 1;
+    if (range < 2) {
+        if (!isBox(object())) await message('Thump!', state, env);
+        return !random.rn2(3) || martial(state) ? 1 : 0;
+    }
+    if (object().quan > 1) {
+        if (!isGold) {
+            state.gk.kickedobj = splitobj(object(), 1, env);
+        } else {
+            if (random.rn2(20)) {
+                if (!Deaf(state)) await message('Thwwpingg!', state, env);
+                const messages = ['scatter the coins', 'knock coins all over the place', 'send coins flying in all directions'];
+                await message(`You ${messages[random.rn2(messages.length)]}!`, state, env);
+                await scatter(x, y, random.rnd(3), SCATTER_VIS_EFFECTS | SCATTER_MAY_HIT, object(), state, env);
+                redraw(x, y);
+                return 1;
+            }
+            if (object().quan > 300) {
+                await message('Thump!', state, env);
+                return !random.rn2(3) || martial(state) ? 1 : 0;
+            }
+        }
+    }
+    if (slide && !Blind(state))
+        await message(`Whee!  ${Doname2(object(), state)} ${otense(object(), 'slide', state)} across the ${surface(x, y, state)}.`, state, env);
+    obj_extract_self(object(), env);
+    await snuff_candle(object(), env);
+    redraw(x, y);
+    const ref = { obj: object() };
+    const monster = await bhit(u.dx, u.dy, range, KICKED_WEAPON, null, null, ref, state, random, env);
+    if (!object()) return 1;
+    if (monster) {
+        if (monster.isshk && object().where === OBJ_MINVENT && object().ocarry === monster) return 1;
+        state.gn.notonhead = monster.mx !== state.gb.bhitpos.x || monster.my !== state.gb.bhitpos.y;
+        if (isGold ? await ghitm(monster, object(), state, env)
+            : await thitmonst(monster, object(), state, env)) return 1;
+    }
+    if (object().where === OBJ_MIGRATING) return 1;
+    const end = state.gb.bhitpos;
+    const room = in_rooms(end.x, end.y, SHOPBASE, state)[0];
+    if (costly && (!costly_spot(end.x, end.y, state)
+        || in_rooms(x, y, SHOPBASE, state)[0] !== room)) {
+        if (isGold) await costly_gold(x, y, object().quan, false, state, env);
+        else await stolen_value(object(), x, y, Boolean(keeper.mpeaceful), false, state);
+        costly = false;
+    }
+    if (await flooreffects(object(), end.x, end.y, 'fall', env)) return 1;
+    if (costly) {
+        if (object().unpaid) subfrombill(object(), keeper, state, env);
+        if (Has_contents(object()) && contained_gold(object(), true) > 0)
+            note_unported('shk.c donate_gold');
+    }
+    place_object(object(), end.x, end.y, env);
+    impact_disturbs_zombies(object(), true, state);
+    stackobj(object(), env);
+    redraw(object().ox, object().oy);
+    return 1;
 }
 
 // C ref: dokick.c kick_dumb() (863-878). Kicking at something that does not
@@ -1140,10 +1422,14 @@ export async function dokick(state = game) {
     const pile = state.level?.objects?.[x]?.[y] ?? null;
     if (pile && (!Levitation(state) || Is_airlevel(u.uz) || Is_waterlevel(u.uz)
                  || sobj_at(BOULDER, x, y, state))) {
-        throw new UnsupportedKickError(
-            "dokick()'s object-pile arm, which needs kick_object() and with "
-            + 'it every box, boulder and statue that arm handles',
-        );
+        const kickName = { value: '' };
+        if (await kick_object(x, y, kickName, state)) {
+            if (Is_airlevel(u.uz))
+                await hurtle(-u.dx, -u.dy, 1, true, state);
+            return ECMD_TIME;
+        }
+        await kick_ouch(x, y, kickName.value, state);
+        return ECMD_TIME;
     }
 
     if (IS_DOOR(maploc.typ)) {

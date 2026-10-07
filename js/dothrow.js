@@ -29,6 +29,7 @@
 // #fire shares the source's autoquiver, launcher-selection, polearm and whip
 // helpers. The command-queue tail remains owned by js/cmd.js.
 
+import { ghitm } from './dokick.js';
 import {
     ARTICLE_A,
     ARTICLE_YOUR,
@@ -3295,12 +3296,6 @@ export function omon_adj(mon, obj, mon_notices, rawEnv = {}) {
 //   mon_nam() names the engulfer and digests() decides whether the gold
 //   disappears into it or into its entrails. js/do.js drop() stops on the same
 //   pair, and js/dungeon.js surface() on digests() and enfolds().
-// - dokick.c ghitm() (295-407), for gold a monster in the flight path catches:
-//   likes_gold(), wakeup(), setmangry(), finish_meating() and the shopkeeper's
-//   bribe accounting. This one is reachable. js/zap.js bhit() ports C's
-//   THROWN_WEAPON arm at zap.c:4021-4029, so it returns the monster rather
-//   than stopping for it, and the refusal below is what holds the branch --
-//   the same is true of throwit()'s own monster arm.
 // - shk.c sellobj(), for gold that lands on a shop's floor.
 async function throw_gold(obj, state = game) {
     const u = state.u;
@@ -3362,10 +3357,9 @@ async function throw_gold(obj, state = game) {
             if (!obj)
                 return ECMD_TIME; /* object is gone */
             if (mon) {
-                /* ghitm() answers whether the monster caught the gold; both
-                   answers stop, because the arm that keeps the gold flying
-                   has already woken and angered the monster. */
-                throw new UnsupportedThrowError('ghitm()');
+                /* ghitm() transfers caught gold to the monster. Otherwise
+                   the shared tail places it at bhitpos. */
+                if (await ghitm(mon, obj, state)) return ECMD_TIME;
             } else {
                 if (await ship_object(obj, state.gb.bhitpos.x,
                     state.gb.bhitpos.y, false, { state }))

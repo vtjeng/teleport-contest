@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dokick.c fragile variation: Archeologist wishes a confusion potion, drops it, steps west and kicks east. Seed/date fixed before C inspection; not copied from v25 healing setup. Dismiss the two vapor messages and decline the source type-naming prompt with Enter.",
+  "segments": [
+    {
+      "seed": 92681001,
+      "datetime": "20800304121000",
+      "nethackrc": "OPTIONS=name:KickProof,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".\u0017uncursed potion of confusion\ndjh\u0004l  \n"
+    }
+  ]
+}
