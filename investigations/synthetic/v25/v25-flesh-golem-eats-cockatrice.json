@@ -1,0 +1,136 @@
+{
+  "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+  "corpus": "synthetic",
+  "batch": "v25",
+  "caseId": "v25-flesh-golem-eats-cockatrice",
+  "remainingScreens": 8,
+  "recordedSteps": 62,
+  "manifestPath": "challenges/manifests/v25.json",
+  "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+  "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+  "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+  "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+  "status": "complete",
+  "commit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v25",
+    "caseId": "v25-flesh-golem-eats-cockatrice",
+    "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+    "manifestPath": "challenges/manifests/v25.json",
+    "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+    "recording": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+    "recordingPath": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+    "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+    "recipe": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.recipe.session.json",
+    "recipeSha256": "66965e475525bff876123a761ae326035c35e0b97be571fd2378af060a4f2db6",
+    "replayInputSha256": "6bc0286d388cbaacf2ee80ef4a23bbc56c713f2afd3880fc002fd1889560e766",
+    "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+    "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+    "evaluationArtifact": "challenges/evaluations/20261007010702-v25.json",
+    "evaluationUtc": "2026-10-07T01:07:09.780Z",
+    "remainingScreens": 8,
+    "recordedSteps": 62,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 54,
+        "total": 62
+      },
+      "rng": {
+        "matched": 2908,
+        "total": 3044
+      },
+      "cursors": {
+        "matched": 58,
+        "total": 62
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 54,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 54,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "C",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "o",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2908,
+        "cEntry": "rn2(20)=18",
+        "cCaller": "eatcorpse(eat.c:1887)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 56,
+          "key": "y"
+        },
+        "stepIndex": 56
+      },
+      "cursor": {
+        "index": 55,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 55,
+          "key": "e"
+        },
+        "cCursor": [
+          53,
+          0,
+          1
+        ],
+        "jsCursor": [
+          35,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 54,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "zap.c:makewish omits the unsafe-corpse wish branch for a cockatrice corpse while the hero is a flesh golem. C marks the corpse wishedfor, materializes it on the floor, and prints the careful warning; JavaScript follows the ordinary wish drop path, producing the first mismatch at step 54. The later eatcorpse RNG mismatch follows this placement divergence.",
+  "source": {
+    "file": "zap.c",
+    "functions": [
+      "makewish"
+    ],
+    "branch": "At zap.c:6401-6420, if the wished object is a CORPSE and u_safe_from_fatal_corpse(otmp, st_all) is false, C sets otmp->wishedfor. On the ordinary floor this selects the verb \"materialize\" and the \"Careful! %s on the floor!\" message before hold_another_object. The assigned recording reaches this branch by using Ctrl-W to wish for a cockatrice corpse after #polyself has changed the hero to a flesh golem.",
+    "callers": [
+      "wizcmds.c:wiz_wish() calls makewish() at line 38; the assigned recording reaches #wizwish through Ctrl-W."
+    ],
+    "dependencies": [
+      "pickup.c:u_safe_from_fatal_corpse() (existing JavaScript implementation: js/pickup.js)",
+      "invent.c:hold_another_object() (existing JavaScript implementation: js/invent.js)"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved evaluation challenges/evaluations/20261007010702-v25.json at 9aea0fdd726850fad5342bc3eabb32f89a78a0c0 reports the first screen mismatch at segment 0, step 54, row 0 column 0 (C cell \"C\", JavaScript cell \"o\"); its first RNG mismatch is later, at step 56 in eatcorpse(). The v25 manifest records the C observation as \"Careful! The cockatrice corpse materializes on the floor!\".",
+    "The checked-out C source is the evaluation commit’s nethack-c/upstream gitlink 16ff59115315917b93185d026aeefea06db9b0f4. In src/zap.c:6401-6420, makewish() sets wishedfor for a corpse that u_safe_from_fatal_corpse(otmp, st_all) considers unsafe, then chooses materialize and the careful floor message before calling hold_another_object(). The recipe’s Ctrl-W wish after #polyself reaches this caller path through wizcmds.c:wiz_wish().",
+    "In js/zap.js:1954-1970 at the evaluated commit, makewish() selects only slip/drop and ordinary Oops messages; it omits the unsafe-corpse predicate and wishedfor update. The existing JavaScript helpers are js/pickup.js:u_safe_from_fatal_corpse() and js/invent.js:hold_another_object(), so no missing helper blocks the source correction. The single-session diagnostic replay (node scripts/scan-sessions.mjs --json --synthetic v25/v25-flesh-golem-eats-cockatrice; bounded run-KBNHkb) reproduced the step-54 mismatch. It also noted artifact.c:retouch_equipment and trap.c:selftouch during the earlier polymorph setup; those precede the mismatch and do not block attribution to makewish()."
+  ]
+}

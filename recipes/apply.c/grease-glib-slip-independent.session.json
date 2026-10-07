@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent apply.c:use_grease Glib-first variation. A charged uncursed can greases bare hands, then applying it again must drop it before checking charges or drawing rn2(2). Newly chosen seed and clock; ordinary reachable floor, no pet or random monster generation.",
+  "segments": [
+    {
+      "seed": 12427033,
+      "datetime": "20940820131000",
+      "nethackrc": "OPTIONS=name:GreaseSlip,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0017uncursed can of grease (9)\nam- am.."
+    }
+  ]
+}
