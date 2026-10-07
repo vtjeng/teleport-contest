@@ -1,5 +1,5 @@
 // Pet movement, goals, hunger, and inventory decisions.
-// C ref: dogmove.c — droppables(), cursed_object_at(), dog_hunger(),
+// C ref: dogmove.c — droppables(), cursed_object_at(), dog_starve(), dog_hunger(),
 // dog_nutrition(), dog_eat(), dog_invent(), dog_goal(), find_targ(),
 // find_friends(), score_targ(), best_target(), pet_ranged_attk(), dog_move(),
 // finish_meating(), quickmimic(), could_reach_item(), and can_reach_location().
@@ -46,8 +46,10 @@ import {
     MTSZ,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
+    N_DIRS,
     PROT_FROM_SHAPE_CHANGERS,
     ROWNO,
+    STONE_RES,
     UNDEF,
     W_ARMS,
 } from './const.js';
@@ -56,12 +58,15 @@ import {
     is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
+import { dirtocoord, xytodir } from './cmd.js';
 import { glyph_is_object, newsym, vobj_at } from './display.js';
 import {
     alwaysVisibleMonsterName,
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
     pmname,
+    Monnam,
+    y_monnam,
 } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
@@ -75,7 +80,7 @@ import {
     sgn,
 } from './hacklib.js';
 import {
-    check_gear_next_turn, m_consume_obj, mon_allowflags,
+    check_gear_next_turn, m_consume_obj, mon_allowflags, mondied,
 } from './mon.js';
 import { can_carry } from './moncarry.js';
 import {
@@ -96,6 +101,8 @@ import {
     passes_walls,
     perceives,
     resist_conflict,
+    Resists_Elem,
+    mhis,
     throws_rocks,
     touch_petrifies,
     tunnels,
@@ -129,7 +136,7 @@ import {
     MZ_SMALL,
     MZ_TINY,
 } from './monsters.js';
-import { mattackm } from './mhitm.js';
+import { mattackm, mdisplacem } from './mhitm.js';
 import {
     m_at,
     place_monster,
@@ -171,7 +178,7 @@ import {
     OBJ_NAME,
     TRIPE_RATION,
 } from './objects.js';
-import { rn1, rn2, rnd, rne } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { messageAt } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { S_sink } from './symbols.js';
@@ -189,7 +196,12 @@ import {
 } from './vision.js';
 import { which_armor } from './worn.js';
 import { unpaid_cost } from './shk.js';
-import { canspotmon, mon_visible } from './display.js';
+import { canseemon, canspotmon, mon_visible } from './display.js';
+import { goodpos } from './teleport.js';
+import { note_unported } from './unported.js';
+import { beg, domonnoise } from './sounds.js';
+import { stop_occupation } from './allmain.js';
+import { mattacku } from './mhitu.js';
 
 const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;
@@ -219,12 +231,6 @@ function goalOperation(rawEnv, name, fallback) {
     if (typeof operation !== 'function')
         throw new TypeError(`dog_goal requires a ${name} operation`);
     return operation;
-}
-
-function hungerOperation(env, name) {
-    if (typeof env[name] !== 'function')
-        throw new TypeError(`dog_hunger requires a ${name} operation`);
-    return env[name];
 }
 
 function inventoryOperation(rawEnv, name, fallback) {
@@ -304,7 +310,7 @@ function setMonsterAttackPosition(target, x, y, state) {
 
 function normalizePetMoveEnv(rawEnv) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dog_move random injection requires rn2');
     return {
@@ -430,37 +436,67 @@ export function cursed_object_at(x, y, state = game) {
     return false;
 }
 
+// C ref: dogmove.c dog_starve() (348–358). Death bookkeeping belongs to
+// mondied, including its pending-detach counter and corpse creation.
+export async function dog_starve(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    if (monster.mleashed && monster !== state.u.usteed)
+        await message('Your leash goes slack.', state);
+    else if ((rawEnv.canSee ?? cansee)(monster.mx, monster.my, state))
+        await message(messageAt(Monnam(monster, state, rawEnv) + ' starves.',
+            monster.mx, monster.my, state), state);
+    else await message('You feel ' + (Hallucination(state) ? 'bummed' : 'sad')
+        + ' for a moment.', state);
+    await (rawEnv.mondied ?? ((subject, env) => mondied(subject, state, env)))(
+        monster, { ...rawEnv, state },
+    );
+}
+
+// C ref: dogmove.c dog_hunger() (362–395). The return is consumed by
+// dog_move before inventory and movement.
 export async function dog_hunger(monster, edog, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
-    const moves = Math.trunc(state.moves ?? 0);
-    if (moves <= Math.trunc(edog.hungrytime ?? 0) + DOG_WEAK)
-        return false;
-
-    const eatsMeat = env.carnivorous ?? carnivorous;
-    const eatsPlants = env.herbivorous ?? herbivorous;
-    if (!eatsMeat(monster.data) && !eatsPlants(monster.data)) {
-        edog.hungrytime = moves + DOG_WEAK;
-    } else if (!edog.mhpmax_penalty) {
-        const newMaximum = Math.trunc(monster.mhpmax / 3);
-        const dies = Math.min(monster.mhp, newMaximum) < 1;
-        const starvePet = dies ? hungerOperation(env, 'starvePet') : null;
-        const reportWeakPet = dies ? null : hungerOperation(env, 'reportWeakPet');
-        const stopOccupation = dies ? null : hungerOperation(env, 'stopOccupation');
-        monster.mconf = true;
-        edog.mhpmax_penalty = monster.mhpmax - newMaximum;
-        monster.mhpmax = newMaximum;
-        if (monster.mhp > newMaximum) monster.mhp = newMaximum;
-        if (dies) {
-            await starvePet(monster, env);
+    const moves = state.moves;
+    if (moves > edog.hungrytime + DOG_WEAK) {
+        const eatsMeat = env.carnivorous ?? carnivorous;
+        const eatsPlants = env.herbivorous ?? herbivorous;
+        const starve = async () => {
+            if (env.starvePet) await env.starvePet(monster, env);
+            else await dog_starve(monster, env);
+        };
+        if (!eatsMeat(monster.data) && !eatsPlants(monster.data)) {
+            edog.hungrytime = moves + DOG_WEAK;
+        } else if (!edog.mhpmax_penalty) {
+            const newMaximum = Math.trunc(monster.mhpmax / 3);
+            monster.mconf = true;
+            edog.mhpmax_penalty = monster.mhpmax - newMaximum;
+            monster.mhpmax = newMaximum;
+            if (monster.mhp > newMaximum) monster.mhp = newMaximum;
+            if (monster.mhp < 1) {
+                await starve();
+                return true;
+            }
+            if (env.reportWeakPet) await env.reportWeakPet(monster, env);
+            else if ((env.canSee ?? cansee)(monster.mx, monster.my, state)) {
+                await (env.message ?? ttyPline)(messageAt(
+                    Monnam(monster, state, env) + ' is confused from hunger.',
+                    monster.mx, monster.my, state,
+                ), state);
+            } else if ((env.couldSee ?? couldsee)(monster.mx, monster.my, state)) {
+                await (env.beg ?? beg)(monster, env);
+            } else {
+                await (env.message ?? ttyPline)(
+                    'You feel worried about ' + y_monnam(monster, state, env) + '.', state,
+                );
+            }
+            if (env.stopOccupation) await env.stopOccupation(env);
+            else await stop_occupation(state, env);
+        } else if (moves > edog.hungrytime + DOG_STARVE || monster.mhp < 1) {
+            await starve();
             return true;
         }
-        await reportWeakPet(monster, env);
-        await stopOccupation(env);
-    } else if (moves > edog.hungrytime + DOG_STARVE
-               || monster.mhp < 1) {
-        await hungerOperation(env, 'starvePet')(monster, env);
-        return true;
     }
     return false;
 }
@@ -627,7 +663,15 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
         await m_consume_obj(mtmp, obj, {
             ...rawEnv,
             state,
-            quickMimic: quickmimic,
+            quickMimic: async (subject, env) => {
+                // mon.c:m_consume_obj discards this result. Keep unported
+                // leash/steed effects explicit while ordinary quickmimic runs.
+                if (subject.mleashed || subject === state.u.usteed) {
+                    if (!env.planning) note_unported('dogmove.c quickmimic');
+                    return;
+                }
+                await quickmimic(subject, env);
+            },
         });
     }
     return mtmp.mhp < 1 ? MMOVE_DIED : MMOVE_MOVED;
@@ -1088,22 +1132,6 @@ export function find_targ(
     return null;
 }
 
-function targetingRefusal(rawEnv, reason) {
-    if (typeof rawEnv.unsupported === 'function')
-        return rawEnv.unsupported(reason);
-    throw new RangeError(`pet ranged targeting requires ${reason}`);
-}
-
-function admitOrdinaryPetRangedState(monster, rawEnv) {
-    if (monster.isminion
-        || monster.ispriest
-        || is_vampshifter(monster)) {
-        targetingRefusal(rawEnv, 'an ordinary tame pet');
-    }
-    if (monster.mconf)
-        targetingRefusal(rawEnv, 'an unconfused tame pet');
-}
-
 // C ref: dogmove.c find_friends(). Scan beyond a candidate along the same
 // ray for the remembered hero, a visible tame ally, or a quest friendly.
 export function find_friends(monster, target, maxDistance, rawEnv = {}) {
@@ -1234,7 +1262,6 @@ export function score_targ(monster, target, rawEnv = {}) {
 export function best_target(monster, forced, rawEnv = {}) {
     if (!monster) return null;
     if (!monster.mcansee) return null;
-    admitOrdinaryPetRangedState(monster, rawEnv);
     let bestScore = -40000;
     let bestTarget = null;
     for (const [dx, dy] of TARGET_DIRECTIONS) {
@@ -1252,53 +1279,48 @@ export function best_target(monster, forced, rawEnv = {}) {
     return bestTarget;
 }
 
-// C ref: dogmove.c pet_ranged_attk(). Covers forced=FALSE and the distant
-// miss mhitm.c mattackm() returns: every melee slot falls out at its
-// `distmin > 1` continue, and every later slot at the target-still-there test,
-// because the bhitpos written below names the aggressor's own square rather
-// than the target's. A real ranged attack refuses inside mattackm().
+// C ref: dogmove.c pet_ranged_attk() (889–967). Preserve attack masks,
+// retaliation draws and the forced steed caller's command-time result.
 export async function pet_ranged_attk(monster, forced, rawEnv = {}) {
-    if (forced) targetingRefusal(rawEnv, 'an unforced target scan');
-    admitOrdinaryPetRangedState(monster, rawEnv);
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
-    if (typeof random.rn2 !== 'function'
-        || typeof random.rnd !== 'function') {
-        throw new TypeError(
-            'pet_ranged_attk random injection requires rn2 and rnd',
-        );
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const env = { ...rawEnv, state, random };
+    const hungry = !monster.isminion
+        && state.moves > monster.mextra.edog.hungrytime + DOG_HUNGRY;
+    const target = (env.bestTarget ?? best_target)(monster, forced, env);
+    if (target && (!hungry || !random.rn2(5))) {
+        let status = M_ATTK_MISS;
+        if (target === state.youmonst) {
+            const attackHero = env.attackHero ?? mattacku;
+            if (await attackHero(monster, env)) return MMOVE_DIED;
+            status = M_ATTK_HIT;
+        } else {
+            setMonsterAttackPosition(monster, monster.mx, monster.my, state);
+            const attack = env.mattackm ?? mattackm;
+            status = await attack(monster, target, env);
+            if (status & M_ATTK_AGR_DIED) return MMOVE_DIED;
+            if ((status & M_ATTK_HIT) && !(status & M_ATTK_DEF_DIED)
+                && random.rn2(4) && target !== state.youmonst
+                && target.mcansee && haseyes(target.data)) {
+                setMonsterAttackPosition(monster, monster.mx, monster.my, state);
+                const response = await attack(target, monster, env);
+                if (response & M_ATTK_DEF_DIED) return MMOVE_DIED;
+            }
+        }
+        if (status !== M_ATTK_MISS) return MMOVE_DONE;
+    } else if (forced) {
+        await (env.domonnoise ?? ((subject) => domonnoise(subject, state, env)))(monster, env);
     }
-    const edog = monster.mextra?.edog;
-    if (!edog) targetingRefusal(rawEnv, 'ordinary pet hunger state');
-    const hungry = state.moves > edog.hungrytime + DOG_HUNGRY;
-    const target = best_target(monster, false, { ...rawEnv, state, random });
-    if (!target) return MMOVE_NOTHING;
-    if (hungry) {
-        if (random.rn2(5)) return MMOVE_NOTHING;
-    }
-    if (target === state.youmonst)
-        targetingRefusal(rawEnv, 'a monster target');
-
-    state.gb ??= {};
-    state.gb.bhitpos ??= {};
-    state.gb.bhitpos.x = monster.mx;
-    state.gb.bhitpos.y = monster.my;
-    state.gn ??= {};
-    state.gn.notonhead = false;
-    const attack = rawEnv.mattackm ?? mattackm;
-    const status = await attack(monster, target, { ...rawEnv, state, random });
-    if (status !== M_ATTK_MISS)
-        targetingRefusal(rawEnv, 'a distant physical miss');
     return MMOVE_NOTHING;
 }
 
 // Own the x-major mfndpos candidate scan, source tie-breaking draws, and
-// coordinate movement. Combat, object mutation, region crossing, and
-// post-move effects remain with their injected upstream owners.
+// source decisions, including leash placement. Combat, object mutation,
+// region crossing and post-move effects call their canonical source owners.
 export async function dog_move(monster, after, rawEnv = {}) {
     const env = normalizePetMoveEnv(rawEnv);
     const { random, state } = env;
-    const edog = monster.mtame && !monster.isminion
+    const edog = monster.mtame
         ? monster.mextra?.edog : null;
     if (!edog && !monster.isminion) {
         rawEnv.impossible?.('dog_move for non-pet?');
@@ -1313,10 +1335,8 @@ export async function dog_move(monster, after, rawEnv = {}) {
         const resistConflict = env.resistConflict
             ?? ((subject) => resist_conflict(subject, state, random));
         if (conflictActive(state) && !resistConflict(monster, env)) {
-            await petMoveOperation(env, 'dismountSteed')(
-                DISMOUNT_THROWN,
-                env,
-            );
+            if (env.dismountSteed) await env.dismountSteed(DISMOUNT_THROWN, env);
+            else if (!env.planning) note_unported('steed.c dismount_steed');
             return MMOVE_MOVED;
         }
         heroDistance = 1;
@@ -1328,6 +1348,43 @@ export async function dog_move(monster, after, rawEnv = {}) {
     let nextY = originY;
     let eatAfterMoving = null;
     const curseMessages = new Array(9).fill(false);
+
+    // C ref: dog_move():1322–1356, reached through both newdogpos jumps.
+    // Keep the source's raw direction coordinates and its region check of
+    // nix/niy, even when the selected cc is a different nearby square.
+    const repositionLeashedPet = async () => {
+        let cc = {
+            x: state.u.ux + sgn(originX - state.u.ux),
+            y: state.u.uy + sgn(originY - state.u.uy),
+        };
+        const canPlace = env.goodpos ?? goodpos;
+        let found = canPlace(cc.x, cc.y, monster, 0, env);
+        if (!found) {
+            const direction = xytodir(
+                sgn(originX - state.u.ux), sgn(originY - state.u.uy),
+            );
+            for (const [left, right] of [[7, 1], [6, 2]]) {
+                for (let j = (direction + left) % N_DIRS;
+                    j < (direction + right) % N_DIRS; ++j) {
+                    const offset = dirtocoord(j);
+                    if (offset) cc = offset;
+                    if (canPlace(cc.x, cc.y, monster, 0, env)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+        }
+        if (!found) cc = { x: monster.mx, y: monster.my };
+        if (!await petMoveOperation(env, 'mayCrossRegion')(
+            monster, nextX, nextY, env,
+        )) return;
+        remove_monster(monster.mx, monster.my, state);
+        place_monster(monster, cc.x, cc.y, state);
+        (env.redraw ?? newsym)(cc.x, cc.y, state);
+        await petMoveOperation(env, 'setApparxy')(monster, env);
+    };
 
     let whistleApproach = false;
     if (edog) {
@@ -1342,13 +1399,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
             return monster.mhp < 1 ? MMOVE_DIED : MMOVE_DONE;
         if (inventoryResult === MMOVE_MOVED) {
             if (monster.mleashed && heroDistance > 4) {
-                await petMoveOperation(env, 'repositionLeashedPet')(
-                    monster,
-                    heroDistance,
-                    nextX,
-                    nextY,
-                    env,
-                );
+                await repositionLeashedPet();
             }
             return MMOVE_MOVED;
         }
@@ -1368,10 +1419,8 @@ export async function dog_move(monster, after, rawEnv = {}) {
         const resistConflict = env.resistConflict
             ?? ((subject) => resist_conflict(subject, state, random));
         if (!resistConflict(monster, env) && !edog) {
-            await petMoveOperation(env, 'loseGuardianAngel')(
-                monster,
-                env,
-            );
+            if (env.loseGuardianAngel) await env.loseGuardianAngel(monster, env);
+            else if (!env.planning) note_unported('minion.c lose_guardian_angel');
             return MMOVE_DIED;
         }
     }
@@ -1445,10 +1494,9 @@ export async function dog_move(monster, after, rawEnv = {}) {
             ) || (occupant.data?.pmidx === PM_GELATINOUS_CUBE
                 && random.rn2(10))
                 || (touch_petrifies(occupant.data)
-                    && !petMoveOperation(env, 'resistsStone')(
-                        monster,
-                        env,
-                    ));
+                    && !(env.resistsStone
+                        ? env.resistsStone(monster, env)
+                        : Resists_Elem(monster, STONE_RES, state)));
             if (hazardousTarget) {
                 if (dist2(
                     monster.mx,
@@ -1491,11 +1539,9 @@ export async function dog_move(monster, after, rawEnv = {}) {
         if ((data.info[index] & ALLOW_MDISP) && occupant
             && betterWithDisplacing
             && !undesirable_disp(monster, x, y, env)) {
-            const result = await petMoveOperation(env, 'displaceMonster')(
-                monster,
-                occupant,
-                env,
-            );
+            const result = env.displaceMonster
+                ? await env.displaceMonster(monster, occupant, env)
+                : await mdisplacem(monster, occupant, false, env);
             return result & M_ATTK_DEF_DIED
                 ? MMOVE_DIED : MMOVE_NOTHING;
         }
@@ -1609,11 +1655,16 @@ export async function dog_move(monster, after, rawEnv = {}) {
     if (nextX !== originX || nextY !== originY) {
         if (data.info[chosenIndex] & ALLOW_U) {
             if (monster.mleashed) {
-                await petMoveOperation(env, 'reportLeashBreak')(
-                    monster,
-                    env,
-                );
-                petMoveOperation(env, 'unleashMonster')(monster, false, env);
+                if (env.reportLeashBreak) await env.reportLeashBreak(monster, env);
+                else await (env.message ?? ttyPline)(messageAt(
+                    `${Monnam(monster, state, env)} breaks loose of `
+                        + `${mhis(monster, env)} leash!`,
+                    monster.mx, monster.my, state,
+                ), state);
+                // C discards m_unleash's result. Its attachment cleanup is
+                // a separate apply.c owner; planning records no live gap.
+                if (env.unleashMonster) await env.unleashMonster(monster, false, env);
+                else if (!env.planning) note_unported('apply.c m_unleash');
             }
             await petMoveOperation(env, 'attackHero')(monster, env);
             return MMOVE_DONE;
@@ -1695,13 +1746,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
             if (result === MMOVE_DIED) return MMOVE_DIED;
         }
     } else if (monster.mleashed && heroDistance > 4) {
-        await petMoveOperation(env, 'repositionLeashedPet')(
-            monster,
-            heroDistance,
-            nextX,
-            nextY,
-            env,
-        );
+        await repositionLeashedPet();
     }
     // Upstream reports a completed pet movement opportunity as MMOVE_MOVED
     // even when no candidate changed the coordinates.  m_move() uses this

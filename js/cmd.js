@@ -12,6 +12,7 @@ import {
     visibleCommandKey,
 } from './command_bindings.js';
 import { isok } from './cmd_isok.js';
+import { runPetRangedAttack } from './unported_monster_actions.js';
 import {
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
@@ -3587,9 +3588,8 @@ export async function domonability(state = game) {
     } else if (is_vampire(uptr) || is_vampshifter(state.youmonst)) {
         return dopoly(state);
     } else if (state.u.usteed && can_breathe(state.u.usteed?.data)) {
-        // cmd.c:939 discards pet_ranged_attk's result. Its forced-target
-        // path is still unported; preserve the source command-time result.
-        note_unported('dogmove.c pet_ranged_attk');
+        // C ref: cmd.c:940–942 discards the steed's attack result.
+        await runPetRangedAttack(state.u.usteed, true, { state });
         return ECMD_TIME;
     } else if (Upolyd(state.u)) {
         // cmd.c:943-944: polymorphed but no special ability.

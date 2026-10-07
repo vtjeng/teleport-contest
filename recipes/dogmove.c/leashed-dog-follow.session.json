@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13727019,
+      "datetime": "20821115164500",
+      "nethackrc": "OPTIONS=name:LeashField,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed leash\n\u0007tame little dog\n  aon  kkkk"
+    }
+  ],
+  "description": "Independent C-first leashed little dog variation: a neutral female Wizard applies the wished leash southeast to the created pet, then walks north."
+}

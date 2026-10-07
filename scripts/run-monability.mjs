@@ -55,7 +55,7 @@ export async function verifyMonabilitySegment(segment) {
     assert.equal(game.u.umonnum, entry.form);
     if (entry.steed) {
         assert.equal(game.u.usteed?.data.pmidx, PM_RED_DRAGON);
-        assert.ok(game.unported.has('dogmove.c pet_ranged_attk'));
+        assert.equal(game.unported.has('dogmove.c pet_ranged_attk'), false);
     }
     const after = clones(game);
     assert.equal(after.length, oldCloneCount + (entry.splits ? 1 : 0));

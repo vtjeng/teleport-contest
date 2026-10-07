@@ -3388,91 +3388,35 @@ test('a pet picking a weapon up uses the source weapon helper on the clone', asy
     }
 });
 
-// C ref: dogmove.c dog_hunger() (362-392), which dog_move() calls before it
-// does anything else. Every arm below the first needs an operation this port
-// does not own, and moveSimplePet() answers all three with a refusal. Without
-// those injections hungerOperation() raises a bare TypeError, which
-// js/jsmain.js does not convert, so a starving pet discards the segment's
-// matching prefix instead of ending the segment on it.
-//
-// dogmove.c:11 sets DOG_WEAK to 500 and :12 sets DOG_STARVE to 750, and
-// dog.c:76 initedog() starts hungrytime at 1000 plus the current turn, so
-// hungrytime 1000 with the turn counter past 1500 is the first turn C would
-// weaken a pet fed nothing since the game began.
-const PET_HUNGER_REFUSALS = [
-    {
-        // mhpmax 8 leaves newmhpmax 2, so the pet survives the penalty and C
-        // reaches pline_mon()/beg()/You_feel() and then stop_occupation().
-        name: 'confusion',
-        moves: 1501,
-        mhpmax: 8,
-        mhpmax_penalty: 0,
-        reason: 'pet hunger confusion',
-    },
-    {
-        // mhpmax 2 leaves newmhpmax 0, so DEADMONSTER() holds the moment the
-        // penalty applies and the same arm calls dog_starve() instead.
-        name: 'weakening that kills',
-        moves: 1501,
-        mhpmax: 2,
-        mhpmax_penalty: 0,
-        reason: 'pet starvation',
-    },
-    {
-        // A penalty already applied sends a pet DOG_STARVE turns past
-        // hungrytime -- 1000 + 750, so turn 1751 is the first -- to the last
-        // arm's dog_starve() with no penalty arithmetic in between.
-        name: 'starvation',
-        moves: 1751,
-        mhpmax: 8,
-        mhpmax_penalty: 5,
-        reason: 'pet starvation',
-    },
-];
-
-for (const arm of PET_HUNGER_REFUSALS) {
-    test(`a pet reaching dog_hunger ${arm.name} refuses instead of crashing`,
-        async () => {
-            const target = await prepareStartingPetAction(PM_PONY);
-            game.moves = arm.moves;
-            target.monster.mhp = target.monster.mhpmax = arm.mhpmax;
-            target.monster.mextra.edog.mhpmax_penalty = arm.mhpmax_penalty;
-            const before = completeSecondTurnSnapshot(game, target.replay);
-
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === arm.reason
-                    ),
-                    `attempt ${attempt + 1}`,
-                );
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, target.replay),
-                    before,
-                    `attempt ${attempt + 1}`,
-                );
-                // dog_hunger() confuses the pet and rewrites both hit-point
-                // maxima before it reaches any of the three operations, so a
-                // live pet still at its starting values proves the refusal
-                // landed on the clone.
-                assert.equal(
-                    target.monster.mconf,
-                    false,
-                    `attempt ${attempt + 1}`,
-                );
-                assert.deepEqual(
-                    [
-                        target.monster.mhp,
-                        target.monster.mhpmax,
-                        target.monster.mextra.edog.mhpmax_penalty,
-                    ],
-                    [arm.mhpmax, arm.mhpmax, arm.mhpmax_penalty],
-                    `attempt ${attempt + 1}`,
-                );
-            }
-        });
+// dog_hunger's source weak and starvation thresholds are strictly greater
+// than hungrytime + 500 / +750; the cloned turn must own their HP changes.
+for (const arm of [
+    { name: 'weakness', moves: 1501, maximum: 8, penalty: 0 },
+    { name: 'weakness with zero maximum', moves: 1501, maximum: 2, penalty: 0 },
+    { name: 'starvation', moves: 1751, maximum: 8, penalty: 5 },
+]) {
+    test('a pet reaching dog_hunger ' + arm.name + ' plans on the clone', async () => {
+        const target = await prepareStartingPetAction(PM_PONY);
+        game.moves = arm.moves;
+        target.monster.mhp = target.monster.mhpmax = arm.maximum;
+        target.monster.mextra.edog.mhpmax_penalty = arm.penalty;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
+        // The live hunger/starvation message may dismiss the startup line;
+        // the clone pass above must consume none of these acknowledgements.
+        for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await runSimpleMonsterAction(target.monster, { state: game });
+        if (!arm.penalty) {
+            assert.equal(target.monster.mhpmax, Math.trunc(arm.maximum / 3));
+            assert.equal(target.monster.mconf, true);
+        }
+        if (arm.penalty || arm.maximum < 3) {
+            // mon.c:m_detach keeps the dead pet on fmon until dmonsfree.
+            assert.equal(target.monster.mhp, 0);
+            assert.equal(game.iflags.purge_monsters, 1);
+        }
+    });
 }
 
 // C ref: monmove.c dochugw() (223-235). It interrupts an occupation only for a
@@ -3878,37 +3822,22 @@ test('a mounted leashed pony passes preflight and live action guards', async () 
     assert.deepEqual([steed.mx, steed.my], [game.u.ux, game.u.uy]);
 });
 
-test('an ordinary leashed starting pet keeps the unsupported action boundary',
+test('an ordinary leashed starting pet plans without changing live state',
     async () => {
         const target = await prepareStartingPetAction(PM_LITTLE_DOG);
-        // This dog is not u.usteed, so dog_goal's mounted-steed return cannot
-        // justify admitting its still-unported leashed movement path.
+        // C dog_goal gives a leashed, unmounted dog the hero's coordinates;
+        // its movement uses dog_move's distance limit rather than a refusal.
         target.monster.mleashed = true;
         game.u.usteed = null;
         const before = completeSecondTurnSnapshot(game, target.replay);
-        const isLeashedPetBoundary = (error) => (
-            error instanceof UnsupportedSimpleMonsterActionError
-            && error.reason === 'special starting-pet state'
-        );
-
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            isLeashedPetBoundary,
-        );
+        await preflightSimpleMonsterActions(game);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
-            'a rejected clone scan leaves the ordinary leashed dog unchanged',
+            'a successful clone scan leaves the ordinary leashed dog unchanged',
         );
-        await assert.rejects(
-            runSimpleMonsterAction(target.monster, { state: game }),
-            isLeashedPetBoundary,
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            'the live guard rejects before mutating the ordinary leashed dog',
-        );
+        await runSimpleMonsterAction(target.monster, { state: game });
+        assert.equal(target.monster.mleashed, true);
     });
 
 test('simple ordinary monster and starting pet can land in a corridor',
