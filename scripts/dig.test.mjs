@@ -55,13 +55,16 @@ import {
     POOL,
     MOAT,
     LAVAPOOL,
+    LAST_PROP,
     PIT,
+    HOLE,
     ROOM,
     ROWNO,
     SDOOR,
     STONE,
     STEALTH,
     TT_PIT,
+    TT_INFLOOR,
     TREE,
     VWALL,
     W_NONDIGGABLE,
@@ -124,7 +127,13 @@ const Y = 5;
 
 function digCheckState() {
     const state = digState();
-    state.u = { ux: X, uy: Y, uz: { dnum: 0, dlevel: 1 }, uprops: {} };
+    state.u = { ux: X, uy: Y, uz: { dnum: 0, dlevel: 1 },
+        // Match the initialized C property array: no movement or perception
+        // property is active until a case turns its own one on.
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+            intrinsic: 0, extrinsic: 0, blocked: 0,
+        })),
+    };
     state.youmonst = {};
     state.dungeons = [{ num_dunlevs: 20, flags: { hellish: false } }];
     state.air_level = { dnum: 0, dlevel: 9 };
@@ -1046,4 +1055,87 @@ test('is_digging compares the active occupation with dig', () => {
     assert.equal(is_digging(state), true);
     state.go.occupation = () => 0;
     assert.equal(is_digging(state), false);
+});
+
+// dig.c:690 and 753-780: even a hovering hero creates a real hole and its
+// destination before deciding not to descend. The source hole_destination
+// advances one floor, consumes rn2(4), and stops on a nonzero value.
+test('digactualhole creates a hole before the levitation fall check', async () => {
+    const state = digCheckState();
+    state.youmonst = {};
+    state.u.uprops[LEVITATION] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.viz_array = Array.from({ length: ROWNO }, () => []);
+    state.viz_array[Y][X] = IN_SIGHT;
+    const messages = [];
+    const draws = [];
+    await digactualhole(X, Y, state.youmonst, HOLE, state, {
+        message: async line => messages.push(line),
+        random: { rn2: bound => { draws.push(bound); return 1; } },
+    });
+    const trap = state.level.traps[0];
+    assert.ok(trap);
+    assert.equal(trap.ttyp, HOLE);
+    assert.deepEqual(trap.dst, { dnum: 0, dlevel: 2 });
+    assert.deepEqual(draws, [4]);
+    assert.deepEqual(messages, ['You dig a hole through the floor.']);
+    assert.equal(trap.madeby_u, true);
+    assert.equal(trap.tseen, true);
+    assert.equal(state.u.uz.dlevel, 1, 'levitation prevents the source descent');
+});
+
+// dig.c:665-669 changes an impossible HOLE to PIT before trap creation.
+// A floating hero avoids the pit duration, isolating the fallback decision.
+test('digactualhole downgrades forbidden holes but honors candig', async () => {
+    for (const candig of [false, true]) {
+        const state = digCheckState();
+        state.youmonst = {};
+        state.level.flags.hardfloor = true;
+        state.level.at(X, Y).candig = candig;
+        state.u.uprops[LEVITATION] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        const bounds = [];
+        await digactualhole(X, Y, null, HOLE, state, {
+            message: async () => {},
+            random: { rn2: bound => { bounds.push(bound); return 1; } },
+        });
+        assert.equal(state.level.traps[0].ttyp, candig ? HOLE : PIT);
+        assert.equal(state.level.traps[0].madeby_u, true, 'BY_OBJECT blames the hero');
+        assert.deepEqual(bounds, candig ? [4] : []);
+        assert.equal(state.u.uz.dlevel, 1);
+    }
+});
+
+// dig.c:697-713 sees a trap only when visible, or feels it only for BY_YOU.
+// An adjacent broken-wand pit does not assign the hero a pit duration.
+test('digactualhole keeps unseen object-created adjacent pits out of hero trap state', async () => {
+    const state = digCheckState();
+    state.youmonst = {};
+    state.level.at(X + 1, Y).typ = ROOM; // Adjacent to the arbitrary hero square.
+    const messages = [];
+    await digactualhole(X + 1, Y, null, PIT, state, {
+        message: async line => messages.push(line),
+        random: { rn1: () => assert.fail('adjacent pit cannot trap the hero') },
+    });
+    const trap = state.level.traps[0];
+    assert.equal(trap.tseen, false);
+    assert.equal(trap.madeby_u, true);
+    assert.equal(state.u.utrap ?? 0, 0);
+    assert.deepEqual(messages, []);
+});
+
+// dig.c:654-659 releases floor entrapment before making the trap, and the
+// hero-created PIT then uses rn1(4,2) and publishes the vision change.
+test('digactualhole releases solid-floor entrapment before trapping the hero in a pit', async () => {
+    const state = digCheckState();
+    state.youmonst = {};
+    state.u.ulevel = 1; // Bounds wake_nearby's ordinary source scan.
+    state.u.utrap = 3; // Any positive duration activates TT_INFLOOR release.
+    state.u.utraptype = TT_INFLOOR;
+    const calls = [];
+    await digactualhole(X, Y, state.youmonst, PIT, state, {
+        message: async () => {},
+        random: { rn1: (range, base) => { calls.push([range, base]); return base; } },
+    });
+    assert.deepEqual(calls, [[4, 2]]);
+    assert.deepEqual([state.u.utrap, state.u.utraptype], [2, TT_PIT]);
+    assert.equal(state.vision_full_recalc, 1);
 });

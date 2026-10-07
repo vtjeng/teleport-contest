@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap broken-wand variation: three charges force every rn2(spe)<3 selection to PIT; the four-charge companion is just outside this explicit limit.",
+  "segments": [
+    {
+      "seed": 92688015,
+      "datetime": "20770909114000",
+      "nethackrc": "OPTIONS=name:C130Probe,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h\u0017uncursed wand of digging (0:3)\nafy     "
+    }
+  ]
+}

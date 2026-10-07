@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent C130 setup: the C map places a wall immediately west of startup stairs, so h does not leave the stairs. dig.c:zap_dig takes its stairway bounce branch before dighole/digactualhole. This strictly matching observation is retained without completion credit.",
+  "segments": [
+    {
+      "seed": 92688011,
+      "datetime": "20770908113500",
+      "nethackrc": "OPTIONS=name:C130Probe,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h\u0017uncursed wand of digging\nzo>          "
+    }
+  ]
+}

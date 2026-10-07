@@ -496,6 +496,7 @@ function makeRollingBoulderLaunch(trap, x, y, env) {
 
 const DEFAULT_CAPABILITIES = Object.freeze({
     makeRollingBoulderLaunch,
+    resetUtrap(msg, env) { return reset_utrap(msg, env.state); },
     objIceEffects: obj_ice_effects,
     spotStopTimers(x, y, action, env) {
         spot_stop_timers(x, y, action, env.state);
@@ -696,19 +697,20 @@ export async function fall_through(td, ftflags, state = game) {
     );
 }
 
-function resetTrap(trap, typ, oldplace) {
+function resetTrap(trap, typ) {
     trap.vl = {};
     trap.launch = { x: -1, y: -1 };
     trap.dst = { dnum: -1, dlevel: -1 };
-    trap.teledest = { x: 0, y: 0 };
+    // trap.h teledest aliases launch; replacement clears every vl arm.
+    trap.teledest = trap.launch;
+    trap.launch_otyp = 0;
+    trap.launch2 = { x: 0, y: 0 };
+    trap.conjoined = 0;
+    trap.tnote = 0;
     trap.madeby_u = false;
     trap.once = false;
     trap.tseen = typ === HOLE;
     trap.ttyp = typ;
-    // C's newtrap() memset supplies zero for a new record. Replacing an
-    // existing trap preserves tnote except when SQKY_BOARD chooses a note.
-    if (!oldplace) trap.tnote = 0;
-    if (!oldplace) trap.conjoined = 0;
     // C's ntrap link is represented by level.traps' array order.
 }
 
@@ -927,14 +929,14 @@ export function maketrap(x, y, typ, rawEnv = {}) {
     const resetHero = oldplace && heroTrapNeedsReset(x, y, typ, env);
     preflightTrapCreation(x, y, typ, resetHero, env);
     if (resetHero) resetHeroTrap(env);
-    resetTrap(trap, typ, oldplace);
+    resetTrap(trap, typ);
     const linkTrap = () => {
         if (!oldplace) {
             state.level.traps.unshift(trap);
         } else if (state.level?.flags?.sokoban_rules) {
             // C's maybe_finish_sokoban() result is discarded. Keep its prize
             // and luck side effects visible as an unported source boundary.
-            note_unported('sokoban maybe_finish_sokoban');
+            note_unported('trap.c maybe_finish_sokoban');
         }
         return trap;
     };
@@ -954,19 +956,17 @@ export function maketrap(x, y, typ, rawEnv = {}) {
         break;
     case PIT:
     case SPIKED_PIT:
+        if (in_rooms(x, y, SHOPBASE, state).length
+            && (IS_DOOR(location.typ) || IS_WALL(location.typ)))
+            note_unported('shk.c add_damage');
         trap.conjoined = 0;
         pitTerrain(x, y, env);
         break;
     case HOLE:
     case TRAPDOOR:
         hole_destination(trap.dst, env);
-        if (in_rooms(x, y, SHOPBASE, state).length
-            && (is_hole(typ) || IS_DOOR(location.typ)
-                || IS_WALL(location.typ))) {
-            // C discards add_damage()'s return; shop repair billing remains
-            // an explicit gap until shk.c:add_damage is ported.
+        if (in_rooms(x, y, SHOPBASE, state).length)
             note_unported('shk.c add_damage');
-        }
         pitTerrain(x, y, env);
         break;
     case TELEP_TRAP: {
@@ -974,6 +974,8 @@ export function maketrap(x, y, typ, rawEnv = {}) {
         if (launchplace && isok(launchplace.x, launchplace.y)) {
             trap.teledest.x = (state.xstart ?? 0) + launchplace.x;
             trap.teledest.y = (state.ystart ?? 0) + launchplace.y;
+            if (trap.teledest.x === x && trap.teledest.y === y)
+                note_unported('pline.c impossible');
         }
         break;
     }

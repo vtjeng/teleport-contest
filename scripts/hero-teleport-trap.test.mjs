@@ -93,7 +93,8 @@ test('every matrix segment reaches an unseen random-destination teleport trap',
             // one is never the trap the hero reaches here.
             assert.ok(!sprung[0].once, `segment ${index} is not one-shot`);
             assert.deepEqual(
-                [sprung[0].teledest.x, sprung[0].teledest.y], [0, 0],
+                // trap.c initializes the launch/teledest alias to -1.
+                [sprung[0].teledest.x, sprung[0].teledest.y], [-1, -1],
                 `segment ${index} has no fixed destination`,
             );
             assert.notDeepEqual(
