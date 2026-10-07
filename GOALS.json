@@ -185505,16 +185505,23 @@
     {
       "id": "fix-vision-recalc-blind-epilogue-v25-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Run the blind vision recalculation epilogue",
       "cFile": "vision.c",
       "sessions": [],
-      "selectionReason": "The complete v25 investigation traces the first mismatch at step 45 from the lava glyph left over the blind hero to vision.c:vision_recalc returning before its shared epilogue.",
+      "selectionReason": "Select synthetic/v25/v25-sit-lava from challenges/evaluations/20261007023452-v25.json: its first unmatched screen is step 45 while RNG and cursors remain exact. The source trace identifies vision.c:vision_recalc Blind goto-skip omitting the shared non-panicking hero redraw before row-bound publication; C125 supplies the narrow source-ordered fix, independent blind terrain recordings, and exact matching evidence through step 54 without claiming whole vision_recalc completion.",
       "detail": "Match vision.c vision_recalc blind control!=2 path through the shared hero redraw, bounds update, and notice_all_mons epilogue. Preserve all existing vision output and prove the v25 lava wish through step 45 with an independent variation.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "8b04d242908b5ee28325f16b2a2ca3a4df94e548",
+      "openStanding": {
+        "sha": "f224a115f09ed49085e7e66baab3edbf155515aa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "vision_recalc",
       "session": "synthetic/v25/v25-sit-lava",
       "step": 45,
@@ -185531,6 +185538,208 @@
           "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
           "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
         }
+      },
+      "activeStanding": {
+        "sha": "f224a115f09ed49085e7e66baab3edbf155515aa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-sit-lava",
+          "session": "synthetic/v25/v25-sit-lava",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recording": "challenges/cases/v25/v25-sit-lava.session.json",
+          "recordingPath": "challenges/cases/v25/v25-sit-lava.session.json",
+          "recordingSha256": "66627a56954e1a1a32b51cac7cfd2e6856bc52463cba478480bbd3e4ef15fc6e",
+          "recipe": "challenges/cases/v25/v25-sit-lava.recipe.session.json",
+          "recipeSha256": "bd85642590e1e3dab02c33c3ed6d66aaa76d33fb3a07da7bbbeba82d7470e9c1",
+          "replayInputSha256": "017ec93b55e313c21c87432b9afcbe68458dcf47b774ceed86226fecb5e54ae9",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa",
+          "evaluationArtifact": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationUtc": "2026-10-07T02:36:41.923Z",
+          "remainingScreens": 10,
+          "recordedSteps": 55,
+          "previousScreensMatched": 45,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 45,
+              "total": 55
+            },
+            "rng": {
+              "matched": 2653,
+              "total": 2653
+            },
+            "cursors": {
+              "matched": 55,
+              "total": 55
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 45,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 18,
+              "column": 69,
+              "cCell": {
+                "ch": "E",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "}",
+                "color": 1,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 45,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v25/v25-sit-lava.json",
+            "result": {
+              "session": "synthetic/v25/v25-sit-lava",
+              "corpus": "synthetic",
+              "batch": "v25",
+              "caseId": "v25-sit-lava",
+              "remainingScreens": 10,
+              "recordedSteps": 55,
+              "manifestPath": "challenges/manifests/v25.json",
+              "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+              "recordingSha256": "66627a56954e1a1a32b51cac7cfd2e6856bc52463cba478480bbd3e4ef15fc6e",
+              "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+              "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+              "status": "complete",
+              "commit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v25",
+                "caseId": "v25-sit-lava",
+                "session": "synthetic/v25/v25-sit-lava",
+                "manifestPath": "challenges/manifests/v25.json",
+                "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+                "recording": "challenges/cases/v25/v25-sit-lava.session.json",
+                "recordingPath": "challenges/cases/v25/v25-sit-lava.session.json",
+                "recordingSha256": "66627a56954e1a1a32b51cac7cfd2e6856bc52463cba478480bbd3e4ef15fc6e",
+                "recipe": "challenges/cases/v25/v25-sit-lava.recipe.session.json",
+                "recipeSha256": "bd85642590e1e3dab02c33c3ed6d66aaa76d33fb3a07da7bbbeba82d7470e9c1",
+                "replayInputSha256": "6bc0286d388cbaacf2ee80ef4a23bbc56c713f2afd3880fc002fd1889560e766",
+                "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+                "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+                "evaluationArtifact": "challenges/evaluations/20261007010702-v25.json",
+                "evaluationUtc": "2026-10-07T01:07:09.780Z",
+                "remainingScreens": 10,
+                "recordedSteps": 55,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 45,
+                    "total": 55
+                  },
+                  "rng": {
+                    "matched": 2653,
+                    "total": 2653
+                  },
+                  "cursors": {
+                    "matched": 55,
+                    "total": 55
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 45,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 45,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 18,
+                    "column": 69,
+                    "cCell": {
+                      "ch": "E",
+                      "color": 11,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "}",
+                      "color": 1,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 45,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 45, the wizard lava wish redraws the hero’s square while the hero is an eyeless fire elemental. C’s blind vision_recalc branch jumps to the shared epilogue, which redraws the hero over the new lava tile; JavaScript returns before that redraw and leaves the lava glyph visible. The #sit command starts at step 46, after this mismatch.",
+              "source": {
+                "file": "vision.c",
+                "branch": "When the hero is blind and control is not 2, vision_recalc builds COULD_SEE, redraws cells that were previously IN_SIGHT, then jumps to skip. The shared epilogue redraws the hero with newsym(u.ux, u.uy), updates the bounds, and calls notice_all_mons(TRUE).",
+                "functions": [
+                  "vision_recalc"
+                ],
+                "callers": [
+                  "wizcmds.c:wiz_wish() -> zap.c:makewish() -> objnam.c:wizterrainwish() replaces the hero square with LAVAPOOL and calls vision.c:recalc_block_point().",
+                  "vision.c:recalc_block_point() reaches block_point()/unblock_point(), which marks vision_full_recalc when the current vision array covers the square; allmain.c:moveloop_core() calls vision_recalc(0) after rhack() when the flag is set."
+                ],
+                "dependencies": [
+                  "display.c:newsym() redraws the hero glyph in the common epilogue; js/vision.js receives the corresponding redraw callback.",
+                  "hack.c:notice_all_mons(TRUE) is the other source call in the common epilogue; js/hack.js has this helper, but vision_recalc does not call it."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261007010702-v25.json, measured at 9aea0fdd726850fad5342bc3eabb32f89a78a0c0, reports 45/55 matching screens, 2653/2653 RNG calls, and 55/55 cursors. Its first mismatch is segment 0, step 45, Enter, row 18 column 69: C shows E (color 11) and JavaScript shows } (color 1). The recorded input finishes the ^W lava wish at step 45; #sit begins at step 46.",
+                "The existing one-session replay diagnostic .cache/synthetic-scans/v25/v25-sit-lava.json records 55 emitted screens and replayCommit 9aea0fdd726850fad5342bc3eabb32f89a78a0c0, reproducing the same row 18 column 69 mismatch. This reuses the saved replay; no new C recording was made.",
+                "At the evaluated upstream source nethack-c/upstream/src/vision.c:548-583, Blind recalculates COULD_SEE, repaints old IN_SIGHT cells, then uses goto skip. The shared epilogue at vision.c:843-856 calls newsym(u.ux, u.uy), updates gv.viz_rmin/gv.viz_rmax, and calls notice_all_mons(TRUE).",
+                "At the evaluated JavaScript source js/vision.js:789-805, the blind branch swaps the arrays, redraws old IN_SIGHT cells, saves the new bounds, and returns. It therefore skips the hero redraw that the ordinary path performs at js/vision.js:927. In this case that leaves the LAVAPOOL glyph over the hero; RNG and cursor traces already match.",
+                "The caller path is source-backed: objnam.c:wizterrainwish() changes levl[u.ux][u.uy] to LAVAPOOL and calls recalc_block_point() at objnam.c:3643-3665, 3872-3885; vision.c:recalc_block_point() dispatches block_point()/unblock_point() at vision.c:911-917; allmain.c:moveloop_core() calls vision_recalc(0) after rhack() at allmain.c:541-542. The C branch precondition is Blind; the session has polymorphed into a fire elemental before the wish."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -185573,6 +185782,56 @@
           "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
           "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
           "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        }
+      }
+    },
+    {
+      "id": "port-apply-rub-ok-dorub-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete lamp and object rubbing behavior",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v25/v25-rub-empty-lamp"
+      ],
+      "selectionReason": "Select synthetic/v25/v25-rub-empty-lamp from challenges/evaluations/20261007031630-v25.json and investigations/synthetic/v25/v25-rub-empty-lamp.json. Its five unmatched screens begin at step 34 where the already-wielded empty magic lamp reaches apply.c:dorub. Complete consecutive rub_ok/dorub, preserve the canned wield retry, charged and empty lamp RNG, blind smoke, lantern/default feedback, and reuse existing return-valued stone, jelly, wield, burn, and djinni owners.",
+      "detail": "Port apply.c:rub_ok and dorub lines 1770-1843 in source order. The current JavaScript wrongly nests the whole magic-lamp arm under spe > 0 and refuses empty magic lamps, blind smoke, brass lanterns, and ordinary default rubbing. Use the admitted v25 case and independent empty, oil, lantern, blind, cancellation, wield/requeue, and charged-lamp variations. Keep artifact-light shutdown and any source-discarded gaps precisely named.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rub_ok",
+          "line": 1770,
+          "endLine": 1784,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dorub",
+          "line": 1785,
+          "endLine": 1846,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1770,
+        "to": 1846
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-rub-empty-lamp": {
+          "session": "synthetic/v25/v25-rub-empty-lamp",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-rub-empty-lamp",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-rub-empty-lamp.session.json",
+          "recordingSha256": "96984ba3ef6982e8ad57293ed80c8c91192091fb3810cfef0f0ce4b54db2e470",
+          "evaluationPath": "challenges/evaluations/20261007031630-v25.json",
+          "evaluationCommit": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0"
         }
       }
     }
