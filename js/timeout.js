@@ -117,7 +117,7 @@ import {
     a_monnam, hcolor, m_monnam, Monnam, rndmonnam, x_monnam,
 } from './do_name.js';
 import { hurtle } from './dothrow.js';
-import { setwornEnv, toggle_displacement } from './do_wear.js';
+import { setwornEnv, toggle_displacement, wielding_corpse } from './do_wear.js';
 import {
     Popeye, eating_dangerous_corpse, morehungry, vomit, } from './eat.js';
 import { dealloc_killer, find_delayed_killer } from './end.js';
@@ -1387,7 +1387,7 @@ export function nh_timeout_requires_live_state(state = game) {
     for (const index of [
         STONED, SICK, BLINDED, INVIS, SEE_INVIS, HALLUC, LEVITATION,
         FLYING, DETECT_MONSTERS, DISPLACED, GLIB,
-        PROT_FROM_SHAPE_CHANGERS,
+        PROT_FROM_SHAPE_CHANGERS, STONE_RES,
     ]) {
         if ((u.uprops?.[index]?.intrinsic & TIMEOUT) === 1) return true;
     }
@@ -1566,8 +1566,8 @@ async function decrement_property_timeouts(state, env) {
                 }
                 if (!unaware(state))
                     await message('You no longer feel secure from petrification.', state);
-                if (!env.planning) note_unported('do_wear.c wielding_corpse');
-                if (!env.planning) note_unported('do_wear.c wielding_corpse');
+                await wielding_corpse(state.uwep, null, false, state, env);
+                await wielding_corpse(state.uswapwep, null, false, state, env);
             }
             break;
         case FIRE_RES:

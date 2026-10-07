@@ -69,6 +69,18 @@ const STEAL_C = readFileSync(
     new URL('../nethack-c/upstream/src/steal.c', import.meta.url), 'utf8',
 );
 
+test('worn armor removal preserves the environment for petrifying protection loss', () => {
+    // steal.c remove_worn_item calls the armor callbacks at the same point;
+    // their async JS adapters also need the existing planning/message seams.
+    const source = readFileSync(new URL('../js/steal.js', import.meta.url), 'utf8');
+    const removal = source.slice(source.indexOf('export async function remove_worn_item('),
+        source.indexOf('// C ref:', source.indexOf('export async function remove_worn_item(') + 1));
+    assert.match(STEAL_C, /obj == uarm\)[\s\S]*?Armor_off\(\)/u);
+    assert.match(STEAL_C, /obj == uarmg\)[\s\S]*?Gloves_off\(\)/u);
+    assert.match(removal, /await Armor_off\(state, env\)/u);
+    assert.match(removal, /await Gloves_off\(state, env\)/u);
+});
+
 // Distinct coordinates make the post-transfer snuff callback observable.
 const CARRIER_X = 7;
 const CARRIER_Y = 9;

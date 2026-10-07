@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cheap forced-glove-removal variation: scroll of destroy armor with gloves as the only worn armor calls wornarm_destroyed/Gloves_off with in_use set. Whole wielding_corpse names losing gloves, then wizard recovery removes the corpse weapon; no whole scroll or destroy_arm credit. Blocked before this caller by erode.c:erode_obj destruction -> invent.c:useup/useupall missing canonical setNotWorn hook. Keep this source-required optional forced-removal variation outside passing recordings and B140 completion credit.",
+  "segments": [
+    {
+      "seed": 91400126,
+      "datetime": "21320317102000",
+      "nethackrc": "OPTIONS=name:ProtectionLossProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " Tb \u0017uncursed leather gloves\nWo \u0017uncursed cockatrice corpse\nwp \u0017uncursed scroll of destroy armor\nrq          .."
+    }
+  ]
+}
