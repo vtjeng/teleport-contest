@@ -800,6 +800,9 @@ export function vision_recalc(control = 0, env = {}) {
                 }
             }
         }
+        // vision.c:843-853 skip: Blind bypasses the normal update loop,
+        // but still redraws the hero before publishing the new row bounds.
+        if (!state.program_state?.panicking) redraw(ux, uy);
         state._viz_rmin = next_rmin;
         state._viz_rmax = next_rmax;
         return;

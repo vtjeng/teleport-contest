@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C125 blind vision_recalc epilogue witness: orc Wizard in earth elemental form replaces the hero square with ice. Fixed seed 125070102; no seed search. Stops after the terrain command redraw, without a sit/combat tail.",
+  "segments": [
+    {
+      "seed": 125070102,
+      "datetime": "20491203101529",
+      "nethackrc": "OPTIONS=name:BlindRedraw,role:Wizard,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nearth elemental\n               \u0017ice\n"
+    }
+  ]
+}
