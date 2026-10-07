@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 
 import {
-    flatName, formatSummary, listRecordings, summarizeRecordings,
+    flatName, formatSummary, listRecordings, summarizeRecordings, parseArgs, selectRecordings,
 } from './score-recordings.mjs';
 
 test('listRecordings walks recordings/<c-file>/ and flattens the names', () => {
@@ -24,6 +24,25 @@ test('listRecordings walks recordings/<c-file>/ and flattens the names', () => {
     // not collide in the flat scoring workspace.
     assert.equal(flatName(found[0]), 'attrib.c__exercise.session.json');
     assert.deepEqual(listRecordings(join(root, 'missing')), []);
+});
+
+test('recordings batches cover every file once and spread large recordings across jobs', (t) => {
+    const root = mkdtempSync(join(tmpdir(), 'recordings-batches-'));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    // Unequal sizes exercise balancing; two batches should each receive 9 bytes.
+    const files = [8, 6, 3, 1].map((size, index) => {
+        const name = `${index}.session.json`;
+        writeFileSync(join(root, name), ' '.repeat(size));
+        return name;
+    });
+    const first = selectRecordings(files, { index: 1, count: 2 }, root);
+    const second = selectRecordings(files, { index: 2, count: 2 }, root);
+    assert.deepEqual(first, [files[0], files[3]]);
+    assert.deepEqual(second, [files[1], files[2]]);
+    assert.deepEqual([...first, ...second].sort(), files);
+    assert.deepEqual(parseArgs(['--shard', '1/2']).shard, { index: 1, count: 2 });
+    for (const invalid of ['0/2', '3/2', '1/0', 'x/2'])
+        assert.throws(() => parseArgs(['--shard', invalid]), /Usage/u);
 });
 
 test('summarizeRecordings totals the runner bundle and names failures', () => {

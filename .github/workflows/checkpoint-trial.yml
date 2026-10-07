@@ -13,6 +13,7 @@ env:
 jobs:
   # Two identical baselines measure timing noise on the hosted runners.
   serial:
+    name: Serial checkpoint — baseline ${{ matrix.repeat }}
     strategy:
       fail-fast: false
       matrix:
@@ -40,10 +41,33 @@ jobs:
           include-hidden-files: true
 
   stage:
+    name: ${{ matrix.name }}
     strategy:
       fail-fast: false
       matrix:
-        group: [tests-1, tests-2, tests-3, tests-4, sources, score, recordings, scan]
+        include:
+          - group: tests-1
+            name: Tests — goal lifecycle and shard 1
+          - group: tests-2
+            name: Tests — worker delivery and shard 2
+          - group: tests-3
+            name: Tests — checkpoint isolation and shard 3
+          - group: tests-4
+            name: Tests — remaining shard 4
+          - group: sources
+            name: Generated data and source checks
+          - group: score
+            name: Fixed development score — 44 sessions
+          - group: recordings-1
+            name: Regression recordings — batch 1 of 4
+          - group: recordings-2
+            name: Regression recordings — batch 2 of 4
+          - group: recordings-3
+            name: Regression recordings — batch 3 of 4
+          - group: recordings-4
+            name: Regression recordings — batch 4 of 4
+          - group: scan
+            name: Mismatch scan and input-boundary checks
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -64,6 +88,7 @@ jobs:
           include-hidden-files: true
 
   combine:
+    name: Combined checkpoint result
     needs: stage
     if: always()
     runs-on: ubuntu-latest
