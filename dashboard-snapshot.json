@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T09:44:44.279Z",
+  "capturedAt": "2026-10-07T10:17:19.859Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -23751,12 +23751,73 @@
         "type": "accepted",
         "at": "2026-10-07T09:44:23.217Z",
         "task": "A118"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A118-e290b14e9207-20261007",
+        "type": "published",
+        "at": "2026-10-07T09:46:54.085Z",
+        "task": "A118",
+        "commit": "e290b14e92073f3ca1111240760f6db68d72c8a6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B131-b3158961-20261007",
+        "type": "integrating",
+        "at": "2026-10-07T10:00:52.378Z",
+        "task": "B131",
+        "integration": "b3158961f5508f84d8e426b0e786ad35ac6eb95b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B131-b3158961-20261007",
+        "type": "validated",
+        "at": "2026-10-07T10:09:29.050Z",
+        "task": "B131",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B131-b3158961-20261007",
+        "type": "accepted",
+        "at": "2026-10-07T10:09:33.920Z",
+        "task": "B131"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A132-doddrop-v26-20261007",
+        "type": "assign",
+        "at": "2026-10-07T10:13:38.644Z",
+        "task": "A132",
+        "worker": "A2",
+        "goal": "port-do-doddrop-v26-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C130-digactualhole-v26-20261007",
+        "type": "assign",
+        "at": "2026-10-07T10:14:01.136Z",
+        "task": "C130",
+        "worker": "C",
+        "goal": "port-dig-digactualhole-v26-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B132-mhitm-cold-v26-20261007",
+        "type": "assign",
+        "at": "2026-10-07T10:15:20.761Z",
+        "task": "B132",
+        "worker": "B",
+        "goal": "port-uhitm-mhitm-ad-cold-v26-20261007",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9",
-    "measuredAt": "2026-10-07T09:39:15.294Z",
+    "executionCommit": "b3158961f5508f84d8e426b0e786ad35ac6eb95b",
+    "measuredAt": "2026-10-07T10:08:56.530Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
