@@ -103,6 +103,7 @@ import {
     STOMACH,
     STUNNED,
     STONED,
+    STONING,
     STONE_RES,
     STRANGLED,
     TELEPAT,
@@ -438,16 +439,6 @@ export class UnsupportedHungerTransitionError extends Error {
     constructor(reason) {
         super(`the hunger clock reached ${reason}`);
         this.name = 'UnsupportedHungerTransitionError';
-        this.reason = reason;
-    }
-}
-
-// Thrown where eat.c doeat() or floorfood() reaches an arm this port has not
-// implemented. Every stop names the C function or hero state that is missing.
-export class UnsupportedEatError extends Error {
-    constructor(reason) {
-        super(`eating requires ${reason}`);
-        this.name = 'UnsupportedEatError';
         this.reason = reason;
     }
 }
@@ -2190,17 +2181,31 @@ async function maybe_cannibal(pm, allowmsg, state, env = {}) {
     return false;
 }
 
-// C ref: eat.c cprefx() (789-869), "called before a corpse is eaten": the
+// C ref: eat.c cprefx() (791-864), "called before a corpse is eaten": the
 // cannibalism penalty and the corpses that act before the first bite rather
 // than after the last one.
-async function cprefx(pm, state, env = {}) {
+export async function cprefx(pm, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
     await maybe_cannibal(pm, true, state, env);
     if (flesh_petrifies(state.mons[pm])) {
-        if (!propertyActive(state, STONE_RES)) {
-            // eatcorpse()'s `stoneable` stop already covers the hero this arm
-            // turns to stone, so what is left needs polyself.c polymon() to
-            // make a stone golem of them instead.
-            throw new UnsupportedEatError('polymon() for a petrifying corpse');
+        if (!propertyActive(state, STONE_RES)
+            && !(poly_when_stoned(state.youmonst.data, state)
+                && await polymon(PM_STONE_GOLEM, state, env))) {
+            // C consumes an opened tin before death so it cannot reach bones.
+            // A successful golem change skips this entire fatal continuation.
+            if (state.context?.tin?.tin)
+                await use_up_tin(state.context.tin.tin, state);
+            state.killer ??= {};
+            state.killer.name = `tasting ${state.mons[pm].pmnames[NEUTRAL]} meat`;
+            state.killer.format = KILLED_BY;
+            await message('You turn to stone.', state);
+            await done(STONING, state, env);
+            // C only returns after life-saving. The JS finalizer represents
+            // non-returning death with gameover rather than exiting the VM.
+            if (state.program_state?.gameover) return;
+            if (victual(state).piece)
+                victual(state).eating = 0;
+            return;
         }
     }
 
@@ -2213,7 +2218,7 @@ async function cprefx(pm, state, env = {}) {
     case PM_LARGE_CAT:
         /* cannibals are allowed to eat domestic animals without penalty */
         if (!CANNIBAL_ALLOWED(state)) {
-            await ttyPline(
+            await message(
                 'You feel that eating the '
                 + `${state.mons[pm].pmnames[NEUTRAL]} was a bad idea.`,
                 state,
@@ -2230,7 +2235,7 @@ async function cprefx(pm, state, env = {}) {
     case PM_FAMINE: {
         // C ref: eat.c:831-850. done() returns only after life-saving; the
         // JS finalizer's gameover flag represents C's non-returning death.
-        await (env.message ?? ttyPline)('Eating that is instantly fatal.', state);
+        await message('Eating that is instantly fatal.', state);
         state.killer ??= {};
         state.killer.name = `unwisely ate the body of ${
             state.mons[pm].pmnames[NEUTRAL]}`;
@@ -2252,7 +2257,7 @@ async function cprefx(pm, state, env = {}) {
         if (!hungerProperty(state, SLIMED).intrinsic
             && !propertyActive(state, UNCHANGING)
             && !slimeproof(state.youmonst.data)) {
-            await (env.message ?? ttyPline)(
+            await message(
                 "You don't feel very well.", state,
             );
             await make_slimed(10, null, state, env);

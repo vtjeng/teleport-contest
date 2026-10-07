@@ -45,6 +45,7 @@ import { newObject } from '../js/obj.js';
 import { objects_globals_init, AXE, DAGGER, TIN, TIN_OPENER } from '../js/objects.js';
 import { find_delayed_killer } from '../js/end.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import { loadCorpsePrefxRecipe, verifyCorpsePrefxSegment } from './run-corpse-prefx.mjs';
 
 const EAT_C = readFileSync(
     new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
@@ -347,4 +348,9 @@ test('Popeye matches eat.c pointer, access, known-food and threat tests', () => 
     floorTin.state.level.objects[11][10] = floorTin.tin;
     assert.equal(Popeye(VOMITING, floorTin.state), false,
         'a floor tin outside the hero square is inaccessible');
+});
+
+test('independent C-first tins reach golem conversion and early life-saved consumption', async () => {
+    for (const name of ['golem-tin', 'fatal-tin-lifesaved'])
+        await verifyCorpsePrefxSegment(loadCorpsePrefxRecipe(name).segments[0]);
 });

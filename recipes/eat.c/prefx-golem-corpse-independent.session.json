@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole eat.c:cprefx entry witness. First-bite golem transformation from a chickatrice corpse; varied species, race, stats and independently chosen seed/clock from admitted case. Inputs planned before JavaScript comparison; retain C-observed pager corrections.",
+  "segments": [
+    {
+      "seed": 130070201,
+      "datetime": "20950920141013",
+      "nethackrc": "OPTIONS=name:CorpsePrefx,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none\n",
+      "moves": " #levelchange\n8\n           #polyself\nflesh golem\n            \u0017chickatrice corpse\n    ey        ...."
+    }
+  ]
+}
