@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13727027,
+      "datetime": "20821116200000",
+      "nethackrc": "OPTIONS=name:LeashField,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed ring of slow digestion\n  Ppl  \u0017blessed scroll of genocide\n  rq  *\n  #optionsfull\n:debug_mongen\n\n  \u0007tame little dog\n  1800.          300.          "
+    }
+  ],
+  "description": "Independent C-first pet hunger and starvation: debug class-genocide * clears starting monsters, the live #optionsfull search enables debug_mongen, and a slow-digestion ring keeps the hero fed. Two counted rests cross weakness and starvation after dog_hunger interrupts the first occupation.",
+  "comment": "BLOCKED: options.c:doset (#optionsfull) is unported in JavaScript. C enables debug_mongen through its live menu to prevent incidental spawns, then this input reaches dog_hunger weakness and dog_starve. This recipe does not establish matching runtime evidence for those two functions."
+}

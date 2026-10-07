@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13727011,
+      "datetime": "20821114103000",
+      "nethackrc": "OPTIONS=name:LeashField,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed leash\n\u0007tame kitten\n  aoy  \u0017uncursed small mimic corpse\n  dp  k    .    h    "
+    }
+  ],
+  "description": "Independent C-first leashed kitten following: creation placement is northwest of the hero; applying that direction then walking west reaches dog_move leash distance and candidate paths.",
+  "comment": "BLOCKED: dogmove.c quickmimic leash/steed side effects are unported. C mimic-corpse consumption calls the helper with a discarded result; A137 records that void gap and does not claim those effects."
+}

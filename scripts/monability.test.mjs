@@ -120,14 +120,21 @@ test('a buried shrieker reports the rock without aggravating monsters', async ()
     assert.equal(getRngLog().length, draws);
 });
 
-test('forced steed breath records the discarded callee and retains ECMD_TIME', async () => {
+test('forced steed breath calls the source helper and retains ECMD_TIME', async () => {
     const state = await started(PM_WIZARD);
-    state.u.usteed = { data: state.mons[PM_RED_DRAGON] };
+    state.u.usteed = {
+        data: state.mons[PM_RED_DRAGON],
+        // A blinded tame steed has no target; deaf conduct suppresses its
+        // no-target domonnoise feedback without suppressing the command.
+        mcansee: false,
+        mextra: { edog: { hungrytime: state.moves + 1000 } },
+    };
+    state.u.uroleplay.deaf = true;
     state.unported = new Set();
     const previousMessage = state._ttyToplines;
     const draws = getRngLog().length;
     assert.equal(await domonability(state), ECMD_TIME);
-    assert.ok(state.unported.has('dogmove.c pet_ranged_attk'));
+    assert.equal(state.unported.has('dogmove.c pet_ranged_attk'), false);
     assert.equal(getRngLog().length, draws);
     assert.equal(state._ttyToplines, previousMessage);
 });

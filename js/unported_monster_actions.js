@@ -77,7 +77,7 @@ import {
     m_dowear,
     set_mimic_sym,
 } from './makemon_create.js';
-import { fightm } from './mhitm.js';
+import { fightm, mdisplacem } from './mhitm.js';
 import {
     mattacku,
     mdamageu,
@@ -310,8 +310,7 @@ function assertSimpleActionState(monster, state) {
         // for the current steed. Keep this existing planning guard for both
         // starting pets and later tame monsters; dog_move() owns other pet
         // states. The planning clone maps both pointers to the same monster.
-        if (monster.msleeping
-            || (monster.mleashed && monster !== state.u?.usteed)) {
+        if (monster.msleeping) {
             unsupported(STARTING_PETS.has(monster.data?.pmidx)
                 ? 'special starting-pet state' : 'special tame-pet state');
         }
@@ -1188,7 +1187,8 @@ async function moveSimplePet(monster, after, env) {
             y,
             { ...moveEnv, ...monsterWieldOperations(env) },
         ),
-        displaceMonster: () => unsupported('pet displacement'),
+        displaceMonster: (subject, target, moveEnv) =>
+            mdisplacem(subject, target, false, moveEnv),
         eatObject: dog_eat,
         mayCrossRegion: admitSimpleDestinationAndRegion,
         // Three printing sites share the `message` seam: dog_invent()'s carry
@@ -1222,30 +1222,8 @@ async function moveSimplePet(monster, after, env) {
             moveEnv.state,
             moveEnv,
         ),
-        petRangedAttack: pet_ranged_attk,
+        petRangedAttack: runPetRangedAttack,
         redraw: env.planning ? () => {} : newsym,
-        // C ref: dogmove.c dog_hunger() (360-394). Its middle arm confuses a
-        // pet that has gone DOG_WEAK turns past hungrytime, then announces the
-        // confusion through one of pline_mon(), beg() and You_feel() and calls
-        // stop_occupation(). Only the last of the four is ported, and it runs
-        // after the announcement, so the arm refuses at the announcement and
-        // this pair carries one refusal between them.
-        reportWeakPet: () => unsupported('pet hunger confusion'),
-        resistsStone: () => unsupported('pet combat evaluation'),
-        resistsTrapEffect,
-        // dogmove.c dog_starve() (347-358), which both of dog_hunger()'s
-        // starving arms call: the middle arm when the third of mhpmax it
-        // leaves the pet is below one hit point, and the last arm once the pet
-        // is DOG_STARVE turns past hungrytime. It prints through You_feel()
-        // and removes the pet with mondied(); neither is ported.
-        starvePet: () => unsupported('pet starvation'),
-        // allmain.c stop_occupation() is ported and sits in the env chain
-        // already, so this key shadows it deliberately rather than standing in
-        // for something missing. C reaches it at dogmove.c:377, after the
-        // You_feel() line the confusion arm prints, and that line has no
-        // owner; letting the real function through would run the interruption
-        // without the announcement that precedes it.
-        stopOccupation: () => unsupported('pet hunger interruption'),
         whimper,
         // steal.c relobj() and mdrop_obj() and do.c flooreffects() reach the
         // drop arm as ported functions with unported branches, so they refuse
@@ -1495,6 +1473,21 @@ function attackHeroWithMattacku(monster, env) {
                     await ttyPline(text, s);
                 },
             }),
+    });
+}
+
+// C ref: dogmove.c pet_ranged_attk(), called by dog_move and the mounted
+// cmd.c domonability branch. Both use the same canonical attack operations.
+export async function runPetRangedAttack(monster, forced, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    return pet_ranged_attk(monster, forced, {
+        ...rawEnv,
+        state,
+        random: actionRandom(rawEnv),
+        attackHero: attackHeroWithMattacku,
+        unsupported,
+        message: rawEnv.planning ? async () => {} : (rawEnv.message ?? ttyPline),
+        markInvisible: rawEnv.planning ? () => {} : map_invisible,
     });
 }
 

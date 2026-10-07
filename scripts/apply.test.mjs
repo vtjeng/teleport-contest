@@ -203,7 +203,7 @@ test('leashable follows apply.c species and anatomy checks', () => {
     assert.equal(leashable(limblessHeadless), false);
 });
 
-test('apply.c use_leash_core marks a cursed leash known before the pet-turn boundary',
+test('apply.c use_leash_core keeps the cursed leash attached through the pet turn',
     async () => {
     assert.match(APPLY_C,
         /else if \(obj->cursed\) \{\s*pline_The\("leash would not come off!"\);\s*set_bknown\(obj, 1\);\s*\}/);
@@ -225,8 +225,7 @@ test('apply.c use_leash_core marks a cursed leash known before the pet-turn boun
     assert.equal(leash.cursed, true);
     assert.equal(leash.bknown, true);
     assert.ok(leash.leashmon > 0, 'the refusal leaves the leash attached');
-    assert.equal(boundary?.message,
-        'simple monster action requires special starting-pet state');
+    assert.equal(boundary, null, 'canonical dog_move completes the leashed pet turn');
 });
 
 test('apply.c use_leash strictly replays its independent attach and detach recording',

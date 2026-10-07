@@ -203,7 +203,7 @@ import {
     temple_occupied,
 } from './priest.js';
 import { demon_talk } from './minion.js';
-import { rn1, rn2 } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import { aggravate, cuss } from './wizard.js';
 import { genders } from './roles.js';
 
@@ -870,14 +870,15 @@ export async function beg(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
     const spotMonster = rawEnv.canSpotMonster ?? canspotmon;
-    const markInvisible = rawEnv.mapInvisible ?? map_invisible;
+    const markInvisible = rawEnv.mapInvisible ?? rawEnv.markInvisible
+        ?? (rawEnv.planning ? () => {} : map_invisible);
     if (helpless(mtmp)
         || !(carnivorous(mtmp.data) || herbivorous(mtmp.data))) {
         return;
     }
 
     if (!is_silent(mtmp.data) && mtmp.data.msound <= MS_ANIMAL) {
-        await (rawEnv.domonnoise ?? domonnoise)(mtmp, state);
+        await (rawEnv.domonnoise ?? domonnoise)(mtmp, state, rawEnv);
     } else if (mtmp.data.msound >= MS_HUMANOID) {
         if (!spotMonster(mtmp, state))
             markInvisible(mtmp.mx, mtmp.my, state);
@@ -992,7 +993,11 @@ export class UnsupportedChatError extends Error {
 // persistent m_id rather than by its current species, because the leader can
 // be polymorphed and still speaks with quest-leader dialogue. The switch is
 // kept in the source order so its fall-through and random draws stay visible.
-export async function domonnoise(mtmp, state = game) {
+export async function domonnoise(mtmp, state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { rn2, rnd, rn1 };
+    const message = rawEnv.message ?? ttyPline;
+    const markInvisible = rawEnv.mapInvisible ?? rawEnv.markInvisible
+        ?? (rawEnv.planning ? () => {} : map_invisible);
     const ptr = mtmp.data;
     if (Deaf(state)) return ECMD_OK;
     if (is_silent(ptr) && !mtmp.isshk) return ECMD_OK;
@@ -1019,7 +1024,7 @@ export async function domonnoise(mtmp, state = game) {
     }
 
     if (!canspotmon(mtmp, state))
-        map_invisible(mtmp.mx, mtmp.my, state);
+        markInvisible(mtmp.mx, mtmp.my, state);
 
     let plineMsg = null;
     let verbalMsg = null;
@@ -1045,7 +1050,7 @@ export async function domonnoise(mtmp, state = game) {
         break;
     case MS_SELL:
         if (!Hallucination(state) || is_silent(ptr)
-            || (mtmp.isshk && !rn2(2))) {
+            || (mtmp.isshk && !random.rn2(2))) {
             note_unported('shk.c shk_chat');
         } else {
             verbalMsg = `15 minutes could save you 15 ${currency(15, state)}.`;
@@ -1090,7 +1095,7 @@ export async function domonnoise(mtmp, state = game) {
             verbalMsg = `${state.youmonst?.data === state.mons?.[PM_SILVER_DRAGON]
                 ? 'Fool' : 'Young Fool'}!  Your silver sheen does not frighten me!`;
         } else {
-            const vampIndex = rn2(2);
+            const vampIndex = random.rn2(2);
             verbalMsg = vampIndex === 0
                 ? `I vant to suck your ${body_part(BLOOD, state.youmonst)}!`
                 : `I vill come after ${state.u?.umonnum !== state.u?.umonster
@@ -1102,9 +1107,9 @@ export async function domonnoise(mtmp, state = game) {
     }
     case MS_WERE:
         if (state.flags?.moonphase === FULL_MOON
-            && (night(state) ^ !rn2(13))) {
-            await ttyPline(
-                `${capitalizedMonsterName(mtmp, state)} throws back ${mhis(mtmp)} head `
+            && (night(state) ^ !random.rn2(13))) {
+            await message(
+                `${capitalizedMonsterName(mtmp, state, rawEnv)} throws back ${mhis(mtmp)} head `
                 + `and lets out a blood curdling ${ptr === state.mons?.[PM_HUMAN_WERERAT]
                     ? 'shriek' : 'howl'}!`, state,
             );
@@ -1186,7 +1191,7 @@ export async function domonnoise(mtmp, state = game) {
         plineMsg = 'wails mournfully.';
         break;
     case MS_GROAN:
-        if (!rn2(3)) plineMsg = 'groans.';
+        if (!random.rn2(3)) plineMsg = 'groans.';
         break;
     case MS_GURGLE:
         plineMsg = 'gurgles.';
@@ -1206,15 +1211,15 @@ export async function domonnoise(mtmp, state = game) {
         plineMsg = 'imitates you.';
         break;
     case MS_BONES:
-        await ttyPline(`${capitalizedMonsterName(mtmp, state)} rattles noisily.`, state);
-        await ttyPline('You freeze for a moment.', state);
+        await message(`${capitalizedMonsterName(mtmp, state, rawEnv)} rattles noisily.`, state);
+        await message('You freeze for a moment.', state);
         nomul(-2, state);
         state.multi_reason = 'scared by rattling';
         state.gn ??= {};
         state.gn.nomovemsg = null;
         break;
     case MS_LAUGH:
-        plineMsg = ['giggles.', 'chuckles.', 'snickers.', 'laughs.'][rn2(4)];
+        plineMsg = ['giggles.', 'chuckles.', 'snickers.', 'laughs.'][random.rn2(4)];
         break;
     case MS_MUMBLE:
         plineMsg = 'mumbles incomprehensibly.';
@@ -1233,10 +1238,10 @@ export async function domonnoise(mtmp, state = game) {
         break;
     case MS_BOAST:
         if (!mtmp.mpeaceful) {
-            switch (rn2(4)) {
+            switch (random.rn2(4)) {
             case 0:
-                await ttyPline(
-                    `${capitalizedMonsterName(mtmp, state)} boasts about ${mhis(mtmp)} gem collection.`,
+                await message(
+                    `${capitalizedMonsterName(mtmp, state, rawEnv)} boasts about ${mhis(mtmp)} gem collection.`,
                     state,
                 );
                 break;
@@ -1262,7 +1267,7 @@ export async function domonnoise(mtmp, state = game) {
         if (mtmp.mflee) plineMsg = 'wants nothing to do with you.';
         else if (mtmp.mhp < mtmp.mhpmax / 4) plineMsg = 'moans.';
         else if (mtmp.mconf || mtmp.mstun)
-            verbalMsg = !rn2(3) ? 'Huh?' : rn2(2) ? 'What?' : 'Eh?';
+            verbalMsg = !random.rn2(3) ? 'Huh?' : random.rn2(2) ? 'What?' : 'Eh?';
         else if (!mtmp.mcansee) verbalMsg = "I can't see!";
         else if (mtmp.mtrapped) {
             const trap = t_at(mtmp.mx, mtmp.my, state);
@@ -1277,8 +1282,8 @@ export async function domonnoise(mtmp, state = game) {
         else if (likes_magic(ptr)) plineMsg = 'talks about spellcraft.';
         else if (ptr?.mlet === S_CENTAUR) plineMsg = 'discusses hunting.';
         else if (is_gnome(ptr)) {
-            if (Hallucination(state) && (rn2(4) % 2)) {
-                verbalMsg = rn2(2)
+            if (Hallucination(state) && (random.rn2(4) % 2)) {
+                verbalMsg = random.rn2(2)
                     ? 'Phase one, collect underpants.'
                     : 'Phase three, profit!';
             } else {
@@ -1317,8 +1322,8 @@ export async function domonnoise(mtmp, state = game) {
             break;
         }
         const swval = seductionEnabled
-            ? poly_gender(state) !== Number(Boolean(mtmp.female)) ? rn2(3) : 0
-            : poly_gender(state) === 0 ? rn2(3) : 0;
+            ? poly_gender(state) !== Number(Boolean(mtmp.female)) ? random.rn2(3) : 0
+            : poly_gender(state) === 0 ? random.rn2(3) : 0;
         if (swval === 2) verbalMsg = 'Hello, sailor.';
         else if (swval === 1) plineMsg = 'comes on to you.';
         else plineMsg = 'cajoles you.';
@@ -1332,7 +1337,7 @@ export async function domonnoise(mtmp, state = game) {
                 'Anything you say can be used against you.',
                 "You're under arrest!", 'Stop in the name of the Law!',
             ];
-            verbalMsg = messages[rn2(3)];
+            verbalMsg = messages[random.rn2(3)];
         }
         break;
     case MS_BRIBE:
@@ -1379,7 +1384,7 @@ export async function domonnoise(mtmp, state = game) {
             'What lousy pay we\'re getting here!',
             "The food's not fit for Orcs!", 'My feet hurt, I\'ve been on them all day!',
         ];
-        verbalMsg = (mtmp.mpeaceful ? pax : foe)[rn2(3)];
+        verbalMsg = (mtmp.mpeaceful ? pax : foe)[random.rn2(3)];
         break;
     }
     case MS_RIDER:
@@ -1398,15 +1403,15 @@ export async function domonnoise(mtmp, state = game) {
             state.svc.context ??= {};
             state.svc.context.tribute ??= {};
             state.svc.context.tribute.Deathnotice = 1;
-        } else if (ptr === state.mons?.[PM_DEATH] && rn2(3)) {
+        } else if (ptr === state.mons?.[PM_DEATH] && random.rn2(3)) {
             const quote = { value: '' };
             if (await Death_quote(quote, BUFSZ, state))
                 verbalMsg = quote.value;
-            else if (!rn2(10))
+            else if (!random.rn2(10))
                 plineMsg = 'is busy reading a copy of Sandman #8.';
             else
                 verbalMsg = 'Who do you think you are, War?';
-        } else if (ptr === state.mons?.[PM_DEATH] && !rn2(10)) {
+        } else if (ptr === state.mons?.[PM_DEATH] && !random.rn2(10)) {
             plineMsg = 'is busy reading a copy of Sandman #8.';
         } else {
             verbalMsg = 'Who do you think you are, War?';
@@ -1417,12 +1422,12 @@ export async function domonnoise(mtmp, state = game) {
     }
 
     if (plineMsg) {
-        await ttyPline(`${capitalizedMonsterName(mtmp, state)} ${plineMsg}`, state);
+        await message(`${capitalizedMonsterName(mtmp, state, rawEnv)} ${plineMsg}`, state);
     } else if (mtmp.mcan && verbalMsgMcan) {
         set_voice(mtmp, 0, 80, 0, state);
         state.gp.pline_flags |= PLINE_VERBALIZE;
         try {
-            await ttyPline(`"${verbalMsgMcan}"`, state);
+            await message(`"${verbalMsgMcan}"`, state);
         } finally {
             state.gp.pline_flags &= ~PLINE_VERBALIZE;
         }
@@ -1431,7 +1436,7 @@ export async function domonnoise(mtmp, state = game) {
             // files.c tribute dialogue is emitted by pline1() without
             // quotation marks and Death's voice uses the special voice bit.
             const deathMessage = verbalMsg.toUpperCase();
-            await ttyPline(deathMessage, state);
+            await message(deathMessage, state);
             set_voice(null, 0, 80, voice_death, state);
             sound_speak(deathMessage, state);
             return ECMD_TIME;
@@ -1439,7 +1444,7 @@ export async function domonnoise(mtmp, state = game) {
         set_voice(mtmp, 0, 80, 0, state);
         state.gp.pline_flags |= PLINE_VERBALIZE;
         try {
-            await ttyPline(`"${verbalMsg}"`, state);
+            await message(`"${verbalMsg}"`, state);
         } finally {
             state.gp.pline_flags &= ~PLINE_VERBALIZE;
         }

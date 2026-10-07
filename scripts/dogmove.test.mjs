@@ -7,6 +7,9 @@ import {
     ALLOW_TRAPS,
     ALLOW_U,
     CADAVER,
+    COLNO,
+    ROWNO,
+    M_AP_NOTHING,
     CONFLICT,
     DEAF,
     DISMOUNT_THROWN,
@@ -16,6 +19,9 @@ import {
     LAVAPOOL,
     MANFOOD,
     M_ATTK_MISS,
+    M_ATTK_HIT,
+    M_ATTK_AGR_DIED,
+    M_ATTK_DEF_DIED,
     MMOVE_DIED,
     MMOVE_DONE,
     MMOVE_MOVED,
@@ -32,6 +38,7 @@ import {
     could_reach_item,
     cursed_object_at,
     dog_goal,
+    dog_eat,
     dog_move,
     droppables,
     best_target,
@@ -41,6 +48,8 @@ import {
     score_targ,
 } from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
+import { newObject, place_object } from '../js/obj.js';
+import { game } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
 import { initrack, settrack } from '../js/track.js';
 import {
@@ -60,6 +69,7 @@ import {
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_ROTHE,
+    PM_SMALL_MIMIC,
     PM_VAMPIRE,
     PM_VAMPIRE_BAT,
 } from '../js/monsters.js';
@@ -68,6 +78,7 @@ import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
 import {
     BOULDER,
     CREDIT_CARD,
+    CORPSE,
     FOOD_CLASS,
     objects_globals_init,
     PICK_AXE,
@@ -1944,7 +1955,7 @@ test('the cursed-step matrix covers the four terms its header names', () => {
     );
 });
 
-test('dog_move applies the source leashed-pet reposition quirk', async () => {
+test('dog_move owns the source leashed-pet reposition and region order', async () => {
     // activePetState puts the hero at (7,5); this pet at (12,5) has squared
     // distance 25, selecting the source's udist > 4 leash branch.
     const { state, monster } = activePetState(12, 5);
@@ -1953,21 +1964,122 @@ test('dog_move applies the source leashed-pet reposition quirk', async () => {
 
     const result = await dog_move(monster, false, movementEnv(state, {
         findPositions: fixedCandidates([]),
-        repositionLeashedPet(subject, distance, nextX, nextY) {
-            events.push([
-                'reposition',
-                distance,
-                nextX,
-                nextY,
-            ]);
-            subject.mx = 8;
-            subject.my = 5;
+        goodpos(x, y, subject, flags) {
+            events.push(['goodpos', x, y, subject === monster, flags]);
+            return true;
         },
+        mayCrossRegion(subject, x, y) {
+            // C tests the old nix/niy, not the chosen nearby square.
+            events.push(['region', x, y, subject === monster]);
+            return true;
+        },
+        redraw: (x, y) => events.push(['redraw', x, y]),
+        setApparxy: (subject) => events.push(['apparxy', subject.mx, subject.my]),
     }));
 
     assert.equal(result, MMOVE_MOVED);
     assert.deepEqual([monster.mx, monster.my], [8, 5]);
     assert.deepEqual(events, [
-        ['reposition', 25, 12, 5],
+        ['goodpos', 8, 5, true, 0],
+        ['region', 12, 5, true],
+        ['redraw', 8, 5],
+        ['apparxy', 8, 5],
     ]);
+});
+
+// dogmove.c:915–946 consumes both attack masks; retaliation draws precede
+// the defender's vision check, and both calls reset bhitpos/notonhead.
+test('pet_ranged_attk consumes death masks and source retaliation order', async () => {
+    for (const [initial, response, expected] of [
+        [M_ATTK_AGR_DIED, M_ATTK_MISS, MMOVE_DIED],
+        [M_ATTK_HIT | M_ATTK_DEF_DIED, M_ATTK_MISS, MMOVE_DONE],
+        [M_ATTK_HIT, M_ATTK_DEF_DIED, MMOVE_DIED],
+        [M_ATTK_HIT, M_ATTK_MISS, MMOVE_DONE],
+    ]) {
+        const {state, monster} = activePetState();
+        // Nonadjacent target on the same room row as the pet.
+        const target = {data: state.mons[PM_GIANT_ANT], mx: 9, my: 5, mcansee: true};
+        const calls = [], bounds = [];
+        const result = await pet_ranged_attk(monster, false, {
+            state, bestTarget: () => target,
+            random: {rn2: bound => (bounds.push(bound), 1)},
+            mattackm(attacker, defender) {
+                assert.deepEqual(state.gb.bhitpos, {x: monster.mx, y: monster.my});
+                assert.equal(state.gn.notonhead, false);
+                calls.push([attacker, defender]);
+                return calls.length === 1 ? initial : response;
+            },
+        });
+        assert.equal(result, expected);
+        const retaliates = initial === M_ATTK_HIT;
+        assert.equal(calls.length, retaliates ? 2 : 1);
+        assert.deepEqual(bounds, retaliates ? [4] : []);
+    }
+});
+
+test('pet_ranged_attk forced no-target noise and hero death return match C', async () => {
+    const {state, monster} = activePetState();
+    const noise = [];
+    assert.equal(await pet_ranged_attk(monster, true, {
+        state, bestTarget: () => null,
+        domonnoise: subject => noise.push(subject),
+    }), MMOVE_NOTHING);
+    assert.deepEqual(noise, [monster]);
+    for (const died of [false, true]) {
+        assert.equal(await pet_ranged_attk(monster, true, {
+            state, bestTarget: () => state.youmonst,
+            attackHero: () => died,
+        }), died ? MMOVE_DIED : MMOVE_DONE);
+    }
+});
+
+// East is C direction 4. Both fallback loops test raw direction offsets,
+// including their overlapping candidates, rather than hero-relative squares.
+test('dog_move retains raw fallback coordinates and rejected region', async () => {
+    const {state, monster} = activePetState(12, 5);
+    monster.mleashed = true;
+    const positions = [], events = [];
+    assert.equal(await dog_move(monster, false, movementEnv(state, {
+        findPositions: fixedCandidates([]),
+        goodpos: (x, y) => (positions.push([x, y]), false),
+        mayCrossRegion: (_subject, x, y) => (events.push([x, y]), false),
+        redraw: () => assert.fail('rejected region skips redraw'),
+        setApparxy: () => assert.fail('rejected region skips set_apparxy'),
+    })), MMOVE_MOVED);
+    assert.deepEqual(positions, [[8, 5], [1, -1], [1, 0],
+        [0, -1], [1, -1], [1, 0], [1, 1]]);
+    assert.deepEqual(events, [[12, 5]]);
+    assert.deepEqual([monster.mx, monster.my], [12, 5]);
+});
+
+// dogmove.c:341 discards m_consume_obj's result, and mon.c:1447 discards
+// quickmimic's result. Its unported leash/steed effects cannot supply data.
+test('dog_eat retains its consumed return across the named quickmimic gap', async () => {
+    for (const mounted of [false, true]) {
+        const {state, monster} = activePetState();
+        state.context = {};
+        state.flags = {};
+        state.iflags = {};
+        state.viz_array = Array.from({length: ROWNO}, () => Array(COLNO).fill(0));
+        objects_globals_init(state);
+        init_objects(state, () => 0);
+        monster.mleashed = !mounted;
+        if (mounted) state.u.usteed = monster;
+        // Ordinary live object id; this corpse is neither a quest prize nor a stack.
+        const corpse = newObject({otyp: CORPSE, oclass: FOOD_CLASS,
+            corpsenm: PM_SMALL_MIMIC, quan: 1, o_id: 137, age: state.moves});
+        place_object(corpse, monster.mx, monster.my, {state});
+        game.unported ??= new Set();
+        game.unported.delete('dogmove.c quickmimic');
+        const bounds = [];
+        assert.equal(await dog_eat(monster, corpse, monster.mx, monster.my, false, {
+            state, random: {rn2: bound => (bounds.push(bound), 1)},
+            redraw: () => {}, message: () => {},
+        }), MMOVE_MOVED);
+        assert.equal(state.level.objects[monster.mx][monster.my], null);
+        assert.equal(game.unported.has('dogmove.c quickmimic'), true);
+        assert.equal(monster.m_ap_type ?? M_AP_NOTHING, M_AP_NOTHING);
+        // dogfood and delobj each draw obj_resists(100); no quickmimic(9).
+        assert.deepEqual(bounds, [100, 100]);
+    }
 });

@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
     BARRACKS,
+    MS_BARK,
     BEEHIVE,
     COURT,
     DEAF,
@@ -20,6 +21,7 @@ import { GameMap } from '../js/game.js';
 import { COIN_CLASS } from '../js/objects.js';
 import {
     M1_ANIMAL,
+    M1_CARNIVORE,
     M1_FLY,
     M2_LORD,
     M2_MERC,
@@ -29,6 +31,7 @@ import {
 import { parseNethackrc } from '../js/options.js';
 import {
     dosounds,
+    beg,
 } from '../js/sounds.js';
 
 const C_SOUNDS_SOURCE = readFileSync(
@@ -699,4 +702,26 @@ test('#chat dispatches priest and peaceful demon conversations at their C sound 
     assert.match(jsNoise, /case MS_PRIEST:\s*await priest_talk\(mtmp, state\);/u);
     assert.match(jsNoise,
         /case MS_BRIBE:\s*if \(mtmp\.mpeaceful && !mtmp\.mtame\)\s*\{\s*\/\/ sounds\.c discards demon_talk\(\)'s int result\.\s*await demon_talk\(mtmp, state\);/u);
+});
+
+// sounds.c:528 animal begging delegates to domonnoise; the planner must
+// forward the cloned RNG, message sink and invisibility callback intact.
+test('beg forwards canonical planning operations to animal noise', async () => {
+    const state = soundState();
+    const random = {rn2: () => 0};
+    const message = () => assert.fail('fixture delegates without output');
+    const markInvisible = () => assert.fail('fixture delegates without a map write');
+    let forwarded;
+    const animal = {mcanmove: true, data: {msound: MS_BARK, mflags1: M1_CARNIVORE}};
+    await beg(animal, {state, random, message, markInvisible, planning: true,
+        domonnoise(subject, receivedState, env) {
+            assert.equal(subject, animal);
+            assert.equal(receivedState, state);
+            forwarded = env;
+        },
+    });
+    assert.equal(forwarded.random, random);
+    assert.equal(forwarded.message, message);
+    assert.equal(forwarded.markInvisible, markInvisible);
+    assert.equal(forwarded.planning, true);
 });

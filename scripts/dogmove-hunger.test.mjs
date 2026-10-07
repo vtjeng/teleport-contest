@@ -98,17 +98,18 @@ test('dog_hunger applies the weak penalty before reporting it', async () => {
     ]);
 });
 
-test('dog_hunger preflights weak-state owners before mutation', async () => {
+test('dog_hunger applies the source penalty before interrupting an occupation', async () => {
     const { monster, edog } = hungryPet();
-    const before = structuredClone({ monster, edog });
     const env = hungerEnv(WEAK_LIMIT + 1);
-    delete env.stopOccupation;
+    env.stopOccupation = () => { throw new Error('occupation boundary'); };
 
     await assert.rejects(
         dog_hunger(monster, edog, env),
-        /stopOccupation/,
+        /occupation boundary/,
     );
-    assert.deepEqual({ monster, edog }, before);
+    assert.equal(monster.mhpmax, WEAK_MAXIMUM);
+    assert.equal(monster.mhp, WEAK_MAXIMUM);
+    assert.equal(edog.mhpmax_penalty, WEAK_PENALTY);
 });
 
 test('dog_hunger starves once when the maximum falls to zero', async () => {
