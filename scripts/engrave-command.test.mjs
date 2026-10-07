@@ -223,7 +223,7 @@ test('disturb_grave completes makemon with engraving callers partial RNG',
         const { ux, uy } = state.u;
         const square = state.level.at(ux, uy);
         square.typ = GRAVE;
-        square.disturbed = false;
+        square.horizontal = false;
         const bornBefore = state.mvitals[PM_GHOUL].born;
         const messages = [];
 
@@ -233,11 +233,23 @@ test('disturb_grave completes makemon with engraving callers partial RNG',
             norepMessage: async (text) => messages.push(text),
         });
 
-        assert.equal(square.disturbed, true);
+        assert.equal(square.horizontal, true);
         assert.equal(state.mvitals[PM_GHOUL].born, bornBefore + 1);
         assert.equal(messages[0], 'You disturb the undead!');
         assert.ok(messages.some((text) => text.includes('ghoul')));
     });
+
+test('disturb_grave refuses a grave already marked in horizontal', async () => {
+    // rm.h aliases disturbed to horizontal; a terrain wish sets this bit.
+    // The source impossible() arm must neither create another ghoul nor draw.
+    const state = engravingGateState(GRAVE);
+    state.level.at(10, 10).horizontal = true;
+    await disturb_grave(10, 10, state, {
+        random: { rn2: () => assert.fail('already disturbed must not draw') },
+        message: () => assert.fail('already disturbed must not announce undead'),
+    });
+    assert.equal(state.level.at(10, 10).horizontal, true);
+});
 
 test('bare fingertips write a rate-10 dust engraving in one action',
     async () => {

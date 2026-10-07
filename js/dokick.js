@@ -8,24 +8,31 @@
 // dokick() is a guard chain, a direction prompt, and five ordered tests over
 // the target square -- monsters, pools, objects, non-doors, doors. Only the
 // last of those five continues into kick_door() or kick_nondoor().
-// kick_door() covers the failure branch (959-969) fully and the non-trapped
-// success branch (940-950): the shatter arm (ACURR(A_STR) > 18, rn2(5)==0,
-// non-shop) and the crash-open fallback. Both set the doormask, exercise
-// Strength, and call feel_newsym() and recalc_block_point(). The trapped-door
-// arm (D_TRAPPED, b_trapped), the Levitation guard (kick_ouch), and the
-// shop/town follow-ups are refused.
-//
-// kick_object(), really_kick_object(), watchman_thief_arrest(), and
-// watchman_door_damage() remain unported.
-// kick_nondoor() includes the source-gated disturbance path for an
-// undisturbed grave; its headstone-destruction alternative remains refused.
+// kick_door() and kick_nondoor() follow every terrain branch in source
+// order. Shop billing and town-watch callback calls retain named discarded
+// gaps. kick_object() and really_kick_object() remain unported.
 // Object shipping below ports drop_to(), ship_object(), otransit_msg(), and
 // down_gate(), shared by hero drops, throws, and monster missile settlement.
 
-import { acurrstr, exercise, acurr } from './attrib.js';
+import { acurrstr, exercise, acurr, adjalign } from './attrib.js';
 import { isok } from './cmd_isok.js';
 import { getdir } from './cmd.js';
 import {
+    A_LAWFUL,
+    A_WIS,
+    CORR,
+    D_LOCKED,
+    ER_NOTHING,
+    FOOT,
+    G_GONE,
+    MM_ANGRY,
+    MM_NOMSG,
+    MM_MALE,
+    MM_FEMALE,
+    S_LPUDDING,
+    S_LDWASHER,
+    TREE_LOOTED,
+    TREE_SWARM,
     A_CON,
     A_DEX,
     A_STR,
@@ -98,11 +105,11 @@ import {
     legs_in_no_shape,
     set_wounded_legs,
 } from './do.js';
-import { disturb_grave, u_wipe_engr } from './engrave.js';
+import { del_engr_at, disturb_grave, u_wipe_engr } from './engrave.js';
 import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level } from './dungeon.js';
 import { breaktest, hurtle } from './dothrow.js';
 import { game } from './gstate.js';
-import { upstart } from './hacklib.js';
+import { sgn, upstart } from './hacklib.js';
 import { currency, obj_extract_self, obfree, useup, sobj_at } from './invent.js';
 import {
     in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
@@ -121,9 +128,14 @@ import {
 } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
+    PM_KILLER_BEE, PM_BLACK_PUDDING, PM_AMOROUS_DEMON,
+    PM_ARCHEOLOGIST, PM_SAMURAI,
     AT_KICK, PM_SASQUATCH, PM_SHADE, S_EEL, S_LIZARD,
 } from './monsters.js';
 import {
+    dealloc_obj,
+    mksobj,
+    rnd_treefruit_at,
     add_to_migration,
     isContainer,
     mkgold,
@@ -135,13 +147,13 @@ import {
 import {
     BAG_OF_HOLDING, BAG_OF_TRICKS, BOULDER, COIN_CLASS, CORPSE,
     DILITHIUM_CRYSTAL, EGG, EXPENSIVE_CAMERA, GEM_CLASS, GLASS,
-    KICKING_BOOTS, LUCKSTONE, MIRROR,
+    KICKING_BOOTS, LUCKSTONE, MIRROR, ROCK,
 } from './objects.js';
-import { corpse_xname, otense, Tobjnam } from './objnam.js';
+import { An, corpse_xname, is_plural, otense, Tobjnam, xname } from './objnam.js';
 import { change_luck } from './moveloop_preamble.js';
 import { encumber_msg } from './pickup.js';
 import { ok_to_quest } from './quest.js';
-import { d, rn1, rn2, rnd, rnl } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { obj_resists } from './bury.js';
 import {
@@ -152,6 +164,7 @@ import { shkname } from './shknam.js';
 import { stairway_at } from './stairs.js';
 import { remove_worn_item } from './steal.js';
 import {
+    b_trapped,
     fall_through,
     t_at,
 } from './trap.js';
@@ -168,15 +181,23 @@ import {
 } from './dbridge.js';
 
 import { note_unported } from './unported.js';
-import { cansee, recalc_block_point } from './vision.js';
+import { cansee, recalc_block_point, unblock_point } from './vision.js';
 import { martial_bonus, special_dmgval, use_skill } from './weapon.js';
 import {
     attack_checks, check_caitiff, damageum, find_roll_to_hit,
     missum, mon_maybe_unparalyze, passive,
 } from './uhitm.js';
-import { a_monnam, Monnam, mon_nam } from './do_name.js';
-import { noteleport_level, goodpos } from './teleport.js';
+import { a_monnam, hcolor, Monnam, mon_nam } from './do_name.js';
+import { enexto, noteleport_level, goodpos } from './teleport.js';
 import { canspotmon } from './display.js';
+import { stop_occupation } from './allmain.js';
+import { cvt_sdoor_to_door } from './detect.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { scatter, SCATTER_MAY_HIT } from './explode.js';
+import { sink_backs_up } from './fountain.js';
+import { poly_gender } from './polyself.js';
+import { water_damage } from './trap_water_damage.js';
+import { makemon_runtime } from './makemon_create.js';
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
 // C files write it directly: dokick.c:1325 sets it, and hack.c domove():2708
@@ -258,7 +279,7 @@ function Fumbling(state) {
 
 function kickEnvironment(state) {
     state.context ??= {};
-    const random = { d, rn1, rn2, rnd, rnl };
+    const random = { d, rn1, rn2, rnd, rne, rnl };
     return {
         state,
         random,
@@ -614,159 +635,108 @@ async function kick_ouch(x, y, kickobjnam, state) {
         await hurtle(-u.dx, -u.dy, rn1(2, 4), true, state);
 }
 
-// C ref: dokick.c kick_door() (908-970). Kick a door. The failure branch
-// (959-969) is fully implemented: the hero fails to break the door, hears
-// "Whammm!!" or "Thwack!!", and gains Strength exercise. The non-trapped
-// success branch (940-950) is implemented: the shatter arm (ACURR(A_STR) > 18,
-// rn2(5)==0, non-shop) sets D_NODOOR; the crash-open fallback sets D_BROKEN.
-// Both exercise Strength and call feel_newsym()/recalc_block_point(). The
-// trapped-door arm (D_TRAPPED, b_trapped) and the shop/town follow-ups remain
-// named gaps.
-async function kick_door(x, y, avrg_attrib, state) {
+// C ref: dokick.c kick_door() (910-970). Door changes precede redraw,
+// vision recalculation, shop billing and town-watch callbacks.
+export async function kick_door(x, y, avrg_attrib, state = game) {
     const maploc = state.level.at(x, y);
     const mask = maploc.flags || maploc.doormask || 0;
-
-    // 914-918. Open, broken, or no-door: dumb kick. kick_dumb is already
-    // ported.
     if (mask === D_ISOPEN || mask === D_BROKEN || mask === D_NODOOR) {
         await kick_dumb(x, y, state);
         return;
     }
-
-    // 921-924. Not enough leverage while levitating: C takes the normal
-    // painful-kick path, including its floating recoil.
     if (Levitation(state)) {
         await kick_ouch(x, y, '', state);
         return;
     }
-
-    // 926. Exercise dexterity for the attempt.
     await exercise(A_DEX, true, state, { rn2 });
-
-    // 927. Polymorphed giants are doorbusters.
     const doorbuster = Upolyd(state.u) && is_giant(state.youmonst?.data);
-
-    // 929-930. Door is known to be CLOSED or LOCKED. The success check
-    // compares rnl(35) against the hero's attributes plus martial dexterity.
-    if (doorbuster
-        || (rnl(35) < avrg_attrib + (!martial(state) ? 0
-            : acurr(state, A_DEX)))) {
-        // 931. shopdoor is computed before the if-chain. in_rooms() draws no
-        // RNG, so the stream position is unaffected.
+    if (doorbuster || rnl(35) < avrg_attrib
+        + (martial(state) ? acurr(state, A_DEX) : 0)) {
         const shopdoor = in_rooms(x, y, SHOPBASE, state).length > 0;
-
-        // 934-939. D_TRAPPED: the hero kicks a trapped door. b_trapped()
-        // is ported, but this caller branch and its ordered side effects
-        // still belong to the incomplete kick_door() port.
         if (mask & D_TRAPPED) {
-            throw new UnsupportedKickError(
-                "kick_door()'s D_TRAPPED caller branch",
-            );
-        }
-
-        // 940-944. Shatter: strong hero, rn2(5)==0, non-shop door.
-        // C evaluates ACURR(A_STR) > 18 first, then !rn2(5), then !shopdoor.
-        // Short-circuit: rn2(5) is drawn only when ACURR(A_STR) > 18.
-        if (acurr(state, A_STR) > 18 && !rn2(5) && !shopdoor) {
-            // 941. Soundeffect() is a tty-sound hook and writes nothing.
-            await ttyPline(
-                'As you kick the door, it shatters to pieces!', state,
-            );
+            if (state.flags.verbose) await ttyPline('You kick the door.', state);
+            await exercise(A_STR, false, state, { rn2 },
+                { encumberMessage: encumber_msg });
+            maploc.flags = maploc.doormask = D_NODOOR;
+            await b_trapped('door', FOOT, state);
+        } else if (acurr(state, A_STR) > 18 && !rn2(5) && !shopdoor) {
+            await ttyPline('As you kick the door, it shatters to pieces!', state);
             await exercise(A_STR, true, state, { rn2 },
-                           { encumberMessage: encumber_msg });
-            maploc.doormask = D_NODOOR;
-            maploc.flags = D_NODOOR;
+                { encumberMessage: encumber_msg });
+            maploc.flags = maploc.doormask = D_NODOOR;
         } else {
-            // 946-949. Crash open: the fallback when the door does not shatter.
-            // 946. Soundeffect() is a tty-sound hook and writes nothing.
-            await ttyPline(
-                'As you kick the door, it crashes open!', state,
-            );
+            await ttyPline('As you kick the door, it crashes open!', state);
             await exercise(A_STR, true, state, { rn2 },
-                           { encumberMessage: encumber_msg });
-            maploc.doormask = D_BROKEN;
-            maploc.flags = D_BROKEN;
+                { encumberMessage: encumber_msg });
+            maploc.flags = maploc.doormask = D_BROKEN;
         }
-
-        // 951-952. Both shatter and crash-open run these.
         feel_newsym(x, y, state);
         recalc_block_point(x, y, state);
-
-        // 953-956. Shop door: charge the hero for damage. Deferred.
         if (shopdoor) {
-            throw new UnsupportedKickError(
-                "kick_door()'s shop-door arm, which needs add_damage() and "
-                + 'pay_for_damage()',
-            );
+            note_unported('shk.c add_damage');
+            note_unported('shk.c pay_for_damage');
         }
-
-        // 957-958. In a town: the kick alerts the watch. Deferred.
-        if (in_town(x, y, state)) {
-            throw new UnsupportedKickError(
-                "kick_door()'s watchman_thief_arrest arm, which needs "
-                + 'get_iter_mons()',
-            );
-        }
-        return;
-    }
-
-    // 959-969. Failure branch: the hero fails to break the door.
-    // 960-961. Blind hero feels the door.
-    if (Blind(state)) feel_location(x, y, state);
-
-    // 962. Exercise Strength for the effort.
-    await exercise(A_STR, true, state, { rn2 },
-                   { encumberMessage: encumber_msg });
-
-    // 966. "Whammm!!" when the hero can hear and rn2(3) is nonzero; "Thwack!!"
-    // when deaf or the one-in-three rn2(3)==0 case. C evaluates the Deaf macro
-    // before the rn2 short circuit: when Deaf is true, rn2(3) is never drawn.
-    await ttyPline(`${(Deaf(state) || !rn2(3)) ? 'Thwack' : 'Whammm'}!!`,
-                   state);
-
-    // 967-968. In a town, the kick alerts the watch. The true arm calls
-    // get_iter_mons_xy(watchman_door_damage, x, y), which is unported.
-    if (in_town(x, y, state)) {
-        throw new UnsupportedKickError(
-            "kick_door()'s watchman_door_damage arm, which needs "
-            + 'get_iter_mons_xy()',
-        );
+        if (in_town(x, y, state))
+            note_unported('mon.c get_iter_mons watchman_thief_arrest');
+    } else {
+        if (Blind(state)) feel_location(x, y, state);
+        await exercise(A_STR, true, state, { rn2 },
+            { encumberMessage: encumber_msg });
+        await ttyPline(`${Deaf(state) || !rn2(3) ? 'Thwack' : 'Whammm'}!!`, state);
+        if (in_town(x, y, state))
+            note_unported('mon.c get_iter_mons_xy watchman_door_damage');
     }
 }
 
-// C ref: dokick.c kick_nondoor() (974-1253). Its return value is dokick()'s,
-// and every arm of it ends ECMD_TIME.
-//
-// avrg_attrib is kick_nondoor()'s third parameter in C. Two arms of this
-// function read it, the secret door at 977 and the secret corridor at 1003;
-// both are refused, so the parameter is omitted from this signature. dokick()
-// now computes avrg_attrib for kick_door(); kick_nondoor() does not receive it.
-async function kick_nondoor(x, y, state) {
+// C ref: dokick.c kick_nondoor() (974-1256). Its terrain arms share
+// dokick()'s attribute average and always return ECMD_TIME.
+export async function kick_nondoor(x, y, avrg_attrib, state = game) {
     const maploc = state.level.at(x, y);
-
+    const random = { d, rn1, rn2, rnd, rne, rnl };
+    const objects = objectGenerationEnv({ state, random });
     if (maploc.typ === SDOOR) {
-        throw new UnsupportedKickError(
-            "kick_nondoor()'s secret-door arm, whose rn2(30) this stops "
-            + 'before',
-        );
+        if (!Levitation(state) && rn2(30) < avrg_attrib) {
+            cvt_sdoor_to_door(maploc, state);
+            const mask = maploc.flags;
+            await ttyPline(`Crash!  ${(mask & (D_LOCKED | D_TRAPPED))
+                === D_LOCKED ? 'Your kick uncovers' : 'You kick open'} a secret door!`, state);
+            await exercise(A_DEX, true, state, random);
+            if (mask & D_TRAPPED) {
+                maploc.flags = maploc.doormask = D_NODOOR;
+                await b_trapped('door', FOOT, state);
+            } else if (mask !== D_NODOOR && !(mask & D_LOCKED)) {
+                maploc.flags = maploc.doormask = D_ISOPEN;
+            }
+            feel_newsym(x, y, state);
+            if (maploc.flags === D_ISOPEN || maploc.flags === D_NODOOR)
+                unblock_point(x, y, state);
+        } else {
+            await kick_ouch(x, y, '', state);
+        }
+        return ECMD_TIME;
     }
     if (maploc.typ === SCORR) {
-        throw new UnsupportedKickError(
-            "kick_nondoor()'s secret-corridor arm, whose rn2(30) this stops "
-            + 'before',
-        );
+        if (!Levitation(state) && rn2(30) < avrg_attrib) {
+            await ttyPline('Crash!  You kick open a secret passage!', state);
+            await exercise(A_DEX, true, state, random);
+            maploc.typ = CORR;
+            feel_newsym(x, y, state);
+            unblock_point(x, y, state);
+        } else {
+            await kick_ouch(x, y, '', state);
+        }
+        return ECMD_TIME;
     }
     if (IS_THRONE(maploc.typ)) {
         const luck = (state.u.uluck ?? 0) + (state.u.moreluck ?? 0);
-        const random = { d, rn1, rn2, rnd, rnl };
         if (Levitation(state)) {
             await kick_dumb(x, y, state);
             return ECMD_TIME;
         }
-        if ((luck < 0 || maploc.looted) && !rn2(3)) {
-            maploc.looted = 0;
+        if ((luck < 0 || maploc.flags) && !rn2(3)) {
+            maploc.flags = 0;
             maploc.typ = ROOM;
-            mkgold(rnd(200), x, y, { state, random });
+            mkgold(rnd(200), x, y, objects);
             if (Blind(state)) {
                 await ttyPline('CRASH!  You destroy it.', state);
             } else {
@@ -776,16 +746,16 @@ async function kick_nondoor(x, y, state) {
             await exercise(A_DEX, true, state, random);
             return ECMD_TIME;
         }
-        if (luck > 0 && !rn2(3) && !maploc.looted) {
-            mkgold(rn1(201, 300), x, y, { state, random });
+        if (luck > 0 && !rn2(3) && !maploc.flags) {
+            mkgold(rn1(201, 300), x, y, objects);
             const gems = Math.min(luck + 1, 6);
             for (let i = gems; i > 0; --i) {
                 const gem = rnd_class(
                     DILITHIUM_CRYSTAL,
                     LUCKSTONE - 1,
-                    { state, random },
+                    objects,
                 );
-                mksobj_at(gem, x, y, false, true, { state, random });
+                mksobj_at(gem, x, y, false, true, objects);
             }
             await ttyPline(
                 Blind(state)
@@ -794,7 +764,7 @@ async function kick_nondoor(x, y, state) {
                 state,
             );
             if (!Blind(state)) newsym(x, y, state);
-            maploc.looted = T_LOOTED;
+            maploc.flags = T_LOOTED;
             return ECMD_TIME;
         }
         if (!rn2(4)) {
@@ -809,7 +779,6 @@ async function kick_nondoor(x, y, state) {
         return ECMD_TIME;
     }
     if (IS_ALTAR(maploc.typ)) {
-        const random = { d, rn1, rn2, rnd, rnl };
         if (Levitation(state)) {
             await kick_dumb(x, y, state);
             return ECMD_TIME;
@@ -828,9 +797,22 @@ async function kick_nondoor(x, y, state) {
         return ECMD_TIME;
     }
     if (IS_FOUNTAIN(maploc.typ)) {
-        throw new UnsupportedKickError(
-            "kick_nondoor()'s fountain arm, which needs water_damage()",
-        );
+        if (Levitation(state)) {
+            await kick_dumb(x, y, state);
+            return ECMD_TIME;
+        }
+        await ttyPline(`You kick ${Blind(state) ? something : 'the fountain'}.`, state);
+        if (!rn2(3)) {
+            await kick_ouch(x, y, '', state);
+            return ECMD_TIME;
+        }
+        if (state.uarmf && rn2(3)
+            && await water_damage(state.uarmf, 'metal boots', true, { state, random })
+                === ER_NOTHING) {
+            await ttyPline('Your boots get wet.', state);
+        }
+        await exercise(A_DEX, true, state, random);
+        return ECMD_TIME;
     }
     if (IS_GRAVE(maploc.typ)) {
         if (Levitation(state)) {
@@ -841,14 +823,27 @@ async function kick_nondoor(x, y, state) {
             await kick_ouch(x, y, '', state);
             return ECMD_TIME;
         }
-        if (!maploc.disturbed && !rn2(2)) {
+        if (!maploc.horizontal && !rn2(2)) {
             await disturb_grave(x, y, state);
             return ECMD_TIME;
         }
-        throw new UnsupportedKickError(
-            "kick_nondoor()'s headstone-destruction arm, which changes "
-            + 'alignment and terrain and creates a rock',
-        );
+        await exercise(A_WIS, false, state, random);
+        if (state.urole.mnum === PM_ARCHEOLOGIST
+            || state.urole.mnum === PM_SAMURAI
+            || (state.u.ualign.type === A_LAWFUL && state.u.ualign.record > -10))
+            adjalign(-sgn(state.u.ualign.type), state);
+        maploc.typ = ROOM;
+        maploc.flags = 0; // C emptygrave aliases rm.flags.
+        maploc.horizontal = false;
+        mksobj_at(ROCK, x, y, true, false, objects);
+        del_engr_at(x, y, state);
+        if (Blind(state)) {
+            await ttyPline('Crack!  Something broke!', state);
+        } else {
+            await ttyPline('The headstone topples over and breaks!', state);
+            newsym(x, y, state);
+        }
+        return ECMD_TIME;
     }
     if (maploc.typ === IRONBARS) {
         await kick_ouch(x, y, '', state);
@@ -857,16 +852,102 @@ async function kick_nondoor(x, y, state) {
     // 1135. An arboreal level makes STONE a tree, and this test precedes the
     // IS_STWALL() one below that would otherwise claim the same square.
     if (IS_TREE(maploc.typ, state)) {
-        throw new UnsupportedKickError(
-            "kick_nondoor()'s tree arm, which needs rnd_treefruit_at() and "
-            + 'scatter()',
-        );
+        if (rn2(3)) {
+            if (!rn2(6) && !(state.mvitals[PM_KILLER_BEE].mvflags & G_GONE)) {
+                const heard = youHear('a low buzzing.', state);
+                if (heard) await ttyPline(heard, state);
+            }
+            await kick_ouch(x, y, '', state);
+            return ECMD_TIME;
+        }
+        let treefruit;
+        if (rn2(15) && !(maploc.flags & TREE_LOOTED)
+            && (treefruit = rnd_treefruit_at(x, y, objects))) {
+            const nfruit = 8 - rnl(7);
+            const frtype = treefruit.otyp;
+            treefruit.quan = nfruit;
+            treefruit.owt = weight(treefruit, objects);
+            await ttyPline(is_plural(treefruit, state)
+                ? `Some ${xname(treefruit, state)} fall from the tree!`
+                : `${An(xname(treefruit, state))} falls from the tree!`, state);
+            const nfall = await scatter(x, y, 2, SCATTER_MAY_HIT, treefruit, state, {
+                stopOccupation: subject => stop_occupation(subject, { message: ttyPline }),
+                exercise: (attribute, increase, subject) => exercise(
+                    attribute, increase, subject, random,
+                    { encumberMessage: encumber_msg },
+                ),
+            });
+            if (nfall !== nfruit) {
+                treefruit = mksobj(frtype, true, false, objects);
+                treefruit.quan = nfruit - nfall;
+                await ttyPline(`${nfruit - nfall} ${xname(treefruit, state)} got caught in the branches.`, state);
+                dealloc_obj(treefruit, objects);
+            }
+            await exercise(A_DEX, true, state, random);
+            await exercise(A_WIS, true, state, random);
+            newsym(x, y, state);
+            maploc.flags |= TREE_LOOTED;
+            return ECMD_TIME;
+        } else if (!(maploc.flags & TREE_SWARM)) {
+            let cnt = rnl(4) + 2;
+            let made = 0;
+            let mm = { x, y };
+            while (cnt--) {
+                const nearby = enexto(mm.x, mm.y, state.mons[PM_KILLER_BEE], { state });
+                if (nearby) {
+                    mm = nearby;
+                    if (await makemon_runtime(state.mons[PM_KILLER_BEE], mm.x, mm.y,
+                        MM_ANGRY | MM_NOMSG, { state })) made++;
+                }
+            }
+            await ttyPline(made ? "You've attracted the tree's former occupants!"
+                : 'You smell stale honey.', state);
+            maploc.flags |= TREE_SWARM;
+            return ECMD_TIME;
+        }
+        await kick_ouch(x, y, '', state);
+        return ECMD_TIME;
     }
     if (IS_SINK(maploc.typ)) {
-        throw new UnsupportedKickError(
-            "kick_nondoor()'s sink arm, which needs sink_backs_up()",
-        );
+        const gend = poly_gender(state);
+        if (Levitation(state)) {
+            await kick_dumb(x, y, state);
+            return ECMD_TIME;
+        }
+        if (rn2(5)) {
+            await ttyPline(Deaf(state) ? 'Klunk!' : 'Klunk!  The pipes vibrate noisily.', state);
+            await exercise(A_DEX, true, state, random);
+            return ECMD_TIME;
+        } else if (!(maploc.flags & S_LPUDDING) && !rn2(3)
+            && !(state.mvitals[PM_BLACK_PUDDING].mvflags & G_GONE)) {
+            if (Blind(state)) {
+                const heard = youHear('a gushing sound.', state);
+                if (heard) await ttyPline(heard, state);
+            } else {
+                await ttyPline(`A ${hcolor('black', state)} ooze gushes up from the drain!`, state);
+            }
+            await makemon_runtime(state.mons[PM_BLACK_PUDDING], x, y, MM_NOMSG, { state });
+            await exercise(A_DEX, true, state, random);
+            newsym(x, y, state);
+            maploc.flags |= S_LPUDDING;
+            return ECMD_TIME;
+        } else if (!(maploc.flags & S_LDWASHER) && !rn2(3)
+            && !(state.mvitals[PM_AMOROUS_DEMON].mvflags & G_GONE)) {
+            await ttyPline(`${Blind(state) ? 'Something' : 'The dish washer'} returns!`, state);
+            const sex = gend === 1 || (gend === 2 && rn2(2)) ? MM_MALE : MM_FEMALE;
+            if (await makemon_runtime(state.mons[PM_AMOROUS_DEMON], x, y,
+                MM_NOMSG | sex, { state })) newsym(x, y, state);
+            maploc.flags |= S_LDWASHER;
+            await exercise(A_DEX, true, state, random);
+            return ECMD_TIME;
+        } else if (!rn2(3)) {
+            await sink_backs_up(x, y, state, { encumberMessage: encumber_msg });
+            return ECMD_TIME;
+        }
+        await kick_ouch(x, y, '', state);
+        return ECMD_TIME;
     }
+
     if (maploc.typ === STAIRS || maploc.typ === LADDER
         || IS_STWALL(maploc.typ)) {
         // 1244. mklev.c mkstairs() writes LA_DOWN on a down staircase as well
@@ -1068,7 +1149,7 @@ export async function dokick(state = game) {
     if (IS_DOOR(maploc.typ)) {
         await kick_door(x, y, avrg_attrib, state);
     } else {
-        return await kick_nondoor(x, y, state);
+        return await kick_nondoor(x, y, avrg_attrib, state);
     }
     return ECMD_TIME;
 }
