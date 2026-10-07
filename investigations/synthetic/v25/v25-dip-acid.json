@@ -1,0 +1,127 @@
+{
+  "session": "synthetic/v25/v25-dip-acid",
+  "corpus": "synthetic",
+  "batch": "v25",
+  "caseId": "v25-dip-acid",
+  "remainingScreens": 1,
+  "recordedSteps": 55,
+  "manifestPath": "challenges/manifests/v25.json",
+  "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+  "recordingSha256": "f46124ccaff9317081445ea3bef330d0e520ab8636725e1504ba025fb3cfb049",
+  "evaluationPath": "challenges/evaluations/20261007043256-v25.json",
+  "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+  "commit": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v25",
+    "caseId": "v25-dip-acid",
+    "session": "synthetic/v25/v25-dip-acid",
+    "manifestPath": "challenges/manifests/v25.json",
+    "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+    "recording": "challenges/cases/v25/v25-dip-acid.session.json",
+    "recordingPath": "challenges/cases/v25/v25-dip-acid.session.json",
+    "recordingSha256": "f46124ccaff9317081445ea3bef330d0e520ab8636725e1504ba025fb3cfb049",
+    "recipe": "challenges/cases/v25/v25-dip-acid.recipe.session.json",
+    "recipeSha256": "3ab2ac5ca336533a31db2446f1fee8b480183222d8e2748b3120b186e1b9a145",
+    "replayInputSha256": "2308e65b5e6be72bdf2fcb530a6ae01758fd50e11760072ce3b41f1606acaa44",
+    "evaluationPath": "challenges/evaluations/20261007043256-v25.json",
+    "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+    "evaluationArtifact": "challenges/evaluations/20261007043256-v25.json",
+    "evaluationUtc": "2026-10-07T04:34:48.397Z",
+    "remainingScreens": 1,
+    "recordedSteps": 55,
+    "previousScreensMatched": 54,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 54,
+        "total": 55
+      },
+      "rng": {
+        "matched": 2652,
+        "total": 2652
+      },
+      "cursors": {
+        "matched": 54,
+        "total": 55
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 50,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 50,
+          "key": "q"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 5,
+        "cCell": {
+          "ch": "d",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "0",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 50,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 50,
+          "key": "q"
+        },
+        "cCursor": [
+          29,
+          0,
+          1
+        ],
+        "jsCursor": [
+          24,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 50,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "status": "complete",
+  "goalKind": "divergence-fix",
+  "summary": "The acid-dip caller passes numeric 0 as erode_obj’s optional description. C passes a null pointer, so erode_obj substitutes cxname(obj); JavaScript’s nullish fallback treats 0 as an explicit description and prints “Your 0 corrodes!” instead of “Your dagger corrodes!”. The source-backed correction is to pass null at potion.c:potion_dip’s acid arm.",
+  "source": {
+    "file": "potion.c",
+    "functions": [
+      "potion_dip"
+    ],
+    "branch": "After water, polymorph, potion-mixture, lichen-corpse, towel, and poison-coating branches, POT_ACID calls erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE). A non-greased corrodeable carried dagger reaches erode_obj’s name fallback and corrosion message.",
+    "callers": [
+      "potion.c:dodip selects the target and potion, then calls potion_dip; js/potion.js dodip and altdip dispatch to the shared potion_dip implementation.",
+      "potion.c:potion_dip calls trap.c:erode_obj with a null description; js/potion.js calls js/trap_erode_obj.js:erode_obj with numeric 0."
+    ],
+    "dependencies": [
+      "trap.c:erode_obj is already implemented and uses description ?? cxname(obj); its source contract is correct for null and undefined callers."
+    ]
+  },
+  "evidence": [
+    "Evaluation challenges/evaluations/20261007043256-v25.json at e61af74e9cd0087d730c364dcc8488bf0702ad32 records 54/55 matching screens, 2,652/2,652 RNG calls, and 54/55 cursors. The first mismatch is segment 0 step 50 after key q: C prints “Your dagger corrodes!--More--” and JavaScript prints “Your 0 corrodes!--More--”.",
+    "Upstream potion.c:2638-2642 calls erode_obj(obj, 0, ERODE_CORRODE, EF_GREASE). In C, integer constant 0 is a null pointer constant for the const char * parameter. trap.c:232-233 replaces a null ostr with cxname(otmp).",
+    "JavaScript js/potion.js:3573-3574 passes numeric 0. js/trap_erode_obj.js:211 uses description ?? cxname(obj), so 0 survives the fallback and becomes the printed item description.",
+    "The smallest general correction is the potion_dip acid-arm argument from 0 to null, with source-pinned singular and plural/protected wording tests and independent acid-dip recordings. It does not reopen whole potion_dip or erode_obj source completion."
+  ]
+}
