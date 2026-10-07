@@ -1,0 +1,127 @@
+{
+  "session": "synthetic/v27/v27-sunsword-unwield",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-sunsword-unwield",
+  "remainingScreens": 23,
+  "recordedSteps": 23,
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingSha256": "d8e0f16762baf12b3972afbe9ce3835367905dfd7e388b43dcf974dcdfbaf514",
+  "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+  "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+  "status": "complete",
+  "commit": "76417879468cfeb65fa59ad60447a803684c6747",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-sunsword-unwield",
+    "session": "synthetic/v27/v27-sunsword-unwield",
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recording": "challenges/cases/v27/v27-sunsword-unwield.session.json",
+    "recordingPath": "challenges/cases/v27/v27-sunsword-unwield.session.json",
+    "recordingSha256": "d8e0f16762baf12b3972afbe9ce3835367905dfd7e388b43dcf974dcdfbaf514",
+    "recipe": "challenges/cases/v27/v27-sunsword-unwield.recipe.session.json",
+    "recipeSha256": "1d8d7c8d22e0382fb83ad12366256d42b484d9159bd818a1aa4c19a1c60ad66a",
+    "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+    "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+    "evaluationArtifact": "challenges/evaluations/baseline-76417879-v27.json",
+    "evaluationUtc": "2026-10-07T18:10:31.065Z",
+    "remainingScreens": 23,
+    "recordedSteps": 23,
+    "passed": false,
+    "error": "worn requires endArtifactLight for otyp 54",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 23
+      },
+      "rng": {
+        "matched": 0,
+        "total": 2646
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 23
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 17,
+      "message": "worn requires endArtifactLight for otyp 54"
+    },
+    "step": 17,
+    "kind": "stop",
+    "sourceFile": "wield.c",
+    "function": "setuwep",
+    "message": "worn requires endArtifactLight for otyp 54",
+    "baselineEvaluationCase": {
+      "id": "v27-sunsword-unwield",
+      "recordingSha256": "d8e0f16762baf12b3972afbe9ce3835367905dfd7e388b43dcf974dcdfbaf514",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 0,
+          "total": 23
+        },
+        "rng": {
+          "matched": 0,
+          "total": 2646
+        },
+        "cursors": {
+          "matched": 0,
+          "total": 23
+        }
+      },
+      "error": "worn requires endArtifactLight for otyp 54"
+    },
+    "provenanceNote": "Reconstructed from the supplied baseline evaluation row and assigned-case stop diagnostic; no separately saved initial queue entry exists."
+  },
+  "summary": "Unwielding a lit Sunsword stops in the JavaScript setuwep preflight because the live caller supplies no endArtifactLight hook. C first clears the weapon slot, then ends the old artifact light and prints the stops-shining message when not blind. Port whole wield.c:setuwep using the existing burn owner and preserve awaited caller ordering.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "wield.c",
+    "functions": [
+      "setuwep"
+    ],
+    "branch": "A different primary weapon, including NULL for bare hands, replaces an old lit artifact-light object; after setworn has installed the new slot, uwep == obj must hold before extinguishing the old light and issuing the nonblind message.",
+    "callers": [
+      "cmd.c w command -> wield.c:dowield -> wield.c:ready_weapon -> setuwep(NULL); live JS cmd.js -> wield.js:dowield -> wield.js:ready_weapon:579 -> worn.js:setuwep:1525.",
+      "wield.c:ready_weapon:230, doquiver_core:608, wield_tool:745; JS wield.js:622,954,973,1115.",
+      "do.c:drop:727 and dropz:810; JS do.js:drop:1649 and clearDropSlots:2054.",
+      "ball.c:ballrelease:29; JS ball.js:ballrelease:213.",
+      "do_wear.c:Ring_on:1250 glibr:2622 and do_takeoff:2833; JS do_wear.js:Ring_on:771 and glibr:3052.",
+      "dothrow.c:throwit:1725 and return_throw_to_inv:1895; JS dothrow.js:return_throw_to_inv:2417 and throwit:2761.",
+      "pickup.c:in_container:2599; JS pickup.js:in_container:2915.",
+      "uhitm.c:1103 hero potion hit; JS uhitm.js:hmon_hitmon_potion:3154.",
+      "zap.c:poly_obj:1934; JS zap.js:poly_obj:2453.",
+      "u_init.c:ini_inv_use_obj:1291; JS u_init_inventory_use.js:initialWeapon:73; empty old slot must remain silent.",
+      "Additional C call sites: hack.c:domove_fight_ironbars:2006 and restore.c:restgamestate:697. Their source branches need an explicit active/refusal-backed caller disposition; source search is saved in .cache/v27-sunsword-unwield-callers.txt."
+    ],
+    "dependencies": [
+      "Reuse existing worn.c:setworn owner in js/worn.js and its canonical setwornEnv property/occupation hooks; preserve post-setworn checks and both Ogresmasher bottom-line updates.",
+      "Reuse timeout.c:end_burn(obj,FALSE), js/timeout.js:1880–1898, with canonical del_light_source lifecycle environment from js/object_generation.js:35–37. No new light.c:endArtifactLight source unit exists.",
+      "Retain the existing inventory refresh owner and its permanent-inventory hook requirements when composing the burn environment; do not invent a replacement inventory operation.",
+      "Reuse artifact.c:artifact_light, existing Blind predicate, objnam.c:Tobjnam, and ordinary awaited live message owner. Any async handoff must be propagated through active callers before they continue subsequent source operations.",
+      "The existing synchronous startup call has no old weapon light to extinguish; preserve startup compatibility while auditing every actual caller rather than changing only the w command.",
+      "The separate wield.c:uwepgone artifact-light refusal is not this C setuwep entry: C uwepgone calls end_burn and setworn directly. Its JS convenience call to setuwep must be addressed only as required caller compatibility, or separately scoped; no whole uwepgone completion follows from this finding."
+    ]
+  },
+  "evidence": [
+    "Baseline challenges/evaluations/baseline-76417879-v27.json at 76417879468cfeb65fa59ad60447a803684c6747 retains 0/23 measured screens and the exact error 'worn requires endArtifactLight for otyp 54'. remainingScreens=23 preserves that evaluation count; it does not mean the first mismatch is step 0. The selected entry is reconstructed because the initial combined queue was not separately saved.",
+    "Immutable manifest challenges/manifests/v27.json corpusDigest=24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277; recording challenges/cases/v27/v27-sunsword-unwield.session.json SHA256=d8e0f16762baf12b3972afbe9ce3835367905dfd7e388b43dcf974dcdfbaf514; independent preparation recipe challenges/cases/v27/v27-sunsword-unwield.recipe.session.json SHA256=1d8d7c8d22e0382fb83ad12366256d42b484d9159bd818a1aa4c19a1c60ad66a. Digests were recomputed against the admitted case and baseline evaluation.",
+    "The clean worktree merge HEAD da7b6eb4a4dddb73e9625280d312266c0544ad46 has the same tracked tree as examined baseline 76417879468cfeb65fa59ad60447a803684c6747. Read-only assigned-case replay uses frozen ISAAC, terminal, and storage overlays; .cache/v27-sunsword-unwield-replay.mjs and .cache/v27-sunsword-unwield-replay.json preserve its method and result.",
+    "The fresh assigned-case replay emitted 17/23 screens and cursors and 2633/2646 RNG calls. The first missing screen/cursor is segment 0, zero-based step 17, key \"-\"; source C cursor is [36,5,1]. The first absent RNG call is index 2633, rn2(5)=1 from distfleeck(monmove.c:538), subsequent turn work lost after the refusal rather than the first cause.",
+    "At the refusal the live old weapon is otyp=54, oartifact=20 (Sunsword), lamplit=true, owornmask=256 (W_WEP). Stack: worn.js:requiredHook:236 -> worn.js:setuwep:1532 -> wield.js:ready_weapon:579 -> dowield:811 -> cmd/allmain. The hook demand precedes setworn, leaving the weapon and light intact.",
+    "The admitted C preparation sourceTrace/observations shows the wielded Sunsword at step 13, begins-to-shine message at step 14, and step 17 \"You are bare handed.  The long sword named Sunsword stops shining.\" The new replay reproduces the same stop boundary recorded by the prepared localComparison; steps 0–16 have no screen, cursor, or RNG mismatch.",
+    "Upstream nethack-c/upstream/src/wield.c:100–141 defines the complete source unit. Order is old pointer capture; identical-object early return; setworn(obj,W_WEP); first Ogresmasher botl mark; successful-slot plus artifact_light plus lamplit gate; end_burn(old,FALSE); !Blind stops-shining pline(Tobjnam); second Ogresmasher mark; exact launcher/ammo/missile/pole/steed/Snickersnee/weapon-tool/wet-towel unweapon expression. Keep all branches and identity/no-message behavior.",
+    "Current js/worn.js:setuwep:1525–1573 already carries partial slot/unweapon logic but substitutes a mandatory injected endArtifactLight operation before setworn, calls that hook without awaiting it, and omits the source message. js/do_wear.js:setwornEnv:650–669 supplies property/occupation owners but no such hook. Merely injecting a lamp shutdown callback would retain the source-order and message defects.",
+    "Upstream timeout.c:end_burn:1804–1825 is the existing shutdown owner. For artifact light its false timer_attached route deletes the object light source, clears lamplit and refreshes carried inventory. js/timeout.js:preflight_end_burn:1840–1878 and end_burn:1880–1898 implement that route, with js/object_generation.js composing del_light_source(LS_OBJECT,obj,state). Reuse these owners and preserve their documented inventory hook limits.",
+    "Source-location correction: the preparation recipe source pointer light.c:endArtifactLight names a JavaScript integration hook, not a C function. The missing complete unit is wield.c:setuwep; timeout.c:end_burn and light.c:del_light_source are supporting existing owners. setuwep is currently grouped into js/worn.js; implementation should place its C owner coherently in js/wield.js and migrate imports/callers under declared scope, or explicitly justify the existing grouping.",
+    "Caller audit artifact .cache/v27-sunsword-unwield-callers.txt lists every C and JavaScript setuwep site. Awaited stopped-light message ordering is required for live unwield/swap/drop/quiver/tool/replacement/removal callers; clearDropSlots and other synchronous wrappers require traced propagation. Treat iron-bars and restore branches according to their existing runtime reachability/refusals, not invented behavior.",
+    "scripts/worn.test.mjs:795–834 currently expects /worn requires endArtifactLight/ for a lit gold-dragon scale-mail W_ARM|W_WEP object. Replace only the owned setuwep refusal expectation with source-pinned shutdown/order coverage when implementing. Other extraction-hook tests and the separate uwepgone refusal require independent source/scope decisions.",
+    "Recommended independent witnesses: a different primary replacement and the empty-hand command, a blind hero (shutdown without stops-shining output), identical lit-object no-op, unlit/non-artifact swaps, the gold-dragon armor light post-slot gate, and another active production unwield cause. Preserve no direct RNG in setuwep and naming/display RNG owner order; use focused pure unweapon result pins and independent recipes for impure active entries.",
+    "Explicit refused caller frontiers: js/hack.js:3571–3579 domove_fight_ironbars refuses the guarded force-fight/IRONBARS/wielded-weapon branch before the C setuwep site; js/do_wear.js:479–511 do_takeoff only implements amulet and alternate-weapon arms and refuses its primary W_WEP arm. Keep these source-required but unimplemented caller bodies outside the setuwep claim with named refusal evidence. restore.c:restgamestate:694–697 deliberately clears uwep before invoking setuwep, so its source restore call has no outgoing light; no setuwep call exists in js/restore.js at the examined baseline."
+  ]
+}

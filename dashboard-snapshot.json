@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T18:10:56.612Z",
+  "capturedAt": "2026-10-07T18:41:12.617Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -24550,6 +24550,36 @@
         "at": "2026-10-07T17:59:37.324Z",
         "task": "C133",
         "commit": "22d3660f7e367cdd5534e9fdd1b24001d3e49208"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B136-20261007",
+        "type": "assign",
+        "at": "2026-10-07T18:20:55.128Z",
+        "task": "B136",
+        "worker": "B",
+        "goal": "port-artifact-set-intrinsic-warning-v27-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A135-object-detect-20261007",
+        "type": "assign",
+        "at": "2026-10-07T18:23:09.796Z",
+        "task": "A135",
+        "worker": "A2",
+        "goal": "port-detect-object-detect-browse-map-v27-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C134-20261007",
+        "type": "assign",
+        "at": "2026-10-07T18:33:04.465Z",
+        "task": "C134",
+        "worker": "C",
+        "goal": "port-wield-setuwep-artifact-light-v27-20261007",
+        "kind": "implementation"
       }
     ]
   },
