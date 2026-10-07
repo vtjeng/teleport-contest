@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent C-first bare-hands variation for restore.c:restgamestate weapon reset: null primary forces unweapon TRUE after the canonical setuwep(NULL) no-op. Recorder uses upstream gzip configuration for a successful external save; no compression-failure prompt is part of this route. Cheap permanent-blindness variation keeps unrelated restored floor-object redraw outside this caller witness; original sighted setup retained in cache.",
+  "segments": [
+    {
+      "seed": 134361,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,blind,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " w- Sy"
+    },
+    {
+      "seed": 134361,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,blind,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " n "
+    }
+  ]
+}

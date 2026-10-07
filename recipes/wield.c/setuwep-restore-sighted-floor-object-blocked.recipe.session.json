@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Blocked independent sighted variation of the restore weapon caller. save.c:savegamestate / restore.c:restobjchn floor-object reconstruction in the JSON backend leaves a previously visible gold glyph as terrain after restore; first mismatch is segment1 step0, with all4754 RNG values matching. This is outside C134 setuwep and bounded restore-caller credit. Use upstream documented gzip recorder configuration to avoid the separate external-compressor failure.",
+  "segments": [
+    {
+      "seed": 134356,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017pick-axe\n wi Sy"
+    },
+    {
+      "seed": 134356,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " n "
+    }
+  ]
+}

@@ -7,6 +7,7 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import { runSegment } from '../js/jsmain.js';
@@ -188,4 +189,12 @@ test('dosave cancels on "n" answer without ending the segment', async () => {
         saveData, null,
         'no save file should be written when save is declined',
     );
+});
+
+// Source save.c:147 clears the message after date luck undo;
+// save.c:63 publishes that message window before the exit farewell.
+test('save source pins clear and display boundaries around serialization', () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/save.c', import.meta.url), 'utf8');
+    assert.match(source, /change_luck\(1\);[\s\S]*?clear_nhwindow\(WIN_MESSAGE\);[\s\S]*?savegamestate\(nhfp\);/u);
+    assert.match(source, /display_nhwindow\(WIN_MESSAGE, TRUE\);\s*exit_nhwindows\("Be seeing you\.\.\."\);/u);
 });
