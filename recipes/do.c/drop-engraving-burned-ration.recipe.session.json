@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do.c dropx variation. Fixed unsearched seed 135273; ordinary Valkyrie starting ration d lands over burned text. C dropx/dropz never erases engravings. Wait covers engraving occupation; no challenge inputs copied. C-only correction: wand identification and burn-introduction each wait at More, requiring two spaces before text.",
+  "segments": [
+    {
+      "seed": 135273,
+      "datetime": "20420513102100",
+      "nethackrc": "OPTIONS=name:DropCamp,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed wand of fire\nEe  base\n   dd  "
+    }
+  ]
+}

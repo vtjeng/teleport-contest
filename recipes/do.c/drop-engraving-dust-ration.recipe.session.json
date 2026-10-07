@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do.c dropx variation. Fixed unsearched seed 135271; ordinary Valkyrie starting ration d lands over dust text. C dropx/dropz never erases engravings. Wait covers engraving occupation; no challenge inputs copied.",
+  "segments": [
+    {
+      "seed": 135271,
+      "datetime": "20420513102100",
+      "nethackrc": "OPTIONS=name:DropCamp,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " E- camp\n   dd  "
+    }
+  ]
+}

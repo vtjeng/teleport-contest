@@ -6,6 +6,9 @@ import { reset_trapset } from '../js/apply.js';
 import { reset_occupations } from '../js/cmd.js';
 import {
     BLINDED,
+    BURN,
+    DUST,
+    ENGRAVE,
     ECMD_FAIL,
     ECMD_TIME,
     GETOBJ_EXCLUDE,
@@ -30,6 +33,7 @@ import {
     UnsupportedDropError, _dropInternals, canletgo, dodrop, dropCommandEnv, preflight_dropx,
 } from '../js/do.js';
 import { game } from '../js/gstate.js';
+import { engr_at, make_engr_at } from '../js/engrave.js';
 import { addinv, any_obj_ok } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
@@ -40,10 +44,12 @@ import {
     ELVEN_DAGGER, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
     BOULDER, CORPSE, RIN_SEARCHING, SPEAR,
     TWO_HANDED_SWORD, WEAPON_CLASS,
+    RUBY,
 } from '../js/objects.js';
 import { PM_SMALL_MIMIC } from '../js/monsters.js';
 import {
     DROP_CASES,
+    ENGRAVING_DROP_CASES,
     LOADSTONE_CASE,
     MEATRING_CASE,
     MERGE_CASE,
@@ -52,6 +58,8 @@ import {
     loadDropLoadstoneRecipe,
     loadDropMeatRingRecipe,
     loadDropMergeRecipe,
+    loadEngravingDropRecipe,
+    verifyDropCommandSegment,
 } from './run-drop-command.mjs';
 
 // The three recipes are the only record of which C branches were recorded, so
@@ -883,6 +891,71 @@ test('an ordinary boulder leaves inventory and lands on the room floor', async (
     // do.c:boulder_hits_pool returns before rn2(10) on a dry square.
     assert.equal(getRngLog().length, rngBefore);
     assert.deepEqual(state.gb.bhitpos, priorHit);
+});
+
+// do.c:dropx/dropz/flooreffects has no engraving exclusion on dry floor.
+// The text types vary the substrate; none adds a drop effect or RNG call.
+test('ordinary drops preserve dust, carved and burned engravings', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/do.c', import.meta.url), 'utf8');
+    const floorPath = source.slice(source.indexOf('\nflooreffects('), source.indexOf('/* obj is an object dropped on an altar */'));
+    const dropPath = source.slice(source.indexOf('\ndropx('), source.indexOf('/* when swallowed, move dropped object'));
+    assert.doesNotMatch(floorPath, /engr_at|wipe_engr/u);
+    assert.doesNotMatch(dropPath, /engr_at|wipe_engr/u);
+    assert.match(dropPath, /flooreffects\(obj, u\.ux, u\.uy, "drop"\)/u);
+
+    for (const type of [DUST, ENGRAVE, BURN]) {
+        const state = await startedGame();
+        const { ux, uy } = state.u;
+        // Ordinary ROOM terrain avoids shipping at the startup stairs.
+        state.level.at(ux, uy).typ = ROOM;
+        // Harmless text avoids engrave.c's Elbereth exercise side effect.
+        const engraving = make_engr_at(ux, uy, 'camp', null, state.moves, type, { state });
+        engraving.eread = true;
+        engraving.erevealed = true;
+        engraving.nowipeout = true;
+        const prior = structuredClone(engraving);
+        const obj = addinv(mksobj(RUBY, false, false, { state }), { state });
+        const rngBefore = getRngLog().length;
+        // drop() returns ECMD_TIME; callers own advancing the turn.
+        assert.equal(await _dropInternals.drop(obj, state), ECMD_TIME);
+        assert.equal(obj.where, OBJ_FLOOR);
+        assert.equal(obj.ox, ux);
+        assert.equal(obj.oy, uy);
+        assert.ok(pileAt(state, ux, uy).includes(obj));
+        assert.ok(!letters(state).includes(obj.invlet));
+        assert.equal(obj.how_lost, LOST_DROPPED);
+        assert.strictEqual(engr_at(ux, uy, state), engraving);
+        assert.deepEqual(engraving, prior);
+        assert.equal(getRngLog().length, rngBefore);
+    }
+});
+
+test('engraving admission retains the liquid and trap frontiers', async () => {
+    for (const hazard of ['pool', 'pit']) {
+        const state = await startedGame();
+        const { ux, uy } = state.u;
+        state.level.at(ux, uy).typ = ROOM;
+        make_engr_at(ux, uy, 'camp', null, state.moves, DUST, { state });
+        const obj = addinv(mksobj(RUBY, false, false, { state }), { state });
+        // The liquid and pit effects are separate do.c:flooreffects branches.
+        if (hazard === 'pool') state.level.at(ux, uy).typ = POOL;
+        else state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: false });
+        const rngBefore = getRngLog().length;
+        assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
+            error => error instanceof UnsupportedDropError
+                && /liquid terrain|floor effects at a trap/u.test(error.message));
+        assert.equal(obj.where, OBJ_INVENT);
+        assert.equal(getRngLog().length, rngBefore);
+        assert.ok(engr_at(ux, uy, state));
+    }
+});
+
+test('engraving drop recipes reach the live command with preserved text and time', async () => {
+    for (const entry of ENGRAVING_DROP_CASES) {
+        const recipe = loadEngravingDropRecipe(entry.name);
+        assert.ok(recipe.segments.every(segment => !Object.hasOwn(segment, 'steps')));
+        await verifyDropCommandSegment(recipe.segments[0]);
+    }
 });
 
 // The bounded ordinary floor fix keeps trap and liquid paths outside admission.
