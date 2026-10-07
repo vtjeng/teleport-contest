@@ -1,7 +1,7 @@
-name: Checkpoint trial
+name: Checkpoint
 on:
   push:
-    branches: [codex/parallel-checkpoint]
+    branches: [codex/parallel-checkpoint, 'integration-checkpoint/**']
   workflow_dispatch:
     inputs:
       benchmark:

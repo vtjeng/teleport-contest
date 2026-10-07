@@ -1,13 +1,45 @@
 #!/usr/bin/env node
-// Fetch and verify hosted evidence without installing it as acceptance evidence.
-// Acceptance policy and the shared checkpoint archive remain unchanged.
+// Trust the hosted verdict, verify its candidate identity, and archive its evidence.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync } from 'node:fs';
+import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { requireCleanCheckpointTree } from './checkpoint-checks.mjs';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';
+import { checkpointResultsDirectory } from './checkpoint-results.mjs';
+import { digest } from './checkpoint-reuse.mjs';
+
+export function archiveHostedCheckpoint(root, output, summary) {
+    const directory = checkpointResultsDirectory(root);
+    const commitDirectory = join(directory, summary.commit);
+    mkdirSync(commitDirectory, { recursive: true });
+    const artifacts = mkdtempSync(join(commitDirectory, 'run-hosted-'));
+    const hashes = {};
+    for (const name of ['development-standing.json', 'session-results.json', 'scan-cache.json']) {
+        const bytes = readFileSync(join(output, name));
+        writeFileSync(join(artifacts, name), bytes);
+        hashes[name] = digest(bytes);
+    }
+    cpSync(join(output, 'synthetic'), join(artifacts, 'synthetic'), { recursive: true });
+    const archived = { ...summary, artifacts, artifactHashes: hashes, exitCode: 0 };
+    const contents = JSON.stringify(archived, null, 2) + '\n';
+    writeFileSync(join(artifacts, 'summary.json'), contents);
+    // Each archive owns its temporary pointer. Publish only after all copies exist.
+    for (const pointer of [join(commitDirectory, 'latest.json'), join(directory, 'latest.json')]) {
+        const temporary = join(artifacts, 'pointer.json');
+        writeFileSync(temporary, contents);
+        renameSync(temporary, pointer);
+    }
+    // Do not add hosted evidence to the local execution-environment reuse index.
+    try {
+        mkdirSync(join(root, '.cache'), { recursive: true });
+        for (const name of ['development-standing.json', 'scan-cache.json'])
+            copyFileSync(join(artifacts, name), join(root, '.cache', name));
+        writeFileSync(join(root, '.cache', 'checkpoint-summary.json'), contents);
+    } catch (error) { console.warn(`Evidence archived, but local cache refresh failed: ${error.message}`); }
+    return join(artifacts, 'summary.json');
+}
 
 export function verifyHostedRun(run, repository, commit) {
     if (run.status !== 'completed' || run.conclusion !== 'success'
@@ -47,8 +79,10 @@ export function fetchHostedCheckpoint(id) {
     requireCleanCheckpointTree();
     if (execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() !== commit)
         throw new Error('HEAD changed while fetching evidence');
-    console.log(`Verified hosted evidence: ${output} (not installed for acceptance)`);
-    return output;
+    const result = archiveHostedCheckpoint(PROJECT_ROOT, output, summary);
+    console.log(`Results: ${result}`);
+    console.log(`Synthetic evaluations: ${join(resolve(result, '..'), 'synthetic')}`);
+    return result;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
