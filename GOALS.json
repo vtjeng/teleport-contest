@@ -185505,7 +185505,7 @@
     {
       "id": "fix-vision-recalc-blind-epilogue-v25-20261007",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Run the blind vision recalculation epilogue",
       "cFile": "vision.c",
       "sessions": [],
@@ -185517,8 +185517,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "vision_recalc",
       "session": "synthetic/v25/v25-sit-lava",
       "step": 45,
@@ -185731,7 +185734,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-zap-makewish-v25-20261007",
