@@ -921,7 +921,7 @@ export async function make_hallucinated(
     const seeMonsters = rawEnv.seeMonsters
         ?? (planning && state === game
             ? () => {}
-            : (subject) => see_monsters(subject, { redraw }));
+            : (subject) => see_monsters(subject, { ...rawEnv, message, redraw }));
     const swallow = rawEnv.swallowed
         ?? (!planning && state === game ? swallowed : async () => {});
     const hooks = {
@@ -992,7 +992,7 @@ export async function make_hallucinated(
     } else {
         // potion.c calls all three display helpers before it emits the
         // message, so each newsym() sees the new Hallucination property.
-        seeMonsters(state, env);
+        await seeMonsters(state, env);
         seeObjects(state, { redraw });
         seeTraps(state, { redraw });
     }
@@ -1626,7 +1626,8 @@ async function peffect_see_invisible(otmp, state = game, env = {}) {
     // C's set_mimic_blocking() return is discarded. Record the unported gap
     // and continue with the source's visible-monster and hero redraws.
     note_unported('display.c set_mimic_blocking');
-    see_monsters(state);
+    await see_monsters(state, { ...env, message,
+        redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
     newsym(state.u.ux, state.u.uy);
     if (msg && !heroIsBlind(state)) {
         await message(
@@ -1969,7 +1970,7 @@ async function peffect_monster_detection(otmp, state = game) {
 
         // C falls through for swallowed or underwater heroes.
         if (!state.u.uswallow && !state.u.uinwater) {
-            see_monsters(state);
+            await see_monsters(state);
             if (state.gp.potion_unkn)
                 await ttyPline('You feel lonely.', state);
             return 0;
@@ -2114,7 +2115,7 @@ export async function strange_feeling(obj, txt, state = game) {
 
     if (!obj) return;
     if (obj.dknown) await trycall(obj, state);
-    useup(obj, { state });
+    await useup(obj, { state });
 }
 
 // C ref: potion.c dopotion() (618-641). Called by dodrink() after the potion
@@ -2152,7 +2153,7 @@ export async function dopotion(otmp, state = game, env = {}) {
             ?? ((obj, hookEnv) =>
                 del_light_source(LS_OBJECT, obj, hookEnv.state)),
     };
-    useup(otmp, { ...env, state, hooks });
+    await useup(otmp, { ...env, state, hooks });
     return ECMD_TIME;
 }
 
@@ -2282,7 +2283,7 @@ export async function dodrink(state = game) {
         if (!(ghostVital.mvflags & G_GONE)
             && !rn2(13 + 2 * ghostVital.born)) {
             await ghost_from_bottle(state);
-            useup(otmp, { state });
+            await useup(otmp, { state });
             return ECMD_TIME;
         }
     } else if (descr === 'smoky') {
@@ -2292,7 +2293,7 @@ export async function dodrink(state = game) {
             // C discards djinni_from_bottle()'s void result; preserve its
             // awaited effects, then consume the bottle and return ECMD_TIME.
             await djinni_from_bottle(otmp, state);
-            useup(otmp, { state });
+            await useup(otmp, { state });
             return ECMD_TIME;
         }
     }
@@ -2336,7 +2337,7 @@ export async function toggle_blindness(state = game, env = {}) {
         || hero.uprops?.[INFRAVISION]?.extrinsic,
     );
     if (Blind_telepat || Infravision || Stinging)
-        see_monsters(state, { redraw });
+        await see_monsters(state, { ...env, redraw });
 
     // C ref: potion.c:359-360. Sting_effects(-1) resets the Sting glow/quiver
     // message to match the new blindness state. Its result is discarded; the
@@ -3334,7 +3335,7 @@ export async function dodip(state = game, rawEnv = {}) {
                     if (obj.otyp === POT_ACID) obj.in_use = 1;
                     const result = await water_damage(obj, 0, true, env);
                     if (result !== ER_DESTROYED && obj.in_use)
-                        useup(obj, env);
+                        await useup(obj, env);
                 }
                 return ECMD_TIME;
             }
@@ -3374,7 +3375,7 @@ export async function dip_into(state = game, rawEnv = {}) {
 export async function poof(potion, state = game, rawEnv = {}) {
     const env = drinkEnvironment(state, rawEnv);
     if (potion.dknown) await trycall(potion, state);
-    useup(potion, env);
+    await useup(potion, env);
 }
 
 export async function dip_potion_explosion(obj, dmg, state = game,
@@ -3395,7 +3396,7 @@ export async function dip_potion_explosion(obj, dmg, state = game,
         });
         if (!breathless(state.youmonst.data) || haseyes(state.youmonst.data))
             await potionbreathe(obj, state, env);
-        useupall(obj, env);
+        await useupall(obj, env);
         await losehp(dmg, 'alchemic blast', KILLED_BY_AN, state, env);
         return true;
     }
@@ -3450,7 +3451,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
                 return ECMD_TIME;
             } else if (obj.otyp !== saveType) {
                 discover_object(POT_POLYMORPH, true, true, true, state, env);
-                useup(potion, env);
+                await useup(potion, env);
                 await prinv(null, obj, 0, env);
                 return ECMD_TIME;
             }
@@ -3484,7 +3485,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             + otense(obj, 'mix', state) + ' with '
             + (potion.quan > 1 ? 'one of ' : '')
             + thesimpleoname(potion, state) + '...', state);
-        useup(potion, env);
+        await useup(potion, env);
         if (await dip_potion_explosion(obj, amount + random.rnd(9), state, env))
             return ECMD_TIME;
 
@@ -3514,7 +3515,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
                 break;
             }
             default:
-                useupall(obj, env);
+                await useupall(obj, env);
                 await message('The mixture ' + (Blind(state)
                     ? 'evaporates.' : 'glows brightly and evaporates.'), state);
                 return ECMD_TIME;
@@ -3528,7 +3529,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             const color = hcolor(OBJ_DESCR(state.objects[obj.otyp], state), state, env);
             await message('The mixture looks ' + color + '.', state);
         }
-        freeinv(obj, env);
+        await freeinv(obj, env);
         await hold_potion(obj, 'You drop %s!', donameFresh(obj, state), null,
             state, env);
         return ECMD_TIME;
@@ -3613,7 +3614,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             await exercise(A_WIS, wisx, state, random);
             if (potion.dknown)
                 discover_object(potion.otyp, true, true, true, state, env);
-            useup(potion, env);
+            await useup(potion, env);
             return ECMD_TIME;
         }
     }
@@ -3621,7 +3622,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
     if ((obj.otyp === OIL_LAMP || obj.otyp === MAGIC_LAMP)
         && potion.otyp === POT_OIL) {
         if (obj.lamplit || potion.lamplit) {
-            useup(potion, env);
+            await useup(potion, env);
             await explode(state.u.ux, state.u.uy, 11, random.d(6, 6), 0,
                 EXPL_FIERY, state, env);
             await exercise(A_WIS, false, state, random);
@@ -3640,7 +3641,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             check_unpaid(potion, state);
             obj.age += Math.trunc((potion.odiluted ? 3 : 4) * potion.age / 2);
             if (obj.age > 1500) obj.age = 1500;
-            useup(potion, env);
+            await useup(potion, env);
             await exercise(A_WIS, true, state, random);
         }
         if (potion.dknown)

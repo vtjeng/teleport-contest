@@ -1458,13 +1458,13 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
         obj.in_use = false;
         await dropx(obj, dropCommandEnv(state));
     } else if (random.rn2(5) === 0) {
-        freeinv(obj, { state });
+        await freeinv(obj, { state });
         obj.in_use = false;
         obj.ox = state.u.ux;
         obj.oy = state.u.uy;
         add_to_buried(obj, { state });
     } else {
-        useup(obj, { state });
+        await useup(obj, { state });
     }
 }
 
@@ -1646,7 +1646,7 @@ async function drop(obj, state = game) {
             await weldmsg(obj, state);
             return ECMD_FAIL;
         }
-        setuwep(null, setwornEnv(state));
+        await setuwep(null, setwornEnv(state));
     }
     if (obj === state.uquiver) {
         setuqwep(null, setwornEnv(state));
@@ -1691,7 +1691,7 @@ async function drop(obj, state = game) {
             }
             if (state.flags.verbose)
                 await ttyPline(`You drop ${donameFresh(obj, state)}.`, state);
-            freeinv(obj, { state });
+            await freeinv(obj, { state });
             const { hitfloor } = await import('./dothrow.js');
             await hitfloor(obj, true, state);
             if (levhack) {
@@ -2029,13 +2029,13 @@ export async function doaltarobj(obj, state = game) {
 export async function dropx(obj, env = {}, prepared = null) {
     const normalizedInput = dropEnv(env);
     if (normalizedInput.state.u?.uswallow) {
-        freeinv(obj, normalizedInput);
+        await freeinv(obj, normalizedInput);
         await dropz(obj, false, normalizedInput);
         return;
     }
     const admission = prepared ?? preflight_dropx(obj, normalizedInput);
     const normalized = consumeDropAdmission(obj, normalizedInput, admission);
-    freeinv(obj, normalized);
+    await freeinv(obj, normalized);
     const { ux, uy } = normalized.state.u;
     if (await ship_object(obj, ux, uy, false, normalized)) return;
     if (!normalized.state.u.uswallow
@@ -2045,13 +2045,13 @@ export async function dropx(obj, env = {}, prepared = null) {
     // C dropx() reaches dropz() after shipping and altar handling. Clear the
     // same equipment slots here because this admitted JS tail enters the
     // floor-effects helper directly instead of calling dropz().
-    clearDropSlots(obj, normalized);
+    await clearDropSlots(obj, normalized);
     await dropzAdmitted(obj, normalized);
 }
 
-function clearDropSlots(obj, env) {
+async function clearDropSlots(obj, env) {
     const { state } = env;
-    if (obj === state.uwep) setuwep(null, env);
+    if (obj === state.uwep) await setuwep(null, env);
     if (obj === state.uquiver) setuqwep(null, env);
     if (obj === state.uswapwep) setuswapwep(null, env);
 }

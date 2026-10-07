@@ -24,8 +24,8 @@ for (const fixture of [
 ]) {
     test(`doapply awaits ${fixture.name}'s speech after a canceled direction`, async () => {
         // Independent startup only builds the ordinary tool. Set the source
-        // artifact identity directly because set_artifact_intrinsic currently
-        // refuses its carried WARN/ESP properties before a real pickup finishes.
+        // artifact identity directly to isolate the bounded doapply speech
+        // caller; independent intrinsic recordings cover actual artifact pickup.
         await runSegment({ seed: fixture.seed, datetime: '20791007110000',
             nethackrc: `OPTIONS=name:SpeechCaller,role:${fixture.role},race:human,gender:male,align:${fixture.align},playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n`,
             moves: ` \u0017${fixture.wish}\n` });

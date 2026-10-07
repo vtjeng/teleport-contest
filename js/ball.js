@@ -210,10 +210,10 @@ export async function ballrelease(showmsg, state = game) {
     const ball = state.uball;
     if (!ball || !carried(ball) || welded(ball, state)) return;
     if (showmsg) await ttyPline('Startled, you drop the iron ball.', state);
-    if (state.uwep === ball) setuwep(null, { state });
+    if (state.uwep === ball) await setuwep(null, { state });
     if (state.uswapwep === ball) setuswapwep(null, { state });
     if (state.uquiver === ball) setuqwep(null, { state });
-    freeinv(ball, { state });
+    await freeinv(ball, { state });
     await encumber_msg(state);
 }
 
@@ -229,8 +229,8 @@ async function litter(state) {
                     + `${otense(obj, 'fall', state)} down the stairs with you.`,
                 state,
             );
-            setnotworn(obj, { state });
-            freeinv(obj, { state });
+            await setnotworn(obj, { state });
+            await freeinv(obj, { state });
             const { hitfloor } = await import('./dothrow.js');
             await hitfloor(obj, false, state);
         }

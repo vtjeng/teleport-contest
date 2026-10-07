@@ -1670,7 +1670,7 @@ async function use_tinning_kit(obj, state = game, env = {}) {
             set_voice(shopkeeper, 0, 80, 0, state);
             await verbalize('You tin it, you bought it!', state, { message });
         }
-        useup(corpse, lifecycleEnv);
+        await useup(corpse, lifecycleEnv);
     } else {
         if (costly_spot(corpse.ox, corpse.oy, state) && !corpse.no_charge) {
             const room = in_rooms(
@@ -1768,7 +1768,7 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
         }
     }
 
-    setnotworn(obj, env);
+    await setnotworn(obj, env);
     if (obj.unpaid && typeof env.hooks?.costlyAlteration !== 'function') {
         if (state === game) note_unported('mkobj.c costly_alteration');
     } else {
@@ -2098,7 +2098,7 @@ export async function use_stone(tstone, state = game, env = {}) {
                 state,
             );
         }
-        useup(obj, { ...env, state });
+        await useup(obj, { ...env, state });
         return ECMD_TIME;
     }
 
@@ -3110,7 +3110,7 @@ export async function light_cocktail(objp, state = game, env = {}) {
         // C only frees and re-adds an unworn potion: merging can replace the
         // caller's pointer, so await the live addinv return before storing it.
         if (!obj.owornmask) {
-            freeinv(obj, { ...env, state });
+            await freeinv(obj, { ...env, state });
             objp.obj = await addinv_runtime(obj, { ...env, state });
         }
         return;
@@ -3346,7 +3346,7 @@ export async function use_candle(obj, state = game, env = {}) {
     }
     if (candelabrum.lamplit)
         note_unported('light.c obj_merge_light_sources');
-    useupall(obj, { ...env, state });
+    await useupall(obj, { ...env, state });
     candelabrum.owt = weight(candelabrum, { ...env, state });
     update_inventory({ ...env, state });
 }
@@ -3667,7 +3667,7 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
     // C removes a carried object through useup(); other object owners first
     // extract it, then discard it with obfree().
     if (carried(figurine)) {
-        useup(figurine, env);
+        await useup(figurine, env);
     } else {
         obj_extract_self(figurine, env);
         obfree(figurine, null, env);
@@ -3752,7 +3752,7 @@ export async function use_figurine(objp, state = game, rawEnv = {}) {
     );
     await make_familiar(obj, x, y, false, env);
     stop_timer(FIG_TRANSFORM, obj, state, env);
-    useup(obj, env);
+    await useup(obj, env);
     if (heroIsBlind(state)) map_invisible(x, y, state);
     objp.obj = null;
     return ECMD_TIME;
@@ -3803,7 +3803,7 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
                 await message(`You summon ${a_monnam(monster, state)}!`);
                 if (!obj_resists(obj, 93, 100, { state, random })) {
                     await message(`${Tobjnam(obj, 'have', state)} shattered!`);
-                    useup(obj, { ...rawEnv, state });
+                    await useup(obj, { ...rawEnv, state });
                     objp.obj = null;
                 } else {
                     switch (random.rn2(3)) {
@@ -3900,7 +3900,7 @@ async function use_royal_jelly(objp, state = game, rawEnv = {}) {
     const splitit = obj.quan > 1;
 
     if (splitit) obj = splitobj(obj, 1, env);
-    freeinv(obj, env);
+    await freeinv(obj, env);
 
     const eobj = await getobj(
         'rub the royal jelly on', jelly_ok, GETOBJ_PROMPT, state,
@@ -3956,7 +3956,7 @@ async function use_royal_jelly(objp, state = game, rawEnv = {}) {
         }
     }
 
-    setnotworn(obj, env);
+    await setnotworn(obj, env);
     obfree(obj, null, env);
     objp.obj = null;
     return ECMD_TIME;
@@ -4163,7 +4163,7 @@ export async function use_mirror(obj, state = game, env = {}) {
             await ttyPline(`It steals your ${mirror}!`, state);
         }
         await setnotworn(obj, { ...env, state });
-        freeinv(obj, { ...env, state });
+        await freeinv(obj, { ...env, state });
         mpickobj(mtmp, obj, { ...env, state });
         await monflee(mtmp, 0, false, false, { ...env, state, random });
         if (!await tele_restrict(mtmp, state, env)) {
@@ -4637,8 +4637,8 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
     }
 
     state.current_wand = obj;
-    freeinv(obj, env);
-    setnotworn(obj, setwornEnv(state));
+    await freeinv(obj, env);
+    await setnotworn(obj, setwornEnv(state));
 
     if (!await zappable(obj, state)) {
         await message(nothing_happens, state, env);

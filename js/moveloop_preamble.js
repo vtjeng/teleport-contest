@@ -9,6 +9,7 @@ import {
     NORMAL_SPEED,
 } from './const.js';
 import { friday_13th, phase_of_the_moon } from './calendar.js';
+import { see_monsters } from './display.js';
 import { failClosedCommandRefusals } from './cmd.js';
 import { set_wear } from './do_wear.js';
 import { game } from './gstate.js';
@@ -28,8 +29,7 @@ export function change_luck(amount, state = game) {
     state.u.uluck = Math.max(LUCKMIN, Math.min(LUCKMAX, current + amount));
 }
 
-// encumber_msg() remains at its source boundary. Monster visibility deferral
-// remains with the future vision subsystem.
+// encumber_msg() remains at its source boundary.
 export async function moveloop_preamble(
     resuming = false,
     state = game,
@@ -82,6 +82,13 @@ export async function moveloop_preamble(
     state.disp.botlx = true;
     if (resuming) {
         // read_engr_at() and fix_shop_damage() belong to restore/map state.
+    }
+
+    // C ref: allmain.c:92-94. End restore's display deferral before the
+    // first turn; the helper must complete any pending glow feedback here.
+    if (state.gd?.defer_see_monsters) {
+        state.gd.defer_see_monsters = false;
+        await see_monsters(state, env);
     }
 
     state.u.uz0 ??= { dnum: 0, dlevel: 0 };

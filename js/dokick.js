@@ -1521,7 +1521,7 @@ export async function container_impact_dmg(obj, x, y, rawEnv = {}) {
                 );
             }
             if (item.quan > 1) {
-                useup(item, { state });
+                await useup(item, { state });
             } else {
                 obj_extract_self(item, { state });
                 obfree(item, null, { state });

@@ -2912,7 +2912,7 @@ async function in_container(obj, state) {
             await weldmsg(obj, state);
             return 0;
         }
-        setuwep(null, setwornEnv(state));
+        await setuwep(null, setwornEnv(state));
         // Obsolete uwep check from 3.0: life-saving could rewield.
         if (state.uwep)
             return 0; /* unwielded, died, rewielded */
@@ -2936,7 +2936,7 @@ async function in_container(obj, state) {
         return 0;
     }
 
-    freeinv(obj, { state });
+    await freeinv(obj, { state });
     if (obj_is_burning(obj)) {
         // C discards snuff_lit()'s result; preserve the call boundary without
         // inventing its light/timer effects.

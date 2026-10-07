@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "OUTSIDE-LIMIT C-first non-own-role touch frontier: artifact.c:touch_artifact blasts the Wizard on pickup and wear; end.c:done debug-survival prompts intervene before removal. B136 does not broaden artifact touch/death behavior.",
+  "segments": [
+    {
+      "seed": 81361017,
+      "datetime": "21200112104500",
+      "nethackrc": "OPTIONS=name:Intrinsic,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed Eyes of the Overworld\n  Wp  Rp  dp  "
+    }
+  ]
+}

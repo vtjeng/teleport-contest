@@ -576,7 +576,7 @@ export async function ready_weapon(wep, state = game) {
     if (!wep) {
         if (state.uwep) {
             await ttyPline(`You are ${empty_handed(state)}.`, state);
-            setuwep(null, setwornEnv(state));
+            await setuwep(null, setwornEnv(state));
             res = ECMD_TIME;
         } else {
             await ttyPline(`You are already ${empty_handed(state)}.`, state);
@@ -619,7 +619,7 @@ export async function ready_weapon(wep, state = game) {
             wep.owornmask = dummy;
         }
 
-        setuwep(wep, setwornEnv(state));
+        await setuwep(wep, setwornEnv(state));
         if (was_twoweap && !state.u.twoweap && state.flags.verbose && state.uwep) {
             await ttyPline(
                 `You ${(TWOWEAPOK(state.uwep, state) && !bimanual(state.uwep, state))
@@ -951,7 +951,7 @@ export async function doquiver_core(verb, state = game) {
                     );
                     return ECMD_OK;
                 }
-                setuwep(null, setwornEnv(state));
+                await setuwep(null, setwornEnv(state));
                 await untwoweapon(state);
                 was_uwep = true;
             }
@@ -970,7 +970,7 @@ export async function doquiver_core(verb, state = game) {
                 );
                 return ECMD_OK;
             }
-            setuwep(null, setwornEnv(state));
+            await setuwep(null, setwornEnv(state));
             await untwoweapon(state);
             was_uwep = true;
         }
@@ -1112,7 +1112,7 @@ export async function wield_tool(obj, verb, state = game) {
             await ready_weapon(obj, state);
         } else {
             await ttyPline(`You now wield ${donameFresh(obj, state)}.`, state);
-            setuwep(obj, setwornEnv(state));
+            await setuwep(obj, setwornEnv(state));
         }
         if (state.flags.pushweapon && oldwep
             && (state.uwep ?? null) !== oldwep)
@@ -1148,8 +1148,10 @@ export function uwepgone(env = {}) {
         }
         // setuwep(null) calls setworn(null, W_WEP) and sets unweapon = true,
         // matching C's setworn(NULL, W_WEP) + gu.unweapon = TRUE.
-        setuwep(null, setwornEnv(state));
-        update_inventory({ state });
+        const effects = setuwep(null, setwornEnv(state, env));
+        const finish = () => { update_inventory({ state }); };
+        return effects && typeof effects.then === 'function'
+            ? Promise.resolve(effects).then(finish) : finish();
     }
 }
 

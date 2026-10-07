@@ -1427,7 +1427,7 @@ export async function use_crystal_ball(optr, state = game) {
             break;
         case 5:
             await ttyPline(`${Tobjnam(obj, 'explode', state)}!`, state);
-            useup(obj, { state });
+            await useup(obj, { state });
             optr.obj = obj = null;
             await losehp(
                 halfPhysicalDamage(rnd(30), state),
@@ -1449,7 +1449,7 @@ export async function use_crystal_ball(optr, state = game) {
             );
             if (obj.spe < 0) {
                 await ttyPline(`${Tobjnam(obj, 'implode', state)}!`, state);
-                useup(obj, { state });
+                await useup(obj, { state });
                 optr.obj = null;
             }
         } else {
@@ -1512,7 +1512,7 @@ export async function use_crystal_ball(optr, state = game) {
         await ttyPline('The vision is unclear.', state);
         if (obj.spe < 0) {
             await ttyPline(`${Tobjnam(obj, 'implode', state)}!`, state);
-            useup(obj, { state });
+            await useup(obj, { state });
             optr.obj = obj = null;
             return;
         }
@@ -1798,7 +1798,7 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
             }
         }
     }
-    see_monsters(state);
+    await see_monsters(state);
     if (refresh) await docrt();
 }
 

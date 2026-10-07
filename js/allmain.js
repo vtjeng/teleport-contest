@@ -1671,7 +1671,7 @@ export async function moveloop_core() {
         && !g.u.uprops?.[BLINDED]?.blocked;
     if (!g.context?.mv || blind) {
         if (hallucinating) {
-            see_monsters(g);
+            await see_monsters(g);
             see_objects(g);
             see_traps(g);
             if (g.u.uswallow) await swallowed(false, g);
@@ -1683,7 +1683,7 @@ export async function moveloop_core() {
             ))) {
             // allmain.c:462-467. These sensing modes need only the monster
             // overlay; objects and traps retain their ordinary memory.
-            see_monsters(g);
+            await see_monsters(g);
         }
     }
     // C ref: allmain.c moveloop_core() (473-478). The status line repaints

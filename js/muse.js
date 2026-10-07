@@ -1687,8 +1687,8 @@ export async function use_misc(mtmp, selection, state, env = {}) {
                drop it at hero's feet instead */
             where_to = 2;
         }
-        remove_worn_item(obj, false, state);
-        freeinv(obj, { state });
+        await remove_worn_item(obj, false, state, env);
+        await freeinv(obj, { ...env, state });
         switch (where_to) {
         case 1: /* onto floor beneath mon */
             await pline_mon(mtmp,

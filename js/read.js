@@ -633,7 +633,7 @@ export async function recharge(obj, curseBless, state = game) {
             );
             if (isOn) await Ring_gone(obj, state);
             n = rnd(3 * Math.abs(obj.spe));
-            useup(obj, { state });
+            await useup(obj, { state });
             await losehp(
                 maybeHalfPhysical(n, state), 'exploding ring',
                 KILLED_BY_AN, state,
@@ -652,7 +652,7 @@ export async function recharge(obj, curseBless, state = game) {
             if (isOn) await Ring_off(obj, state);
             obj.spe += adjustment;
             if (isOn) {
-                setworn(obj, mask, setwornEnv(state));
+                await setworn(obj, mask, setwornEnv(state));
                 await Ring_on(obj, state);
             }
             if (adjustment > 0 && obj.unpaid)
@@ -819,7 +819,7 @@ export async function seffect_charging(scroll, state = game) {
         await ttyPline('This is a charging scroll.', state);
         learnscroll(scroll, state);
     }
-    useup(scroll, { state });
+    await useup(scroll, { state });
     const target = await getobj(
         'charge', charge_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
     );
@@ -868,7 +868,7 @@ export async function wand_explode(obj, charge, state = game) {
         maybeHalfPhysical(damage, state), 'exploding wand',
         KILLED_BY_AN, state,
     );
-    useup(obj, { state });
+    await useup(obj, { state });
     await exercise(
         A_STR, false, state, { rn2 },
         { encumberMessage: encumber_msg },
@@ -1163,9 +1163,9 @@ export async function punish(scroll, state = game) {
     // owns the exact rnd(1000), next_ident() and erosion draw sequence for each
     // generic class; setworn() owns the state.uball/state.uchain pointers.
     const chain = mkobj(CHAIN_CLASS, true, { state });
-    setworn(chain, W_CHAIN, setwornEnv(state));
+    await setworn(chain, W_CHAIN, setwornEnv(state));
     const ball = mkobj(BALL_CLASS, true, { state });
-    setworn(ball, W_BALL, setwornEnv(state));
+    await setworn(ball, W_BALL, setwornEnv(state));
 
     // placebc_core(): ball first establishes BCPOS_CHAIN, then chain is placed
     // above it. The source checks floor effects before either object is placed;
@@ -1238,7 +1238,7 @@ export async function doread(state = game) {
                 state,
                 'became literate by reading a fortune cookie',
             );
-        useup(scroll, { state, hooks: {} });
+        await useup(scroll, { state, hooks: {} });
         return ECMD_TIME;
     }
 
@@ -1518,7 +1518,7 @@ export async function doread(state = game) {
         }
         scroll.in_use = false;
         if (otyp !== SCR_BLANK_PAPER)
-            useup(scroll, { state, hooks: {} });
+            await useup(scroll, { state, hooks: {} });
     }
     return ECMD_TIME;
 }
@@ -1625,7 +1625,7 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
             state,
         );
         await remove_worn_item(otmp, false, state, effectEnv);
-        useup(otmp, { state });
+        await useup(otmp, { state });
         return false;
     }
     if (s < -100) s = -100; // read.c avoids overflow in (4 - s) / 2.
@@ -1649,7 +1649,7 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
             ? arti_light_radius(otmp, state) : 0;
 
         await ttyPline(`${Yname2(otmp, state)} merges and hardens!`, state);
-        setworn(null, W_ARM, setwornEnv(state));
+        await setworn(null, W_ARM, setwornEnv(state));
         otmp.otyp += GRAY_DRAGON_SCALE_MAIL - GRAY_DRAGON_SCALES;
         otmp.lamplit = false;
         if (sblessed) {
@@ -1660,7 +1660,7 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
             await uncurse(otmp, effectEnv);
         }
         otmp.known = true;
-        setworn(otmp, W_ARM, setwornEnv(state));
+        await setworn(otmp, W_ARM, setwornEnv(state));
         if (otmp.unpaid) alter_cost(otmp, 0, state);
         otmp.lamplit = wasLit;
         if (oldLight)
@@ -2015,7 +2015,7 @@ export async function seffect_identify(scroll, state = game) {
         // C consumes the scroll before its self-identification can refresh
         // the permanent inventory, and before testing whether anything else
         // remains to identify.
-        useup(scroll, { state, hooks: {} });
+        await useup(scroll, { state, hooks: {} });
         if (confused || (scursed && !alreadyKnown)) {
             await ttyPline('You identify this as an identify scroll.', state);
         } else if (!alreadyKnown) {
@@ -2633,7 +2633,7 @@ export async function seffect_fire(scroll, state = game) {
     const cval = bcsign(scroll);
     let dam = Math.trunc((2 * (rn1(3, 3) + 2 * cval) + 1) / 3);
 
-    useup(scroll, { state, hooks: {} });
+    await useup(scroll, { state, hooks: {} });
     if (!alreadyKnown) learnscrolltyp(SCR_FIRE, state);
 
     if (confused) {
