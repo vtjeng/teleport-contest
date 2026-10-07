@@ -148,8 +148,7 @@ import {
     plur,
 } from './const.js';
 import { newsym, see_monsters } from './display.js';
-import { hliquid, obj_pmname, x_monnam } from './do_name.js';
-import { HCOLORS } from './random_text_data.js';
+import { hcolor, hliquid, obj_pmname, x_monnam } from './do_name.js';
 import { has_ceiling, on_level, surface } from './dungeon.js';
 import { makeplural, makesingular } from './fruit.js';
 import { acurr, uchangealign } from './attrib.js';
@@ -193,7 +192,7 @@ import {
     slithy,
     verysmall,
 } from './mondata.js';
-import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, S_CENTAUR } from './monsters.js';
+import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, PM_WIZARD, S_CENTAUR } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import { gulp_blnd_check } from './mhitu.js';
 import {
@@ -370,7 +369,7 @@ import {
     incr_itimeout, make_hallucinated, make_slimed, self_invis_message,
     toggle_blindness,
 } from './potion.js';
-import { rn2, rn2_on_display_rng, rnl, rnd } from './rng.js';
+import { rn2, rnl, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
@@ -1641,10 +1640,6 @@ async function Armor_gone(state, rawEnv = {}) {
 // dokick()'s avrg_attrib uncomputed because every arm that would read it is
 // refused.
 //
-// That is the test HELM_OF_TELEPATHY failed and these two pass. Its extrinsic
-// feeds display.h sensemon(), which is ported and read on an ordinary turn
-// from four call sites, against a C redraw that is not ported, so it stays out
-// of PLAIN_HELMETS_ON below.
 const SUPPORTED_BOOTS_ON = new Set([
     LOW_BOOTS, IRON_SHOES, HIGH_BOOTS, JUMPING_BOOTS, KICKING_BOOTS,
     WATER_WALKING_BOOTS, ELVEN_BOOTS, FUMBLE_BOOTS, LEVITATION_BOOTS,
@@ -2099,74 +2094,43 @@ function Hallucination(state) {
         && !(resistance?.intrinsic || resistance?.extrinsic);
 }
 
-// C ref: do_name.c hcolor() (1461-1466). Returns `colorpref` when the hero
-// is not hallucinating; otherwise picks a random color from the hallucination
-// table using the display RNG.
-const hcolors = HCOLORS;
-
-function hcolor(colorpref, state) {
-    return (Hallucination(state) || !colorpref)
-        ? hcolors[rn2_on_display_rng(hcolors.length)]
-        : colorpref;
-}
-
-// The helmets Helmet_on() answers with a bare break. C's list at
-// do_wear.c:441-446 holds six labels; HELM_OF_TELEPATHY is left out of this
-// one, because its arm is bare only inside the switch. objects.h:485 gives the
-// type an oc_oprop of TELEPAT, so worn.c setworn() raises ETelepat one
-// statement earlier and recalc_telepat_range() sets u.unblind_telepat_range to
-// BOLT_LIM squared. display.h sensemon(), ported at js/startup_a11y.js:1632,
-// reads both, so the hero would start sensing every non-mindless monster
-// within eight squares -- through hack.c domove_core()'s run test, mon.c's
-// dknown clear and teleport.c's arrival tests, all of which call it. C feeds
-// that state a redraw this port does not have, allmain.c moveloop_core()'s
-// `Unblind_telepat` arm at 462-466, so a telepathy helm would diverge on the
-// turn after it went on. Its admission remains with the queued whole Helmet_on port.
-const PLAIN_HELMETS_ON = new Set([
-    HELMET, DENTED_POT, ELVEN_LEATHER_HELM, DWARVISH_IRON_HELM, ORCISH_HELM,
-]);
-
-// The helmet types Helmet_on() carries. Two callers ask: set_wear() below,
-// for the helmet a new game starts in, and accessory_or_armor_on(), which
-// hoists the question above setworn() because objects.h gives every helmet
-// but the fedora and the dented pot an oc_delay of 1, so the callback itself
-// runs a turn after the slot and the status line have already moved.
-function helmetOnPorted(otyp) {
-    return otyp === FEDORA || otyp === HELM_OF_CAUTION
-        || otyp === HELM_OF_OPPOSITE_ALIGNMENT
-        || otyp === DUNCE_CAP
-        || PLAIN_HELMETS_ON.has(otyp);
-}
-
-// C ref: do_wear.c Helmet_on() (433-515), reached both as the ga.afternmv
-// callback accessory_or_armor_on() installs for the helmet slot and once per
-// new game from set_wear() below.
-//
-// The FEDORA and DUNCE_CAP arms are the <X>_on() arms this port carries that do
-// anything beyond revealing an enchantment, and change_luck(1) is invisible until a
-// caller asks rnd.c rnl() for a range over 15: at 15 or below rnl() folds the
-// adjustment to (abs(Luck) + 1) / 3 * sgn(Luck), which is 0 for a single
-// point. lock.c doopen_indir():904 asks for rnl(20), so an Archeologist who
-// walks into a closed door -- hack.c:1097, no command needed -- draws one
-// extra rn2(38) at rnd.c:143 and a shifted result while her hat is on.
-//
-// The HELM_OF_OPPOSITE_ALIGNMENT arm falls through into the DUNCE_CAP arm;
-// JS models this fallthrough with an explicit call to the shared code.
-// C's `uarmh &&` at 510 guards against uchangealign() clearing the slot;
-// the guard is preserved now that the arm is ported.
+// C ref: do_wear.c Helmet_on() (434-515). accessory_or_armor_on installs
+// this callback after setworn; set_wear also calls it for starting equipment.
+// The opposite-alignment arm falls through into the shared dunce-cap path.
 async function Helmet_on(state) {
     const otyp = state.uarmh.otyp;
 
-    if (!helmetOnPorted(otyp))
-        throw new UnsupportedWearError(`Helmet_on() for otyp ${otyp}`);
-
     switch (otyp) {
-    case HELM_OF_CAUTION:
-        await see_monsters(state); // C do_wear.c:449.
-        break;
     case FEDORA:
         if (state.urole?.mnum === PM_ARCHEOLOGIST) change_luck(1, state);
         break;
+    case HELMET:
+    case DENTED_POT:
+    case ELVEN_LEATHER_HELM:
+    case DWARVISH_IRON_HELM:
+    case ORCISH_HELM:
+    case HELM_OF_TELEPATHY:
+        break;
+    case HELM_OF_CAUTION:
+        await see_monsters(state);
+        break;
+    case HELM_OF_BRILLIANCE:
+        adj_abon(state.uarmh, state.uarmh.spe, state);
+        break;
+    case CORNUTHAUM: {
+        // C ignores enchantment: trained Wizard arrogance grants one CHA;
+        // other roles lose one. This shares the canonical ABON owner.
+        state.u.abon ??= {};
+        const abon = Array.isArray(state.u.abon)
+            ? state.u.abon : (state.u.abon.a ??= []);
+        // attrib.h stores ABON in schar; preserve its signed-byte assignment.
+        abon[A_CHA] = (((abon[A_CHA] ?? 0)
+            + (state.urole?.mnum === PM_WIZARD ? 1 : -1)) << 24) >> 24;
+        state.disp ??= {};
+        state.disp.botl = true;
+        discover_object(state.uarmh.otyp, true, true, true, state);
+        break;
+    }
     case HELM_OF_OPPOSITE_ALIGNMENT:
         // C ref: do_wear.c Helmet_on() (463-475). Set known early because
         // uchangealign() can empty the slot through retouch_equipment().
@@ -2182,7 +2146,8 @@ async function Helmet_on(state) {
     case DUNCE_CAP:
         await helmetOnCursePath(state);
         break;
-    default: /* PLAIN_HELMETS_ON, C's bare-break labels at 441-446 */
+    default:
+        note_unported('pline.c impossible');
         break;
     }
     /* uarmh could be Null due to uchangealign() */
@@ -2278,8 +2243,9 @@ export async function Helmet_off(state = game) {
         if (!takeoffContext(state).cancelled_don) {
             const abon = Array.isArray(state.u.abon)
                 ? state.u.abon : (state.u.abon.a ??= []);
-            abon[A_CHA] = (abon[A_CHA] ?? 0)
-                + (state.urole?.mnum === PM_WIZARD ? -1 : 1);
+            // The byte conversion reverses Helmet_on even across 127/-128.
+            abon[A_CHA] = (((abon[A_CHA] ?? 0)
+                + (state.urole?.mnum === PM_WIZARD ? -1 : 1)) << 24) >> 24;
             state.disp ??= {};
             state.disp.botl = true;
         }
@@ -2311,11 +2277,13 @@ export async function Helmet_off(state = game) {
     return 0;
 }
 
-// C ref: do_wear.c adj_abon() (3319-3331). Gloves_on() reaches the first arm
-// here. The identity and type checks are part of the helper's contract: it
-// adjusts only a worn pair of gauntlets of dexterity, and discovers the type
-// only when the adjustment is nonzero.
+// C ref: do_wear.c adj_abon() (3319-3337). Slot identity and type guard
+// each attribute adjustment; nonzero deltas discover the type. Matching
+// dexterity gloves and brilliance helms mark status dirty even at zero delta.
 export function adj_abon(obj, delta, state = game, env = {}) {
+    // C converts the parameter to schar before entering, and each ABON
+    // assignment stores another schar (attrib.h struct attribs).
+    delta = (delta << 24) >> 24;
     if (state.uarmg && state.uarmg === obj
         && obj.otyp === GAUNTLETS_OF_DEXTERITY) {
         if (delta) {
@@ -2326,7 +2294,7 @@ export function adj_abon(obj, delta, state = game, env = {}) {
             state.u.abon ??= {};
             const abon = Array.isArray(state.u.abon)
                 ? state.u.abon : (state.u.abon.a ??= []);
-            abon[A_DEX] = (abon[A_DEX] ?? 0) + delta;
+            abon[A_DEX] = (((abon[A_DEX] ?? 0) + delta) << 24) >> 24;
         }
         state.disp ??= {};
         state.disp.botl = true;
@@ -2341,8 +2309,8 @@ export function adj_abon(obj, delta, state = game, env = {}) {
             state.u.abon ??= {};
             const abon = Array.isArray(state.u.abon)
                 ? state.u.abon : (state.u.abon.a ??= []);
-            abon[A_INT] = (abon[A_INT] ?? 0) + delta;
-            abon[A_WIS] = (abon[A_WIS] ?? 0) + delta;
+            abon[A_INT] = (((abon[A_INT] ?? 0) + delta) << 24) >> 24;
+            abon[A_WIS] = (((abon[A_WIS] ?? 0) + delta) << 24) >> 24;
         }
         state.disp ??= {};
         state.disp.botl = true;
@@ -3622,10 +3590,6 @@ async function accessory_or_armor_on(obj, state = game) {
             afternmv = Cloak_on;
             break;
         case W_ARMH:
-            if (!helmetOnPorted(obj.otyp))
-                throw new UnsupportedWearError(
-                    `Helmet_on() for otyp ${obj.otyp}`,
-                );
             afternmv = Helmet_on;
             break;
         case W_ARMG:

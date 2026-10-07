@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Wizard variation leaves a cursed brilliance helm as the only worn armor, then reads cursed destroy armor. C read.c:1359 decrements spe and calls adj_abon(-1); Escape dismisses the optional scroll naming prompt. The C inventory confirms helm p and scroll q.",
+  "segments": [
+    {
+      "seed": 91370722,
+      "datetime": "21210215101700",
+      "nethackrc": "OPTIONS=name:Helmet,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017cursed +1 helm of brilliance\n  Tb  Wp..  \u0017cursed scroll of destroy armor\n  rq  \u001b..  "
+    }
+  ]
+}

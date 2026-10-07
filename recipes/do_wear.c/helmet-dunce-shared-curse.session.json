@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do_wear.c:Helmet_on/adj_abon variation helmet-dunce-shared-curse. The role/type/enchantment drives the named source branch; source-tested seeds are independently chosen.",
+  "segments": [
+    {
+      "seed": 91370725,
+      "datetime": "21210215101700",
+      "nethackrc": "OPTIONS=name:Helmet,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed dunce cap\n  Td  Wi..  "
+    }
+  ]
+}

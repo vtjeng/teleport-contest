@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Wizard variation reaches ABON(A_CHA)=127 using two source-valid adornment rings. Cornuthaum wearing crosses the signed-byte boundary and its removal reverses it. The rings leave their source sums within byte range before Helmet_on.",
+  "segments": [
+    {
+      "seed": 91370720,
+      "datetime": "21210215101700",
+      "nethackrc": "OPTIONS=name:Helmet,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed +63 ring of adornment\n  Ppl  \u0017uncursed +64 ring of adornment\n  Pq  \u0017uncursed cornuthaum\n  Wr..  Tr..  "
+    }
+  ]
+}

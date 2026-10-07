@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { ART_SUNSWORD, discover_artifact } from '../js/artifacts.js';
@@ -67,6 +68,7 @@ import {
 } from '../js/const.js';
 import {
     Ring_off,
+    Helmet_off,
     UnsupportedWearError,
     _doWearInternals,
     adj_abon,
@@ -104,6 +106,7 @@ import {
     PM_MINOTAUR,
     PM_PLAINS_CENTAUR,
     PM_VALKYRIE,
+    PM_WIZARD,
     PM_WHITE_UNICORN,
     PM_WINGED_GARGOYLE,
 } from '../js/monsters.js';
@@ -1167,38 +1170,22 @@ test('Helmet_on admits caution and reaches the source known tail without RNG', a
     assert.equal(getRngLog().length, before);
 });
 
-test('the remaining unported Helmet_on arms are refused, while DUNCE_CAP curses',
+test('whole Helmet_on admission installs the source callback before its delay',
     async () => {
-    // do_wear.c:448-505. Caution now reaches its direct see_monsters call.
-    // Brilliance, cornuthaum, and telepathy admission remain with the whole
-    // Helmet_on source task; the refusal must precede setworn and its delay.
-    //
-    // The refusal is hoisted above setworn(), so a refused helmet never
-    // reaches the slot and never spends its oc_delay.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
-    for (const otyp of [HELM_OF_BRILLIANCE, CORNUTHAUM,
-        HELM_OF_TELEPATHY]) {
+    // These formerly refused types all have oc_delay=1 in objects.h. The
+    // callback reveals enchantment only after setworn and the elapsed turn.
+    for (const otyp of [HELM_OF_BRILLIANCE, CORNUTHAUM, HELM_OF_TELEPATHY]) {
         await setup(segment, OFF);
-        const obj = armor(otyp, { dknown: 1, spe: 0 });
-
-        await assert.rejects(
-            () => accessory_or_armor_on(obj, game),
-            refusal(UnsupportedWearError, `Helmet_on() for otyp ${otyp}`),
-            `otyp ${otyp}`,
-        );
-        assert.equal(game.uarmh ?? null, null, `otyp ${otyp}`);
-        assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
-        assert.equal(game.multi ?? 0, 0, `otyp ${otyp}`);
-
-        // Helmet_on() asks the same question again for its other caller.
-        // set_wear() reaches it with whatever u_init.c wore, and there is no
-        // frame above that one to hoist a refusal into. Helmet_on is async,
-        // so its early throw produces a rejected promise.
-        game.uarmh = armor(otyp, { dknown: 1, spe: 0, known: false });
-        await assert.rejects(() => Helmet_on(game),
-            refusal(UnsupportedWearError, `Helmet_on() for otyp ${otyp}`));
-        assert.equal(game.uarmh.known, false, `otyp ${otyp}`);
-        game.uarmh = null;
+        const obj = armor(otyp, { dknown: 1, spe: 0, known: false });
+        assert.equal(await accessory_or_armor_on(obj, game), ECMD_TIME);
+        assert.equal(game.uarmh, obj);
+        assert.equal(obj.owornmask, W_ARMH);
+        assert.equal(game.afternmv, Helmet_on);
+        assert.equal(game.multi, -1);
+        assert.equal(obj.known, false);
+        assert.equal(await Helmet_on(game), 0);
+        assert.equal(obj.known, true);
     }
     // The same direct call for a type it carries, which is what pins C's own
     // `return 0` at do_wear.c:514. Both of its callers discard the value, so
@@ -1221,7 +1208,7 @@ test('the remaining unported Helmet_on arms are refused, while DUNCE_CAP curses'
     game.uarmh = null;
     game._ttyMessageStopped = false;
 
-    // Of the six that go on, four carry an oc_delay of 1 and are the ones this
+    // Four ordinary helms carry an oc_delay of 1 and are the ones this
     // loop drives: each leaves Helmet_on() pending under nomul(-1) rather than
     // running it at once. The other two, the fedora and the dented pot, carry
     // oc_delay 0 and take unmul("") on the spot, which is the pair Helmet_off()
@@ -1239,6 +1226,26 @@ test('the remaining unported Helmet_on arms are refused, while DUNCE_CAP curses'
         assert.equal(game.multi, -1, `otyp ${otyp}`);
         assert.equal(obj.known ?? false, false,
             `the callback has not run yet for otyp ${otyp}`);
+    }
+});
+
+test('cornuthaum charisma follows the source role branch and ignores enchantment', async () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/do_wear.c', import.meta.url), 'utf8');
+    assert.match(c, /case CORNUTHAUM:[\s\S]*?ABON\(A_CHA\) \+= \(Role_if\(PM_WIZARD\) \? 1 : -1\);/u);
+    // Both enchantment signs exercise C's deliberate spe-independent role bonus.
+    for (const wizard of [false, true]) for (const spe of [-2, 3]) {
+        await setup(segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`), OFF);
+        if (wizard) game.urole.mnum = PM_WIZARD;
+        const hat = armor(CORNUTHAUM, { known: false, spe });
+        game.uarmh = hat;
+        const abon = Array.isArray(game.u.abon) ? game.u.abon : game.u.abon.a;
+        const before = abon[A_CHA];
+        game.disp.botl = false;
+        assert.equal(await Helmet_on(game), 0);
+        assert.equal(abon[A_CHA], before + (wizard ? 1 : -1));
+        assert.equal(game.disp.botl, true);
+        assert.equal(game.objects[CORNUTHAUM].oc_name_known, 1);
+        assert.equal(hat.known, true);
     }
 });
 
@@ -1743,9 +1750,16 @@ test('Gloves_on handles leather and all three gauntlet branches', async () => {
 
 test('adj_abon updates both brilliance attributes and redraws at zero delta',
     async () => {
-    // do_wear.c:3319-3331: the helper requires pointer identity with the
+    // do_wear.c:3319-3337: the helper requires pointer identity with the
     // equipped slot, discovers only nonzero changes, and always marks the
     // status line dirty for matching gloves or helm.
+    const c = readFileSync(new URL('../nethack-c/upstream/src/do_wear.c', import.meta.url), 'utf8');
+    const helper = c.slice(c.indexOf('adj_abon(struct obj *otmp, schar delta)'),
+        c.indexOf('/* decide whether a worn item is covered up'));
+    assert.match(helper, /uarmg && uarmg == otmp && otmp->otyp == GAUNTLETS_OF_DEXTERITY/u);
+    assert.match(helper, /ABON\(A_DEX\) \+= \(delta\);/u);
+    assert.match(helper, /uarmh && uarmh == otmp && otmp->otyp == HELM_OF_BRILLIANCE/u);
+    assert.match(helper, /ABON\(A_INT\) \+= \(delta\);\s*ABON\(A_WIS\) \+= \(delta\);/u);
     await setup(segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`), WAIT);
     const helm = armor(HELM_OF_BRILLIANCE, { spe: 2 });
     game.objects[HELM_OF_BRILLIANCE].oc_name_known = 1;
@@ -1764,6 +1778,51 @@ test('adj_abon updates both brilliance attributes and redraws at zero delta',
     assert.equal(game.disp.botl, true,
         'the matching helm slot redraws even when delta is zero');
     game.uarmh = null;
+});
+
+test('adj_abon preserves the source signed-byte parameter and attribute stores', async () => {
+    const header = readFileSync(new URL('../nethack-c/upstream/include/attrib.h', import.meta.url), 'utf8');
+    assert.match(header, /struct attribs \{\s*schar a\[A_MAX\];/u);
+    const config = readFileSync(new URL('../nethack-c/upstream/include/config.h', import.meta.url), 'utf8');
+    assert.match(config, /typedef signed char schar;/u);
+    const c = readFileSync(new URL('../nethack-c/upstream/src/do_wear.c', import.meta.url), 'utf8');
+    assert.match(c, /adj_abon\(struct obj \*otmp, schar delta\)/u);
+    // The patched C build uses eight-bit signed char: parameter narrowing and
+    // stored sums wrap independently at the two signed-byte limits.
+    for (const [initial, input, expected] of [
+        [127, 1, -128], [-128, -1, 127], [1, 127, -128],
+        [1, 128, -127], [1, 255, 0], [1, 256, 1],
+    ]) {
+        await setup(segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`), OFF);
+        const helm = armor(HELM_OF_BRILLIANCE, { spe: 0 });
+        const gloves = armor(GAUNTLETS_OF_DEXTERITY, { spe: 0 });
+        game.uarmh = helm;
+        game.uarmg = gloves;
+        const abon = Array.isArray(game.u.abon) ? game.u.abon : game.u.abon.a;
+        for (const attr of [A_INT, A_WIS, A_DEX]) abon[attr] = initial;
+        adj_abon(helm, input, game);
+        adj_abon(gloves, input, game);
+        for (const attr of [A_INT, A_WIS, A_DEX]) assert.equal(abon[attr], expected);
+    }
+});
+
+test('cornuthaum wearing and removal reverse at signed-byte charisma limits', async () => {
+    // attrib.h ABON is schar; Wizard +1 wraps 127 to -128 and the removal
+    // returns to 127. Non-Wizard -1 crosses the same boundary in reverse.
+    for (const wizard of [false, true]) {
+        await setup(segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`), OFF);
+        if (wizard) game.urole.mnum = PM_WIZARD;
+        const initial = wizard ? 127 : -128;
+        const abon = Array.isArray(game.u.abon) ? game.u.abon : game.u.abon.a;
+        abon[A_CHA] = initial;
+        const hat = armor(CORNUTHAUM, { known: false, spe: 0 });
+        game.uarmh = hat;
+        assert.equal(await Helmet_on(game), 0);
+        assert.equal(abon[A_CHA], wizard ? -128 : 127);
+        assert.equal(await Helmet_off(game), 0);
+        assert.equal(abon[A_CHA], initial);
+        assert.equal(game.uarmh, null);
+    }
 });
 
 test('Helmet_on reveals a wished helmet\'s enchantment on either arm',
