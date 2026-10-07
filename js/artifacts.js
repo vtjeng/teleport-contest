@@ -66,6 +66,7 @@ import {
     STEALTH,
     STONE_RES,
     TELEPORT_CONTROL,
+    TELEPAT,
     TIMEOUT,
     Upolyd,
     W_AMUL,
@@ -105,6 +106,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
+import { recalc_telepat_range } from './worn.js';
 import { use_crystal_ball } from './detect.js';
 import { inside_shop } from './shk.js';
 import { getrumor } from './random_text.js';
@@ -227,7 +229,7 @@ import { In_hell, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeo
 import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { do_blinding_ray } from './apply.js';
-import { glyph_at, glyph_is_trap, newsym, shieldeff } from './display.js';
+import { glyph_at, glyph_is_trap, newsym, shieldeff, see_monsters } from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
 import { float_down, float_up, t_at } from './trap.js';
 import { level_tele } from './teleport.js';
@@ -248,7 +250,7 @@ import { spelleffects } from './spell.js';
 import { litroom, seffects } from './read.js';
 import { charge_ok, recharge } from './read.js';
 import {
-    healup, make_blinded, make_sick, make_slimed, make_stunned,
+    healup, make_blinded, make_sick, make_slimed, make_stunned, make_hallucinated,
 } from './potion.js';
 import { dropx, maybe_lvltport_feedback, goto_level } from './do.js';
 import { select_menu } from './windows.js';
@@ -696,15 +698,6 @@ export function find_artifact(obj, state = game) {
     return true;
 }
 
-// Thrown where artifact.c reaches a display branch this port has not ported.
-export class UnsupportedArtifactDisplayError extends Error {
-    constructor(branch) {
-        super(`artifact display requires ${branch}`);
-        this.name = 'UnsupportedArtifactDisplayError';
-        this.branch = branch;
-    }
-}
-
 // C ref: artifact.c disp_artifact_discoveries() (1146-1174). Returns how many
 // artifacts the hero has discovered, writing one line for each into the text
 // window dodiscovered() supplies. C passes a `winid tmpwin` and calls
@@ -1006,7 +999,7 @@ const ARTIFACT_RESISTANCE_PROPERTY = new Map([
 
 // The spfx bits that are nothing but an extrinsic mask write, in the order
 // artifact.c:781-880 tests them. The bits left out each drive display or
-// vision work as well, and set_artifact_intrinsic() refuses those below.
+// vision work as well and are handled at their source positions below.
 const ARTIFACT_SPFX_PROPERTY = [
     [SPFX_SEARCH, SEARCHING],
     [SPFX_STLTH, STEALTH],
@@ -1018,93 +1011,100 @@ const ARTIFACT_SPFX_PROPERTY = [
     [SPFX_PROTECT, PROTECTION],
 ];
 
-// C ref: artifact.c set_artifact_intrinsic() (715-892). Toggles the extrinsic
-// properties an artifact confers when worn or carried.
-//
-// Paths:
-// - W_ART (carried): reads cary and cspfx; the "off" survey loops are not yet
-//   ported, so only the "on" half is handled.
-// - W_WEP and other worn masks: reads defn and spfx; handles both on and off.
-//   The "off" survey loops at 748-761 and 771-779 only fire for W_ART, so they
-//   do not apply here.
-//
-// Display-affecting spfx bits (ESP, WARN, XRAY) stop this port: they call
-// see_monsters() or set vision_full_recalc, neither of which is ported.
-// SPFX_HALRES is handled directly: the mask write that make_hallucinated()
-// performs is inlined, and the state-transition branch (hero is currently
-// hallucinating when the mask changes) is refused.
-export function set_artifact_intrinsic(otmp, on, wp_mask, state = game) {
+// C ref: artifact.c:set_artifact_intrinsic() (715-892). Ordinary mask
+// writes remain synchronous. Display or invoked-power work suspends this
+// source walk and resumes before the next property is changed.
+export function set_artifact_intrinsic(otmp, on, wp_mask, state = game, rawEnv = {}) {
+    const steps = set_artifact_intrinsic_steps(otmp, on, wp_mask, state, rawEnv);
+    const advance = (value, failed = false) => {
+        const step = failed ? steps.throw(value) : steps.next(value);
+        if (step.done) return step.value;
+        if (step.value && typeof step.value.then === 'function')
+            return Promise.resolve(step.value).then(
+                result => advance(result), error => advance(error, true));
+        return advance(step.value);
+    };
+    return advance(undefined);
+}
+
+function* set_artifact_intrinsic_steps(otmp, on, wp_mask, state, rawEnv) {
     const normalized = artifactTables(state);
     const oart = get_artifact(otmp, normalized);
-
     if (oart === normalized.artilist[ART_NONARTIFACT]) return;
-
-    if (wp_mask === W_ART && !on) {
-        // The "off" path for carried artifacts surveys inventory to avoid
-        // clearing a property another carried artifact also grants, and may
-        // shut down an invoked power. Neither is ported.
-        throw new UnsupportedArtifactDisplayError(
-            'set_artifact_intrinsic() removing a carried artifact',
-        );
-    }
-
-    // Select fields: carried reads cary/cspfx, worn reads defn/spfx.
-    const dtyp = (wp_mask !== W_ART) ? oart.defn.adtyp : oart.cary.adtyp;
-    const spfx = (wp_mask !== W_ART) ? oart.spfx : oart.cspfx;
-
-    // ---- Display-affecting spfx: refuse before writing any mask ----
-    // Read these first so a refusal does not leave extrinsics half-changed.
-    // artifact.c:798-805 (SPFX_ESP) calls recalc_telepat_range + see_monsters.
-    // artifact.c:824-840 (SPFX_WARN) calls see_monsters and sets warntype.
-    // artifact.c:859-866 (SPFX_XRAY) sets xray_range and vision_full_recalc.
-    if (spfx & (SPFX_ESP | SPFX_WARN | SPFX_XRAY)) {
-        throw new UnsupportedArtifactDisplayError(
-            'an artifact that changes what the hero sees (ESP/WARN/XRAY)',
-        );
-    }
-
-    // artifact.c:787-797 (SPFX_HALRES): make_hallucinated((long) !on, ...,
-    // wp_mask). When mask != 0, make_hallucinated only toggles
-    // EHalluc_resistance, then checks HHallucination to decide whether the
-    // display changed. If the hero is currently hallucinating, the function
-    // would call see_monsters(), see_objects(), see_traps(), update_inventory(),
-    // and print a message, none of which is ported. When the hero is not
-    // hallucinating, make_hallucinated is just the mask write.
-    if (spfx & SPFX_HALRES) {
-        if (normalized.u.uprops[HALLUC].intrinsic) {
-            throw new UnsupportedArtifactDisplayError(
-                'toggling hallucination resistance while hallucinating',
-            );
+    const env = {
+        ...rawEnv,
+        state: normalized,
+        redraw: rawEnv.redraw ?? (normalized === game ? newsym : () => {}),
+        ...(rawEnv.planning && !rawEnv.message ? { message: async () => {} } : {}),
+    };
+    const dtyp = wp_mask !== W_ART ? oart.defn.adtyp : oart.cary.adtyp;
+    let property = ARTIFACT_RESISTANCE_PROPERTY.get(dtyp);
+    if (property !== undefined && wp_mask === W_ART && !on) {
+        for (let obj = normalized.invent; obj; obj = obj.nobj) {
+            if (obj !== otmp && obj.oartifact) {
+                const art = get_artifact(obj, normalized);
+                if (art !== normalized.artilist[ART_NONARTIFACT]
+                    && art.cary.adtyp === dtyp) {
+                    property = undefined;
+                    break;
+                }
+            }
         }
-        // Inline make_hallucinated's mask-only path: when !xtime (on=true),
-        // set the resistance; when xtime (on=false), clear it.
-        if (on)
-            normalized.u.uprops[HALLUC_RES].extrinsic |= wp_mask;
-        else
-            normalized.u.uprops[HALLUC_RES].extrinsic &= ~wp_mask;
     }
-
-    /* effects from the defn field */
-    const property = ARTIFACT_RESISTANCE_PROPERTY.get(dtyp);
     if (property !== undefined)
         extrinsicMaskToggle(normalized, property, wp_mask, on);
 
-    for (const [bit, prop] of ARTIFACT_SPFX_PROPERTY) {
+    let spfx = wp_mask !== W_ART ? oart.spfx : oart.cspfx;
+    if (spfx && wp_mask === W_ART && !on) {
+        for (let obj = normalized.invent; obj; obj = obj.nobj) {
+            if (obj !== otmp && obj.oartifact) {
+                const art = get_artifact(obj, normalized);
+                if (art !== normalized.artilist[ART_NONARTIFACT])
+                    spfx &= ~art.cspfx;
+            }
+        }
+    }
+    if (spfx & SPFX_SEARCH)
+        extrinsicMaskToggle(normalized, SEARCHING, wp_mask, on);
+    if (spfx & SPFX_HALRES)
+        yield make_hallucinated(Number(!on), !normalized.program_state?.restoring,
+            wp_mask, normalized, env);
+    if (spfx & SPFX_ESP) {
+        extrinsicMaskToggle(normalized, TELEPAT, wp_mask, on);
+        recalc_telepat_range(normalized);
+        yield see_monsters(normalized, env);
+    }
+    for (const [bit, prop] of ARTIFACT_SPFX_PROPERTY.slice(1, 4))
         if (spfx & bit) extrinsicMaskToggle(normalized, prop, wp_mask, on);
+    if (spfx & SPFX_WARN) {
+        if (spec_m2(otmp, normalized)) {
+            extrinsicMaskToggle(normalized, WARN_OF_MON, wp_mask, on);
+            normalized.context ??= {};
+            normalized.context.warntype ??= {};
+            const old = normalized.context.warntype.obj ?? 0;
+            const flags = spec_m2(otmp, normalized);
+            normalized.context.warntype.obj = on ? old | flags : old & ~flags;
+            yield see_monsters(normalized, env);
+        } else {
+            extrinsicMaskToggle(normalized, WARNING, wp_mask, on);
+        }
     }
-
-    // artifact.c:867-872: SPFX_REFLECT is guarded on `wp_mask & W_WEP`.
-    if ((spfx & SPFX_REFLECT) && (wp_mask & W_WEP)) {
+    for (const [bit, prop] of ARTIFACT_SPFX_PROPERTY.slice(4, 7))
+        if (spfx & bit) extrinsicMaskToggle(normalized, prop, wp_mask, on);
+    if (spfx & SPFX_XRAY) {
+        normalized.u.xray_range = on ? 3 : -1;
+        normalized.vision_full_recalc = 1;
+    }
+    if ((spfx & SPFX_REFLECT) && (wp_mask & W_WEP))
         extrinsicMaskToggle(normalized, REFLECTING, wp_mask, on);
-    }
-
-    // artifact.c:880-885: invoked-power shutdown. Only for W_ART and !on,
-    // which is already refused above.
-
-    // artifact.c:887-892: Sunsword blindness resistance, guarded on W_WEP.
-    if (wp_mask === W_WEP && otmp.oartifact === ART_SUNSWORD) {
+    if (spfx & SPFX_PROTECT)
+        extrinsicMaskToggle(normalized, PROTECTION, wp_mask, on);
+    if (wp_mask === W_ART && !on && oart.inv_prop
+        && oart.inv_prop <= LAST_PROP
+        && (normalized.u.uprops[oart.inv_prop].extrinsic & W_ARTI))
+        yield arti_invoke(otmp, normalized, env);
+    if (wp_mask === W_WEP && otmp.oartifact === ART_SUNSWORD)
         extrinsicMaskToggle(normalized, BLND_RES, wp_mask, on);
-    }
 }
 
 function extrinsicMaskToggle(state, property, wp_mask, on) {
@@ -3115,7 +3115,7 @@ export async function retouch_object(objp, loseit, state = game) {
     /* if we still have it and caller wants us to drop it, do so now */
     if (loseit && obj) {
         if (Levitation(state)) {
-            freeinv(obj, { state });
+            await freeinv(obj, { state });
             await hitfloor(obj, true, state);
         } else {
             /* dropx gives a message if a dropped item lands on an altar;

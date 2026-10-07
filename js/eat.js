@@ -1028,7 +1028,7 @@ function tin_variety(obj, env, displ = false) {
 // id; reqtime and usedtime belong to the same persistent svc.context.tin.
 async function use_up_tin(tin, state = game) {
     if (carried(tin))
-        useup(tin, { state });
+        await useup(tin, { state });
     else
         await useupf(tin, 1, { state });
     const context = tinContext(state);
@@ -1676,7 +1676,7 @@ async function touchfood(otmp, env) {
         otmp.oeaten = obj_nutrition(otmp, state);
     }
     if (carried(otmp)) {
-        freeinv(otmp, env);
+        await freeinv(otmp, env);
         if (inv_cnt(false, state) >= INVLET_BASIC) {
             sellobj_state(SELL_DONTSELL, state);
             await dropy(otmp, env);
@@ -2484,7 +2484,8 @@ async function givit(type, ptr, state, env = {}) {
                 state,
             );
             addOutside();
-            if (heroIsBlind(state)) await see_monsters(state);
+            if (heroIsBlind(state)) await see_monsters(state, { ...env,
+                redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
         }
         break;
     case ACID_RES:
@@ -2915,7 +2916,7 @@ async function eatcorpse(otmp, state, env = {}) {
             );
         }
         if (carried(otmp))
-            useup(otmp, env);
+            await useup(otmp, env);
         else
             await useupf(otmp, 1, env);
         return 2;
@@ -2986,7 +2987,7 @@ async function eatcorpse(otmp, state, env = {}) {
             if (!retcode)
                 await ttyPline('The corpse rots away completely.', state);
             if (carried(otmp))
-                useup(otmp, env);
+                await useup(otmp, env);
             else
                 await useupf(otmp, 1, env);
             retcode = 2;
@@ -3201,7 +3202,7 @@ async function fprefx(otmp, state, env = {}) {
     switch (otmp.otyp) {
     case EGG:
         if (otmp.corpsenm === PM_PYROLISK) {
-            if (carried(otmp)) useup(otmp, env);
+            if (carried(otmp)) await useup(otmp, env);
             else await useupf(otmp, 1, env);
             await explode(state.u.ux, state.u.uy, -11, random.d(3, 6), 0,
                 EXPL_FIERY, state, { ...env, random });
@@ -3446,7 +3447,7 @@ async function done_eating(message, state, env) {
     else
         await fpostfx(piece, state, env);
 
-    if (carried(piece)) useup(piece, env);
+    if (carried(piece)) await useup(piece, env);
     else await useupf(piece, 1, env);
 
     state.context.victual = zero_victual();
@@ -3837,7 +3838,8 @@ async function eataccessory(otmp, state, env) {
         switch (typ) {
         case RIN_SEE_INVISIBLE: {
             note_unported('display.c set_mimic_blocking');
-            see_monsters(state);
+            await see_monsters(state, { ...env,
+                redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
             const invis = state.u.uprops[INVIS];
             const seeInvisible = state.u.uprops[SEE_INVIS];
             const invisible = Boolean(
@@ -3990,7 +3992,7 @@ async function eatspecial(state, env) {
 
     if (otmp.oclass === COIN_CLASS) {
         if (carried(otmp))
-            useupall(otmp, env);
+            await useupall(otmp, env);
         else
             await useupf(otmp, otmp.quan, env);
         // The watcher result is discarded by C. Its source owner is not
@@ -4047,7 +4049,7 @@ async function eatspecial(state, env) {
     }
 
     if (otmp === state.uwep && otmp.quan === 1)
-        uwepgone({ state });
+        await uwepgone({ state });
     if (otmp === state.uquiver && otmp.quan === 1)
         uqwepgone({ state });
     if (otmp === state.uswapwep && otmp.quan === 1)
@@ -4058,7 +4060,7 @@ async function eatspecial(state, env) {
     if (otmp === state.uchain) {
         unpunish(state, { ...env, random });
     } else if (carried(otmp)) {
-        useup(otmp, env);
+        await useup(otmp, env);
     } else {
         await useupf(otmp, 1, env);
     }
@@ -4267,7 +4269,7 @@ export async function doeat(state = game, env = {}) {
             if (carried(otmp)) {
                 if (otmp.owornmask)
                     await remove_worn_item(otmp, false, state);
-                freeinv(otmp, eatEnv);
+                await freeinv(otmp, eatEnv);
                 await dropy(otmp, {
                     ...eatEnv,
                     hooks: {

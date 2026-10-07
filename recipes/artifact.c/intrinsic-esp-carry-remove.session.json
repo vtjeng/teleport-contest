@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B136 source witness. Seed chosen directly; role and object variations follow artilist.h intrinsic rows.",
+  "segments": [
+    {
+      "seed": 81361017,
+      "datetime": "21200112104500",
+      "nethackrc": "OPTIONS=name:Intrinsic,role:Archeologist,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed Orb of Detection\n  di  "
+    }
+  ]
+}

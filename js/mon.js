@@ -4445,8 +4445,8 @@ export function unstuck(mtmp, state = game, env = {}) {
             // explicit redraw option is required for a planning clone because
             // see_monsters() otherwise paints the live game map.
             await visionRecalc(0, visionEnv);
-            const monsterOverlay = redraw ? { redraw } : {};
-            see_monsters(state, monsterOverlay);
+            const monsterOverlay = { ...env, ...(redraw ? { redraw } : {}) };
+            await see_monsters(state, monsterOverlay);
 
             /* "prevent holder/engulfer from immediately re-holding/re-engulfing
                [note: this call to unstuck() might be because u.ustuck has just
@@ -6040,7 +6040,9 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         await message('You murderer!', state);
         if (heroIsBlind(state)
             && !(telepathy?.intrinsic || telepathy?.extrinsic))
-            see_monsters(state);
+            await see_monsters(state, { ...env,
+                ...(env.planning && !env.redraw ? { redraw: () => {} } : {}),
+            });
     }
     if ((mtmp.mpeaceful && !random.rn2(2)) || mtmp.mtame)
         change_luck(-1, state);

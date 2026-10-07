@@ -376,7 +376,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
             }
         }
         const { setnotworn } = await import('./worn.js');
-        if (obj.owornmask) setnotworn(obj, { ...rawEnv, state });
+        if (obj.owornmask) await setnotworn(obj, { ...rawEnv, state });
         delobj(obj, { ...rawEnv, state });
         return true;
     }
@@ -401,7 +401,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
             await message(`${Yname2(obj, state)} ${text}.`, state);
         }
         const { setnotworn } = await import('./worn.js');
-        if (obj.owornmask) setnotworn(obj, { ...rawEnv, state });
+        if (obj.owornmask) await setnotworn(obj, { ...rawEnv, state });
         delobj(obj, { ...rawEnv, state });
         return true;
     }
@@ -412,7 +412,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
             await message(`${Yname2(obj, state)} ${text}.`, state);
         }
         const { setnotworn } = await import('./worn.js');
-        if (obj.owornmask) setnotworn(obj, { ...rawEnv, state });
+        if (obj.owornmask) await setnotworn(obj, { ...rawEnv, state });
         delobj(obj, { ...rawEnv, state });
         return true;
     }
@@ -479,7 +479,7 @@ export async function lava_damage(obj, x, y, rawEnv = {}) {
                 // punishment arms are an explicit source gap here.
                 note_unported('steal.c remove_worn_item');
             }
-            useupall(obj, { ...rawEnv, state });
+            await useupall(obj, { ...rawEnv, state });
         } else {
             delobj(obj, { ...rawEnv, state });
         }

@@ -1555,7 +1555,7 @@ export async function lava_effects(state = game) {
         const { Boots_off } = await import('./do_wear.js');
         await Boots_off(state);
         if (obj.o_id !== protectedId)
-            useup(obj, { state });
+            await useup(obj, { state });
         state.iflags.in_lava_effects--;
         burncount++;
         burnmesgcount++;
@@ -1634,7 +1634,7 @@ export async function lava_effects(state = game) {
                         await remove_worn_item(obj, true, state);
                     }
                 }
-                useupall(obj, { state });
+                await useupall(obj, { state });
                 burncount++;
             }
             obj = next;
@@ -2630,7 +2630,7 @@ async function disarm_squeaky_board(ttmp, state = game) {
         // C: consume_obj_charge(obj, TRUE). invent.c.
         consume_obj_charge(obj, true, { state });
     } else {
-        useup(obj, state); /* oil */
+        await useup(obj, state); /* oil */
         // C: makeknown(POT_OIL) => discover_object(POT_OIL, true, true, true).
         note_unported('o_init.c makeknown via discover_object');
     }

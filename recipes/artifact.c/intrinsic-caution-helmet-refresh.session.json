@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first helm-of-caution variation reaches Helmet_on direct see_monsters and Helmet_off refresh; no whole Helmet_on completion claim.",
+  "segments": [
+    {
+      "seed": 81361017,
+      "datetime": "21200112104500",
+      "nethackrc": "OPTIONS=name:Intrinsic,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed helm of caution\n  Td  Wi..  Ti..  di  "
+    }
+  ]
+}

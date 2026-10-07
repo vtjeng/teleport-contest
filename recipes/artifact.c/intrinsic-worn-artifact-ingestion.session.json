@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first variation: a xorn wields an iron artifact and eats it, exercising setnotworn before freeinv and object destruction.",
+  "segments": [
+    {
+      "seed": 81361017,
+      "datetime": "21200112104500",
+      "nethackrc": "OPTIONS=name:Intrinsic,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " #polyself\nxorn\n   \u0017uncursed Excalibur\n  wi  mei  "
+    }
+  ]
+}

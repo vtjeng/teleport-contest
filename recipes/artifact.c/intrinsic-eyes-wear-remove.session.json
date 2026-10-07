@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first own-role Eyes witness. From the initial C room the hero moves two columns left  to its centre; radius three reaches room walls rather than the hidden right corridor. XRAY mask/clear are exercised without claiming vision.c overlay completion.",
+  "segments": [
+    {
+      "seed": 81361017,
+      "datetime": "21200112104500",
+      "nethackrc": "OPTIONS=name:Intrinsic,role:Monk,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed Eyes of the Overworld\n  hhWk  Rk  dk  "
+    }
+  ]
+}

@@ -288,6 +288,7 @@ import { CMAP_COLORS, SYMBOL_INDEX_BY_NAME } from './symbol_data.js';
 import { t_at } from './trap.js';
 
 import { note_unported } from './unported.js';
+import { Sting_effects } from './artifacts.js';
 // pray.c owns critically_low_hp(); botl.c:2555 and wintty.c:4539 are two of
 // its three C call sites, so the status line reads the one port in js/pray.js
 // rather than keeping a second copy here.
@@ -4046,16 +4047,16 @@ export function newsym(x, y) {
 }
 
 // ── see_monsters ──
-// C ref: display.c see_monsters() (1487-1522). Redraws every monster on the
+// C ref: display.c see_monsters() (1486-1529). Redraws every monster on the
 // level after something changed what the hero can perceive. `redraw` is an
 // optional caller-owned seam for planning clones: newsym() still draws the
 // live game, while a clone can supply a silent or state-local repaint. The
 // monster-list state changes (meverseen and warning count) always belong to
 // the state passed by the caller.
 //
-// gd.defer_see_monsters is not modeled: goto_level() is its only setter and no
-// level change is ported.
-export function see_monsters(state = game, { redraw = null } = {}) {
+export function see_monsters(state = game, env = {}) {
+    if (state.gd?.defer_see_monsters) return;
+    const { redraw = null } = env;
     if (state !== game && typeof redraw !== 'function') {
         throw new TypeError(
             'see_monsters() on a clone requires a redraw callback',
@@ -4075,31 +4076,30 @@ export function see_monsters(state = game, { redraw = null } = {}) {
         if (mon.mhp < 1) continue; /* DEADMONSTER() */
         if ((mon.mstate & MON_STILL_ARRIVING) !== 0) continue;
         repaint(mon.mx, mon.my, state);
-        if (mon.wormno) {
-            // worm.c see_wsegs() redraws tail segments. The current level
-            // generator can still create one, but its tail placement is not
-            // yet represented in the JS map; retain the head redraw and let
-            // the existing tail cells keep their remembered presentation.
-            continue;
-        }
+        if (mon.wormno)
+            note_unported('worm.c see_wsegs');
         if (warn_of_mon
             && (state.context?.warntype?.obj & mon.data.mflags2) !== 0) {
             ++new_warn_obj_cnt;
         }
     }
 
+    const finish = () => {
+        /* when mounted, hero's location gets caught by monster loop */
+        if (!state.u.usteed) repaint(state.u.ux, state.u.uy, state);
+    };
     if (new_warn_obj_cnt !== (state.warn_obj_cnt ?? 0)) {
-        // Sting_effects() is ported in artifacts.js but see_monsters() is
-        // synchronous and Sting_effects() is async, so this callsite is left
-        // as a throw until see_monsters() becomes async. The comment in C's
-        // artifact.c:2482 notes this path is via goto_level -> docrt ->
-        // see_monsters; nothing grants Warn_of_mon on the levels this port
-        // reaches, so the count cannot leave zero.
-        throw new Error('see_monsters() toggling a warning artifact');
+        // C emits the glow before recording the new count and repainting
+        // the hero. A pending More keeps this tail on the same source call.
+        return Sting_effects(new_warn_obj_cnt, state, {
+            ...env,
+            ...(env.planning && !env.message ? { message: async () => {} } : {}),
+        }).then(() => {
+            state.warn_obj_cnt = new_warn_obj_cnt;
+            finish();
+        });
     }
-
-    /* when mounted, hero's location gets caught by the monster loop */
-    if (!state.u.usteed) repaint(state.u.ux, state.u.uy, state);
+    finish();
 }
 
 // C ref: display.c see_objects() (1558-1570). Repaint the top object at each
@@ -4181,7 +4181,7 @@ export async function docrt(options = {}) {
                     }
                 }
             options.restoreVision?.();
-            if (options.overlayMonsters !== false) see_monsters(game);
+            if (options.overlayMonsters !== false) await see_monsters(game);
         }
         // display.c post_map marks status dirty before leaving in_docrt.
         game.disp ??= {};

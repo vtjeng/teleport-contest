@@ -1223,7 +1223,7 @@ test('Ring_gone for RIN_PROTECTION clears the worn mask', () => {
         'uright cleared by setnotworn()');
 });
 
-test('Ring_gone for RIN_INCREASE_ACCURACY decrements uhitinc', () => {
+test('Ring_gone for RIN_INCREASE_ACCURACY decrements uhitinc', async () => {
     // C ref: do_wear.c:1424-1425. u.uhitinc -= obj->spe.
     const s = ringTestState();
     s.u.uhitinc = 3;
@@ -1238,14 +1238,14 @@ test('Ring_gone for RIN_INCREASE_ACCURACY decrements uhitinc', () => {
     s.u.uprops[oc_oprop] = { extrinsic: W_RINGL };
     s.uleft = ring;
 
-    Ring_gone(ring, s);
+    await Ring_gone(ring, s);
 
     // uhitinc should decrease by spe (3 - 2 = 1).
     assert.equal(s.u.uhitinc, 1,
         'uhitinc decremented by ring spe');
 });
 
-test('Ring_gone for RIN_INCREASE_DAMAGE decrements udaminc', () => {
+test('Ring_gone for RIN_INCREASE_DAMAGE decrements udaminc', async () => {
     // C ref: do_wear.c:1426-1427. u.udaminc -= obj->spe.
     const s = ringTestState();
     s.u.udaminc = 5;
@@ -1260,14 +1260,14 @@ test('Ring_gone for RIN_INCREASE_DAMAGE decrements udaminc', () => {
     s.u.uprops[oc_oprop] = { extrinsic: W_RINGL };
     s.uleft = ring;
 
-    Ring_gone(ring, s);
+    await Ring_gone(ring, s);
 
     // udaminc should decrease by spe (5 - 3 = 2).
     assert.equal(s.u.udaminc, 2,
         'udaminc decremented by ring spe');
 });
 
-test('Ring_gone for RIN_COLD_RESISTANCE (no-op type) clears mask only', () => {
+test('Ring_gone for RIN_COLD_RESISTANCE (no-op type) clears mask only', async () => {
     // Sixteen ring types have no side effect beyond the extrinsic that
     // setnotworn() clears. C ref: do_wear.c:1361-1378.
     const s = ringTestState();
@@ -1282,7 +1282,7 @@ test('Ring_gone for RIN_COLD_RESISTANCE (no-op type) clears mask only', () => {
     s.u.uprops[oc_oprop] = { extrinsic: W_RINGR };
     s.uright = ring;
 
-    Ring_gone(ring, s);
+    await Ring_gone(ring, s);
 
     assert.equal(ring.owornmask, 0, 'owornmask cleared');
     assert.equal(s.uright, null, 'uright cleared');

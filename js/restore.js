@@ -306,6 +306,10 @@ export function dorestore(state = game) {
     // Rebuild floor-object linked list from the level.objects grid.
     rebuildObjectList(state);
 
+    // C ref: restore.c:684 defers monster repaint until allmain.c:92-94.
+    state.gd ??= {};
+    state.gd.defer_see_monsters = true;
+
     // Rebuild equipment pointers from inventory owornmask bits.
     rebuildEquipmentPointers(state);
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { com_pager } from '../js/questpgr.js';
+import { com_pager, qtext_pronoun } from '../js/questpgr.js';
 
 test('common array pager shuffles once, then chooses a Lua array entry', async () => {
     const draws = [];
@@ -42,4 +42,20 @@ test('common string pager converts Lua substitutions and emits one line', async 
     assert.deepEqual(draws, [3, 2]);
     // %l is converted by the same common pager path as portal and cuss text.
     assert.deepEqual(lines, ['You again sense your leader demanding your attendance.']);
+});
+
+// questpgr.c:200-236 names plural artifacts independently of gender entries.
+test('quest pronouns pin plural artifacts and subject genders to C', () => {
+    const state = {svq: {quest_status: {godgend: 0, ldrgend: 1, nemgend: 2}}};
+    for (const name of ['the Eyes of the Overworld', 'the arrows']) {
+        assert.equal(qtext_pronoun('o', 'h', state, name), 'they');
+        assert.equal(qtext_pronoun('o', 'i', state, name), 'them');
+        assert.equal(qtext_pronoun('o', 'J', state, name), 'Their');
+    }
+    assert.equal(qtext_pronoun('o', 'j', state, 'the Orb of Fate'), 'its');
+    assert.equal(qtext_pronoun('d', 'H', state), 'He');
+    assert.equal(qtext_pronoun('l', 'i', state), 'her');
+    assert.equal(qtext_pronoun('n', 'J', state), 'Its');
+    assert.equal(qtext_pronoun('?', 'h', state), 'it');
+    assert.equal(qtext_pronoun('o', '?', state), '?');
 });

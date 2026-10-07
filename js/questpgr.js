@@ -17,7 +17,7 @@ import { note_unported } from './unported.js';
 import { s_suffix } from './hacklib.js';
 import { align_str } from './insight.js';
 import { type_is_pname } from './mondata.js';
-import { makeplural } from './fruit.js';
+import { makeplural, makesingular } from './fruit.js';
 import { an, the } from './objnam.js';
 import { align_gname } from './pray.js';
 import { QUEST_TEXT_DATA } from './quest_text_data.js';
@@ -127,27 +127,25 @@ const GENDERS = [
     { he: 'it',  him: 'it',   his: 'its'  },
 ];
 
-function qtextPronoun(who, which, state) {
+// C ref: questpgr.c:qtext_pronoun() (200-236). The caller supplies C's
+// cvt_buf name; return its replacement instead of sharing a mutable buffer.
+export function qtext_pronoun(who, which, state, name = '') {
     const lwhich = which.toLowerCase();
-    let gend;
-    if (who === 'd') {
-        gend = state.svq?.quest_status?.godgend ?? 2;
-    } else if (who === 'l') {
-        gend = state.svq?.quest_status?.ldrgend ?? 2;
-    } else if (who === 'n') {
-        gend = state.svq?.quest_status?.nemgend ?? 2;
-    } else {
-        gend = 2; // neuter for artifact and default
-    }
-    const entry = GENDERS[gend] || GENDERS[2];
     let pnoun;
-    if (lwhich === 'h') pnoun = entry.he;
-    else if (lwhich === 'i') pnoun = entry.him;
-    else if (lwhich === 'j') pnoun = entry.his;
-    else pnoun = '?';
-    if (which !== lwhich) { // uppercase variant: capitalize
-        pnoun = pnoun[0].toUpperCase() + pnoun.slice(1);
+    if (who === 'o' && (name.toLowerCase().includes('eyes ')
+        || name.toLowerCase() !== makesingular(name).toLowerCase())) {
+        pnoun = lwhich === 'h' ? 'they' : lwhich === 'i' ? 'them'
+            : lwhich === 'j' ? 'their' : '?';
+    } else {
+        const status = state.svq?.quest_status;
+        const gend = who === 'd' ? status?.godgend ?? 2
+            : who === 'l' ? status?.ldrgend ?? 2
+                : who === 'n' ? status?.nemgend ?? 2 : 2;
+        const entry = GENDERS[gend];
+        pnoun = lwhich === 'h' ? entry.he : lwhich === 'i' ? entry.him
+            : lwhich === 'j' ? entry.his : '?';
     }
+    if (which !== lwhich) pnoun = pnoun[0].toUpperCase() + pnoun.slice(1);
     return pnoun;
 }
 
@@ -251,7 +249,7 @@ function convertLine(line, state) {
                 case 'i': case 'I':
                 case 'j': case 'J':
                     if ('dlno'.includes(argChar.toLowerCase())) {
-                        cvtBuf = qtextPronoun(argChar, mod, state);
+                        cvtBuf = qtext_pronoun(argChar, mod, state, cvtBuf);
                         i++;
                     }
                     // else fall through to default (mod not consumed)

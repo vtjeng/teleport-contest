@@ -2362,7 +2362,7 @@ async function shrinking_glob_gone(obj, env = {}) {
             remove_worn_item(obj, false, state);
             await stop_occupation(state, { message: env.message });
         }
-        useupall(obj, env);
+        await useupall(obj, env);
     } else {
         if (owhere === OBJ_MIGRATING) {
             // destination flag overloads owornmask; clear it so obfree()'s

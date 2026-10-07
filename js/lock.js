@@ -342,7 +342,7 @@ export async function breakchestlock(box, destroyit, state = game) {
                 }
                 // This is source-faithful for completeness, but the selected
                 // slice does not admit multi-quantity witnesses yet.
-                useup(otmp, { state });
+                await useup(otmp, { state });
             }
             place_object(otmp, state.u.ux, state.u.uy, { state });
             stackobj(otmp, {
@@ -421,7 +421,7 @@ async function forcelock(state = game) {
             // useupall() needs the setNotWorn hook to clear it. cancelDoff
             // and monsterUnseesProperty are no-ops: no doff is active for a
             // weapon mid-force, and a normal blade's oc_oprop is 0.
-            useup(uwep, {
+            await useup(uwep, {
                 state,
                 hooks: {
                     setNotWorn: (obj, env) => setnotworn(obj, env),
