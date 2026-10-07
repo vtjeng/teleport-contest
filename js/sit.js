@@ -1,5 +1,6 @@
 // C refs: sit.c take_gold() (14-35), throne_sit_effect() (39-234),
-// lay_an_egg() (358-399), and dosit() (400-568). `#sit` owns the complete
+// lay_an_egg() (358-399), dosit() (400-568), rndcurse() (569-638),
+// and attrcurse() (644-762). `#sit` owns the complete
 // guard and terrain chain; source-discarded void effects that remain
 // unported are named and skipped.
 
@@ -9,6 +10,7 @@ import {
     A_MAX,
     A_STR,
     A_WIS,
+    ANTIMAGIC,
     BLINDED,
     COLD_RES,
     CONFUSION,
@@ -23,6 +25,7 @@ import {
     FROMOUTSIDE,
     FOUNTAIN,
     HALF_PHDAM,
+    HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
     HEAD,
@@ -56,6 +59,7 @@ import {
     TELEPORT,
     STEALTH,
     Upolyd,
+    W_SADDLE,
 } from './const.js';
 import {
     is_pool,
@@ -86,11 +90,11 @@ import {
     PM_TRAPPER,
     S_DRAGON,
 } from './monsters.js';
-import { isBox, mksobj, newObject, objectType, remove_object, set_corpsenm, weight } from './obj.js';
+import { curse, isBox, mksobj, newObject, objectType, remove_object, set_corpsenm, unbless, weight } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { observe_object } from './o_init.js';
 import { makeplural } from './fruit.js';
-import { The, the, vtense, xnameFresh } from './objnam.js';
+import { The, Tobjnam, Yobjnam2, the, vtense, xnameFresh } from './objnam.js';
 import {
     CLOTH,
     COIN_CLASS as OBJECT_COIN_CLASS,
@@ -113,11 +117,15 @@ import {
     uescaped_shaft,
     uteetering_at_seen_pit,
 } from './trap.js';
-import { Monnam, hliquid, mon_nam } from './do_name.js';
+import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { burn_away_slime } from './timeout.js';
-import { canspotmon } from './display.js';
+import { canspotmon, shieldeff } from './display.js';
+import { ART_MAGICBANE, SPFX_INTEL, is_art, spec_ability } from './artifacts.js';
+import { update_inventory } from './invent.js';
+import { which_armor } from './worn.js';
+import { ttyPline } from './tty_message.js';
 
 // youprop.h:120 Hallucination: intrinsic only, unless resisted.
 function Hallucination(state) {
@@ -422,7 +430,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
                 const { change_luck } = await import('./moveloop_preamble.js');
                 change_luck(luck > 1 ? -random.rnd(2) : -1, state);
             } else {
-                note_unported('sit.c rndcurse');
+                await rndcurse(state, { ...rawEnv, message, random });
             }
             break;
         }
@@ -852,6 +860,66 @@ export async function dosit(state = game, rawEnv = {}) {
         );
     }
     return ECMD_TIME;
+}
+
+// C ref: sit.c rndcurse() (569-638). Throne, monster spell, prayer and
+// cursed-book effects share inventory selection and the saddle tail.
+export async function rndcurse(state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { rn2, rnd };
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const objectEnv = objectGenerationEnv({ ...rawEnv, state, random, message });
+    if (is_art(state.uwep, ART_MAGICBANE) && random.rn2(20)) {
+        await message('You feel a malignant aura surround the magic-absorbing blade.', state);
+        return;
+    }
+    const antimagic = state.u.uprops?.[ANTIMAGIC];
+    if (antimagic?.intrinsic || antimagic?.extrinsic)
+        await shieldeff(state.u.ux, state.u.uy, state);
+    await message('You feel a malignant aura surround you.', state);
+    let nobj = 0;
+    for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+        if (otmp.oclass === OBJECT_COIN_CLASS) continue;
+        ++nobj;
+    }
+    // C reads these macros again after the aura output and inventory count.
+    const countAntimagic = state.u.uprops?.[ANTIMAGIC];
+    const halfSpell = state.u.uprops?.[HALF_SPDAM];
+    const Antimagic = Boolean(countAntimagic?.intrinsic || countAntimagic?.extrinsic);
+    const Half_spell_damage = Boolean(halfSpell?.intrinsic || halfSpell?.extrinsic);
+    let cnt = random.rnd(Math.trunc(6 / (Number(Antimagic) + Number(Half_spell_damage) + 1)));
+    if (nobj) {
+        for (; cnt > 0; --cnt) {
+            let onum = random.rnd(nobj);
+            let otmp;
+            for (otmp = state.invent; otmp; otmp = otmp.nobj) {
+                if (otmp.oclass === OBJECT_COIN_CLASS) continue;
+                if (--onum === 0) break;
+            }
+            if (!otmp || otmp.cursed) continue;
+            if (otmp.oartifact && spec_ability(otmp, SPFX_INTEL, state)
+                && random.rn2(10) < 8) {
+                await message(`${Tobjnam(otmp, 'resist', state)}!`, state);
+                continue;
+            }
+            if (otmp.blessed) await unbless(otmp, objectEnv);
+            else await curse(otmp, objectEnv);
+        }
+        update_inventory(objectEnv);
+    }
+    if (state.u.usteed && !random.rn2(4)) {
+        const otmp = which_armor(state.u.usteed, W_SADDLE, state);
+        if (otmp && !otmp.cursed) {
+            if (otmp.blessed) await unbless(otmp, objectEnv);
+            else await curse(otmp, objectEnv);
+            if (!heroIsBlind(state)) {
+                await message(`${Yobjnam2(otmp, 'glow', state)} ${hcolor(otmp.cursed ? 'black' : 'brown', state, objectEnv)}.`, state);
+                otmp.bknown = Hallucination(state) ? 0 : 1;
+            } else {
+                otmp.bknown = 0;
+            }
+        }
+    }
 }
 
 // C ref: sit.c attrcurse() (644-762). The property is stored once in

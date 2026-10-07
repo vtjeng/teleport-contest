@@ -1232,7 +1232,7 @@ test('angrygods() sizes rn2(maxanger) from anger, luck and alignment',
                     // Cases 6 through 8 and the default remain refused by
                     // name; cases 4 and 5 now run their source-backed curse
                     // arm. Every case draws rn2(maxanger) first.
-                    assert.ok(error instanceof UnsupportedPrayerError, label);
+                    assert.ok(error instanceof UnsupportedPrayerError, `${label}: ${error.stack}`);
                 });
             assert.match(
                 getRngLog()[before],

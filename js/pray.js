@@ -2229,8 +2229,8 @@ function Hallucination(state) {
 // Cases 0 and 1 merely report displeasure. Cases 2 and 3 are also live for a
 // level-1 hero: godvoice(), the two verbal messages, Wisdom loss, and losexp()
 // all run before the shared prayer timer. Cases 4 and 5 now call the ported
-// attrcurse() when C selects that arm; their other arm records the discarded
-// sit.c rndcurse() gap. Case 6's punishment fallthrough, cases 7 and 8's
+// attrcurse() when C selects that arm; their fallback calls sit.c rndcurse().
+// Case 6's punishment fallthrough, cases 7 and 8's
 // summon_minion(), and the default god_zaps_you() remain named boundaries.
 const GOD_VOICES = ['booms out', 'thunders', 'rings out', 'booms'];
 
@@ -2348,10 +2348,11 @@ export async function angrygods(resp_god, state = game) {
             }
         }
         if (rn2(2)) {
-            note_unported('sit.c rndcurse');
+            const { rndcurse } = await import('./sit.js');
+            await rndcurse(state);
         } else {
-            const { attrcurse } = await import('./sit.js');
-            if (!(await attrcurse(state))) note_unported('sit.c rndcurse');
+            const { attrcurse, rndcurse } = await import('./sit.js');
+            if (!(await attrcurse(state))) await rndcurse(state);
         }
         break;
     case 7:

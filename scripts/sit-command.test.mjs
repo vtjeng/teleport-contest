@@ -112,7 +112,7 @@ test('sit.c dosit awaits burn_away_slime in both lava branches', () => {
     assert.deepEqual(cStanding, [...cStanding].sort((a, b) => a - b));
 
     const jsStart = JS_SIT.indexOf('export async function dosit(');
-    const jsEnd = JS_SIT.indexOf('\n}\n\n// C ref: sit.c attrcurse', jsStart) + 3;
+    const jsEnd = JS_SIT.indexOf('\n}\n\n// C ref: sit.c rndcurse', jsStart) + 3;
     assert.ok(jsStart >= 0 && jsEnd > jsStart);
     const jsSit = JS_SIT.slice(jsStart, jsEnd);
     const jsTrappedOrder = [
