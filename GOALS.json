@@ -183457,7 +183457,7 @@
     {
       "id": "port-do-revive-corpse-v24-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port corpse revival callbacks across object locations and timer dispatch",
       "cFile": "do.c",
       "sessions": [
@@ -183465,8 +183465,12 @@
       ],
       "selectionReason": "Select the largest remaining v24 mismatch from investigations/synthetic/v24/v24-troll-corpse-revives-forced-wait.json: timeout.c run_timers reaches an unwired REVIVE_MON callback, and the inventory corpse requires the complete do.c revive_corpse and revive_mon family plus production timer dispatch.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "4d498cb127c83810c4b9d562e44a4fca9f17bc5d",
+      "openStanding": {
+        "sha": "26fb28fad3c58acafab9d64a2a5d4c4a0c8a80e2",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -183502,7 +183506,162 @@
           "evaluationPath": "challenges/evaluations/20261006233641-v24.json",
           "evaluationCommit": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "26fb28fad3c58acafab9d64a2a5d4c4a0c8a80e2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-troll-corpse-revives-forced-wait",
+          "session": "synthetic/v24/v24-troll-corpse-revives-forced-wait",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-troll-corpse-revives-forced-wait.session.json",
+          "recordingPath": "challenges/cases/v24/v24-troll-corpse-revives-forced-wait.session.json",
+          "recordingSha256": "9b70f25e179f56fa49bf3c9bddb6a9a2af3dbf311976e2456e0a59ca8a968ae9",
+          "recipe": "challenges/cases/v24/v24-troll-corpse-revives-forced-wait.recipe.session.json",
+          "recipeSha256": "4003963f08aaaf3b3a577894d7c7c86e10da75d0b133276beea0abe69f36884b",
+          "replayInputSha256": "78ed4150666775aa22d4e9e3c21bbda9f148b6a492976d061b126411c29382ed",
+          "evaluationPath": "challenges/evaluations/20261007001603-v24.json",
+          "evaluationCommit": "26fb28fad3c58acafab9d64a2a5d4c4a0c8a80e2",
+          "evaluationArtifact": "challenges/evaluations/20261007001603-v24.json",
+          "evaluationUtc": "2026-10-07T00:17:37.565Z",
+          "remainingScreens": 76,
+          "recordedSteps": 165,
+          "previousScreensMatched": 89,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 89,
+              "total": 165
+            },
+            "rng": {
+              "matched": 3218,
+              "total": 3313
+            },
+            "cursors": {
+              "matched": 89,
+              "total": 165
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "nh_timeout()'s run_timers() requires a ported timeout function, but revive_mon() is due",
+            "step": 89
+          },
+          "step": 89,
+          "kind": "stop",
+          "sourceFile": "timeout.c",
+          "function": "nh_timeout",
+          "message": "nh_timeout()'s run_timers() requires a ported timeout function, but revive_mon() is due",
+          "cFile": "timeout.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-troll-corpse-revives-forced-wait.json",
+            "result": {
+              "session": "synthetic/v24/v24-troll-corpse-revives-forced-wait",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-troll-corpse-revives-forced-wait",
+              "remainingScreens": 76,
+              "recordedSteps": 165,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "9b70f25e179f56fa49bf3c9bddb6a9a2af3dbf311976e2456e0a59ca8a968ae9",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-troll-corpse-revives-forced-wait",
+                "session": "synthetic/v24/v24-troll-corpse-revives-forced-wait",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-troll-corpse-revives-forced-wait.session.json",
+                "recordingPath": "challenges/cases/v24/v24-troll-corpse-revives-forced-wait.session.json",
+                "recordingSha256": "9b70f25e179f56fa49bf3c9bddb6a9a2af3dbf311976e2456e0a59ca8a968ae9",
+                "recipe": "challenges/cases/v24/v24-troll-corpse-revives-forced-wait.recipe.session.json",
+                "recipeSha256": "4003963f08aaaf3b3a577894d7c7c86e10da75d0b133276beea0abe69f36884b",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 76,
+                "recordedSteps": 165,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 89,
+                    "total": 165
+                  },
+                  "rng": {
+                    "matched": 3218,
+                    "total": 3313
+                  },
+                  "cursors": {
+                    "matched": 89,
+                    "total": 165
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "nh_timeout()'s run_timers() requires a ported timeout function, but revive_mon() is due",
+                  "step": 89
+                },
+                "step": 89,
+                "kind": "stop",
+                "sourceFile": "timeout.c",
+                "function": "nh_timeout",
+                "message": "nh_timeout()'s run_timers() requires a ported timeout function, but revive_mon() is due",
+                "cFile": "timeout.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At segment 0 step 89, a time-advancing wait reaches nh_timeout()'s final run_timers(). C dispatches the due TIMER_OBJECT/REVIVE_MON callback for the wished troll corpse; JS refuses because timeout_funcs[REVIVE_MON] has no handler. The corpse is in hero inventory, so after dispatch is wired, do.c:revive_mon also needs the inventory branch of do.c:revive_corpse; the current JS helper supports only floor corpses.",
+              "source": {
+                "file": "do.c",
+                "branch": "An ordinary, non-Rider troll corpse wished into hero inventory has reached its due REVIVE_MON object timer during an elapsed wait. The C callback should revive the corpse and report it squirming from the backpack; displacer and failed-revival retry branches are not reached by this case.",
+                "functions": [
+                  "revive_corpse",
+                  "revive_mon"
+                ],
+                "callers": [
+                  "timeout.c:nh_timeout calls run_timers() at its tail; timeout.c:run_timers dispatches timeout_funcs[REVIVE_MON].f to do.c:revive_mon. js/timeout.js has a revive_mon table row with no handler, so its due-timer preflight stops the turn.",
+                  "do.c:revive_mon calls do.c:revive_corpse(body). The existing js/do.js helper implements only OBJ_FLOOR and throws for other locations; this recipe wishes the troll corpse into inventory (recorded step 47 says “p - a troll corpse”).",
+                  "mkobj.c:set_corpsenm calls start_corpse_timeout, which schedules the troll REVIVE_MON timer. The JS timeout setup already reaches the same due callback with matching prior RNG, so retain that timer creation and wire its dispatch.",
+                  "Existing revive_corpse callers remain through the shared JS helper: hack.c:revive_nasty, pickup.c:rider_corpse_revival, eat.c:eatcorpse, apply.c tinning, teleport.c:rloco, and monster corpse handling in mon.c. Preserve their existing call paths while adding the whole location behavior."
+                ],
+                "dependencies": [
+                  "Read whole do.c:revive_corpse (2111-2250) and revive_mon (2251-2292). Port all revive_corpse location arms (OBJ_INVENT, OBJ_FLOOR, OBJ_MINVENT, OBJ_CONTAINED, OBJ_BURIED), including source messages and buried-troll handling; do not leave the current non-floor refusal.",
+                  "Reuse the already ported zap.c:revive() result and corpse removal, plus existing timer start_timer(), obj_has_timer(), mkobj.c:rider_revival_time(), and the ROT_CORPSE callback. Preserve revive_mon failed-revival scheduling and timer ownership; the current recipe covers only a successful troll revival from inventory.",
+                  "Wire the do.c:revive_mon callback into timeout.c:timeout_funcs[REVIVE_MON] and js/timeout.js. Do not claim the separate ZOMBIFY_MON timer callback or other unported timeout-table rows."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20261006225046-v24.json at 84d84e111155ac834c43327b7c696055df294349 reports 89/165 screens, 3218/3313 RNG calls, and 89/165 cursors; 76 screens remain. Its first stop is segment 0 step 89, key “.”: “nh_timeout()'s run_timers() requires a ported timeout function, but revive_mon() is due.”",
+                "The documented single-case replay `node scripts/scan-sessions.mjs --json --synthetic v24/v24-troll-corpse-revives-forced-wait` reproduced that same boundary after 89 emitted screens in bounded run-c1GjF4 (diagnostic replay commit 3470fce7b2ee7ab949c421ea2abd70fac3854b4e). This is a replay on the current worker snapshot; the saved evaluation above is the examined-commit evidence.",
+                "Recipe challenges/cases/v24/v24-troll-corpse-revives-forced-wait.recipe.session.json wishes an uncursed troll corpse, then uses m-prefixed waits. Recorded step 47 reports “p - a troll corpse. You rebalance your load. Movement is difficult.”, establishing the inventory location; the step-89 C screen shows the revived troll adjacent to the hero.",
+                "Source trace: mkobj.c:set_corpsenm/start_corpse_timeout (1318-1432) schedules the due object timer; timeout.c:nh_timeout (588 onward, final run_timers at 947) drains it; timeout.c:timeout_funcs lists REVIVE_MON at 1982; timeout.c:run_timers (2222 onward) calls the selected function; do.c:revive_mon (2251 onward) calls revive_corpse; do.c:revive_corpse (2111-2250) handles inventory revival and its message. Current js/timeout.js lists revive_mon without f; js/do.js throws unless corpse.where is OBJ_FLOOR."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-mkroom-mkundead-v24-20261006",
