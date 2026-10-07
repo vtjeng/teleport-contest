@@ -190964,16 +190964,20 @@
     {
       "id": "port-lock-pick-lock-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete lock selection behavior for monsters, doors, and boxes",
       "cFile": "lock.c",
       "sessions": [
         "synthetic/v26/v26-lock-key-visible-monster"
       ],
-      "selectionReason": "Next admitted v26 mismatch: 8 remaining screens at step 55 where a visible monster should produce the source message and spend a turn.",
+      "selectionReason": "Dependency-aware worker queue selected ready delivery B134 after C131 publication; admitted v26-lock-key-visible-monster first stops in lock.c pick_lock.",
       "detail": "Port whole partially implemented pick_lock and preserve its existing doapply, do_loot_cont, and doopen_indir callers. Implement visible-monster, shopkeeper/Oracle, door-mimic, door, box, autounlock, and artifact-touch behavior in source order; retain discarded unported side effects as named gaps.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "f85f3914bae20f4953002d1283b646d42f2a8256",
+      "openStanding": {
+        "sha": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -191002,7 +191006,161 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-lock-key-visible-monster",
+          "session": "synthetic/v26/v26-lock-key-visible-monster",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+          "recordingPath": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+          "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+          "recipe": "challenges/cases/v26/v26-lock-key-visible-monster.recipe.session.json",
+          "recipeSha256": "bd2284aca6fa81ddb0d57ed6b9e36a030ccd91b3dd650e978bb6ede0a130a9cb",
+          "replayInputSha256": "bf302173e9c1efc3f7ccf733747c1ccf258246092d53f7c4cf73dce04d1412a9",
+          "evaluationPath": "challenges/evaluations/accepted-2487002c122fbc56a7fccfd3378c1eae307b2d4a-v26.json",
+          "evaluationCommit": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+          "evaluationArtifact": "challenges/evaluations/accepted-2487002c122fbc56a7fccfd3378c1eae307b2d4a-v26.json",
+          "evaluationUtc": "2026-10-07T16:36:56.045Z",
+          "remainingScreens": 8,
+          "recordedSteps": 63,
+          "previousScreensMatched": 55,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 55,
+              "total": 63
+            },
+            "rng": {
+              "matched": 2711,
+              "total": 2719
+            },
+            "cursors": {
+              "matched": 55,
+              "total": 63
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+            "step": 55
+          },
+          "step": 55,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-lock-key-visible-monster.json",
+            "result": {
+              "session": "synthetic/v26/v26-lock-key-visible-monster",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-lock-key-visible-monster",
+              "remainingScreens": 8,
+              "recordedSteps": 63,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "commit": "a882a9784160f83d2b3317ed977c51c754490472",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-lock-key-visible-monster",
+                "session": "synthetic/v26/v26-lock-key-visible-monster",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+                "recordingPath": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+                "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+                "recipe": "challenges/cases/v26/v26-lock-key-visible-monster.recipe.session.json",
+                "recipeSha256": "bd2284aca6fa81ddb0d57ed6b9e36a030ccd91b3dd650e978bb6ede0a130a9cb",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 8,
+                "recordedSteps": 63,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 55,
+                    "total": 63
+                  },
+                  "rng": {
+                    "matched": 2711,
+                    "total": 2719
+                  },
+                  "cursors": {
+                    "matched": 55,
+                    "total": 63
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+                  "step": 55
+                },
+                "step": 55,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "status": "complete",
+              "summary": "The refusal at segment 0 step 55 is an unsupported JavaScript placeholder, not a C precondition. C accepts the adjacent square containing a visible ordinary monster far enough to report that the monster would not appreciate lock picking, then returns PICKLOCK_LEARNED_SOMETHING so the apply command spends a turn. JavaScript currently throws for any monster at the chosen square before checking visibility or map disguise, so it both rejects valid C behavior and skips the recorded message and turn. Port the whole partially implemented lock.c:pick_lock function, including its other fail-closed branches, while preserving its existing doapply, do_loot_cont, and doopen_indir callers.",
+              "source": {
+                "file": "lock.c",
+                "branch": "In the adjacent-door arm, C first gets mtmp with m_at(cc.x, cc.y). A visible monster whose M_AP_TYPE is neither M_AP_FURNITURE nor M_AP_OBJECT enters the monster response arm. For this skeleton-key case C prints \"I don't think the giant ant would appreciate that.\" with mon_nam() and returns PICKLOCK_LEARNED_SOMETHING. A credit card used on a shopkeeper or the Oracle has its own verbalize branch. A door-mimicking monster is handled next; otherwise even a monster can fall through to ordinary door/map checks. The mere presence of a monster is not a precondition.",
+                "functions": [
+                  "pick_lock"
+                ],
+                "callers": [
+                  "apply.c:doapply() calls pick_lock(obj, 0, 0, NULL) for LOCK_PICK, CREDIT_CARD, and SKELETON_KEY (4285-4289); the recorded direct apply path reaches this caller. JavaScript is already wired through apply.js:doapply().",
+                  "pickup.c:do_loot_cont() calls pick_lock(unlocktool, ox, oy, cobj) for container autounlock (2125-2135); JavaScript is already wired through pickup.js:do_loot_cont().",
+                  "lock.c:doopen_indir() calls pick_lock(unlocktool, cc.x, cc.y, NULL) for door autounlock (876-883); JavaScript is already wired through lock.js:doopen_indir()."
+                ],
+                "dependencies": [
+                  "For the reproduced ordinary visible-monster arm, reuse the existing source-backed m_at (monst.js), canseemon (display.js), M_AP_TYPE (const.js), mon_nam (do_name.js), and ttyPline (tty_message.js). Apply.c converts every nonzero PICKLOCK result, including PICKLOCK_LEARNED_SOMETHING, to ECMD_TIME.",
+                  "The whole pick_lock function also has a distinct CREDIT_CARD shopkeeper/Oracle arm requiring SetVoice and verbalize, and a door-mimic arm requiring is_door_mappear and stumble_onto_mimic. C then calls maybe_absorb_item(mtmp, pick, 50, 10), whose result it discards; if still unported, preserve the gap with note_unported('lock.c maybe_absorb_item') rather than inventing effects.",
+                  "Audit the existing AUTOUNLOCK_UNTRAP and autounlock artifact-touch branches against lock.c:472-480, 605-612, and 628-630. could_untrap and touch_artifact return values control C behavior; untrap results are discarded. The corresponding JavaScript paths currently include fail-closed throws in pick_lock."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved baseline challenges/evaluations/20261007095608-v26.json at evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44 records 55/63 matching screens and cursors, 2711/2719 matching RNG calls, and 8 remaining screens. The exact queue first stop is segment 0, zero-based step 55: UnsupportedLockError from the monster-on-square placeholder.",
+                "The independently recorded C input challenges/cases/v26/v26-lock-key-visible-monster.session.json has key h at segment 0 step 55 and shows the message \"I don't think the giant ant would appreciate that.\" The step advances the turn; its RNG trace includes mcalcmove, maybe_generate_rnd_mon, gethungry, and moveloop_core.",
+                "Upstream nethack-c/upstream/src/lock.c:559-570 checks m_at, canseemon, and disguise type before emitting the ordinary-monster response and returning PICKLOCK_LEARNED_SOMETHING. Lines 571-576 separately handle a door mimic. This directly contradicts treating m_at() != NULL as a lock-picking precondition.",
+                "The JavaScript placeholder is js/lock.js:867-870: it throws UnsupportedLockError whenever m_at returns a monster. Its message template at js/lock.js:148 says \"picking a lock requires ...\"; this is internal fail-closed diagnostic wording, not a C game message or behavior.",
+                "Because pick_lock is an existing partial implementation and the unported arm is inside that whole C function, selection.md requires a file-port of lock.c:pick_lock, not a narrow divergence-fix. The source already has production callers in apply.c, pickup.c, and lock.c, with corresponding JavaScript calls in apply.js, pickup.js, and lock.js; validate their wiring while implementing the whole function."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-steed-mount-steed-v26-20261007",
