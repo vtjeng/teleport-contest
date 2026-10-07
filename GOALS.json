@@ -185745,7 +185745,7 @@
     {
       "id": "port-zap-makewish-v25-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete wish placement and unsafe-corpse handling",
       "cFile": "zap.c",
       "sessions": [
@@ -185759,15 +185759,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "266e97fec61794e9d402c66dcdd247f32d534123",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "makewish",
           "line": 6314,
           "endLine": 6428,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -186034,7 +186037,136 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "makewish",
+            "implementation": "js/zap.js",
+            "symbol": "makewish",
+            "sourceReview": "Read the complete zap.c:makewish6314-6428 and compare every arm: entry resume flag reset/verbose announcement; retry prompt/cmdassist; reference-build DEBUG-only history bypass; term_gone/fuzzer guard; mungspaces/Escape/help retry; readobjnam null/five-try fallback/nothing/hands_obj exits; artifact bookkeeping; wish conduct/livelog order; unsafe corpse wishedfor marker; air/water/swallow/terrain message and verb selection; hold_another_object; final rn1(100,50) after placement. Existing readobjnam completion (port-objnam-readobjnam-wish-retry-synthetic-v5-20260926), artifact_origin and naming helpers are reused. Read pickup.c:u_safe_from_fatal_corpse273-281 and js/pickup.js: tests OR gloves/noncorpse/nonpetrifying/Stone_resistance in C order, pure and source-pinned in pickup/drop tests. Read invent.c:hold_another_object1208-1311 and js/invent.js: unsafe corpse consumes transient wishedfor, temporarily adds before drop, source object ownership/order retained. No injected operation or refusal is introduced. C-discarded wishcmdassist remains note_unported; wish_history_add/menu are inactive without DEBUG in reference config/patches. Added only bounded allmain.c:200-201 resume caller after bypass cleanup and before elapsed gate; no whole moveloop_core completion claimed.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_wish",
+                "source": "wizcmds.c:31-44; cmd.c CtrlW/#wizwish dispatch; suppresses/restores verbose around awaited makewish"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapnodir",
+                "source": "zap.c:2583 WAN_WISHING through dozap/weffects; existing awaited call preserved"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "mongrantswish",
+                "source": "potion.c:2794-2812 djinni_from_bottle removes djinni then grantWish defaults to makewish; awaited between tmp_at setup/teardown"
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c:110 ordinary throne decree6 calls makewish; existing awaited call preserved. Partial special_throne_effect wish arm at251 is a separate explicit gap."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c:200-201 newly resumes context.resume_wish before context.move, and445-450 existing Amulet Astral wish call remains awaited"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makewish.test.mjs",
+              "scripts/wizard-wish.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/pickup.test.mjs",
+              "scripts/drop-command.test.mjs",
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/objnam-readobjnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/makewish-unsafe-cockatrice.session.json",
+              "recordings/zap.c/makewish-gloved-cockatrice.session.json",
+              "recordings/zap.c/makewish-harmless-newt.session.json",
+              "recordings/zap.c/makewish-flesh-golem-cockatrice.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-flesh-golem-eats-cockatrice",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 54,
+                "source": "cmd.c:wizwish -> wizcmds.c:wiz_wish -> zap.c:makewish -> pickup.c:u_safe_from_fatal_corpse -> invent.c:hold_another_object/drop -> do.c:dropx: bare-handed flesh-golem cockatrice corpse wish safely placed on floor before eating"
+              }
+            ],
+            "checkedAt": "266e97fec61794e9d402c66dcdd247f32d534123"
+          }
+        ],
+        "entryPointReview": "makewish is a helper shared by the enumerated production callers. Independent CtrlW recipes and the admitted v25 range establish complete object-wish runtime including unsafe/guarded/harmless corpse placements. Existing null-retry recipe is freshly compared. The existing wishing-wand, djinni, ordinary-throne and Amulet caller branches already await this same helper and are source-audited, but are not independently replay-certified by A115. The added resumed-wish caller is source-pinned in an initialized moveloop_core test; C recorder UTF-8 encodes 0xFF as C3BF, so terminal EOF cannot be recorded by that driver. Tests pin both fuzzer scheduling outcomes. Missing special_throne_effect wish branch at sit.c251 remains named, unported and outside the authorized claim; no whole sit/allmain caller-function completion is claimed. wishcmdassist is a discarded void helper gap; DEBUG history helpers cannot execute in the reference build. Air/water/swallowed and overflow placement branches retain source-order logic and existing wizard-wish tests. This is completion evidence for whole makewish with explicitly bounded caller wiring, not a claim of all wish-producing owner functions.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-flesh-golem-eats-cockatrice",
+          "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recording": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingPath": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+          "recipe": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.recipe.session.json",
+          "recipeSha256": "66965e475525bff876123a761ae326035c35e0b97be571fd2378af060a4f2db6",
+          "replayInputSha256": "06afb9dd5bb5dbb33b048c083da287903eca5eece192a0bc02bd8e7752b7c3b4",
+          "evaluationPath": "challenges/evaluations/20261007034611-v25.json",
+          "evaluationCommit": "266e97fec61794e9d402c66dcdd247f32d534123",
+          "evaluationArtifact": "challenges/evaluations/20261007034611-v25.json",
+          "evaluationUtc": "2026-10-07T03:48:15.049Z",
+          "remainingScreens": 6,
+          "recordedSteps": 62,
+          "previousScreensMatched": 54,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 56,
+              "total": 62
+            },
+            "rng": {
+              "matched": 2911,
+              "total": 3044
+            },
+            "cursors": {
+              "matched": 56,
+              "total": 62
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: eating requires polymon() for a petrifying corpse",
+            "step": 56
+          },
+          "step": 56,
+          "kind": "stop",
+          "sourceFile": "polyself.c",
+          "function": "polymon",
+          "message": "unsupported hero command: an unported branch of this command: eating requires polymon() for a petrifying corpse",
+          "cFile": "polyself.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v25/v25-flesh-golem-eats-cockatrice.json",
+            "previousRemainingScreens": 8
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "266e97fec61794e9d402c66dcdd247f32d534123",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-apply-rub-ok-dorub-v25-20261007",
