@@ -1206,3 +1206,25 @@ test('a discovered Book uses the article from its capitalized name',
     assert.equal(book.quan, 1);
     assert.deepEqual(drawn, [['rn2', 5, 0]]);
 });
+
+test('monster item destruction uses m_useup before returning damage', async () => {
+    // zap.c:5938 calls m_useup, whose m_useupall removes worn extrinsics and
+    // the MON_WEP pointer through worn.c:extract_from_minvent before obfree.
+    assert.match(ZAP_C, /m_useup\(carrier, obj\)/u);
+    const monster = await initializedMonster(13226101, 'ColdMonsterUseup');
+    const potion = carriedByMonster(monster, POT_BOOZE, 1);
+    potion.owornmask = W_WEP;
+    monster.minvent = monster.mw = potion;
+    monster.misc_worn_check = W_WEP;
+    const drawn = [];
+    const damage = await destroy_items(monster, AD_COLD, 5, {
+        state: game,
+        random: scriptedRandom([[5, 4], [4, 3], [3, 0]], drawn),
+    });
+    assert.equal(damage, 3);
+    assert.deepEqual(drawn, [['rn2', 5, 4], ['rnd', 4, 3], ['rn2', 3, 0]]);
+    assert.equal(monster.minvent, null);
+    assert.equal(monster.mw, null);
+    assert.equal(monster.misc_worn_check & W_WEP, 0);
+    assert.equal(potion.owornmask, 0);
+});

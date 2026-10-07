@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked: artifact.c:retouch_equipment is absent in JS; worn helm alignment change calls its nxt_unbypassed_obj inventory walk at artifact.c:2695. No whole caller completion claim.",
+  "segments": [
+    {
+      "seed": 13226012,
+      "datetime": "20800406121500",
+      "nethackrc": "OPTIONS=name:CategoryGap,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,menustyle:full\n",
+      "moves": " \u0017uncursed helm of opposite alignment\nWe      ."
+    }
+  ]
+}

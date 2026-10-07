@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13226009,
+      "datetime": "20800406121500",
+      "nethackrc": "OPTIONS=name:MultiBranch9,role:Valkyrie,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,menustyle:full\n",
+      "moves": " dd, D2P\n  ."
+    }
+  ]
+}

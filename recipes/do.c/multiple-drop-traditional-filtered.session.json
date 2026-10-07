@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13226019,
+      "datetime": "20800406121500",
+      "nethackrc": "OPTIONS=name:MultiArch,role:Archeologist,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,menustyle:traditional\n",
+      "moves": " DUa\n          ."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13226004,
+      "datetime": "20800406121500",
+      "nethackrc": "OPTIONS=name:MultiDrop3,role:Valkyrie,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,menustyle:combination\n",
+      "moves": " Dm\n3a\n      ."
+    }
+  ]
+}
