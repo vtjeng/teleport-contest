@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent unarmed monster-pair entry for mhitm.c:fightm -> mattackm -> mdamagem -> uhitm.c:mhitm_ad_cold. The C run first shows frost at 114, resistance text at 116 and flesh-golem slowing with the inventory draw at 118. The prefix ends at that C-observed completed cold call, without selecting from a JS failure.",
+  "segments": [
+    {
+      "seed": 7132107,
+      "datetime": "20381021115000",
+      "nethackrc": "OPTIONS=name:ColdB132,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!debug_mongen\n",
+      "moves": "#wizintrinsic\na>>h\n \n#wizgenesis\nhostile flesh golem\n #wizgenesis\nhostile ice devil\n. . . . . . . . . . . . . . . . . "
+    }
+  ]
+}

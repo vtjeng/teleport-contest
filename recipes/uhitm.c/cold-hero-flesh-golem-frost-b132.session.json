@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "First C hero cold claw (79-81) runs the shield animation, resistance text, flesh-golem slowing and inventory destruction before the final bite. Source: uhitm.c:mhitm_ad_cold. Inputs were independently chosen and recorded with C before local JS comparison; the prefix is selected from the first completed C source effect, without consulting a port failure. Original full C probe remains in the worker cache.",
+  "segments": [
+    {
+      "seed": 7132105,
+      "datetime": "20381020114000",
+      "nethackrc": "OPTIONS=name:ColdB132,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!debug_mongen\n",
+      "moves": "#polyself\nice troll\n        w-    #wizgenesis\npeaceful flesh golem\n        Fy    "
+    }
+  ]
+}
