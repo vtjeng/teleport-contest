@@ -191565,7 +191565,7 @@
     {
       "id": "port-insight-youhiding-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port hidden-form descriptions and caller messages",
       "cFile": "insight.c",
       "sessions": [
@@ -191573,8 +191573,12 @@
       ],
       "selectionReason": "Next admitted v26 mismatch: 7 remaining screens at step 41 because mimic state is updated but the youhiding message call is skipped.",
       "detail": "Port whole youhiding and wire both polyself.c dohide sites plus attributes_enlightenment. Preserve mimic, hiding, clinger, underwater, trap, object, furniture, and enlightenment wording in source order; remove only the caller refusal needed to reach the polymorphed enlightenment path.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "d74623f21704418a1502f9154998f8e39cd67328",
+      "openStanding": {
+        "sha": "599e3e6df48d02636d91d53bd092999a691b1242",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -191603,7 +191607,204 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "599e3e6df48d02636d91d53bd092999a691b1242",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-mimic-hide",
+          "session": "synthetic/v26/v26-mimic-hide",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-mimic-hide.session.json",
+          "recordingPath": "challenges/cases/v26/v26-mimic-hide.session.json",
+          "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+          "recipe": "challenges/cases/v26/v26-mimic-hide.recipe.session.json",
+          "recipeSha256": "f5a5be35a73801885992e001ccd04d5b379faf3c2c8e73a3e5eea5e8a62533eb",
+          "replayInputSha256": "76f1390aeb5e5dd95fa6343ea400b67f0fe4d438704251a5bd9dbcdc4177fbbc",
+          "evaluationPath": "challenges/evaluations/hosted-37659404968-1-v26.json",
+          "evaluationCommit": "599e3e6df48d02636d91d53bd092999a691b1242",
+          "evaluationArtifact": "challenges/evaluations/hosted-37659404968-1-v26.json",
+          "evaluationUtc": "2026-10-07T17:30:38.215Z",
+          "remainingScreens": 7,
+          "recordedSteps": 48,
+          "previousScreensMatched": 41,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2925,
+              "total": 2925
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 41,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 41,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-mimic-hide.json",
+            "result": {
+              "session": "synthetic/v26/v26-mimic-hide",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-mimic-hide",
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "remainingScreens": 7,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "1c767ef4db333bc77d9aa9e6e66046299b89e905",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-mimic-hide",
+                "session": "synthetic/v26/v26-mimic-hide",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-mimic-hide.session.json",
+                "recordingPath": "challenges/cases/v26/v26-mimic-hide.session.json",
+                "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+                "recipe": "challenges/cases/v26/v26-mimic-hide.recipe.session.json",
+                "recipeSha256": "f5a5be35a73801885992e001ccd04d5b379faf3c2c8e73a3e5eea5e8a62533eb",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 7,
+                "recordedSteps": 48,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 41,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 2925,
+                    "total": 2925
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 41,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 41,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At zero-based step 41, Enter completes #monster after the hero has polymorphed into a small mimic. C dispatches through domonability() to dohide(), which sets the mimic disguise to M_AP_OBJECT/STRANGE_OBJECT and redraws the hero, then youhiding(FALSE, 0) prints “You are now mimicking a strange object.” JavaScript reaches the same state and keeps RNG and cursor parity, but polyself.js:dohide() records note_unported(\"insight.c youhiding\") instead of producing that message. The missing source owner is insight.c:youhiding(). Port that whole function and wire its dohide and enlightenment callers; the polymorphed enlightenment route is currently blocked by an UnsupportedEnlightenmentError guard.",
+              "source": {
+                "file": "insight.c",
+                "branch": "For a polymorphed mimic with no prior disguise, polyself.c:dohide() sets U_AP_TYPE to M_AP_OBJECT and mappearance to STRANGE_OBJECT, then calls youhiding(FALSE, 0). youhiding() builds “mimicking a strange object” from simple_typename() and an(), and its non-enlightenment arm prints “You are now …”. The same whole function also handles already-hidden wording and enlightenment-line output.",
+                "functions": [
+                  "youhiding"
+                ],
+                "callers": [
+                  "cmd.c:domonability() dispatches the #monster command to polyself.c:dohide(); dohide() calls youhiding(FALSE, 1) for an existing hiding/disguise and youhiding(FALSE, 0) after entering hiding.",
+                  "insight.c:attributes_enlightenment() calls youhiding(TRUE, final) for a polymorphed hero who is hidden or mimicking; js/insight.js:enlightenment() currently rejects Upolyd before reaching that call."
+                ],
+                "dependencies": [
+                  "The active mimic-object arm uses objnam.c:simple_typename() and an(); their JavaScript counterparts exist in js/objnam.js.",
+                  "Other youhiding() arms use hides_under()/is_clinger(), dungeon.c:ceiling()/surface(), pager.c:waterbody_name(), trap.c:t_at(), and objnam.c:ansimpleoname(); corresponding JavaScript helpers exist. Preserve their source-selected wording when porting the whole function.",
+                  "Wire js/polyself.js:dohide() at both note_unported(\"insight.c youhiding\") sites and js/insight.js:attributes_enlightenment() at its note_unported site. Narrow/remove js/insight.js:enlightenment()’s UnsupportedEnlightenmentError(\"a polymorphed hero\") guard as needed so the C enlightenment caller is reachable, and record evidence for both caller paths."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261007095608-v26.json identifies synthetic/v26/v26-mimic-hide at zero-based segment 0, step 41, key Enter as the first mismatch. It reports 41/48 screens, 2925/2925 RNG calls, and 48/48 cursors; the first differing screen cell is row 0, column 0 (C “Y”, JS space).",
+                "Queue provenance identifies batch v26, manifest challenges/manifests/v26.json (SHA-256 3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7), recording challenges/cases/v26/v26-mimic-hide.session.json (SHA-256 7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f), and evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44. The recipe first uses #polyself to become a small mimic, then types #monster; steps 34–40 enter the command name and step 41’s newline dispatches it.",
+                "Upstream nethack-c/upstream/src/cmd.c:domonability() selects dohide() for a hider. In polyself.c:dohide() lines 1865–1872, the unhidden mimic receives M_AP_OBJECT/STRANGE_OBJECT, newsym() runs, and youhiding(FALSE, 0) is called. In insight.c:youhiding() lines 2022–2077, U_AP_TYPE==M_AP_OBJECT formats the appearance as “mimicking a strange object”; the non-enlightenment arm prints “You are now mimicking a strange object.” No random call or additional state update occurs in this message function.",
+                "The matching JavaScript call path is js/cmd.js:domonability() to js/polyself.js:dohide(). That function assigns the same disguise and calls newsym(), then reaches note_unported(\"insight.c youhiding\") at line 2750. js/insight.js:attributes_enlightenment() has the second caller gap at line 1251; its parent enlightenment() currently throws for Upolyd at line 1965.",
+                "This is missing source behavior rather than a defect in implemented mimic state: the saved trace matches through the completed #monster command name, the state-setting branch is present, and the first observed difference is the message emitted by the unported youhiding() callee. Use a file-port for the whole insight.c:youhiding() function, wire all direct callers, and include evidence for the command path and the polymorphed enlightenment path."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-insight-enlightenment-polymorph-v26-20261007",
