@@ -184212,7 +184212,7 @@
     {
       "id": "port-polyself-gaze-mindblast-v24-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port polymorph gaze and mind blast over the canonical live monster list",
       "cFile": "polyself.c",
       "sessions": [
@@ -184227,8 +184227,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f224a115f09ed49085e7e66baab3edbf155515aa",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dogaze",
@@ -184849,6 +184852,80 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-mind-flayer-blast",
+          "session": "synthetic/v24/v24-mind-flayer-blast",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingPath": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+          "recipe": "challenges/cases/v24/v24-mind-flayer-blast.recipe.session.json",
+          "recipeSha256": "90976ddb59429b9cd8940a801bc8b076cd2c292117286f4df127951400620d79",
+          "replayInputSha256": "675c539b14b0a3db97d27cff927a1c37818ef18f39ccdb0d1b4d82a88d7956fb",
+          "evaluationPath": "challenges/evaluations/20261007023452-v24.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa",
+          "evaluationArtifact": "challenges/evaluations/20261007023452-v24.json",
+          "evaluationUtc": "2026-10-07T02:36:34.969Z",
+          "remainingScreens": 0,
+          "recordedSteps": 112,
+          "previousScreensMatched": 99,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 112,
+              "total": 112
+            },
+            "rng": {
+              "matched": 2945,
+              "total": 2962
+            },
+            "cursors": {
+              "matched": 112,
+              "total": 112
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2945,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "losespells(spell.c:1777)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 109,
+                "key": " "
+              },
+              "stepIndex": 109
+            },
+            "cursor": null
+          },
+          "step": 109,
+          "kind": "rng",
+          "sourceFile": "spell.c",
+          "function": "losespells",
+          "message": null,
+          "cFile": "spell.c",
+          "luaFile": null,
+          "line": 1777,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v24/v24-mind-flayer-blast.json",
+            "previousRemainingScreens": 13
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "f224a115f09ed49085e7e66baab3edbf155515aa",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
