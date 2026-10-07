@@ -192930,6 +192930,49 @@
           "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
         }
       }
+    },
+    {
+      "id": "port-wield-setuwep-artifact-light-v27-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete weapon replacement and artifact light shutdown",
+      "cFile": "wield.c",
+      "sessions": [
+        "synthetic/v27/v27-sunsword-unwield"
+      ],
+      "selectionReason": "v27-sunsword-unwield has 23 remaining screens at step 17; investigations/synthetic/v27/v27-sunsword-unwield.json traces the first cause to whole wield.c:setuwep and its missing end_burn artifact-light path.",
+      "detail": "Port the complete setuwep function in its wield.c JavaScript owner, reuse canonical timeout.c:end_burn and naming/blindness/light/inventory owners, and wire every active caller with source-ordered awaits while retaining the do_takeoff and iron-bars frontiers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "setuwep",
+          "line": 100,
+          "endLine": 137,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 100,
+        "to": 137
+      },
+      "syntheticProvenance": {
+        "synthetic/v27/v27-sunsword-unwield": {
+          "session": "synthetic/v27/v27-sunsword-unwield",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-sunsword-unwield",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-sunsword-unwield.session.json",
+          "recordingSha256": "d8e0f16762baf12b3972afbe9ce3835367905dfd7e388b43dcf974dcdfbaf514",
+          "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+          "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
+        }
+      }
     }
   ]
 }
