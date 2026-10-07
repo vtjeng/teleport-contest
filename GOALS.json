@@ -188001,7 +188001,7 @@
     {
       "id": "port-dig-bury-objs-whole-v24-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port whole object burial and wire pit-covering, boulder and freezing callers",
       "cFile": "dig.c",
       "sessions": [
@@ -188228,7 +188228,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "c8d3fb2782a75f3ff724f7f338767d4a4793804f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial source delivery accepted: target v24 spider pit RNG mismatch fixed and wiz_debug_cmd_bury/o_unleash caller coverage verified; bury_an_obj and bury_objs remain incomplete pending hack.c moverock_core, trap ice, Lua object burial, rot_organic dispatch, and bounded caller witnesses recorded in A117 evidence."
     },
     {
       "id": "port-cmd-domonability-gremlin-v25-20261007",
