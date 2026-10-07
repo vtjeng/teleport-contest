@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v24.json",
   "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
   "recordingSha256": "d8d496ba5d72b069fbfc25c17aaf6f4863995f5f47455fe6712a36b02bee2450",
-  "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
-  "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
-  "status": "partial",
-  "commit": "84d84e111155ac834c43327b7c696055df294349",
+  "evaluationPath": "challenges/evaluations/20261006233641-v24.json",
+  "evaluationCommit": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d",
+  "status": "complete",
+  "commit": "2d388d84defbd59bdac36f6b345dfb3720a6f3bb",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v24",
@@ -85,11 +85,30 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The first divergence is a hallucinated map glyph after the wizard enables hallucination, not yet the pear-eating effect. The saved replay matches 33 of 39 screens, all 2,589 core RNG calls, and all 39 cursor positions; at step 33, row 14 column 48 is a red potion glyph in C and a yellow gem glyph in JavaScript. Source tracing narrows the behavior to the hallucination-triggered display refresh and separate display-RNG draw order, but does not yet establish which caller or display function diverges.",
+  "summary": "The first divergence is the remembered floor-object glyph after #wizintrinsic enables hallucination. On the space that dismisses the transition message, C shows the remembered red potion glyph while JavaScript shows a randomly hallucinated gem. The actionable owner is display.c's map-memory and redraw path through map_object and docrt_flags; the pear-eating path starts later at step 35.",
+  "source": {
+    "file": "display.c",
+    "branch": "During a visible hallucination transition, make_hallucinated refreshes visible objects and the wizard-intrinsic command then performs its final docrt redraw.",
+    "functions": [
+      "map_object",
+      "docrt_flags"
+    ],
+    "callers": [
+      "potion.c:make_hallucinated -> display.c:see_objects -> newsym -> map_location -> map_object",
+      "wizcmds.c:wiz_intrinsic -> display.c:docrt -> docrt_flags"
+    ],
+    "dependencies": [
+      "Preserve potion.c:make_hallucinated's see_monsters, see_objects and see_traps order before its transition message.",
+      "Preserve display.c:see_objects, newsym and map_location memory updates before docrt_flags redraws levl[x][y].glyph."
+    ]
+  },
+  "goalKind": "divergence-fix",
   "evidence": [
     "Saved evaluation challenges/evaluations/20261006225046-v24.json reports 33/39 matching screens, 2589/2589 core RNG calls, and 39/39 cursors. Its first mismatch is segment 0, step 33, key space, cell row 14 column 48: C `!` color 1; JavaScript `*` color 11.",
     "The isolated replay `node scripts/scan-sessions.mjs --json --synthetic v24/v24-hallucinating-pear` emitted all 39 recorded steps and reproduced the same first divergence; diagnostic output is cached at `.cache/synthetic-scans/v24/v24-hallucinating-pear.json`. The replay did not record a new C game.",
     "The recording issues `#wizintrinsic` before the first mismatch and `eat` only later. Upstream `nethack-c/upstream/src/potion.c:make_hallucinated()` calls `see_monsters()`, `see_objects()`, and `see_traps()` before printing the transition message; `nethack-c/upstream/src/display.c:see_objects()`, `newsym()`, and `map_object()` lead to `obj_to_glyph(..., newsym_rn2)`, whose hallucination arm in `nethack-c/upstream/include/display.h` selects random object glyphs from `rn2_on_display_rng`.",
-    "The corresponding port path is `js/potion.js:make_hallucinated()` through `js/display.js:see_objects()`, `newsym()`, `map_object()`, and `random_object_glyph_info()`, using the separate stream in `js/rng.js:rn2_on_display_rng()`. The queue evidence does not show a core-RNG or cursor divergence, so the next source-backed probe is to compare display-RNG consumption and redraw order across the hallucination transition and its More-message dismissal. The later `eat` command reaches `eat.c:fprefx()`, but it occurs after the earliest mismatch."
+    "The corresponding port path is `js/potion.js:make_hallucinated()` through `js/display.js:see_objects()`, `newsym()`, `map_object()`, and `random_object_glyph_info()`, followed by `js/wizcmds.js:wiz_intrinsic()` calling `js/display.js:docrt()`. The saved evaluation logs core RNG only, so matching core RNG does not establish display-RNG parity.",
+    "Step 33 dismisses `Oh wow! Everything looks so cosmic!--More--`; the final wizard-intrinsic redraw then exposes the remembered-glyph difference. The `eat` command begins at step 35, so `eat.c:fprefx()` is not the first-mismatch owner.",
+    "Current evaluation `challenges/evaluations/20261006233641-v24.json` retains the same 33/39 screen, 2589/2589 core-RNG, and 39/39 cursor result at candidate `47c7b201e75485a1b4da4faabd68ebe2cfbc440d`."
   ]
 }

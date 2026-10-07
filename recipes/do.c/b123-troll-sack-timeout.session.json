@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent contained timer witness: corpse o, wished sack p; applying the sack must place corpse inside before waiting. C inputs will be reconciled to the recorded menu before any JS comparison.",
+  "segments": [
+    {
+      "seed": 12310621,
+      "datetime": "20910317101200",
+      "nethackrc": "OPTIONS=name:CorpseReturn,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n100a\n    #wizwish\nuncursed troll corpse\n    \u0017uncursed sack\n    apso    m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  "
+    }
+  ]
+}

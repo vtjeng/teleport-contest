@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent pickup.c:rider_corpse_revival -> do.c:revive_corpse witness. Screens/cursors match, but zap.c:revive creates a temporary doppelganger whose initial newcham -> topten.c:tt_doppel/get_rnd_toptenentry depends on an existing empty record file. The recorder has that file; the JS initial VFS lacks vfs:record and skips rnd(10). No recording is admitted for this recipe.",
+  "segments": [
+    {
+      "seed": 12310648,
+      "datetime": "20910317101200",
+      "nethackrc": "OPTIONS=name:CorpseReturn,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n100a\n    \u0017corpse of Death\n    ,   "
+    }
+  ]
+}

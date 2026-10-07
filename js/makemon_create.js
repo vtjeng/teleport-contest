@@ -1294,6 +1294,14 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && isok(x, y)
         && mmflags === NO_MM_FLAGS;
+    // mkroom.c mkundead() uses the same explicit-coordinate placement with
+    // NO_MINVENT. C suppresses inventory without adding a species or terrain
+    // admission rule; occupied squares still return null below.
+    const explicitCoordinateNoMinventRuntimeCall = !state.in_mklev
+        && Boolean(ptr)
+        && !randomCoordinates
+        && isok(x, y)
+        && mmflags === NO_MINVENT;
     // C makemon() accepts explicit, inventoryless creation at the hero's
     // square on every runtime level. Its source-owned placement path first
     // relocates to enexto_core(); admission is based only on those arguments
@@ -1324,6 +1332,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && mmflags === MM_NOMSG;
     if (tutorialLevel && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !wereSummonCall && !explicitCoordinateNoFlagsRuntimeCall
+        && !explicitCoordinateNoMinventRuntimeCall
         && !explicitInventorylessHeroCall && !hatchEggCall
         && !explicitCoordinateRuntimeCall
         && (!state.in_mklev
@@ -1479,6 +1488,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // use the dedicated special-room tail below, not ordinary runtime
         // continuation admission.
         || (explicitCoordinateNoFlagsRuntimeCall && !specialRoomCall)
+        || explicitCoordinateNoMinventRuntimeCall
         || (!state.in_mklev && statueInventoryCall)
         || nastyCall;
     if (runtimeCall
@@ -1511,7 +1521,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     if (ptr?.pmidx === PM_SHOPKEEPER && !shopkeeperCall
         && !explicitInventorylessHeroCall && !hatchEggCall
         && !explicitCoordinateRuntimeCall
-        && !explicitCoordinateNoFlagsRuntimeCall) {
+        && !explicitCoordinateNoFlagsRuntimeCall
+        && !explicitCoordinateNoMinventRuntimeCall) {
         throw new UnsupportedMonsterCreationError(
             'shopkeeper creation outside shkinit',
         );
@@ -1536,6 +1547,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !hatchEggCall
         && !explicitCoordinateRuntimeCall
         && !explicitCoordinateNoFlagsRuntimeCall
+        && !explicitCoordinateNoMinventRuntimeCall
         && !vaultGuardCall
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
@@ -1560,6 +1572,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !explicitInventorylessHeroCall
         && !hatchEggCall
         && !explicitCoordinateNoFlagsRuntimeCall
+        && !explicitCoordinateNoMinventRuntimeCall
         && !heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)) {
         if (isRogueLevel(state)) {
             throw new UnsupportedMonsterCreationError(
@@ -1598,6 +1611,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !hatchEggCall
             && !explicitCoordinateRuntimeCall
             && !explicitCoordinateNoFlagsRuntimeCall
+            && !explicitCoordinateNoMinventRuntimeCall
             && !familiarCall
             && !nastyCall
             && (!state.in_mklev || (isMainDungeonLevel(state)

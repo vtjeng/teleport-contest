@@ -81,7 +81,7 @@ test('doapply reports an exhausted tinning kit without selecting a corpse',
         assert.equal(kit.spe, 0);
     });
 
-test('doapply propagates the existing inventory Rider revival refusal',
+test('doapply revives an inventory Rider before its answer about War',
     async () => {
         const setup = recipe.segments[0];
         await runSegment({ ...setup, moves: setup.moves.slice(0, -3) });
@@ -93,9 +93,12 @@ test('doapply propagates the existing inventory Rider revival refusal',
         game.nhDisplay.pushKey(kit.invlet.charCodeAt(0));
         game.nhDisplay.pushKey(corpse.invlet.charCodeAt(0));
 
-        await assert.rejects(
-            doapply(game),
-            /revive_corpse\(\) outside its floor arm/u,
-        );
+        // do.c reports the backpack revival before apply.c verbalizes.
+        for (let index = 0; index < 4; ++index)
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_TIME);
+        assert.equal(inventoryObjects().some((obj) => obj.otyp === CORPSE), false);
+        assert.match(game._pending_message,
+            /Yes\.\.\.  But War does not preserve its enemies/u);
         assert.equal(kit.spe, 52);
     });

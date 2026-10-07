@@ -279,6 +279,7 @@ import {
 import { pick_lock } from './lock.js';
 import { bagotricks, mkclass } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
+import { mkundead } from './mkroom.js';
 import {
     m_in_air, mnexto, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto,
 } from './mon.js';
@@ -1560,9 +1561,8 @@ export function tinnable(corpse, state = game) {
 
 // C ref: apply.c use_tinning_kit() (2177-2258). apply.c:doapply() ignores
 // this helper's return and retains its initial ECMD_TIME result. The ordinary
-// floor/inventory tin path is ported here. Rider revival always delegates to
-// do.c:revive_corpse() and lets its current non-floor refusal propagate until
-// that consumed Boolean path is ported.
+// floor/inventory tin path is ported here. Rider revival delegates to the
+// whole do.c:revive_corpse() owner with the caller's lifecycle environment.
 async function use_tinning_kit(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     if (obj.spe <= 0) {
@@ -1600,7 +1600,7 @@ async function use_tinning_kit(obj, state = game, env = {}) {
     }
 
     if (is_rider(species)) {
-        if (await revive_corpse(corpse, state)) {
+        if (await revive_corpse(corpse, state, env)) {
             await verbalize(
                 'Yes...  But War does not preserve its enemies...',
                 state,
@@ -3824,7 +3824,8 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
             if (!obj.cursed) await openit(state, rawEnv);
             else await message(nothing_happens);
         } else if (obj.cursed) {
-            note_unported('minion.c mkundead');
+            await mkundead({ x: state.u.ux, y: state.u.uy }, false,
+                NO_MINVENT, state, { ...rawEnv, random });
             wakem = true;
         } else if (invoking) {
             await message(

@@ -1649,7 +1649,7 @@ export async function meatobj(mtmp, rawEnv = {}) {
             && is_rider(state.mons?.[obj.corpsenm])) {
             const ox = obj.ox;
             const oy = obj.oy;
-            const revived = await revive_corpse(obj, state);
+            const revived = await revive_corpse(obj, state, rawEnv);
             newsym(ox, oy, state);
             if (!revived) {
                 obj = nextObj;
@@ -1742,7 +1742,7 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
             || (flesh_petrifies(species)
                 && !Resists_Elem(mtmp, STONE_RES, state))) continue;
         if (is_rider(species)) {
-            const revived = await revive_corpse(obj, state);
+            const revived = await revive_corpse(obj, state, rawEnv);
             newsym(x, y, state);
             if (!revived) continue;
             break;
