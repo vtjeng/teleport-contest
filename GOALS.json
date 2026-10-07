@@ -193796,7 +193796,7 @@
     {
       "id": "port-wield-setuwep-artifact-light-v27-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete weapon replacement and artifact light shutdown",
       "cFile": "wield.c",
       "sessions": [
@@ -193804,17 +193804,24 @@
       ],
       "selectionReason": "v27-sunsword-unwield has 23 remaining screens at step 17; investigations/synthetic/v27/v27-sunsword-unwield.json traces the first cause to whole wield.c:setuwep and its missing end_burn artifact-light path.",
       "detail": "Port the complete setuwep function in its wield.c JavaScript owner, reuse canonical timeout.c:end_burn and naming/blindness/light/inventory owners, and wire every active caller with source-ordered awaits. Complete the takeoff-all occupation family and its worn-category predicate so the primary-weapon removal caller is reachable, and wire the bounded fragile-weapon iron-bars caller without claiming incomplete hit_bars branches.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "71073889a5655481919c8074ac24d001175fb641",
+      "openStanding": {
+        "sha": "71073889a5655481919c8074ac24d001175fb641",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "71073889a5655481919c8074ac24d001175fb641",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "setuwep",
           "line": 100,
           "endLine": 137,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -193826,25 +193833,25 @@
           "name": "select_off",
           "line": 2696,
           "endLine": 2821,
-          "declared": false,
+          "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "do_takeoff",
           "line": 2824,
           "endLine": 2896,
-          "declared": false,
+          "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "take_off",
           "line": 2900,
           "endLine": 2987,
-          "declared": false,
+          "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "reset_remarm",
@@ -193852,7 +193859,7 @@
           "endLine": 3018,
           "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "doddoremarm",
@@ -193860,15 +193867,15 @@
           "endLine": 3057,
           "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "menu_remarm",
           "line": 3090,
           "endLine": 3138,
-          "declared": false,
+          "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "is_worn_by_type",
@@ -193876,7 +193883,7 @@
           "endLine": 612,
           "declared": true,
           "sourceFile": "pickup.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -193892,6 +193899,717 @@
           "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
           "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
         }
+      },
+      "activeStanding": {
+        "sha": "71073889a5655481919c8074ac24d001175fb641",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "setuwep",
+            "implementation": "js/wield.js",
+            "symbol": "setuwep",
+            "sourceReview": "Read entire wield.c:setuwep lines 100-137. Preserved identity no-op, setworn before first Ogresmasher botl invalidation, artifact_light(old) && old.lamplit gate, end_burn(FALSE) before Blind-gated awaited Tobjnam message, second botl invalidation, and final launcher/ammo/missile/pole/Snickersnee/weptool/wet-towel unweapon expression. No direct RNG added. Reuses canonical worn.c:setworn hooks, timeout.c:end_burn, light deletion, naming, Blind and inventory owners. Removed worn.js partial duplicate and old endArtifactLight refusal from this owner; retains unrelated monster-extraction and uwepgone light refusals. Source uwepgone directly calls setworn(NULL), so its convenience setuwep call was replaced with that source operation without claiming uwepgone completion. Audited every C setuwep site listed by rg; active callers await the canonical wield owner, including asynchronous startup propagation. do.c dropx clears equipment only after freeinv, shipping and altar handling, at the source dropz boundary; helper suspension precedes floor effects. Narrow supporting admission: dig.c:341 is an explicit C dropx(uwep) caller; preflight_dropx now admits only an object identical to uwep with exactly W_WEP, reaching the existing source-ordered clearDropSlots after extraction/shipping/altar. Attached or additional masks remain refused; existing secondary admission stays unchanged. No dropx/dropz whole-function credit. dig.c:dig existing dropx caller now uses canonical dropCommandEnv so newsym, extraction, encumbrance and worn owners are present. Raw random/message/hook overrides are retained. No dig source-unit credit. Resumed after B136 acceptance at merge9b0c3c0d: awaits canonical async setworn before artifact-light teardown. Bounded restgamestate caller captures/clears primary, awaits setuwep, then forces conservative unweapon for null/PICK_AXE/GRAPPLING_HOOK. JS restore rebuilds its artifact catalog via existing init_artifacts/restore_artifacts before worn owner access, retaining saved existence/discovery. jsmain awaits dorestore; bounded unixmain.c:266-272 debug/explore keep-save prompt delegates to canonical yn_function and VFS deletion. save.c:63 displays pending message before farewell and save.c:147 clears it after luck undo. These are caller/dependency corrections with no restore/save/artifact/unixmain family credit. Final caller correction at c71: whole do_wear takeoff family below closes do_takeoff W_WEP; fragile force-fight caller preserves breaktest, split singleton/stack, setuwep before freeinv, known-break flags, and hit_bars source order. Canonical cmd.reset_occupations is called after u_on_newpos at hack.c:2936. No domove_core or hit_bars completion claim.",
+            "callers": [
+              {
+                "path": "js/wield.js",
+                "symbol": "ready_weapon",
+                "source": "wield.c:179,230"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "doquiver_core",
+                "source": "wield.c:608"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "wield_tool",
+                "source": "wield.c:745"
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "drop",
+                "source": "do.c:727"
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "dropz",
+                "source": "do.c:810; dropx admitted tail awaits same clearDropSlots after shipping/altar"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_on",
+                "source": "do_wear.c:1250"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "glibr",
+                "source": "do_wear.c:2622"
+              },
+              {
+                "path": "js/ball.js",
+                "symbol": "ballrelease",
+                "source": "ball.c:29"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:1725"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "return_throw_to_inv",
+                "source": "dothrow.c:1895"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "pickup.c:2599"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_potion",
+                "source": "uhitm.c:1103"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "poly_obj",
+                "source": "zap.c:1934"
+              },
+              {
+                "path": "js/u_init_inventory_use.js",
+                "symbol": "ini_inv_use_obj",
+                "source": "u_init.c:1291; use_initial_inventory and allmain.js:newgame await caller chain"
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "dig",
+                "source": "dig.c:341 -> do.c:dropx/dropy/dropz:810; bounded environment wiring only"
+              },
+              {
+                "path": "js/restore.js",
+                "symbol": "dorestore",
+                "source": "restore.c:restgamestate:694-700; js/jsmain.js awaits the bounded restore call"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "do_takeoff",
+                "source": "do_wear.c:2833; A occupation primary removal, awaited canonical setter"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_fight_ironbars",
+                "source": "hack.c:2006; singleton fragile primary before freeinv and hit_bars"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/setuwep.test.mjs",
+              "scripts/drop-command.test.mjs",
+              "scripts/dig-occupation.test.mjs",
+              "scripts/restore-command.test.mjs",
+              "scripts/save-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-bare-hands.session.json",
+              "recordings/wield.c/setuwep-replacement.session.json",
+              "recordings/wield.c/setuwep-blind.session.json",
+              "recordings/wield.c/setuwep-quiver.session.json",
+              "recordings/wield.c/setuwep-tool.session.json",
+              "recordings/wield.c/setuwep-drop.session.json",
+              "recordings/wield.c/setuwep-ring-on.session.json",
+              "recordings/wield.c/setuwep-container.session.json",
+              "recordings/wield.c/setuwep-glibr.session.json",
+              "recordings/wield.c/setuwep-returning-weapon.session.json",
+              "recordings/wield.c/setuwep-polymorph-weapon.session.json",
+              "recordings/wield.c/setuwep-potion-melee.session.json",
+              "recordings/wield.c/setuwep-ballrelease.session.json",
+              "recordings/wield.c/setuwep-returning-weapon-up.session.json",
+              "recordings/wield.c/setuwep-dig-fumble.session.json",
+              "recordings/wield.c/setuwep-restore-pickaxe.session.json",
+              "recordings/wield.c/setuwep-restore-long-sword.session.json",
+              "recordings/wield.c/setuwep-restore-sunsword.session.json",
+              "recordings/wield.c/setuwep-restore-bare-hands.session.json",
+              "recordings/do_wear.c/takeoff-all-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-primary-shield.session.json",
+              "recordings/wield.c/setuwep-iron-bars-singleton.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-sunsword-unwield",
+                "segment": 0,
+                "fromStep": 17,
+                "throughStep": 22,
+                "source": "cmd.c wield dispatch -> wield.c:dowield -> ready_weapon (179) -> setuwep (100-137) -> timeout.c:end_burn; bare-handed Sunsword shutdown and stops-shining message"
+              }
+            ],
+            "checkedAt": "71073889a5655481919c8074ac24d001175fb641"
+          },
+          {
+            "name": "select_off",
+            "implementation": "js/do_wear.js",
+            "symbol": "select_off",
+            "sourceReview": "Read whole do_wear.c:2694-2821. Preserved null result; ring limb/weld/Glib-glove order and source dummy bknown target even when gloves are also cursed; glove fatal-corpse confirmation via existing complete better_not_take_that_off; boot bear-trap/embedded floor refusals; cloak/suit/two-handed wield blocking; quiver and inactive-secondary curse exemption; every slot-mask write. Replaced weapon and boot refusals with source behavior. Impossible diagnostic is discarded/unported, not used as data. Existing pure slot/name/property and impure curse/paranoid owners are reused without source credit.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "doddoremarm",
+                "source": "do_wear.c:3038 ggetobj callback"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "menu_remarm",
+                "source": "do_wear.c:3116 ggetobj callback and 3132 menu picks"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "armor_or_accessory_off",
+                "source": "do_wear.c:1801"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-wear-takeoff-all.test.mjs",
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-all-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-primary-shield.session.json",
+              "recordings/do_wear.c/takeoff-all-traditional-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-combination-primary.session.json",
+              "recordings/pickup.c/takeoff-all-filtered-priest.session.json",
+              "recordings/do_wear.c/remove-armor-independent.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [],
+            "checkedAt": "71073889a5655481919c8074ac24d001175fb641"
+          },
+          {
+            "name": "do_takeoff",
+            "implementation": "js/do_wear.js",
+            "symbol": "do_takeoff",
+            "sourceReview": "Read whole do_wear.c:2823-2896. Capture was_twoweap before slot writes; I_SPECIAL around each off owner; source primary curse check before awaited setuwep and awaited hands message; canonical secondary/quiver setters awaited before feedback. Preserve captured armor/ring pointer return, blindfold null return, slot dispatch and curse checks in source order. Reuse existing off owners and their documented separate limits, without granting them additional credit. Removed obsolete all-but-secondary refusal. Discarded impossible diagnostics remain note_unported.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "take_off",
+                "source": "do_wear.c:2911"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "remarm_swapwep",
+                "source": "do_wear.c:3085"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-wear-takeoff-all.test.mjs",
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-all-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-primary-shield.session.json",
+              "recordings/do_wear.c/takeoff-alternate-itemaction.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [],
+            "checkedAt": "71073889a5655481919c8074ac24d001175fb641"
+          },
+          {
+            "name": "take_off",
+            "implementation": "js/do_wear.js",
+            "symbol": "take_off",
+            "sourceReview": "Read whole do_wear.c:2898-2987 and takeoff_order:17-20. Preserve busy-delay decrement, consumed do_takeoff pointer -> off_msg, mask consumption, source removal order, cloak/suit overhead and object-table delays, one starting-turn subtraction, finish return zero, and canonical set_occupation callback installation. No RNG added. Impossible diagnostic is discarded/unported. Tests pin all fourteen slot-order values against C, overhead arithmetic, callback identity and remaining delay.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "doddoremarm",
+                "source": "do_wear.c:3050 initial invocation and 3028 resume callback"
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c occupation invocation of callback installed at do_wear.c:2985"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-wear-takeoff-all.test.mjs",
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-all-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-primary-shield.session.json",
+              "recordings/do_wear.c/takeoff-all-typed-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-traditional-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-combination-primary.session.json",
+              "recordings/pickup.c/takeoff-all-filtered-priest.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [],
+            "checkedAt": "71073889a5655481919c8074ac24d001175fb641"
+          },
+          {
+            "name": "reset_remarm",
+            "implementation": "js/do_wear.js",
+            "symbol": "reset_remarm",
+            "sourceReview": "Read whole do_wear.c:3012-3018. Clear what, mask and verb only, retaining delay/cancelled_don. Audited every C source call via saved exact-symbol search: ordinary armor/accessory removal, alternate item action, welded wield/quiver, mkobj curse of wielded two-handed weapon, and cmd reset_occupations via movement. Existing wield/obj callers already match C and remain unchanged. Fixed the skipped hack.c:2936 reset_occupations source seam; no broader movement credit. Cache-only accepted-c71 reproduction matches all 17 fixture oracles. Eleven movement snapshots differ only by initialization of context.takeoff to zeroed mask/what/cancelled_don/delay and empty verb; every other field is identical. Updated only those eleven stateDigest strings, retaining all explicit hero, turn, RNG, cursor and screen fields.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "armor_or_accessory_off",
+                "source": "do_wear.c:1800,1805"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "remarm_swapwep",
+                "source": "do_wear.c:3083"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "dowield",
+                "source": "wield.c:385"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "doquiver_core",
+                "source": "wield.c:573"
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "curse",
+                "source": "mkobj.c:1797"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "reset_occupations",
+                "source": "cmd.c:197, reached at hack.c:2936"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-wear-takeoff-all.test.mjs",
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-all-primary.session.json",
+              "recordings/do_wear.c/takeoff-alternate-itemaction.session.json",
+              "recordings/do_wear.c/remove-armor-independent.session.json",
+              "recordings/do_wear.c/takeoff-reset-cursed-wielded.session.json",
+              "recordings/do_wear.c/takeoff-reset-welded-commands.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [],
+            "checkedAt": "71073889a5655481919c8074ac24d001175fb641"
+          },
+          {
+            "name": "doddoremarm",
+            "implementation": "js/do_wear.js",
+            "symbol": "doddoremarm",
+            "sourceReview": "Read whole do_wear.c:3022-3056. Preserve continuation before no-equipment case; filter reset, short-circuit traditional ggetobj result, menu fallback, disarming/disrobing selection, initial occupation callback and ECMD_OK without an extra command turn. Wire both the existing A extcmd row and typed/canned doddoremarm dispatch through production rhack. Removed the command-admission boundary.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:1888-1889 takeoffall row and command dispatch"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd/rhack dispatch of the same row"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-wear-takeoff-all.test.mjs",
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-all-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-primary-shield.session.json",
+              "recordings/do_wear.c/takeoff-all-traditional-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-combination-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-typed-primary.session.json",
+              "recordings/pickup.c/takeoff-all-filtered-priest.session.json",
+              "recordings/do_wear.c/takeoff-all-cancel.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [],
+            "checkedAt": "71073889a5655481919c8074ac24d001175fb641"
+          },
+          {
+            "name": "menu_remarm",
+            "implementation": "js/do_wear.js",
+            "symbol": "menu_remarm",
+            "sourceReview": "Read whole do_wear.c:3090-3140. Preserve retry -2, full category selection and ALL_TYPES_SELECTED, combination feedback ALL_FINISHED, BUC/unpaid filtering, worn-vs-worn-by-type callback, exact query flags/pick-any, select_off sequence, negative-result feedback and return zero. Reuse canonical ggetobj, query_category, query_objlist, add_valid_menu_class and existing menu_class_present (exported for this caller only). No menu/callee substitute added.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "doddoremarm",
+                "source": "do_wear.c:3040"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-wear-takeoff-all.test.mjs",
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-all-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-primary-shield.session.json",
+              "recordings/do_wear.c/takeoff-all-typed-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-combination-primary.session.json",
+              "recordings/pickup.c/takeoff-all-filtered-priest.session.json",
+              "recordings/do_wear.c/takeoff-all-cancel.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [],
+            "checkedAt": "71073889a5655481919c8074ac24d001175fb641"
+          },
+          {
+            "name": "is_worn_by_type",
+            "implementation": "js/pickup.js",
+            "symbol": "is_worn_by_type",
+            "sourceReview": "Read whole pickup.c:608-612 and consumed existing dependencies invent.c:is_worn and pickup.c:allow_category:522-592. Preserve short-circuit is_worn && allow_category, normalized boolean return and Priest knowledge writes performed by allow_category. Confirmed impure; source-pinned test proves unworn objects skip knowledge writes and active weapon class filters retain them. Production full-menu Priest recording reaches this callback.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "menu_remarm",
+                "source": "do_wear.c:3129 query_objlist callback"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-wear-takeoff-all.test.mjs",
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/takeoff-all-filtered-priest.session.json"
+            ],
+            "sourceFile": "pickup.c",
+            "synthetic": [],
+            "checkedAt": "71073889a5655481919c8074ac24d001175fb641"
+          }
+        ],
+        "entryPointReview": "Audited all setuwep source sites and all direct callers of the seven required units. Existing ready/quiver/tool/drop/ring/container/glibr/return/polymorph/melee/ball/startup/restore entries retain matching evidence. Both formerly blocked setuwep callers now have independent completely matching recordings: primary takeoff and singleton iron-bars break. Whole required takeoff family covers A, typed command, traditional/combination/full/filter menus, cancel, ordinary remove-one, alternate inventory action, movement reset, welded wield/quiver and curse reset entries. Existing better_not_take_that_off and remarm_swapwep bodies are reused unchanged, with no new credit. Broader hit_bars message/dissolve/wake and domove_core gaps remain named limits, not inactive caller claims.",
+        "entryPoints": [
+          {
+            "name": "Wield and bare hands: ready_weapon -> setuwep (wield.c:179,230)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-bare-hands.session.json",
+              "recordings/wield.c/setuwep-replacement.session.json",
+              "recordings/wield.c/setuwep-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-sunsword-unwield",
+                "segment": 0,
+                "fromStep": 17,
+                "throughStep": 22,
+                "source": "cmd.c wield dispatch -> wield.c:dowield -> ready_weapon (179) -> setuwep (100-137) -> timeout.c:end_burn; bare-handed Sunsword shutdown and stops-shining message"
+              }
+            ]
+          },
+          {
+            "name": "Quiver primary: doquiver_core -> setuwep (wield.c:608)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-quiver.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Apply a tool: wield_tool -> ready_weapon -> setuwep (wield.c:745 / apply.c pick-axe dispatch)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-tool.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Drop primary: drop -> setuwep (do.c:727)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-drop.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Forced drop of equipped primary: dig -> dropx -> dropy/dropz -> setuwep (dig.c:341 -> do.c:786-842 (810))",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-dig-fumble.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wear wielded ring: Ring_on -> setuwep (do_wear.c:1250)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-ring-on.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Container insertion: in_container -> setuwep (pickup.c:2599)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-container.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Slippery fingers: moveloop_core -> glibr -> setuwep (do_wear.c:2622)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-glibr.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Returning weapon horizontal: throwit -> setuwep (dothrow.c:1725)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-returning-weapon.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Returning weapon vertical: throwit -> return_throw_to_inv -> setuwep (dothrow.c:1895)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-returning-weapon-up.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Polymorph equipped object: potion_dip -> poly_obj -> setuwep (zap.c:1934)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-polymorph-weapon.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Melee with potion: hmon_hitmon_potion -> setuwep (uhitm.c:1103)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-potion-melee.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Release wielded punishment ball: goto_level -> ballrelease -> setuwep (ball.c:29)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-ballrelease.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Startup equipment: newgame -> use_initial_inventory -> ini_inv_use_obj -> setuwep (u_init.c:1291)",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-bare-hands.session.json",
+              "recordings/wield.c/setuwep-replacement.session.json",
+              "recordings/wield.c/setuwep-blind.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Save/restore primary reinitialization: restore.c:restgamestate:694-700 through awaited js/jsmain.js restore caller; pick-axe, ordinary sword, Sunsword and bare hands",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-restore-pickaxe.session.json",
+              "recordings/wield.c/setuwep-restore-long-sword.session.json",
+              "recordings/wield.c/setuwep-restore-sunsword.session.json",
+              "recordings/wield.c/setuwep-restore-bare-hands.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Multi-item primary takeoff: cmd.c:A -> doddoremarm -> take_off -> do_takeoff W_WEP -> setuwep",
+            "functions": [
+              "setuwep",
+              {
+                "sourceFile": "do_wear.c",
+                "name": "select_off"
+              },
+              {
+                "sourceFile": "do_wear.c",
+                "name": "do_takeoff"
+              },
+              {
+                "sourceFile": "do_wear.c",
+                "name": "take_off"
+              },
+              {
+                "sourceFile": "do_wear.c",
+                "name": "doddoremarm"
+              },
+              {
+                "sourceFile": "do_wear.c",
+                "name": "menu_remarm"
+              }
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-all-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-primary-shield.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Typed #takeoffall, traditional/combination/full-category menus and canceled selection",
+            "functions": [
+              {
+                "sourceFile": "do_wear.c",
+                "name": "select_off"
+              },
+              {
+                "sourceFile": "do_wear.c",
+                "name": "do_takeoff"
+              },
+              {
+                "sourceFile": "do_wear.c",
+                "name": "take_off"
+              },
+              {
+                "sourceFile": "do_wear.c",
+                "name": "doddoremarm"
+              },
+              {
+                "sourceFile": "do_wear.c",
+                "name": "menu_remarm"
+              },
+              {
+                "sourceFile": "pickup.c",
+                "name": "is_worn_by_type"
+              }
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-all-typed-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-traditional-primary.session.json",
+              "recordings/do_wear.c/takeoff-all-combination-primary.session.json",
+              "recordings/pickup.c/takeoff-all-filtered-priest.session.json",
+              "recordings/do_wear.c/takeoff-all-cancel.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Ordinary R removal: armor_or_accessory_off -> reset_remarm/select_off",
+            "functions": [
+              {
+                "sourceFile": "do_wear.c",
+                "name": "select_off"
+              },
+              {
+                "sourceFile": "do_wear.c",
+                "name": "reset_remarm"
+              }
+            ],
+            "recordings": [
+              "recordings/do_wear.c/remove-armor-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Alternate inventory itemaction -> remarm_swapwep -> reset_remarm/do_takeoff W_SWAPWEP",
+            "functions": [
+              {
+                "sourceFile": "do_wear.c",
+                "name": "reset_remarm"
+              },
+              {
+                "sourceFile": "do_wear.c",
+                "name": "do_takeoff"
+              }
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-alternate-itemaction.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Movement after disarming -> cmd.reset_occupations -> reset_remarm at hack.c:2936",
+            "functions": [
+              {
+                "sourceFile": "do_wear.c",
+                "name": "reset_remarm"
+              }
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-all-primary.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Welded wield and quiver refusals -> reset_remarm; cursed wielded two-handed axe -> mkobj.c:curse -> reset_remarm",
+            "functions": [
+              {
+                "sourceFile": "do_wear.c",
+                "name": "reset_remarm"
+              }
+            ],
+            "recordings": [
+              "recordings/do_wear.c/takeoff-reset-welded-commands.session.json",
+              "recordings/do_wear.c/takeoff-reset-cursed-wielded.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Force-fight fragile bottle at iron bars -> singleton setuwep before freeinv/hit_bars; stack split retains primary",
+            "functions": [
+              "setuwep"
+            ],
+            "recordings": [
+              "recordings/wield.c/setuwep-iron-bars-singleton.session.json",
+              "recordings/wield.c/setuwep-iron-bars-stack.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "71073889a5655481919c8074ac24d001175fb641",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -194610,6 +195328,37 @@
           "recordingSha256": "f64f5907051f2ff4e1cce9d552cbdd6cd2387eb87a1f292146a538f524ffa2f3",
           "evaluationPath": "challenges/evaluations/accepted-cbb68414c54b980b99303a10bba3fdf302af37c7-v27.json",
           "evaluationCommit": "cbb68414c54b980b99303a10bba3fdf302af37c7"
+        }
+      }
+    },
+    {
+      "id": "fix-do-dropx-engraving-admission-v27-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Admit ordinary floor drops over existing engravings",
+      "cFile": "do.c",
+      "sessions": [],
+      "selectionReason": "Validated investigations/synthetic/v27/v27-drop-on-engraving.json at accepted 71073889, five remaining screens; independent of A137/B139.",
+      "detail": "Segment0 step34 ends before freeinv at obsolete js/do.js engr_at guard; C dropx/dropz/flooreffects accepts ordinary dry-floor placement without modifying engraving. Preserve canonical placement, stacking, redraw and time.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dropx",
+      "session": "synthetic/v27/v27-drop-on-engraving",
+      "step": 34,
+      "syntheticProvenance": {
+        "synthetic/v27/v27-drop-on-engraving": {
+          "session": "synthetic/v27/v27-drop-on-engraving",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-drop-on-engraving",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-drop-on-engraving.session.json",
+          "recordingSha256": "5209e9361c287eab8bad2bb68a5edbd68bad669a3b03e83357a6dbe91acc85ca",
+          "evaluationPath": "challenges/evaluations/accepted-71073889a5655481919c8074ac24d001175fb641-v27.json",
+          "evaluationCommit": "71073889a5655481919c8074ac24d001175fb641"
         }
       }
     }

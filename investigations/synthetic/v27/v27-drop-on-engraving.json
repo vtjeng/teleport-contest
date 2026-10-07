@@ -1,0 +1,277 @@
+{
+  "session": "synthetic/v27/v27-drop-on-engraving",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-drop-on-engraving",
+  "remainingScreens": 5,
+  "recordedSteps": 39,
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingPath": "challenges/cases/v27/v27-drop-on-engraving.session.json",
+  "recordingSha256": "5209e9361c287eab8bad2bb68a5edbd68bad669a3b03e83357a6dbe91acc85ca",
+  "recipe": "challenges/cases/v27/v27-drop-on-engraving.recipe.session.json",
+  "recipeSha256": "09a1c1576a1a3e85f50e67f2542b608fb4593a20f0084eadd7151ba0868bf73e",
+  "evaluationPath": "challenges/evaluations/accepted-71073889a5655481919c8074ac24d001175fb641-v27.json",
+  "evaluationCommit": "71073889a5655481919c8074ac24d001175fb641",
+  "evaluationArtifact": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/71073889a5655481919c8074ac24d001175fb641/run-hosted-xqEu4x/synthetic/ci-v27.json",
+  "firstMismatchStep": 34,
+  "firstMismatchSegment": 0,
+  "mismatchKind": "refusal",
+  "diagnostic": {
+    "comparison": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2648,
+          "js": 2635
+        },
+        "screens": {
+          "c": 39,
+          "js": 34
+        },
+        "cursors": {
+          "c": 39,
+          "js": 34
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": {
+        "index": 2635,
+        "cEntry": "rn2(5)=3",
+        "cCaller": "distfleeck(monmove.c:538)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 34,
+          "key": "m"
+        }
+      },
+      "screenMismatch": {
+        "index": 34,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 34,
+          "key": "m"
+        },
+        "kind": "js-missing"
+      },
+      "cursorMismatch": {
+        "index": 34,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 34,
+          "key": "m"
+        },
+        "cCursor": [
+          36,
+          5,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "boundary": {
+      "name": "UnsupportedHeroCommandBoundaryError",
+      "message": "unsupported hero command: an unported branch of this command: unsupported drop: an engraving under the drop",
+      "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: unsupported drop: an engraving under the drop\n    at failClosedCommand (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:3021:19)\n    at async rhack (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:5917:25)\n    at async moveloop_core (file:///tmp/teleport-loop-worker-c-20260925/js/allmain.js:1786:9)\n    at async runSegment (file:///tmp/teleport-loop-worker-c-20260925/js/jsmain.js:779:13)\n    at async file:///tmp/teleport-loop-worker-c-20260925/.cache/C135-selected-diagnostic.mjs:6:32"
+    },
+    "hero": {
+      "ux": 37,
+      "uy": 4
+    },
+    "engraving": {
+      "nxt_engr": {
+        "nxt_engr": null,
+        "engr_x": 49,
+        "engr_y": 3,
+        "engr_txt": [
+          "d a ra?ium",
+          "ad aerarium",
+          "ad aerarium"
+        ],
+        "engr_time": 0,
+        "engr_type": 1,
+        "engr_szeach": 12,
+        "engr_alloc": 36,
+        "guardobjects": false,
+        "nowipeout": false,
+        "eread": false,
+        "erevealed": false
+      },
+      "engr_x": 37,
+      "engr_y": 4,
+      "engr_txt": [
+        "testing",
+        "testing",
+        "testing"
+      ],
+      "engr_time": 1,
+      "engr_type": 1,
+      "engr_szeach": 8,
+      "engr_alloc": 24,
+      "guardobjects": false,
+      "nowipeout": false,
+      "eread": true,
+      "erevealed": true
+    },
+    "unported": []
+  },
+  "commit": "71073889a5655481919c8074ac24d001175fb641",
+  "status": "complete",
+  "mismatch": {
+    "session": "synthetic/v27/v27-drop-on-engraving",
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-drop-on-engraving",
+    "remainingScreens": 5,
+    "recordedSteps": 39,
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recordingPath": "challenges/cases/v27/v27-drop-on-engraving.session.json",
+    "recordingSha256": "5209e9361c287eab8bad2bb68a5edbd68bad669a3b03e83357a6dbe91acc85ca",
+    "recipe": "challenges/cases/v27/v27-drop-on-engraving.recipe.session.json",
+    "recipeSha256": "09a1c1576a1a3e85f50e67f2542b608fb4593a20f0084eadd7151ba0868bf73e",
+    "evaluationPath": "challenges/evaluations/accepted-71073889a5655481919c8074ac24d001175fb641-v27.json",
+    "evaluationCommit": "71073889a5655481919c8074ac24d001175fb641",
+    "evaluationArtifact": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/71073889a5655481919c8074ac24d001175fb641/run-hosted-xqEu4x/synthetic/ci-v27.json",
+    "firstMismatchStep": 34,
+    "firstMismatchSegment": 0,
+    "mismatchKind": "refusal",
+    "diagnostic": {
+      "comparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2648,
+            "js": 2635
+          },
+          "screens": {
+            "c": 39,
+            "js": 34
+          },
+          "cursors": {
+            "c": 39,
+            "js": 34
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": {
+          "index": 2635,
+          "cEntry": "rn2(5)=3",
+          "cCaller": "distfleeck(monmove.c:538)",
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 34,
+            "key": "m"
+          }
+        },
+        "screenMismatch": {
+          "index": 34,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 34,
+            "key": "m"
+          },
+          "kind": "js-missing"
+        },
+        "cursorMismatch": {
+          "index": 34,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 34,
+            "key": "m"
+          },
+          "cCursor": [
+            36,
+            5,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "boundary": {
+        "name": "UnsupportedHeroCommandBoundaryError",
+        "message": "unsupported hero command: an unported branch of this command: unsupported drop: an engraving under the drop",
+        "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: unsupported drop: an engraving under the drop\n    at failClosedCommand (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:3021:19)\n    at async rhack (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:5917:25)\n    at async moveloop_core (file:///tmp/teleport-loop-worker-c-20260925/js/allmain.js:1786:9)\n    at async runSegment (file:///tmp/teleport-loop-worker-c-20260925/js/jsmain.js:779:13)\n    at async file:///tmp/teleport-loop-worker-c-20260925/.cache/C135-selected-diagnostic.mjs:6:32"
+      },
+      "hero": {
+        "ux": 37,
+        "uy": 4
+      },
+      "engraving": {
+        "nxt_engr": {
+          "nxt_engr": null,
+          "engr_x": 49,
+          "engr_y": 3,
+          "engr_txt": [
+            "d a ra?ium",
+            "ad aerarium",
+            "ad aerarium"
+          ],
+          "engr_time": 0,
+          "engr_type": 1,
+          "engr_szeach": 12,
+          "engr_alloc": 36,
+          "guardobjects": false,
+          "nowipeout": false,
+          "eread": false,
+          "erevealed": false
+        },
+        "engr_x": 37,
+        "engr_y": 4,
+        "engr_txt": [
+          "testing",
+          "testing",
+          "testing"
+        ],
+        "engr_time": 1,
+        "engr_type": 1,
+        "engr_szeach": 8,
+        "engr_alloc": 24,
+        "guardobjects": false,
+        "nowipeout": false,
+        "eread": true,
+        "erevealed": true
+      },
+      "unported": []
+    }
+  },
+  "summary": "Ordinary inventory drops onto existing engravings are incorrectly refused before freeinv. C dropx/dropz/flooreffects has no engraving exclusion; delete only the obsolete preflight guard and preserve engraving data, floor placement, redraw and command time.",
+  "source": {
+    "file": "do.c",
+    "branch": "Grounded hero drops an ordinary unpaid-independent object onto admitted dry terrain bearing an engraving; no liquid, trap, costly shop, attached-object or globby branch is reached.",
+    "functions": [
+      "dropx"
+    ],
+    "callers": [
+      "do.c:drop -> dropx -> dropy -> dropz",
+      "js/cmd.js:rhack d -> dodrop -> drop -> dropx"
+    ],
+    "dependencies": [
+      "do.c:flooreffects ordinary dry-floor branch",
+      "mkobj.c:place_object",
+      "invent.c:stackobj",
+      "display.c:newsym/map_location object-before-engraving presentation"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Accepted hosted evaluation /home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/71073889a5655481919c8074ac24d001175fb641/run-hosted-xqEu4x/synthetic/ci-v27.json: 34/39 screens and cursors, 2635/2648 RNG; five remaining screens. Published copy challenges/evaluations/accepted-71073889a5655481919c8074ac24d001175fb641-v27.json names exact game commit 71073889a5655481919c8074ac24d001175fb641.",
+    "Fresh process bounded run-ZTA0Pw reproduces 34/39 screens; .cache/C135-selected-replay.log. Independent diagnostic .cache/C135-selected-diagnostic.json pins first missing screen and RNG at segment 0 step 34 key m, after the drop message is printed. Boundary: unsupported hero command: an unported branch of this command: unsupported drop: an engraving under the drop",
+    "do.c:786-799 dropx calls freeinv, ship_object, altar handling then dropy. do.c:801-843 dropy/dropz calls flooreffects, place_object, optional impact, corpse/shop/ball handling, stackobj, newsym, encumber_msg. No engraving predicate occurs in those functions.",
+    "do.c:162-358 flooreffects tests boulder/pool/pit/hole, lava/water, shaft, glob, monster-altar and hot-potion conditions. An ordinary gem on ROOM/CORR dry terrain reaches FALSE without touching an engraving or drawing RNG.",
+    "js/do.js:1921-1922 preflight_dropx alone refuses engr_at(x,y,state); caller has printed the ordinary drop message and set how_lost but inventory extraction and floor ownership changes have not run. Existing admitted tail preserves C placement/stack/newsym order. Delete only this unsupported exclusion; no new engraving effect belongs in the drop path.",
+    "display.c:448-480 _map_location checks vobj_at before trap and engraving; existing js/display.js map_location owns presentation. Existing engraving remains available when object is removed; do not erase it or change the glyph owner.",
+    "No overlap with A137 dogmove/leash or B139 weffects/spell-ray reservations. Source-only divergence fix reserves do.c:dropx and ordinary-drop-over-engraving contract; do not claim whole dropx/dropz/flooreffects completion, retaining all other named preflight frontiers.",
+    "Proposed validation: fail-first source-pinned ordinary drop tests for dust/carved/burned text, engraving data/RNG/ownership/return-time preservation and nearby trap/liquid refusal; selected admitted range plus independent C-first command variations with a cheap object/engraving variation."
+  ]
+}
