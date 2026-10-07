@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first C134 witness: seed 134344 and the November 2081 clock are independent of the admitted Sunsword recipe. wield.c doquiver_core: ready the primary artifact as quiver ammunition, confirming the unwield prompt.",
+  "segments": [
+    {
+      "seed": 134344,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed Sunsword\nwi Qiy "
+    }
+  ]
+}

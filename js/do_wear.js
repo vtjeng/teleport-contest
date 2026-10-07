@@ -375,14 +375,13 @@ import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
-import { Glib, welded } from './wield.js';
+import { setuwep, Glib, welded } from './wield.js';
 import { weapon_descr } from './weapon.js';
 import {
     bimanual,
     setnotworn,
     setuqwep,
     setuswapwep,
-    setuwep,
     setworn,
     which_armor,
 } from './worn.js';
@@ -768,7 +767,7 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
     let observable;
 
     // C clears any weapon-slot alias with the matching canonical setter.
-    if (obj === state.uwep) setuwep(null, setwornEnv(state));
+    if (obj === state.uwep) await setuwep(null, setwornEnv(state));
     else if (obj === state.uswapwep)
         setuswapwep(null, setwornEnv(state));
     else if (obj === state.uquiver) setuqwep(null, setwornEnv(state));
@@ -3049,7 +3048,7 @@ export async function glibr(state = game, env = {}) {
         } finally {
             object.quan = savedQuantity;
         }
-        setuwep(null, setwornEnv(state));
+        await setuwep(null, setwornEnv(state));
         cmdq_clear(CQ_CANNED, state);
         if (await canLetGo(object, '', state)) await drop(object);
     }

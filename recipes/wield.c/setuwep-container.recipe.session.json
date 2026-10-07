@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first C134 witness: seed 134348 and the November 2081 clock are independent of the admitted Sunsword recipe. pickup.c in_container: storing the primary artifact clears its weapon slot and extinguishes light before storage. Setup correction: explicitly dismiss the C More prompt(s) before the intended command; the first matching probe stopped before the claimed light-shutdown route.",
+  "segments": [
+    {
+      "seed": 134348,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017unlocked large box\ndi \u0017blessed Sunsword\nwj   #loot\nsj\n "
+    }
+  ]
+}

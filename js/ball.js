@@ -64,8 +64,8 @@ import { otense, xnameFresh, yname } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { rn2, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
-import { setnotworn, setuqwep, setuswapwep, setuwep } from './worn.js';
-import { welded } from './wield.js';
+import { setnotworn, setuqwep, setuswapwep } from './worn.js';
+import { setuwep, welded } from './wield.js';
 import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
 
@@ -210,7 +210,7 @@ export async function ballrelease(showmsg, state = game) {
     const ball = state.uball;
     if (!ball || !carried(ball) || welded(ball, state)) return;
     if (showmsg) await ttyPline('Startled, you drop the iron ball.', state);
-    if (state.uwep === ball) setuwep(null, { state });
+    if (state.uwep === ball) await setuwep(null, { state });
     if (state.uswapwep === ball) setuswapwep(null, { state });
     if (state.uquiver === ball) setuqwep(null, { state });
     freeinv(ball, { state });

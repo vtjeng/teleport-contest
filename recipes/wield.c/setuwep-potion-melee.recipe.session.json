@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first C134 source caller witness: uhitm.c hmon_hitmon_potion: a singleton wielded potion is cleared before freeinv and potionhit. Rogue initial inventory assigns the wished potion letter g; the setup uses the source inventory label rather than the Knight i label. Setup correction: C places this independent newt immediately east of the hero; use l to attack it, replacing the non-covering northward step. Finish the flask-impact and sleep output with explicit More dismissals.",
+  "segments": [
+    {
+      "seed": 134352,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterPotion,role:Rogue,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " .\u0017potion of sleeping\nwg\u0007newt\nl\r  "
+    }
+  ]
+}

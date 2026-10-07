@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first forced drop: dig.c:dig calls dropx(uwep) while the pick-axe is still equipped, then do.c:dropz clears the slot through wield.c:setuwep. The no-random-monster option and a genocide scroll remove the initial newt that interrupts digging; #wizintrinsic supplies the Fumbling timeout. Earlier non-covering terrain, pager and interruption probes are retained in the delivery cache.",
+  "segments": [
+    {
+      "seed": 134355,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,debug_mongen\n",
+      "moves": " \u0017pick-axe\n \u0017uncursed scroll of genocide\n rj  newt\n  wi #wizintrinsic\n>150s\n  jhai> "
+    }
+  ]
+}

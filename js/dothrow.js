@@ -438,10 +438,10 @@ import {
 } from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { cansee, vision_recalc } from './vision.js';
-import { doquiver_core, welded, weldmsg } from './wield.js';
+import { setuwep, doquiver_core, welded, weldmsg } from './wield.js';
 import { could_pole_mon, use_pole, use_whip } from './apply.js';
 import {
-    find_mac, is_pole, set_twoweap, setuqwep, setuswapwep, setuwep,
+    find_mac, is_pole, set_twoweap, setuqwep, setuswapwep,
     which_armor,
 } from './worn.js';
 import { bhit, boomhit, hit, miss } from './zap.js';
@@ -2414,7 +2414,7 @@ async function return_throw_to_inv(obj, wepMask, twoweap, oldslot, state) {
             setuqwep(null, { state });
         }
         if ((wepMask & W_WEP) && !state.uwep)
-            setuwep(result, { state });
+            await setuwep(result, { state });
         else if ((wepMask & W_SWAPWEP) && !state.uswapwep)
             setuswapwep(result, { state });
         else if ((wepMask & W_QUIVER) && !state.uquiver)
@@ -2758,7 +2758,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                 obj = await addinv_before(obj, oldslot, { state });
                 await encumber_msg(state);
                 if (obj.owornmask & W_QUIVER) setuqwep(null, { state });
-                setuwep(obj, { state });
+                await setuwep(obj, { state });
                 set_twoweap(twoweap, state);
                 if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
                     newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);

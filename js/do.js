@@ -125,6 +125,7 @@ import {
     W_SADDLE,
     W_QUIVER,
     W_SWAPWEP,
+    W_WEP,
     W_ART,
     W_ARTI,
     I_SPECIAL,
@@ -367,8 +368,8 @@ import { ttyNorep, ttyPline } from './tty_message.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { block_point, cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
-import { welded, weldmsg } from './wield.js';
-import { bimanual, bypass_objlist, nxt_unbypassed_obj, setnotworn, setuqwep, setuswapwep, setuwep } from './worn.js';
+import { setuwep, welded, weldmsg } from './wield.js';
+import { bimanual, bypass_objlist, nxt_unbypassed_obj, setnotworn, setuqwep, setuswapwep } from './worn.js';
 import { resurrect } from './wizard.js';
 import {
     assign_graphics, S_altar, S_fountain, S_grave, S_room, S_sink, S_throne,
@@ -1646,7 +1647,7 @@ async function drop(obj, state = game) {
             await weldmsg(obj, state);
             return ECMD_FAIL;
         }
-        setuwep(null, setwornEnv(state));
+        await setuwep(null, setwornEnv(state));
     }
     if (obj === state.uquiver) {
         setuqwep(null, setwornEnv(state));
@@ -1872,12 +1873,16 @@ export function preflight_dropx(obj, env = {}) {
     }
     if (!can_reach_floor(true, state))
         throw new UnsupportedDropError('an unreachable floor');
+    // dig.c:341 drops uwep directly; do.c:810 clears it in dropz after
+    // extraction, shipping and altar handling. Admit only that primary mask.
+    const primaryWeapon = state.uwep === obj && obj.owornmask === W_WEP;
     const secondaryWeapon = state.uswapwep === obj
         && Boolean(obj.owornmask & W_SWAPWEP);
     // worn.c:91-94 allows W_SWAPWEP and W_QUIVER on one object; do.c:814-818
     // clears both equipment pointers when that object is dropped.
-    const allowedWornMask = secondaryWeapon ? W_SWAPWEP | W_QUIVER : 0;
-    if ((obj.owornmask & ~allowedWornMask) || state.uwep === obj
+    const allowedWornMask = primaryWeapon ? W_WEP
+        : secondaryWeapon ? W_SWAPWEP | W_QUIVER : 0;
+    if ((obj.owornmask & ~allowedWornMask) || (state.uwep === obj && !primaryWeapon)
         || (state.uquiver === obj && !secondaryWeapon)
         || (state.uswapwep === obj && !secondaryWeapon)
         || state.uball === obj) {
@@ -2045,13 +2050,13 @@ export async function dropx(obj, env = {}, prepared = null) {
     // C dropx() reaches dropz() after shipping and altar handling. Clear the
     // same equipment slots here because this admitted JS tail enters the
     // floor-effects helper directly instead of calling dropz().
-    clearDropSlots(obj, normalized);
+    await clearDropSlots(obj, normalized);
     await dropzAdmitted(obj, normalized);
 }
 
-function clearDropSlots(obj, env) {
+async function clearDropSlots(obj, env) {
     const { state } = env;
-    if (obj === state.uwep) setuwep(null, env);
+    if (obj === state.uwep) await setuwep(null, env);
     if (obj === state.uquiver) setuqwep(null, env);
     if (obj === state.uswapwep) setuswapwep(null, env);
 }
@@ -2133,7 +2138,7 @@ export async function dropz(obj, with_impact, env = {}) {
     const { state } = normalized;
     if (obj.where !== OBJ_FREE)
         throw new Error('dropz requires a free object');
-    clearDropSlots(obj, normalized);
+    await clearDropSlots(obj, normalized);
     if (state.u?.uswallow) {
         if (obj !== state.uball) {
             if (obj.unpaid) {

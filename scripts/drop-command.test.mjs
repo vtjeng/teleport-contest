@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 
 import { reset_trapset } from '../js/apply.js';
 import { reset_occupations } from '../js/cmd.js';
@@ -20,6 +21,9 @@ import {
     ROOM,
     SINK,
     W_ARMS,
+    W_WEP,
+    W_SWAPWEP,
+    W_BALL,
     W_SADDLE,
 } from '../js/const.js';
 import {
@@ -291,9 +295,8 @@ async function startedGame() {
 }
 
 // C ref: do.c canletgo() (672-684, 700-710). Each of these three arms builds
-// its message and none of them is reachable from any input the port accepts --
-// setuwep() runs only from u_init and drop(), and use_trap() and use_saddle()
-// are unported -- so this is the only place their text is checked. The
+// its message. Construct each held or attached object state directly so the
+// check can pin canletgo() independently of its command setup. The
 // empty-verb loop above reaches the same `return FALSE` with nothing printed,
 // which is why it cannot stand in for this.
 test('canletgo names the verb and the body part in each message', async () => {
@@ -908,4 +911,29 @@ test('boulders at a pit or pool stop before inventory removal', async () => {
         assert.ok(!pileAt(state, ux, uy).includes(boulder));
         assert.equal(getRngLog().length, rngBefore);
     }
+});
+
+// dig.c calls dropx(uwep), so do.c dropz clears the primary slot after
+// inventory extraction rather than requiring every caller to clear it first.
+test('forced drop admits the sole primary mask and retains other worn refusals', async () => {
+    const dig = readFileSync(new URL('../nethack-c/upstream/src/dig.c', import.meta.url), 'utf8');
+    const source = readFileSync(new URL('../nethack-c/upstream/src/do.c', import.meta.url), 'utf8');
+    assert.match(dig, /dropx\(uwep\);/u);
+    assert.match(source, /if \(obj == uwep\)\s*setuwep\(\(struct obj \*\) 0\);/u);
+    await runSegment({ ...VALKYRIE_SEGMENT, moves: ' ' });
+    const obj = game.uwep;
+    assert.ok(obj);
+    assert.equal(obj.owornmask, W_WEP);
+    assert.doesNotThrow(() => preflight_dropx(obj, dropCommandEnv(game)));
+    for (const mask of [W_ARMS, W_SADDLE, W_BALL, W_SWAPWEP]) {
+        obj.owornmask = W_WEP | mask;
+        assert.throws(() => preflight_dropx(obj, dropCommandEnv(game)),
+            error => error instanceof UnsupportedDropError
+                && /worn or attached/u.test(error.message));
+    }
+    obj.owornmask = W_WEP;
+    game.uball = obj;
+    assert.throws(() => preflight_dropx(obj, dropCommandEnv(game)),
+        error => error instanceof UnsupportedDropError
+            && /worn or attached/u.test(error.message));
 });

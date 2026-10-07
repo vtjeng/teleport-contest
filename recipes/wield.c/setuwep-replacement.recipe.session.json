@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first C134 witness: seed 134342 and the November 2081 clock are independent of the admitted Sunsword recipe. wield.c ready_weapon(new weapon): old Sunsword shutdown before the starting long sword is reported.",
+  "segments": [
+    {
+      "seed": 134342,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed Sunsword\nwi wa "
+    }
+  ]
+}

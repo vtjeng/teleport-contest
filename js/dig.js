@@ -470,8 +470,10 @@ export async function dig(state = game, rawEnv = {}) {
                     `You fumble and drop ${yname(weapon, state)}.`, state,
                     rawEnv,
                 );
-                const { dropx } = await import('./do.js');
-                await dropx(weapon, { ...rawEnv, state, random, message });
+                const { dropx, dropCommandEnv } = await import('./do.js');
+                await dropx(weapon, dropCommandEnv(state, {
+                    ...rawEnv, state, random, message,
+                }));
             } else {
                 const bounce = Yobjnam2(weapon, 'bounce', state);
                 const hit = otense(weapon, 'hit', state);

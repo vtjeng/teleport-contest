@@ -260,8 +260,8 @@ import {
 import { livelog_printf } from './pline.js';
 import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
-import { welded, weldmsg } from './wield.js';
-import { extract_from_minvent, which_armor, setuqwep, setuswapwep, setuwep } from './worn.js';
+import { setuwep, welded, weldmsg } from './wield.js';
+import { extract_from_minvent, which_armor, setuqwep, setuswapwep } from './worn.js';
 import { note_unported } from './unported.js';
 import { d } from './rng.js';
 import { canspotmon } from './display.js';
@@ -2912,7 +2912,7 @@ async function in_container(obj, state) {
             await weldmsg(obj, state);
             return 0;
         }
-        setuwep(null, setwornEnv(state));
+        await setuwep(null, setwornEnv(state));
         // Obsolete uwep check from 3.0: life-saving could rewield.
         if (state.uwep)
             return 0; /* unwielded, died, rewielded */

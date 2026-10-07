@@ -63,7 +63,6 @@ import {
     find_mac,
     mon_adjust_speed,
     mon_set_minvis,
-    setuwep,
     wearslot,
     which_armor,
 } from '../js/worn.js';
@@ -663,7 +662,7 @@ test('extract_from_minvent rejects an object outside a monster inventory',
 // wield.c:128-134 computes gu.unweapon. Its WEAPON_CLASS arm (:129-131) leaves
 // the hero "not really wielding a weapon" for a launcher, ammunition, a
 // missile, or a polearm on foot, and calls any other weapon a real one.
-// js/worn.js setuwep() owns the same expression, so each of those four terms
+// js/wield.js setuwep() owns the same expression, so each of those four terms
 // gets a case below. Its non-weapon arm (:132) and the Snickersnee exception
 // inside the polearm term have none.
 function heroWieldState() {
@@ -682,7 +681,7 @@ function heroWieldState() {
     return state;
 }
 
-test('setuwep marks a launcher, ammunition and a missile as no weapon', () => {
+test('setuwep marks a launcher, ammunition and a missile as no weapon', async () => {
     // obj.h:235-237 makes is_launcher() the closed window P_BOW..P_CROSSBOW,
     // and objects.c puts the bow, the sling and the crossbow on its bottom,
     // middle and top. All three are wieldable starts: u_init.c:252 gives a
@@ -690,27 +689,27 @@ test('setuwep marks a launcher, ammunition and a missile as no weapon', () => {
     // and the dart's -P_DART reach is_ammo() and is_missile() instead.
     for (const otyp of [BOW, SLING, CROSSBOW, ARROW, DART]) {
         const state = heroWieldState();
-        setuwep(wornObject(state, otyp, 0), { state });
+        await setuwep(wornObject(state, otyp, 0), { state });
         assert.equal(state.unweapon, true);
     }
     // A katana matches none of the five, so it is a real melee weapon.
     const melee = heroWieldState();
-    setuwep(wornObject(melee, KATANA, 0), { state: melee });
+    await setuwep(wornObject(melee, KATANA, 0), { state: melee });
     assert.equal(melee.unweapon, false);
 });
 
-test('setuwep marks a polearm as no weapon only while the hero is afoot', () => {
+test('setuwep marks a polearm as no weapon only while the hero is afoot', async () => {
     // wield.c:131 is the only term that reads state outside the object, and a
     // partisan is is_pole() by its P_POLEARMS oc_skill. The same pair runs
     // through steed.c mounting in scripts/dismount-steed.test.mjs; these two
     // cases cover setuwep()'s own term directly.
     const afoot = heroWieldState();
-    setuwep(wornObject(afoot, PARTISAN, 0), { state: afoot });
+    await setuwep(wornObject(afoot, PARTISAN, 0), { state: afoot });
     assert.equal(afoot.unweapon, true);
 
     const mounted = heroWieldState();
     mounted.u.usteed = kitten(mounted);
-    setuwep(wornObject(mounted, PARTISAN, 0), { state: mounted });
+    await setuwep(wornObject(mounted, PARTISAN, 0), { state: mounted });
     assert.equal(mounted.unweapon, false);
 });
 
@@ -792,14 +791,14 @@ test('clear_bypasses without an argument uses the canonical game state', () => {
     }
 });
 
-// worn.c setuwep() reaches end_burn() only for
+// wield.c setuwep() reaches end_burn() only for
 // `olduwep && artifact_light(olduwep) && olduwep->lamplit`. The leading term
 // merely rejects a swap out of an empty hand; the two behind it decide whether
 // a light has to be put out. The two cases below hold the leading term true and
 // vary only the pair behind it.
-test('setuwep ends an old artifact light only when that weapon burns', () => {
+test('setuwep ends an old artifact light only when that weapon burns', async () => {
     // setworn() needs these two owners for any outgoing wielded object.
-    // endArtifactLight is deliberately absent, so any demand for it throws.
+    // Use the canonical end_burn owner without the obsolete light hook.
     const swapHooks = () => ({
         cancelDoff: () => {},
         monsterUnseesProperty: () => {},
@@ -811,25 +810,29 @@ test('setuwep ends an old artifact light only when that weapon burns', () => {
     const unlit = wornObject(dark, KATANA, W_WEP);
     dark.uwep = unlit;
     const replacement = wornObject(dark, DART, 0);
-    setuwep(replacement, { state: dark, hooks: swapHooks() });
+    await setuwep(replacement, { state: dark, hooks: swapHooks() });
     assert.equal(dark.uwep, replacement);
     assert.equal(unlit.owornmask, 0);
 
     // Gold dragon scale mail worn in W_ARM is artifact_light()'s non-artifact
-    // case, and wielding it keeps that bit set. Lit, it demands the owner the
-    // hook table withholds.
+    // case, and removing W_WEP keeps W_ARM set: end_burn must darken it.
     const lit = heroWieldState();
+    light_globals_init(lit);
     const burning = wornObject(lit, GOLD_DRAGON_SCALE_MAIL, W_ARM | W_WEP, {
         lamplit: true,
     });
     lit.uwep = burning;
-    assert.throws(
-        () => setuwep(wornObject(lit, DART, 0), {
-            state: lit,
-            hooks: swapHooks(),
-        }),
-        /worn requires endArtifactLight/u,
-    );
+    new_light_source(1, 1, 2, LS_OBJECT, burning, lit); // The source light exists before end_burn deletes it.
+    const messages = [];
+    await setuwep(wornObject(lit, DART, 0), {
+        state: lit,
+        hooks: swapHooks(),
+        message: text => { messages.push(text); },
+    });
+    assert.equal(burning.lamplit, false);
+    assert.equal(burning.owornmask, W_ARM);
+    assert.equal(messages.length, 1);
+
 });
 
 test('mon_set_minvis preserves blocked state and names discarded display gaps',
@@ -868,3 +871,5 @@ test('mon_set_minvis preserves blocked state and names discarded display gaps',
         assert.deepEqual(gaps, [],
             'blocked invisibility skips both redraw calls');
     });
+
+import { setuwep } from '../js/wield.js';

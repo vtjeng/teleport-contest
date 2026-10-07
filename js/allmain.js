@@ -295,7 +295,7 @@ export async function newgame() {
     }
 
     // C ref: u_init.c u_init_skills_discoveries().
-    use_initial_inventory({
+    await use_initial_inventory({
         state: g,
         hooks: objectHooks,
         initialSpell: initialspell,
