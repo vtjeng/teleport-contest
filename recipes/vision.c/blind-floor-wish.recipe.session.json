@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C125 cheap variation: same gnome Wizard/fire-elemental setup replaces the hero square with floor, avoiding the separately blocked trap.c fire_damage_chain tail. Fixed seed125070101; no seed search. The initial square is CORR, where objnam.c3846-3867 refuses a floor wish; h enters the observed adjacent ROOM before wishing.",
+  "segments": [
+    {
+      "seed": 125070101,
+      "datetime": "20491203101529",
+      "nethackrc": "OPTIONS=name:BlindRedraw,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nfire elemental\n               h\u0017floor\n"
+    }
+  ]
+}
