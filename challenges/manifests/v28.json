@@ -1,0 +1,3636 @@
+{
+  "version": 1,
+  "batch": "v28",
+  "status": "prepared-unadmitted",
+  "comparisonBase": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+  "priorBatch": "v27",
+  "sourceCommit": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "priorBatchManifestFileSha256": "e5f5c4dcc5261d48ced9ddf0ff76f670dc37cdb92d6dfac01cc46a0384432e87",
+  "priorBatchCorpusDigest": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "unresolvedOlderCaseIds": [],
+  "olderEvaluationEvidence": [
+    {
+      "batch": "v27",
+      "cases": [
+        {
+          "id": "v27-merge-lit-candles",
+          "screens": {
+            "matched": 59,
+            "total": 65
+          }
+        },
+        {
+          "id": "v27-drop-glob",
+          "screens": {
+            "matched": 35,
+            "total": 40
+          }
+        },
+        {
+          "id": "v27-destroy-worn-armor",
+          "screens": {
+            "matched": 41,
+            "total": 43
+          }
+        },
+        {
+          "id": "v27-cockatrice-gloves-off",
+          "screens": {
+            "matched": 76,
+            "total": 81
+          }
+        }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "v28-axe-tree-fruit",
+      "title": "axe tree fruit",
+      "mission": "Create a tree adjacent to an axe wielder; apply axe and finish chopping occupation.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "mkobj.c:rnd_treefruit_at"
+      ],
+      "sourceTrace": "dig.c:480 invokes mkobj.c:rnd_treefruit_at:1984-1988 after a successful tree-fruit roll; js/dig.js:641 skips creation. C creates fruit and a floor glyph with mksobj_at/next_ident draws.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382804,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382804,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed axe\nwe \u0017tree\nlaeh................. "
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-axe-tree-fruit.recipe.session.json",
+      "recipeSha256": "15ed65baca2738310ab054bebf88194270b131745035c114b816cfc03e0adadd",
+      "recording": "challenges/cases/v28/v28-axe-tree-fruit.session.json",
+      "recordingSha256": "d6a8e25411c8531e1866cc8bbbea35c4c0f877863a3593865450496ecacf27f3",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-axe-tree-fruit; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-axe-tree-fruit.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-grapple-floor"
+        ],
+        "causalDistinction": "An axe chops actual TREE terrain and creates fruit; grappling an ordinary floor does neither."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 28,
+        "firstMismatchOwner": "mkobj.c:rnd_treefruit_at",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2298,
+              "js": 2295
+            },
+            "screens": {
+              "c": 47,
+              "js": 47
+            },
+            "cursors": {
+              "c": 47,
+              "js": 47
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2283,
+            "cEntry": "rnd(2)=2",
+            "cCaller": "next_ident(mkobj.c:521)",
+            "jsEntry": "rn2(12)=3",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 28,
+              "key": "h"
+            }
+          },
+          "screenMismatch": {
+            "index": 28,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 28,
+              "key": "h"
+            },
+            "kind": "ch",
+            "row": 19,
+            "column": 4,
+            "cCell": {
+              "ch": "%",
+              "color": 10,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": ".",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-axe-tree-fruit.comparison.json"
+      }
+    },
+    {
+      "id": "v28-buried-ball-redig",
+      "title": "buried ball redig",
+      "mission": "Punish hero, bury iron ball by source-valid pit/boulder or terrain route; redig while trapped by buried ball.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "dig.c:bury_an_obj / apply.c:use_pick_axe"
+      ],
+      "sourceTrace": "C punishment followed by #wizbury reaches dig.c:1990-1995, buries the ball and sets TT_BURIEDBALL. Pick-axe wielding More/direction boundary then cancels the dig. C burial and canceled pick use fully match JS; no recovery claim.",
+      "cOutcome": "step 46: The iron ball gets buried!  3 objects buried.",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382806,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382806,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed scroll of punishment\nre   #wizbury\n\u0017uncursed pick-axe\naf>           ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-buried-ball-redig.recipe.session.json",
+      "recipeSha256": "96492536f8b3d7f239eb5ef2460095aedce0af54067322baab4fe4e2355d912e",
+      "recording": "challenges/cases/v28/v28-buried-ball-redig.session.json",
+      "recordingSha256": "1f6f60d70006ef7ded7b8a83305c58b9b8130d6d8e26ccd61119179ab21c3387",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-buried-ball-redig; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-buried-ball-redig.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-sunsword-unwield"
+        ],
+        "causalDistinction": "Punished ball burial creates a tether; wielding the ordinary pick and canceling digging has no artifact-light shutdown."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2781,
+              "js": 2781
+            },
+            "screens": {
+              "c": 81,
+              "js": 81
+            },
+            "cursors": {
+              "c": 81,
+              "js": 81
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-buried-ball-redig.comparison.json"
+      }
+    },
+    {
+      "id": "v28-buried-ball-release",
+      "title": "buried ball release",
+      "mission": "Bury punished ball with debug owner; read remove curse before trap times out, then move to establish source freedom.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "dig.c:buried_ball_to_freedom"
+      ],
+      "sourceTrace": "read.c:seffect_remove_curse calls dig.c:buried_ball_to_freedom:1960-1978, which extracts and places the buried ball and reset_utrap(TRUE). js/read.js:1957 omits the helper while printing the clasp message. C moves afterward; JS retains TT_BURIEDBALL and stops at held-hero movement on step93.",
+      "cOutcome": "step 47: The iron ball gets buried!  3 objects buried.; step 82: You feel like someone is helping you.  The clasp on your leg vanishes.--More--",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382829,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017uncursed scroll of punishment\nre   #wizbury\n\u0017blessed scroll of remove curse\nrf       l.\u001b\nll."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-buried-ball-release.recipe.session.json",
+      "recipeSha256": "6f49ba442131cef54c16a7cf8ff7c6546c9bb947278431cfa28b68a0371feb07",
+      "recording": "challenges/cases/v28/v28-buried-ball-release.session.json",
+      "recordingSha256": "59021abf38da97dedefb59d6f72d1a429e7fe54efea3fc11c02160feb706deb4",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-buried-ball-release; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-buried-ball-release.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-sunsword-unwield"
+        ],
+        "causalDistinction": "Release of a buried punishment tether changes u.utrap and floor ownership; unwielding an artifact changes only a weapon slot and its light. Distinct from recovering the ball as renewed punishment."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 93,
+        "firstMismatchOwner": "dig.c:buried_ball_to_freedom",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 3134,
+              "js": 3109
+            },
+            "screens": {
+              "c": 96,
+              "js": 93
+            },
+            "cursors": {
+              "c": 96,
+              "js": 93
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 3109,
+            "cEntry": "rn2(5)=2",
+            "cCaller": "distfleeck(monmove.c:538)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 93,
+              "key": "l"
+            }
+          },
+          "screenMismatch": {
+            "index": 93,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 93,
+              "key": "l"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 93,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 93,
+              "key": "l"
+            },
+            "cCursor": [
+              60,
+              15,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-buried-ball-release.comparison.json"
+      }
+    },
+    {
+      "id": "v28-buried-ball-unearth",
+      "title": "buried ball unearth",
+      "mission": "Bury punished ball away from stairs; wand down directly enters digactualhole without wield occupation prompts.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "dig.c:buried_ball_to_punishment"
+      ],
+      "sourceTrace": "dig.c:digactualhole:654-656 -> buried_ball_to_punishment:1935-1956 extracts the buried ball, punish(ball), resets trap, and updates map before digging. js/dig.js:1343 omits the helper; the lifecycle refuses subsequent buried-ball handling at step76. C restores punishment before the hole and later the ball hits the hero on descent.",
+      "cOutcome": "step 47: The iron ball gets buried!  2 objects buried.; step 76: You dig a hole through the floor.  You fall through...--More--",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382830,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017uncursed scroll of punishment\nre   #wizbury\n\u0017uncursed wand of digging\nzf>       ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-buried-ball-unearth.recipe.session.json",
+      "recipeSha256": "505cf79f34642043283b2ed784ae9fc90eca1e54902450267841adc49b5b417a",
+      "recording": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+      "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-buried-ball-unearth; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-buried-ball-unearth.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-sunsword-unwield"
+        ],
+        "causalDistinction": "Unburying the ball restores punishment/ball-chain state; it is neither ordinary weapon removal nor the separate release-to-freedom mode."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 76,
+        "firstMismatchOwner": "dig.c:buried_ball_to_punishment",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 7218,
+              "js": 4669
+            },
+            "screens": {
+              "c": 85,
+              "js": 76
+            },
+            "cursors": {
+              "c": 85,
+              "js": 76
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 4668,
+            "cEntry": "rnd(1000)=971",
+            "cCaller": "mkobj(mkobj.c:289)",
+            "jsEntry": "rn2(4)=2",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 76,
+              "key": ">"
+            }
+          },
+          "screenMismatch": {
+            "index": 76,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 76,
+              "key": ">"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 76,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 76,
+              "key": ">"
+            },
+            "cCursor": [
+              62,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-buried-ball-unearth.comparison.json"
+      }
+    },
+    {
+      "id": "v28-cancel-novel",
+      "title": "cancel novel",
+      "mission": "Wish a novel; zap cancellation at its carried or dropped source-valid target; inspect renamed blank paper object.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "zap.c:blank_novel"
+      ],
+      "sourceTrace": "zap.c:cancel_item:1327 -> blank_novel:1367-1376 resets novel index, frees the title, and updates container weight; js/zap.js:2875 skips blank_novel. C inventory shows blank spellbook after self cancellation, with identical full RNG.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382808,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382808,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017novel\n\u0017uncursed wand of cancellation\nzf. i "
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-cancel-novel.recipe.session.json",
+      "recipeSha256": "6fd00ebc8a0038b349943225ad781e95f9a3e66fdd066d174a4edbdc83d8e07f",
+      "recording": "challenges/cases/v28/v28-cancel-novel.session.json",
+      "recordingSha256": "0f36be3088ffe3943cacd01fb4605b9fa43aa9fe976f6607446758e0751dd699",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-cancel-novel; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-cancel-novel.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-cancel-self"
+        ],
+        "causalDistinction": "The added novel has a title and novel index that must be removed; the prior self-cancellation case had no novel. Also differs from discharged crystal-ball cancellation."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 44,
+        "firstMismatchOwner": "zap.c:blank_novel",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2712,
+              "js": 2712
+            },
+            "screens": {
+              "c": 46,
+              "js": 46
+            },
+            "cursors": {
+              "c": 46,
+              "js": 46
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": {
+            "index": 44,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 44,
+              "key": "i"
+            },
+            "kind": "ch",
+            "row": 8,
+            "column": 53,
+            "cCell": {
+              "ch": " ",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": "n",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-cancel-novel.comparison.json"
+      }
+    },
+    {
+      "id": "v28-cursed-jelly-kills-egg",
+      "title": "cursed jelly kills egg",
+      "mission": "Wish viable killer-bee egg and cursed royal jelly; rub jelly on egg; inspect egg afterward.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "apply.c:use_royal_jelly"
+      ],
+      "sourceTrace": "apply.c:3616-3659 promotes a killer-bee egg species to queen bee, then cursed jelly calls timeout.c:kill_egg:1009. C feeble quiver is consistent with the species promotion and does not independently prove the original timer was active. Fully matches JS.",
+      "cOutcome": "step 53: You smear royal jelly all over your egg.  The egg quivers feebly.",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382803,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382803,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed killer bee egg\n\u0017cursed royal jelly\n#rub\ngf  i "
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-cursed-jelly-kills-egg.recipe.session.json",
+      "recipeSha256": "2c77778ec01d605b996899a203ea65856eaa13a45f92f72651430be58d3f5e13",
+      "recording": "challenges/cases/v28/v28-cursed-jelly-kills-egg.session.json",
+      "recordingSha256": "b157371c8f57139ac1110ddc0bcbc467b8ce8b01c4f7e5fd68a115db55d38207",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-cursed-jelly-kills-egg; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-cursed-jelly-kills-egg.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-cream-pie-face"
+        ],
+        "causalDistinction": "Jelly targets an egg and changes its species/timer state; cream pie targets the hero face and blinds her."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4365,
+              "js": 4365
+            },
+            "screens": {
+              "c": 58,
+              "js": 58
+            },
+            "cursors": {
+              "c": 58,
+              "js": 58
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-cursed-jelly-kills-egg.comparison.json"
+      }
+    },
+    {
+      "id": "v28-cursed-towel",
+      "title": "cursed towel",
+      "mission": "Apply cursed towel to clean face; C slime/glib/feedback or miss, distinct from v27 cream pie application.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "apply.c:use_towel cursed face-gunk arm"
+      ],
+      "sourceTrace": "apply.c:112-159 cursed towel rn2(3)=1 and rn2(10)=0 reaches face gunk and blindness. It fully matches JS.",
+      "cOutcome": "step 17: Yecch!  Your face now has gunk on it!--More--",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382823,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017cursed towel\nae      i "
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-cursed-towel.recipe.session.json",
+      "recipeSha256": "95eae8c803ef50dd25c50a2ceba9cc5f7e74b626432adc0951ba7613bdfdf785",
+      "recording": "challenges/cases/v28/v28-cursed-towel.session.json",
+      "recordingSha256": "8cac5179517853a5fede64ef23191495cdb60101024c955c33efb483f3ecc8e1",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-cursed-towel; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-cursed-towel.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-cream-pie-face"
+        ],
+        "causalDistinction": "A cursed towel intended to clean introduces random gunk via use_towel; a cream pie explicitly immerses the face via use_cream_pie with different RNG and curse conditions."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2752,
+              "js": 2752
+            },
+            "screens": {
+              "c": 26,
+              "js": 26
+            },
+            "cursors": {
+              "c": 26,
+              "js": 26
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-cursed-towel.comparison.json"
+      }
+    },
+    {
+      "id": "v28-cursed-wand-backfire",
+      "title": "cursed wand backfire",
+      "mission": "Source charged cursed wand repeated use across fixed unsearched seed; reach first exploding wand if chance triggers, retain miss/other consequences.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "makemon.c:runtime Frost Giant admission"
+      ],
+      "sourceTrace": "No backfire was observed before the input history became a potion call prompt. At step221 C allmain.c:167 creates a random runtime Frost Giant (PM_FROST_GIANT=173) after elapsed turns; C makemon.c:1147-1512 admits the species, with S_GIANT inventory in m_initweap:180 and m_initinv:738. JS makemon_create.js:1219 rejects this runtime species; allmain.js:1326 propagates the boundary. Retained target miss, not counted because its incidental creation/inventory family has not been fully audited here.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382833,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".#levelchange\n30\n                                        \u0017cursed wand of light (0:127)\nze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze        n       ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-cursed-wand-backfire.recipe.session.json",
+      "recipeSha256": "3c98d211d5e3cd74cb180f47edd6cf6fbb041b8d927c5a43dafb4498a8f17752",
+      "recording": "challenges/cases/v28/v28-cursed-wand-backfire.session.json",
+      "recordingSha256": "341e845cfc951e3dc1256bbb4b908c2e923568efff94fe539f8363267ec33c1e",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-cursed-wand-backfire; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-cursed-wand-backfire.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-cast-force-bolt"
+        ],
+        "causalDistinction": "A long charged-cursed-wand history reaches spontaneous Frost Giant creation, unlike an explicitly created giant ant and immediate force-bolt attack."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 221,
+        "firstMismatchOwner": "makemon.c:runtime Frost Giant admission",
+        "countsTowardRunway": false,
+        "exclusionReason": "Incidental Frost Giant admission/inventory family is not fully audited for runway counting.",
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4614,
+              "js": 3102
+            },
+            "screens": {
+              "c": 644,
+              "js": 221
+            },
+            "cursors": {
+              "c": 644,
+              "js": 221
+            },
+            "animFrames": {
+              "c": 4,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 3102,
+            "cEntry": "rn2(12)=7",
+            "cCaller": "mcalcmove(mon.c:1164)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 221,
+              "key": "e"
+            }
+          },
+          "screenMismatch": {
+            "index": 221,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 221,
+              "key": "e"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 221,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 221,
+              "key": "e"
+            },
+            "cCursor": [
+              6,
+              17,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-cursed-wand-backfire.comparison.json"
+      }
+    },
+    {
+      "id": "v28-dig-altar-offstairs",
+      "title": "dig altar offstairs",
+      "mission": "Move off initial staircase, create lawful altar and break digging wand; C altar destruction and wrath prerequisite differs from prior altar miss.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "dokick.c:impact_drop"
+      ],
+      "sourceTrace": "The planned altar-wrath branch was not reached: the C breaking-wand history creates nearby pits/holes before the center altar branch. First mismatch is dig.c:799-802 skipping dokick.c:impact_drop for a nearby floor pile, js/dig.js:1443. Retain this distinct valid digging-wand history but do not count again because the floor-pile case already counts impact_drop.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382821,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382821,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017lawful altar\n\u0017uncursed wand of digging\naey        ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-dig-altar-offstairs.recipe.session.json",
+      "recipeSha256": "3e4d234d4149f43f653ae84230d0034bb0b6102e3db178238bf639e986da8d12",
+      "recording": "challenges/cases/v28/v28-dig-altar-offstairs.session.json",
+      "recordingSha256": "c86cc7c7fe1577d19691701f8103a3bf88ae75e3f78d2ed24b1bc224b2f7e21e",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-dig-altar-offstairs; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-dig-altar-offstairs.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-drop-on-engraving"
+        ],
+        "causalDistinction": "Wand break creates multiple holes/pits around altar terrain and reaches adjacent-pile falling, rather than an ordinary gem drop."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 48,
+        "firstMismatchOwner": "dokick.c:impact_drop",
+        "countsTowardRunway": false,
+        "exclusionReason": "Duplicate impact_drop source behavior already counted by floor-pile fall.",
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2255,
+              "js": 2255
+            },
+            "screens": {
+              "c": 55,
+              "js": 55
+            },
+            "cursors": {
+              "c": 55,
+              "js": 55
+            },
+            "animFrames": {
+              "c": 2,
+              "js": 2
+            }
+          },
+          "rngMismatch": {
+            "index": 2221,
+            "cEntry": "rn2(3)=2",
+            "cCaller": "impact_drop(dokick.c:1569)",
+            "jsEntry": "rn2(8)=4",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 48,
+              "key": " "
+            }
+          },
+          "screenMismatch": {
+            "index": 48,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 48,
+              "key": " "
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 32,
+            "cCell": {
+              "ch": "p",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": "h",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 48,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 48,
+              "key": " "
+            },
+            "cCursor": [
+              67,
+              0,
+              1
+            ],
+            "jsCursor": [
+              68,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-dig-altar-offstairs.comparison.json"
+      }
+    },
+    {
+      "id": "v28-dig-altar-wrath",
+      "title": "dig altar wrath",
+      "mission": "Create ordinary non-sanctum altar and zap digging downward or break digging wand; choose source-admitted object-caused route.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "apply.c:do_break_wand / dig.c:digactualhole"
+      ],
+      "sourceTrace": "Source-valid wand break creates neighboring holes/pits, but initial staircase metadata prevents the center altar target from being dug. C matches JS. Retain the valid mission miss without claiming desecrate_altar reachability.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382805,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382805,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017lawful altar\n\u0017uncursed wand of digging\naey     ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-dig-altar-wrath.recipe.session.json",
+      "recipeSha256": "1199a38743c8f07d7371c659eba453cd2bea042409bf925385ae6146996ccc92",
+      "recording": "challenges/cases/v28/v28-dig-altar-wrath.session.json",
+      "recordingSha256": "118295eb1fdd2c760659d89e35e6499c759c751ffe6d672491b0f229c4b30d5a",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-dig-altar-wrath; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-dig-altar-wrath.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-drop-on-engraving"
+        ],
+        "causalDistinction": "Object-caused holes and explosion around an undug altar differ from engraving and floor dropping."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2397,
+              "js": 2397
+            },
+            "screens": {
+              "c": 51,
+              "js": 51
+            },
+            "cursors": {
+              "c": 51,
+              "js": 51
+            },
+            "animFrames": {
+              "c": 2,
+              "js": 2
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-dig-altar-wrath.comparison.json"
+      }
+    },
+    {
+      "id": "v28-engrave-create-monster",
+      "title": "engrave create monster",
+      "mission": "Wish charged wand of create monster; use E with the wand on ordinary dry floor.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "zap.c:zapnodir"
+      ],
+      "sourceTrace": "engrave.c:579-599 -> zap.c:2539-2581; create-monster wand engraving invokes zapnodir and create_critters before engraving input. C prompts for a lichen and rolls rn2(23); JS engrave.js:397 skips zapnodir.",
+      "cOutcome": "step 52: A lichen appears next to you.--More--",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382801,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382801,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed wand of create monster\nEepeaceful lichen\n  Birth\n  ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-engrave-create-monster.recipe.session.json",
+      "recipeSha256": "818c575684269a5099d87cbffd5ef149b84fca1db4524b7a358691bc6b4ec4a5",
+      "recording": "challenges/cases/v28/v28-engrave-create-monster.session.json",
+      "recordingSha256": "3b019fd5d150b61ddae1d553028b2436c85986146b1d3475b4939dbca283b464",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-engrave-create-monster; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-engrave-create-monster.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-cast-force-bolt"
+        ],
+        "causalDistinction": "Creating a peaceful lichen from a wand used for engraving is the nondirectional wand dispatch, rather than damaging an existing monster with a spell."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 36,
+        "firstMismatchOwner": "zap.c:zapnodir",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2427,
+              "js": 2377
+            },
+            "screens": {
+              "c": 64,
+              "js": 64
+            },
+            "cursors": {
+              "c": 64,
+              "js": 64
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2350,
+            "cEntry": "rn2(23)=15",
+            "cCaller": "zapnodir(zap.c:2571)",
+            "jsEntry": "rn2(25)=9",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 36,
+              "key": "e"
+            }
+          },
+          "screenMismatch": {
+            "index": 36,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 36,
+              "key": "e"
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 0,
+            "cCell": {
+              "ch": "C",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": "Y",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 36,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 36,
+              "key": "e"
+            },
+            "cCursor": [
+              29,
+              0,
+              1
+            ],
+            "jsCursor": [
+              49,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-engrave-create-monster.comparison.json"
+      }
+    },
+    {
+      "id": "v28-engrave-teleport-text",
+      "title": "engrave teleport text",
+      "mission": "Create a dust text, then engrave at that location using charged teleportation wand.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "engrave.c:rloc_engr"
+      ],
+      "sourceTrace": "engrave.c:1667-1683 relocates existing text with up to 200 random coordinate attempts; js/engrave.js:948 skips rloc_engr. C first divergent rn2(77) is at step45; this case matches screens but differs in RNG.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382802,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382802,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".E-\nDrift\n.\u0017uncursed wand of teleportation\nEe  New\n  ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-engrave-teleport-text.recipe.session.json",
+      "recipeSha256": "8df2d9a9831287a0c4d6bc620877ae54e04eb46eea805cc5cbc114db90d27cf8",
+      "recording": "challenges/cases/v28/v28-engrave-teleport-text.session.json",
+      "recordingSha256": "da2f4d4e7bf61297fa64478afcd57e083a446ea8721c7f7fe03659396b22cf3b",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-engrave-teleport-text; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-engrave-teleport-text.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-drop-on-engraving"
+        ],
+        "causalDistinction": "The pre-existing text is relocated by a teleport wand; ordinary gem dropping neither relocates text nor draws location RNG."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 45,
+        "firstMismatchOwner": "engrave.c:rloc_engr",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 7751,
+              "js": 7743
+            },
+            "screens": {
+              "c": 55,
+              "js": 55
+            },
+            "cursors": {
+              "c": 55,
+              "js": 55
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 7726,
+            "cEntry": "rn2(77)=2",
+            "cCaller": "rloc_engr(engrave.c:1674)",
+            "jsEntry": "rn2(25)=12",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 45,
+              "key": "e"
+            }
+          },
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-engrave-teleport-text.comparison.json"
+      }
+    },
+    {
+      "id": "v28-fumbling-landmine-set",
+      "title": "fumbling landmine set",
+      "mission": "Wish cursed landmine and enable source-supported fumbling; apply to ordinary floor and complete setting occupation.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "apply.c:use_trap/set_trap"
+      ],
+      "sourceTrace": "apply.c:set_trap:2941 draws rnl(10)=3, so cursed mine does not bungle (source requires >5). C finishes arming the land mine. Full JS comparison matches.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382811,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382811,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017cursed land mine\nae.............. "
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-fumbling-landmine-set.recipe.session.json",
+      "recipeSha256": "4d46a53bdf46d4f6f4f406519724d44f8729add52304eb8464c6de2379df0721",
+      "recording": "challenges/cases/v28/v28-fumbling-landmine-set.session.json",
+      "recordingSha256": "7ab366dc68a243c7bd3e86a8e7b08250bd020d06d1bce428fa0e1bcd14ea7946",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-fumbling-landmine-set; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-fumbling-landmine-set.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-leash-tame-dog"
+        ],
+        "causalDistinction": "Trap-setting occupation and its curse roll differ from attaching a leash to a pet."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2752,
+              "js": 2752
+            },
+            "screens": {
+              "c": 38,
+              "js": 38
+            },
+            "cursors": {
+              "c": 38,
+              "js": 38
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-fumbling-landmine-set.comparison.json"
+      }
+    },
+    {
+      "id": "v28-fumbling-mine-bungle",
+      "title": "fumbling mine bungle",
+      "mission": "Acknowledge source intrinsic setting pager, then set mine while Fumbling; C bungle roll and triggered land mine if roll reaches.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "invent.c:hold_another_object Fumbling floor drop"
+      ],
+      "sourceTrace": "Source intrinsic Fumbling is active when the wished land mine is acquired; C drops it to the floor before use_trap can select it. This is a valid source floor-drop mission miss, not evidence of set_trap/dotrap bungle. Full JS comparison matches.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382831,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l#wizintrinsic\n>s\n   \u0017cursed land mine\nae....................          ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-fumbling-mine-bungle.recipe.session.json",
+      "recipeSha256": "f31189b481ecec9749af4a3ac8a56c0897b9d9ddfd5a0031adfaee7b1cff6028",
+      "recording": "challenges/cases/v28/v28-fumbling-mine-bungle.session.json",
+      "recordingSha256": "a6e817fe8a42d292a06f8757d235ac34c59241b7e5ab78126282b78ce37c53df",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-fumbling-mine-bungle; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-fumbling-mine-bungle.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-drop-on-engraving"
+        ],
+        "causalDistinction": "Fumbling prevents inventory acquisition of a trap object; deliberate drop of an inventory gem onto text has different state and action."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2582,
+              "js": 2582
+            },
+            "screens": {
+              "c": 74,
+              "js": 74
+            },
+            "cursors": {
+              "c": 74,
+              "js": 74
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-fumbling-mine-bungle.comparison.json"
+      }
+    },
+    {
+      "id": "v28-hole-floor-pile-fall",
+      "title": "hole floor pile fall",
+      "mission": "Drop independently chosen ordinary objects on a dry square, then dig a hole through it and descend.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "dokick.c:impact_drop"
+      ],
+      "sourceTrace": "dig.c:786-792 -> do.c:1612-1613 calls dokick.c:impact_drop:1511-1622 before level teardown. It tests floor-object migration with rn2(3). js/do.js:2632-2635 omits this call. The omitted C rn2(3)=1 aliases JS getbones rn2(3)=1; the numerical comparison first reports C getbones at step34 against JS makelevel rn2(5), so the source cause precedes the reported numerical mismatch.",
+      "cOutcome": "step 34: You dig a hole through the floor.  You fall through...--More--",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382807,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382807,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017uncursed wand of digging\ndd ze>      ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-hole-floor-pile-fall.recipe.session.json",
+      "recipeSha256": "0cf33bbb405ad6d886a776b85a2f7e923c7f5afec07779d3e3b275e89e7e85fb",
+      "recording": "challenges/cases/v28/v28-hole-floor-pile-fall.session.json",
+      "recordingSha256": "5708cb979b63bc5897b36ee2cf137efeef62aebc96cb6a687948915eed963737",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-hole-floor-pile-fall; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-hole-floor-pile-fall.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-drop-on-engraving"
+        ],
+        "causalDistinction": "A ration is already on the floor when digging creates a hole and the hero falls; the floor object must be considered for migration, rather than ordinary drop stacking or engraving preservation."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 34,
+        "firstMismatchOwner": "dokick.c:impact_drop",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4382,
+              "js": 4504
+            },
+            "screens": {
+              "c": 42,
+              "js": 42
+            },
+            "cursors": {
+              "c": 42,
+              "js": 42
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2026,
+            "cEntry": "rn2(3)=0",
+            "cCaller": "getbones(bones.c:645)",
+            "jsEntry": "rn2(5)=0",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 34,
+              "key": ">"
+            }
+          },
+          "screenMismatch": {
+            "index": 35,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 35,
+              "key": " "
+            },
+            "kind": "ch",
+            "row": 13,
+            "column": 18,
+            "cCell": {
+              "ch": " ",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": "-",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 35,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 35,
+              "key": " "
+            },
+            "cCursor": [
+              7,
+              16,
+              1
+            ],
+            "jsCursor": [
+              19,
+              17,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-hole-floor-pile-fall.comparison.json"
+      }
+    },
+    {
+      "id": "v28-jump-floor-trap",
+      "title": "jump floor trap",
+      "mission": "Create a reachable pit and use jumping boots or intrinsic from inside the pit toward a source-valid chosen square.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "apply.c:jump -> trap.c:trapeffect_pit"
+      ],
+      "sourceTrace": "apply.c:1988+ jump selects the current square using jumping boots; C jumps up, lands, and plunges into a wished pit with pit damage/exercise. Full JS comparison matches.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382815,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382815,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017pit\n \u0017uncursed jumping boots\nWe #jump\n  .    "
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-jump-floor-trap.recipe.session.json",
+      "recipeSha256": "9d3bd75d6efd4339c52d452ec89f642a4c4f8ea6a7f2fc4b1787f1f5b1ee5122",
+      "recording": "challenges/cases/v28/v28-jump-floor-trap.session.json",
+      "recordingSha256": "7364d443b8882bee227cdd831d2cc9adc794014eef1ea62271622bd74a1f57bb",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-jump-floor-trap; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-jump-floor-trap.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-grapple-floor"
+        ],
+        "causalDistinction": "Boot-assisted jumping lands in a real pit and takes trap damage; grappling an ordinary floor has no pit landing."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2695,
+              "js": 2695
+            },
+            "screens": {
+              "c": 49,
+              "js": 49
+            },
+            "cursors": {
+              "c": 49,
+              "js": 49
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-jump-floor-trap.comparison.json"
+      }
+    },
+    {
+      "id": "v28-mirror-medusa",
+      "title": "mirror medusa",
+      "mission": "Create Medusa at an adjacent C-observed square and apply mirror in that direction while avoiding hero unprotected sight.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "mon.c:killed stone-death caller"
+      ],
+      "sourceTrace": "apply.c:use_mirror:1128-1136 marks gs.stoned and invokes mon.c:killed; mon.c stone-death/statue creation reaches zap.c:obj_resists. js/apply.js:4135 skips killed after the turned-to-stone message. C kills Medusa, creates the stone-death result, and grants experience; JS leaves the monster alive.",
+      "cOutcome": "step 36: Medusa appears next to you.; step 45: Medusa is turned to stone!  You kill Medusa!--More--",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382812,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382812,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed mirror\n\u0007peaceful medusa\ny      aej     ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-mirror-medusa.recipe.session.json",
+      "recipeSha256": "1171d745ac9bb6705a29a4cb2d982ee27bab2eeb09e8735126108297f61242cd",
+      "recording": "challenges/cases/v28/v28-mirror-medusa.session.json",
+      "recordingSha256": "76e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-mirror-medusa; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-mirror-medusa.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-cockatrice-gloves-off"
+        ],
+        "causalDistinction": "The monster dies from its own reflected gaze; the earlier case petrifies the hero by touching a corpse. This does not duplicate hero instapetrify."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 45,
+        "firstMismatchOwner": "mon.c:killed stone-death caller",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2917,
+              "js": 2887
+            },
+            "screens": {
+              "c": 52,
+              "js": 52
+            },
+            "cursors": {
+              "c": 52,
+              "js": 52
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2875,
+            "cEntry": "rn2(100)=80",
+            "cCaller": "obj_resists(zap.c:1469)",
+            "jsEntry": "rn2(5)=0",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 45,
+              "key": "j"
+            }
+          },
+          "screenMismatch": {
+            "index": 45,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 45,
+              "key": "j"
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 28,
+            "cCell": {
+              "ch": "Y",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": " ",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 45,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 45,
+              "key": "j"
+            },
+            "cCursor": [
+              52,
+              0,
+              1
+            ],
+            "jsCursor": [
+              7,
+              3,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-mirror-medusa.comparison.json"
+      }
+    },
+    {
+      "id": "v28-oracle-major-consultation",
+      "title": "oracle major consultation",
+      "mission": "Reach Oracle level by debug level teleport, locate Oracle from C screens, carry enough wished gold and chat for major consultation.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "rumors.c:outoracle"
+      ],
+      "sourceTrace": "rumors.c:doconsult:755 -> outoracle:640-697; a paid major consultation reads and consumes an oracle entry with rnd(oracle_cnt-1), displays a blocking text window, then grants experience. js/rumors.js:78 omits outoracle.",
+      "cOutcome": "step 37: The Oracle appears next to you.; step 50: The Oracle meditates for a moment and then intones:",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382809,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382809,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u00171000 gold pieces\n\u0007peaceful Oracle\ny    #chat\nkny     ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-oracle-major-consultation.recipe.session.json",
+      "recipeSha256": "eef1767b28db9fa5d9da2f83c8a21143688113ddb03757803e529c83854440c6",
+      "recording": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+      "recordingSha256": "4ebefa5859b9bf667ff711a1634c5afbfddf8f8e6243c0404576e398751f76b2",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-oracle-major-consultation; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-oracle-major-consultation.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-neutral-vampire-prayer"
+        ],
+        "causalDistinction": "A peaceful Oracle takes 550 gold and displays a paid oracularity; prayer invokes a deity and does not pay an NPC or consume an oracle entry."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 50,
+        "firstMismatchOwner": "rumors.c:outoracle",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2790,
+              "js": 2789
+            },
+            "screens": {
+              "c": 57,
+              "js": 57
+            },
+            "cursors": {
+              "c": 57,
+              "js": 57
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2777,
+            "cEntry": "rnd(20)=6",
+            "cCaller": "outoracle(rumors.c:665)",
+            "jsEntry": "rn2(19)=2",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 50,
+              "key": "y"
+            }
+          },
+          "screenMismatch": {
+            "index": 50,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 50,
+              "key": "y"
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 0,
+            "cCell": {
+              "ch": "T",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": "W",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 50,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 50,
+              "key": "y"
+            },
+            "cCursor": [
+              8,
+              23,
+              1
+            ],
+            "jsCursor": [
+              65,
+              5,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-oracle-major-consultation.comparison.json"
+      }
+    },
+    {
+      "id": "v28-poly-worn-cloak",
+      "title": "poly worn cloak",
+      "mission": "Wear independently wished ordinary cloak, then use controlled object polymorph ray/self-appropriate source path; inspect resulting armor slot.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "polyself.c:polymon/break_armor"
+      ],
+      "sourceTrace": "A self-directed polymorph ray transforms the hero into a lemure and breaks off the worn leather cloak. The intended zap.c:poly_obj worn-object path was not reached; C instead reaches hero polymon/break_armor. Fully matches JS.",
+      "cOutcome": "step 60: You turn into a lemure!  The clasp on your cloak breaks open!--More--",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382816,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382816,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed leather cloak\nWe  \u0017uncursed wand of polymorph\nzf.       i "
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-poly-worn-cloak.recipe.session.json",
+      "recipeSha256": "90322155eb5e2e2e183771b3ddc72a4bb17d64612c193ab4d2515923d96d8d04",
+      "recording": "challenges/cases/v28/v28-poly-worn-cloak.session.json",
+      "recordingSha256": "a0e0d42469614a0966d9c60cce3a5c976f309cf246f40cd62dca5b331e06fe64",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-poly-worn-cloak; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-poly-worn-cloak.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-destroy-worn-armor"
+        ],
+        "causalDistinction": "Hero body transformation removes incompatible armor rather than erosion destroying it from a scroll; no erode_obj/removal duplication."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2852,
+              "js": 2852
+            },
+            "screens": {
+              "c": 70,
+              "js": 70
+            },
+            "cursors": {
+              "c": 70,
+              "js": 70
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-poly-worn-cloak.comparison.json"
+      }
+    },
+    {
+      "id": "v28-quantum-box-locked-miss",
+      "title": "quantum box locked miss",
+      "mission": "Original planned quantum box C attempt; locked box refuses tipping. Retain this distinct C-observed target miss.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "pickup.c:tip_check locked box"
+      ],
+      "sourceTrace": "Original source-designed quantum wish produced a locked ordinary box. C tip_check locked branch says the box is locked. Retain this distinct valid refusal in addition to the unlocked tip route; neither proves quantum observation. Full JS comparison matches.",
+      "cOutcome": "step 31: The large box is locked.",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382828,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed +1 large box\n#tip\ne        ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-quantum-box-locked-miss.recipe.session.json",
+      "recipeSha256": "b11357ab803668ca85f3ccd809c4e70d356594fe42a534795d1aee4f2b79875c",
+      "recording": "challenges/cases/v28/v28-quantum-box-locked-miss.session.json",
+      "recordingSha256": "cf9669e8340579b39dbd26be9f18373f4e5293e8ccd0b5ca5859595410cdd813",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-quantum-box-locked-miss; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-quantum-box-locked-miss.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-figurine-wall"
+        ],
+        "causalDistinction": "Locked-container tipping refusal differs from placing a figurine in solid rock; the lock precondition differs also from unlocked contents tipping in this batch."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2860,
+              "js": 2860
+            },
+            "screens": {
+              "c": 40,
+              "js": 40
+            },
+            "cursors": {
+              "c": 40,
+              "js": 40
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-quantum-box-locked-miss.comparison.json"
+      }
+    },
+    {
+      "id": "v28-quantum-box-tip",
+      "title": "quantum box tip",
+      "mission": "Wish source-permitted large box spe=1; tip to resolve SchroedingersBox. C live/dead cat branch and tip contents.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "pickup.c:dotip/tip_check ordinary unlocked box"
+      ],
+      "sourceTrace": "An unlocked +1 large-box wish produces an ordinary box rather than a SchroedingersBox; C tips spellbooks and a gem onto floor. Source ordinary-container tip branch reached, quantum observation not reached. Full JS comparison matches.",
+      "cOutcome": "step 40: Objects spill out:  a dull spellbook,  a yellow gem,--More--",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382828,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed unlocked +1 large box\n#tip\ne        ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-quantum-box-tip.recipe.session.json",
+      "recipeSha256": "d945d81fedcba608ce39480abce56df06122f602f997952c66ec61fc8630b0c1",
+      "recording": "challenges/cases/v28/v28-quantum-box-tip.session.json",
+      "recordingSha256": "f545401d9482a849ebafc6092023727619ab9d39b4a3fa32c595924d64c01364",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-quantum-box-tip; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-quantum-box-tip.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-grapple-floor"
+        ],
+        "causalDistinction": "Actual ordinary box contents transfer to the floor; grappling the floor does not transfer container contents."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2860,
+              "js": 2860
+            },
+            "screens": {
+              "c": 49,
+              "js": 49
+            },
+            "cursors": {
+              "c": 49,
+              "js": 49
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-quantum-box-tip.comparison.json"
+      }
+    },
+    {
+      "id": "v28-royal-dragon-egg-timer",
+      "title": "royal dragon egg timer",
+      "mission": "C cursed jelly kills a hatchable dragon egg; observe quiver and inspect egg, distinct from killer-bee species promotion target miss.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "apply.c:use_royal_jelly timed nonbee egg"
+      ],
+      "sourceTrace": "apply.c:3648-3659: a nonbee red-dragon egg retains its species; C feeble quiver proves eobj->timed because the alternative species-change condition is false. C kill_egg stops the timer. Full replay matches JS over this recorded range; later hatch prevention is not additionally claimed.",
+      "cOutcome": "step 53: You smear royal jelly all over your egg.  The egg quivers feebly.",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382826,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382826,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed red dragon egg\n\u0017cursed royal jelly\n#rub\nfe        ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-royal-dragon-egg-timer.recipe.session.json",
+      "recipeSha256": "c943a8258e722d56976cedcab26ea382156bd61ef03f4fc0e62492a860e75c6b",
+      "recording": "challenges/cases/v28/v28-royal-dragon-egg-timer.session.json",
+      "recordingSha256": "9bf90b67c9f95da633d1f15dc7963728dbeb0d0bc5e776449e1a324d2f53a17c",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-royal-dragon-egg-timer; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-royal-dragon-egg-timer.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-cream-pie-face"
+        ],
+        "causalDistinction": "A timed nonbee egg is canceled by cursed royal jelly. Differs also from the new bee case because there is no bee-to-queen species promotion."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 6511,
+              "js": 6511
+            },
+            "screens": {
+              "c": 63,
+              "js": 63
+            },
+            "cursors": {
+              "c": 63,
+              "js": 63
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-royal-dragon-egg-timer.comparison.json"
+      }
+    },
+    {
+      "id": "v28-shop-horn-use",
+      "title": "shop horn use",
+      "mission": "Reach a generated shop, use an unpaid horn of plenty without buying it, then inspect billing/chat.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "mkobj.c:hornoplenty ordinary owned horn"
+      ],
+      "sourceTrace": "C applies an owned horn of plenty and creates food/potion through hornoplenty; no shop bill/unpaid state established. The intended shop billing arm remains deferred. Full JS comparison matches.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382813,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382813,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed horn of plenty\nae       i "
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-shop-horn-use.recipe.session.json",
+      "recipeSha256": "8d2b996348984ea7e351aa96bced0cbee31f01d3a39b8782a5fe712f45c46301",
+      "recording": "challenges/cases/v28/v28-shop-horn-use.session.json",
+      "recordingSha256": "3ba3a04b522deb942f2197c787cc2d3a681c34c37f82b991248a1a01a5c202c1",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-shop-horn-use; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-shop-horn-use.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-whip-self"
+        ],
+        "causalDistinction": "Charged horn creates objects; using a whip on the hero does not."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2809,
+              "js": 2809
+            },
+            "screens": {
+              "c": 38,
+              "js": 38
+            },
+            "cursors": {
+              "c": 38,
+              "js": 38
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-shop-horn-use.comparison.json"
+      }
+    },
+    {
+      "id": "v28-tin-rider-inventory",
+      "title": "tin rider inventory",
+      "mission": "Apply kit to wished inventory Rider corpse; C Rider revival and chastisement, unlike prior ordinary corpse cases.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "apply.c:use_tinning_kit -> do.c:revive_corpse"
+      ],
+      "sourceTrace": "Source inventory Death corpse accepted by C; use_tinning_kit calls revive_corpse and C says squirming backpack plus War does not preserve its enemies, then removes corpse burden. Full JS comparison matches, confirming old blocker route now completes.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382822,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382822,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed tinning kit\n\u0017corpse of Death\naef        ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-tin-rider-inventory.recipe.session.json",
+      "recipeSha256": "d59ab5e4cf073f26fb0ec7e053a3d89294a0403afca170bef612d30cdc090601",
+      "recording": "challenges/cases/v28/v28-tin-rider-inventory.session.json",
+      "recordingSha256": "51705f24378ad2ca4adcf63d8cda8ef4c87e3f39556d6af00f029d913613f4b9",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-tin-rider-inventory; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-tin-rider-inventory.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-cockatrice-gloves-off"
+        ],
+        "causalDistinction": "Nonpetrifying Rider corpse revives from inventory when tinned; a cockatrice corpse petrifies its toucher and is not tinned."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2605,
+              "js": 2605
+            },
+            "screens": {
+              "c": 53,
+              "js": 53
+            },
+            "cursors": {
+              "c": 53,
+              "js": 53
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-tin-rider-inventory.comparison.json"
+      }
+    },
+    {
+      "id": "v28-vault-cursed-whistle",
+      "title": "vault cursed whistle",
+      "mission": "Reach generated vault by C-guided level exploration/controlled teleport; apply cursed ordinary whistle inside vault.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "apply.c:use_whistle -> vault.c:vault_summon_gd predicate"
+      ],
+      "sourceTrace": "C applies a cursed whistle in an ordinary room; vault.c:237-241 requires vault_occupied(u.urooms) and no existing guard, so no guard is summoned. Full JS comparison matches. The actual vault setup remains deferred; no guard reachability is claimed.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "missed",
+      "inputs": [
+        {
+          "seed": 1382810,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382810,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017cursed whistle\nae     ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-vault-cursed-whistle.recipe.session.json",
+      "recipeSha256": "53d3404cb698b7a5d7cb24407517191fa109edf72f1867130e2acfdf6c577d13",
+      "recording": "challenges/cases/v28/v28-vault-cursed-whistle.session.json",
+      "recordingSha256": "afe179a07f49874f202aca563c2521ec588c47ddf9d24ddd8d3a9c886a028f7a",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-vault-cursed-whistle; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-vault-cursed-whistle.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-leash-tame-dog"
+        ],
+        "causalDistinction": "Cursed whistle checks vault room membership; leash attachment changes pet leash state and does not run the guard predicate."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matching over complete retained recording.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2541,
+              "js": 2541
+            },
+            "screens": {
+              "c": 26,
+              "js": 26
+            },
+            "cursors": {
+              "c": 26,
+              "js": 26
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-vault-cursed-whistle.comparison.json"
+      }
+    },
+    {
+      "id": "v28-vlad-special-throne",
+      "title": "vlad special throne",
+      "mission": "Reach Vlad top tower by debug teleport, identify special throne from C and sit until one source effect occurs.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "sit.c:special_throne_effect"
+      ],
+      "sourceTrace": "sit.c:throne_sit_effect:43-65 recognizes In_V_tower and dispatches special_throne_effect:238-333; debug choice6 greases every noncoin inventory item and make_glib(rn1(101,100)) at277. js/sit.js:240 skips the special function. C grease spray and dropped spear establish the special arm.",
+      "cOutcome": "step 88: A greasy liquid sprays all over you!  The flaming sphere explodes!--More--",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382814,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382814,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".#levelchange\n20\n                         \u0016?\n>I\n                       \u0017throne\n#sit\n  6\n      i "
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-vlad-special-throne.recipe.session.json",
+      "recipeSha256": "a8822dfa3c52848752b2a847126f3e0d4cee48258b98765bb5f215739b4ab3f3",
+      "recording": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+      "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-vlad-special-throne; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-vlad-special-throne.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-neutral-vampire-prayer"
+        ],
+        "causalDistinction": "Vlad tower throne activation and inventory greasing differ from deity prayer curses and an ordinary throne; the source branch is explicitly special_throne."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 88,
+        "firstMismatchOwner": "sit.c:special_throne_effect",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 5255,
+              "js": 5252
+            },
+            "screens": {
+              "c": 97,
+              "js": 97
+            },
+            "cursors": {
+              "c": 97,
+              "js": 97
+            },
+            "animFrames": {
+              "c": 4,
+              "js": 2
+            }
+          },
+          "rngMismatch": {
+            "index": 5191,
+            "cEntry": "rn2(101)=93",
+            "cCaller": "special_throne_effect(sit.c:277)",
+            "jsEntry": "rn2(5)=4",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 88,
+              "key": "\n"
+            }
+          },
+          "screenMismatch": {
+            "index": 88,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 88,
+              "key": "\n"
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 0,
+            "cCell": {
+              "ch": "A",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": "T",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 88,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 88,
+              "key": "\n"
+            },
+            "cCursor": [
+              74,
+              0,
+              1
+            ],
+            "jsCursor": [
+              71,
+              0,
+              1
+            ]
+          },
+          "animMismatch": {
+            "index": 88,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 88,
+              "key": "\n"
+            },
+            "kind": "count",
+            "cCount": 2,
+            "jsCount": 0
+          },
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-vlad-special-throne.comparison.json"
+      }
+    },
+    {
+      "id": "v28-wiz-flip-level",
+      "title": "wiz flip level",
+      "mission": "Flip existing level horizontally, C coordinates/map symbols and redraw, distinct from regeneration.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_flip_level"
+      ],
+      "sourceTrace": "wizcmds.c:412-438 prompts for 0/1/2/3, invokes sp_lev.c:flip_level horizontally for choice2, and docrt. JS cmd.js:5294 refuses the distinct missing wiz_flip_level dispatch, verified by onBoundary.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382825,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382825,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".#wizfliplevel\n2     ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-wiz-flip-level.recipe.session.json",
+      "recipeSha256": "afd796efcaf31353f5647bd852f9655244b90321d90aad6bcb7b64e701fa0cbd",
+      "recording": "challenges/cases/v28/v28-wiz-flip-level.session.json",
+      "recordingSha256": "731e024dc0254d97b404c752d19695c3b46beea14d8e18bd357abdb748883122",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-wiz-flip-level; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-wiz-flip-level.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-drop-on-engraving"
+        ],
+        "causalDistinction": "The whole existing map and coordinates are reflected; ordinary dropping and map revelation preserve coordinates. Not the level-regeneration behavior counted separately."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 15,
+        "firstMismatchOwner": "wizcmds.c:wiz_flip_level",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2168,
+              "js": 2163
+            },
+            "screens": {
+              "c": 23,
+              "js": 15
+            },
+            "cursors": {
+              "c": 23,
+              "js": 15
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2163,
+            "cEntry": "rn2(12)=8",
+            "cCaller": "mcalcmove(mon.c:1164)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 22,
+              "key": "."
+            }
+          },
+          "screenMismatch": {
+            "index": 15,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 15,
+              "key": "\n"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 15,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 15,
+              "key": "\n"
+            },
+            "cCursor": [
+              62,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-wiz-flip-level.comparison.json"
+      }
+    },
+    {
+      "id": "v28-wiz-recreate-level",
+      "title": "wiz recreate level",
+      "mission": "Debug recreate an existing level with held inventory; observe regenerated map and level creation RNG.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_makemap"
+      ],
+      "sourceTrace": "cmd.c extended-command row routes to wizcmds.c:156-173; makemap_prepost surrounds mklev and discards/regenerates the current level. JS cmd.js:5294 refuses the missing wiz_makemap dispatch, verified by onBoundary. C regenerates the map with level-creation RNG.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382824,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382824,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".#wizmakemap\n     ."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-wiz-recreate-level.recipe.session.json",
+      "recipeSha256": "8427405850e7b96babe3b16f9151e798334fd74529abc50cb4b4b46536472f31",
+      "recording": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+      "recordingSha256": "bb74a1e9cec092a37592e4c641be40dfc340b2973c3ca7c5f9aff5f422caca2c",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-wiz-recreate-level; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-wiz-recreate-level.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-cast-magic-missile"
+        ],
+        "causalDistinction": "Existing level regeneration is a distinct debug game-state operation; prior levelchange setup adjusted hero experience without recreating a level."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 13,
+        "firstMismatchOwner": "wizcmds.c:wiz_makemap",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4837,
+              "js": 2601
+            },
+            "screens": {
+              "c": 20,
+              "js": 13
+            },
+            "cursors": {
+              "c": 20,
+              "js": 13
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2601,
+            "cEntry": "rn2(3)=1",
+            "cCaller": "getbones(bones.c:645)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 13,
+              "key": "\n"
+            }
+          },
+          "screenMismatch": {
+            "index": 13,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 13,
+              "key": "\n"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 13,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 13,
+              "key": "\n"
+            },
+            "cCursor": [
+              51,
+              8,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-wiz-recreate-level.comparison.json"
+      }
+    },
+    {
+      "id": "v28-wiz-smell-self",
+      "title": "wiz smell self",
+      "mission": "Human olfaction debug command chooses current hero map glyph; source self sniff then escape repeated getpos.",
+      "selectionRationale": "C source plan preceded this candidate comparison; setup corrections followed only C prompts/source prerequisites. Valid matching cases and misses are retained.",
+      "sourcePointers": [
+        "wizcmds.c:wiz_smell"
+      ],
+      "sourceTrace": "wizcmds.c:885-940 verifies olfaction, selects a map glyph, and runs the self-sniff/usmellmon path; JS cmd.js:5294 refuses the distinct wiz_smell dispatch, verified by onBoundary. C says the hero sniffs under her arm and seems to give off no smell.",
+      "cOutcome": "Exact C screens/RNG/cursors retained; source trace identifies reached or missed behavior.",
+      "outcome": "reached",
+      "inputs": [
+        {
+          "seed": 1382832,
+          "datetime": "20501203111213",
+          "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".#wizsmell\n   .   \u001b."
+        }
+      ],
+      "recipe": "challenges/cases/v28/v28-wiz-smell-self.recipe.session.json",
+      "recipeSha256": "842468d5642083a338d69edc6c02591a3e33805c6d063d80c277bb0b9dfe0273",
+      "recording": "challenges/cases/v28/v28-wiz-smell-self.session.json",
+      "recordingSha256": "e170d701d41f1a8c15b7323cf97c5d2c37a0aa98f9408483d76e83d6c79d0bda",
+      "reproducibility": "Independent patched-C re-record via node .cache/C138-record-case.mjs replay v28-wiz-smell-self; strict deep equality of every segment/step/key/RNG/screen/cursor, exit0. Absolute log /tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-wiz-smell-self.replay.log. Final replay completed before commit/submission.",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v27/v27-drop-on-engraving",
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-sunsword-unwield",
+          "v27/v27-cast-force-bolt",
+          "v27/v27-cast-magic-missile",
+          "v27/v27-cream-pie-face",
+          "v27/v27-leash-tame-dog",
+          "v27/v27-figurine-wall",
+          "v27/v27-whip-self",
+          "v27/v27-grapple-floor",
+          "v27/v27-crystal-ball-object",
+          "v27/v27-confused-genocide",
+          "v27/v27-cursed-genocide",
+          "v27/v27-confused-light",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-write-scroll",
+          "v27/v27-cancel-self",
+          "v27/v27-cancel-crystal-ball",
+          "v27/v27-turn-undead",
+          "v27/v27-pray-undead",
+          "v27/v27-earthquake",
+          "v27/v27-punished-pit",
+          "v27/v27-cockatrice-gloves-off",
+          "v27/v27-sting-orc-warning",
+          "v27/v27-helm-telepathy",
+          "v27/v27-leash-empty-square",
+          "v27/v27-crystal-ball-ghost-detection",
+          "v27/v27-neutral-vampire-prayer"
+        ],
+        "unresolvedOlderCases": [],
+        "savedUnresolvedV27AlsoReviewed": [
+          "v27/v27-merge-lit-candles",
+          "v27/v27-drop-glob",
+          "v27/v27-destroy-worn-armor",
+          "v27/v27-cockatrice-gloves-off"
+        ],
+        "closestEarlierCases": [
+          "v27-crystal-ball-ghost-detection"
+        ],
+        "causalDistinction": "Selecting the current hero for olfactory inspection uses a repeated monster getpos loop; crystal-ball detection reveals monsters in a temporary detection display without smelling them."
+      },
+      "localComparison": {
+        "base": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "passed": false,
+        "firstMismatchStep": 11,
+        "firstMismatchOwner": "wizcmds.c:wiz_smell",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2719,
+              "js": 2705
+            },
+            "screens": {
+              "c": 21,
+              "js": 11
+            },
+            "cursors": {
+              "c": 21,
+              "js": 11
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2705,
+            "cEntry": "rn2(5)=0",
+            "cCaller": "distfleeck(monmove.c:538)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 20,
+              "key": "."
+            }
+          },
+          "screenMismatch": {
+            "index": 11,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 11,
+              "key": "\n"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 11,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 11,
+              "key": "\n"
+            },
+            "cCursor": [
+              68,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v28-runs/v28-wiz-smell-self.comparison.json"
+      }
+    }
+  ]
+}
