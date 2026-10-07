@@ -181,9 +181,10 @@ separately from other goals.
    review is needed. For a retry, pass the failed summary with
    `--previous-checkpoint` and address every failure. If corrections change
    the candidate, commit them and rerun preflight before testing it.
-   Obtain a passing checkpoint for the committed candidate, either locally
-   with `npm run checkpoint` or from the complete hosted checkpoint workflow
-   under `.agents/validation.md`. Import the hosted run's saved evidence; do
+   Obtain a passing checkpoint for the committed candidate from the complete
+   hosted checkpoint workflow under `.agents/validation.md` by default. Use
+   `npm run checkpoint` only when hosted validation is unavailable or blocked,
+   and state the concrete reason. Import the hosted run's saved evidence; do
    not repeat its checks locally. Keep one full-validation owner for local
    runs and retain its process handle until completion. Do not change main's HEAD during the
    run. Use its running time for the read-only next-delivery preview above
