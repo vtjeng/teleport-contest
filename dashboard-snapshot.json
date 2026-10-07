@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T06:02:34.921Z",
+  "capturedAt": "2026-10-07T06:14:09.459Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -23327,12 +23327,30 @@
         "type": "accepted",
         "at": "2026-10-07T06:01:37.483Z",
         "task": "B128"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B129-domonability-20261007",
+        "type": "assign",
+        "at": "2026-10-07T06:07:23.101Z",
+        "task": "B129",
+        "worker": "B",
+        "goal": "port-cmd-domonability-gremlin-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B128-759bab7f",
+        "type": "published",
+        "at": "2026-10-07T06:12:43.246Z",
+        "task": "B128",
+        "commit": "759bab7f5ef46a344fb9b966e1f76bc7d388c391"
       }
     ]
   },
   "development": {
-    "executionCommit": "532068f894fa97f4ace2680f195baf3aae875050",
-    "measuredAt": "2026-10-07T05:55:28.773Z",
+    "executionCommit": "759bab7f5ef46a344fb9b966e1f76bc7d388c391",
+    "measuredAt": "2026-10-07T06:12:31.028Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

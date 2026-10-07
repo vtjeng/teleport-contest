@@ -188047,6 +188047,49 @@
           "evaluationCommit": "7a862a458435036f4a2a008efa1fe9916761b912"
         }
       }
+    },
+    {
+      "id": "port-cmd-domonability-gremlin-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the whole monster-ability dispatcher and wire gremlin and intrinsic unicorn abilities",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v25/v25-gremlin-splits"
+      ],
+      "selectionReason": "B128 same seed now complete; v25 gremlin case remains 50/55 screens at step 50. investigations/synthetic/v25/v25-gremlin-splits.json establishes whole cmd.c:domonability and existing split_mon/cloneu/dryup return closure, plus minimal canonical unicorn-horn export. A117 doextcmd/dospinweb and burial reservations are excluded.",
+      "detail": "Preserve cmd.c:domonability source ability predicate order and ECMD returns. The gremlin fountain arm consumes potion.c:split_mon clone return before fountain.c:dryup; the pool arm discards it; dry terrain prints no-fountain. Unicorn calls existing apply.c:use_unicorn_horn(NULL). Forced steed breath remains the explicit discarded dogmove.c:pet_ranged_attk(TRUE) gap. The MCMD.MONABILITY producer is excluded by #if 0 in the reference build.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "domonability",
+          "line": 890,
+          "endLine": 951,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 890,
+        "to": 951
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-gremlin-splits": {
+          "session": "synthetic/v25/v25-gremlin-splits",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-gremlin-splits",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-gremlin-splits.session.json",
+          "recordingSha256": "aad1e275233a76b9d39a6b2c4171d20497fe4a4ad95b754882d079545a6f2887",
+          "evaluationPath": "challenges/evaluations/20261007055545-v25.json",
+          "evaluationCommit": "532068f894fa97f4ace2680f195baf3aae875050"
+        }
+      }
     }
   ]
 }
