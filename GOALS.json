@@ -184212,17 +184212,21 @@
     {
       "id": "port-polyself-gaze-mindblast-v24-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port polymorph gaze and mind blast over the canonical live monster list",
       "cFile": "polyself.c",
       "sessions": [
         "synthetic/v24/v24-pyrolisk-gazes-hostile",
         "synthetic/v24/v24-mind-flayer-blast"
       ],
-      "selectionReason": "Current complete v24 investigations trace two independent mismatches to dogaze and domindblast scanning stale state.fmon instead of the canonical state.level.monlist; the functions share the same live-monster-list contract and have no active reservation.",
+      "selectionReason": "Queued whole-source v24 goal; both impure entry points have worker-supplied independent recordings and admitted synthetic ranges, and A114 is published.",
       "detail": "Review and preserve every branch, draw, message, state change, and production caller in whole polyself.c:dogaze and polyself.c:domindblast. Replace both stale list walks with the canonical live level monster chain and supply runtime evidence from the admitted pyrolisk gaze and mind flayer blast cases plus any independent entry variation needed for closure.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "a2fc5957ade4471e911004be1dfcd24d687538c9",
+      "openStanding": {
+        "sha": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -184273,7 +184277,465 @@
           "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
           "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-mind-flayer-blast",
+          "session": "synthetic/v24/v24-mind-flayer-blast",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingPath": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+          "recipe": "challenges/cases/v24/v24-mind-flayer-blast.recipe.session.json",
+          "recipeSha256": "90976ddb59429b9cd8940a801bc8b076cd2c292117286f4df127951400620d79",
+          "replayInputSha256": "428517ccaeb2b91e8fb9a44b3bb88e549e68d27027c5be8c15474f3f5cc0f808",
+          "evaluationPath": "challenges/evaluations/20261007021454-v24.json",
+          "evaluationCommit": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+          "evaluationArtifact": "challenges/evaluations/20261007021454-v24.json",
+          "evaluationUtc": "2026-10-07T02:16:32.978Z",
+          "remainingScreens": 13,
+          "recordedSteps": 112,
+          "previousScreensMatched": 99,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 99,
+              "total": 112
+            },
+            "rng": {
+              "matched": 2921,
+              "total": 2962
+            },
+            "cursors": {
+              "matched": 99,
+              "total": 112
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 99,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 99,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2920,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "domindblast(polyself.c:1921)",
+              "jsEntry": "rn2(12)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "\n"
+              },
+              "stepIndex": 88
+            },
+            "cursor": {
+              "index": 99,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 99,
+                "key": " "
+              },
+              "cCursor": [
+                58,
+                0,
+                1
+              ],
+              "jsCursor": [
+                37,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 88,
+          "kind": "rng",
+          "sourceFile": "polyself.c",
+          "function": "domindblast",
+          "message": null,
+          "cFile": "polyself.c",
+          "luaFile": null,
+          "line": 1921,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-mind-flayer-blast.json",
+            "result": {
+              "session": "synthetic/v24/v24-mind-flayer-blast",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-mind-flayer-blast",
+              "remainingScreens": 13,
+              "recordedSteps": 112,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-mind-flayer-blast",
+                "session": "synthetic/v24/v24-mind-flayer-blast",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+                "recordingPath": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+                "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+                "recipe": "challenges/cases/v24/v24-mind-flayer-blast.recipe.session.json",
+                "recipeSha256": "90976ddb59429b9cd8940a801bc8b076cd2c292117286f4df127951400620d79",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 13,
+                "recordedSteps": 112,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 99,
+                    "total": 112
+                  },
+                  "rng": {
+                    "matched": 2921,
+                    "total": 2962
+                  },
+                  "cursors": {
+                    "matched": 99,
+                    "total": 112
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 99,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 99,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2920,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "domindblast(polyself.c:1921)",
+                    "jsEntry": "rn2(12)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 88,
+                      "key": "\n"
+                    },
+                    "stepIndex": 88
+                  },
+                  "cursor": {
+                    "index": 99,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 99,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      58,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      37,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 88,
+                "kind": "rng",
+                "sourceFile": "polyself.c",
+                "function": "domindblast",
+                "message": null,
+                "cFile": "polyself.c",
+                "luaFile": null,
+                "line": 1921
+              },
+              "summary": "At the #monster action, C enters domindblast’s candidate loop and its first divergent RNG call is polyself.c:1921, while JavaScript emits the same opening blast text without the corresponding target-selection draws. By step 99 C displays “You lock in on the mind flayer’s latent telepathy” and JavaScript displays the mind flayer concentrating. The source owner is the existing whole-function polyself.c:domindblast implementation; compare its live candidate gates and inputs, including distance, peacefulness, mindlessness, telepathy, and vision. The current trace does not distinguish which gate or input differs.",
+              "source": {
+                "file": "polyself.c",
+                "branch": "When u.uen is at least 10, domindblast spends 10 energy and walks fmon in list order. It skips dead monsters, monsters beyond BOLT_LIM squared, peaceful monsters, and mindless monsters. It targets a remaining monster when the hero senses it telepathically, when its species is telepathic and rn2(2) succeeds, or when rn2(10) is zero; a target takes rnd(15) damage after wakeup, and killed() runs if that damage is lethal.",
+                "functions": [
+                  "domindblast"
+                ],
+                "callers": [
+                  "cmd.c:domonability (cmd.c:916) calls domindblast when is_mind_flayer(uptr); js/cmd.js:domonability (js/cmd.js:3567) routes the #monster command to the existing js/polyself.js:domindblast implementation."
+                ],
+                "dependencies": [
+                  "hack.h:mdistu supplies the squared-distance check; mondata.h:mindless and telepathic supply species predicates.",
+                  "rnd.c:rn2 and rnd provide the ordered target-selection and damage draws.",
+                  "mon.c:wakeup and killed perform the target wakeup, damage-death cleanup, and removal side effects."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261006225046-v24.json, evaluated at 84d84e111155ac834c43327b7c696055df294349, records 99/112 matching screens and cursors and 2921/2962 matching RNG calls. Its first mismatch is segment 0 step 88 on Enter: C rn2(2)=0 from domindblast(polyself.c:1921), against JavaScript rn2(12)=0; the first screen difference is step 99, C glyph Y versus JavaScript T.",
+                "A targeted replay of only this session with `node scripts/scan-sessions.mjs --json --synthetic v24/v24-mind-flayer-blast` completed as bounded run-yFlguM at replay commit 3470fce7b2ee7ab949c421ea2abd70fac3854b4e and reproduced the same RNG and screen locations. The step-88 recording has domindblast target-selection draws; the JavaScript step-88 slice has no domindblast draws. At step 99 C reports locking onto the mind flayer’s latent telepathy while JavaScript reports the mind flayer concentrating. The examined C and JavaScript source paths for polyself.c, cmd.c, mondata.h, js/polyself.js, js/cmd.js, and js/mondata.js are unchanged between the evaluated commit and this replay commit.",
+                "The source trace is polyself.c:1894-1938, including the full candidate-loop guards and the ordered `u_sen || (telepathic && rn2(2)) || !rn2(10)` condition. The production entry point is cmd.c:domonability at 916; the #monster command reaches js/cmd.js:domonability at 3567 and js/polyself.js:domindblast at 2778. The remaining implementation probe is to compare each candidate’s dead state, distance, peacefulness, mindless predicate, species telepathy, and mcansee value at this call; the available replay does not identify which eligibility input first differs."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-pyrolisk-gazes-hostile",
+          "session": "synthetic/v24/v24-pyrolisk-gazes-hostile",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+          "recordingPath": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+          "recordingSha256": "61b18e7a3552a6db8d9b5be6a1d89012ffcec299d7dabe050ec59c4cea72587b",
+          "recipe": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.recipe.session.json",
+          "recipeSha256": "6c011feabf67e56c6c0fc348520c3a2465213dc755441a7e7e1db4253d51b3df",
+          "replayInputSha256": "428517ccaeb2b91e8fb9a44b3bb88e549e68d27027c5be8c15474f3f5cc0f808",
+          "evaluationPath": "challenges/evaluations/20261007021454-v24.json",
+          "evaluationCommit": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+          "evaluationArtifact": "challenges/evaluations/20261007021454-v24.json",
+          "evaluationUtc": "2026-10-07T02:16:32.978Z",
+          "remainingScreens": 4,
+          "recordedSteps": 82,
+          "previousScreensMatched": 78,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 78,
+              "total": 82
+            },
+            "rng": {
+              "matched": 2696,
+              "total": 2724
+            },
+            "cursors": {
+              "matched": 82,
+              "total": 82
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 78,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 78,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 4,
+              "cCell": {
+                "ch": "a",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "g",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2695,
+              "cEntry": "d(2,6)=5",
+              "cCaller": "dogaze(polyself.c:1715)",
+              "jsEntry": "rn2(12)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 78,
+                "key": "\n"
+              },
+              "stepIndex": 78
+            },
+            "cursor": null
+          },
+          "step": 78,
+          "kind": "rng",
+          "sourceFile": "polyself.c",
+          "function": "dogaze",
+          "message": null,
+          "cFile": "polyself.c",
+          "luaFile": null,
+          "line": 1715,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-pyrolisk-gazes-hostile.json",
+            "result": {
+              "session": "synthetic/v24/v24-pyrolisk-gazes-hostile",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-pyrolisk-gazes-hostile",
+              "remainingScreens": 4,
+              "recordedSteps": 82,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "61b18e7a3552a6db8d9b5be6a1d89012ffcec299d7dabe050ec59c4cea72587b",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-pyrolisk-gazes-hostile",
+                "session": "synthetic/v24/v24-pyrolisk-gazes-hostile",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+                "recordingPath": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+                "recordingSha256": "61b18e7a3552a6db8d9b5be6a1d89012ffcec299d7dabe050ec59c4cea72587b",
+                "recipe": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.recipe.session.json",
+                "recipeSha256": "6c011feabf67e56c6c0fc348520c3a2465213dc755441a7e7e1db4253d51b3df",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 4,
+                "recordedSteps": 82,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 78,
+                    "total": 82
+                  },
+                  "rng": {
+                    "matched": 2696,
+                    "total": 2724
+                  },
+                  "cursors": {
+                    "matched": 82,
+                    "total": 82
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 78,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 78,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 4,
+                    "cCell": {
+                      "ch": "a",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "g",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2695,
+                    "cEntry": "d(2,6)=5",
+                    "cCaller": "dogaze(polyself.c:1715)",
+                    "jsEntry": "rn2(12)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 78,
+                      "key": "\n"
+                    },
+                    "stepIndex": 78
+                  },
+                  "cursor": null
+                },
+                "step": 78,
+                "kind": "rng",
+                "sourceFile": "polyself.c",
+                "function": "dogaze",
+                "message": null,
+                "cFile": "polyself.c",
+                "luaFile": null,
+                "line": 1715
+              },
+              "summary": "When a human wizard polymorphed into a pyrolisk uses #monster on the visible hostile newt, C attacks and kills it. JavaScript dogaze() reports that it sees no target because it starts at state.fmon, which is null, while the live target is in state.level.monlist. Scan the canonical level monster chain before applying the existing visibility and fire-gaze logic.",
+              "source": {
+                "file": "polyself.c",
+                "branch": "The hero is an unblinded pyrolisk with at least 15 energy and an AT_GAZE/AD_FIRE attack. A hostile, live newt at (38,6) is in view: canseemon() and couldsee() are true. C dogaze() finds it through fmon; at the same pre-action replay state JavaScript state.fmon is null but state.level.monlist contains that visible newt.",
+                "functions": [
+                  "dogaze"
+                ],
+                "callers": [
+                  "cmd.c:domonability() selects dogaze() when attacktype(youmonst.data, AT_GAZE) is true; js/cmd.js:domonability() already dispatches to dogaze()."
+                ],
+                "dependencies": [
+                  "js/polyself.js:dogaze() currently loops from state.fmon. Use the live per-level monster chain state.level.monlist, with state.fmon as fallback for states that do not expose level.monlist. Preserve the existing canseemon()/couldsee() predicates; the target passes both at the pre-action state.",
+                  "Once found, reuse the existing setmangry(), d(2,6), resists_fire(), rn2(20), destroy_items(), ignite_items(), damage, and killed paths in polyself.c:dogaze(); the diagnosis does not require changing their behavior."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The assigned queue entry in .cache/mismatch-queue-v24-baseline.json cites evaluation challenges/evaluations/20261006225046-v24.json at 84d84e111155ac834c43327b7c696055df294349: 4 screens remain from 82; the first divergent boundary is segment 0, step 78, the newline that executes #monster. The recorded C trace at that step begins d(2,6)=5 @ dogaze(polyself.c:1715).",
+                "Bounded replay of only challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json against an archive of commit 84d84e111155ac834c43327b7c696055df294349 reproduced 78/82 screens, 2696/2724 RNG calls, and 82/82 cursors (run-Ao7ayP). At step 78 C prints “You attack the newt with a fiery gaze! You kill the newt!”; JavaScript prints “You gaze at no place in particular. The newt misses!” and leaves the newt on the map (run-VoNMRj).",
+                "A bounded replay of the same session prefix through step 77, before the newline executes #monster, showed hero coordinates (38,5), pyrolisk form, and no blindness. state.level.monlist contains the live newt at (38,6), for which canseemon(), cansee(), and couldsee() are all true; state.fmon is null (run-Hry9tp). This directly identifies the stale list head read in js/polyself.js:2496 as the cause; C polyself.c:1642-1774 walks fmon and reaches dogaze’s fire branch."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "fix-apply-use-grease-drop-env-v24-20261006",
