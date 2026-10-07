@@ -385,45 +385,24 @@ test('makewish supplies invent.c the dead-species predicate for a cursed figurin
         );
     });
 
-// zap.c:makewish writes wish conduct before invent.c:hold_another_object adds
-// an over-limit object and calls do.c:dropx. The partial dropz port then
-// refuses a boulder floor effect at the command seam, after those source-order
-// writes; the wish path must retain that boundary instead of escaping.
-test('an unsupported heavy-wish floor effect stops after hold source writes',
-    async () => {
-        assert.ok(failClosedCommandRefusals().includes(UnsupportedDropError));
-
-        // readobjnam() grants the boulder, then makewish writes wish conduct
-        // and hold_another_object adds it before dropx reaches its supported
-        // floor-effect boundary. This borrows a recording's configuration
-        // and supplies a distinct wish input.
-        //
-        // runSegment()'s onBoundary is what makes this an assertion rather
-        // than a smoke test: without it the call passes just as happily when
-        // no wish is typed at all, or when the wish stops somewhere earlier.
-        const recorded = loadWizardWishRecipe().segments[0];
-        const boundaries = [];
-        await runSegment(
-            { ...recorded, moves: `.${WIZWISH_KEY}boulder\n.` },
-            { onBoundary: (error) => boundaries.push(error) },
-        );
-        assert.equal(boundaries.length, 1);
-        // failClosedCommand() wraps the original class and keeps its message,
-        // so the boundary names the arm that stopped rather than any earlier
-        // one.
-        assert.ok(boundaries[0] instanceof UnsupportedHeroCommandBoundaryError);
-        assert.match(
-            boundaries[0].message,
-            /unsupported drop: a boulder landing on the floor/u,
-        );
-        // The unsupported floor effect is later than both source writes.
-        assert.equal(game.u.uconduct.wishes, 1);
-        assert.equal(inventoryHas(BOULDER), true);
-        for (let obj = game.level.objects[game.u.ux][game.u.uy]; obj;
-            obj = obj.nexthere) {
-            assert.notEqual(obj.otyp, BOULDER);
-        }
-    });
+// zap.c:makewish writes wish conduct before the overweight drop.
+// invent.c:hold_another_object drops a wish which exceeds carrying capacity;
+// do.c:flooreffects returns FALSE for a boulder on an ordinary dry floor.
+test('a heavy wished boulder lands after hold and wish source writes', async () => {
+    const recorded = loadWizardWishRecipe().segments[0];
+    const boundaries = [];
+    await runSegment(
+        { ...recorded, moves: `.${WIZWISH_KEY}boulder\n.` },
+        { onBoundary: (error) => boundaries.push(error) },
+    );
+    assert.deepEqual(boundaries, []);
+    assert.equal(game.u.uconduct.wishes, 1);
+    assert.equal(inventoryHas(BOULDER), false);
+    const pile = [];
+    for (let obj = game.level.objects[game.u.ux][game.u.uy]; obj;
+        obj = obj.nexthere) pile.push(obj);
+    assert.ok(pile.some(obj => obj.otyp === BOULDER));
+});
 
 test('a trap stops a heavy wish only after hold and wish state changes',
     async () => {

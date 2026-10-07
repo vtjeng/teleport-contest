@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c:drop -> dropx -> dropz -> flooreffects boulder dry ROOM witness. Barbarian stone giant carries the boulder and manually drops it; C-only inventory probe observed letter e. Seed, date, role, monster form and input sequence differ from the admitted case.",
+  "segments": [
+    {
+      "seed": 13326002,
+      "datetime": "20800407123000",
+      "nethackrc": "OPTIONS=name:BoulderGiant,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nstone giant\n          \u0017boulder\nde          ."
+    }
+  ]
+}
