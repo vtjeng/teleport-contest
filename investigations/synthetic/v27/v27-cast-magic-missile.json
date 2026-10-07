@@ -11,7 +11,7 @@
   "evaluationPath": "challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json",
   "evaluationCommit": "675359a009b1ad4b53d24207a93cc9901209df00",
   "status": "complete",
-  "commit": "f045491dcb95c7dc795ad05ba3590a365de5dd7f",
+  "commit": "cbb68414c54b980b99303a10bba3fdf302af37c7",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v27",
@@ -85,7 +85,7 @@
   },
   "evidence": [
     "Saved coordinator .cache/a136-current-work-queue.json uses challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json; selected case has6remaining screens out of92. Original queue entry is retained in mismatch without embedding its cached investigation.",
-    "Focused frozen-overlay replay at exact worker commit f045491dcb95c7dc795ad05ba3590a365de5dd7f reproduces86/92screens andcursors,3104/3122RNG. First absent screen and draw occur at segment0step86 key l; C nextdraw rn2(7)=1 at dobuzz(zap.c:4823). Boundary is UnsupportedHeroCommandBoundaryError: zapping a wand requires ubuzz() for a spell the hero cast. Diagnostic .cache/B139-candidate/replay.json and replay.log; bounded run-78R6U5. No C recording or aggregate scan was run.",
+    "Focused frozen-overlay replay at worker merge f045491dcb95c7dc795ad05ba3590a365de5dd7f, whose tree exactly equals tested commit cbb68414c54b980b99303a10bba3fdf302af37c7, reproduces86/92screens andcursors,3104/3122RNG. First absent screen and draw occur at segment0step86 key l; C nextdraw rn2(7)=1 at dobuzz(zap.c:4823). Boundary is UnsupportedHeroCommandBoundaryError: zapping a wand requires ubuzz() for a spell the hero cast. Diagnostic .cache/B139-candidate/replay.json and replay.log; bounded run-78R6U5. No C recording or aggregate scan was run.",
     "Read whole C zap.c:weffects3430-3476 and ubuzz4759-4762; C3461-3462 spell-band dispatch is followed by wand-band3463-3465 and common disclose. JS zap.js6433-6436 replaces this exact arm with UnsupportedZapError and stale comment that spell.c casting is unported, while spell.js spelleffects1457/1460 already calls it.",
     "The admitted recipe learns a independently prepared magic-missile book, waits for study, then casts using Z. It does not bypass spell.c energy, success or direction acquisition. The first source loss is the direction-completion l input, after every earlier study/casting screen matches; the rn2(7) annotation is missing beam range, not a spell-success defect.",
     "Existing JS zap.js:dobuzz5594-5602 already accepts hero spell10..19, constructs spellType, and handles type11 fireball; ubuzz has no source-specific spell refusal. Header comments that still describe spell fire outside supported range must be reconciled only to current source behavior.",
