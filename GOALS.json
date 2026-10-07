@@ -187308,6 +187308,37 @@
           "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32"
         }
       }
+    },
+    {
+      "id": "fix-display-hallucinated-object-memory-v24-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Preserve the C object-memory glyph through hallucination redraws",
+      "cFile": "display.c",
+      "sessions": [],
+      "selectionReason": "Select the six-screen v24 hallucination mismatch from investigations/synthetic/v24/v24-hallucinating-pear.json. Its current remaining-screen count is unchanged, and display.c map_object/docrt_flags own the source-traced memory and redraw path.",
+      "detail": "At segment 0 step 33, after #wizintrinsic enables hallucination, C redraws the remembered red potion glyph while JavaScript draws a hallucinated gem. Trace display.c map_object through see_objects/newsym and the final docrt_flags redraw, preserving display-RNG order and remembered glyph state; the pear-eating command begins later and is outside the first mismatch.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "map_object",
+      "session": "synthetic/v24/v24-hallucinating-pear",
+      "step": 33,
+      "syntheticProvenance": {
+        "synthetic/v24/v24-hallucinating-pear": {
+          "session": "synthetic/v24/v24-hallucinating-pear",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-hallucinating-pear",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-hallucinating-pear.session.json",
+          "recordingSha256": "d8d496ba5d72b069fbfc25c17aaf6f4863995f5f47455fe6712a36b02bee2450",
+          "evaluationPath": "challenges/evaluations/20261007043256-v24.json",
+          "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32"
+        }
+      }
     }
   ]
 }
