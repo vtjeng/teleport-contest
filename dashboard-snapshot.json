@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T05:43:07.080Z",
+  "capturedAt": "2026-10-07T06:02:34.921Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -23286,12 +23286,53 @@
         "type": "accepted",
         "at": "2026-10-07T05:42:54.660Z",
         "task": "C127"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C127-37f1de8d",
+        "type": "published",
+        "at": "2026-10-07T05:43:44.583Z",
+        "task": "C127",
+        "commit": "37f1de8df9b63da8f71a050023a4875e63a49ab5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A117-20261007",
+        "type": "assign",
+        "at": "2026-10-07T05:44:00.774Z",
+        "task": "A117",
+        "worker": "A2",
+        "goal": "port-dig-bury-objs-whole-v24-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B128-532068f8",
+        "type": "integrating",
+        "at": "2026-10-07T05:45:55.975Z",
+        "task": "B128",
+        "integration": "532068f894fa97f4ace2680f195baf3aae875050"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-B128-532068f8",
+        "type": "validated",
+        "at": "2026-10-07T05:55:38.085Z",
+        "task": "B128",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B128-0c85bef9",
+        "type": "accepted",
+        "at": "2026-10-07T06:01:37.483Z",
+        "task": "B128"
       }
     ]
   },
   "development": {
-    "executionCommit": "7a862a458435036f4a2a008efa1fe9916761b912",
-    "measuredAt": "2026-10-07T05:36:16.591Z",
+    "executionCommit": "532068f894fa97f4ace2680f195baf3aae875050",
+    "measuredAt": "2026-10-07T05:55:28.773Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
