@@ -27664,7 +27664,16 @@
         "sha": "539cc66f4d5359b40b527c90c210b7b6f72debf6",
         "screens": 6905,
         "rng": 508614
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "kick_nondoor",
+          "sourceFile": "dokick.c",
+          "reason": "Synthetic v25 kick-tree, kick-sink, and kick-secret-door reach live kick_nondoor terrain branches that the earlier wall-only evidence explicitly left as refusals; the function was therefore partial rather than complete.",
+          "followupGoal": "port-dokick-kick-door-nondoor-v25-20261007",
+          "at": "54c8d479e09416eeefc95ff22755a010c6088e73"
+        }
+      ]
     },
     {
       "id": "port-do-legs-in-no-shape-kick",
@@ -184212,26 +184221,33 @@
     {
       "id": "port-polyself-gaze-mindblast-v24-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port polymorph gaze and mind blast over the canonical live monster list",
       "cFile": "polyself.c",
       "sessions": [
         "synthetic/v24/v24-pyrolisk-gazes-hostile",
         "synthetic/v24/v24-mind-flayer-blast"
       ],
-      "selectionReason": "Current complete v24 investigations trace two independent mismatches to dogaze and domindblast scanning stale state.fmon instead of the canonical state.level.monlist; the functions share the same live-monster-list contract and have no active reservation.",
+      "selectionReason": "Queued whole-source v24 goal; both impure entry points have worker-supplied independent recordings and admitted synthetic ranges, and A114 is published.",
       "detail": "Review and preserve every branch, draw, message, state change, and production caller in whole polyself.c:dogaze and polyself.c:domindblast. Replace both stale list walks with the canonical live level monster chain and supply runtime evidence from the admitted pyrolisk gaze and mind flayer blast cases plus any independent entry variation needed for closure.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "a2fc5957ade4471e911004be1dfcd24d687538c9",
+      "openStanding": {
+        "sha": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f224a115f09ed49085e7e66baab3edbf155515aa",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dogaze",
           "line": 1642,
           "endLine": 1776,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -184245,7 +184261,7 @@
           "endLine": 1940,
           "declared": true,
           "sourceFile": "polyself.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -184273,12 +184289,658 @@
           "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
           "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
         }
+      },
+      "activeStanding": {
+        "sha": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-mind-flayer-blast",
+          "session": "synthetic/v24/v24-mind-flayer-blast",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingPath": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+          "recipe": "challenges/cases/v24/v24-mind-flayer-blast.recipe.session.json",
+          "recipeSha256": "90976ddb59429b9cd8940a801bc8b076cd2c292117286f4df127951400620d79",
+          "replayInputSha256": "428517ccaeb2b91e8fb9a44b3bb88e549e68d27027c5be8c15474f3f5cc0f808",
+          "evaluationPath": "challenges/evaluations/20261007021454-v24.json",
+          "evaluationCommit": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+          "evaluationArtifact": "challenges/evaluations/20261007021454-v24.json",
+          "evaluationUtc": "2026-10-07T02:16:32.978Z",
+          "remainingScreens": 13,
+          "recordedSteps": 112,
+          "previousScreensMatched": 99,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 99,
+              "total": 112
+            },
+            "rng": {
+              "matched": 2921,
+              "total": 2962
+            },
+            "cursors": {
+              "matched": 99,
+              "total": 112
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 99,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 99,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2920,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "domindblast(polyself.c:1921)",
+              "jsEntry": "rn2(12)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": "\n"
+              },
+              "stepIndex": 88
+            },
+            "cursor": {
+              "index": 99,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 99,
+                "key": " "
+              },
+              "cCursor": [
+                58,
+                0,
+                1
+              ],
+              "jsCursor": [
+                37,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 88,
+          "kind": "rng",
+          "sourceFile": "polyself.c",
+          "function": "domindblast",
+          "message": null,
+          "cFile": "polyself.c",
+          "luaFile": null,
+          "line": 1921,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-mind-flayer-blast.json",
+            "result": {
+              "session": "synthetic/v24/v24-mind-flayer-blast",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-mind-flayer-blast",
+              "remainingScreens": 13,
+              "recordedSteps": 112,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-mind-flayer-blast",
+                "session": "synthetic/v24/v24-mind-flayer-blast",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+                "recordingPath": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+                "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+                "recipe": "challenges/cases/v24/v24-mind-flayer-blast.recipe.session.json",
+                "recipeSha256": "90976ddb59429b9cd8940a801bc8b076cd2c292117286f4df127951400620d79",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 13,
+                "recordedSteps": 112,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 99,
+                    "total": 112
+                  },
+                  "rng": {
+                    "matched": 2921,
+                    "total": 2962
+                  },
+                  "cursors": {
+                    "matched": 99,
+                    "total": 112
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 99,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 99,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2920,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "domindblast(polyself.c:1921)",
+                    "jsEntry": "rn2(12)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 88,
+                      "key": "\n"
+                    },
+                    "stepIndex": 88
+                  },
+                  "cursor": {
+                    "index": 99,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 99,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      58,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      37,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 88,
+                "kind": "rng",
+                "sourceFile": "polyself.c",
+                "function": "domindblast",
+                "message": null,
+                "cFile": "polyself.c",
+                "luaFile": null,
+                "line": 1921
+              },
+              "summary": "At the #monster action, C enters domindblast’s candidate loop and its first divergent RNG call is polyself.c:1921, while JavaScript emits the same opening blast text without the corresponding target-selection draws. By step 99 C displays “You lock in on the mind flayer’s latent telepathy” and JavaScript displays the mind flayer concentrating. The source owner is the existing whole-function polyself.c:domindblast implementation; compare its live candidate gates and inputs, including distance, peacefulness, mindlessness, telepathy, and vision. The current trace does not distinguish which gate or input differs.",
+              "source": {
+                "file": "polyself.c",
+                "branch": "When u.uen is at least 10, domindblast spends 10 energy and walks fmon in list order. It skips dead monsters, monsters beyond BOLT_LIM squared, peaceful monsters, and mindless monsters. It targets a remaining monster when the hero senses it telepathically, when its species is telepathic and rn2(2) succeeds, or when rn2(10) is zero; a target takes rnd(15) damage after wakeup, and killed() runs if that damage is lethal.",
+                "functions": [
+                  "domindblast"
+                ],
+                "callers": [
+                  "cmd.c:domonability (cmd.c:916) calls domindblast when is_mind_flayer(uptr); js/cmd.js:domonability (js/cmd.js:3567) routes the #monster command to the existing js/polyself.js:domindblast implementation."
+                ],
+                "dependencies": [
+                  "hack.h:mdistu supplies the squared-distance check; mondata.h:mindless and telepathic supply species predicates.",
+                  "rnd.c:rn2 and rnd provide the ordered target-selection and damage draws.",
+                  "mon.c:wakeup and killed perform the target wakeup, damage-death cleanup, and removal side effects."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261006225046-v24.json, evaluated at 84d84e111155ac834c43327b7c696055df294349, records 99/112 matching screens and cursors and 2921/2962 matching RNG calls. Its first mismatch is segment 0 step 88 on Enter: C rn2(2)=0 from domindblast(polyself.c:1921), against JavaScript rn2(12)=0; the first screen difference is step 99, C glyph Y versus JavaScript T.",
+                "A targeted replay of only this session with `node scripts/scan-sessions.mjs --json --synthetic v24/v24-mind-flayer-blast` completed as bounded run-yFlguM at replay commit 3470fce7b2ee7ab949c421ea2abd70fac3854b4e and reproduced the same RNG and screen locations. The step-88 recording has domindblast target-selection draws; the JavaScript step-88 slice has no domindblast draws. At step 99 C reports locking onto the mind flayer’s latent telepathy while JavaScript reports the mind flayer concentrating. The examined C and JavaScript source paths for polyself.c, cmd.c, mondata.h, js/polyself.js, js/cmd.js, and js/mondata.js are unchanged between the evaluated commit and this replay commit.",
+                "The source trace is polyself.c:1894-1938, including the full candidate-loop guards and the ordered `u_sen || (telepathic && rn2(2)) || !rn2(10)` condition. The production entry point is cmd.c:domonability at 916; the #monster command reaches js/cmd.js:domonability at 3567 and js/polyself.js:domindblast at 2778. The remaining implementation probe is to compare each candidate’s dead state, distance, peacefulness, mindless predicate, species telepathy, and mcansee value at this call; the available replay does not identify which eligibility input first differs."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-pyrolisk-gazes-hostile",
+          "session": "synthetic/v24/v24-pyrolisk-gazes-hostile",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+          "recordingPath": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+          "recordingSha256": "61b18e7a3552a6db8d9b5be6a1d89012ffcec299d7dabe050ec59c4cea72587b",
+          "recipe": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.recipe.session.json",
+          "recipeSha256": "6c011feabf67e56c6c0fc348520c3a2465213dc755441a7e7e1db4253d51b3df",
+          "replayInputSha256": "428517ccaeb2b91e8fb9a44b3bb88e549e68d27027c5be8c15474f3f5cc0f808",
+          "evaluationPath": "challenges/evaluations/20261007021454-v24.json",
+          "evaluationCommit": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+          "evaluationArtifact": "challenges/evaluations/20261007021454-v24.json",
+          "evaluationUtc": "2026-10-07T02:16:32.978Z",
+          "remainingScreens": 4,
+          "recordedSteps": 82,
+          "previousScreensMatched": 78,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 78,
+              "total": 82
+            },
+            "rng": {
+              "matched": 2696,
+              "total": 2724
+            },
+            "cursors": {
+              "matched": 82,
+              "total": 82
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 78,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 78,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 4,
+              "cCell": {
+                "ch": "a",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "g",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2695,
+              "cEntry": "d(2,6)=5",
+              "cCaller": "dogaze(polyself.c:1715)",
+              "jsEntry": "rn2(12)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 78,
+                "key": "\n"
+              },
+              "stepIndex": 78
+            },
+            "cursor": null
+          },
+          "step": 78,
+          "kind": "rng",
+          "sourceFile": "polyself.c",
+          "function": "dogaze",
+          "message": null,
+          "cFile": "polyself.c",
+          "luaFile": null,
+          "line": 1715,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-pyrolisk-gazes-hostile.json",
+            "result": {
+              "session": "synthetic/v24/v24-pyrolisk-gazes-hostile",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-pyrolisk-gazes-hostile",
+              "remainingScreens": 4,
+              "recordedSteps": 82,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "61b18e7a3552a6db8d9b5be6a1d89012ffcec299d7dabe050ec59c4cea72587b",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-pyrolisk-gazes-hostile",
+                "session": "synthetic/v24/v24-pyrolisk-gazes-hostile",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+                "recordingPath": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+                "recordingSha256": "61b18e7a3552a6db8d9b5be6a1d89012ffcec299d7dabe050ec59c4cea72587b",
+                "recipe": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.recipe.session.json",
+                "recipeSha256": "6c011feabf67e56c6c0fc348520c3a2465213dc755441a7e7e1db4253d51b3df",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 4,
+                "recordedSteps": 82,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 78,
+                    "total": 82
+                  },
+                  "rng": {
+                    "matched": 2696,
+                    "total": 2724
+                  },
+                  "cursors": {
+                    "matched": 82,
+                    "total": 82
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 78,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 78,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 4,
+                    "cCell": {
+                      "ch": "a",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "g",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2695,
+                    "cEntry": "d(2,6)=5",
+                    "cCaller": "dogaze(polyself.c:1715)",
+                    "jsEntry": "rn2(12)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 78,
+                      "key": "\n"
+                    },
+                    "stepIndex": 78
+                  },
+                  "cursor": null
+                },
+                "step": 78,
+                "kind": "rng",
+                "sourceFile": "polyself.c",
+                "function": "dogaze",
+                "message": null,
+                "cFile": "polyself.c",
+                "luaFile": null,
+                "line": 1715
+              },
+              "summary": "When a human wizard polymorphed into a pyrolisk uses #monster on the visible hostile newt, C attacks and kills it. JavaScript dogaze() reports that it sees no target because it starts at state.fmon, which is null, while the live target is in state.level.monlist. Scan the canonical level monster chain before applying the existing visibility and fire-gaze logic.",
+              "source": {
+                "file": "polyself.c",
+                "branch": "The hero is an unblinded pyrolisk with at least 15 energy and an AT_GAZE/AD_FIRE attack. A hostile, live newt at (38,6) is in view: canseemon() and couldsee() are true. C dogaze() finds it through fmon; at the same pre-action replay state JavaScript state.fmon is null but state.level.monlist contains that visible newt.",
+                "functions": [
+                  "dogaze"
+                ],
+                "callers": [
+                  "cmd.c:domonability() selects dogaze() when attacktype(youmonst.data, AT_GAZE) is true; js/cmd.js:domonability() already dispatches to dogaze()."
+                ],
+                "dependencies": [
+                  "js/polyself.js:dogaze() currently loops from state.fmon. Use the live per-level monster chain state.level.monlist, with state.fmon as fallback for states that do not expose level.monlist. Preserve the existing canseemon()/couldsee() predicates; the target passes both at the pre-action state.",
+                  "Once found, reuse the existing setmangry(), d(2,6), resists_fire(), rn2(20), destroy_items(), ignite_items(), damage, and killed paths in polyself.c:dogaze(); the diagnosis does not require changing their behavior."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The assigned queue entry in .cache/mismatch-queue-v24-baseline.json cites evaluation challenges/evaluations/20261006225046-v24.json at 84d84e111155ac834c43327b7c696055df294349: 4 screens remain from 82; the first divergent boundary is segment 0, step 78, the newline that executes #monster. The recorded C trace at that step begins d(2,6)=5 @ dogaze(polyself.c:1715).",
+                "Bounded replay of only challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json against an archive of commit 84d84e111155ac834c43327b7c696055df294349 reproduced 78/82 screens, 2696/2724 RNG calls, and 82/82 cursors (run-Ao7ayP). At step 78 C prints “You attack the newt with a fiery gaze! You kill the newt!”; JavaScript prints “You gaze at no place in particular. The newt misses!” and leaves the newt on the map (run-VoNMRj).",
+                "A bounded replay of the same session prefix through step 77, before the newline executes #monster, showed hero coordinates (38,5), pyrolisk form, and no blindness. state.level.monlist contains the live newt at (38,6), for which canseemon(), cansee(), and couldsee() are all true; state.fmon is null (run-Hry9tp). This directly identifies the stale list head read in js/polyself.js:2496 as the cause; C polyself.c:1642-1774 walks fmon and reaches dogaze’s fire branch."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dogaze",
+            "implementation": "js/polyself.js",
+            "symbol": "dogaze",
+            "sourceReview": "Read complete polyself.c1642-1774, attack scan, invalid damage type diagnostics/ECMD_OK, Blind then Hallucination gates, 15 energy/status update, exact unsnapshotted nmon loop, dead/visibility/couldsee gates, invisibility/disguise/safe_dog/confirm branches, setmangry before inability to meet the gaze, AD_CONF repeated-confusion state/messages, AD_FIRE d(2,6) before message and resistance, rn2(20) before destroy_items/ignite_items, original damage passed to inventory destruction, HP/death handling before passive gaze, floating-eye extrinsic-only Free_action and short-circuit ulevel>6 || rn2(4), dice/-200 paralysis/reason/nomovemsg, urgent Medusa output/killer/done, looked count and ECMD_TIME. Replace stale fmon head with the sole canonical level.monlist; do not add an alias/fallback or snapshot the next pointer in this function. Use existing source-named Monnam/mon_nam wrappers (same x_monnam contract as previous helper aliases). Replaced the unexpected-attack throw with note_unported(pline.c impossible) then C ECMD_OK: impossible is an unported discarded void diagnostic; no diagnostic output is invented. Read pline.c584ff impossible, do_name.c mon_nam/Monnam, display.h _canseemon, vision.h couldsee, mondata.h perceives/haseyes, youprop.h Blind/Hallucination/Invis/Confusion/See_invisible/Free_action, monst.h helpless/DEADMONSTER, mon.c setmangry/killed/xkilled and existing owners, zap.c destroy_items5964-6097 and existing zap_destroy_items.js owner, trap.c ignite_items7161-7172, apply.c catch_lit1577-1625 and existing JS ignition owners, hack.c nomul and canonical state.multi_reason/nomovemsg owners, end.c done and urgent tty owner. Existing AD_FIRE inventory/death owners remain in use, including inherited helper gaps (apply.c floor message coordinate/check_unpaid; special species/death/finish owners); this task claims no new completion for those owners.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c:domonability908-909 uses attacktype(uptr,AT_GAZE) and returns dogaze(); js/cmd.js existing AT_GAZE branch passes the live state and returns the awaited command result. The #monster extcmd registry/rhack dispatch remains the production route."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself-gaze-mindblast.test.mjs",
+              "scripts/uhitm-ad-conf.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/zap-destroy-items.test.mjs",
+              "scripts/apply-light-cocktail.test.mjs"
+            ],
+            "recordings": [
+              "recordings/polyself.c/gaze-confusion-newt.session.json",
+              "recordings/polyself.c/monster-gaze-umber-hulk.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-pyrolisk-gazes-hostile",
+                "segment": 0,
+                "fromStep": 78,
+                "throughStep": 81,
+                "source": "cmd.c rhack / #monster -> domonability AT_GAZE arm908-909 -> polyself.c dogaze1642-1774, live newt fire damage and killed tail"
+              }
+            ],
+            "checkedAt": "74f3790f291206491173e7e97b021bcc537c247d"
+          },
+          {
+            "name": "domindblast",
+            "implementation": "js/polyself.js",
+            "symbol": "domindblast",
+            "sourceReview": "Read complete polyself.c1894-1938: lack-energy ECMD_OK, 10 energy/status update before two awaited opening messages, canonical level.monlist with next pointer saved before every filter/side effect, dead/distance>BOLT_LIM squared/peaceful/mindless filters, telepathic&& !mcansee u_sen, exact short-circuit u_sen || (telepathic && rn2(2)) || !rn2(10), rnd(15) before wakeup(mtmp,dmg>mhp), wakeup before possessive mon_nam lock-on output before HP subtraction and killed, ECMD_TIME. Read you.h mdistu squared distance, mondata.h mindless/telepathic, rnd.c ordered wrapper owners and ISAAC contexts, mon.c wakeup/finish_meating/setmangry/killed/xkilled and existing JS owners. Canonical nmon iteration and saved-next semantics now preserve traversal if a death owner removes the current monster; no extra RNG, monster list alias, state mutation or message is added. Existing source-named mon_nam replaces its equivalent alias. Inherited wakeup/death helper gaps remain owned there, not claimed complete here.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c:domonability916-917 selects is_mind_flayer(uptr) after breath/spit/nymph/gaze/were/hide/web arms and returns domindblast(); existing js/cmd.js dispatcher preserves that order and passes live state. #monster extcmd/rhack route is replay verified."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself-gaze-mindblast.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/polyself.c/mindblast-ordinary-newt.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-mind-flayer-blast",
+                "segment": 0,
+                "fromStep": 88,
+                "throughStep": 108,
+                "source": "cmd.c rhack / #monster -> domonability is_mind_flayer arm916-917 -> polyself.c domindblast1894-1938, ordered telepathic and ordinary candidate draws; second blast98-99 locks on latent telepathy"
+              }
+            ],
+            "checkedAt": "74f3790f291206491173e7e97b021bcc537c247d"
+          }
+        ],
+        "entryPointReview": "A source-wide rg across src/*.c finds exactly one production caller per function, cmd.c domonability dogaze909 and domindblast917; both are active #monster arms in the recorder build. No excluded caller. Every unit is impure; no new pure helper is introduced. Admitted v24 fire gaze fully matches through final step81. Admitted v24 mind-flayer blast matches through108, including source candidate draws88 and98-99 and the positive latent-telepathy hit. At later step109 the first remaining RNG difference is the separate spell.c:losespells1777 helper, C rn2(3) versus JS rn2(5); no later spell completion is claimed. Independent fixed-seed gnome/orc Wizard recipes reach AD_CONF against a newt and ordinary nontelepathic rn2(10) selection. Matrix verifies actual form/target/energy/time and source output; initial too-short pager setup matched C but did not execute the command, was retained in .cache/C124-*-initial-setup.json and corrected before recording. No seed scan. Twelve source-pinned constructed tests cover invalid/Blind/Hallucination/energy gates, canonical live list, repeated confusion, dead/disguised/tame/helpless/stunned/blind/eyeless gates, hero invisibility, Confusion overriding safe_dog, fire resistance/damage/threshold draw order, raw extrinsic free action/high-level dice short circuit, psychic filters and exact BOLT_LIM boundary, blind telepathy, latent/ordinary selection short circuits, confirmation decline and multiple live actors. Rare Medusa/low-level paralysis branches are source compared and reuse existing done/nomul owners; full entry evidence does not claim new completion of those owners or the discarded impossible diagnostic.",
+        "entryPoints": [
+          {
+            "name": "Use #monster while polymorphed with an AT_GAZE attack",
+            "functions": [
+              "dogaze"
+            ],
+            "recordings": [
+              "recordings/polyself.c/gaze-confusion-newt.session.json",
+              "recordings/polyself.c/monster-gaze-umber-hulk.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-pyrolisk-gazes-hostile",
+                "segment": 0,
+                "fromStep": 78,
+                "throughStep": 81,
+                "source": "cmd.c rhack / #monster -> domonability AT_GAZE arm908-909 -> polyself.c dogaze1642-1774, live newt fire damage and killed tail"
+              }
+            ]
+          },
+          {
+            "name": "Use #monster while polymorphed into a mind flayer",
+            "functions": [
+              "domindblast"
+            ],
+            "recordings": [
+              "recordings/polyself.c/mindblast-ordinary-newt.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-mind-flayer-blast",
+                "segment": 0,
+                "fromStep": 88,
+                "throughStep": 108,
+                "source": "cmd.c rhack / #monster -> domonability is_mind_flayer arm916-917 -> polyself.c domindblast1894-1938, ordered telepathic and ordinary candidate draws; second blast98-99 locks on latent telepathy"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-mind-flayer-blast",
+          "session": "synthetic/v24/v24-mind-flayer-blast",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingPath": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+          "recipe": "challenges/cases/v24/v24-mind-flayer-blast.recipe.session.json",
+          "recipeSha256": "90976ddb59429b9cd8940a801bc8b076cd2c292117286f4df127951400620d79",
+          "replayInputSha256": "675c539b14b0a3db97d27cff927a1c37818ef18f39ccdb0d1b4d82a88d7956fb",
+          "evaluationPath": "challenges/evaluations/20261007023452-v24.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa",
+          "evaluationArtifact": "challenges/evaluations/20261007023452-v24.json",
+          "evaluationUtc": "2026-10-07T02:36:34.969Z",
+          "remainingScreens": 0,
+          "recordedSteps": 112,
+          "previousScreensMatched": 99,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 112,
+              "total": 112
+            },
+            "rng": {
+              "matched": 2945,
+              "total": 2962
+            },
+            "cursors": {
+              "matched": 112,
+              "total": 112
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2945,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "losespells(spell.c:1777)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 109,
+                "key": " "
+              },
+              "stepIndex": 109
+            },
+            "cursor": null
+          },
+          "step": 109,
+          "kind": "rng",
+          "sourceFile": "spell.c",
+          "function": "losespells",
+          "message": null,
+          "cFile": "spell.c",
+          "luaFile": null,
+          "line": 1777,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v24/v24-mind-flayer-blast.json",
+            "previousRemainingScreens": 13
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "f224a115f09ed49085e7e66baab3edbf155515aa",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "fix-apply-use-grease-drop-env-v24-20261006",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Wire cursed grease slips through the canonical drop environment",
       "cFile": "apply.c",
       "sessions": [
@@ -184286,10 +184948,17 @@
       ],
       "selectionReason": "The current complete v24 investigation reproduces the four-screen stop and traces it to use_grease calling the existing dropx family without the canonical newsym and encumber operations; the caller and shared drop environment have no active reservation.",
       "detail": "Repair the bounded apply.c:use_grease cursed-slip caller by composing the canonical dropCommandEnv before calling the existing do.c:dropx implementation. Preserve the C cursed/Fumbling draw and drop ordering. Verify the admitted v24 case and focused caller behavior; do not claim new whole-function completion for the already separate do.c drop family.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "13386fd80adf07aae4979ed52b9fca49e246bca3",
+      "openStanding": {
+        "sha": "03bd947b68a4cd1a4a15c52d17f77a7530d71f0b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "use_grease",
       "session": "synthetic/v24/v24-cursed-grease-slip",
       "step": 30,
@@ -184306,12 +184975,174 @@
           "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
           "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
         }
+      },
+      "activeStanding": {
+        "sha": "03bd947b68a4cd1a4a15c52d17f77a7530d71f0b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-cursed-grease-slip",
+          "session": "synthetic/v24/v24-cursed-grease-slip",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-cursed-grease-slip.session.json",
+          "recordingPath": "challenges/cases/v24/v24-cursed-grease-slip.session.json",
+          "recordingSha256": "4cc4d5faa4218f7eb3632e5186b9d6c6c80722dd3773e8aa0d11d781cf821efa",
+          "recipe": "challenges/cases/v24/v24-cursed-grease-slip.recipe.session.json",
+          "recipeSha256": "3b5b7d86519d36e628b7c05e60a144dafce18a453f7236092f98a054a1817672",
+          "replayInputSha256": "818fba80915e482d537aa1304fd808bbb07a3ea9ddba1f5173f7f695bb22a77d",
+          "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
+          "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079",
+          "evaluationArtifact": "challenges/evaluations/20261007003626-v24.json",
+          "evaluationUtc": "2026-10-07T00:38:02.167Z",
+          "remainingScreens": 4,
+          "recordedSteps": 34,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 34
+            },
+            "rng": {
+              "matched": 2276,
+              "total": 2282
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-cursed-grease-slip.json",
+            "result": {
+              "session": "synthetic/v24/v24-cursed-grease-slip",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-cursed-grease-slip",
+              "remainingScreens": 4,
+              "recordedSteps": 34,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "4cc4d5faa4218f7eb3632e5186b9d6c6c80722dd3773e8aa0d11d781cf821efa",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-cursed-grease-slip",
+                "session": "synthetic/v24/v24-cursed-grease-slip",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-cursed-grease-slip.session.json",
+                "recordingPath": "challenges/cases/v24/v24-cursed-grease-slip.session.json",
+                "recordingSha256": "4cc4d5faa4218f7eb3632e5186b9d6c6c80722dd3773e8aa0d11d781cf821efa",
+                "recipe": "challenges/cases/v24/v24-cursed-grease-slip.recipe.session.json",
+                "recipeSha256": "3b5b7d86519d36e628b7c05e60a144dafce18a453f7236092f98a054a1817672",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 4,
+                "recordedSteps": 34,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 2276,
+                    "total": 2282
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The cursed can slips on segment 0 step 30, then the JavaScript drop path stops because do.c:dropx reaches the ordinary floor tail without the newsym hook. C applies the same cursed-charge branch, drops the can through dropx -> dropy -> dropz, redraws the hero square, and updates encumbrance. The actionable source scope is the partially ported do.c drop family and its production callers.",
+              "source": {
+                "file": "do.c",
+                "branch": "A charged cursed can of grease slips when apply.c:use_grease evaluates (obj->cursed || Fumbling) && !rn2(2). In this recipe the hero is not swallowed, stands on reachable ordinary floor outside a shop or altar, and dropx proceeds through dropy to dropz; the dropz floor branch must complete placement, stacking, newsym, and encumber_msg.",
+                "functions": [
+                  "dropx",
+                  "dropy",
+                  "dropz"
+                ],
+                "callers": [
+                  "apply.c:use_grease (2604-2654), including the charged cursed-slip branch at 2618-2623; production path js/apply.js:use_grease -> js/do.js:dropx. This is the caller exercised by the assigned session.",
+                  "do.c:drop (714-780) calls dropx after the command checks; production path js/do.js:drop -> js/do.js:dropx, with dropCommandEnv supplying the drop-tail operations.",
+                  "do.c:dosinkring (at 514 and 652) calls dropx for ring giveback and a backed-up sink; production path js/do.js:dosinkring -> js/do.js:dropx, also with dropCommandEnv.",
+                  "invent.c:hold_another_object (1208-1311) calls dropx on its drop_it path; production path js/invent.js:gotoDrop uses the caller-provided dropObject hook."
+                ],
+                "dependencies": [
+                  "display.c:newsym redraws the floor square after dropz places and stacks the object; js/do.js:dropCommandEnv already supplies the operation, but js/apply.js:use_grease calls dropx with only its state/environment and js/do.js:dropx reaches dropzAdmitted without installing that default.",
+                  "pickup.c:encumber_msg is called after dropz completes and is supplied by js/do.js:dropCommandEnv; preserve it after the redraw.",
+                  "Preserve do.c:dropx ordering through freeinv, ship_object, altar handling, and dropy, then do.c:dropz floor effects, placement, impact/shop branches, stackobj, newsym, and encumber_msg. The assigned ordinary-floor branch does not enter shop, altar, liquid, swallowed, or impact conditions."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry and challenges/evaluations/20261006225046-v24.json at 84d84e111155ac834c43327b7c696055df294349 report 30/34 screens, 2276/2282 RNG calls, and 30/34 cursors; the first failure is stop at segment 0, step 30 with “unsupported drop: missing newsym operation”. The recorded C step for key p shows “The can of grease slips from your fingers”; its RNG log includes rn2(2)=0 at apply.c:2618.",
+                "nethack-c/upstream/src/apply.c:2604-2640 defines use_grease: for a charged cursed object and rn2(2)==0 it consumes a charge, prints the slip message, calls dropx(obj), then returns ECMD_TIME. The recorded recipe satisfies this branch, so apply.c is the caller and not the missing behavior.",
+                "nethack-c/upstream/src/do.c:786-842 defines dropx, dropy, and dropz. dropx removes the object from inventory, handles shipping and altar effects, then calls dropy; dropy calls dropz; the ordinary floor branch of dropz applies floor effects, places and stacks the object, calls newsym(u.ux,u.uy), then encumber_msg().",
+                "At the examined commit, js/apply.js:5241-5259 calls dropx with {...env,state}. js/do.js:1777-1797 normalizes that environment but reaches dropzAdmitted directly without the operation defaults; js/do.js:1861 requires the absent newsym hook. js/do.js:1355-1367 shows dropCommandEnv already supplies newsym and encumberMessage to the command and sink callers. This identifies the missing source-to-caller wiring in the partially ported do.c drop family."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "fix-explode-fatal-last-msg-v24-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Match fatal explosion wording after intervening item damage messages",
       "cFile": "explode.c",
       "sessions": [
@@ -184319,10 +185150,17 @@
       ],
       "selectionReason": "The current complete v24 investigation isolates the remaining one-screen mismatch to explode selecting fatal wording from iflags.last_msg after vpline clears the caught-in-explosion marker; explode and the message-state contract have no active reservation.",
       "detail": "Implement the narrow explode.c:explode fatal-wording branch and the corresponding pline.c:vpline last-message reset in the existing JavaScript message pipeline. Preserve all explosion damage, item-damage, message, and cursor order. Verify the admitted v24 pyrolisk egg case and focused last-message behavior without claiming unrelated whole-source completion.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "261c37214f73b60547dd071f4d320bbba3c21af0",
+      "openStanding": {
+        "sha": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "explode",
       "session": "synthetic/v24/v24-eat-pyrolisk-egg",
       "step": 27,
@@ -184338,6 +185176,403 @@
           "recordingSha256": "d740fef7e4236d8895adf3cc186996c3703822821d3cdbf922e427b432457365",
           "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
           "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
+        }
+      },
+      "activeStanding": {
+        "sha": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-eat-pyrolisk-egg",
+          "session": "synthetic/v24/v24-eat-pyrolisk-egg",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-eat-pyrolisk-egg.session.json",
+          "recordingPath": "challenges/cases/v24/v24-eat-pyrolisk-egg.session.json",
+          "recordingSha256": "d740fef7e4236d8895adf3cc186996c3703822821d3cdbf922e427b432457365",
+          "recipe": "challenges/cases/v24/v24-eat-pyrolisk-egg.recipe.session.json",
+          "recipeSha256": "faa55bbd5fde5eabeab76b5870ce2930d6eff901454695c27196cf7e6a21f17d",
+          "replayInputSha256": "6a6c7538e1bfbfcfeaa001ce540beee35dc724c9a462e13bdc8690d2f64d9526",
+          "evaluationPath": "challenges/evaluations/20261007012022-v24.json",
+          "evaluationCommit": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
+          "evaluationArtifact": "challenges/evaluations/20261007012022-v24.json",
+          "evaluationUtc": "2026-10-07T01:21:51.233Z",
+          "remainingScreens": 1,
+          "recordedSteps": 30,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 30
+            },
+            "rng": {
+              "matched": 2540,
+              "total": 2540
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 30
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 27,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 27,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 27,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 27,
+                "key": " "
+              },
+              "cCursor": [
+                30,
+                0,
+                1
+              ],
+              "jsCursor": [
+                20,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 27,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-eat-pyrolisk-egg.json",
+            "result": {
+              "session": "synthetic/v24/v24-eat-pyrolisk-egg",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-eat-pyrolisk-egg",
+              "remainingScreens": 1,
+              "recordedSteps": 30,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "d740fef7e4236d8895adf3cc186996c3703822821d3cdbf922e427b432457365",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-eat-pyrolisk-egg",
+                "session": "synthetic/v24/v24-eat-pyrolisk-egg",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-eat-pyrolisk-egg.session.json",
+                "recordingPath": "challenges/cases/v24/v24-eat-pyrolisk-egg.session.json",
+                "recordingSha256": "d740fef7e4236d8895adf3cc186996c3703822821d3cdbf922e427b432457365",
+                "recipe": "challenges/cases/v24/v24-eat-pyrolisk-egg.recipe.session.json",
+                "recipeSha256": "faa55bbd5fde5eabeab76b5870ce2930d6eff901454695c27196cf7e6a21f17d",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 1,
+                "recordedSteps": 30,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 30
+                  },
+                  "rng": {
+                    "matched": 2540,
+                    "total": 2540
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 30
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 27,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 27,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 27,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 27,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      30,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      20,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 27,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The remaining mismatch is fatal-blast wording after a pyrolisk egg burns the hero’s cloak. C sets iflags.last_msg to CAUGHT_IN_EXPLOSION after the caught message, but the intervening cloak-smouldering message clears it in pline.c:vpline; explode() then prints “The fireball is fatal.” Port this last_msg flow through js/tty_message.js and branch in js/explode.js instead of always printing “It is fatal.”",
+              "source": {
+                "file": "explode.c",
+                "branch": "When a non-polymorphed hero takes lethal fire damage from a visible explosion while verbose messages are enabled, explode() emits the caught-in-explosion message and marks iflags.last_msg. If a later pline message (here, the cloak-smouldering item damage message) clears that marker before the fatal-message branch, C uses pline_The(\"%s is fatal.\", str); otherwise it uses \"It is fatal.\".",
+                "functions": [
+                  "explode"
+                ],
+                "callers": [
+                  "eat.c:fprefx (2099-2109) consumes an EGG laid by PM_PYROLISK and calls explode(u.ux, u.uy, -11, d(3, 6), 0, EXPL_FIERY); js/eat.js:fprefx (3179-3185) is the corresponding production caller.",
+                  "explode.c:explode (594-603, 668-675) marks the caught-in-explosion message and later selects fatal wording; js/explode.js:explode (655-692) is the corresponding runtime implementation."
+                ],
+                "dependencies": [
+                  "pline.c:vpline (280-281) resets iflags.last_msg to PLNMSG_UNKNOWN after a displayed message. Implement the same emitted-message reset in js/tty_message.js so the intervening cloak message cancels the explosion marker before js/explode.js selects fatal wording."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved queue entry from challenges/evaluations/20261006225046-v24.json at 84d84e111155ac834c43327b7c696055df294349 has 29/30 matching screens and cursors and 2540/2540 matching RNG calls. Its first mismatch is step 27 after Space: the C/JS first cells are T/I and the cursor columns are 30/20. The one-session diagnostic replay reproduces this signature; it reports replay revision 3470fce7b2ee7ab949c421ea2abd70fac3854b4e, whose js/eat.js, js/explode.js, and js/tty_message.js files are unchanged at the examined 84d84e1 commit.",
+                "C eat.c:fprefx (2102-2109) consumes the pyrolisk egg and calls explode() with type -11 and EXPL_FIERY. The matching JS eat.js:fprefx branch reaches js/explode.js:explode with the same fireball route.",
+                "C explode.c:explode sets iflags.last_msg to PLNMSG_CAUGHT_IN_EXPLOSION after its caught message (602-603). It applies fire damage and item effects before checking the marker at 668-672. The recorded step 26 includes “Your cloak smoulders!”, so pline.c:vpline has cleared the marker by the fatal wording; C therefore emits “The fireball is fatal.”",
+                "JS explode.js:explode (655-692) neither sets the caught-in-explosion marker nor chooses between the source branches; it always sends “It is fatal.” The JS TTY pipeline in tty_message.js (453-582) does not apply pline.c:vpline’s last_msg reset after an emitted message. Fix the narrow state/message contract in those two existing implementations."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-dokick-kick-door-nondoor-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete door and terrain kick handling",
+      "cFile": "dokick.c",
+      "sessions": [
+        "synthetic/v25/v25-kick-tree",
+        "synthetic/v25/v25-kick-sink",
+        "synthetic/v25/v25-kick-secret-door",
+        "synthetic/v25/v25-kick-trapped-door"
+      ],
+      "selectionReason": "",
+      "detail": "Port whole consecutive dokick.c kick_door and kick_nondoor functions in source order. Replace their live terrain refusals, preserve avrg_attrib, door traps, shop and town discarded-void gaps, tree and sink RNG, state, messages, and production dokick caller. Use the four cited v25 cases plus independent C variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "kick_door",
+          "line": 910,
+          "endLine": 973,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "kick_nondoor",
+          "line": 974,
+          "endLine": 1256,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 910,
+        "to": 1256
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-kick-tree": {
+          "session": "synthetic/v25/v25-kick-tree",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-kick-tree",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-kick-tree.session.json",
+          "recordingSha256": "ee6ff06aee466e3ac3ce60f6b9ee58c2cc68ea5b99a3bb293fefa954e8819268",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        },
+        "synthetic/v25/v25-kick-sink": {
+          "session": "synthetic/v25/v25-kick-sink",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-kick-sink",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-kick-sink.session.json",
+          "recordingSha256": "9761ac7fafb4149dad9c06d0234f5cc995ec563138ceea03546af103d916a349",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        },
+        "synthetic/v25/v25-kick-secret-door": {
+          "session": "synthetic/v25/v25-kick-secret-door",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-kick-secret-door",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-kick-secret-door.session.json",
+          "recordingSha256": "ae4b5d2f7a83d8bb2aba446b925a7f44b6b32d46519ab1e90456c3dae9024042",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        },
+        "synthetic/v25/v25-kick-trapped-door": {
+          "session": "synthetic/v25/v25-kick-trapped-door",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-kick-trapped-door",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-kick-trapped-door.session.json",
+          "recordingSha256": "474adc7523bc23eaf4a93c62c7750b8306311dfecab0bb9a5f7d7a5f60502268",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        }
+      }
+    },
+    {
+      "id": "fix-vision-recalc-blind-epilogue-v25-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Run the blind vision recalculation epilogue",
+      "cFile": "vision.c",
+      "sessions": [],
+      "selectionReason": "The complete v25 investigation traces the first mismatch at step 45 from the lava glyph left over the blind hero to vision.c:vision_recalc returning before its shared epilogue.",
+      "detail": "Match vision.c vision_recalc blind control!=2 path through the shared hero redraw, bounds update, and notice_all_mons epilogue. Preserve all existing vision output and prove the v25 lava wish through step 45 with an independent variation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "vision_recalc",
+      "session": "synthetic/v25/v25-sit-lava",
+      "step": 45,
+      "syntheticProvenance": {
+        "synthetic/v25/v25-sit-lava": {
+          "session": "synthetic/v25/v25-sit-lava",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-sit-lava",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-sit-lava.session.json",
+          "recordingSha256": "66627a56954e1a1a32b51cac7cfd2e6856bc52463cba478480bbd3e4ef15fc6e",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        }
+      }
+    },
+    {
+      "id": "port-zap-makewish-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete wish placement and unsafe-corpse handling",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v25/v25-flesh-golem-eats-cockatrice"
+      ],
+      "selectionReason": "The complete v25 investigation traces the first mismatch at step 54 to zap.c:makewish omitting the unsafe-corpse wishedfor and materialize branch.",
+      "detail": "Port whole zap.c makewish in source order, including the unsafe corpse wishedfor/materialize branch, all consumed return values, messaging, placement, and existing production callers. Use the cited v25 flesh-golem case and independent C variations without case-specific logic.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "makewish",
+          "line": 6314,
+          "endLine": 6428,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 6314,
+        "to": 6428
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-flesh-golem-eats-cockatrice": {
+          "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-flesh-golem-eats-cockatrice",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
         }
       }
     }

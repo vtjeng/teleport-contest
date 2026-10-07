@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v25/v25-kick-sink",
+  "corpus": "synthetic",
+  "batch": "v25",
+  "caseId": "v25-kick-sink",
+  "manifestPath": "challenges/manifests/v25.json",
+  "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+  "recordingSha256": "9761ac7fafb4149dad9c06d0234f5cc995ec563138ceea03546af103d916a349",
+  "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+  "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+  "remainingScreens": 11,
+  "recordedSteps": 21,
+  "status": "complete",
+  "commit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v25",
+    "caseId": "v25-kick-sink",
+    "session": "synthetic/v25/v25-kick-sink",
+    "manifestPath": "challenges/manifests/v25.json",
+    "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+    "recording": "challenges/cases/v25/v25-kick-sink.session.json",
+    "recordingPath": "challenges/cases/v25/v25-kick-sink.session.json",
+    "recordingSha256": "9761ac7fafb4149dad9c06d0234f5cc995ec563138ceea03546af103d916a349",
+    "recipe": "challenges/cases/v25/v25-kick-sink.recipe.session.json",
+    "recipeSha256": "ebd30bcf3c8a69d665d40c419ddd8e8d606f578d0d26caa8b594cd6ad60f4916",
+    "replayInputSha256": "6bc0286d388cbaacf2ee80ef4a23bbc56c713f2afd3880fc002fd1889560e766",
+    "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+    "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+    "evaluationArtifact": "challenges/evaluations/20261007010702-v25.json",
+    "evaluationUtc": "2026-10-07T01:07:09.780Z",
+    "remainingScreens": 11,
+    "recordedSteps": 21,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 10,
+        "total": 21
+      },
+      "rng": {
+        "matched": 2184,
+        "total": 2260
+      },
+      "cursors": {
+        "matched": 10,
+        "total": 21
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: kick_nondoor()'s sink arm, which needs sink_backs_up()",
+      "step": 10
+    },
+    "step": 10,
+    "kind": "stop",
+    "sourceFile": "dokick.c",
+    "function": "kick_nondoor",
+    "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: kick_nondoor()'s sink arm, which needs sink_backs_up()",
+    "cFile": "dokick.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v25 kick-sink replay reaches dokick.c:kick_nondoor() with a non-levitating hero facing a sink. At step 10, C takes the rn2(5) nonzero arm, plays the pipe-klunk sound, prints “Klunk!  The pipes vibrate noisily.”, exercises Dexterity, and spends the turn; js/dokick.js refuses the whole sink arm before that draw. The source owner is kick_nondoor(), not fountain.c:sink_backs_up(): that helper exists in JavaScript and is only called by a later sink outcome, while the kick caller is missing. The actionable scope is a whole-function dokick.c:kick_nondoor() port, which also has other still-refused terrain arms.",
+  "source": {
+    "file": "dokick.c",
+    "branch": "dokick() has selected a non-door target square after the monster, pool, and object-pile checks; the square has IS_SINK and the hero is not levitating. The recorded step reaches the first sink outcome because rn2(5) is nonzero. The port scope is the complete kick_nondoor() function, including its earlier terrain cases and all sink outcomes in source order.",
+    "functions": [
+      "kick_nondoor"
+    ],
+    "callers": [
+      "dokick.c:dokick() at 1465-1469 calls kick_nondoor(x, y, avrg_attrib) when IS_DOOR(maploc->typ) is false, after its monster, pool, and object-pile arms.",
+      "js/dokick.js:dokick() at 1068-1072 calls kick_nondoor() for the same non-door case; js/cmd.js:runKickCommand() at 3625-3626 dispatches the #kick action into dokick()."
+    ],
+    "dependencies": [
+      "polyself.c:poly_gender() at 2149-2157 is called before the sink branch and is pure; js/polyself.js already implements it.",
+      "makemon.c:makemon() is called by the black-pudding and amorous-demon outcomes. The amorous-demon result controls newsym(); use the existing JS runtime creation path and preserve that result when implementing those outcomes.",
+      "fountain.c:sink_backs_up() at 805-825 is called only after the earlier sink outcomes and another rn2(3). js/fountain.js already implements the helper, but js/dokick.js currently has no sink_backs_up call.",
+      "kick_dumb() and kick_ouch() are same-file helpers used by the levitation and fallback sink outcomes; preserve their source call order."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved queue .cache/mismatch-queue-after-v25-admission.json selects synthetic/v25/v25-kick-sink with 11 remaining screens of 21; its first stop is step 10 in dokick.c:kick_nondoor, and the saved evaluation is challenges/evaluations/20261007010702-v25.json at 9aea0fdd726850fad5342bc3eabb32f89a78a0c0.",
+    "A fresh diagnostic replay of only this case with node scripts/scan-sessions.mjs --json --synthetic v25/v25-kick-sink at HEAD 9aea0fdd726850fad5342bc3eabb32f89a78a0c0 emitted 10 of 21 screens and stopped at the unsupported kick_nondoor sink arm. The recorded C top line at that stop is “Klunk!  The pipes vibrate noisily.”; command is west movement key h after #kick.",
+    "The examined commit pins nethack-c/upstream to 16ff59115315917b93185d026aeefea06db9b0f4. Its src/dokick.c:1194-1241 evaluates the sink arm in order: Levitation, rn2(5) pipe vibration, black pudding, amorous demon, rn2(3) sink_backs_up, then kick_ouch. The recorded Klunk message proves this case takes the rn2(5) nonzero arm, which calls Soundeffect(se_klunk_pipe, 60), emits the Deaf-dependent line, exercises A_DEX positively, and returns ECMD_TIME.",
+    "Source ownership is confirmed at src/dokick.c:1465-1469: dokick() routes a non-door target to kick_nondoor(). At the examined commit js/dokick.js:865-869 throws for every sink before the first sink roll or side effect, so the cause is the missing source branch implementation rather than an RNG, display, or sink-helper defect.",
+    "src/fountain.c:805-825 defines sink_backs_up(), and js/fountain.js:1253-1281 already ports it. C calls it only in the final sink outcome at dokick.c:1235-1237; js/dokick.js has no call. Porting that helper alone would leave this case unchanged because the recorded C path returns from the earlier rn2(5) arm.",
+    "The prior investigation investigations/synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it.json:168-169 identifies dokick.c:kick_nondoor() as the other caller of disturb_grave and documents a separate JS refusal in that same function. This confirms that a new task must account for the whole source function, as .agents/selection.md requires for partial C behavior; it does not explain the sink mismatch.",
+    "No source-owner ambiguity remains for this case. The whole-function port is broader than the recorded sink arm: js/dokick.js still refuses the secret-door, secret-corridor, fountain, grave-destruction, tree, and sink arms. Those are the function-wide scope to inspect during implementation; the current recording itself needs only the non-levitating rn2(5) pipe-vibration path."
+  ]
+}
