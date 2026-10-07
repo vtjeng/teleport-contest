@@ -188491,6 +188491,49 @@
           "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
         }
       }
+    },
+    {
+      "id": "port-eat-cprefx-whole-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port corpse pre-effects through golem petrification and source fatal continuation",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v25/v25-flesh-golem-eats-cockatrice"
+      ],
+      "selectionReason": "B129 seed is complete; the independent v25 flesh-golem case has 6 of 62 screens remaining, and its stale makewish finding is replaced by the current step 56 cprefx refusal. This scope does not overlap C128 brain-drain planning or A118 kick-object work.",
+      "detail": "Corpse first-bite start_eating and tin consume_tin both call cprefx. Port the whole cprefx unit, including the source condition !Stone_resistance && !(poly_when_stoned && polymon(PM_STONE_GOLEM)), consuming the existing verified polymon return before the stoning, tin useup, killer, done, and meal.eating tail. Preserve domestic, lizard, Rider, slime, and acid branches in source order and cover both corpse and tin runtime entries.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cprefx",
+          "line": 791,
+          "endLine": 866,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 791,
+        "to": 866
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-flesh-golem-eats-cockatrice": {
+          "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-flesh-golem-eats-cockatrice",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+          "evaluationPath": "challenges/evaluations/20261007072048-v25.json",
+          "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
+        }
+      }
     }
   ]
 }
