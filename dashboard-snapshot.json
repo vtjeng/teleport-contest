@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T17:58:46.637Z",
+  "capturedAt": "2026-10-07T18:28:20.738Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -24542,12 +24542,40 @@
         "type": "accepted",
         "at": "2026-10-07T17:58:28.691Z",
         "task": "C133"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C133-22d3660f-20261007",
+        "type": "published",
+        "at": "2026-10-07T17:59:37.324Z",
+        "task": "C133",
+        "commit": "22d3660f7e367cdd5534e9fdd1b24001d3e49208"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B136-20261007",
+        "type": "assign",
+        "at": "2026-10-07T18:20:55.128Z",
+        "task": "B136",
+        "worker": "B",
+        "goal": "port-artifact-set-intrinsic-warning-v27-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A135-object-detect-20261007",
+        "type": "assign",
+        "at": "2026-10-07T18:23:09.796Z",
+        "task": "A135",
+        "worker": "A2",
+        "goal": "port-detect-object-detect-browse-map-v27-20261007",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "640c56012666c28a4462ee285c8a7b783399e4fa",
-    "measuredAt": "2026-10-07T17:52:45.602Z",
+    "executionCommit": "22d3660f7e367cdd5534e9fdd1b24001d3e49208",
+    "measuredAt": "2026-10-07T18:09:33.867Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
