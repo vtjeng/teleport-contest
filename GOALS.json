@@ -185416,7 +185416,7 @@
     {
       "id": "port-dokick-kick-door-nondoor-v25-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete door and terrain kick handling",
       "cFile": "dokick.c",
       "sessions": [
@@ -185433,22 +185433,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1492781324fc20c0fc4428a5cdd1bc94eb4ea8c7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "kick_door",
           "line": 910,
           "endLine": 973,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "kick_nondoor",
           "line": 974,
           "endLine": 1256,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -186094,7 +186097,179 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "kick_door",
+            "implementation": "js/dokick.js",
+            "symbol": "kick_door",
+            "sourceReview": "Read whole dokick.c910-973. Preserve open/broken/no-door and Levitation exits; Dexterity exercise before polymorphed giant test and short-circuit rnl(35) attribute/martial comparison; shopdoor before trap/shatter/crash selection; trapped Strength exercise, D_NODOOR before awaited b_trapped(door,FOOT); strong rn2(5) before !shopdoor; source messages and exercise before mask writes; feel_newsym before recalc_block_point then billing and watch callbacks. Failure preserves Blind feel_location, Strength exercise, Deaf short circuit before rn2(3), then town damage callback. All existing live source branch refusals removed. Soundeffect is inactive tty sound-backend macro with no captured effect. C discards add_damage/pay_for_damage/get_iter_mons/get_iter_mons_xy results: record their exact named gaps instead of substitutes. No whole callback/billing owner claim.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c:dokick at1465-1468 selects IS_DOOR(maploc->typ), passes x/y/avrg_attrib to kick_door or returns kick_nondoor result"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runKickCommand",
+                "source": "cmd.c command table Ctrl-D/#kick -> dokick; production runKickCommand awaits dokick from rhack"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/kick-command.test.mjs",
+              "scripts/dokick-terrain.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-kick-trapped-door",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 39,
+                "source": "cmd.c rhack -> dokick.c dokick -> kick_door failure then trapped success -> trap.c b_trapped -> redraw/vision"
+              }
+            ],
+            "checkedAt": "1492781324fc20c0fc4428a5cdd1bc94eb4ea8c7"
+          },
+          {
+            "name": "kick_nondoor",
+            "implementation": "js/dokick.js",
+            "symbol": "kick_nondoor",
+            "sourceReview": "Read whole dokick.c974-1256 including existing partial branches. Preserve source definition/branch order: SDOOR before SCORR, throne, altar, fountain, grave, ironbars, tree, sink, stairs/ladder/wall and default; every arm returns ECMD_TIME. Restore avrg_attrib production argument. Secret terrain Levitation short circuits precede rn2(30), exact locked/trapped feedback, conversion, exercise, door mask before b_trapped then feel/unblock. Throne Luck and loot bits, short-circuit rn2 branches, gold/gem draws and awaited fall_through; existing altar_wrath then rn2; fountain boots rn2 before consumed water_damage and wet feedback. Grave disturbed is canonical horizontal, emptygrave is flags; role.mnum alignment and Wisdom precede ROOM/flags/horizontal clear, rock creation, engraving deletion and sight-specific message/redraw. Tree warning/pain, fruit selection before rnl quantity, weight/naming, consumed scatter return with source MAY_HIT=0x06, replacement/deallocation when caught fruit remains, exercise/redraw/loot; swarm carries enexto updated coordinate through each attempt and consumes makemon_runtime pointer before count feedback/flag. Sink computes pure poly_gender before Levitation, ordered klunk/pudding/dishwasher gates and extinction tests, gender short circuit, exact creation flags and mask/exercise/redraw order; backup then pain. Reuse canonical objectGenerationEnv complete RNG (including rne), source water damage, trap, scatter, enexto, generation, naming, gender and terrain owners. Scatter callbacks compose canonical occupation/exercise environment to preserve thitu ordering. Remove source terrain refusals; keep unrelated dokick object/pool/guard refusals outside this selected range.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c:dokick at1497-1501 selects IS_DOOR(maploc->typ), passes x/y/avrg_attrib to kick_door or returns kick_nondoor result"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runKickCommand",
+                "source": "cmd.c command table Ctrl-D/#kick -> dokick; production runKickCommand awaits dokick from rhack"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dokick-terrain.test.mjs",
+              "scripts/kick-command.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/engrave-command.test.mjs",
+              "scripts/grave-terrain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-secret-corridor-independent.session.json",
+              "recordings/dokick.c/kick-fountain-independent.session.json",
+              "recordings/dokick.c/kick-headstone-independent.session.json",
+              "recordings/dokick.c/kick-tree-independent.session.json",
+              "recordings/dokick.c/kick-sink-independent.session.json",
+              "recordings/dokick.c/kick-secret-door-independent.session.json",
+              "recordings/dokick.c/throne-fall-through-independent.session.json",
+              "recordings/dokick.c/altar-wrath-kick-independent-b24.session.json",
+              "recordings/dokick.c/disturb-grave-kick-valkyrie-c60-second-kick-continuation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-kick-tree",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 24,
+                "source": "cmd.c rhack -> dokick.c dokick -> kick_nondoor tree fruit -> explode.c scatter, exercise and redraw"
+              },
+              {
+                "batch": "v25",
+                "caseId": "v25-kick-sink",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 20,
+                "source": "cmd.c rhack -> dokick.c dokick -> kick_nondoor sink klunk and MM_MALE dish washer creation"
+              },
+              {
+                "batch": "v25",
+                "caseId": "v25-kick-secret-door",
+                "segment": 0,
+                "fromStep": 23,
+                "throughStep": 29,
+                "source": "cmd.c rhack -> dokick.c dokick -> kick_nondoor secret-door success then failure"
+              }
+            ],
+            "checkedAt": "1492781324fc20c0fc4428a5cdd1bc94eb4ea8c7"
+          }
+        ],
+        "entryPointReview": "Selected functions are helper-only terrain dispatch of the single live kick command. Ctrl-D and #kick converge through cmd.c/rhack to dokick; no excluded compile-time caller was found. EntryPoints enumerates ordinary-door and non-door source dispatch. Four admitted v25 complete replay ranges establish trapped-door, fruit/scatter, sink creation and secret-door production paths. Six independent debug terrain witnesses cover cheap terrain variations and every recording is checked for a genuine kick_nondoor C RNG attribution; legacy altar/throne/undisturbed-grave recordings still match completely. Constructed source-pinned tests cover secret passage and locked/open success, destroyed already-disturbed headstone and canonical flags/engraving cleanup, source scatter bits, runtime MM_ANGRY/MM_MALE/MM_FEMALE admission and grave canonical guard. Existing Levitation/ordinary-door source tests remain passing. Separate terrain branches are not separate game entry points. No whole dokick, makemon or engrave completion claim is added by caller reconciliation.",
+        "entryPoints": [
+          {
+            "name": "Kick ordinary door through production terrain dispatcher",
+            "functions": [
+              "kick_door"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-kick-trapped-door",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 39,
+                "source": "cmd.c rhack -> dokick.c dokick -> kick_door failure then trapped success -> trap.c b_trapped -> redraw/vision"
+              }
+            ]
+          },
+          {
+            "name": "Kick non-door terrain through production terrain dispatcher",
+            "functions": [
+              "kick_nondoor"
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-secret-corridor-independent.session.json",
+              "recordings/dokick.c/kick-fountain-independent.session.json",
+              "recordings/dokick.c/kick-headstone-independent.session.json",
+              "recordings/dokick.c/kick-tree-independent.session.json",
+              "recordings/dokick.c/kick-sink-independent.session.json",
+              "recordings/dokick.c/kick-secret-door-independent.session.json",
+              "recordings/dokick.c/throne-fall-through-independent.session.json",
+              "recordings/dokick.c/altar-wrath-kick-independent-b24.session.json",
+              "recordings/dokick.c/disturb-grave-kick-valkyrie-c60-second-kick-continuation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-kick-tree",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 24,
+                "source": "cmd.c rhack -> dokick.c dokick -> kick_nondoor tree fruit -> explode.c scatter, exercise and redraw"
+              },
+              {
+                "batch": "v25",
+                "caseId": "v25-kick-sink",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 20,
+                "source": "cmd.c rhack -> dokick.c dokick -> kick_nondoor sink klunk and MM_MALE dish washer creation"
+              },
+              {
+                "batch": "v25",
+                "caseId": "v25-kick-secret-door",
+                "segment": 0,
+                "fromStep": 23,
+                "throughStep": 29,
+                "source": "cmd.c rhack -> dokick.c dokick -> kick_nondoor secret-door success then failure"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1492781324fc20c0fc4428a5cdd1bc94eb4ea8c7",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-vision-recalc-blind-epilogue-v25-20261007",
