@@ -192834,6 +192834,102 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-artifact-set-intrinsic-warning-v27-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete artifact intrinsic state and warning redraws",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v27/v27-sting-orc-warning"
+      ],
+      "selectionReason": "v27-sting-orc-warning has 23 remaining screens at step 10; investigations/synthetic/v27/v27-sting-orc-warning.json traces the first cause to whole artifact.c:set_artifact_intrinsic and its required display.c:see_monsters warning redraw.",
+      "detail": "Port every set_artifact_intrinsic property arm, removal survey, invoked-property shutdown, and production setter/inventory/name caller; reconcile whole see_monsters with source-ordered awaited Sting_effects and all production callers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "set_artifact_intrinsic",
+          "line": 716,
+          "endLine": 907,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 716,
+        "to": 907
+      },
+      "requiredFunctions": [
+        {
+          "name": "see_monsters",
+          "line": 1487,
+          "endLine": 1531,
+          "declared": true,
+          "sourceFile": "display.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v27/v27-sting-orc-warning": {
+          "session": "synthetic/v27/v27-sting-orc-warning",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-sting-orc-warning",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-sting-orc-warning.session.json",
+          "recordingSha256": "6173806f06b5b15d55c7f01e75bb1034d777c6d670515e72c5d688d69445b4a5",
+          "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+          "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
+        }
+      }
+    },
+    {
+      "id": "port-detect-object-detect-browse-map-v27-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete object detection map browsing",
+      "cFile": "detect.c",
+      "sessions": [
+        "synthetic/v27/v27-crystal-ball-object"
+      ],
+      "selectionReason": "v27-crystal-ball-object has 28 remaining screens at step 35; investigations/synthetic/v27/v27-crystal-ball-object.json traces the first cause to whole detect.c:object_detect skipping browse_map/getpos.",
+      "detail": "Port the complete object_detect function, wire its active crystal-ball, potion, spell, and boulder-search callers, preserve TER_MON selection and temporary map restoration, and remove the JavaScript-only gk.known mutation absent from C.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "object_detect",
+          "line": 603,
+          "endLine": 797,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 603,
+        "to": 797
+      },
+      "syntheticProvenance": {
+        "synthetic/v27/v27-crystal-ball-object": {
+          "session": "synthetic/v27/v27-crystal-ball-object",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-crystal-ball-object",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-crystal-ball-object.session.json",
+          "recordingSha256": "b51cfb91376945de594e32bd66d4e151322427028fc268ee92214f5f1b990447",
+          "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+          "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
+        }
+      }
     }
   ]
 }
