@@ -1157,6 +1157,11 @@ function assertSupportedSpecies(species, env = {}) {
             && !beehiveSpecies
             && !barracksSpecies
             && !morgueSpecies
+            // C makemon has no species gate for ordinary true giants.
+            // Their S_GIANT weapon and gem arms already share the canonical
+            // lifecycle; unique quest nemeses retain their separate boundary.
+            && !(species.mlet === S_GIANT && is_giant(species)
+                && !(species.geno & G_UNIQ))
             && species.pmidx !== PM_DJINNI
             // read.c seffect_light() creates cancelled tame light monsters
             // at the hero's square while a confused scroll is read.
