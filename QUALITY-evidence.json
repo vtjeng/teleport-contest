@@ -18393,5 +18393,64 @@
       "deferrals": []
     },
     "recordedAt": "2026-10-07T02:05:24.312Z"
+  },
+  {
+    "kind": "review",
+    "head": "5513a6c1e49610f70e592161cf79411f5febdad0",
+    "auditedRange": "2dc5c0f1fb6f717dad0e185476526ad514ae55d2..5513a6c1e49610f70e592161cf79411f5febdad0",
+    "level": "full",
+    "areas": [
+      "objects",
+      "commands"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 2 raw, 2 deduplicated, 1 confirmed, 1 applied, 0 deferred, 1 rejected, 0 unverified. Four independent finders reviewed behavior, readability risk, test quality, and end-to-end variable flow in the prepared isolated worktree. The adjudicator confirmed that a detached bhit wrapper could restore a gate-broken object after deallocation; commit 5513a6c1 removes that copyback and adds a deterministic down-ladder regression. The adjudicator rejected the killer-state test candidate because state.killer is the established svk.killer owner. Performance and concurrency triggers did not apply. The corrected head passed focused tests, lint, the full local checkpoint, and hosted checkpoint run 37600541615.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1430,
+      "counts": {
+        "raw": 2,
+        "deduplicated": 2,
+        "confirmed": 1,
+        "applied": 1,
+        "deferred": 0,
+        "rejected": 1,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 1,
+        "tests": 0,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "really_kick_object restored a kicked object after ship_object destroyed it",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "rejections": [
+        {
+          "summary": "The barefoot petrification test asserted a noncanonical killer-state field",
+          "counterEvidence": "js/end.js explicitly maps the C svk.killer head to state.killer, and death handling consumes state.killer. The new kick branch and test use that established owner; mixed state.svk.killer references in older dothrow.js paths predate the reviewed range."
+        }
+      ],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "The reviewed range 2dc5c0f1fb6f717dad0e185476526ad514ae55d2..5513a6c1e49610f70e592161cf79411f5febdad0 covers dokick.c ghitm, kick_object, really_kick_object and their bounded dothrow.c, lock.c, and zap.c callers. Five independent recordings execute the kick and gold paths; admitted v25 executes the kick-potion path through step 46. The heavy dropy, unseen-web find_trap, awake-leprechaun, and drawbridge paths remain explicitly blocked and receive no completion credit.",
+        "sourceReview": "Four independent finders traced every changed function and caller against upstream dokick.c, dothrow.c, lock.c, zap.c, mkobj.c, and the patched runtime, including state ownership, PRNG order, messages, and object lifetime. They listed the remaining void-call note_unported gaps and blocked Unsupported paths. The adjudicator confirmed the kicked-object lifetime defect and rejected the disputed killer-state mapping with source and consumer counterevidence.",
+        "completeness": "No note_unported call in the reviewed scope supplies a value consumed by C. The applied fix preserves the canonical gk.kickedobj pointer when bhit ships or destroys an object; the deterministic regression reaches the break path, and the final checkpoint matches all 44 fixed sessions and all 1,162 recordings."
+      },
+      "optionalFinders": {
+        "concurrency": "Disabled because game turns and message boundaries remain serialized and the range adds no overlapping lifecycle.",
+        "performance": "Disabled because the port adds no work beyond the C source traversal."
+      },
+      "warnings": [],
+      "unverified": []
+    },
+    "recordedAt": "2026-10-07T09:34:50.453Z"
   }
 ]
