@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent piranha-corpse variation selected from declared JS-only range 123061200-123061263: 21/64 seeds left the floor corpse under a newly created ghost/wraith/zombie with no refused setups; first positive 123061206 chosen. Piranha is S_EEL and this is dry land, so zap.c:revive(FALSE) returns null after twitching and mkroom.c:mkundead creates its selected undead without consuming the corpse.",
+  "segments": [
+    {
+      "seed": 123061206,
+      "datetime": "21120305123400",
+      "nethackrc": "OPTIONS=name:FailedRevive,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " mO>q\n\u0017piranha corpse\ndfl\u0017cursed Book of the Dead\nrg          "
+    }
+  ]
+}

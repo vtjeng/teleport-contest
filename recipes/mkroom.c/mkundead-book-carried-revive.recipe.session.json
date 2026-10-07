@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Book caller variation retains the wished newt corpse in inventory. deadbook awaits existing zap.c:unturn_dead before mkroom.c:mkundead; this records the newly wired carried-revival message and state order without claiming an additional source unit.",
+  "segments": [
+    {
+      "seed": 123061003,
+      "datetime": "21120305123400",
+      "nethackrc": "OPTIONS=name:CarriedRevive,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " mO>q\n\u0017newt corpse\n\u0017cursed Book of the Dead\nrg       "
+    }
+  ]
+}

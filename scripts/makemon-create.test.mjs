@@ -7359,3 +7359,56 @@ test('makemon.c bagotricks awaits and consumes the returned runtime monster',
         assert.ok(game.level?.monlist,
             'awaited creation leaves the bag-created monster in the level list');
     });
+
+
+test('explicit NO_MINVENT runtime coordinates follow C placement without inventory', async () => {
+    // makemon.c:1159 uses this flag only to suppress inventory; the ordinary
+    // explicit coordinate and occupied-square branches precede creation.
+    assert.match(MAKEMON_C_SOURCE, /allow_minvent = \(\(mmflags & NO_MINVENT\) == 0\)/u);
+    assert.match(MAKEMON_JS_SOURCE,
+        /const explicitCoordinateNoMinventRuntimeCall = !state\.in_mklev[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === NO_MINVENT/u);
+    for (const heroSquare of [false, true]) {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        // A non-main branch and a ghost outside the old allowlist prove that
+        // admission follows the arguments rather than an event or species.
+        state.u.uz.dnum = 1;
+        state.dungeons.push({ depth_start: 1, flags: {}, num_dunlevs: 20 });
+        state.viz_array = Array.from({ length: ROWNO },
+            () => new Uint8Array(COLNO).fill(IN_SIGHT | COULD_SEE));
+        for (let dx = -1; dx <= 1; dx++)
+            for (let dy = -1; dy <= 1; dy++)
+                state.level.at(MON_X + dx, MON_Y + dy).typ = ROOM;
+        const x = heroSquare ? MON_X : MON_X + 4;
+        const y = MON_Y;
+        // C skips goodpos() for a non-hero explicit coordinate, even water.
+        if (!heroSquare) state.level.at(x, y).typ = POOL;
+        const random = recordingRandom();
+        const env = { state, random: random.random,
+            message: async () => {}, norepMessage: async () => {} };
+        const mon = await makemon_runtime(state.mons[PM_GHOST], x, y, NO_MINVENT, env);
+        assert.equal(mon.mnum, PM_GHOST);
+        assert.equal(mon.minvent, null);
+        assert.equal(state.level.monsters[mon.mx][mon.my], mon);
+        if (heroSquare) {
+            assert.notDeepEqual([mon.mx, mon.my], [x, y]);
+            assert.deepEqual(random.calls[0], { kind: 'rn2', args: [8], result: 7 });
+        } else {
+            assert.deepEqual([mon.mx, mon.my], [x, y]);
+            assert.deepEqual(random.calls[0], { kind: 'rnd', args: [2], result: 1 });
+            const rejectedRandom = recordingRandom();
+            assert.equal(await makemon_runtime(state.mons[PM_GHOST], x, y, NO_MINVENT,
+                { ...env, random: rejectedRandom.random }), null);
+            assert.deepEqual(rejectedRandom.calls, []);
+        }
+        // Adding MM_ASLEEP is outside this narrowly admitted flag shape;
+        // keep the refusal drawless rather than inventing another contract.
+        const outside = recordingRandom();
+        await assert.rejects(makemon_runtime(state.mons[PM_GHOST], MON_X + 5, y,
+            NO_MINVENT | MM_ASLEEP, { ...env, random: outside.random }),
+            UnsupportedMonsterCreationError);
+        assert.deepEqual(outside.calls, []);
+    }
+});

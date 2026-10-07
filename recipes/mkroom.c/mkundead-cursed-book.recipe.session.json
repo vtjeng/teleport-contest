@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C123 book production entry with debug_hunger enabled and debug_mongen disabled: mkroom.c:mkundead creates its selected undead with NO_MINVENT. The Book uses revive_corpses=TRUE after carried unturn_dead.",
+  "segments": [
+    {
+      "seed": 123061002,
+      "datetime": "21120305123400",
+      "nethackrc": "OPTIONS=name:UndeadBook,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " mO>q\n\u0017cursed Book of the Dead\nrf     "
+    }
+  ]
+}

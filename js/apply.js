@@ -279,6 +279,7 @@ import {
 import { pick_lock } from './lock.js';
 import { bagotricks, mkclass } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
+import { mkundead } from './mkroom.js';
 import {
     m_in_air, mnexto, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto,
 } from './mon.js';
@@ -3823,7 +3824,8 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
             if (!obj.cursed) await openit(state, rawEnv);
             else await message(nothing_happens);
         } else if (obj.cursed) {
-            note_unported('minion.c mkundead');
+            await mkundead({ x: state.u.ux, y: state.u.uy }, false,
+                NO_MINVENT, state, { ...rawEnv, random });
             wakem = true;
         } else if (invoking) {
             await message(
