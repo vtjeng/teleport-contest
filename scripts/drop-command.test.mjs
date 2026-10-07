@@ -845,3 +845,13 @@ test('a count at the drop prompt is read after the prompt draws', async () => {
     assert.equal(letters(state), 'abcd');
     assert.equal(pileAt(state, state.u.ux, state.u.uy).length, 0);
 });
+
+// Independent C-first recipe variations also pin the live pointer contract;
+// the matrix compares their complete recorded screens, cursors and RNG calls.
+test('ordinary lit candle and oil-lamp drops preserve light/timer identity',
+    async () => {
+        const { LIT_DROP_RECIPES, loadLitDropRecipe, verifyLitDropSegment } =
+            await import('./run-drop-lit-object.mjs');
+        for (const path of LIT_DROP_RECIPES)
+            await verifyLitDropSegment(loadLitDropRecipe(path).segments[0]);
+    });
