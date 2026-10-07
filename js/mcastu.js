@@ -812,7 +812,10 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     case MCAST_CURSE_ITEMS:
         if (typeof env.message === 'function')
             await env.message('You feel as if you need some help.', state);
-        recordMcastGap('sit.c rndcurse', env);
+        {
+            const { rndcurse } = await import('./sit.js');
+            await rndcurse(state, env);
+        }
         break;
     case MCAST_DESTRY_ARMR:
         recordMcastGap('mcastu.c mcast_destroy_armor', env);

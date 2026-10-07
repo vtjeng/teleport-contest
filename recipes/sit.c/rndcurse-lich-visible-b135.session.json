@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first cheap source variation: wizard menu a sets invulnerability, whereas primary menu i sets blindness. Verify the current C menu before comparison; visible Antimagic shield and monster-spell wording differ.",
+  "segments": [
+    {
+      "seed": 7135101,
+      "datetime": "20381104142000",
+      "nethackrc": "OPTIONS=name:CurseSource,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen,time\n",
+      "moves": " #wizintrinsic\na\n #wizgenesis\nmaster lich\nm. m. m. m. m."
+    }
+  ]
+}
