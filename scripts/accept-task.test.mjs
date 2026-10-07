@@ -33,7 +33,7 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
         writeFileSync(join(root, path), value);
     };
     const json = (path, value) => write(path, JSON.stringify(value));
-    write('.gitignore', '.cache/\nnode_modules\nscripts/\n');
+    write('.gitignore', '.cache/\nnode_modules\nscripts/*\n!scripts/score-challenges.mjs\n');
     json('package.json', { type: 'module' });
     write('SCORE.tsv', COLUMNS.join('\t') + '\n');
     json('GOALS.json', { goals: [{ id: 'fixture-fix', kind: 'divergence-fix', status: 'open',
@@ -54,7 +54,8 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
         '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false',
         '-c', 'core.hooksPath=/dev/null', ...args], { cwd: root, encoding: 'utf8' }).trim();
     git('init', '-qb', 'main');
-    git('add', '.gitignore', 'package.json', 'SCORE.tsv', 'GOALS.json', 'js/fixture.js', 'frozen/session_loader.mjs',
+    git('add', '.gitignore', 'package.json', 'SCORE.tsv', 'GOALS.json', 'js/fixture.js',
+        'scripts/score-challenges.mjs', 'frozen/session_loader.mjs',
         'challenges/manifest.json', 'challenges/manifests/v2.json', entry.recipe, entry.recording);
     git('commit', '-qm', 'Fixture candidate');
     const commit = git('rev-parse', 'HEAD');
@@ -139,6 +140,15 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     write('GOALS.json', originalGoals);
     const validatedLedger = readFileSync(join(root, options.ledger), 'utf8');
     const importedRows = readFileSync(join(root, 'SCORE.tsv'), 'utf8');
+    for (const path of ['js/fixture.js', 'scripts/score-challenges.mjs']) {
+        const before = readFileSync(join(root, path), 'utf8');
+        write(path, before + '\n'); // A tracked game or tooling edit invalidates a validated retry too.
+        assert.throws(() => acceptTask(options, root), /outside closure/u);
+        assert.equal(readFileSync(join(root, options.ledger), 'utf8'), validatedLedger);
+        assert.equal(readFileSync(join(root, 'SCORE.tsv'), 'utf8'), importedRows);
+        assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
+        write(path, before);
+    }
     for (const changed of [{ allPassed: false }, { commit: 'e'.repeat(40) }]) {
         json(`.git/checkpoint-results/${commit}/latest.json`, { ...summary, ...changed });
         assert.throws(() => acceptTask(options, root), /passing checkpoint at HEAD/u);
@@ -153,6 +163,14 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     const wrongLedger = readFileSync(join(root, options.ledger), 'utf8');
     assert.throws(() => acceptTask(options, root), /belong to this coordinator/u);
     assert.equal(readFileSync(join(root, options.ledger), 'utf8'), wrongLedger);
+    assert.equal(readFileSync(join(root, 'SCORE.tsv'), 'utf8'), importedRows);
+    assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
+    write('.cache/ledger.json', validatedLedger);
+    const wrongIntegration = JSON.parse(validatedLedger);
+    wrongIntegration.events.find(event => event.type === 'integrating').integration = 'd'.repeat(40);
+    json('.cache/ledger.json', wrongIntegration);
+    assert.throws(() => acceptTask(options, root), /integrated HEAD/u);
+    assert.deepEqual(JSON.parse(readFileSync(join(root, options.ledger), 'utf8')), wrongIntegration);
     assert.equal(readFileSync(join(root, 'SCORE.tsv'), 'utf8'), importedRows);
     assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
     write('.cache/ledger.json', validatedLedger);
@@ -180,6 +198,13 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     assert.deepEqual(acceptTask(options, root), receipt);
     assert.deepEqual(readRows(join(root, 'SCORE.tsv')), rows);
     assert.deepEqual(JSON.parse(readFileSync(join(root, '.cache/ledger.json'), 'utf8')), accepted);
+    json(`.git/checkpoint-results/${commit}/latest.json`, {
+        ...summary, artifacts: join(artifacts, 'later-run'),
+    });
+    assert.deepEqual(acceptTask(options, root), receipt); // Recover an accepted receipt from its original checkpoint.
+    assert.deepEqual(readRows(join(root, 'SCORE.tsv')), rows);
+    assert.deepEqual(JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8')).goals[0], goal);
+    assert.deepEqual(JSON.parse(readFileSync(join(root, '.cache/ledger.json'), 'utf8')), accepted);
 
     // Reuse this disposable repository for preparation; no extra Git history is needed.
     write('GOALS.json', originalGoals);
@@ -202,7 +227,12 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
         assert.deepEqual(JSON.parse(readFileSync(join(root, options.ledger), 'utf8')), preparation);
         write(path, before);
     }
-    assert.equal(acceptTask(options, root).handle, 'existing-worker');
+    const preparationReceipt = acceptTask(options, root);
+    assert.equal(preparationReceipt.handle, 'existing-worker');
+    const preparationAccepted = JSON.parse(readFileSync(join(root, options.ledger), 'utf8'));
+    assert.equal(summarizeLedger(preparationAccepted).tasks.A1.status, 'accepted');
+    assert.deepEqual(acceptTask(options, root), preparationReceipt);
+    assert.deepEqual(JSON.parse(readFileSync(join(root, options.ledger), 'utf8')), preparationAccepted);
     assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
     assert.equal(readRows(join(root, 'SCORE.tsv')).length, 0);
 });

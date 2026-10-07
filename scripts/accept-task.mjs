@@ -47,17 +47,27 @@ export function acceptTask(options, root = process.cwd()) {
     if (state.coordinatorRoot !== root || !task || delivery?.integration !== commit
         || !['integrating', 'validated', 'accepted'].includes(task.status))
         throw new Error('task must belong to this coordinator and the integrated HEAD');
-    const checkpoint = readCheckpointResult(root, commit);
+    const checkpoint = task.status === 'accepted'
+        ? JSON.parse(readFileSync(delivery.checkpoint, 'utf8'))
+        : readCheckpointResult(root, commit);
     if (checkpoint.commit !== commit || checkpoint.allPassed !== true)
         throw new Error('acceptance requires a passing checkpoint at HEAD');
     const checkpointPath = join(checkpoint.artifacts, 'summary.json');
     // goal-log also reads latest.json. Do not mix its result with an earlier
     // ledger validation; a replacement checkpoint requires task revalidation.
-    if (task.status !== 'integrating' && delivery.checkpoint !== checkpointPath)
+    if (task.status === 'validated' && delivery.checkpoint !== checkpointPath)
         throw new Error('checkpoint changed after validation; revalidate the task before acceptance');
     const ensureHead = () => {
         if (git('rev-parse', 'HEAD') !== commit) throw new Error('HEAD changed during acceptance');
     };
+    const receipt = () => {
+        ensureHead();
+        return { task: options.task, commit, checkpoint: checkpointPath, worker: task.worker,
+            handle: readState().workers[task.worker]?.handle,
+            next: 'Send ACCEPTED and resume the idle worker now; then prepare publication.' };
+    };
+    // Acceptance already happened. Recover its receipt without importing or closing again.
+    if (task.status === 'accepted') return receipt();
     const run = args => {
         ensureHead();
         execFileSync(process.execPath, args, { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
@@ -138,10 +148,7 @@ export function acceptTask(options, root = process.cwd()) {
         }
     }
     if (readState().tasks[options.task].status !== 'accepted') event({ type: 'accepted' });
-    ensureHead();
-    return { task: options.task, commit, checkpoint: checkpointPath, worker: task.worker,
-        handle: state.workers[task.worker]?.handle,
-        next: 'Send ACCEPTED and resume the idle worker now; then prepare publication.' };
+    return receipt();
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
