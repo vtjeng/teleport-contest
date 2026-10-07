@@ -184307,6 +184307,39 @@
           "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
         }
       }
+    },
+    {
+      "id": "fix-explode-fatal-last-msg-v24-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Match fatal explosion wording after intervening item damage messages",
+      "cFile": "explode.c",
+      "sessions": [
+        "synthetic/v24/v24-eat-pyrolisk-egg"
+      ],
+      "selectionReason": "The current complete v24 investigation isolates the remaining one-screen mismatch to explode selecting fatal wording from iflags.last_msg after vpline clears the caught-in-explosion marker; explode and the message-state contract have no active reservation.",
+      "detail": "Implement the narrow explode.c:explode fatal-wording branch and the corresponding pline.c:vpline last-message reset in the existing JavaScript message pipeline. Preserve all explosion damage, item-damage, message, and cursor order. Verify the admitted v24 pyrolisk egg case and focused last-message behavior without claiming unrelated whole-source completion.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "explode",
+      "session": "synthetic/v24/v24-eat-pyrolisk-egg",
+      "step": 27,
+      "syntheticProvenance": {
+        "synthetic/v24/v24-eat-pyrolisk-egg": {
+          "session": "synthetic/v24/v24-eat-pyrolisk-egg",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-eat-pyrolisk-egg",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-eat-pyrolisk-egg.session.json",
+          "recordingSha256": "d740fef7e4236d8895adf3cc186996c3703822821d3cdbf922e427b432457365",
+          "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
+          "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
+        }
+      }
     }
   ]
 }
