@@ -185745,25 +185745,32 @@
     {
       "id": "port-zap-makewish-v25-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete wish placement and unsafe-corpse handling",
       "cFile": "zap.c",
       "sessions": [
         "synthetic/v25/v25-flesh-golem-eats-cockatrice"
       ],
-      "selectionReason": "The complete v25 investigation traces the first mismatch at step 54 to zap.c:makewish omitting the unsafe-corpse wishedfor and materialize branch.",
+      "selectionReason": "Select synthetic/v25/v25-flesh-golem-eats-cockatrice from challenges/evaluations/20261007031630-v25.json and investigations/synthetic/v25/v25-flesh-golem-eats-cockatrice.json. The case first reaches incomplete zap.c:makewish placement and unsafe-corpse handling; A115 ports the whole helper, its resumed-wish caller, four independent placement variations, and exact matching evidence through step 54. The later step 56 eat.c:cprefx polymon refusal remains outside this source task.",
       "detail": "Port whole zap.c makewish in source order, including the unsafe corpse wishedfor/materialize branch, all consumed return values, messaging, placement, and existing production callers. Use the cited v25 flesh-golem case and independent C variations without case-specific logic.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "49b02850838091fc253a3632ff9b53a847c6f76a",
+      "openStanding": {
+        "sha": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "266e97fec61794e9d402c66dcdd247f32d534123",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "makewish",
           "line": 6314,
           "endLine": 6428,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -185783,6 +185790,382 @@
           "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
           "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
         }
+      },
+      "activeStanding": {
+        "sha": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-flesh-golem-eats-cockatrice",
+          "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recording": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingPath": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+          "recipe": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.recipe.session.json",
+          "recipeSha256": "66965e475525bff876123a761ae326035c35e0b97be571fd2378af060a4f2db6",
+          "replayInputSha256": "ab20a9f1d809ef4dd55e92b94970d9252e75c6eff2e844e5c2c0f7e330e7df38",
+          "evaluationPath": "challenges/evaluations/20261007031630-v25.json",
+          "evaluationCommit": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0",
+          "evaluationArtifact": "challenges/evaluations/20261007031630-v25.json",
+          "evaluationUtc": "2026-10-07T03:18:30.738Z",
+          "remainingScreens": 8,
+          "recordedSteps": 62,
+          "previousScreensMatched": 54,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 54,
+              "total": 62
+            },
+            "rng": {
+              "matched": 2908,
+              "total": 3044
+            },
+            "cursors": {
+              "matched": 58,
+              "total": 62
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 54,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 54,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "o",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2908,
+              "cEntry": "rn2(20)=18",
+              "cCaller": "eatcorpse(eat.c:1887)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 56,
+                "key": "y"
+              },
+              "stepIndex": 56
+            },
+            "cursor": {
+              "index": 55,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 55,
+                "key": "e"
+              },
+              "cCursor": [
+                53,
+                0,
+                1
+              ],
+              "jsCursor": [
+                35,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 54,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v25/v25-flesh-golem-eats-cockatrice.json",
+            "result": {
+              "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+              "corpus": "synthetic",
+              "batch": "v25",
+              "caseId": "v25-flesh-golem-eats-cockatrice",
+              "remainingScreens": 8,
+              "recordedSteps": 62,
+              "manifestPath": "challenges/manifests/v25.json",
+              "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+              "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+              "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+              "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+              "status": "complete",
+              "commit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v25",
+                "caseId": "v25-flesh-golem-eats-cockatrice",
+                "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+                "manifestPath": "challenges/manifests/v25.json",
+                "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+                "recording": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+                "recordingPath": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+                "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+                "recipe": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.recipe.session.json",
+                "recipeSha256": "66965e475525bff876123a761ae326035c35e0b97be571fd2378af060a4f2db6",
+                "replayInputSha256": "6bc0286d388cbaacf2ee80ef4a23bbc56c713f2afd3880fc002fd1889560e766",
+                "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+                "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+                "evaluationArtifact": "challenges/evaluations/20261007010702-v25.json",
+                "evaluationUtc": "2026-10-07T01:07:09.780Z",
+                "remainingScreens": 8,
+                "recordedSteps": 62,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 54,
+                    "total": 62
+                  },
+                  "rng": {
+                    "matched": 2908,
+                    "total": 3044
+                  },
+                  "cursors": {
+                    "matched": 58,
+                    "total": 62
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 54,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 54,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "o",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2908,
+                    "cEntry": "rn2(20)=18",
+                    "cCaller": "eatcorpse(eat.c:1887)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 56,
+                      "key": "y"
+                    },
+                    "stepIndex": 56
+                  },
+                  "cursor": {
+                    "index": 55,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 55,
+                      "key": "e"
+                    },
+                    "cCursor": [
+                      53,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      35,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 54,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "zap.c:makewish omits the unsafe-corpse wish branch for a cockatrice corpse while the hero is a flesh golem. C marks the corpse wishedfor, materializes it on the floor, and prints the careful warning; JavaScript follows the ordinary wish drop path, producing the first mismatch at step 54. The later eatcorpse RNG mismatch follows this placement divergence.",
+              "source": {
+                "file": "zap.c",
+                "functions": [
+                  "makewish"
+                ],
+                "branch": "At zap.c:6401-6420, if the wished object is a CORPSE and u_safe_from_fatal_corpse(otmp, st_all) is false, C sets otmp->wishedfor. On the ordinary floor this selects the verb \"materialize\" and the \"Careful! %s on the floor!\" message before hold_another_object. The assigned recording reaches this branch by using Ctrl-W to wish for a cockatrice corpse after #polyself has changed the hero to a flesh golem.",
+                "callers": [
+                  "wizcmds.c:wiz_wish() calls makewish() at line 38; the assigned recording reaches #wizwish through Ctrl-W."
+                ],
+                "dependencies": [
+                  "pickup.c:u_safe_from_fatal_corpse() (existing JavaScript implementation: js/pickup.js)",
+                  "invent.c:hold_another_object() (existing JavaScript implementation: js/invent.js)"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261007010702-v25.json at 9aea0fdd726850fad5342bc3eabb32f89a78a0c0 reports the first screen mismatch at segment 0, step 54, row 0 column 0 (C cell \"C\", JavaScript cell \"o\"); its first RNG mismatch is later, at step 56 in eatcorpse(). The v25 manifest records the C observation as \"Careful! The cockatrice corpse materializes on the floor!\".",
+                "The checked-out C source is the evaluation commit’s nethack-c/upstream gitlink 16ff59115315917b93185d026aeefea06db9b0f4. In src/zap.c:6401-6420, makewish() sets wishedfor for a corpse that u_safe_from_fatal_corpse(otmp, st_all) considers unsafe, then chooses materialize and the careful floor message before calling hold_another_object(). The recipe’s Ctrl-W wish after #polyself reaches this caller path through wizcmds.c:wiz_wish().",
+                "In js/zap.js:1954-1970 at the evaluated commit, makewish() selects only slip/drop and ordinary Oops messages; it omits the unsafe-corpse predicate and wishedfor update. The existing JavaScript helpers are js/pickup.js:u_safe_from_fatal_corpse() and js/invent.js:hold_another_object(), so no missing helper blocks the source correction. The single-session diagnostic replay (node scripts/scan-sessions.mjs --json --synthetic v25/v25-flesh-golem-eats-cockatrice; bounded run-KBNHkb) reproduced the step-54 mismatch. It also noted artifact.c:retouch_equipment and trap.c:selftouch during the earlier polymorph setup; those precede the mismatch and do not block attribution to makewish()."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "makewish",
+            "implementation": "js/zap.js",
+            "symbol": "makewish",
+            "sourceReview": "Read the complete zap.c:makewish6314-6428 and compare every arm: entry resume flag reset/verbose announcement; retry prompt/cmdassist; reference-build DEBUG-only history bypass; term_gone/fuzzer guard; mungspaces/Escape/help retry; readobjnam null/five-try fallback/nothing/hands_obj exits; artifact bookkeeping; wish conduct/livelog order; unsafe corpse wishedfor marker; air/water/swallow/terrain message and verb selection; hold_another_object; final rn1(100,50) after placement. Existing readobjnam completion (port-objnam-readobjnam-wish-retry-synthetic-v5-20260926), artifact_origin and naming helpers are reused. Read pickup.c:u_safe_from_fatal_corpse273-281 and js/pickup.js: tests OR gloves/noncorpse/nonpetrifying/Stone_resistance in C order, pure and source-pinned in pickup/drop tests. Read invent.c:hold_another_object1208-1311 and js/invent.js: unsafe corpse consumes transient wishedfor, temporarily adds before drop, source object ownership/order retained. No injected operation or refusal is introduced. C-discarded wishcmdassist remains note_unported; wish_history_add/menu are inactive without DEBUG in reference config/patches. Added only bounded allmain.c:200-201 resume caller after bypass cleanup and before elapsed gate; no whole moveloop_core completion claimed.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_wish",
+                "source": "wizcmds.c:31-44; cmd.c CtrlW/#wizwish dispatch; suppresses/restores verbose around awaited makewish"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapnodir",
+                "source": "zap.c:2583 WAN_WISHING through dozap/weffects; existing awaited call preserved"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "mongrantswish",
+                "source": "potion.c:2794-2812 djinni_from_bottle removes djinni then grantWish defaults to makewish; awaited between tmp_at setup/teardown"
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c:110 ordinary throne decree6 calls makewish; existing awaited call preserved. Partial special_throne_effect wish arm at251 is a separate explicit gap."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c:200-201 newly resumes context.resume_wish before context.move, and445-450 existing Amulet Astral wish call remains awaited"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makewish.test.mjs",
+              "scripts/wizard-wish.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/pickup.test.mjs",
+              "scripts/drop-command.test.mjs",
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/objnam-readobjnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/makewish-unsafe-cockatrice.session.json",
+              "recordings/zap.c/makewish-gloved-cockatrice.session.json",
+              "recordings/zap.c/makewish-harmless-newt.session.json",
+              "recordings/zap.c/makewish-flesh-golem-cockatrice.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-flesh-golem-eats-cockatrice",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 54,
+                "source": "cmd.c:wizwish -> wizcmds.c:wiz_wish -> zap.c:makewish -> pickup.c:u_safe_from_fatal_corpse -> invent.c:hold_another_object/drop -> do.c:dropx: bare-handed flesh-golem cockatrice corpse wish safely placed on floor before eating"
+              }
+            ],
+            "checkedAt": "266e97fec61794e9d402c66dcdd247f32d534123"
+          }
+        ],
+        "entryPointReview": "makewish is a helper shared by the enumerated production callers. Independent CtrlW recipes and the admitted v25 range establish complete object-wish runtime including unsafe/guarded/harmless corpse placements. Existing null-retry recipe is freshly compared. The existing wishing-wand, djinni, ordinary-throne and Amulet caller branches already await this same helper and are source-audited, but are not independently replay-certified by A115. The added resumed-wish caller is source-pinned in an initialized moveloop_core test; C recorder UTF-8 encodes 0xFF as C3BF, so terminal EOF cannot be recorded by that driver. Tests pin both fuzzer scheduling outcomes. Missing special_throne_effect wish branch at sit.c251 remains named, unported and outside the authorized claim; no whole sit/allmain caller-function completion is claimed. wishcmdassist is a discarded void helper gap; DEBUG history helpers cannot execute in the reference build. Air/water/swallowed and overflow placement branches retain source-order logic and existing wizard-wish tests. This is completion evidence for whole makewish with explicitly bounded caller wiring, not a claim of all wish-producing owner functions.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-flesh-golem-eats-cockatrice",
+          "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recording": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingPath": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+          "recipe": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.recipe.session.json",
+          "recipeSha256": "66965e475525bff876123a761ae326035c35e0b97be571fd2378af060a4f2db6",
+          "replayInputSha256": "06afb9dd5bb5dbb33b048c083da287903eca5eece192a0bc02bd8e7752b7c3b4",
+          "evaluationPath": "challenges/evaluations/20261007034611-v25.json",
+          "evaluationCommit": "266e97fec61794e9d402c66dcdd247f32d534123",
+          "evaluationArtifact": "challenges/evaluations/20261007034611-v25.json",
+          "evaluationUtc": "2026-10-07T03:48:15.049Z",
+          "remainingScreens": 6,
+          "recordedSteps": 62,
+          "previousScreensMatched": 54,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 56,
+              "total": 62
+            },
+            "rng": {
+              "matched": 2911,
+              "total": 3044
+            },
+            "cursors": {
+              "matched": 56,
+              "total": 62
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: eating requires polymon() for a petrifying corpse",
+            "step": 56
+          },
+          "step": 56,
+          "kind": "stop",
+          "sourceFile": "polyself.c",
+          "function": "polymon",
+          "message": "unsupported hero command: an unported branch of this command: eating requires polymon() for a petrifying corpse",
+          "cFile": "polyself.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v25/v25-flesh-golem-eats-cockatrice.json",
+            "previousRemainingScreens": 8
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "266e97fec61794e9d402c66dcdd247f32d534123",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
