@@ -188243,7 +188243,7 @@
     {
       "id": "port-cmd-domonability-gremlin-v25-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the whole monster-ability dispatcher and wire gremlin and intrinsic unicorn abilities",
       "cFile": "cmd.c",
       "sessions": [
@@ -188251,17 +188251,24 @@
       ],
       "selectionReason": "B128 same seed now complete; v25 gremlin case remains 50/55 screens at step 50. investigations/synthetic/v25/v25-gremlin-splits.json establishes whole cmd.c:domonability and existing split_mon/cloneu/dryup return closure, plus minimal canonical unicorn-horn export. A117 doextcmd/dospinweb and burial reservations are excluded.",
       "detail": "Preserve cmd.c:domonability source ability predicate order and ECMD returns. The gremlin fountain arm consumes potion.c:split_mon clone return before fountain.c:dryup; the pool arm discards it; dry terrain prints no-fountain. Unicorn calls existing apply.c:use_unicorn_horn(NULL). Forced steed breath remains the explicit discarded dogmove.c:pet_ranged_attk(TRUE) gap. The MCMD.MONABILITY producer is excluded by #if 0 in the reference build.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "35258dc3c42ac835c660f50fc134d237ed304868",
+      "openStanding": {
+        "sha": "35258dc3c42ac835c660f50fc134d237ed304868",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "35258dc3c42ac835c660f50fc134d237ed304868",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "domonability",
           "line": 890,
           "endLine": 951,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -188281,6 +188288,103 @@
           "evaluationPath": "challenges/evaluations/20261007055545-v25.json",
           "evaluationCommit": "532068f894fa97f4ace2680f195baf3aae875050"
         }
+      },
+      "activeStanding": {
+        "sha": "35258dc3c42ac835c660f50fc134d237ed304868",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "domonability",
+            "implementation": "js/cmd.js",
+            "symbol": "domonability",
+            "sourceReview": "Read whole cmd.c:domonability890-950, all predicate/return ordering, combined hide/web prompt and q/ESC early return, breath/spit/nymph/gaze/were/hide/web/mind-flayer arms, gremlin fountain/pool/dry-ground, intrinsic unicorn, buried/unburied shriek, vampire/vampshifter, forced steed, reflexive/normal forms and shared ECMD_OK tail. Preserve returned handler command results. The consumed fountain split_mon pointer gates dryup; pool pointer is discarded. Read potion.c:split_mon2873-2935, mhitu.c:cloneu2616-2640, fountain.c:dryup201-239 and canonical JS owners: source current/max HP clamps and integer division, returned clone, runtime christening/taming, dryup rn2 and wizard confirmation remain in those owners. Read apply.c:use_unicorn_horn2258-2392 and existing implementation; minimally export it for the null-object intrinsic caller, preserving existing named discarded-helper gaps. Existing polyself ability owners and wizard.c:aggravate are reused without new source credit. Read dogmove.c:pet_ranged_attk889-967; C discards its result here, so replace the obsolete forced-branch refusal with note_unported(\"dogmove.c pet_ranged_attk\") and ECMD_TIME without invented attack effects. Removed gremlin/unicorn/steed dispatcher substitute refusals, searched all scripts/*.test.mjs for stale markers and retained all other owners. No pure helper is introduced.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runMonsterCommand",
+                "source": "cmd.c extcmdlist monster1772 -> doextcmd/rhack invokes domonability890; JS extcmd registry selects domonability handler5255 -> runMonsterCommand3615 -> awaited domonability. Both #monster and bound monster keys use this dispatch."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "act_on_act",
+                "source": "cmd.c act_on_act4791 queues domonability from MCMD_MONABILITY. The sole menu producer4476-4480 is within #if0, so this consumer is preserved but cannot be selected by a valid reference-build menu input; source-pinned exclusion test covers this fact."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monability.test.mjs",
+              "scripts/apply-unicorn-horn.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/dobreathe.test.mjs"
+            ],
+            "recordings": [
+              "recordings/cmd.c/monster-ability-gremlin-fountain-independent.session.json",
+              "recordings/cmd.c/monster-ability-gremlin-dry-floor-independent.session.json",
+              "recordings/cmd.c/monster-ability-unicorn-intrinsic-independent.session.json",
+              "recordings/cmd.c/monster-ability-steed-no-target-independent.session.json",
+              "recordings/polyself.c/gaze-confusion-newt.session.json",
+              "recordings/polyself.c/mindblast-ordinary-newt.session.json",
+              "recordings/polyself.c/monster-gaze-umber-hulk.session.json",
+              "recordings/polyself.c/monster-hide-pit-viper.session.json",
+              "recordings/polyself.c/monster-remove-nymph.session.json",
+              "recordings/polyself.c/monster-web-cave-spider-stairs.session.json",
+              "recordings/polyself.c/monster-web-cave-spider.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-gremlin-splits",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 54,
+                "source": "cmd.c #monster -> domonability gremlin/fountain -> potion.c split_mon -> mhitu.c cloneu -> fountain.c dryup conditional return"
+              }
+            ],
+            "checkedAt": "35258dc3c42ac835c660f50fc134d237ed304868"
+          }
+        ],
+        "entryPointReview": "The selected whole source unit has one active player command entry: extcmd monster, reached by #monster and its bound key. All form predicates remain branches within that command; the new independent witnesses establish newly admitted gremlin fountain and dry floor, null-object unicorn, and normal-form mounted steed dispatch. Seven existing ability-owner recordings replay through the unchanged nymph/hider/web/gaze/mind-flayer arms. Source-pinned tests cover ordered predicates, pool/failed clone, return-time semantics, normal/reflexive feedback, buried shriek and the named forced-steed gap. The MCMD_MONABILITY producer is excluded by #if0 atcmd.c4476-4480, while its compiled consumer4791 remains intact; no runtime menu witness is invented. The mounted no-target witness matches completely but does not establish active dogmove.c pet_ranged_attk targeting/attack behavior; that discarded callee remains named. This task claims whole dispatcher completion under the project discarded-callee rule, no new completion of its existing helper owners.",
+        "entryPoints": [
+          {
+            "name": "#monster / bound monster command dispatch",
+            "functions": [
+              "domonability"
+            ],
+            "recordings": [
+              "recordings/cmd.c/monster-ability-gremlin-fountain-independent.session.json",
+              "recordings/cmd.c/monster-ability-gremlin-dry-floor-independent.session.json",
+              "recordings/cmd.c/monster-ability-unicorn-intrinsic-independent.session.json",
+              "recordings/cmd.c/monster-ability-steed-no-target-independent.session.json",
+              "recordings/polyself.c/gaze-confusion-newt.session.json",
+              "recordings/polyself.c/mindblast-ordinary-newt.session.json",
+              "recordings/polyself.c/monster-gaze-umber-hulk.session.json",
+              "recordings/polyself.c/monster-hide-pit-viper.session.json",
+              "recordings/polyself.c/monster-remove-nymph.session.json",
+              "recordings/polyself.c/monster-web-cave-spider-stairs.session.json",
+              "recordings/polyself.c/monster-web-cave-spider.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-gremlin-splits",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 54,
+                "source": "cmd.c #monster -> domonability gremlin/fountain -> potion.c split_mon -> mhitu.c cloneu -> fountain.c dryup conditional return"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "35258dc3c42ac835c660f50fc134d237ed304868",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
