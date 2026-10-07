@@ -139,7 +139,7 @@ import {
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { aggravate } from './wizard.js';
-import { ttyPline } from './tty_message.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import {
     P_SKILL,
@@ -153,7 +153,7 @@ import {
 import { discover_object, observe_object } from './o_init.js';
 import { do_vicinity_map } from './detect.js';
 import { use_skill } from './weapon.js';
-import { zapyourself, weffects } from './zap.js';
+import { unturn_dead, zapyourself, weffects } from './zap.js';
 import { fall_asleep } from './timeout.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { body_part } from './polyself.js';
@@ -162,6 +162,7 @@ import { On_stairs } from './stairs.js';
 import { make_familiar, tamedog } from './dog.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
+import { mkundead } from './mkroom.js';
 import { iter_mons_async } from './mon.js';
 import { monflee, monfleeMessage, youHear } from './monmove.js';
 import { noveltitle } from './do_name.js';
@@ -438,10 +439,8 @@ async function deadbook_pacify_undead(monster, state, env) {
     }
 }
 
-// C ref: spell.c deadbook() (230-339). mkinvokearea(), unturn_dead(), and
-// mkundead() are void or explicitly discarded source calls; their missing
-// effects remain named at those call sites while the surrounding C behavior
-// continues in order.
+// C ref: spell.c deadbook() (230-339). The discarded mkinvokearea() call
+// remains a named gap; carried revival and the undead swarm use their owners.
 async function deadbook(book, state = game, env = {}) {
     const random = randomSource(env);
     const message = env.message ?? ttyPline;
@@ -558,13 +557,14 @@ async function deadbook(book, state = game, env = {}) {
 async function raise_dead(state, env) {
     const { random, message } = env;
     await message('You raised the dead!', state, env);
+    const creationEnv = await deadbookMakemonEnv(state, random, env);
     if (!random.rn2(3)) {
         let monster = await makemon_runtime(
             state.mons[PM_MASTER_LICH],
             state.u.ux,
             state.u.uy,
             NO_MINVENT,
-            await deadbookMakemonEnv(state, random, env),
+            creationEnv,
         );
         if (!monster) {
             monster = await makemon_runtime(
@@ -572,7 +572,7 @@ async function raise_dead(state, env) {
                 state.u.ux,
                 state.u.uy,
                 NO_MINVENT,
-                await deadbookMakemonEnv(state, random, env),
+                creationEnv,
             );
         }
         if (monster) {
@@ -580,8 +580,9 @@ async function raise_dead(state, env) {
             set_malign(monster, state);
         }
     }
-    if (state === game) note_unported('zap.c unturn_dead');
-    if (state === game) note_unported('mkroom.c mkundead');
+    await unturn_dead(state.youmonst, state, env);
+    await mkundead({ x: state.u.ux, y: state.u.uy }, true,
+        NO_MINVENT, state, creationEnv);
 }
 
 async function deadbookMakemonEnv(state, random, env) {
@@ -598,6 +599,11 @@ async function deadbookMakemonEnv(state, random, env) {
         state,
         random,
         _deadbook: true,
+        // C's makemon appearance uses Norep(), including repeated species
+        // within the swarm. Keep custom planning sinks silent while using
+        // the ordinary live Norep owner rather than the Book's pline sink.
+        norepMessage: env.norepMessage
+            ?? (env.message === ttyPline ? ttyNorep : env.message),
         hooks: {
             ...(env.hooks ?? {}),
             ...(stopOccupation ? { stopOccupation } : {}),
