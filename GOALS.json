@@ -190964,7 +190964,7 @@
     {
       "id": "port-lock-pick-lock-v26-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete lock selection behavior for monsters, doors, and boxes",
       "cFile": "lock.c",
       "sessions": [
@@ -190978,15 +190978,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "pick_lock",
           "line": 358,
           "endLine": 659,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -191160,7 +191163,113 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pick_lock",
+            "implementation": "js/lock.js",
+            "symbol": "pick_lock",
+            "sourceReview": "Read complete lock.c:358-659 in definition order. Preserve dummy zero object, resumed-attempt guards and reset, no-hands/swallow/tool guards, supplied/manual coordinates, floor up/lava/pool/reach guards, container chain and discovered-container filtering, broken/card/artifact conditions, all three chance tables and cursed integer division, pit guard, visible ordinary/shop/Oracle monsters, door mimic reveal, nondoor glyph/lastseen comparison, exact doormask switch, unconditional AUTOUNLOCK_UNTRAP door check, declined prompt, touch_artifact consumed Boolean and shared context/occupation tail. Read direct dependencies nohands, get_adjacent_loc/yn_function, can_reach_floor, safe_qbuf/name helpers, could_untrap/untrap, is_magic_key/touch_artifact, lock_action/reset_pick/picklock/set_occupation, m_at/canseemon, stumble_onto_mimic/that_is_a_mimic/wakeup, feel_location/update_mapseen_for. Corrected consumed monst.h is_door_mappear predicate to canonical generated S_hcdoor/S_vcdoor symbols; focused regression failed before and passed after correction. Exported existing trap.c untrap owner for awaited production use, without changing its body. Removed obsolete pick_lock UnsupportedLockError refusals; unrelated lock owner refusals remain. Source steal.c:772-811 maybe_absorb_item is void; C discards its result, so skip only that callee with note_unported, preserving reveal before gap and learned-something return after it. SetVoice has no state/output effect in reference tty build. Invalid-tool impossible diagnostic is a named pline gap for invalid input; no RNG/output/state is invented.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c lock-pick/credit-card/skeleton-key switch arm calls pick_lock(obj,0,0,NULL), maps nonzero to ECMD_TIME, then common arti_speak tail; existing awaited caller remains."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "do_loot_cont",
+                "source": "pickup.c:2112-2145 floor locked-container autounlock calls pick_lock(unlocktool,cobj->ox,cobj->oy,cobj), including NULL tool for untrap-only option; result controls ECMD_TIME."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen_indir",
+                "source": "lock.c doopen_indir locked-door AUTOUNLOCK_APPLY_KEY arm calls pick_lock(otmp,x,y,NULL) after door message; existing production autoopen path remains."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock-pick-lock.test.mjs",
+              "scripts/apply-lock-pick.test.mjs",
+              "scripts/closed-door-autoopen.test.mjs",
+              "scripts/lock.test.mjs",
+              "scripts/loot-command.test.mjs",
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-manual-visible-b134.session.json",
+              "recordings/lock.c/pick-lock-container-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-container-cursed-b134.session.json",
+              "recordings/lock.c/pick-lock-door-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-door-untrap-b134.session.json",
+              "recordings/lock.c/pick-lock-container-untrap-b134.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-lock-key-visible-monster",
+                "segment": 0,
+                "fromStep": 55,
+                "throughStep": 62,
+                "source": "cmd.c apply dispatcher -> apply.c doapply lock-tool arm -> lock.c pick_lock visible-monster guard returns PICKLOCK_LEARNED_SOMETHING, caller spends a turn."
+              }
+            ],
+            "checkedAt": "6230bfd1a69cb9aec23c350e4e7b45b747a48594"
+          }
+        ],
+        "entryPointReview": "All three active source entries are manual apply of lock tools, floor-container #loot autounlock, and door #open/autoopen autounlock. C recorder includes all three; none is build-inactive. Manual visible-monster evidence is admitted plus independent, container recordings cover ordinary/cursed occupation, door recordings cover ordinary occupation plus canonical no-trap untrap. Pure consumed door-mimic predicate and rarely reachable resumed/dummy/chance branches are source-pinned; discarded mimic absorption remains outside this unit. Independent untrap-only container recording also exercises the active NULL-tool/dummy path.",
+        "entryPoints": [
+          {
+            "name": "Manual lock-tool apply",
+            "functions": [
+              "pick_lock"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-manual-visible-b134.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-lock-key-visible-monster",
+                "segment": 0,
+                "fromStep": 55,
+                "throughStep": 62,
+                "source": "cmd.c apply dispatcher -> apply.c doapply lock-tool arm -> lock.c pick_lock visible-monster guard returns PICKLOCK_LEARNED_SOMETHING, caller spends a turn."
+              }
+            ]
+          },
+          {
+            "name": "Floor-container autounlock through #loot",
+            "functions": [
+              "pick_lock"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-container-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-container-cursed-b134.session.json",
+              "recordings/lock.c/pick-lock-container-untrap-b134.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Door autounlock through autoopen",
+            "functions": [
+              "pick_lock"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-door-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-door-untrap-b134.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-steed-mount-steed-v26-20261007",
