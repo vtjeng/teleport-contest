@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked: do_wear.c:doddoremarm/menu_remarm is absent in JS; C calls pickup.c:query_category with WORN_TYPES at do_wear.c:3100. This active caller has no completion evidence.",
+  "segments": [
+    {
+      "seed": 13226012,
+      "datetime": "20800406121500",
+      "nethackrc": "OPTIONS=name:CategoryGap,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,menustyle:full\n",
+      "moves": " Aa\nac\n     ."
+    }
+  ]
+}

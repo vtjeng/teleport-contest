@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13226013,
+      "datetime": "20800406121500",
+      "nethackrc": "OPTIONS=name:MultiInventory,role:Valkyrie,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,menustyle:full\n",
+      "moves": " Ia ."
+    }
+  ],
+  "comment": "Blocked: cmd.c admission of I/#inventtype is unported before invent.c:dotypeinv, whose pickup.c:query_category call at invent.c:3873 consumes PICK_ONE. A132 forwards that how argument, but no whole caller completion is claimed."
+}

@@ -1179,6 +1179,47 @@ export function bypass_obj(obj, state = game) {
     state.context.bypasses = true;
 }
 
+// C ref: worn.c bypass_objlist() (1127-1137). This is a top-level nobj
+// walk; contents are separate lists. Clearing bits leaves context.bypasses set.
+export function bypass_objlist(objchain, on, state = game) {
+    if (on && objchain) {
+        state.context ??= {};
+        state.context.bypasses = true;
+    }
+    for (let obj = objchain; obj; obj = obj.nobj) obj.bypass = Boolean(on);
+}
+
+// C ref: worn.c nxt_unbypassed_obj() (1142-1151). Callers rescan their live
+// head after each action, since that action can replace or destroy the chain.
+export function nxt_unbypassed_obj(objchain, state = game) {
+    for (let obj = objchain; obj; obj = obj.nobj) {
+        if (!obj.bypass) {
+            bypass_obj(obj, state);
+            return obj;
+        }
+    }
+    return null;
+}
+
+// C ref: worn.c nxt_unbypassed_loot() (1159-1173). The sorted snapshot can
+// retain deleted object references, so validate against the current list.
+export function nxt_unbypassed_loot(lootarray, listhead, state = game) {
+    for (const entry of lootarray) {
+        const obj = entry.obj;
+        if (!obj) break;
+        for (let current = listhead; current; current = current.nobj) {
+            if (current === obj) {
+                if (!obj.bypass) {
+                    bypass_obj(obj, state);
+                    return obj;
+                }
+                break;
+            }
+        }
+    }
+    return null;
+}
+
 // C ref: worn.c mon_break_armor() (1177-1338). Armor that a changed monster
 // cannot wear is destroyed or dropped in source order. Keep its no-effect
 // paths synchronous: mon.c newcham() is called synchronously during level
