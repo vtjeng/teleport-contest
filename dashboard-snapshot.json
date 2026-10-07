@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T00:55:32.065Z",
+  "capturedAt": "2026-10-07T01:02:48.416Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -22707,6 +22707,44 @@
         "type": "accepted",
         "at": "2026-10-07T00:55:17.762Z",
         "task": "A113"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A113-published-53b9c256",
+        "type": "published",
+        "at": "2026-10-07T00:56:33.243Z",
+        "task": "A113",
+        "commit": "53b9c256032ae46928bb09503374efa4c3e0d31e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C124-20261007",
+        "type": "assign",
+        "at": "2026-10-07T01:00:15.213Z",
+        "task": "C124",
+        "worker": "C",
+        "goal": "port-polyself-gaze-mindblast-v24-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B124-20261007",
+        "type": "assign",
+        "at": "2026-10-07T01:00:25.380Z",
+        "task": "B124",
+        "worker": "B",
+        "goal": "fix-apply-use-grease-drop-env-v24-20261006",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A114-20261007",
+        "type": "assign",
+        "at": "2026-10-07T01:02:34.705Z",
+        "task": "A114",
+        "worker": "A2",
+        "goal": "fix-explode-fatal-last-msg-v24-20261007",
+        "kind": "implementation"
       }
     ]
   },
