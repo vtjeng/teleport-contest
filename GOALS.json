@@ -193839,7 +193839,7 @@
     {
       "id": "port-pray-prayer-done-v27-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete delayed prayer resolution",
       "cFile": "pray.c",
       "sessions": [
@@ -193847,17 +193847,24 @@
       ],
       "selectionReason": "v27-pray-undead has 19 remaining screens at step 33; investigations/synthetic/v27/v27-pray-undead.json traces the first cause to whole pray.c:prayer_done at the delayed p_type -1 callback.",
       "detail": "Port every prayer_done arm and preserve delayed callback state, Moloch/Gehennom/undead ordering, godvoice RNG, rehumanize-before-damage, and p_type 0-3 dispatch. Keep partial void angry/pleased/pray_revive callees as named frontiers unless their entry-point evidence requires separate source work.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "675359a009b1ad4b53d24207a93cc9901209df00",
+      "openStanding": {
+        "sha": "675359a009b1ad4b53d24207a93cc9901209df00",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "675359a009b1ad4b53d24207a93cc9901209df00",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "prayer_done",
           "line": 2276,
           "endLine": 2346,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -193877,12 +193884,122 @@
           "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
           "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
         }
+      },
+      "activeStanding": {
+        "sha": "675359a009b1ad4b53d24207a93cc9901209df00",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "prayer_done",
+            "implementation": "js/pray.js",
+            "symbol": "prayer_done",
+            "sourceReview": "Read and reconciled the complete pray.c:prayer_done2276-2346 body in definition order. Cached gp.p_aligntyp before clearing u.uinvulnerable. Moloch p_type-2 keeps deaf-sensitive hear/intuit laughter, wake_nearby(FALSE), adjalign(-2), exercise(A_WIS,FALSE), and outside-Gehennom Nothing else happens/return1; in hell it falls through. Undead p_type-1 invokes the alignment-dependent godvoice quote before falling-apart feedback, canonical rehumanize, unadjusted losehp(rnd20,residual undead turning effect,KILLED_BY_AN), Constitution exercise and return1. Forwarded exercise its canonical pickup.c:encumber_msg operation so the source trailing encumbrance callback runs after physical exercise; no helper behavior is invented. Inhell precedes p_type0–3, prints the cached deity name, short-circuits rnl on nonpositive alignment, conditionally calls the existing anger owner and returns0. Existing water/prayer-delay/Luck/anger/pleased order remains exact in p_type0–3; consumed water_prayer(FALSE) boolean chooses penalties or pleased. Coaligned altar pray_revive remains explicit note_unported because C discards its result; water_prayer(TRUE) follows it. Added final source return1. Removed the three UnsupportedPrayerError refusal sites and their obsolete header/callback comments. UnsupportedPrayerError remains needed by partial angrygods and other prayer source frontiers; no whole helper credit.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "dopray",
+                "source": "pray.c:dopray2259-2263 nomul(-3), multi_reason/nomovemsg and ga.afternmv=prayer_done. JS production #pray cmd registry reaches dopray, stores state.afternmv=prayer_done and source invulnerability. Normal confirmation and debug forced-success caller branches share this exact callback."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "unmul",
+                "source": "hack.c:unmul4200-4206 caches and clears ga.afternmv before (void)(*f)(). JS unmul1159-1165 clears state.afternmv before awaiting f(state); it discards prayer_done integer result exactly as C."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c:moveloop_core380-383 increments negative gm.multi and calls unmul at zero. Existing JS elapsed-turn completion reaches runUnmulAtTurnBoundary and canonical hack.unmul on the live pass; no cloned planner callback or new caller module is introduced."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs",
+              "scripts/pray-matrix.test.mjs",
+              "scripts/pray-offering.test.mjs",
+              "scripts/pray-offering-alignment.test.mjs",
+              "scripts/dip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/prayer-undead-lawful-a136.session.json",
+              "recordings/pray.c/prayer-undead-neutral-a136.session.json",
+              "recordings/pray.c/prayer-moloch-outside-a136.session.json",
+              "recordings/pray.c/prayer-moloch-deaf-a136.session.json",
+              "recordings/pray.c/prayer-gehennom-a136.session.json",
+              "recordings/pray.c/water-prayer-p0-neutral-lawful-altar-b84.session.json",
+              "recordings/pray.c/water-prayer-p1-knight-underfoot-terrain-wish-b84.session.json",
+              "recordings/pray.c/water-prayer-p2-true-neutral-underfoot-b84.session.json",
+              "recordings/pray.c/water-prayer-p2-false-empty-altar-b84.session.json",
+              "recordings/pray.c/pleased-wizard-debug.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-pray-undead",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 51,
+                "source": "cmd.c:#pray -> pray.c:dopray -> ga.afternmv -> allmain.c:moveloop_core elapsed negative multi -> hack.c:unmul -> pray.c:prayer_done p_type-1 -> godvoice/rehumanize/losehp(rnd20)/exercise(A_CON,FALSE)"
+              }
+            ],
+            "checkedAt": "675359a009b1ad4b53d24207a93cc9901209df00"
+          }
+        ],
+        "entryPointReview": "Whole upstream/src prayer_done search finds only its static prototype/definition and dopray callback assignment. hack.c:unmul is the generic callback invoker, reached after allmain negative-multi countdown. All are active. The command entry is #pray; wizard forced-success is an active variation of dopray that sets p_type3 before the same callback. Matching admitted v27 covers lawful undead resolution through the live callback; five independent C recordings cover lawful and neutral undead quotes, Moloch outside Gehennom, deaf Moloch wording, and Gehennom with the source rnl/anger response. Five targeted existing fresh recipes verify p_type0,1,2 true/false-water and forced-success p_type3 caller routes. No whole dopray/can_pray/unmul/allmain/godvoice/rehumanize/losehp/exercise/water_prayer/angrygods/pleased completion claim. Every function in the authoritative task context is prayer_done and is represented in evidence.functions.",
+        "entryPoints": [
+          {
+            "name": "Normal #pray delayed resolution",
+            "functions": [
+              "prayer_done"
+            ],
+            "recordings": [
+              "recordings/pray.c/prayer-undead-lawful-a136.session.json",
+              "recordings/pray.c/prayer-undead-neutral-a136.session.json",
+              "recordings/pray.c/prayer-moloch-outside-a136.session.json",
+              "recordings/pray.c/prayer-moloch-deaf-a136.session.json",
+              "recordings/pray.c/prayer-gehennom-a136.session.json",
+              "recordings/pray.c/water-prayer-p0-neutral-lawful-altar-b84.session.json",
+              "recordings/pray.c/water-prayer-p1-knight-underfoot-terrain-wish-b84.session.json",
+              "recordings/pray.c/water-prayer-p2-true-neutral-underfoot-b84.session.json",
+              "recordings/pray.c/water-prayer-p2-false-empty-altar-b84.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-pray-undead",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 51,
+                "source": "cmd.c:#pray -> pray.c:dopray -> ga.afternmv -> allmain.c:moveloop_core elapsed negative multi -> hack.c:unmul -> pray.c:prayer_done p_type-1 -> godvoice/rehumanize/losehp(rnd20)/exercise(A_CON,FALSE)"
+              }
+            ]
+          },
+          {
+            "name": "Wizard forced-success #pray delayed resolution",
+            "functions": [
+              "prayer_done"
+            ],
+            "recordings": [
+              "recordings/pray.c/pleased-wizard-debug.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "675359a009b1ad4b53d24207a93cc9901209df00",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-do-wear-helmet-on-telepathy-v27-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete helmet donning effects and telepathy admission",
       "cFile": "do_wear.c",
       "sessions": [
@@ -194111,7 +194228,60 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "675359a009b1ad4b53d24207a93cc9901209df00",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Older ready A136 delivery is at its exact passing integration boundary; B137 worker implementation continues from the accepted base and will resume as the integration goal after A136 closes."
+    },
+    {
+      "id": "port-dogmove-dog-move-leash-v27-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete tame dog movement and leashed pet repositioning",
+      "cFile": "dogmove.c",
+      "sessions": [
+        "synthetic/v27/v27-leash-tame-dog"
+      ],
+      "selectionReason": "Admitted v27 case v27-leash-tame-dog stops before a leashed tame dog's normal action; the complete investigation traces the missing owner to whole dogmove.c:dog_move and its production planner adapter.",
+      "detail": "Port whole dogmove.c:dog_move, wire the existing canonical mdisplacem and leashed repositioning callbacks, and remove the special starting-pet refusal. Preserve apply.c:check_leash as a separate void-owner gap unless a scope expansion ports that whole owner and its active callers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dog_move",
+          "line": 977,
+          "endLine": 1361,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 977,
+        "to": 1361
+      },
+      "syntheticProvenance": {
+        "synthetic/v27/v27-leash-tame-dog": {
+          "session": "synthetic/v27/v27-leash-tame-dog",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-leash-tame-dog",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-leash-tame-dog.session.json",
+          "recordingSha256": "37d4924ca751615d45cd7f3e3fd85c52f32e7ea5d6d757bbf9e2bbc11c2c8591",
+          "evaluationPath": "challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json",
+          "evaluationCommit": "675359a009b1ad4b53d24207a93cc9901209df00"
+        }
+      }
     }
   ]
 }
