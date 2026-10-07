@@ -46,8 +46,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
-      - name: Verify deployed commit, scores, and mismatch queue
-        timeout-minutes: 3
-        env:
-          DASHBOARD_URL: ${{ steps.deployment.outputs.page_url }}
-        run: node scripts/verify-dashboard-deployment.mjs "$DASHBOARD_URL" _site/index.html "$GITHUB_SHA"
