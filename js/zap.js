@@ -19,8 +19,9 @@
 // recorded at their source boundary; the self-zap dispatch itself does not
 // reject a valid object type.
 //
-// wizcmds.c wiz_wish() calls makewish(); potion.c, sit.c and zap.c's own
-// wand code reach it too, and none of those callers is ported.
+// wizcmds.c wiz_wish(), potion.c mongrantswish(), the ordinary sit.c throne,
+// zap.c's wishing wand, and allmain.c's Amulet and resumed-wish branches call
+// makewish(). sit.c special_throne_effect's wish arm remains an explicit gap.
 //
 // zap.c's elemental destruction of carried and floor-borne objects lives in
 // js/zap_destroy_items.js, which the C file separates as its own group of
@@ -40,7 +41,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    ACID_RES, A_INT, A_STR, A_DEX, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, DIR_180, DIR_ERR, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEAD, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_OBSTRUCTED, IS_ROOM, IS_SINK, IS_TREE, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DOOR, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, PHYS_EXPL_TYPE, PICK_NONE, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_earthlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STOMACH, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, TT_PIT, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_BALL, W_CHAIN, W_RING, W_RINGL, W_QUIVER, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, } from './const.js';
+    ACID_RES, A_INT, A_STR, A_DEX, A_CON, AC_VALUE, ANTIMAGIC, ARM, A_WIS, BLINDED, BUFSZ, LARGEST_INT, MAX_SPELL_STUDY, COLD_RES, COLNO, CORR, D_BROKEN, DIR_180, DIR_ERR, D_NODOOR, DB_FLOOR, DB_ICE, DB_UNDER, DISINT_RES, DISP_BEAM, DISP_CHANGE, DISP_END, DISP_FLASH, DISP_TETHER, FLASHED_LIGHT, ECMD_CANCEL, ECMD_OK, ECMD_TIME, ENL_GAMEINPROGRESS, FIRE_RES, FUMBLING, GETOBJ_EXCLUDE, GETOBJ_NOFLAGS, GETOBJ_SUGGEST, HALF_SPDAM, HALF_PHDAM, HALLUC, HALLUC_RES, HEAD, HEADSTONE, IS_FURNITURE, HWALL, ICE, INTRINSIC, INVIS_BEAM, ICED_MOAT, ICED_POOL, IRONBARS, LEFT_HANDED, IS_FOUNTAIN, IS_OBSTRUCTED, IS_ROOM, IS_SINK, IS_TREE, IS_WALL, IS_WATERWALL, IS_DOOR, In_mines, TEST_MOVE, is_hole, is_pit, DIED, DOOR, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN, EXPL_FIERY, KILLED_BY_AN, LL_ARTIFACT, LL_CONDUCT, LL_WISH, MAGICENLIGHTENMENT, NO_KILLER_PREFIX, NO_TRAP_FLAGS, TIMEOUT, TIMER_LEVEL, TIMER_OBJECT, REVIVE_MON, ROT_CORPSE, COST_CANCEL, COST_DRAIN, COST_UNCURS, COST_UNBLSS, thats_enough_tries, st_all, PHYS_EXPL_TYPE, PICK_NONE, POLY_NOFLAGS, PLNMSG_ENVELOPED_IN_GAS, POOL, MOAT, PIT, P_BASIC, P_EXPERT, P_ISRESTRICTED, P_SKILLED, P_UNSKILLED, Is_airlevel, Is_earthlevel, Is_rogue_level, Is_waterlevel, LAVAWALL, M_AP_MONSTER, M_AP_FURNITURE, M_AP_NOTHING, M_AP_OBJECT, M_AP_TYPE, M_SEEN_FIRE, M_SEEN_MAGR, M_SEEN_ELEC, M_SEEN_COLD, M_SEEN_ACID, M_SEEN_REFL, M_SEEN_SLEEP, M_SEEN_DISINT, OBJ_AT, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, OBJ_BURIED, OBJ_FREE, OBJ_MIGRATING, OBJ_ONBILL, OBJ_LUAFREE, BURIED_TOO, CONTAINED_TOO, FM_FMON, GRAVE, MINV_ALL, MINV_NOLET, PLNMSG_OBJ_GLOWS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_MALE, CORPSTAT_HISTORIC, STATUE_TRAP, CXN_PFX_THE, CXN_NORMAL, CXN_NO_PFX, DEAF, MM_FEMALE, MM_ADJACENTOK, MM_MALE, MM_NOCOUNTBIRTH, MM_NOMSG, MM_NOTAIL, MM_NOWAIT, NO_MINVENT, NON_PM, NOTELL, TELL, G_GENOD, has_mcorpsenm, REFLECTING, ROOM, ROWNO, SDOOR, SCORR, VIBRATING_SQUARE, SHOCK_RES, POISON_RES, SHOPBASE, SHOP_BARS_COST, SHOP_DOOR_COST, STONE, STOMACH, STRAT_WAITMASK, TT_INFLOOR, TT_LAVA, TT_PIT, MELT_ICE_AWAY, VWALL, nothing_happens, ONAME_KNOW_ARTI, ONAME_WISH, SLEEP_RES, STONED, STUNNED, TELEPORT_CONTROL, UNCHANGING, DRAIN_RES, FAST, INVIS, KICKED_WEAPON, THROWN_TETHERED_WEAPON, THROWN_WEAPON, ZAPPED_WAND, WAND_BACKFIRE_CHANCE, WAND_WREST_CHANCE, WEB, W_ACCESSORY, W_ART, W_ARTI, W_AMUL, W_ARMC, W_ARM, W_ARMF, W_ARMG, W_ARMH, W_ARMOR, W_ARMS, W_ARMU, W_BALL, W_CHAIN, W_RING, W_RINGL, W_QUIVER, W_SWAPWEP, W_TOOL, W_WEAPONS, W_WEP, W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOMSG, XKILL_NOCORPSE, ZAP_POS, xdir, ydir, engulfing_u, u_at, uhim, Upolyd, NC_SHOW_MSG, NC_VIA_WAND_OR_SPELL, ANIMATE_SPELL, ERODE_CORRODE, } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, adjalign, exercise, poisoned } from './attrib.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
@@ -145,7 +146,7 @@ import {
     An, The, Tobjnam, Yname2, an, aobjnam, ansimpleoname, bare_artifactname, boots_simple_name, cloak_simple_name, donameFresh, corpse_xname, cxname_singular, distant_name, otense, gloves_simple_name, helm_simple_name, killer_xname, shield_simple_name, shirt_simple_name, simpleonames, isPoisonable, suit_simple_name, the, vtense, yname, xnameFresh, erosion_matters, } from './objnam.js';
 import { readobjnam } from './objnam_readobjnam.js';
 import { death_inflicted_by } from './mcastu.js';
-import { encumber_msg, force_decor } from './pickup.js';
+import { encumber_msg, force_decor, u_safe_from_fatal_corpse } from './pickup.js';
 import { cant_revive, litroom, unpunish } from './read.js';
 import { disintegrate_arm, set_wear } from './do_wear.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -1779,7 +1780,7 @@ export async function zhitm(
     return { damage: tmp, otmp };
 }
 
-// C ref: zap.c makewish() (6313-6422). The help arm keeps its unported void
+// C ref: zap.c makewish() (6314-6428). The help arm keeps its unported void
 // wishcmdassist() call explicit, then retries without counting a failed wish.
 // Object wishes pass through readobjnam() and hold_another_object(); artifact
 // bookkeeping and wizard-terrain hands_obj returns are handled in source order.
@@ -1787,9 +1788,8 @@ export async function makewish(state = game) {
     state.u.uconduct ??= {};
     state.context ??= {};
     // svc.context.resume_wish. allmain.c:200 is its only reader, restarting a
-    // wish that a saved game left standing at this prompt; that call site is
-    // not ported, so nothing reads the value back yet. It lives here because
-    // makewish() is the only writer of it.
+    // wish that a saved game left standing at this prompt. The move loop
+    // resumes it before elapsed-time processing; makewish is its only writer.
     state.context.resume_wish = 0;
     if (state.flags?.verbose)
         await ttyPline('You may wish for an object.', state);
@@ -1830,9 +1830,8 @@ export async function makewish(state = game) {
 
         if (state.iflags?.term_gone) {
             // win/tty/getline.c:87 raises this flag for the EOF byte.
-            // C guards the assignment with !iflags.debug_fuzzer, which is
-            // never set in this port.
-            state.context.resume_wish = 1;
+            // The fuzzer never schedules another wish after terminal loss.
+            if (!state.iflags.debug_fuzzer) state.context.resume_wish = 1;
             return;
         }
 
@@ -1951,17 +1950,21 @@ export async function makewish(state = game) {
         );
     }
 
+    if (otmp.otyp === CORPSE && !u_safe_from_fatal_corpse(otmp, st_all, state))
+        otmp.wishedfor = 1;
+
     // 6405-6420. makewish() derives the drop verb and caller message before
     // hold_another_object() checks whether the object can stay in inventory.
     const verb = (Is_airlevel(state.u.uz) || state.u.uinwater)
-        ? 'slip' : 'drop';
+        ? 'slip' : (otmp.otyp === CORPSE && otmp.wishedfor) ? 'materialize' : 'drop';
     const here = state.level.at(state.u.ux, state.u.uy).typ;
     const oops_msg = state.u.uswallow
         ? 'Oops!  %s out of your reach!'
         : (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)
            || here < IRONBARS || here >= ICE)
             ? 'Oops!  %s away from you!'
-            : 'Oops!  %s to the floor!';
+            : !(otmp.otyp === CORPSE && otmp.wishedfor)
+                ? 'Oops!  %s to the floor!' : 'Careful! %s on the floor!';
 
     /* The(aobjnam()) is safe since otmp is unidentified -dlc */
     await hold_another_object(
