@@ -2188,7 +2188,7 @@ export async function rloco(obj, rawEnv = {}) {
 
     if (obj.otyp === CORPSE && is_rider(state.mons?.[obj.corpsenm])) {
         const { revive_corpse } = await import('./do.js');
-        if (await revive_corpse(obj, state)) return false;
+        if (await revive_corpse(obj, state, env)) return false;
     }
 
     obj_extract_self(obj, env);

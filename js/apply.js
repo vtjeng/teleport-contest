@@ -1560,9 +1560,8 @@ export function tinnable(corpse, state = game) {
 
 // C ref: apply.c use_tinning_kit() (2177-2258). apply.c:doapply() ignores
 // this helper's return and retains its initial ECMD_TIME result. The ordinary
-// floor/inventory tin path is ported here. Rider revival always delegates to
-// do.c:revive_corpse() and lets its current non-floor refusal propagate until
-// that consumed Boolean path is ported.
+// floor/inventory tin path is ported here. Rider revival delegates to the
+// whole do.c:revive_corpse() owner with the caller's lifecycle environment.
 async function use_tinning_kit(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     if (obj.spe <= 0) {
@@ -1600,7 +1599,7 @@ async function use_tinning_kit(obj, state = game, env = {}) {
     }
 
     if (is_rider(species)) {
-        if (await revive_corpse(corpse, state)) {
+        if (await revive_corpse(corpse, state, env)) {
             await verbalize(
                 'Yes...  But War does not preserve its enemies...',
                 state,

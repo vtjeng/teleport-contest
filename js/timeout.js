@@ -590,7 +590,7 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
 const timeout_funcs = [
     { name: 'rot_organic' },
     { name: 'rot_corpse', f: rot_corpse, unported: unportedRotCorpseReason },
-    { name: 'revive_mon' },
+    { name: 'revive_mon', f: reviveMonCallback, unported: () => null },
     { name: 'zombify_mon' },
     { name: 'burn_object', f: burn_object, unported: () => null },
     { name: 'hatch_egg', f: hatch_egg, unported: () => null },
@@ -604,6 +604,13 @@ const timeout_funcs = [
 ];
 if (timeout_funcs.length !== NUM_TIME_FUNCS)
     throw new Error('timeout_funcs must cover every timeout_types row');
+
+// C ref: timeout.c timeout_funcs[REVIVE_MON]. Load the do.c callback at
+// dispatch time because do.js also uses the timeout queue's public owners.
+async function reviveMonCallback(arg, timeout, env) {
+    const { revive_mon } = await import('./do.js');
+    return revive_mon(arg, timeout, env);
+}
 
 // C ref: mkobj.c shrink_glob(). Build the full env for the timer callback,
 // injecting the extractExternalObject hook for floor-object removal and
@@ -1357,6 +1364,13 @@ function Flying(state) {
 export function nh_timeout_requires_live_state(state = game) {
     const u = state.u;
     if (u.uinvulnerable) return false;
+    // revive() creates a monster, removes its corpse, and redraws the level.
+    // Run this timer live before planning the elapsed turn's monster tail.
+    for (let timer = state.gt?.timer_base;
+        timer && timer.timeout <= state.moves; timer = timer.next) {
+        if (timer.kind === TIMER_OBJECT && timer.func_index === REVIVE_MON)
+            return true;
+    }
     if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)
         && !is_were(state.youmonst.data)) return true;
     if (u.uprops?.[STONED]?.intrinsic) return true;

@@ -1645,15 +1645,14 @@ test('run_timers drains the due prefix head-first and stops at the future',
 // Every unported row is driven through run_timers() here, indexed by the
 // js/const.js constant, so the table is pinned against the enum rather than
 // against itself. ROT_CORPSE, HATCH_EGG, FIG_TRANSFORM, SHRINK_GLOB, and
-// MELT_ICE_AWAY and BURN_OBJECT are absent because their callbacks are ported.
+// MELT_ICE_AWAY, REVIVE_MON, and BURN_OBJECT are absent because their callbacks are ported.
 test('every unported timeout row names its own C function', async () => {
     const rows = [
         [ROT_ORGANIC, 'rot_organic'],
-        [REVIVE_MON, 'revive_mon'],
         [ZOMBIFY_MON, 'zombify_mon'],
     ];
-    // Six enum rows have callbacks; the others remain named refusals.
-    assert.equal(rows.length, NUM_TIME_FUNCS - 6);
+    // Seven enum rows have callbacks; the others remain named refusals.
+    assert.equal(rows.length, NUM_TIME_FUNCS - 7);
 
     for (const [index, name] of rows) {
         const state = rottingState(100);
@@ -1729,13 +1728,13 @@ test('run_timers refuses the whole due prefix before draining any of it', async 
         otyp: CORPSE,
         quan: 1,
     });
-    start_timer(0, TIMER_OBJECT, REVIVE_MON, later, state);
+    start_timer(0, TIMER_OBJECT, ZOMBIFY_MON, later, state);
     assert.equal(state.gt.timer_base.arg, corpse);
     const queueBefore = queue(state).map((timer) => timer.tid);
 
     await assert.rejects(
         run_timers(state, { newsym: () => {} }),
-        /a ported timeout function, but revive_mon\(\) is due/u,
+        /a ported timeout function, but zombify_mon\(\) is due/u,
     );
 
     assert.equal(corpse.where, OBJ_FLOOR);

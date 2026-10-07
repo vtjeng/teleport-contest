@@ -16,7 +16,7 @@ import {
 import {
     A_STR,
     A_DEX,
-    REVIVE_MON,
+    ZOMBIFY_MON,
     COULD_SEE,
     CLAIRVOYANT,
     COLNO,
@@ -1777,12 +1777,12 @@ test('due timeout retries stop at the elapsed coordinator before mutation',
         game.context.move = 1;
         game.context.seer_turn = 1000;
         game.u.umovement = NORMAL_SPEED;
-        // REVIVE_MON remains unported, so the whole elapsed turn stops
+        // ZOMBIFY_MON remains unported, so the whole elapsed turn stops
         // atomically; BURN_OBJECT now dispatches the source callback.
         game.gt.timer_base = {
             timeout: game.moves + 1,
             kind: TIMER_OBJECT,
-            func_index: REVIVE_MON,
+            func_index: ZOMBIFY_MON,
             arg: { otyp: CORPSE, timed: 1 },
             next: null,
         };
@@ -1794,7 +1794,7 @@ test('due timeout retries stop at the elapsed coordinator before mutation',
                 moveloop_core(),
                 (error) => error instanceof UnsupportedTurnBoundaryError
                     && error.reason
-                        === 'a ported timeout function, but revive_mon() '
+                        === 'a ported timeout function, but zombify_mon() '
                             + 'is due',
             );
             assert.deepEqual(
