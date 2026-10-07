@@ -1,0 +1,87 @@
+name: Checkpoint trial
+on:
+  push:
+    branches: [codex/parallel-checkpoint]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TELEPORT_VALIDATION_EXTERNAL: '1'
+
+jobs:
+  # Two identical baselines measure timing noise on the hosted runners.
+  serial:
+    strategy:
+      fail-fast: false
+      matrix:
+        repeat: [1, 2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: node scripts/checkpoint-checks.mjs
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: serial-${{ matrix.repeat }}
+          path: |
+            .cache/checkpoint-summary.json
+            .cache/development-standing.json
+            .cache/session-results.json
+          include-hidden-files: true
+
+  stage:
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [tests-1, tests-2, tests-3, tests-4, sources, score, recordings, scan]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: node scripts/checkpoint-stage.mjs run '${{ matrix.group }}' .cache/checkpoint-stages
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: stage-${{ matrix.group }}
+          path: .cache/checkpoint-stages
+          include-hidden-files: true
+
+  combine:
+    needs: stage
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: stage-*
+          path: .cache/checkpoint-stages
+          merge-multiple: true
+      - run: node scripts/checkpoint-stage.mjs combine .cache/checkpoint-stages
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: parallel-checkpoint
+          path: .cache/checkpoint-stages
+          include-hidden-files: true
