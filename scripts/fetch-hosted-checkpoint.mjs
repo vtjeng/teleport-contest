@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Trust the hosted verdict, verify its candidate identity, and archive its evidence.
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
@@ -45,7 +45,7 @@ export function verifyHostedRun(run, repository, commit) {
     if (run.status !== 'completed' || run.conclusion !== 'success'
         || run.head_sha !== commit || run.repository?.full_name !== repository
         || run.head_repository?.full_name !== repository
-        || run.path !== '.github/workflows/checkpoint-trial.yml'
+        || !/^\.github\/workflows\/checkpoint-trial\.yml(?:@.+)?$/u.test(run.path ?? '')
         || !Number.isSafeInteger(run.id) || run.id <= 0
         || !Number.isSafeInteger(run.run_attempt) || run.run_attempt <= 0)
         throw new Error('hosted checkpoint must be a successful candidate run from this repository and workflow');
@@ -81,7 +81,17 @@ export function fetchHostedCheckpoint(id) {
         throw new Error('HEAD changed while fetching evidence');
     const result = archiveHostedCheckpoint(PROJECT_ROOT, output, summary);
     console.log(`Results: ${result}`);
-    console.log(`Synthetic evaluations: ${join(resolve(result, '..'), 'synthetic')}`);
+    const savedSynthetic = join(resolve(result, '..'), 'synthetic');
+    console.log(`Synthetic evaluations: ${savedSynthetic}`);
+    console.log('Orchestrator: compare these evaluations with accepted evidence before recording scores.');
+    console.log('After review, copy each file to the path below and run its record command; keep HEAD unchanged.');
+    for (const name of readdirSync(savedSynthetic).sort()) {
+        const batch = /^ci-(v\d+)\.json$/u.exec(name)?.[1];
+        if (!batch) continue;
+        const destination = `challenges/evaluations/hosted-${run.id}-${run.attempt}-${batch}.json`;
+        console.log(`Copy ${join(savedSynthetic, name)} to ${destination}`);
+        console.log(`node scripts/score-challenges.mjs --record ${destination}`);
+    }
     return result;
 }
 
