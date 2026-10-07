@@ -5191,7 +5191,7 @@ export async function dotypeinv(state = game, hooks = {}) {
         && (state.flags?.menu_style === MENU_FULL
             || state.flags?.menu_style === MENU_PARTIAL)) {
         traditional = false;
-        let qflags = UNPAID_TYPES | BILLED_TYPES | INCLUDE_VENOM;
+        let qflags = UNPAID_TYPES | INCLUDE_VENOM;
         if (billx) qflags |= BILLED_TYPES;
         if (bcnt) qflags |= BUC_BLESSED;
         if (ucnt) qflags |= BUC_UNCURSED;

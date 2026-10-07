@@ -540,6 +540,7 @@ import { dowrite } from './write.js';
 import { encumber_msg, pickup_object, use_container } from './pickup.js';
 import {
     dig_check,
+    digactualhole,
     fillholetyp,
     liquid_flow,
     use_pick_axe,
@@ -4757,12 +4758,8 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
                     const makePit = random.rn2(obj.spe) < 3
                         || (!Can_dig_down(state.u.uz, state)
                             && !level.candig);
-                    // apply.c discards digactualhole()'s return, but the
-                    // non-hero BY_OBJECT aftermath is outside that port.
-                    // Preserve the argument's rn2 before leaving the gap.
-                    const trapType = makePit ? PIT : HOLE;
-                    note_unported(
-                        `dig.c digactualhole non-hero trap type ${trapType}`,
+                    await digactualhole(
+                        x, y, null, makePit ? PIT : HOLE, state, { ...env, random },
                     );
                 }
             }

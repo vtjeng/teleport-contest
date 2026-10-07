@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent rumors.c:doconsult C-first witness. Source-selected minor payment/reward, no-gold guard, or outside-limit outoracle major text. Seeds/time/input chosen before JavaScript comparison. C unique-monster prompt requires explicit y to create the actual Oracle rather than a doppelganger. C map places this Oracle southwest; direction corrected to b before JS comparison. Blocked by rumors.c:outoracle: major consultation displays an Oracle text window and consumes oracle-list RNG before the reward. doconsult legally records its discarded void result as a gap; this recipe stays outside the passing recordings corpus until outoracle is ported.",
+  "segments": [
+    {
+      "seed": 7133103,
+      "datetime": "20381026123000",
+      "nethackrc": "OPTIONS=name:Consultant,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u00171000 gold pieces\n\u0007peaceful Oracle\ny        #chat\nbny                 "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C130 independent setup: zap.c:dozap (2632) command admission rejects z for a bat with no hands, so this input never reaches dig.c:digactualhole. C-only observation retained; no runtime completion credit.",
+  "segments": [
+    {
+      "seed": 92688014,
+      "datetime": "20770909114000",
+      "nethackrc": "OPTIONS=name:C130Probe,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h#polyself\nbat\n  \u0017uncursed wand of digging\nzo>       "
+    }
+  ]
+}

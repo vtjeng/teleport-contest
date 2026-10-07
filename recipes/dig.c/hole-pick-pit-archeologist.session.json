@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C130 pick-axe occupation entry: neutral male Archeologist applies the starting tool and digs downward to the first pit. The C-only extended probe later stopped its second occupation near a generated monster; this minimal recipe stops at the verified pit creation.",
+  "segments": [
+    {
+      "seed": 92688012,
+      "datetime": "20770908113500",
+      "nethackrc": "OPTIONS=name:C130Probe,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h ae  >"
+    }
+  ]
+}

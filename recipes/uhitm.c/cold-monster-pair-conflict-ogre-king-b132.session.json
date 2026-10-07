@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent C-first monster-pair cold witness: mhitm.c:mattackm rejects a monster wielding a weapon in its AT_WEAP arm before planning admits the cold attack. Retain for the mattackm weapon closure. Cheap defender variation: the first C cold claw (87-88) leaves the ogre king alive, and the reciprocal attack finishes at 94. Source: uhitm.c:mhitm_ad_cold. Inputs were independently chosen and recorded with C before local JS comparison; the prefix is selected from the first completed C source effect, without consulting a port failure. Original full C probe remains in the worker cache.",
+  "segments": [
+    {
+      "seed": 7132106,
+      "datetime": "20381019113000",
+      "nethackrc": "OPTIONS=name:ColdB132,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!debug_mongen\n",
+      "moves": "#wizintrinsic\na>>h\n \n#wizgenesis\nhostile ogre king\n #wizgenesis\nhostile ice troll\n. . . . . . "
+    }
+  ]
+}
