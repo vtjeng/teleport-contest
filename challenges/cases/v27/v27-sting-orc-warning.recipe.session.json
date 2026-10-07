@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first extension mission: artifact.c:set_artifact_intrinsic SPFX_WARN. Wish Sting, wield it, then generate an orc. Expected C observation: Wielded artifact warning range and glowing blade state. Planned from C source before this candidate's JS comparison.",
+  "segments": [
+    {
+      "seed": 92731001,
+      "datetime": "20771118113000",
+      "nethackrc": "OPTIONS=name:V27BProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017Sting\nwm    \u0007peaceful orc\n    "
+    }
+  ]
+}

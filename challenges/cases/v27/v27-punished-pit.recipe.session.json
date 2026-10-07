@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v27 mission: ball.c:drag_ball/ballfall; trap.c:dotrap. Read punishment, create pit and enter it. Expected C observation: Ball fall and punished movement state. Inputs planned before JS comparison; seed independently selected for this batch. C-only correction from recorder-observed More prompts, inventory letters, monster location, or source energy/terrain precondition; no JS comparison has run.",
+  "segments": [
+    {
+      "seed": 92731001,
+      "datetime": "20771118113000",
+      "nethackrc": "OPTIONS=name:V27BProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017uncursed scroll of punishment\nrm  \u0017pit\nl h       "
+    }
+  ]
+}

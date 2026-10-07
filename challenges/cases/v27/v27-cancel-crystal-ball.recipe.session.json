@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v27 mission: zap.c:cancel_item; detect.c:use_crystal_ball. Drop charged crystal ball, cancel it, pick up and apply. Expected C observation: Negative charge ball implodes when gazed into. Inputs planned before JS comparison; seed independently selected for this batch.",
+  "segments": [
+    {
+      "seed": 92731001,
+      "datetime": "20771118113000",
+      "nethackrc": "OPTIONS=name:V27BProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed crystal ball (0:5)\n\u0017uncursed wand of cancellation (0:5)\ndmzn>,am=................      "
+    }
+  ]
+}
