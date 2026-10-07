@@ -1918,8 +1918,8 @@ export function preflight_dropx(obj, env = {}) {
         && !IS_ALTAR(location.typ) && !stway) {
         throw new UnsupportedDropError('non-ordinary terrain');
     }
-    if (engr_at(x, y, state))
-        throw new UnsupportedDropError('an engraving under the drop');
+    // do.c:dropx/dropz/flooreffects adds no effect for an engraving on dry
+    // floor. Keep its text intact and let the ordinary placement/redraw run.
     if (visible_region_at(x, y, state))
         throw new UnsupportedDropError('a visible region over the drop');
     for (let buried = state.level.buriedobjlist; buried; buried = buried.nobj) {

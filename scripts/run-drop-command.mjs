@@ -32,10 +32,13 @@
 // record-session keeps one staged install per recipe, and two sequential
 // debug games in one install collide.
 
-import { OBJ_FLOOR } from '../js/const.js';
+import assert from 'node:assert/strict';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { BURN, DUST, ENGRAVE, OBJ_FLOOR } from '../js/const.js';
+import { engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { validateCleanRecipe } from './diff-fresh.mjs';
+import { runDifferential, validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // A fixed Tuesday morning with no calendar event, so nothing competes with
@@ -180,6 +183,22 @@ export const MERGE_CASE = {
     mergedQuantity: 2,
 };
 
+// Unsearched seeds 135271–135273 select independent dust, blade-carved and
+// fire-wand substrates. C-first recordings established the dagger letter and
+// the fire wand's two More prompts before these inputs were compared with JS.
+export const ENGRAVING_DROP_CASES = [
+    { name: 'drop-engraving-dust-ration', type: DUST, text: 'camp' },
+    { name: 'drop-engraving-carved-ration', type: ENGRAVE, text: 'mark' },
+    { name: 'drop-engraving-burned-ration', type: BURN, text: 'base' },
+];
+
+export function loadEngravingDropRecipe(name) {
+    return validateCleanRecipe(JSON.parse(readFileSync(
+        new URL(`../recipes/do.c/${name}.recipe.session.json`, import.meta.url),
+        'utf8',
+    )), 'engraving drop recipe');
+}
+
 function segmentFor(entry) {
     return {
         seed: entry.seed,
@@ -243,6 +262,32 @@ function floorPile(state) {
 }
 
 export async function verifyDropCommandSegment(segment) {
+    const engraved = ENGRAVING_DROP_CASES.find(entry =>
+        loadEngravingDropRecipe(entry.name).segments[0].seed === segment.seed);
+    if (engraved) {
+        // Stop before the final command to capture the source engraving data.
+        const command = segment.moves.lastIndexOf('dd');
+        assert.ok(command >= 0, 'the starting ration d is explicitly dropped');
+        await runSegment({ ...segment, moves: segment.moves.slice(0, command) });
+        const engraving = engr_at(game.u.ux, game.u.uy, game);
+        assert.ok(engraving, 'production engraving completed before the drop');
+        assert.equal(engraving.engr_type, engraved.type);
+        assert.equal(engraving.engr_txt[0], engraved.text);
+        const before = structuredClone(engraving);
+        const priorMoves = game.moves;
+        let boundary = null;
+        await runSegment(segment, { onBoundary: error => { boundary = error; } });
+        assert.equal(boundary, null);
+        const after = engr_at(game.u.ux, game.u.uy, game);
+        assert.deepEqual(after, before, 'ordinary placement preserves every engraving field');
+        const dropped = floorPile(game).find(obj => obj.invlet === 'd');
+        assert.ok(dropped, 'the starting ration left inventory for the floor');
+        assert.equal(dropped.where, OBJ_FLOOR);
+        assert.ok(!inventoryLetters(game).includes('d'));
+        // do.c:drop returns ECMD_TIME; the live command spends one turn.
+        assert.equal(game.moves, priorMoves + 1);
+        return;
+    }
     const entry = caseForSegment(segment);
     // The pack and pile as the drop finds them, so a letter that stayed is
     // distinguishable from one that never existed.
@@ -296,16 +341,44 @@ export async function verifyDropCommandSegment(segment) {
 }
 
 export async function runDropCommandMatrix() {
-    return runFreshMatrix({
-        entries: [
+    const engravingEntries = ENGRAVING_DROP_CASES.map(entry => ({
+        label: entry.name, recipe: loadEngravingDropRecipe(entry.name),
+    }));
+    const result = await runFreshMatrix({
+        entries: process.env.DROP_ENGRAVING_ONLY ? engravingEntries : [
             { label: 'drop command', recipe: loadDropCommandRecipe() },
             { label: 'drop loadstone', recipe: loadDropLoadstoneRecipe() },
             { label: 'drop meat ring', recipe: loadDropMeatRingRecipe() },
             { label: 'drop merge', recipe: loadDropMergeRecipe() },
+            ...engravingEntries,
         ],
         summaryLabel: 'DROP COMMAND',
         verifySegment: verifyDropCommandSegment,
+        runDifferentialFn: async recipe => {
+            const entry = ENGRAVING_DROP_CASES.find(candidate =>
+                loadEngravingDropRecipe(candidate.name).segments[0].seed
+                    === recipe.segments[0].seed);
+            let recording;
+            const differential = await runDifferential(recipe, process.env, {
+                transformRecording: raw => {
+                    recording = raw;
+                    return raw;
+                },
+            });
+            if (entry) {
+                mkdirSync('.cache/drop-engraving-fresh', { recursive: true });
+                writeFileSync(`.cache/drop-engraving-fresh/${entry.name}.json`,
+                    JSON.stringify(differential, null, 2) + '\n');
+                if (differential.passed) {
+                    mkdirSync('recordings/do.c', { recursive: true });
+                    writeFileSync(`recordings/do.c/${entry.name}.session.json`,
+                        JSON.stringify(recording, null, 2) + '\n');
+                }
+            }
+            return differential;
+        },
     });
+    return result;
 }
 
 runMatrixCli(import.meta.url, runDropCommandMatrix, 'drop command');

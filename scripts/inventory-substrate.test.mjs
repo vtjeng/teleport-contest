@@ -3533,10 +3533,16 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         );
         state.u.uinwater = false;
         state.head_engr = { engr_x: 10, engr_y: 5, nxt_engr: null };
-        assert.throws(
+        const engraving = state.head_engr;
+        // do.c:dropx/dropz/flooreffects has no engraving exclusion. Admission
+        // still performs no inventory, ownership, floor or engraving mutation.
+        assert.doesNotThrow(
             () => preflight_dropx(ball, { state, hooks }),
-            /engraving/u,
         );
+        assert.strictEqual(state.head_engr, engraving);
+        assert.equal(state.invent, ball);
+        assert.equal(ball.where, OBJ_INVENT);
+        assert.equal(state.level.objects[10][5], null);
         state.head_engr = null;
         const region = create_region();
         region.visible = true;
