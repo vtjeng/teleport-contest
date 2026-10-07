@@ -310,3 +310,17 @@ test('blinding-ray source order wires owners and captures gremlin form before da
     assert.match(c,/boolean vulnerable = \(u\.umonnum == PM_GREMLIN\)/u);
     assert.match(c,/obj->blessed \? 15 : !obj->cursed \? 10 : 5/u);
 });
+
+test('ENLIGHTENING invocation displays the source PICK_NONE window before returning time',async () => {
+    const {readFileSync}=await import('node:fs');
+    const c=readFileSync(new URL('../nethack-c/upstream/src/artifact.c',import.meta.url),'utf8');
+    const source=c.slice(c.indexOf('case ENLIGHTENING:'),c.indexOf('case CREATE_AMMO:',c.indexOf('case ENLIGHTENING:')));
+    assert.match(source,/enlightenment\(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS\);\s*res = ECMD_TIME;/u);
+    const js=readFileSync(new URL('../js/artifacts.js',import.meta.url),'utf8');
+    const arm=js.slice(js.indexOf('case ENLIGHTENING:'),js.indexOf('case CREATE_AMMO:',js.indexOf('case ENLIGHTENING:')));
+    assert.match(arm,/await select_menu\(state,/u);
+    assert.ok(arm.indexOf('await select_menu') < arm.indexOf('res = ECMD_TIME'));
+    const {loadPolymorphEnlightenmentCases,verifyPolymorphEnlightenmentSegment}=await import('./run-polymorph-enlightenment.mjs');
+    const entry=loadPolymorphEnlightenmentCases().find(({name})=>name==='enlightenment-artifact-giant');
+    await verifyPolymorphEnlightenmentSegment(entry.recipe.segments[0]);
+});

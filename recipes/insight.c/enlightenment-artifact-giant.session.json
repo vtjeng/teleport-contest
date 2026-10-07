@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first input, directly chosen seed and role/form variation. C establishes wished item letter and each More/menu dismissal before JavaScript comparison. C established the Eyes in slot j; failed slot-g probe is preserved in cache. Monk variation encounters an earlier quest-pager text defect; the Wizard variation avoids that unrelated caller. C will establish its item slot independently. Wizard C established slot o; original slot-n probe is kept in cache.",
+  "segments": [
+    {
+      "seed": 93371006,
+      "datetime": "20790317130911",
+      "nethackrc": "OPTIONS=name:Knowledge,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017The Eyes of the Overworld\n      #polyself\nhill giant\n      #invoke\no        "
+    }
+  ]
+}

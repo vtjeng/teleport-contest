@@ -948,7 +948,7 @@ async function disclose(how, taken, state) {
         if (c === KEY_Y) {
             const lines = await enlightenment(
                 BASICENLIGHTENMENT | MAGICENLIGHTENMENT,
-                ENL_GAMEOVERDEAD,
+                how >= PANICKED ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD,
                 state,
             );
             await displayTtyMenuTextWindow(state, lines);

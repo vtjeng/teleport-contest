@@ -26,7 +26,7 @@ import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_FOX } from '../js/monsters.js';
+import { PM_FOX, PM_HILL_GIANT } from '../js/monsters.js';
 import { Tobjnam } from '../js/objnam.js';
 import {
     NODIR,
@@ -662,7 +662,7 @@ test('a NODIR wand reaches its effect without a direction prompt', async () => {
     assert.deepEqual(getRngLog(), ['rn2(19)=3', 'rn2(19)=16']);
 });
 
-test('polymorphed enlightenment records its void insight gap and continues',
+test('polymorphed enlightenment displays the source menu before continuation',
     async () => {
         const zapC = readFileSync(
             new URL('../nethack-c/upstream/src/zap.c', import.meta.url),
@@ -678,17 +678,31 @@ test('polymorphed enlightenment records its void insight gap and continues',
             ...segmentFor(`${ZAP_KEY}${ESCAPE_KEY}`),
             moves: '.',
         });
-        game.u.umonnum = game.u.umonster + 1;
+        game.u.umonnum = PM_HILL_GIANT;
+        game.youmonst.data = game.mons[PM_HILL_GIANT];
+        game.u.mfemale = game.flags.female;
         game.nhDisplay.toplin = TOPLINE_EMPTY;
         game._pending_message = null;
         game.unported = new Set();
-        typeAtPrompts(' ');
+        typeAtPrompts(' ', ' '); // Source message pause, then PICK_NONE dismissal.
         const draws = [];
-        await do_enlightenment_effect(game, {
-            rn2(bound) { draws.push(bound); return 0; },
-        });
+        const frames = [];
+        const readKey = game.nhDisplay.readKey;
+        game.nhDisplay.readKey = function (...args) {
+            frames.push(this.grid.map((row) => row.map(({ch}) => ch).join('')).join('\n'));
+            return readKey.apply(this, args);
+        };
+        try {
+            await do_enlightenment_effect(game, {
+                rn2(bound) { draws.push(bound); return 0; },
+            });
+        } finally {
+            game.nhDisplay.readKey = readKey;
+        }
 
-        assert.deepEqual([...game.unported], ['insight.c enlightenment']);
+        assert.ok(!game.unported.has('insight.c enlightenment'));
+        assert.ok(frames.some((frame) => frame.includes('attributes:')
+            && frame.includes('Status:')), 'the caller pauses on its live enlightenment menu');
         assert.match(game._pending_message, /The feeling subsides\./u);
         assert.deepEqual(draws, [19]);
     });
