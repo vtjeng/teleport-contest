@@ -106,6 +106,7 @@ import {
     make_stoned, make_vomiting,
 } from './potion.js';
 import { rn2 } from './rng.js';
+import { vision_recalc } from './vision.js';
 import { PM_GRID_BUG } from './monsters.js';
 // C ref: wizcmds.c wiz_map() (176-198), the #wizmap command and its C('f')
 // binding. The temporary clearing of HConfusion and HHallucination keeps
@@ -478,7 +479,14 @@ export async function wiz_intrinsic(state = game, rawEnv = {}) {
             await pooleffects(false, state);
         }
     }
-    await docrt();
+    // wizcmds.c:1092 calls docrt(), whose docrt_flags owner shuts vision
+    // down before painting memory, then restores it before see_monsters().
+    // The JS redraw exposes that bracket to callers. It must run again here
+    // after the menu's repair so visible hallucinated objects are remapped.
+    await docrt({
+        suspendVision: () => vision_recalc(2),
+        restoreVision: () => vision_recalc(0),
+    });
     return ECMD_OK;
 }
 
