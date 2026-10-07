@@ -1267,8 +1267,8 @@ test('every remaining zap refusal names an unported zap.c function',
     // discarded helper calls use note_unported() and its default impossible()
     // arm records a gap without throwing, so neither appears here.
     //
-    // backfire() and weffects() are two of dozap()'s five effect arms;
-    // weffects() no longer stops, so only backfire() is left here.
+    // backfire() is still refused. weffects() dispatches its source spell
+    // and wand ray bands but retains an unexpected-object diagnostic refusal.
     //
     // The rest are the ray's, in source order. Ported branches have no
     // refusal inventory entry; calls whose result is discarded remain
@@ -1285,7 +1285,7 @@ test('every remaining zap refusal names an unported zap.c function',
             // zapnodir() now covers its whole NODIR switch, including the
             // C default no-op; weffects() still refuses unexpected directed
             // objects after its NODIR and ray cases.
-            'ubuzz', 'weffects',
+            'weffects',
         ],
     );
 });

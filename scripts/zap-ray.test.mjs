@@ -88,6 +88,9 @@ import {
     RAY,
     SPBOOK_CLASS,
     SPE_DIG,
+    SPE_FIREBALL,
+    SPE_CONE_OF_COLD,
+    SPE_SLEEP,
     SPE_FINGER_OF_DEATH,
     SPE_MAGIC_MISSILE,
     SPE_STONE_TO_FLESH,
@@ -1672,44 +1675,75 @@ test('weffects turns each ray wand into the dobuzz type its row implies',
     }
 });
 
-test('weffects sends digging and a cast ray to their own arms', async () => {
-    // zap.c weffects():3459-3462. Digging and the spell band are tested
-    // before the wand band, so an object in either one never reaches ubuzz()
-    // with a wand type.
-    for (const [otyp, ending] of [
-        [WAN_DIGGING, null],
-        [SPE_DIG, null],
-        [SPE_MAGIC_MISSILE, 'ubuzz() for a spell the hero cast'],
-        [SPE_FINGER_OF_DEATH, 'ubuzz() for a spell the hero cast'],
-    ]) {
+test('weffects sends digging to its source arm before ray dispatch', async () => {
+    // zap.c:3459-3460: both digging objects bypass the later spell/wand bands.
+    for (const otyp of [WAN_DIGGING, SPE_DIG]) {
         const wand = await aimedWand(0, 0, 1, otyp);
-        // Each of the four is a directional object, which is what puts it in
-        // weffects()'s final else rather than in the immediate or
-        // directionless arm above it.
-        assert.notEqual(game.objects[otyp].oc_dir, 1, `NODIR at ${otyp}`);
-        assert.notEqual(game.objects[otyp].oc_dir, 2, `IMMEDIATE at ${otyp}`);
-        if (ending === null) {
-            // Avoid the generated startup stairs so the downward vertical
-            // arm reaches dig.c:zap_dig()'s discarded-result dighole() call.
-            game.u.ux = 10;
-            game.u.uy = 10;
-            game.stairs = null;
-            // The hole and fall messages now reach their source pagers.
-            for (let page = 0; page < 10; ++page)
-                game.nhDisplay.pushKey(' '.charCodeAt(0));
-            await weffects(wand, game, straightThrough());
-            assert.equal(game.unported.has('dig.c dighole'), false, `${otyp}`);
-            assert.equal(game.unported.has(
-                'dig.c digactualhole non-hero and hole aftermath',
-            ), false, `${otyp}`);
-            assert.equal(game.u.uz.dlevel, 2, 'downward ray falls one level');
-        } else {
-            await assert.rejects(
-                () => weffects(wand, game, straightThrough()),
-                (error) => error.message.endsWith(ending),
-                `${otyp}`,
-            );
-        }
+        assert.equal(game.objects[otyp].oc_dir, RAY);
+        // Avoid startup stairs and answer the hole/fall source pagers.
+        game.u.ux = 10;
+        game.u.uy = 10;
+        game.stairs = null;
+        for (let page = 0; page < 10; ++page)
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await weffects(wand, game, straightThrough());
+        assert.equal(game.unported.has('dig.c dighole'), false);
+        assert.equal(game.unported.has('dig.c digactualhole non-hero and hole aftermath'), false);
+        assert.equal(game.u.uz.dlevel, 2, 'downward digging falls one level');
+    }
+});
+
+test('weffects dispatches every source spell-ray type with integer level dice', async () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8');
+    const header = readFileSync(new URL('../nethack-c/upstream/include/hack.h', import.meta.url), 'utf8');
+    assert.match(c, /ubuzz\(BZ_U_SPELL\(BZ_OFS_SPE\(otyp\)\), u\.ulevel \/ 2 \+ 1\);/u);
+    assert.match(header, /#define BZ_OFS_SPE\(otyp\) \(abs\(\(otyp\) - SPE_MAGIC_MISSILE\) % 10\)/u);
+    assert.match(header, /#define BZ_U_SPELL\(bztyp\) \(10 \+ \(bztyp\)\)/u);
+    // These are the five consecutive spell rows in objects.h. Vertical aim
+    // makes the hero the victim and exposes the exact flash_types spell row.
+    for (const [otyp, flash, dice] of [
+        [SPE_MAGIC_MISSILE, 'magic missile', [[3, 6]]],
+        [SPE_FIREBALL, null, [[3, 6], [12, 6]]], // vertical hit precedes the trailing explosion
+        [SPE_CONE_OF_COLD, 'cone of cold', [[3, 6]]],
+        [SPE_SLEEP, 'sleep ray', [[3, 25]]],
+        [SPE_FINGER_OF_DEATH, 'finger of death', []], // Antimagic prevents damage dice
+    ]) {
+        const spell = await aimedWand(0, 0, 1, otyp);
+        game.u.ulevel = 5; // integer division yields 5/2+1 == three dice
+        game.u.uhp = game.u.uhpmax = 100; // survive any scripted blast
+        game.u.uprops[ANTIMAGIC] = otyp === SPE_FINGER_OF_DEATH
+            ? { intrinsic: FROMOUTSIDE } : { intrinsic: 0, extrinsic: 0 };
+        const calls = [];
+        const base = straightThrough();
+        const random = Object.fromEntries(Object.entries(base).map(([name, fn]) =>
+            [name, (...args) => { calls.push([name, ...args]); return fn(...args); }]));
+        const messages = [];
+        await weffects(spell, game, random, {
+            message: async text => { messages.push(text); }, statusRefresh: () => {},
+        });
+        assert.deepEqual(calls.slice(0, 2), [['rn2', 19], ['rn1', 7, 7]],
+            'Wisdom exercise precedes source beam range');
+        assert.deepEqual(calls.filter(([name]) => name === 'd'),
+            dice.map(args => ['d', ...args]), 'source damage/sleep dice count');
+        if (flash) assert.ok(messages.includes('The ' + flash + ' hits you!'));
+        assert.equal(game.gb.bhitpos, undefined, 'beam restores shared position before returning');
+    }
+    // Odd/even levels straddle C integer-division boundaries. Magic missile
+    // has no status effect to mask nd and the scripted d(n,6) returns n.
+    for (const [level, nd] of [[1, 1], [2, 2], [5, 3], [6, 4]]) {
+        const spell = await aimedWand(0, 0, 1, SPE_MAGIC_MISSILE);
+        game.u.ulevel = level;
+        // The startup Wizard cloak normally grants Antimagic. Clear it so
+        // this fixture measures dice rather than the source immunity arm.
+        game.u.uprops[ANTIMAGIC] = { intrinsic: 0, extrinsic: 0 };
+        game.u.uhp = game.u.uhpmax = 100;
+        const calls = [];
+        const random = { ...straightThrough(), d: (...args) => {
+            calls.push(args); return args[0];
+        } };
+        await weffects(spell, game, random, { message: async () => {}, statusRefresh: () => {} });
+        assert.deepEqual(calls, [[nd, 6]], 'C ulevel/2+1 uses integer division');
+        assert.equal(game.u.uhp, 100 - nd);
     }
 });
 
