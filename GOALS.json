@@ -190521,7 +190521,7 @@
     {
       "id": "fix-do-flooreffects-boulder-floor-v26-20261007",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Allow an ordinary floor boulder drop through canonical floor effects",
       "cFile": "do.c",
       "sessions": [
@@ -190535,8 +190535,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "61a42a4416fcd0880db53ff03bb49684374ecb88",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "flooreffects",
       "session": "synthetic/v26/v26-drop-boulder",
       "step": 42,
@@ -190708,7 +190711,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "61a42a4416fcd0880db53ff03bb49684374ecb88",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-explode-retributive-role-v26-20261007",
