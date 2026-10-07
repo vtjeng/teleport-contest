@@ -1,0 +1,828 @@
+{
+  "version": 1,
+  "batch": "v12",
+  "manifestPath": "challenges/manifests/v12.json",
+  "sha": "5c091ea749a42f04a06799fd9a5dcff618c4c0be",
+  "utc": "2026-10-07T07:55:43.260Z",
+  "status": "complete",
+  "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "e2c7d7e17dedf4c71457a87b78301298278b9b594bc62fc3ccf6b6df897438ff",
+  "inputFiles": [
+    "challenges/cases/v12/acid-potion-thrown-at-hostile-monster.recipe.session.json",
+    "challenges/cases/v12/acid-potion-thrown-at-hostile-monster.session.json",
+    "challenges/cases/v12/blessed-scroll-enchants-worn-shield.recipe.session.json",
+    "challenges/cases/v12/blessed-scroll-enchants-worn-shield.session.json",
+    "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.recipe.session.json",
+    "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.session.json",
+    "challenges/cases/v12/cancellation-wand-neutralizes-monster.recipe.session.json",
+    "challenges/cases/v12/cancellation-wand-neutralizes-monster.session.json",
+    "challenges/cases/v12/cold-wand-hits-hostile-newt.recipe.session.json",
+    "challenges/cases/v12/cold-wand-hits-hostile-newt.session.json",
+    "challenges/cases/v12/cursed-polymorph-wand-backfires-on-hero.recipe.session.json",
+    "challenges/cases/v12/cursed-polymorph-wand-backfires-on-hero.session.json",
+    "challenges/cases/v12/cursed-scroll-erodes-worn-shield.recipe.session.json",
+    "challenges/cases/v12/cursed-scroll-erodes-worn-shield.session.json",
+    "challenges/cases/v12/death-wand-kills-hostile-grid-bug.recipe.session.json",
+    "challenges/cases/v12/death-wand-kills-hostile-grid-bug.session.json",
+    "challenges/cases/v12/fire-wand-hits-hostile-newt.recipe.session.json",
+    "challenges/cases/v12/fire-wand-hits-hostile-newt.session.json",
+    "challenges/cases/v12/kobold-shaman-spell-targets-hero.recipe.session.json",
+    "challenges/cases/v12/kobold-shaman-spell-targets-hero.session.json",
+    "challenges/cases/v12/landmine-explodes-and-opens-floor.recipe.session.json",
+    "challenges/cases/v12/landmine-explodes-and-opens-floor.session.json",
+    "challenges/cases/v12/levitating-sack-impact-keeps-content.recipe.session.json",
+    "challenges/cases/v12/levitating-sack-impact-keeps-content.session.json",
+    "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.recipe.session.json",
+    "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.session.json",
+    "challenges/cases/v12/paralysis-potion-misses-newt.recipe.session.json",
+    "challenges/cases/v12/paralysis-potion-misses-newt.session.json",
+    "challenges/cases/v12/polymorph-wand-changes-monster.recipe.session.json",
+    "challenges/cases/v12/polymorph-wand-changes-monster.session.json",
+    "challenges/cases/v12/polymorph-wand-transforms-floor-potion.recipe.session.json",
+    "challenges/cases/v12/polymorph-wand-transforms-floor-potion.session.json",
+    "challenges/cases/v12/probing-wand-reveals-floor-potion.recipe.session.json",
+    "challenges/cases/v12/probing-wand-reveals-floor-potion.session.json",
+    "challenges/cases/v12/probing-wand-reveals-hostile-grid-bug.recipe.session.json",
+    "challenges/cases/v12/probing-wand-reveals-hostile-grid-bug.session.json",
+    "challenges/cases/v12/rolling-boulder-trap-no-boulder-released.recipe.session.json",
+    "challenges/cases/v12/rolling-boulder-trap-no-boulder-released.session.json",
+    "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.recipe.session.json",
+    "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+    "challenges/cases/v12/speed-wand-hastens-hostile-grid-bug.recipe.session.json",
+    "challenges/cases/v12/speed-wand-hastens-hostile-grid-bug.session.json",
+    "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.recipe.session.json",
+    "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.session.json",
+    "challenges/cases/v12/teleportation-wand-moves-floor-potion.recipe.session.json",
+    "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+    "challenges/cases/v12/tourist-rations-reach-satiated-choke.recipe.session.json",
+    "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+    "challenges/cases/v12/undead-turning-wand-stuns-zombie.recipe.session.json",
+    "challenges/cases/v12/undead-turning-wand-stuns-zombie.session.json",
+    "challenges/manifests/v12.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "acid-potion-thrown-at-hostile-monster",
+      "recordingSha256": "cbe863a4a80f54d071fea85414bafd1f6500a76224b8303409e3dd2e16cdd051",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2512,
+          "total": 2512
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "blessed-scroll-enchants-worn-shield",
+      "recordingSha256": "d5dc4264b0369433c15804b8c919759bbed655c196fa3ad8aa723d18fe3246ed",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 38,
+          "total": 38
+        },
+        "rng": {
+          "matched": 2871,
+          "total": 2871
+        },
+        "cursors": {
+          "matched": 38,
+          "total": 38
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cancellation-wand-neutralizes-floor-potion",
+      "recordingSha256": "9d474a73454fc403b4eb33687f4aed3626cbef6f410138ea7cd6e7faf9a78f89",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2317,
+          "total": 2317
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cancellation-wand-neutralizes-monster",
+      "recordingSha256": "bbcd5f0004c8f7dd2f40882d969bc8910fee12712aa44d02984042a767655b14",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 58,
+          "total": 58
+        },
+        "rng": {
+          "matched": 2680,
+          "total": 2680
+        },
+        "cursors": {
+          "matched": 58,
+          "total": 58
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cold-wand-hits-hostile-newt",
+      "recordingSha256": "68d9519d0344cea55a3ac61a321ded15788a700cfc02ee94bac9f7051a701c5d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 45,
+          "total": 45
+        },
+        "rng": {
+          "matched": 2827,
+          "total": 2827
+        },
+        "cursors": {
+          "matched": 45,
+          "total": 45
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cursed-polymorph-wand-backfires-on-hero",
+      "recordingSha256": "167b2ff59cbd0f95a9723bb2a6615dde380deb1ae91a45d1c2ecce315a5d2702",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2325,
+          "total": 2325
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cursed-scroll-erodes-worn-shield",
+      "recordingSha256": "deb8a5308675f0cac082d8f46828489388af69fa9bdb55897787fb5b4be548ad",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 67,
+          "total": 67
+        },
+        "rng": {
+          "matched": 2412,
+          "total": 2412
+        },
+        "cursors": {
+          "matched": 67,
+          "total": 67
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "death-wand-kills-hostile-grid-bug",
+      "recordingSha256": "094939bc7b87ef44a1df6c8401108c167065a1d77a6c602b951db0777c1e705e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2814,
+          "total": 2814
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "fire-wand-hits-hostile-newt",
+      "recordingSha256": "091c510ea59901a22d0482aa51208a3afc0d38d6070019c3795df7006c64fcae",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 45,
+          "total": 45
+        },
+        "rng": {
+          "matched": 2792,
+          "total": 2792
+        },
+        "cursors": {
+          "matched": 45,
+          "total": 45
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "kobold-shaman-spell-targets-hero",
+      "recordingSha256": "0b9fa0a27d631239eeffdf09af5fb26a5cdcfd1959a45dac5e9ba9bcfcbae756",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 68,
+          "total": 68
+        },
+        "rng": {
+          "matched": 3198,
+          "total": 3198
+        },
+        "cursors": {
+          "matched": 68,
+          "total": 68
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "landmine-explodes-and-opens-floor",
+      "recordingSha256": "f931555f59f947893a1a852c7ff1074e530d1af116a837bee7dc91514ba63fd3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 28,
+          "total": 28
+        },
+        "rng": {
+          "matched": 3076,
+          "total": 3076
+        },
+        "cursors": {
+          "matched": 28,
+          "total": 28
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "levitating-sack-impact-keeps-content",
+      "recordingSha256": "83a15039c873173ef1746abf2e1d28a15c6f6b2f711de653ae7db715999f3110",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 87,
+          "total": 87
+        },
+        "rng": {
+          "matched": 2959,
+          "total": 2959
+        },
+        "cursors": {
+          "matched": 87,
+          "total": 87
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "make-invisible-wand-hides-hostile-grid-bug",
+      "recordingSha256": "a3272f7ed7d8e41e692334e0ad5903cde06a8e19e2cb5342b0d9648c11779308",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 58,
+          "total": 58
+        },
+        "rng": {
+          "matched": 2768,
+          "total": 2768
+        },
+        "cursors": {
+          "matched": 58,
+          "total": 58
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "paralysis-potion-misses-newt",
+      "recordingSha256": "cb5eb226f8792ab52215489e5be7eb915710913dc1a693e7161403dac21626e2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 94,
+          "total": 94
+        },
+        "rng": {
+          "matched": 2722,
+          "total": 2722
+        },
+        "cursors": {
+          "matched": 94,
+          "total": 94
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "polymorph-wand-changes-monster",
+      "recordingSha256": "593ffcfb416cc8f68d22a43c3b6ceeec15c0cff5c804aafc7884d5d4cdeceaf5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 54
+        },
+        "rng": {
+          "matched": 2905,
+          "total": 2905
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 54
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "polymorph-wand-transforms-floor-potion",
+      "recordingSha256": "95206c9bf31c7a1a68e0d903803a016e4b5583fd135a1d2f9e15ae3cca5b9662",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 3153,
+          "total": 3153
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "probing-wand-reveals-floor-potion",
+      "recordingSha256": "1342e359c8a1fc0cb5407438a814ddb05b07c271e4ba20b778cb383044bb0306",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2796,
+          "total": 2796
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "probing-wand-reveals-hostile-grid-bug",
+      "recordingSha256": "ec09569c7bef3635827b90dbdc88bd5e647798c4b6042eb60a6fb2137c435199",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2558,
+          "total": 2558
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rolling-boulder-trap-no-boulder-released",
+      "recordingSha256": "8746a19936158d295caf6404133bfe3e321ee5ee9e277976eae6b8f703a977b7",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 37,
+          "total": 37
+        },
+        "rng": {
+          "matched": 2219,
+          "total": 2219
+        },
+        "cursors": {
+          "matched": 37,
+          "total": 37
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "skeleton-key-unlocks-trapped-chest",
+      "recordingSha256": "35dd2a3027d64e189b464ef687c310a1078634f4e7c2dbb80394500ec1a19a36",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 3023,
+          "total": 3023
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "speed-wand-hastens-hostile-grid-bug",
+      "recordingSha256": "94f22a27d69930cb9d322402bb06629cc022d025068e323888420e723b656db3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 57,
+          "total": 57
+        },
+        "rng": {
+          "matched": 2410,
+          "total": 2410
+        },
+        "cursors": {
+          "matched": 57,
+          "total": 57
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "teleport-wand-moves-hostile-grid-bug",
+      "recordingSha256": "6f604845ff5fd8ed29cb0fc3fce2c31880fb7fdb4a11818de0582ec28381e7f6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 57,
+          "total": 57
+        },
+        "rng": {
+          "matched": 2699,
+          "total": 2699
+        },
+        "cursors": {
+          "matched": 57,
+          "total": 57
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "teleportation-wand-moves-floor-potion",
+      "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2969,
+          "total": 2969
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-rations-reach-satiated-choke",
+      "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 19
+        },
+        "rng": {
+          "matched": 4416,
+          "total": 4416
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "undead-turning-wand-stuns-zombie",
+      "recordingSha256": "9b5d9776ee469952e70f019c2713c6c7a20ab3b6fbd97898bc48421e6a4f136c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 57,
+          "total": 57
+        },
+        "rng": {
+          "matched": 4237,
+          "total": 4237
+        },
+        "cursors": {
+          "matched": 57,
+          "total": 57
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 25,
+      "total": 25
+    },
+    "screens": {
+      "matched": 1281,
+      "total": 1281
+    },
+    "rng": {
+      "matched": 71658,
+      "total": 71658
+    },
+    "cursors": {
+      "matched": 1281,
+      "total": 1281
+    }
+  }
+}

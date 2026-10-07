@@ -51,6 +51,24 @@ export function measuredCases(root, manifest, bundle) {
     });
 }
 
+// Shared by complete local batches and fixed-size hosted case groups. The caller
+// owns evidence metadata and verifies that every expected case was returned.
+export function replayChallengeCases(root, cases) {
+    const flat = mkdtempSync(join(localTmpdir(), 'teleport-challenges-'));
+    let workspace;
+    try {
+        for (const entry of cases)
+            cpSync(challengePath(root, entry.recording), join(flat, `${entry.id}.session.json`));
+        workspace = createScoringWorkspace(flat, cases.map(entry => `${entry.id}.session.json`));
+        const child = runScorer(workspace);
+        if (child.error || child.status !== 0) throw new Error(`runner failed: ${child.error?.message || child.stderr}`);
+        return measuredCases(root, { cases }, parseRunnerBundle(child.stdout));
+    } finally {
+        if (workspace) removeScoringWorkspace(workspace);
+        rmSync(flat, { recursive: true, force: true });
+    }
+}
+
 export function recordEvaluation(root, relative) {
     const evaluation = readEvaluation(root, relative);
     const rows = readRows(join(root, 'SCORE.tsv'));
@@ -101,23 +119,13 @@ export function evaluateChallenges(root, relative, batchId = 'v1') {
         inputsSha256: inputs.snapshot.sha256,
         inputFiles: inputs.snapshot.files.map(entry => entry.path),
         cases: [], totals: null };
-    const flat = mkdtempSync(join(localTmpdir(), 'teleport-challenges-'));
-    let workspace;
     try {
-        for (const entry of manifest.cases)
-            cpSync(challengePath(root, entry.recording), join(flat, `${entry.id}.session.json`));
-        workspace = createScoringWorkspace(flat, manifest.cases.map(entry => `${entry.id}.session.json`));
-        const child = runScorer(workspace);
-        if (child.error || child.status !== 0) throw new Error(`runner failed: ${child.error?.message || child.stderr}`);
-        evaluation.cases = measuredCases(root, manifest, parseRunnerBundle(child.stdout));
+        evaluation.cases = replayChallengeCases(root, manifest.cases);
         evaluation.totals = totalsFor(evaluation.cases);
     } catch (error) {
         evaluation.status = 'failed';
         evaluation.error = error.message;
         evaluation.cases = manifest.cases.map(({ id, recordingSha256 }) => ({ id, recordingSha256 }));
-    } finally {
-        if (workspace) removeScoringWorkspace(workspace);
-        rmSync(flat, { recursive: true, force: true });
     }
     const after = committedInputs(root, manifest);
     if (after.sha !== sha || after.snapshot.sha256 !== inputs.snapshot.sha256

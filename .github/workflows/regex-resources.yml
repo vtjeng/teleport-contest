@@ -1,0 +1,16 @@
+name: Regex resource measurements
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regex-resources:
+    name: Isolated regex CPU and memory limits
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - run: node scripts/run-startup-regex-resource.mjs --check-resources
