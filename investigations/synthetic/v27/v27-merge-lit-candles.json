@@ -1,0 +1,116 @@
+{
+  "session": "synthetic/v27/v27-merge-lit-candles",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-merge-lit-candles",
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingSha256": "495c8bcef6195c633ad26a27bc3fc8ea1c64ac4abb02e6f8cda16ea806795478",
+  "evaluationPath": "challenges/evaluations/accepted-cbb68414c54b980b99303a10bba3fdf302af37c7-v27.json",
+  "evaluationCommit": "cbb68414c54b980b99303a10bba3fdf302af37c7",
+  "remainingScreens": 6,
+  "recordedSteps": 65,
+  "status": "complete",
+  "commit": "0f7336b21c62ccc33ad261c2305185b8f15ff942",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-merge-lit-candles",
+    "session": "synthetic/v27/v27-merge-lit-candles",
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recording": "challenges/cases/v27/v27-merge-lit-candles.session.json",
+    "recordingPath": "challenges/cases/v27/v27-merge-lit-candles.session.json",
+    "recordingSha256": "495c8bcef6195c633ad26a27bc3fc8ea1c64ac4abb02e6f8cda16ea806795478",
+    "recipe": "challenges/cases/v27/v27-merge-lit-candles.recipe.session.json",
+    "recipeSha256": "04be59f54801f93341255a6771387fda4504f6315925b507eed7fcbde4e98096",
+    "replayInputSha256": "7e7cfc2b6feaaef9a4b1e927858c9e7994286cf8a3e1e8fe7e69f0274c30ef98",
+    "evaluationPath": "challenges/evaluations/accepted-cbb68414c54b980b99303a10bba3fdf302af37c7-v27.json",
+    "evaluationCommit": "cbb68414c54b980b99303a10bba3fdf302af37c7",
+    "evaluationArtifact": "challenges/evaluations/accepted-cbb68414c54b980b99303a10bba3fdf302af37c7-v27.json",
+    "evaluationUtc": "2026-10-07T21:07:48.771Z",
+    "remainingScreens": 6,
+    "recordedSteps": 65,
+    "previousScreensMatched": 59,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 59,
+        "total": 65
+      },
+      "rng": {
+        "matched": 2663,
+        "total": 2676
+      },
+      "cursors": {
+        "matched": 59,
+        "total": 65
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported drop: a lit, timed, or globby object in the floor pile",
+      "step": 59,
+      "rng": {
+        "index": 2663,
+        "cEntry": "rn2(5)=3",
+        "cCaller": "distfleeck(monmove.c:538)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 59,
+          "key": "n"
+        }
+      },
+      "screen": {
+        "index": 59,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 59,
+          "key": "n"
+        },
+        "kind": "js-missing"
+      }
+    },
+    "step": 59,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported drop: a lit, timed, or globby object in the floor pile",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At step 59, JavaScript refuses the second lit wax-candle drop. C merges the older floor stack into the newly dropped stack, extinguishes the absorbed source, and enlarges the surviving light radius. Port whole light.c:obj_merge_light_sources and reconcile its merged and lit-candelabrum callers with canonical timer cleanup.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "light.c",
+    "functions": [
+      "obj_merge_light_sources",
+      "candle_light_range"
+    ],
+    "branch": "Compatible lit candle stacks merge on the hero floor square. Whole obj_merge_light_sources (808–822) calls end_burn only when src != dest, then updates the first LS_OBJECT light matching dest and sets vision_full_recalc. The src == dest arm handles candle attachment to an already lit candelabrum without stopping its burn.",
+    "callers": [
+      "invent.c:merged:851–854 calls obj_merge_light_sources(obj, otmp), then tests obj.timed before obj_stop_timers. stackobj:4366–4375 consumes merged(&obj, &otmp), preserving the newly dropped object. The production d command runs dodrop -> drop -> dropx/dropy/dropz -> stackobj.",
+      "apply.c:use_candle:1458–1460 calls obj_merge_light_sources(otmp, otmp) after increasing candelabrum.spe and displaying messages, before useupall and weight/update_inventory. js/apply.js:3347–3348 retains note_unported for this helper.",
+      "js/do.js:preflight_dropx:1940–1954 refuses compatible lit/timed/globby pile members. js/invent.js:beginMerged:3782–3786 requires mergeLightSources and stopObjectTimers; rg over js/ finds no production mergeLightSources binding. dropCommandEnv:1512–1528 lacks those bindings."
+    ],
+    "dependencies": [
+      "Consumed-result candle_light_range is pure (light.c:843–877): candelabrum spe < 4 -> 2, spe < 7 -> 3, otherwise 4; candle quantity increments radius at square thresholds up to MAX_RADIUS; other objects return 3. js/light.js:351–370 implements valid bands but throws for fallback and out-of-band candelabrum counts; reconcile the complete source helper and add source-pinned results.",
+      "Reuse existing canonical end_burn in js/timeout.js:1884. Its stop_timer/cleanup_burn removes the absorbed light, restores unused fuel, and clears lamplit; do not reproduce those fields in the caller. C merged tests timed afterward, preserving whether obj_stop_timers is still needed. Forward state/hooks through existing obj_stop_timers without inventing lifecycle effects.",
+      "Canonical mergable, extraction, weight, obfree and timer cleanup must retain their existing source results. This bounded supporting merged wiring does not require completion credit for whole merged/stackobj or generic glob absorption, pudding_merge_message, arbitrary timed objects, and drop terrain.",
+      "Shared contracts: merge survivor identity; canonical gl.light_base, timer queue and lamplit ownership; vision_full_recalc; clone planning state/RNG/message isolation. Wire both obj_merge_light_sources source sites in the same task and do not remove all timed/globby admission guards."
+    ]
+  },
+  "evidence": [
+    "Accepted-cbb68414c54b980b99303a10bba3fdf302af37c7-v27 evaluation reports59/65 screens/cursors and2663/2676 RNG, exactly6 remaining screens. Bounded assigned-session revalidation at accepted A1370f7336b21c62ccc33ad261c2305185b8f15ff942 reproduces the same count, source stop and first unavailable draw. .cache/v27-merge-lit-candles/replay.json and replay-accepted-0f7336b2.log retain diagnostics; receipt /tmp/teleport-validation-1000/run-vOvU8c/receipt.json.",
+    "First refusal: segment 0, zero-based step 59, key n answering the d prompt from step 58. C displays You drop 2 partly used candles (lit). JS stops in preflight_dropx before the drop completes. The next unmatched draw is global index 2663, rn2(5)=3 from monmove.c:distfleeck:538; it is the elapsed-turn handoff after the non-random merge, not its missing owner.",
+    "Recorded preconditions: first wished candle pair is lit and dropped; the second pair is inventory n at step 54, lit at steps 55–56, then dropped at 58–59. The refusal occurs only after canonical mergable succeeds. C mergable:4416–4418 compares lamplit, 4448–4451 compares candle age/25. C merged:832–840 increases surviving quantity to four without averaging lit age. candle_light_range then changes radius from 2 for two candles to 3 for four candles. There is no merge-specific RNG.",
+    "Whole light owner: light.c:808–822 compares src/dest identity, ends src burning for distinct objects, searches gl.light_base for LS_OBJECT with id.a_obj == dest, assigns candle_light_range, unconditionally sets vision_full_recalc=1 when found, then breaks. For src == dest it preserves the burn timer and updates range/recalc. Source search finds exactly two direct callers: invent.c:852 and apply.c:1460.",
+    "Minimal actionable reservations: source:light.c:obj_merge_light_sources, source:light.c:candle_light_range, bounded source:invent.c:merged, bounded source:do.c:dropx admission (after C135 release), bounded source:apply.c:use_candle, contract:merged-burning-object-lifecycle. Paths js/light.js, js/invent.js, js/do.js, js/apply.js, focused light/inventory/drop/apply-light tests, recipes/light.c/ and recordings/light.c/. Add timeout.js only after a scope event if the canonical environment seam needs adjustment. No whole merged, stackobj, dropx/dropz, use_candle or timeout.c completion claim.",
+    "Caller audit: establish canonical merged binding for existing addinv, floor stackobj, pickup, inventory adjustment, mkobj mpickobj/add_to_container, and zap merge callers so active routes share the same source-owned helper. Audit actual environment propagation before implementation. The selected case covers compatible floor wax-candle merging only; carried merge/pickup and lit candelabrum attachment need separate independent evidence.",
+    "Independent validation: new C seed/actions for floor candle merge and cheap wax/tallow or quantity variation across 3->4 or 8->9 light-radius thresholds; carried merge/pickup if reachable; lit candelabrum attachment exercising src == dest. Strictly compare selected steps 59–64, assert survivor identity, source light deletion, remaining burn timer/fuel, single light and recalc in source-pinned tests, and preserve async messages and clone isolation. Keep blocked recipes for any unverified active entry and timed/globby branches outside candle support; these are evidence limits, not completion.",
+    "Reservation boundary: C134 is accepted and its setuwep/primary-weapon drop changes are present in examined0f7336b2. C135 still reserves source:do.c:dropx through immutable delivery cd3b924a672ca6dfd8de6a2f87a51e9efc27ac3b; the lit-pile preflight_dropx guard required by this task belongs to that reservation. Queue the complete source scope, then claim only after C135 acceptance/releases its dropx reservation or an explicit caller handoff. No competing light helper/merged/use_candle source reservations were found. B139 owns zap.c:weffects/ray dispatch. This investigation makes no implementation claim."
+  ]
+}

@@ -195587,16 +195587,23 @@
     {
       "id": "fix-do-dropx-engraving-admission-v27-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Admit ordinary floor drops over existing engravings",
       "cFile": "do.c",
       "sessions": [],
       "selectionReason": "Validated investigations/synthetic/v27/v27-drop-on-engraving.json at accepted 71073889, five remaining screens; independent of A137/B139.",
       "detail": "Segment0 step34 ends before freeinv at obsolete js/do.js engr_at guard; C dropx/dropz/flooreffects accepts ordinary dry-floor placement without modifying engraving. Preserve canonical placement, stacking, redraw and time.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "4770d6451a496f23894b62228420ad4c8268047f",
+      "openStanding": {
+        "sha": "4770d6451a496f23894b62228420ad4c8268047f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4770d6451a496f23894b62228420ad4c8268047f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dropx",
       "session": "synthetic/v27/v27-drop-on-engraving",
       "step": 34,
@@ -195612,6 +195619,114 @@
           "recordingSha256": "5209e9361c287eab8bad2bb68a5edbd68bad669a3b03e83357a6dbe91acc85ca",
           "evaluationPath": "challenges/evaluations/accepted-71073889a5655481919c8074ac24d001175fb641-v27.json",
           "evaluationCommit": "71073889a5655481919c8074ac24d001175fb641"
+        }
+      },
+      "activeStanding": {
+        "sha": "4770d6451a496f23894b62228420ad4c8268047f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4770d6451a496f23894b62228420ad4c8268047f",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-light-obj-merge-light-sources-v27-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole candle light-source merging and wire inventory/drop and lit-candelabrum callers",
+      "cFile": "light.c",
+      "sessions": [
+        "synthetic/v27/v27-merge-lit-candles"
+      ],
+      "selectionReason": "Continue the current v27 lit-candle merge mismatch after C135 releases do.c:dropx. The source owner is whole light.c:obj_merge_light_sources with pure candle_light_range and bounded inventory, drop, and candelabrum callers; the accepted checkpoint has 6 remaining screens.",
+      "detail": "Port source-ordered candle burn-duration, age, quantity, timer, and light-source merging. Wire invent.c:merged, apply.c:use_candle, and do.c:dropx caller seams. Reuse canonical end_burn, obj_stop_timers and existing timeout ownership unless runtime evidence proves an environment seam is required. No whole merged, stackobj, dropx, use_candle, generic timer, or globby completion credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "obj_merge_light_sources",
+          "line": 808,
+          "endLine": 825,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 808,
+        "to": 825
+      },
+      "requiredFunctions": [
+        {
+          "name": "candle_light_range",
+          "line": 843,
+          "endLine": 880,
+          "declared": true,
+          "sourceFile": "light.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v27/v27-merge-lit-candles": {
+          "session": "synthetic/v27/v27-merge-lit-candles",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-merge-lit-candles",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-merge-lit-candles.session.json",
+          "recordingSha256": "495c8bcef6195c633ad26a27bc3fc8ea1c64ac4abb02e6f8cda16ea806795478",
+          "evaluationPath": "challenges/evaluations/accepted-4770d6451a496f23894b62228420ad4c8268047f-v27.json",
+          "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f"
+        }
+      }
+    },
+    {
+      "id": "port-do-wear-wielding-corpse-v27-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole wielding_corpse and its glove-removal, yellow-dragon-removal and temporary-resistance-expiry callers",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v27/v27-cockatrice-gloves-off"
+      ],
+      "selectionReason": "Continue from accepted C135 with the independent v27 cockatrice gloves-off mismatch. The source owner is do_wear.c:wielding_corpse, with 5 of 81 screens remaining and no reservation overlap.",
+      "detail": "C checks bare hands after glove cleanup and invokes wielding_corpse, producing the pending More prompt at segment 0 step 65; JS skips that source path. Preserve helper guards, exact killer naming, source message/death/recovery order and weapon cleanup. Wire glove removal, yellow-dragon armor removal, and temporary stone-resistance expiry callers. Translate trap.c:instapetrify only as bounded incomplete no-credit support; every other caller remains a named discarded-result gap. No whole Gloves_off, dragon_armor_handling, nh_timeout, instapetrify, or end credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wielding_corpse",
+          "line": 608,
+          "endLine": 645,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 608,
+        "to": 645
+      },
+      "syntheticProvenance": {
+        "synthetic/v27/v27-cockatrice-gloves-off": {
+          "session": "synthetic/v27/v27-cockatrice-gloves-off",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-cockatrice-gloves-off",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-cockatrice-gloves-off.session.json",
+          "recordingSha256": "b5571be76f62341645ce9db7d26aced9549b5c9b420a938a56cf45421ac2bbb6",
+          "evaluationPath": "challenges/evaluations/accepted-4770d6451a496f23894b62228420ad4c8268047f-v27.json",
+          "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f"
         }
       }
     }

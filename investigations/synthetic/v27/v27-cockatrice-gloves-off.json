@@ -1,0 +1,143 @@
+{
+  "session": "synthetic/v27/v27-cockatrice-gloves-off",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-cockatrice-gloves-off",
+  "remainingScreens": 5,
+  "recordedSteps": 81,
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingSha256": "b5571be76f62341645ce9db7d26aced9549b5c9b420a938a56cf45421ac2bbb6",
+  "evaluationPath": "challenges/evaluations/accepted-cbb68414c54b980b99303a10bba3fdf302af37c7-v27.json",
+  "evaluationCommit": "cbb68414c54b980b99303a10bba3fdf302af37c7",
+  "status": "complete",
+  "commit": "8ccf89f774a807af85e1289a7e8464ea799ece27",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-cockatrice-gloves-off",
+    "session": "synthetic/v27/v27-cockatrice-gloves-off",
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recording": "challenges/cases/v27/v27-cockatrice-gloves-off.session.json",
+    "recordingPath": "challenges/cases/v27/v27-cockatrice-gloves-off.session.json",
+    "recordingSha256": "b5571be76f62341645ce9db7d26aced9549b5c9b420a938a56cf45421ac2bbb6",
+    "recipe": "challenges/cases/v27/v27-cockatrice-gloves-off.recipe.session.json",
+    "recipeSha256": "90b09928c426ff2a81838d897543f084b2e54b7004b8bffe98ddc08c6a82f2bb",
+    "replayInputSha256": "7e7cfc2b6feaaef9a4b1e927858c9e7994286cf8a3e1e8fe7e69f0274c30ef98",
+    "evaluationPath": "challenges/evaluations/accepted-cbb68414c54b980b99303a10bba3fdf302af37c7-v27.json",
+    "evaluationCommit": "cbb68414c54b980b99303a10bba3fdf302af37c7",
+    "evaluationArtifact": "challenges/evaluations/accepted-cbb68414c54b980b99303a10bba3fdf302af37c7-v27.json",
+    "evaluationUtc": "2026-10-07T21:07:48.771Z",
+    "remainingScreens": 5,
+    "recordedSteps": 81,
+    "previousScreensMatched": 76,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 76,
+        "total": 81
+      },
+      "rng": {
+        "matched": 2687,
+        "total": 2701
+      },
+      "cursors": {
+        "matched": 77,
+        "total": 81
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 65,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 65,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 34,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2687,
+        "cEntry": "rn2(5)=0",
+        "cCaller": "distfleeck(monmove.c:538)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 75,
+          "key": "n"
+        },
+        "stepIndex": 75
+      },
+      "cursor": {
+        "index": 65,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 65,
+          "key": "\n"
+        },
+        "cCursor": [
+          42,
+          0,
+          1
+        ],
+        "jsCursor": [
+          36,
+          5,
+          1
+        ]
+      }
+    },
+    "step": 65,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Gloves_off skips do_wear.c:wielding_corpse while a cockatrice corpse is wielded. Omitting the next bare-hands warning removes the pending More after glove removal, then skips petrification, wizard recovery and weapon cleanup. Port the whole helper and its glove, yellow-dragon armor and resistance-expiry callers; retain instapetrify as incomplete supporting behavior.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "do_wear.c",
+    "functions": [
+      "wielding_corpse"
+    ],
+    "branch": "No gloves; CORPSE occupies uwep or active uswapwep; corpse species petrifies on touch; Stone_resistance is absent. Preserve early-return order for every rejected precondition.",
+    "callers": [
+      "do_wear.c:Gloves_off687/696 after slot cleanup, encumber_msg and make_glib, with on_purpose captured before cleanup.",
+      "do_wear.c:dragon_armor_handling869/870 after clearing yellow-dragon Stone_resistance; Armor_off and Armor_gone provide voluntary/forced state.",
+      "timeout.c:nh_timeout841/842 after Stone_resistance expires, dangerous-corpse extension is rejected, and the expiry message."
+    ],
+    "dependencies": [
+      "trap.c:instapetrify3844-3855 is a discarded void callee. Translate its full small body as bounded support for these callers, retain incomplete/no whole credit, and preserve all other existing named call gaps.",
+      "instapetrify consumes polymon(PM_STONE_GOLEM); canonical polyself.js:polymon and mondata.js:poly_when_stoned exist with source-pinned stone-golem and planning-seam coverage.",
+      "Existing end.c:done(STONING) supports wizard recovery/life-saving. remove_worn_item -> uwepgone -> setuwep performs recovered corpse cleanup; no artifact-light branch applies to CORPSE.",
+      "Timeout planning must hand off STONING before terminal output using existing HeroDeathPlanningError/error.how propagation. Live execution retains urgent message, killer record, done and post-recovery resistance check.",
+      "Verify existing corpse_xname/killer_xname/gloves_simple_name/simpleonames/strsubst/body_part/makeplural and property/worn owners against source."
+    ]
+  },
+  "evidence": [
+    "Latest available accepted-cbb68414 v27 evaluation retains5 unmatched screens of81; corpusDigest manifest identity and raw recording digest match the queue. Frozen replay on accepted B139 8ccf89f774a807af85e1289a7e8464ea799ece27 reproduces first screen/cursor mismatch segment0step65 newline, row0col34 C dash versus JS space, first RNG mismatch only at step75. Artifacts .cache/B140-candidate/replay-accepted.log and replay.json; run-BnDbaY.",
+    "C steps61-64 confirm glove removal and match JS;65 is You finish taking off your gloves.--More--;66 bare-hands corpse warning;67 You turn to stone...--More--;68 Die? query;69 wizard recovery. Missing wielding_corpse output explains the earliest pending More. The later distfleeck RNG annotation is not the cause.",
+    "Read whole do_wear.c:wielding_corpse608-643: guards; now wield/are wielding; corpse/article/hands naming; removing/losing glove or dragon-armor killer; resistance-timeout killer; instapetrify; post-recovery Stone_resistance check and remove_worn_item. JS Gloves_off, yellow-dragon removal and nh_timeout retain note_unported instead of these source calls.",
+    "C instapetrify returns void; every caller discards its result. Complete body support here does not establish whole instapetrify completion. Preserve pickup/dothrow/worn/steed/uhitm/dokick/trap/wield/invent/apply/polyself/timeout older caller frontiers. Credit only whole wielding_corpse; no Gloves_off, dragon_armor_handling, nh_timeout, end.c or polymon credit.",
+    "Required evidence: admitted gloves65-69 plus independently chosen yellow-dragon removal and temporary Stone_resistance expiry. Cheap variations cover voluntary/forced naming, resistance/no-op, golem transformation, wizard/life-saving recovery and weapon cleanup where reachable. Retain an outside-limit blocked instapetrify caller recipe with exact source blocker. No C recording or aggregate scan was run during investigation."
+  ]
+}

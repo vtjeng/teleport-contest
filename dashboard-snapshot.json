@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T22:35:52.300Z",
+  "capturedAt": "2026-10-07T22:47:41.859Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25099,12 +25099,71 @@
         "type": "accepted",
         "at": "2026-10-07T22:35:26.164Z",
         "task": "B139"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B139-029a9c45",
+        "type": "published",
+        "at": "2026-10-07T22:36:36.853Z",
+        "task": "B139",
+        "commit": "029a9c45c2443a624f7dcc544096624e95e6d347"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C135-cd3b924a",
+        "type": "received",
+        "at": "2026-10-07T22:37:35.360Z",
+        "task": "C135",
+        "delivery": "cd3b924a672ca6dfd8de6a2f87a51e9efc27ac3b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C135-4770d645",
+        "type": "integrating",
+        "at": "2026-10-07T22:37:46.502Z",
+        "task": "C135",
+        "integration": "4770d6451a496f23894b62228420ad4c8268047f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B140-wielding-corpse-20261007",
+        "type": "assign",
+        "at": "2026-10-07T22:42:14.008Z",
+        "task": "B140",
+        "worker": "B",
+        "goal": "port-do-wear-wielding-corpse-v27-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C135-4770d645-hosted",
+        "type": "validated",
+        "at": "2026-10-07T22:43:31.798Z",
+        "task": "C135",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C135-4770d6451a496f23894b62228420ad4c8268047f-accepted",
+        "type": "accepted",
+        "at": "2026-10-07T22:45:36.723Z",
+        "task": "C135"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A138-merge-lit-candles-20261007",
+        "type": "assign",
+        "at": "2026-10-07T22:47:33.306Z",
+        "task": "A138",
+        "worker": "A2",
+        "goal": "port-light-obj-merge-light-sources-v27-20261007",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "8ccf89f774a807af85e1289a7e8464ea799ece27",
-    "measuredAt": "2026-10-07T22:32:02.251Z",
+    "executionCommit": "4770d6451a496f23894b62228420ad4c8268047f",
+    "measuredAt": "2026-10-07T22:41:54.638Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
