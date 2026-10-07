@@ -188386,6 +188386,111 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-uhitm-brain-drain-owned-forgetting-v24-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore spell and weapon-skill forgetting after mind-flayer brain drain",
+      "cFile": "uhitm.c",
+      "sessions": [],
+      "selectionReason": "Continue the current v24 mind-flayer seed after accepted C124. The complete investigation retains zero remaining screens and locates the RNG-only omission at hero-defender AD_DRIN forgetting gates. Canonical losespells and drain_weapon_skill owners are already implemented and verified; restore their calls without overlapping A117 burial, B129 ability dispatch, or the v25 kick-object scope.",
+      "detail": "At segment 0 step 109, C calls losespells after its first !rn2(5), then drain_weapon_skill(rnd(2)) after the second; JS skips both. Await existing owners in source order. The planning clone already isolates spell retention, study context, and Wisdom exercise, but aliases u.weapon_skills and u.skill_record with live state; isolate exactly those two arrays before restoring skill drain so planning cannot mutate the live hero.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "mhitm_ad_drin",
+      "session": "synthetic/v24/v24-mind-flayer-blast",
+      "step": 109,
+      "syntheticProvenance": {
+        "synthetic/v24/v24-mind-flayer-blast": {
+          "session": "synthetic/v24/v24-mind-flayer-blast",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-mind-flayer-blast",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+          "evaluationPath": "challenges/evaluations/20261007072048-v24.json",
+          "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
+        }
+      }
+    },
+    {
+      "id": "port-dokick-kick-object-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port floor-object kicking and its consumed gold and flight helpers",
+      "cFile": "dokick.c",
+      "sessions": [
+        "synthetic/v25/v25-kick-potion"
+      ],
+      "selectionReason": "Independent saved v25 case v25-kick-potion has 5 remaining screens at step 42. The complete investigation traces the absent dokick object-pile caller to whole kick_object and really_kick_object, with consumed ghitm and the currently refused KICKED_WEAPON path of bhit. This scope is disjoint from C128 brain drain and B129 ability dispatch.",
+      "detail": "Port whole dokick.c ghitm, kick_object, and really_kick_object plus required zap.c bhit completion for kicked weapons; wire bounded dokick object-pile, dothrow throw_gold, and lock breakchestlock callers. Preserve gk.kickedobj as the single ownership slot. The admitted fragile potion case breaks before split and flight, so independent evidence must cover nonfragile flight, heavy/box/trap/gold/shop branches before closure.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "ghitm",
+          "line": 295,
+          "endLine": 411,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "container_impact_dmg",
+          "line": 412,
+          "endLine": 488,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "kick_object",
+          "line": 489,
+          "endLine": 507,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "really_kick_object",
+          "line": 508,
+          "endLine": 793,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 295,
+        "to": 793
+      },
+      "requiredFunctions": [
+        {
+          "name": "bhit",
+          "line": 3827,
+          "endLine": 4147,
+          "declared": true,
+          "sourceFile": "zap.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v25/v25-kick-potion": {
+          "session": "synthetic/v25/v25-kick-potion",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-kick-potion",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-kick-potion.session.json",
+          "recordingSha256": "3abf4bc86aee81cdabceeead9919b886c8b83b3776687418dda4fae1f9d7a2cf",
+          "evaluationPath": "challenges/evaluations/20261007072048-v25.json",
+          "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
+        }
+      }
     }
   ]
 }
