@@ -9,7 +9,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { readCheckpointResult } from './checkpoint-results.mjs';
 import { summarizeLedger } from './worker-state.mjs';
 import { appendRow, generateNote, readRows, standing } from './score-log.mjs';
-import { evaluationBatch, readChallengeBatches, validateEvaluation } from './challenge-results.mjs';
+import { challengeInputSnapshot, evaluationBatch, readChallengeBatches, validateEvaluation } from './challenge-results.mjs';
 import { recordEvaluation } from './score-challenges.mjs';
 import { boundedMain } from './run-bounded.mjs';
 
@@ -51,6 +51,10 @@ export function acceptTask(options, root = process.cwd()) {
     if (checkpoint.commit !== commit || checkpoint.allPassed !== true)
         throw new Error('acceptance requires a passing checkpoint at HEAD');
     const checkpointPath = join(checkpoint.artifacts, 'summary.json');
+    // goal-log also reads latest.json. Do not mix its result with an earlier
+    // ledger validation; a replacement checkpoint requires task revalidation.
+    if (task.status !== 'integrating' && delivery.checkpoint !== checkpointPath)
+        throw new Error('checkpoint changed after validation; revalidate the task before acceptance');
     const ensureHead = () => {
         if (git('rev-parse', 'HEAD') !== commit) throw new Error('HEAD changed during acceptance');
     };
@@ -63,6 +67,14 @@ export function acceptTask(options, root = process.cwd()) {
         '--json', JSON.stringify({ id: `accept-${options.task}-${commit}-${fields.type}`,
             task: options.task, ...fields })]);
     const preparation = task.kind === 'challenge-preparation';
+    const batches = preparation ? [] : readChallengeBatches(root);
+    const evaluationPath = batch => `challenges/evaluations/accepted-${commit}-${batch}.json`;
+    // Resuming may leave only these closure records dirty. Never accept untested code.
+    const allowed = new Set(preparation ? []
+        : ['GOALS.json', 'SCORE.tsv', ...batches.map(entry => evaluationPath(entry.batch))]);
+    const dirty = git('status', '--porcelain', '--untracked-files=all').split('\n').filter(Boolean);
+    for (const line of dirty)
+        if (!allowed.has(line.slice(3))) throw new Error(`uncommitted file outside closure: ${line}`);
     const evaluations = [];
     let goal;
     if (!preparation) {
@@ -72,7 +84,6 @@ export function acceptTask(options, root = process.cwd()) {
             throw new Error('goal must be open or already closed at this candidate');
         const directory = options.evaluations ? resolve(root, options.evaluations)
             : join(checkpoint.artifacts, 'synthetic');
-        const batches = readChallengeBatches(root);
         for (const name of (batches.length ? readdirSync(directory) : []).filter(name => name.endsWith('.json'))) {
             const source = join(directory, name);
             const evaluation = JSON.parse(readFileSync(source, 'utf8'));
@@ -81,9 +92,10 @@ export function acceptTask(options, root = process.cwd()) {
             const manifest = batches.find(entry => entry.batch === batch);
             if (evaluation.sha !== commit || evaluation.status !== 'complete'
                 || !manifest || evaluation.manifestSha256 !== manifest.manifestSha256
+                || evaluation.inputsSha256 !== challengeInputSnapshot(root, manifest).sha256
                 || evaluations.some(entry => entry.batch === batch))
                 throw new Error(`evaluation must identify one complete current batch: ${name}`);
-            const relative = `challenges/evaluations/accepted-${commit}-${batch}.json`;
+            const relative = evaluationPath(batch);
             if (existsSync(join(root, relative))
                 && !isDeepStrictEqual(JSON.parse(readFileSync(join(root, relative), 'utf8')), evaluation))
                 throw new Error(`different evidence already exists at ${relative}`);
@@ -99,11 +111,6 @@ export function acceptTask(options, root = process.cwd()) {
         if (scanPath !== join(root, '.cache/scan-cache.json'))
             copyFileSync(scanPath, join(root, '.cache/scan-cache.json'));
     }
-    // Resuming may leave only these closure records dirty. Never accept untested code.
-    const allowed = new Set(['GOALS.json', 'SCORE.tsv', ...evaluations.map(entry => entry.relative)]);
-    const dirty = git('status', '--porcelain', '--untracked-files=all').split('\n').filter(Boolean);
-    for (const line of dirty)
-        if (!allowed.has(line.slice(3))) throw new Error(`uncommitted file outside closure: ${line}`);
     if (task.status === 'integrating') event({ type: 'validated', passed: true, checkpoint: checkpointPath });
     if (goal && task.status !== 'accepted') {
         for (const { source, relative } of evaluations) {
