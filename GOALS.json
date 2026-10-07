@@ -189191,6 +189191,49 @@
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
       }
+    },
+    {
+      "id": "port-insight-youhiding-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port hidden-form descriptions and caller messages",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v26/v26-mimic-hide"
+      ],
+      "selectionReason": "Next admitted v26 mismatch: 7 remaining screens at step 41 because mimic state is updated but the youhiding message call is skipped.",
+      "detail": "Port whole youhiding and wire both polyself.c dohide sites plus attributes_enlightenment. Preserve mimic, hiding, clinger, underwater, trap, object, furniture, and enlightenment wording in source order; remove only the caller refusal needed to reach the polymorphed enlightenment path.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "youhiding",
+          "line": 2022,
+          "endLine": 2080,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2022,
+        "to": 2080
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-mimic-hide": {
+          "session": "synthetic/v26/v26-mimic-hide",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-mimic-hide",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-mimic-hide.session.json",
+          "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
     }
   ]
 }
