@@ -187281,7 +187281,7 @@
     {
       "id": "fix-potion-dip-acid-null-description-v25-20261007",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Pass the acid-dip erosion description with JavaScript null semantics",
       "cFile": "potion.c",
       "sessions": [],
@@ -187293,8 +187293,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "potion_dip",
       "session": "synthetic/v25/v25-dip-acid",
       "step": 50,
@@ -187539,7 +187542,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-display-hallucinated-object-memory-v24-20261007",
@@ -187569,6 +187578,37 @@
           "recordingSha256": "d8d496ba5d72b069fbfc25c17aaf6f4863995f5f47455fe6712a36b02bee2450",
           "evaluationPath": "challenges/evaluations/20261007043256-v24.json",
           "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32"
+        }
+      }
+    },
+    {
+      "id": "fix-do-dropx-nonmerging-lit-object-v25-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Allow ordinary nonmerging lit objects to remain lit when dropped",
+      "cFile": "do.c",
+      "sessions": [],
+      "selectionReason": "Select the five-screen v25 lit-candle stop from investigations/synthetic/v25/v25-drop-lit-candle.json. Source tracing limits the repair to dropx preflight admission when no compatible special floor object can merge.",
+      "detail": "At segment 0 step 29, JavaScript preflight_dropx rejects every lamplit object before freeinv. C dropx/dropy/dropz place this lit candle on an empty dry floor without extinguishing it, replacing its burn timer, or replacing its mobile light source. Admit nonglobby lit survivors under the existing compatible-pile guard; retain compatible lit or timed merges until canonical light-source and timer merge hooks are wired.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dropx",
+      "session": "synthetic/v25/v25-drop-lit-candle",
+      "step": 29,
+      "syntheticProvenance": {
+        "synthetic/v25/v25-drop-lit-candle": {
+          "session": "synthetic/v25/v25-drop-lit-candle",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-drop-lit-candle",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-drop-lit-candle.session.json",
+          "recordingSha256": "3cfbc4023915bdcd4306e0f50c3de267addc8352bf23eb10705460841e233811",
+          "evaluationPath": "challenges/evaluations/20261007050439-v25.json",
+          "evaluationCommit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c"
         }
       }
     }
