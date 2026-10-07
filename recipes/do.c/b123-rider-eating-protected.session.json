@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent protected Rider ingestion variation: wear the ordinary ring of protection from shape changers before wishing Death corpse. This source property makes makemon skip temporary doppelganger initial newcham, The substituted monster has cham=NON_PM, so zap.c:revive does not explicitly restore Death and C reports the bite-covered doppelganger. The eat.c:cprefx shared Rider arm reaches done(DIED), wizard life-saving, Wisdom exercise, consumed revival return, and whole victual reset. The unprotected Death/Pestilence/Famine probes retain the startup VFS-record blocker.",
+  "segments": [
+    {
+      "seed": 12310649,
+      "datetime": "20910317101200",
+      "nethackrc": "OPTIONS=name:CorpseReturn,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n100a\n    \u0017ring of protection from shape changers\n    Ppr    \u0017corpse of Death\n    ey n    "
+    }
+  ]
+}

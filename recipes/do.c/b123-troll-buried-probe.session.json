@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked outside-limit buried-auto-reviver probe. C wand digging down creates a hole and falls through, so this setup does not reach a buried troll. The first strict mismatch is trap.c:hole_destination called by zap.c:zap_dig at step81 (C rn2(4), JS rn2(19)); later the wished boulder is refused by do.c:dropz/flooreffects landing preflight. Keep this exact C-first recipe as blocked provenance. No buried revival evidence is claimed; B123 retains source order and existing maketrap(PIT)/fill_pit owners.",
+  "segments": [
+    {
+      "seed": 12310665,
+      "datetime": "20910317101200",
+      "nethackrc": "OPTIONS=name:CorpseReturn,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n100a\n    h\u0017wand of digging\n    \u0017uncursed troll corpse\n    dp   zo>   \u0017boulder\n    m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  "
+    }
+  ]
+}

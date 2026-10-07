@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent whole revive_mon -> revive_corpse inventory timeout witness; sixty forced rests let the source-selected 2..50 revival timer expire without copying a challenge input.",
+  "segments": [
+    {
+      "seed": 12310621,
+      "datetime": "20910317101200",
+      "nethackrc": "OPTIONS=name:CorpseReturn,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n100a\n    #wizwish\nuncursed troll corpse\n    m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  "
+    }
+  ]
+}

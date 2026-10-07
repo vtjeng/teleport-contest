@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked Death ingestion witness: all revival/life-saving screens and cursors match but the temporary doppelganger created by zap.c:revive -> read.c:cant_revive -> makemon/newcham_initial reaches topten.c:get_rnd_toptenentry. C empty record file consumes rnd(10); JS startup has no vfs:record and skips it. Preserve this source dependency.",
+  "segments": [
+    {
+      "seed": 12310649,
+      "datetime": "20910317101200",
+      "nethackrc": "OPTIONS=name:CorpseReturn,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n100a\n    \u0017corpse of Death\n    eyn   "
+    }
+  ]
+}
