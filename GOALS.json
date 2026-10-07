@@ -188790,7 +188790,7 @@
     {
       "id": "port-do-doddrop-v26-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the multiple-drop command family and canonical inventory traversal",
       "cFile": "do.c",
       "sessions": [
@@ -188811,29 +188811,29 @@
           "name": "doddrop",
           "line": 924,
           "endLine": 946,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "better_not_try_to_drop_that",
           "line": 947,
           "endLine": 963,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "menudrop_split",
           "line": 964,
           "endLine": 980,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "menu_drop",
           "line": 981,
           "endLine": 1109,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -188847,7 +188847,7 @@
           "endLine": 785,
           "declared": true,
           "sourceFile": "do.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "query_category",
@@ -188861,15 +188861,15 @@
           "name": "bypass_objlist",
           "line": 1127,
           "endLine": 1141,
-          "declared": false,
+          "declared": true,
           "sourceFile": "worn.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "nxt_unbypassed_obj",
           "line": 1142,
           "endLine": 1158,
-          "declared": false,
+          "declared": true,
           "sourceFile": "worn.c",
           "complete": false
         }
@@ -189048,7 +189048,362 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doddrop",
+            "implementation": "js/do.js",
+            "symbol": "doddrop",
+            "sourceReview": "Read whole do.c:924-943: no inventory early return, clear category state, deliberate/normal shop sell state around selection, short circuit traditional ggetobj/retry, reset occupations only on nonzero source result. Remove command refusal for D/#droptype; both real dispatchers await the result before time bookkeeping.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:1710-1711 D/droptype registry and rhack:3747 call, result handling3810-3818"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd registry function dispatch for #droptype"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-combination.session.json",
+              "recordings/do.c/multiple-drop-extcmd-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-A-alone.session.json",
+              "recordings/do.c/multiple-drop-full-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-cancel.session.json",
+              "recordings/do.c/multiple-drop-full-empty-inventory.session.json",
+              "recordings/do.c/multiple-drop-full-filtered.session.json",
+              "recordings/do.c/multiple-drop-full-hint-repeat.session.json",
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-justpicked-count.session.json",
+              "recordings/do.c/multiple-drop-paranoid-accept.session.json",
+              "recordings/do.c/multiple-drop-paranoid-decline.session.json",
+              "recordings/do.c/multiple-drop-paranoid-quit.session.json",
+              "recordings/do.c/multiple-drop-partial-manual.session.json",
+              "recordings/do.c/multiple-drop-traditional-filtered.session.json",
+              "recordings/do.c/multiple-drop-traditional.session.json",
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-eat-levitation-ring",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 44,
+                "source": "cmd.c:1710-1711 D/droptype -> rhack:3747 -> do.c:doddrop924-943 -> menu_drop981-1107 -> pickup.c:query_category1226-1510; Aa selects every item, bypass traversal repeatedly reads live inventory, drop rejects worn armor and settles the drop messages/encumbrance."
+              }
+            ],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          },
+          {
+            "name": "better_not_try_to_drop_that",
+            "implementation": "js/do.js",
+            "symbol": "better_not_try_to_drop_that",
+            "sourceReview": "Read whole do.c:947-960. Safety checks use u_safe_from_fatal_corpse(st_all) before obj_pmname/body_part message, force spelled paranoid yes, and return != y. The discarded safe branch reads no input; the old unsafe-corpse refusal is removed.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "drop",
+                "source": "do.c:719 better_not_try_to_drop_that before equipment mutation"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          },
+          {
+            "name": "menudrop_split",
+            "implementation": "js/do.js",
+            "symbol": "menudrop_split",
+            "sourceReview": "Read whole do.c:964-977: truthy count below quantity; welded stack stays whole; cursed loadstone records count in corpsenm without splitting; other stacks split with original C quantity; consume drop result. No RNG/output substitute.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "menu_drop",
+                "source": "do.c:1067-1069 justpicked and1098 manual selected pointer/count"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-justpicked-count.session.json",
+              "recordings/do.c/multiple-drop-partial-manual.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          },
+          {
+            "name": "menu_drop",
+            "implementation": "js/do.js",
+            "symbol": "menu_drop",
+            "sourceReview": "Read whole do.c:981-1107. Preserve retry=-2/all-category sentinel, Full category order and A/P overrides, combination ggetobj/ALL_FINISHED result, live-chain autopick marking before callbacks, one-stack justpicked split, manual selected-pointer live membership/bypass validation, cleanup and ECMD_TIME only when an item drops. No obsolete injected traversal or refusal remains.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "doddrop",
+                "source": "do.c:937 result = menu_drop(result)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-combination.session.json",
+              "recordings/do.c/multiple-drop-extcmd-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-A-alone.session.json",
+              "recordings/do.c/multiple-drop-full-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-cancel.session.json",
+              "recordings/do.c/multiple-drop-full-empty-inventory.session.json",
+              "recordings/do.c/multiple-drop-full-filtered.session.json",
+              "recordings/do.c/multiple-drop-full-hint-repeat.session.json",
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-justpicked-count.session.json",
+              "recordings/do.c/multiple-drop-paranoid-accept.session.json",
+              "recordings/do.c/multiple-drop-paranoid-decline.session.json",
+              "recordings/do.c/multiple-drop-paranoid-quit.session.json",
+              "recordings/do.c/multiple-drop-partial-manual.session.json",
+              "recordings/do.c/multiple-drop-traditional-filtered.session.json",
+              "recordings/do.c/multiple-drop-traditional.session.json",
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-eat-levitation-ring",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 44,
+                "source": "cmd.c:1710-1711 D/droptype -> rhack:3747 -> do.c:doddrop924-943 -> menu_drop981-1107 -> pickup.c:query_category1226-1510; Aa selects every item, bypass traversal repeatedly reads live inventory, drop rejects worn armor and settles the drop messages/encumbrance."
+              }
+            ],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          },
+          {
+            "name": "drop",
+            "implementation": "js/do.js",
+            "symbol": "drop",
+            "sourceReview": "Read whole do.c:714-780. Retain canletgo before fatal-corpse confirmation; clear source equipment slots; source swallowed naming and sink dispatch; unreachable-floor finesse_ahriman/freeinv/hitfloor/float_down order; altar message suppression and LOST_DROPPED/dropx. Remove unsafe corpse refusal and return ECMD_FAIL after weldmsg as C does (dead after identical canletgo check). Existing downstream partial dropx/dropz/hitfloor gaps remain those owners; no completion credit for them.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dodrop",
+                "source": "do.c:dodrop drop(getobj result)"
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "doddrop",
+                "source": "do.c:936 ggetobj drop callback"
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "menu_drop",
+                "source": "do.c:1033 ggetobj callback,1058 autopick and menudrop_split call"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-combination.session.json",
+              "recordings/do.c/multiple-drop-extcmd-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-A-alone.session.json",
+              "recordings/do.c/multiple-drop-full-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-cancel.session.json",
+              "recordings/do.c/multiple-drop-full-empty-inventory.session.json",
+              "recordings/do.c/multiple-drop-full-filtered.session.json",
+              "recordings/do.c/multiple-drop-full-hint-repeat.session.json",
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-justpicked-count.session.json",
+              "recordings/do.c/multiple-drop-paranoid-accept.session.json",
+              "recordings/do.c/multiple-drop-paranoid-decline.session.json",
+              "recordings/do.c/multiple-drop-paranoid-quit.session.json",
+              "recordings/do.c/multiple-drop-partial-manual.session.json",
+              "recordings/do.c/multiple-drop-traditional-filtered.session.json",
+              "recordings/do.c/multiple-drop-traditional.session.json",
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-eat-levitation-ring",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 44,
+                "source": "cmd.c:1710-1711 D/droptype -> rhack:3747 -> do.c:doddrop924-943 -> menu_drop981-1107 -> pickup.c:query_category1226-1510; Aa selects every item, bypass traversal repeatedly reads live inventory, drop rejects worn armor and settles the drop messages/encumbrance."
+              }
+            ],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          },
+          {
+            "name": "bypass_objlist",
+            "implementation": "js/worn.js",
+            "symbol": "bypass_objlist",
+            "sourceReview": "Read whole worn.c:1127-1137. Top-level nobj bits only, nonempty on sets svc.context.bypasses; clearing does not clear the global cleanup-needed flag. Wire every existing source caller with its real current chain and replace Set stand-in in askchain.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "menu_drop",
+                "source": "do.c:1055,1062,1088,1100"
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "askchain",
+                "source": "invent.c:2432"
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "destroy_items",
+                "source": "zap.c:6038,6095"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-full-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-traditional.session.json",
+              "recordings/zap.c/b116-fire-ray.session.json",
+              "recordings/zap.c/b116-cold-ray.session.json"
+            ],
+            "sourceFile": "worn.c",
+            "synthetic": [],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          }
+        ],
+        "entryPointReview": "D and #droptype share do.c:doddrop; Full, Partial, Traditional and Combination independently recorded with sequential source-independent seeds13226001..13226019/date20800406121500. Counted Tourist stack, justpicked, filtered selection, no inventory, cancellation, repeated A hints and paranoid n/y/q prove active menu branches. Single d corpse prompt shares drop and better_not_try_to_drop_that. Existing zap fire/cold and traditional container askchain recordings are explicitly replayed for bounded traversal caller seams. query_category inventory I and takeoffall A callers remain active blocked entries; artifact retouch caller has an absent-body gap despite matching output for the cheapest probe. No whole askchain, dotypeinv, destroy_items, maybe_destroy_item, rhack/doextcmd, retouch_equipment or menu_remarm claim. maybe_destroy_item bounded monster-removal correction reuses canonical mthrowu.c:m_useup/m_useupall without reimplementing them and preserves the consumed damage return/RNG order; fail-first last worn potion test stops at generic obfree setNotWorn, now canonical equipment/weapon removal passes. Parked A112 recovery untouched. Traditional BUC variation additionally exposed invent.c:ggetobj manual flags setting class_filter for U. Its exact reset and category-registration call sites now use canonical add_valid_menu_class, with a fail-first state assertion and strict matching filtered C recording. No whole ggetobj credit. Cleric variation hit an earlier startup display difference; the passing cheap role variation uses Archeologist and source-pinned filter tests cover the predicate independently.",
+        "entryPoints": [
+          {
+            "name": "D/#droptype multiple drop, all implemented menu styles",
+            "functions": [
+              "doddrop",
+              "menu_drop",
+              "menudrop_split",
+              "drop",
+              {
+                "sourceFile": "pickup.c",
+                "name": "query_category"
+              },
+              {
+                "sourceFile": "worn.c",
+                "name": "bypass_objlist"
+              },
+              {
+                "sourceFile": "worn.c",
+                "name": "nxt_unbypassed_obj"
+              }
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-combination.session.json",
+              "recordings/do.c/multiple-drop-extcmd-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-A-alone.session.json",
+              "recordings/do.c/multiple-drop-full-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-cancel.session.json",
+              "recordings/do.c/multiple-drop-full-empty-inventory.session.json",
+              "recordings/do.c/multiple-drop-full-filtered.session.json",
+              "recordings/do.c/multiple-drop-full-hint-repeat.session.json",
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-justpicked-count.session.json",
+              "recordings/do.c/multiple-drop-paranoid-accept.session.json",
+              "recordings/do.c/multiple-drop-paranoid-decline.session.json",
+              "recordings/do.c/multiple-drop-paranoid-quit.session.json",
+              "recordings/do.c/multiple-drop-partial-manual.session.json",
+              "recordings/do.c/multiple-drop-traditional-filtered.session.json",
+              "recordings/do.c/multiple-drop-traditional.session.json",
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-eat-levitation-ring",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 44,
+                "source": "cmd.c:1710-1711 D/droptype -> rhack:3747 -> do.c:doddrop924-943 -> menu_drop981-1107 -> pickup.c:query_category1226-1510; Aa selects every item, bypass traversal repeatedly reads live inventory, drop rejects worn armor and settles the drop messages/encumbrance."
+              }
+            ]
+          },
+          {
+            "name": "Single d unsafe corpse protection prompt",
+            "functions": [
+              "drop",
+              "better_not_try_to_drop_that"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Existing category inventory I/#inventtype (blocked admission)",
+            "functions": [
+              {
+                "sourceFile": "pickup.c",
+                "name": "query_category"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Existing A/#takeoffall worn category menu (blocked menu_remarm)",
+            "functions": [
+              {
+                "sourceFile": "pickup.c",
+                "name": "query_category"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Alignment-change artifact equipment retouch (absent caller)",
+            "functions": [
+              {
+                "sourceFile": "worn.c",
+                "name": "nxt_unbypassed_obj"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "49dfe207973f01fde9a8500b9b4d84eff3828c0f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Six of eight planned source units are verified. pickup.c:query_category remains blocked by the active I/#inventtype admission and A/#takeoffall menu_remarm path; worn.c:nxt_unbypassed_obj remains blocked by the absent alignment-change artifact retouch caller. The D/#droptype and unsafe single-drop entry points match recorded C play."
     },
     {
       "id": "port-uhitm-mhitm-ad-cold-v26-20261007",
