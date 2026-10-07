@@ -2366,7 +2366,8 @@ export async function dospinweb(state = game) {
         case SPIKED_PIT:
             await ttyPline('You spin a web, covering up the pit.', state);
             deltrap(ttmp, state);
-            note_unported('dig.c bury_objs');
+            const { bury_objs } = await import('./dig.js');
+            await bury_objs(x, y, state);
             newsym(x, y);
             return ECMD_TIME;
         case SQKY_BOARD:

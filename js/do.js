@@ -134,7 +134,7 @@ import {
 import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
 import { obj_resists } from './bury.js';
-import { use_pick_axe2 } from './dig.js';
+import { bury_objs, use_pick_axe2 } from './dig.js';
 import { ballrelease, drag_down, placebc, unplacebc } from './ball.js';
 import { next_to_u } from './apply_next_to_u.js';
 import {
@@ -857,8 +857,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
             const { delfloortrap } = await import('./trap.js');
             await delfloortrap(trap, state);
         }
-        // C discards bury_objs()'s result; no JS owner exists yet.
-        note_unported('dig.c bury_objs');
+        await bury_objs(rx, ry, state, rawEnv);
         redraw(rx, ry, state);
         if (pushing) {
             const who = state.u?.usteed
@@ -1023,7 +1022,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                 await delfloortrap(currentTrap, state);
             }
             await useupf(obj, 1, { ...rawEnv, state });
-            note_unported('dig.c bury_objs');
+            await bury_objs(x, y, state, rawEnv);
             (rawEnv.newsym ?? newsym)(x, y, state);
             return true;
         }

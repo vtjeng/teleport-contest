@@ -4999,6 +4999,10 @@ async function doextcmd(key, state) {
         // done(QUIT), while the cancellation path returns ECMD_OK after it
         // restores the command loop.
         return await done2(state);
+    case 'wiz_debug_cmd_bury': {
+        const { wiz_debug_cmd_bury } = await import('./dig.js');
+        return await wiz_debug_cmd_bury(state);
+    }
     case 'doprev_message':
         return doprev_message(state);
     case 'enter_explore_mode':

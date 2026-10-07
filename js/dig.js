@@ -147,17 +147,23 @@ import {
     set_occupation,
     xytodir,
 } from './cmd.js';
-import { delobj, obfree, obj_extract_self, sobj_at } from './invent.js';
+import { currency, delobj, obfree, obj_extract_self, sobj_at } from './invent.js';
+import { bury_an_obj } from './bury.js';
+import { costly_spot, shop_keeper, stolen_value } from './shk.js';
+import { shkname } from './shknam.js';
 import { hides_under, is_watch } from './mondata.js';
-import { angry_guards, get_iter_mons, minliquid, wake_nearby } from './mon.js';
+import { angry_guards, get_iter_mons, maybe_unhide_at, minliquid, wake_nearby } from './mon.js';
 import { closed_door, youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import {
     APPLE,
     BANANA,
+    BEARTRAP,
     BOULDER,
+    COIN_CLASS,
     EUCALYPTUS_LEAF,
     HEAVY_IRON_BALL,
+    LAND_MINE,
     ORANGE,
     PEAR,
     ROCK,
@@ -185,6 +191,7 @@ import {
     Levitation,
     b_trapped,
     conjoined_pits,
+    cnv_trap_obj,
     deltrap,
     maketrap,
     reset_utrap,
@@ -1603,8 +1610,10 @@ export async function dighole(
             retval = true;
         } else {
             if (byMagic && trap
-                && (trap.ttyp === LANDMINE || trap.ttyp === BEAR_TRAP))
-                note_unported('dig.c cnv_trap_obj');
+                && (trap.ttyp === LANDMINE || trap.ttyp === BEAR_TRAP)) {
+                const type = trap.ttyp === LANDMINE ? LAND_MINE : BEARTRAP;
+                await cnv_trap_obj(type, 1, trap, true, state, rawEnv);
+            }
 
             const pit = nohole || pitOnly
                 || check === DIGCHECK_PASSED_DESTROY_TRAP
@@ -1846,6 +1855,61 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
     if (!sobj_at(BOULDER, x, y, state))
         unblockPoint(x, y, state);
     return false;
+}
+
+// C ref: dig.c bury_objs() (2050-2085). Keep the saved nexthere returned by
+// bury_an_obj: extraction mutates both floor indexes and unpunish can delete
+// the chain that had followed a ball.
+export async function bury_objs(x, y, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    const redraw = env.planning ? (() => {})
+        : (env.newsym ?? env.redraw ?? ((px, py) => newsym(px, py, state)));
+    const keeper = shop_keeper(in_rooms(x, y, SHOPBASE, state)[0] ?? 0, state);
+    const costly = keeper && costly_spot(x, y, state);
+    let loss = 0;
+    for (let obj = state.level.objects[x][y]; obj;) {
+        if (costly && !state.context?.mon_moving) {
+            loss += await stolen_value(obj, x, y, Boolean(keeper.mpeaceful), true, state);
+            if (obj.oclass !== COIN_CLASS) obj.no_charge = 1;
+        }
+        const result = await bury_an_obj(obj, { ...env, newsym: redraw });
+        obj = result.next;
+    }
+    del_engr_at(x, y, state);
+    redraw(x, y, state);
+    maybe_unhide_at(x, y, state, env);
+    if (costly && loss && !env.planning) {
+        await (env.message ?? ttyPline)(
+            `You owe ${shkname(keeper, state)} ${loss} ${currency(loss, state)} for burying merchandise.`,
+            state, env,
+        );
+    }
+}
+
+// C ref: dig.c wiz_debug_cmd_bury() (2288-2328), enabled by patchlevel.h's
+// DEBUG definition. Count each square before and after its burial, in source
+// order; unpunish may remove an extra object from the current floor pile.
+export async function wiz_debug_cmd_bury(state = game, env = {}) {
+    let before = 0;
+    let after = 0;
+    for (let x = state.u.ux - 1; x <= state.u.ux + 1; x++) {
+        for (let y = state.u.uy - 1; y <= state.u.uy + 1; y++) {
+            if (!isok(x, y)) continue;
+            for (let obj = state.level.objects[x][y]; obj; obj = obj.nexthere) before++;
+            await bury_objs(x, y, state, env);
+            for (let obj = state.level.objects[x][y]; obj; obj = obj.nexthere) after++;
+        }
+    }
+    const difference = before - after;
+    if (!env.planning) {
+        await (env.message ?? ttyPline)(
+            before === 0 ? 'No objects here or adjacent to bury.'
+                : difference === 0 ? 'No objects buried.'
+                    : `${difference} object${difference === 1 ? '' : 's'} buried.`,
+            state, env,
+        );
+    }
+    return ECMD_OK;
 }
 
 // The environment dig.c's rotting hands its callees. `state` and `hooks` are

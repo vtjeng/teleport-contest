@@ -1,0 +1,5 @@
+{
+  "version": 5,
+  "comment": "BLOCKED source caller coverage: trap.c:trap_ice_effects has no JS owner; zap.c:melt_ice marks its discarded call unported before the TRUE cnv_trap_obj burial path. A117 wires cnv_trap_obj and dighole trap conversion, but this separate entry remains unverified.",
+  "segments": []
+}

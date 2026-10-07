@@ -1,0 +1,5 @@
+{
+  "version": 5,
+  "comment": "BLOCKED source caller coverage: hack.c:moverock_core boulder trap handler (496-618) refuses before its HOLE/TRAPDOOR bury_objs call; this caller is outside A117 and supplies no completion evidence.",
+  "segments": []
+}
