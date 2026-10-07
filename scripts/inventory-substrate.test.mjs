@@ -123,7 +123,7 @@ import {
 } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
 import { del_light_source, light_globals_init } from '../js/light.js';
-import { begin_burn, timeout_globals_init } from '../js/timeout.js';
+import { begin_burn, start_glob_timeout, timeout_globals_init } from '../js/timeout.js';
 import { game } from '../js/gstate.js';
 import { oname } from '../js/do_name.js';
 import {
@@ -3111,6 +3111,21 @@ function ordinaryDropFixture(otyp = HEAVY_IRON_BALL) {
 // C ref: do.c dropx()/dropz(), invent.c stackobj()/merged(). The newly
 // dropped object survives; only a compatible absorbed pile member needs the
 // canonical light/timer merge operations.
+test('drop admission permits a glob before its consuming floor effect', () => {
+    const { obj, state, hooks } = ordinaryDropFixture(GLOB_OF_GRAY_OOZE);
+    obj.globby = true;
+    timeout_globals_init(state);
+    const floor = instance(GLOB_OF_GRAY_OOZE, state, { globby: true });
+    place_object(floor, 10, 5, { state }); // Same-square glob is absorbed into.
+    // Source shrink timers are ordinary timed/globby floor ownership, not
+    // invent.c:stackobj's generic timed-member lifecycle.
+    start_glob_timeout(floor, 25, { state });
+    assert.doesNotThrow(() => preflight_dropx(obj, { state, hooks }));
+    assert.equal(obj.where, OBJ_INVENT); // Admission remains pure.
+    assert.equal(state.level.objects[10][5], floor);
+    assert.equal(floor.timed, 1);
+});
+
 test('drop admission preserves a nonmerging lit survivor', async () => {
     for (const otyp of [TALLOW_CANDLE, OIL_LAMP]) {
         const { hooks, obj, state } = ordinaryDropFixture(otyp);
@@ -3563,10 +3578,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
         const cases = [
             ['wrong ownership', /ownership/u, ({ obj }) => {
                 obj.where = OBJ_FLOOR;
-            }],
-            // Globs retain their separate floor and merging dependencies.
-            ['globby object', /a globby object/u, ({ obj }) => {
-                obj.globby = true;
             }],
             // shk.c obfree()'s last operation: lock.c reset_pick(), for the
             // box whose lock the hero is in the middle of picking.

@@ -9,6 +9,8 @@ import {
     IN_SIGHT,
     LAVAPOOL,
     OBJ_FLOOR,
+    OBJ_DELETED,
+    OBJ_LUAFREE,
     OBJ_FREE,
     PIT,
     POOL,
@@ -16,10 +18,16 @@ import {
 } from '../js/const.js';
 import { boulder_hits_pool, flooreffects } from '../js/do.js';
 import { GameMap } from '../js/game.js';
+import { resetGame } from '../js/gstate.js';
+import { objects_globals_init } from '../js/objects.js';
 import { init_objects } from '../js/o_init.js';
-import { initRng } from '../js/rng.js';
+import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
+import { newObject, place_object } from '../js/obj.js';
+import { start_glob_timeout, timeout_globals_init } from '../js/timeout.js';
 import {
     BOULDER,
+    GLOB_OF_GRAY_OOZE,
+    FOOD_CLASS,
     POTION_CLASS,
     POT_WATER,
     ROCK,
@@ -136,6 +144,55 @@ function object(overrides = {}) {
 async function land(state, obj, x = DROP_X, y = DROP_Y, env = {}) {
     return flooreffects(obj, x, y, 'fall', { state, ...env });
 }
+
+test('globby flooreffects discards the meld survivor and consumes the incoming pointer', async () => {
+    const cStart = C_DO.indexOf('} else if (obj->globby)');
+    const cEnd = C_DO.indexOf('} else if (svc.context.mon_moving', cStart);
+    const cBody = C_DO.slice(cStart, cEnd);
+    assert.match(cBody, /\(void\) obj_meld\(&globbyobj, &otmp\)/u);
+    assert.match(cBody, /res = \(boolean\) !globbyobj/u);
+    // C nulls the consumed pointer even if Lua retains the object allocation.
+    for (const luaReferences of [0, 1]) {
+        // obj_nexto_xy uses the canonical catalog; initialize a live state.
+        const state = Object.assign(resetGame(), fixture());
+        objects_globals_init(state);
+        init_objects(state, () => 0);
+        state.moves = 100; // Both pending shrink timers start from this turn.
+        timeout_globals_init(state);
+        const incoming = newObject({ otyp: GLOB_OF_GRAY_OOZE,
+            oclass: FOOD_CLASS, globby: true, where: OBJ_FREE,
+            quan: 1, owt: 100, age: 90, lua_ref_cnt: luaReferences });
+        const floor = newObject({ ...incoming, owt: 20, lua_ref_cnt: 0 });
+        // A heavier free glob still loses to a lighter floor glob in obj_meld.
+        place_object(floor, DROP_X, DROP_Y, { state });
+        start_glob_timeout(incoming, 20, { state });
+        start_glob_timeout(floor, 40, { state });
+        initRng(13927); // Fixed log, without coupling a result to this seed.
+        enableRngLog();
+        const messages = [];
+        assert.equal(await land(state, incoming, DROP_X, DROP_Y, {
+            message: async (line) => {
+                // The source message precedes absorption and timer cleanup.
+                assert.equal(incoming.where, OBJ_FREE);
+                assert.equal(floor.owt, 20);
+                messages.push(line);
+            },
+        }), true);
+        assert.equal(incoming.where, luaReferences ? OBJ_LUAFREE : OBJ_DELETED);
+        assert.equal(incoming.timed, 0);
+        assert.equal(floor.where, OBJ_FLOOR);
+        assert.equal(floor.owt, 120); // C adds the two original weights.
+        assert.equal(floor.quan, 1); // Globs combine by weight, never quantity.
+        assert.equal(floor.timed, 1); // Both timers become one averaged timer.
+        assert.equal(state.gt.timer_base.arg, floor);
+        assert.equal(state.gt.timer_base.next, null);
+        assert.equal(state.gt.timer_base.timeout, 130); // Mean(20,40) + turn100.
+        assert.equal(state.level.objlist, floor);
+        assert.equal(state.level.objects[DROP_X][DROP_Y], floor);
+        assert.equal(messages.length, 1); // No second neighbor scan or message.
+        assert.deepEqual(getRngLog(), []); // Local match, no weight tie or rescan.
+    }
+});
 
 test('flooreffects answers FALSE on an ordinary floor and clears links', async () => {
     const state = fixture();

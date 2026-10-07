@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13927031,
+      "datetime": "20900419131112",
+      "nethackrc": "OPTIONS=name:GlobPlace,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed small glob of gray ooze\nde\u0017uncursed large glob of brown pudding\ndf   "
+    }
+  ],
+  "comment": "Independent incompatible-type variation: a gray ooze glob remains on the floor while a brown pudding glob is dropped on the same square. Both retain their own ownership and shrink timers; no coalescence is allowed."
+}
