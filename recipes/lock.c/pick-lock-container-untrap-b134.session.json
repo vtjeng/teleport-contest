@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first lock.c:pick_lock production entry witness; source-selected manual monster response, container autounlock or door autounlock. C map/inventory informs required setup inputs before JavaScript comparison. C-only setup correction: source-observed item letter g; ant southeast; south doorway reached by one south step before locking it. Cheap C variation: untrap-only #loot passes NULL tool and uses the source dummy object.",
+  "segments": [
+    {
+      "seed": 7134102,
+      "datetime": "20381102132000",
+      "nethackrc": "OPTIONS=name:LockChoice,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\nOPTIONS=autounlock:untrap\n",
+      "moves": " \u0017locked large box\n dg   #loot\n y "
+    }
+  ]
+}
