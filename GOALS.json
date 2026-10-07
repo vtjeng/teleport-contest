@@ -183507,7 +183507,7 @@
     {
       "id": "port-mkroom-mkundead-v24-20261006",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port undead swarm creation and wire Bell and Book callers",
       "cFile": "mkroom.c",
       "sessions": [
@@ -183515,17 +183515,24 @@
       ],
       "selectionReason": "Select the independent completed v24 investigation at investigations/synthetic/v24/v24-cursed-bell-opening-undead.json: cursed Bell use reaches the missing mkroom.c mkundead implementation; include both active Bell and Book production callers and the revive_corpses return-valued branch.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "e47cb7d548636ca20d93aaaebbd86cd2a4d11fb1",
+      "openStanding": {
+        "sha": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "26fb28fad3c58acafab9d64a2a5d4c4a0c8a80e2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mkundead",
           "line": 456,
           "endLine": 477,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -183545,6 +183552,317 @@
           "evaluationPath": "challenges/evaluations/20261006233641-v24.json",
           "evaluationCommit": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d"
         }
+      },
+      "activeStanding": {
+        "sha": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-cursed-bell-opening-undead",
+          "session": "synthetic/v24/v24-cursed-bell-opening-undead",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-cursed-bell-opening-undead.session.json",
+          "recordingPath": "challenges/cases/v24/v24-cursed-bell-opening-undead.session.json",
+          "recordingSha256": "e53dc3208412e3195a08d4c9cb624371915500fed0d4d6b6d43576a7ce48df5a",
+          "recipe": "challenges/cases/v24/v24-cursed-bell-opening-undead.recipe.session.json",
+          "recipeSha256": "6143e458d49e12960bfaf114d98fa7129241fcb61910ad1a8051ef8dd6275135",
+          "replayInputSha256": "6a815208bf0ff444b7fe86ff2c96a6fe1873a70d8f6b9ef8981222a1bed7c5ea",
+          "evaluationPath": "challenges/evaluations/20261006233641-v24.json",
+          "evaluationCommit": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d",
+          "evaluationArtifact": "challenges/evaluations/20261006233641-v24.json",
+          "evaluationUtc": "2026-10-06T23:38:23.449Z",
+          "remainingScreens": 4,
+          "recordedSteps": 35,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2202,
+              "total": 2362
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 31,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 27,
+              "cCell": {
+                "ch": "A",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2202,
+              "cEntry": "rnd(5)=3",
+              "cCaller": "mkundead(mkroom.c:461)",
+              "jsEntry": "rn2(12)=7",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": "o"
+              },
+              "stepIndex": 31
+            },
+            "cursor": null
+          },
+          "step": 31,
+          "kind": "rng",
+          "sourceFile": "mkroom.c",
+          "function": "mkundead",
+          "message": null,
+          "cFile": "mkroom.c",
+          "luaFile": null,
+          "line": 461,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-cursed-bell-opening-undead.json",
+            "result": {
+              "session": "synthetic/v24/v24-cursed-bell-opening-undead",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-cursed-bell-opening-undead",
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "e53dc3208412e3195a08d4c9cb624371915500fed0d4d6b6d43576a7ce48df5a",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "remainingScreens": 4,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-cursed-bell-opening-undead",
+                "session": "synthetic/v24/v24-cursed-bell-opening-undead",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-cursed-bell-opening-undead.session.json",
+                "recordingPath": "challenges/cases/v24/v24-cursed-bell-opening-undead.session.json",
+                "recordingSha256": "e53dc3208412e3195a08d4c9cb624371915500fed0d4d6b6d43576a7ce48df5a",
+                "recipe": "challenges/cases/v24/v24-cursed-bell-opening-undead.recipe.session.json",
+                "recipeSha256": "6143e458d49e12960bfaf114d98fa7129241fcb61910ad1a8051ef8dd6275135",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 4,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 31,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2202,
+                    "total": 2362
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 31,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": "o"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 27,
+                    "cCell": {
+                      "ch": "A",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2202,
+                    "cEntry": "rnd(5)=3",
+                    "cCaller": "mkundead(mkroom.c:461)",
+                    "jsEntry": "rn2(12)=7",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": "o"
+                    },
+                    "stepIndex": 31
+                  },
+                  "cursor": null
+                },
+                "step": 31,
+                "kind": "rng",
+                "sourceFile": "mkroom.c",
+                "function": "mkundead",
+                "message": null,
+                "cFile": "mkroom.c",
+                "luaFile": null,
+                "line": 461
+              },
+              "summary": "With a charged cursed Bell of Opening used outside the invocation square while the hero is not swallowed, apply.c:use_bell calls mkundead. JavaScript currently records an unported gap and wakes nearby monsters, so the undead swarm and its random calls are missing. Port mkroom.c:mkundead and wire both source callers; morguemon is already ported.",
+              "source": {
+                "file": "mkroom.c",
+                "branch": "A charged Bell of Opening is applied; the hero is not swallowed and the bell is cursed. apply.c:use_bell consumes a charge, calls mkundead(&mm, FALSE, NO_MINVENT), then wakes nearby monsters. The general mkundead function also has a corpse-revival arm when revive_corpses is true.",
+                "functions": [
+                  "mkundead"
+                ],
+                "callers": [
+                  "apply.c:use_bell 1253-1269 -> js/apply.js: use_bell currently calls note_unported(\"minion.c mkundead\") and then continues to wake_nearby; wire the real mkroom.c implementation here.",
+                  "spell.c:deadbook 323 -> js/spell.js:raise_dead currently records note_unported(\"mkroom.c mkundead\"); wire the same function here and preserve revive_corpses=true behavior."
+                ],
+                "dependencies": [
+                  "mkundead 454-473 draws the swarm count with rnd(5), calls morguemon for each attempt, uses enexto to find a square, optionally checks sobj_at/revive when revive_corpses is true, calls makemon with discarded return, and sets level.flags.graveyard. js/mkroom.js:morguemon already ports morguemon; reuse it.",
+                  "For revive_corpses=true from spell.c:deadbook, preserve the consumed revive return. zap.c:revive is already ported in js/zap.js and returns a monster or null, so the caller must test its truth value. The cursed Bell caller passes FALSE and skips this branch.",
+                  "Reuse the existing level_difficulty, enexto, sobj_at, makemon runtime, and wake_nearby implementations; retain source order and RNG calls."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The exact examined revision is 84d84e111155ac834c43327b7c696055df294349; its submodule gitlink and local checkout both resolve to 16ff59115315917b93185d026aeefea06db9b0f4. The saved v24 evaluation is challenges/evaluations/20261006225046-v24.json. Its queue entry has 35 recorded steps, 31/35 screens, 2202/2362 RNG calls, 35/35 cursors, and four remaining screens.",
+                "The first divergence is segment 0, step 31, key o: C screen cell row 0 column 27 is A while JS is blank. At the same point C RNG begins rnd(5)=3 at mkroom.c:461; JavaScript instead records rn2(12)=7. The C trace then shows morguemon and collect_coords/makemon calls, while JS has no corresponding swarm call.",
+                "C source: nethack-c/upstream/src/apply.c:1253-1269 calls mkundead(&mm, FALSE, NO_MINVENT) for the charged cursed Bell, then sets wakem. nethack-c/upstream/src/mkroom.c:454-473 creates the swarm and sets graveyard; morguemon follows at 475-487.",
+                "At the examined revision, js/apply.js:3822-3828 records note_unported(\"minion.c mkundead\") and sets wakem without creating undead. js/mkroom.js:515-539 already implements morguemon. The other production call is nethack-c/upstream/src/spell.c:323, reached through js/spell.js:584, and passes revive_corpses=TRUE."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mkundead",
+            "implementation": "js/mkroom.js",
+            "symbol": "mkundead",
+            "sourceReview": "Read complete mkroom.c456-474 (task planner range456-477) and existing morguemon475-502. Match C integer quotient before single rnd(5), each morguemon selection before enexto, null-species/failed-placement short circuits, first sobj_at(CORPSE) only in true mode, awaited revive(corpse,FALSE) pointer consumed to skip makemon on success and fall through on null, unchanged mm_flags, awaited creation tails before the next attempt, and unconditional graveyard assignment after every attempt. Read direct owners dungeon.c:level_difficulty2027ff, teleport.c:enexto196-203 and NEW_ENEXTO core219-277, invent.c:sobj_at1465-1475, complete zap.c:revive884-1140 and existing JS owner, plus zap.c:unturn_dead1156-1222 before wiring its existing Book call. Reuse morguemon/mkclass/ndemon, source placement, canonical corpse lifecycle, and makemon_runtime; no substitute selector, creation, revival operation or extra RNG was added. Supporting makemon.c1147-1203 admission preserves explicit-coordinate NO_MINVENT on runtime branches without a species/terrain allowlist and follows existing occupied-square and hero-relocation owners. Whole makemon, revive, unturn_dead and deadbook completion are not claimed; inherited other creation flags, saved-trait, shapechanging and object/death-path refusals remain owned there. Removed both minion.c mkundead and mkroom.c mkundead gap placeholders. Book unturn_dead gap was obsolete and now awaits its existing owner before swarm creation. Bell charge/message/swallow gates precede the new call and common wake remains after it; Book master-lich/nalfeshnee, carried revival and swarm order remains source aligned. Book creation receives live ttyNorep for C Norep appearance output while custom planning sinks stay silent.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_bell",
+                "source": "apply.c1263-1268 uses hero coord, FALSE and NO_MINVENT on the charged cursed non-swallowed Bell of Opening arm. Existing doapply BELL/BELL_OF_OPENING dispatcher4919 and cmd.c apply binding provide production entry; source common wake follows mkundead."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "raise_dead",
+                "source": "spell.c309-323 deadbook raise_dead label: message, optional dangerous adversary with consumed makemon result, unturn_dead(&youmonst), hero coord, mkundead(TRUE,NO_MINVENT). JS raise_dead is a helper extracted from this label, not a separate source unit; read.c doread -> spell.c study_book -> set_occupation(learn) -> learn Book arm385-387 -> deadbook covers production reading and invalid-invocation fallback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkundead.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/apply-bell.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/mkundead-cursed-bell.session.json",
+              "recordings/mkroom.c/mkundead-cursed-book.session.json",
+              "recordings/mkroom.c/mkundead-cursed-bell-no-generation.session.json",
+              "recordings/mkroom.c/mkundead-cursed-book-no-generation.session.json",
+              "recordings/mkroom.c/mkundead-book-floor-revive.session.json",
+              "recordings/mkroom.c/mkundead-book-floor-failed-revive.session.json",
+              "recordings/mkroom.c/mkundead-book-carried-revive.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-cursed-bell-opening-undead",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 34,
+                "source": "cmd.c rhack -> apply.c doapply/BELL_OF_OPENING -> use_bell cursed charged non-swallowed branch at1263-1268 -> mkroom.c mkundead(FALSE,NO_MINVENT), all source attempts through graveyard and deferred wake tail"
+              }
+            ],
+            "checkedAt": "26fb28fad3c58acafab9d64a2a5d4c4a0c8a80e2"
+          }
+        ],
+        "entryPointReview": "The reference build has exactly two mkundead callers (rg mkundead across src/*.c): apply.c use_bell1267 with revive_corpses=FALSE and spell.c deadbook323 with TRUE, both active and NO_MINVENT. Bell branch is charged/cursed/not swallowed; Book branch comes from normal cursed reading or source invalid-invocation fallback and shares the same raise_dead label. No excluded compile-time caller. No source unit is pure. Entry evidence includes admitted v24 Bell steps30-34 and independently chosen Samurai Bell/Book recipes, true-mode floor success and S_EEL-on-land failure, carried unturn_dead before the swarm, and both source debug_mongen no-creation variants. Constructed tests pin null selector, total placement failure, depth integer boundary8/9, async message completion before graveyard, false mode skipping corpses, norevive fallback and narrow runtime flags/coordinate admission. The generic creation owner retains explicit out-of-scope MM_ASLEEP combination refusal; the supporting admission fix earns no whole makemon source credit. Both runtime entry points match completely; no incomplete function or blocked entry remains.",
+        "entryPoints": [
+          {
+            "name": "Apply a charged cursed Bell of Opening outside swallowing",
+            "functions": [
+              "mkundead"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/mkundead-cursed-bell.session.json",
+              "recordings/mkroom.c/mkundead-cursed-bell-no-generation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-cursed-bell-opening-undead",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 34,
+                "source": "cmd.c rhack -> apply.c doapply/BELL_OF_OPENING -> use_bell cursed charged non-swallowed branch at1263-1268 -> mkroom.c mkundead(FALSE,NO_MINVENT), all source attempts through graveyard and deferred wake tail"
+              }
+            ]
+          },
+          {
+            "name": "Read cursed Book of the Dead through study occupation and deadbook raise_dead",
+            "functions": [
+              "mkundead"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/mkundead-cursed-book.session.json",
+              "recordings/mkroom.c/mkundead-cursed-book-no-generation.session.json",
+              "recordings/mkroom.c/mkundead-book-floor-revive.session.json",
+              "recordings/mkroom.c/mkundead-book-floor-failed-revive.session.json",
+              "recordings/mkroom.c/mkundead-book-carried-revive.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "26fb28fad3c58acafab9d64a2a5d4c4a0c8a80e2",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
