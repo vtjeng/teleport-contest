@@ -43,6 +43,8 @@ import {
     ACID_RES,
     BLINDED,
     FLYING,
+    ROOM,
+    M_AP_NOTHING,
     HALLUC,
     FROMOUTSIDE,
     I_SPECIAL,
@@ -146,6 +148,7 @@ import {
     PM_PESTILENCE,
     PM_FAMINE,
     PM_WOLF,
+    PM_TRAPPER,
 } from '../js/monsters.js';
 import {
     AMULET_OF_RESTFUL_SLEEP,
@@ -459,29 +462,21 @@ test('Fixed_abil hides base and peak only through a stuck ring', async () => {
         'an uncursed ring comes off at will');
 });
 
-// insight.c enlightenment() describes a polymorphed hero's form and reads the
-// hit points from u.mh, neither of which is ported, so the window stops before
-// it opens. const.js Upolyd() takes the hero rather than the game: handing it
-// the game compares two absent fields, answers false, and prints a window that
-// C would have filled differently, so the guard needs a test of its own.
-test('a polymorphed hero stops the attributes window', async () => {
+// insight.c status_enlightenment(): a polymorphed hidden hero reaches
+// youhiding(TRUE, final). The caller guard must admit this source path.
+test('a polymorphed hidden hero reaches the attributes hiding line', async () => {
     const state = await readyGame();
-    // The same hero unpolymorphed reaches the window, so the throw below
-    // belongs to this guard and not to an earlier stop.
-    assert.ok(
-        statusLine(
-            await enlightenment(
-                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
-            ),
-            ' You are'),
-    );
-
-    state.u.umonnum = state.u.umonster + 1;
-    await assert.rejects(
-        () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
-        (error) => error instanceof UnsupportedEnlightenmentError
-            && error.branch === 'a polymorphed hero',
-    );
+    state.u.umonnum = PM_TRAPPER; // An actual floor hider satisfies Upolyd.
+    state.u.uundetected = 1;
+    state.youmonst.m_ap_type = M_AP_NOTHING;
+    // Use a floor hider with canonical data rather than absent monster fields.
+    state.youmonst.data = state.mons[PM_TRAPPER];
+    // ROOM at a non-stair location pins the source surface() floor wording.
+    state.u.ux = 10;
+    state.u.uy = 8;
+    state.level.at(10, 8).typ = ROOM;
+    const lines = await enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state);
+    assert.ok(lines.includes(' You are hiding on the floor.'));
 });
 
 // youprop.h:125 defines Deaf as (HDeaf || EDeaf || u.uroleplay.deaf).

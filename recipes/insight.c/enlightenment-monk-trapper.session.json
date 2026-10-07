@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first polymorphed enlightenment: seed chosen directly; original gender/role and forced-gender or neuter form vary background title and phrasing. C establishes polymorph dismissals and menu pagination before comparison.",
+  "segments": [
+    {
+      "seed": 93371004,
+      "datetime": "20790317130911",
+      "nethackrc": "OPTIONS=name:Background,role:Monk,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\ntrapper\n      #monster\n \u0018          "
+    }
+  ]
+}

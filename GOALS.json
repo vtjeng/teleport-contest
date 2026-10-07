@@ -191565,7 +191565,7 @@
     {
       "id": "port-insight-youhiding-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port hidden-form descriptions and caller messages",
       "cFile": "insight.c",
       "sessions": [
@@ -191573,17 +191573,24 @@
       ],
       "selectionReason": "Next admitted v26 mismatch: 7 remaining screens at step 41 because mimic state is updated but the youhiding message call is skipped.",
       "detail": "Port whole youhiding and wire both polyself.c dohide sites plus attributes_enlightenment. Preserve mimic, hiding, clinger, underwater, trap, object, furniture, and enlightenment wording in source order; remove only the caller refusal needed to reach the polymorphed enlightenment path.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "d74623f21704418a1502f9154998f8e39cd67328",
+      "openStanding": {
+        "sha": "599e3e6df48d02636d91d53bd092999a691b1242",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2af337a66d5d573287b1290488b0cc2ee8e1dc66",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "youhiding",
           "line": 2022,
           "endLine": 2080,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -191603,12 +191610,313 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
+      },
+      "activeStanding": {
+        "sha": "599e3e6df48d02636d91d53bd092999a691b1242",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-mimic-hide",
+          "session": "synthetic/v26/v26-mimic-hide",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-mimic-hide.session.json",
+          "recordingPath": "challenges/cases/v26/v26-mimic-hide.session.json",
+          "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+          "recipe": "challenges/cases/v26/v26-mimic-hide.recipe.session.json",
+          "recipeSha256": "f5a5be35a73801885992e001ccd04d5b379faf3c2c8e73a3e5eea5e8a62533eb",
+          "replayInputSha256": "76f1390aeb5e5dd95fa6343ea400b67f0fe4d438704251a5bd9dbcdc4177fbbc",
+          "evaluationPath": "challenges/evaluations/hosted-37659404968-1-v26.json",
+          "evaluationCommit": "599e3e6df48d02636d91d53bd092999a691b1242",
+          "evaluationArtifact": "challenges/evaluations/hosted-37659404968-1-v26.json",
+          "evaluationUtc": "2026-10-07T17:30:38.215Z",
+          "remainingScreens": 7,
+          "recordedSteps": 48,
+          "previousScreensMatched": 41,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2925,
+              "total": 2925
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 41,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 41,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-mimic-hide.json",
+            "result": {
+              "session": "synthetic/v26/v26-mimic-hide",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-mimic-hide",
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "remainingScreens": 7,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "1c767ef4db333bc77d9aa9e6e66046299b89e905",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-mimic-hide",
+                "session": "synthetic/v26/v26-mimic-hide",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-mimic-hide.session.json",
+                "recordingPath": "challenges/cases/v26/v26-mimic-hide.session.json",
+                "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+                "recipe": "challenges/cases/v26/v26-mimic-hide.recipe.session.json",
+                "recipeSha256": "f5a5be35a73801885992e001ccd04d5b379faf3c2c8e73a3e5eea5e8a62533eb",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 7,
+                "recordedSteps": 48,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 41,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 2925,
+                    "total": 2925
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 41,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 41,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At zero-based step 41, Enter completes #monster after the hero has polymorphed into a small mimic. C dispatches through domonability() to dohide(), which sets the mimic disguise to M_AP_OBJECT/STRANGE_OBJECT and redraws the hero, then youhiding(FALSE, 0) prints “You are now mimicking a strange object.” JavaScript reaches the same state and keeps RNG and cursor parity, but polyself.js:dohide() records note_unported(\"insight.c youhiding\") instead of producing that message. The missing source owner is insight.c:youhiding(). Port that whole function and wire its dohide and enlightenment callers; the polymorphed enlightenment route is currently blocked by an UnsupportedEnlightenmentError guard.",
+              "source": {
+                "file": "insight.c",
+                "branch": "For a polymorphed mimic with no prior disguise, polyself.c:dohide() sets U_AP_TYPE to M_AP_OBJECT and mappearance to STRANGE_OBJECT, then calls youhiding(FALSE, 0). youhiding() builds “mimicking a strange object” from simple_typename() and an(), and its non-enlightenment arm prints “You are now …”. The same whole function also handles already-hidden wording and enlightenment-line output.",
+                "functions": [
+                  "youhiding"
+                ],
+                "callers": [
+                  "cmd.c:domonability() dispatches the #monster command to polyself.c:dohide(); dohide() calls youhiding(FALSE, 1) for an existing hiding/disguise and youhiding(FALSE, 0) after entering hiding.",
+                  "insight.c:attributes_enlightenment() calls youhiding(TRUE, final) for a polymorphed hero who is hidden or mimicking; js/insight.js:enlightenment() currently rejects Upolyd before reaching that call."
+                ],
+                "dependencies": [
+                  "The active mimic-object arm uses objnam.c:simple_typename() and an(); their JavaScript counterparts exist in js/objnam.js.",
+                  "Other youhiding() arms use hides_under()/is_clinger(), dungeon.c:ceiling()/surface(), pager.c:waterbody_name(), trap.c:t_at(), and objnam.c:ansimpleoname(); corresponding JavaScript helpers exist. Preserve their source-selected wording when porting the whole function.",
+                  "Wire js/polyself.js:dohide() at both note_unported(\"insight.c youhiding\") sites and js/insight.js:attributes_enlightenment() at its note_unported site. Narrow/remove js/insight.js:enlightenment()’s UnsupportedEnlightenmentError(\"a polymorphed hero\") guard as needed so the C enlightenment caller is reachable, and record evidence for both caller paths."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261007095608-v26.json identifies synthetic/v26/v26-mimic-hide at zero-based segment 0, step 41, key Enter as the first mismatch. It reports 41/48 screens, 2925/2925 RNG calls, and 48/48 cursors; the first differing screen cell is row 0, column 0 (C “Y”, JS space).",
+                "Queue provenance identifies batch v26, manifest challenges/manifests/v26.json (SHA-256 3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7), recording challenges/cases/v26/v26-mimic-hide.session.json (SHA-256 7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f), and evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44. The recipe first uses #polyself to become a small mimic, then types #monster; steps 34–40 enter the command name and step 41’s newline dispatches it.",
+                "Upstream nethack-c/upstream/src/cmd.c:domonability() selects dohide() for a hider. In polyself.c:dohide() lines 1865–1872, the unhidden mimic receives M_AP_OBJECT/STRANGE_OBJECT, newsym() runs, and youhiding(FALSE, 0) is called. In insight.c:youhiding() lines 2022–2077, U_AP_TYPE==M_AP_OBJECT formats the appearance as “mimicking a strange object”; the non-enlightenment arm prints “You are now mimicking a strange object.” No random call or additional state update occurs in this message function.",
+                "The matching JavaScript call path is js/cmd.js:domonability() to js/polyself.js:dohide(). That function assigns the same disguise and calls newsym(), then reaches note_unported(\"insight.c youhiding\") at line 2750. js/insight.js:attributes_enlightenment() has the second caller gap at line 1251; its parent enlightenment() currently throws for Upolyd at line 1965.",
+                "This is missing source behavior rather than a defect in implemented mimic state: the saved trace matches through the completed #monster command name, the state-setting branch is present, and the first observed difference is the message emitted by the unported youhiding() callee. Use a file-port for the whole insight.c:youhiding() function, wire all direct callers, and include evidence for the command path and the polymorphed enlightenment path."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "youhiding",
+            "implementation": "js/insight.js",
+            "symbol": "youhiding",
+            "sourceReview": "Read whole insight.c:2022-2077. Preserve mimic-over-undetected precedence and all object/furniture/monster/default appearance arms; S_EEL pool naming precedes concealment, concealment with no cover has no fallthrough, clinging or Flying precedes floor pit/surface, pit requires u.utrap and TT_PIT and uses t_at SPIKED_PIT, and defensive unhidden state keeps generic hiding. Read consumed return owners simple_typename/an/ansimpleoname (objnam.c), is_pool (dbridge.c), hides_under/is_clinger (mondata.h), waterbody_name (pager.c), ceiling/surface (dungeon.c), t_at (trap.c), Flying and M_AP_TYPE macros plus existing output you_are/ttyPline. Existing canonical owners supply all results; none is replaced, invented or skipped. youhiding makes no direct core RNG call, preserves delegated liquid display RNG and gameover suppression, produces the enlightenment line synchronously through you_are, and returns the live ttyPline promise for each awaited dohide caller. Remove all three obsolete youhiding placeholders and only the polymorphed enlightenment admission refusal. Replace its stale refusal test with a production-owner line assertion; retain the endgame guard. The source-required display.h:251-260 macro dependency now gives a visible steed precedence, then normal hero, furniture, plain object, or Ugender monster glyph with source hero-coordinate mapping, with no added self-disguise RNG or object-memory writes; this macro earns no display.c function credit. Source-pinned tests cover default/missing branches, masked appearance flags, gender, visible/invisible steed, terrain/pit/cover precedence, exact liquid owner draw count and ordinary awaited messaging.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "dohide",
+                "source": "polyself.c:1861 youhiding(FALSE,1) after detecting existing undetected state or mimic appearance; return ECMD_OK without using a turn."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dohide",
+                "source": "polyself.c:1872 youhiding(FALSE,0) after setting undetected/disguise and newsym; await output then return ECMD_TIME."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "status_enlightenment",
+                "source": "insight.c:1002-1003 Upolyd && (u.uundetected || U_AP_TYPE != M_AP_NOTHING) calls youhiding(TRUE,final). The handoff annotation attributes_enlightenment was corrected against C; MAGICENLIGHTENMENT potion production route reaches this exact call."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c domonability hider branch dispatches #monster to polyself.c dohide; no dispatcher change required."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/youhiding.test.mjs",
+              "scripts/insight.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/hiding-mimic.session.json",
+              "recordings/insight.c/hiding-trapper.session.json",
+              "recordings/insight.c/hiding-potion-enlightenment.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-mimic-hide",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "Production #monster -> cmd.c domonability -> polyself.c dohide:1865-1872 assigns M_AP_OBJECT/STRANGE_OBJECT, newsym invokes display.h display_self direct object glyph, then insight.c youhiding(FALSE,0) outputs the now-mimicking message. The full prefix and remaining recorded boundaries match."
+              }
+            ],
+            "checkedAt": "2af337a66d5d573287b1290488b0cc2ee8e1dc66"
+          }
+        ],
+        "entryPointReview": "Three direct source call sites were read and wired: polyself.c dohide already and newly hiding, and insight.c status_enlightenment. Independent C-first first/repeated #monster recipes cover both top-line sites with original Wizard/small-mimic and Monk/trapper variation. The independently recorded Wizard/trapper blessed-hallucination potion enters potion.c peffect_hallucination -> enlightenment(MAGICENLIGHTENMENT) -> status_enlightenment -> youhiding(TRUE,final), with a live menu, hiding line, and caller continuation. It bypasses BASIC background_enlightenment. Root confirmed this covers every direct youhiding call site; independently recorded ^X reaches an earlier background_enlightenment omission before youhiding, so its blocked recipes belong to the separately queued family and do not invalidate this owner completion. Do not claim enlightenment/background/attributes or display.c completion. No active youhiding call is compiled out. No challenge case was copied into the regression corpus. Seeds were chosen directly without scanning; C independently established polymorph message dismissals and potion slot m. Original role, form and potion route vary behavior. The failed original mimic recipe had #monster bytes swallowed by More; corrected C-observed startup dismissals before qualifying evidence. Preserve failed logs and the unsuccessful Monk potion/stack probes; Wizard-role variation reaches the source probabilistic enlightenment branch. Failed display scope CLI used a file path where --json requires literal JSON; the expanded event was successfully recorded before the display implementation. A test-only comment delimiter was corrected and all final source-pin tests rerun. No aggregate scan, scorer, full checkpoint or central record mutation was run.",
+        "entryPoints": [
+          {
+            "name": "#monster entering hiding or mimicry",
+            "functions": [
+              "youhiding"
+            ],
+            "recordings": [
+              "recordings/insight.c/hiding-mimic.session.json",
+              "recordings/insight.c/hiding-trapper.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-mimic-hide",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "Production #monster -> cmd.c domonability -> polyself.c dohide:1865-1872 assigns M_AP_OBJECT/STRANGE_OBJECT, newsym invokes display.h display_self direct object glyph, then insight.c youhiding(FALSE,0) outputs the now-mimicking message. The full prefix and remaining recorded boundaries match."
+              }
+            ]
+          },
+          {
+            "name": "#monster already hiding or mimicking",
+            "functions": [
+              "youhiding"
+            ],
+            "recordings": [
+              "recordings/insight.c/hiding-mimic.session.json",
+              "recordings/insight.c/hiding-trapper.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "MAGIC-only potion enlightenment hidden-state line",
+            "functions": [
+              "youhiding"
+            ],
+            "recordings": [
+              "recordings/insight.c/hiding-potion-enlightenment.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2af337a66d5d573287b1290488b0cc2ee8e1dc66",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-insight-enlightenment-polymorph-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete enlightenment menus for polymorphed heroes",
       "cFile": "insight.c",
       "sessions": [
@@ -191616,24 +191924,31 @@
       ],
       "selectionReason": "Next admitted v26 mismatch: 2 remaining screens where the full polymorphed enlightenment menu is skipped.",
       "detail": "Port the contiguous enlightenment/background_enlightenment family and wire zap.c do_enlightenment_effect for Upolyd heroes. Use saved u.mfemale for title and role/rank, retain all current form sections, menu ordering, and PICK_NONE dismissal. Depend on the separately queued whole youhiding port used by attributes_enlightenment.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "ecc9b936e732f7dd0e594b56e7bc0a834f90bf2c",
+      "openStanding": {
+        "sha": "2af337a66d5d573287b1290488b0cc2ee8e1dc66",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "640c56012666c28a4462ee285c8a7b783399e4fa",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "enlightenment",
           "line": 383,
           "endLine": 467,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "background_enlightenment",
           "line": 468,
           "endLine": 727,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -191645,9 +191960,9 @@
           "name": "youhiding",
           "line": 2022,
           "endLine": 2080,
-          "declared": false,
+          "declared": true,
           "sourceFile": "insight.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -191663,12 +191978,452 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
+      },
+      "activeStanding": {
+        "sha": "2af337a66d5d573287b1290488b0cc2ee8e1dc66",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-giant-enlightenment",
+          "session": "synthetic/v26/v26-giant-enlightenment",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-giant-enlightenment.session.json",
+          "recordingPath": "challenges/cases/v26/v26-giant-enlightenment.session.json",
+          "recordingSha256": "7218ae54bee6b3d00e490d934afa2416e51ac51f9e7478e148a38c6dc6b0deda",
+          "recipe": "challenges/cases/v26/v26-giant-enlightenment.recipe.session.json",
+          "recipeSha256": "39d5e9e49832565bc7cca72e598e7192a1a3580ab49ec2f7a097f15bf33c5578",
+          "replayInputSha256": "421065ced754b50fd5f55377332184fd5dc9d2728747ae2acf7a05c4f8cecc95",
+          "evaluationPath": "challenges/evaluations/accepted-2af337a66d5d573287b1290488b0cc2ee8e1dc66-v26.json",
+          "evaluationCommit": "2af337a66d5d573287b1290488b0cc2ee8e1dc66",
+          "evaluationArtifact": "challenges/evaluations/accepted-2af337a66d5d573287b1290488b0cc2ee8e1dc66-v26.json",
+          "evaluationUtc": "2026-10-07T17:40:19.604Z",
+          "remainingScreens": 2,
+          "recordedSteps": 78,
+          "previousScreensMatched": 76,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 76,
+              "total": 78
+            },
+            "rng": {
+              "matched": 2759,
+              "total": 2759
+            },
+            "cursors": {
+              "matched": 77,
+              "total": 78
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 68,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 68,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 68,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 68,
+                "key": " "
+              },
+              "cCursor": [
+                38,
+                20,
+                1
+              ],
+              "jsCursor": [
+                67,
+                15,
+                1
+              ]
+            }
+          },
+          "step": 68,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-giant-enlightenment.json",
+            "result": {
+              "session": "synthetic/v26/v26-giant-enlightenment",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-giant-enlightenment",
+              "remainingScreens": 2,
+              "recordedSteps": 78,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "7218ae54bee6b3d00e490d934afa2416e51ac51f9e7478e148a38c6dc6b0deda",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "status": "complete",
+              "commit": "977b52fc55dfcecf490d4102dac0dbead3fbfc3b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-giant-enlightenment",
+                "session": "synthetic/v26/v26-giant-enlightenment",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-giant-enlightenment.session.json",
+                "recordingPath": "challenges/cases/v26/v26-giant-enlightenment.session.json",
+                "recordingSha256": "7218ae54bee6b3d00e490d934afa2416e51ac51f9e7478e148a38c6dc6b0deda",
+                "recipe": "challenges/cases/v26/v26-giant-enlightenment.recipe.session.json",
+                "recipeSha256": "39d5e9e49832565bc7cca72e598e7192a1a3580ab49ec2f7a097f15bf33c5578",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 2,
+                "recordedSteps": 78,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 76,
+                    "total": 78
+                  },
+                  "rng": {
+                    "matched": 2759,
+                    "total": 2759
+                  },
+                  "cursors": {
+                    "matched": 77,
+                    "total": 78
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 68,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 68,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 68,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 68,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      38,
+                      20,
+                      1
+                    ],
+                    "jsCursor": [
+                      67,
+                      15,
+                      1
+                    ]
+                  }
+                },
+                "step": 68,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At zero-based step 68, the polymorphed hero drinks an uncursed potion of enlightenment. C opens the full MAGICENLIGHTENMENT menu; JavaScript skips it because do_enlightenment_effect() records insight.c enlightenment as unported when Upolyd. The source owner is insight.c:enlightenment(), with a second polymorph-specific gender mismatch in background_enlightenment() (C uses u.mfemale for the saved hero gender). The C menu is a single page ending in (end); menu paging is not the first cause.",
+              "source": {
+                "file": "insight.c",
+                "branch": "MAGICENLIGHTENMENT with ENL_GAMEINPROGRESS while Upolyd is true. The uncursed potion calls do_enlightenment_effect(), which pauses the self-knowledge message, calls enlightenment(), waits on its PICK_NONE menu, then prints the trailing line and exercises Wisdom. The selected source scope is the contiguous enlightenment() and background_enlightenment() family; the existing downstream sections already contain explicit Upolyd branches and must be verified with the full recorded menu.",
+                "functions": [
+                  "enlightenment",
+                  "background_enlightenment"
+                ],
+                "callers": [
+                  "potion.c:peffect_enlightenment() takes its uncursed branch and calls zap.c:do_enlightenment_effect(); do_enlightenment_effect() pauses the message, calls enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS), then prints the trailing message and exercises Wisdom.",
+                  "JavaScript route: js/potion.js:peffect_enlightenment() calls js/zap.js:do_enlightenment_effect(); its Upolyd branch calls note_unported('insight.c enlightenment') and bypasses enlightenment() and select_menu().",
+                  "Other direct C callers are insight.c:doattributes(), potion.c:peffect_hallucination(), fountain.c:drinkfountain(), artifact.c:arti_invoke(), and end.c:disclose(); their existing calls already reach enlightenment()."
+                ],
+                "dependencies": [
+                  "zap.c:do_enlightenment_effect() owns the game-in-progress MAGICENLIGHTENMENT menu call and its message/exercise order; js/zap.js already implements that order but must invoke the callee for Upolyd heroes.",
+                  "polyself.c initializes the saved hero gender u.mfemale separately from current form state. insight.c:enlightenment() uses it for the title and background_enlightenment() uses it for role/rank; js/polyself.js stores the corresponding state.u.mfemale, while js/insight.js currently uses flags.female in both places.",
+                  "win/tty/wintty.c:end_menu()/select_menu(PICK_NONE) provide the menu frame and dismissal. The JavaScript windows.select_menu()/tty_menu.js path already renders and accepts this single-page menu; step 68 ends with (end), not a page prompt, so paging is not blocking this case."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry .cache/v26-giant-enlightenment-queue-entry.json and challenges/evaluations/20261007095608-v26.json identify synthetic/v26/v26-giant-enlightenment, 2 remaining screens in 78 steps, with the first screen mismatch at zero-based step 68: C cell (row 0, column 0) is a space and JavaScript is T; cursor is [38,20,1] in C versus [67,15,1] in JavaScript. RNG matches through the recording, so this is not an RNG-order failure.",
+                "The recipe challenges/cases/v26/v26-giant-enlightenment.recipe.session.json uses #polyself to become a hill giant, then quaffs an uncursed potion of enlightenment. In the recording, step 67 shows “You feel self-knowledgeable...--More--”; step 68 is the C menu headed “Wizard the Wizard's attributes:” with the transformed status and hill-giant attributes. Its cursor is at row 20 and the footer is “(end)”, confirming a single page.",
+                "nethack-c/upstream/src/insight.c:383-464 implements enlightenment(): it creates a menu for an in-progress game, emits the title and selected sections, then calls end_menu()/select_menu(PICK_NONE). Its title selects u.mfemale when Upolyd (:397-400); there is no C refusal for a polymorphed hero.",
+                "nethack-c/upstream/src/insight.c:468-526 likewise uses u.mfemale for the saved role/rank gender and explicitly emits the current polymorphed form. The adjacent existing menu sections contain source-specific Upolyd behavior at :732-763 (monster-form HP and hit dice), :854-892 (hide innate characteristics), :940-968 (transformed status), and :1487 onward (magic attributes).",
+                "js/insight.js:1961-1971 throws UnsupportedEnlightenmentError for Upolyd before building any lines, then uses flags.female for the title. js/zap.js:5896-5928 independently detects Upolyd, records note_unported('insight.c enlightenment'), and skips the menu call. js/insight.js:670-680 also uses flags.female for background role/rank, unlike C’s saved-gender branch.",
+                "The exact first cause is therefore the intentional JavaScript refusal/skip on the polymorphed branch, before menu rendering. Fix the insight.c enlightenment/background source family and wire js/zap.js to call it; preserve the already implemented downstream menu sections and windows.select_menu(). No paging change is indicated by this case."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "enlightenment",
+            "implementation": "js/insight.js",
+            "symbol": "enlightenment",
+            "sourceReview": "Read whole insight.c:383-464 and each direct helper. Saved u.mfemale determines the original-role title under Upolyd; Snprintf title has BUFSZ-1 byte bound. Preserve BASIC background -> basics -> characteristics then status then optional MAGIC attributes, separator/reminders/bones and elapsed-time order, including source three final modes. Remove obsolete unsupported final-mode guard. Retain the existing line-collection/UI-owner split: live callers await select_menu(PICK_NONE), final disclose uses its existing text window; fix missing artifact presentation in its bounded caller. Source function makes output and delegated display RNG; no new core RNG. Existing characteristics/status/attributes/fmt_elapsed_time owners are reused, audited and receive identical source mode/final values; no broader source credit. Whole C132 youhiding dependency and display-self ownership remain unchanged. See inherited owner limits separately.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "doattributes",
+                "source": "insight.c doattributes:2017 passes BASIC plus wizard/explore MAGIC; existing live select_menu owner presents and dismisses the collected lines."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "do_enlightenment_effect",
+                "source": "zap.c:2525-2535 self-knowledge message, live enlightenment(MAGIC,0), feeling-subsides message and exercise. Remove only obsolete Upolyd skip; ordinary awaited message/menu ordering and existing WIS RNG remain. zapnodir wand and potion.c peffect_enlightenment are active callers."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_hallucination",
+                "source": "potion.c:710 rare blessed hallucination enlightenment(MAGIC,0); existing await/menu owner retained. C132 hidden-trapper independent recording refreshes this direct source call and its status_enlightenment -> youhiding owner."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "fountain.c:290 natural fate19 self-knowledge enlightenment(MAGIC,0); existing menu, exercise and subsides order unchanged. New independently selected natural branch recording."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c:2163 ENLIGHTENING calls enlightenment(MAGIC,0); bounded correction adds the existing PICK_NONE live menu owner before ECMD_TIME. Retouch, cooldown, artifact touch, RNG and other invocation arms unchanged."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "end.c:651 passes BASIC|MAGIC and how>=PANICKED ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD. Correct only this argument; existing text-window caller retained. Independent ordinary QUIT and existing death recordings prove both modes."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polymorph-enlightenment.test.mjs",
+              "scripts/insight.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/artifact-invoke.test.mjs",
+              "scripts/end-really-done.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-priestess-incubus.session.json",
+              "recordings/insight.c/enlightenment-priest-nymph.session.json",
+              "recordings/insight.c/enlightenment-monk-trapper.session.json",
+              "recordings/insight.c/enlightenment-wand-giant.session.json",
+              "recordings/insight.c/enlightenment-fountain.session.json",
+              "recordings/insight.c/enlightenment-artifact-giant.session.json",
+              "recordings/insight.c/enlightenment-quit-priestess.session.json",
+              "recordings/insight.c/enlightenment-quit-wizard.session.json",
+              "recordings/insight.c/attributes-enlightenment-final-disclosure.session.json",
+              "recordings/insight.c/hiding-potion-enlightenment.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-giant-enlightenment",
+                "segment": 0,
+                "fromStep": 67,
+                "throughStep": 77,
+                "source": "potion.c peffect_enlightenment:795-808 -> zap.c do_enlightenment_effect:2525-2535 -> insight.c enlightenment(MAGICENLIGHTENMENT,ENL_GAMEINPROGRESS). Boundary68 displays the live polymorphed MAGIC-only menu;69 resumes the caller and its WIS exercise. No BASIC background/basics attribution to this route."
+              }
+            ],
+            "checkedAt": "640c56012666c28a4462ee285c8a7b783399e4fa"
+          },
+          {
+            "name": "background_enlightenment",
+            "implementation": "js/insight.js",
+            "symbol": "background_enlightenment",
+            "sourceReview": "Read whole insight.c:468-727. Use saved original gender for role/rank, canonical source Role_switch=urole.mnum with existing botl.c rank_of, current flags.female only for current form. Restore current-form paragraph before underlying actually-role; intrinsic male/female/neuter suppress redundancy and source vampshifted macro adds vampire-base pmname/article. Preserve pantheon/alignment-change and original-gender lines, body-part/right-hand selection, location precedence and byte-bounded Snprintf; use existing observable_depth, source Blind macro for bigroom, source final at_midnight/at_night snapshots, moon line, all three Friday13 tenses, and omit human XP under Upolyd. Canonical rank_of/pmname/just_an/an/body_part/observable_depth/depth/newuexp and macro owners were read; no replacement RNG or invented state. SCORE_ON_BOTL is disabled by reference config.h:627 and its excluded paragraph is source-pinned.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "enlightenment",
+                "source": "insight.c:408 first BASIC section, before basics_enlightenment and characteristics. Reached by live ^X and final alive/dead disclosure recordings."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polymorph-enlightenment.test.mjs",
+              "scripts/insight.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/artifact-invoke.test.mjs",
+              "scripts/end-really-done.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-priestess-incubus.session.json",
+              "recordings/insight.c/enlightenment-priest-nymph.session.json",
+              "recordings/insight.c/enlightenment-monk-trapper.session.json",
+              "recordings/insight.c/enlightenment-quit-priestess.session.json",
+              "recordings/insight.c/enlightenment-quit-wizard.session.json",
+              "recordings/insight.c/attributes-enlightenment-final-disclosure.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "640c56012666c28a4462ee285c8a7b783399e4fa"
+          }
+        ],
+        "entryPointReview": "All six direct enlightenment source callers traced: insight.c doattributes, zap.c do_enlightenment_effect, potion.c peffect_hallucination, fountain.c drinkfountain, artifact.c ENLIGHTENING, end.c disclose. Zap helper further has both active wand and potion callers, covered independently/admitted. There is no spell of enlightenment object in the reference source; no spell entry is claimed. end.c dump_everything:594 call is inside #ifdef DUMPLOG, disabled in config.h:669 and source-pinned in polymorph-enlightenment.test.mjs. PANICKED skips disclose in really_done; ordinary QUIT >= PANICKED selects alive and is independently recorded. Whole background/basics execute only when BASIC is set: three independent polymorphed ^X routes and human/monster final disclosure prove their production paths. MAGIC-only routes deliberately omit those sections. C132 hidden potion is reused and freshly rerecorded/compared via its existing recipe without modifying its immutable recording. New inputs were independently chosen, not copied from synthetic cases; natural fountain seed was first found in predefined93371100..93371163 range after40 replays. C independently established startup More dismissal, forced succubus form, wand/ Eyes slots and quit input count. Matrix verifies actual menu/form/HP/HD/XP/hiding/caller-continuation output before full differential. No aggregate scan/scoring or full checkpoint run.",
+        "entryPoints": [
+          {
+            "name": "^X BASIC attributes while polymorphed",
+            "functions": [
+              "enlightenment",
+              "background_enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-priestess-incubus.session.json",
+              "recordings/insight.c/enlightenment-priest-nymph.session.json",
+              "recordings/insight.c/enlightenment-monk-trapper.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "wand of enlightenment shared live effect",
+            "functions": [
+              "enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-wand-giant.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "potion of enlightenment shared live effect",
+            "functions": [
+              "enlightenment"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-giant-enlightenment",
+                "segment": 0,
+                "fromStep": 67,
+                "throughStep": 77,
+                "source": "potion.c peffect_enlightenment:795-808 -> zap.c do_enlightenment_effect:2525-2535 -> insight.c enlightenment(MAGICENLIGHTENMENT,ENL_GAMEINPROGRESS). Boundary68 displays the live polymorphed MAGIC-only menu;69 resumes the caller and its WIS exercise. No BASIC background/basics attribution to this route."
+              }
+            ]
+          },
+          {
+            "name": "blessed hallucination potion MAGIC-only enlightenment",
+            "functions": [
+              "enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/hiding-potion-enlightenment.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "fountain self-knowledge",
+            "functions": [
+              "enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-fountain.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "artifact ENLIGHTENING invocation",
+            "functions": [
+              "enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-artifact-giant.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "endgame alive disclosure",
+            "functions": [
+              "enlightenment",
+              "background_enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-quit-priestess.session.json",
+              "recordings/insight.c/enlightenment-quit-wizard.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "endgame dead disclosure",
+            "functions": [
+              "enlightenment",
+              "background_enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/attributes-enlightenment-final-disclosure.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "640c56012666c28a4462ee285c8a7b783399e4fa",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-sit-rndcurse-v26-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port random inventory cursing and its active callers",
       "cFile": "sit.c",
       "sessions": [
@@ -191682,15 +192437,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "33f3c8cb853b29c8b0878892d39460ee11beeeb8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rndcurse",
           "line": 569,
           "endLine": 643,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -191970,7 +192728,112 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rndcurse",
+            "implementation": "js/sit.js",
+            "symbol": "rndcurse",
+            "sourceReview": "Read whole sit.c:569-638, direct callers and all consumed-return dependencies. Translate wielded Magicbane rn2(20) short-circuit; Antimagic shield before aura; nobj count excluding coins; source re-read of Antimagic/Half_spell_damage after aura/count; integer count bound; rnd(nobj) chain traversal; cursed/null skips; SPFX_INTEL resistance rn2(10)<8 and Tobjnam; awaited unbless/curse then update_inventory; steed short-circuit rn2(4), consumed which_armor, cursed skip, BUC before visible glow/hcolor and Hallucination/Blind bknown assignment. Canonical objectGenerationEnv carries actual state/random/message/planning through object BUC owners. Planning uses clone-local messages and supplied clone inventory; no live display is published. Consumed is_art/spec_ability/which_armor owners read and tested through source contracts; pure existing helpers remain in their canonical modules. Read mkobj.c unbless/curse, object_generation hooks, inventory refresh, shieldeff, Tobjnam/Yobjnam2/hcolor, Hallucination/Blind source property rules. Replace existing caller gap markers with awaited direct source calls, preserving message, draw and return order. rndcurse has no skipped callee. Wizard intervene higher owner remains outside assignment; cursed_book default wired but cannot run for current valid book levels.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c:143 effect9 calls rndcurse when Luck<=0 after verbalize; dosit and cmd.c #sit dispatch are existing production path."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "castmu",
+                "source": "mcastu.c:831-835 mcast_spell MCAST_CURSE_ITEMS calls rndcurse after need-help message and before zero damage; monmove/mhitu production planning and live handoff carry env/state/RNG."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "angrygods",
+                "source": "pray.c:752-759 cases4/5 call rndcurse after rn2(2) or consumed attrcurse returns0. Both branches awaited before source prayer timeout tail."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "cursed_book",
+                "source": "spell.c:180-183 default calls rndcurse; read.c/spell.c study_book/learn callers are unchanged. Source-unreachable for valid current spellbook types (all levels<=7, switch handles every0..6 draw); confused_book is a distinct function with no rndcurse call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rndcurse.test.mjs",
+              "scripts/sit-command.test.mjs",
+              "scripts/mcastu.test.mjs",
+              "scripts/pray.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/rndcurse-lich-blind-b135.session.json",
+              "recordings/sit.c/rndcurse-lich-visible-b135.session.json",
+              "recordings/sit.c/rndcurse-prayer-first-b135.session.json",
+              "recordings/sit.c/rndcurse-prayer-variation-b135.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-sit-throne",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 58,
+                "source": "cmd.c #sit -> sit.c dosit/throne_sit_effect case9 (Luck<=0) -> rndcurse aura/Antimagic display/inventory draws/BUC mutations/update_inventory before throne removal."
+              }
+            ],
+            "checkedAt": "33f3c8cb853b29c8b0878892d39460ee11beeeb8"
+          }
+        ],
+        "entryPointReview": "Active source/runtime families are throne #sit effect9, hostile monster MCAST_CURSE_ITEMS, and divine anger cases4/5. Admitted throne range and independent monster/prayer recordings cover these families. Cursed_book default is defensively wired and source-pinned but mathematically unreachable in the current reference data: every valid book level<=7, rn2(lev) returns at most6, and cases0..6 are explicit. No write to oc_level exists in source (rg only found an equality read). Wizard.c intervene is an unported higher dispatcher, retained as assigned rather than expanded; no whole wizard/intervention completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Throne curse through #sit",
+            "functions": [
+              "rndcurse"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-sit-throne",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 58,
+                "source": "cmd.c #sit -> sit.c dosit/throne_sit_effect case9 (Luck<=0) -> rndcurse aura/Antimagic display/inventory draws/BUC mutations/update_inventory before throne removal."
+              }
+            ]
+          },
+          {
+            "name": "Monster curse-items spell",
+            "functions": [
+              "rndcurse"
+            ],
+            "recordings": [
+              "recordings/sit.c/rndcurse-lich-blind-b135.session.json",
+              "recordings/sit.c/rndcurse-lich-visible-b135.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Divine anger curse through prayer",
+            "functions": [
+              "rndcurse"
+            ],
+            "recordings": [
+              "recordings/sit.c/rndcurse-prayer-first-b135.session.json",
+              "recordings/sit.c/rndcurse-prayer-variation-b135.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "33f3c8cb853b29c8b0878892d39460ee11beeeb8",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

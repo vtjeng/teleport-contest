@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked: insight.c background_enlightenment lacks its Upolyd current-form and saved original gender wording before status_enlightenment. The youhiding source unit is covered through a MAGIC-only caller; the separate enlightenment family owns this earlier ^X gap. C-first witness preserved independently.",
+  "segments": [
+    {
+      "seed": 93271022,
+      "datetime": "20781113130709",
+      "nethackrc": "OPTIONS=name:Hiding,role:Monk,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h#polyself\ntrapper\n  #monster\n #monster\n \u0018          "
+    }
+  ]
+}

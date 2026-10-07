@@ -5902,26 +5902,19 @@ export async function do_enlightenment_effect(
 ) {
     await ttyPline('You feel self-knowledgeable...', state);
     await displayPendingTtyMessageWindow(state);
-    if (Upolyd(state.u)) {
-        // C discards enlightenment()'s result. Its current JS port refuses
-        // polymorphed heroes, so record that callee gap and preserve the
-        // caller's remaining message/exercise order.
-        note_unported('insight.c enlightenment');
-    } else {
-        const { enlightenment } = await import('./insight.js');
-        const { select_menu } = await import('./windows.js');
-        const lines = await enlightenment(
-            MAGICENLIGHTENMENT,
-            ENL_GAMEINPROGRESS,
-            state,
-        );
-        await select_menu(state, {
-            lines,
-            how: PICK_NONE,
-            cancelValue: null,
-            overlay: state.iflags?.menu_overlay !== false,
-        });
-    }
+    const { enlightenment } = await import('./insight.js');
+    const { select_menu } = await import('./windows.js');
+    const lines = await enlightenment(
+        MAGICENLIGHTENMENT,
+        ENL_GAMEINPROGRESS,
+        state,
+    );
+    await select_menu(state, {
+        lines,
+        how: PICK_NONE,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
     await ttyPline('The feeling subsides.', state);
     await exercise(A_WIS, true, state, random);
 }

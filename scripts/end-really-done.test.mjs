@@ -152,3 +152,12 @@ test('source finalizer keeps the stopprint tail after top-ten output', () => {
         /if \(have_windows\) \{[\s\S]*?outrip\(endwin, how, endtime\);\s*\} else\s*done_stopprint = 1;/u,
     );
 });
+
+test('disclose chooses alive versus dead enlightenment at the C panic boundary',() => {
+    const source=END_C.slice(END_C.indexOf('disclose(int how, boolean taken)'),END_C.indexOf('/* called twice',END_C.indexOf('disclose(int how, boolean taken)')));
+    assert.match(source,/how >= PANICKED\) \? ENL_GAMEOVERALIVE\s*: ENL_GAMEOVERDEAD/u);
+    const js=readFileSync(new URL('../js/end.js',import.meta.url),'utf8');
+    const start=js.indexOf('async function disclose(');
+    const caller=js.slice(start,js.indexOf('await displayTtyMenuTextWindow(state, lines)',start));
+    assert.match(caller,/how >= PANICKED \? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD/u);
+});

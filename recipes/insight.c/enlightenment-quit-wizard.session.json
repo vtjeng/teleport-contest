@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cheap quit variation: unpolymorphed male Wizard, distinct calendar date, ordinary human experience/HP and final-alive disclosure. C establishes final pagination and input boundary count. Friday the 13th distinguishes final-alive could-have-happened from final-dead happened. C observed 17 input boundaries; excess trailing keys are removed.",
+  "segments": [
+    {
+      "seed": 93371008,
+      "datetime": "20410913130911",
+      "nethackrc": "OPTIONS=name:Background,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #quit\nynny     "
+    }
+  ]
+}

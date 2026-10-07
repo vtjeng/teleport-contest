@@ -2,6 +2,7 @@
 import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 import { readRows } from './score-log.mjs';
 
 export const digest = value => createHash('sha256').update(value).digest('hex');
@@ -10,7 +11,8 @@ const SHA = /^[a-f0-9]{40}$/u;
 const ID = /^[a-z0-9][a-z0-9-]*$/u;
 const BATCH = /^v(?:[1-9]\d*)$/u;
 const FUTURE_BATCH = /^v(?:[2-9]|[1-9]\d+)$/u;
-const METRICS = ['sessions', 'screens', 'rng', 'cursors'];
+const CASE_METRICS = ['screens', 'rng', 'cursors'];
+const METRICS = ['sessions', ...CASE_METRICS];
 // Validate every component before opening a file. Neither traversal nor a
 // symlink inside challenges/ may substitute a recording from another corpus.
 export function challengePath(root, relative) {
@@ -170,7 +172,7 @@ export function totalsFor(cases) {
     for (const entry of cases) {
         totals.sessions.total++;
         totals.sessions.matched += Number(entry.passed);
-        for (const key of METRICS.slice(1)) {
+        for (const key of CASE_METRICS) {
             const metric = entry.metrics[key];
             if (!checkCount(metric)) throw new Error(`invalid ${key} counts for ${entry.id}`);
             totals[key].matched += metric.matched;
@@ -203,7 +205,7 @@ export function validateEvaluation(evaluation) {
             throw new Error('invalid or duplicate evaluation case');
         ids.add(entry.id);
         if (evaluation.status === 'complete' && (typeof entry.passed !== 'boolean'
-            || !['screens', 'rng', 'cursors'].every(key => checkCount(entry.metrics?.[key]))))
+            || !CASE_METRICS.every(key => checkCount(entry.metrics?.[key]))))
             throw new Error(`incomplete measurement for ${entry.id}`);
         if (evaluation.status === 'complete' && entry.passed !== Boolean(!entry.error
             && entry.metrics.screens.matched === entry.metrics.screens.total
@@ -256,25 +258,48 @@ function evaluationFromRow(root, row) {
     return evaluation;
 }
 
-export function compareEvaluations(previous, current) {
+export function compareEvaluationCases(previous, current) {
     const oldCases = new Map(previous && evaluationBatch(previous) === evaluationBatch(current)
         ? previous.cases.map(entry => [entry.id, entry]) : []);
-    const changes = { added: 0, addedScreens: 0, addedScreensMatched: 0, improved: 0,
-        regressed: 0, unchanged: 0, uncomparable: 0, screensGained: 0, screensLost: 0 };
+    const result = [];
     for (const entry of current.cases) {
         const old = oldCases.get(entry.id);
-        if (!old) {
+        oldCases.delete(entry.id);
+        const row = { id: entry.id, before: old ?? null, after: entry };
+        if (!old) result.push({ ...row, status: 'added' });
+        else if (entry.recordingSha256 !== old.recordingSha256
+            || previous.scorerSha256 !== current.scorerSha256
+            || !CASE_METRICS.every(key => entry.metrics[key].total === old.metrics[key].total)) {
+            result.push({ ...row, status: 'incomparable' });
+        } else {
+            const delta = { sessions: Number(entry.passed) - Number(old.passed) };
+            for (const key of CASE_METRICS)
+                delta[key] = entry.metrics[key].matched - old.metrics[key].matched;
+            result.push({ ...row, status: 'compared', delta,
+                errorChanged: !isDeepStrictEqual(old.error ?? null, entry.error ?? null) });
+        }
+    }
+    for (const old of oldCases.values())
+        result.push({ id: old.id, status: 'removed', before: old, after: null });
+    return result;
+}
+
+export function compareEvaluations(previous, current) {
+    const changes = { added: 0, addedScreens: 0, addedScreensMatched: 0, improved: 0,
+        regressed: 0, unchanged: 0, uncomparable: 0, screensGained: 0, screensLost: 0 };
+    for (const row of compareEvaluationCases(previous, current)) {
+        if (row.status === 'removed') continue;
+        if (row.status === 'added') {
             changes.added++;
-            changes.addedScreens += entry.metrics.screens.total;
-            changes.addedScreensMatched += entry.metrics.screens.matched;
+            changes.addedScreens += row.after.metrics.screens.total;
+            changes.addedScreensMatched += row.after.metrics.screens.matched;
             continue;
         }
-        if (entry.recordingSha256 !== old.recordingSha256 || previous.scorerSha256 !== current.scorerSha256
-            || !['screens', 'rng', 'cursors'].every(key => entry.metrics[key].total === old.metrics[key].total)) {
+        if (row.status === 'incomparable') {
             changes.uncomparable++;
             continue;
         }
-        const delta = entry.metrics.screens.matched - old.metrics.screens.matched;
+        const delta = row.delta.screens;
         if (delta > 0) { changes.improved++; changes.screensGained += delta; }
         else if (delta < 0) { changes.regressed++; changes.screensLost -= delta; }
         else changes.unchanged++;

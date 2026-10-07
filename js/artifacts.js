@@ -51,6 +51,9 @@ import {
     ONAME_VIA_NAMING,
     ONAME_WISH,
     PICK_ONE,
+    PICK_NONE,
+    MAGICENLIGHTENMENT,
+    ENL_GAMEINPROGRESS,
     POISON_RES,
     PROTECTION,
     REFLECTING,
@@ -2687,10 +2690,19 @@ async function arti_invoke(obj, state = game) {
         case CHARGE_OBJ: res = await invoke_charge_obj(obj, state); break;
         case LEV_TELE: await level_tele(state); res = ECMD_TIME; break;
         case CREATE_PORTAL: res = await invoke_create_portal(obj, state); break;
-        case ENLIGHTENING:
-            await enlightenment(2 /* MAGICENLIGHTENMENT */, 0 /* ENL_GAMEINPROGRESS */, state);
+        case ENLIGHTENING: {
+            // insight.c builds the lines; the existing menu owner performs
+            // enlightenment's live PICK_NONE display and dismissal.
+            const lines = await enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS, state);
+            await select_menu(state, {
+                lines,
+                how: PICK_NONE,
+                cancelValue: null,
+                overlay: state.iflags?.menu_overlay !== false,
+            });
             res = ECMD_TIME;
             break;
+        }
         case CREATE_AMMO: res = await invoke_create_ammo(obj, state); break;
         case BANISH: res = await invoke_banish(obj, state); break;
         case FLING_POISON: res = await invoke_fling_poison(obj, state); break;
