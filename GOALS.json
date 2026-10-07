@@ -192891,7 +192891,7 @@
     {
       "id": "port-detect-object-detect-browse-map-v27-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete object detection map browsing",
       "cFile": "detect.c",
       "sessions": [
@@ -192905,15 +192905,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "object_detect",
           "line": 603,
           "endLine": 797,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -193163,7 +193166,129 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "object_detect",
+            "implementation": "js/detect.js",
+            "symbol": "object_detect",
+            "sourceReview": "Read and reconciled the complete detect.c:object_detect603-791 body. Preserved class bounds, custom boulder-symbol ambiguity, hallucination/confused-scroll wording, blessed potion/book recursive observation, floor then buried-object counts, steed coordinates, monster inventory counts and mimic/gold short circuit with its early break. Audited stale-map removal before count/countHere early returns; deleted the JS-only gk.known initialization/assignment and fabricated impossible message. Full-map order remains cls/unconstrain, buried objects, coordinate-ordered floor piles, monster inventories and cursed mimic/gold overrides; contained matches inherit owner coordinates, mimic corpse metadata is source-derived and gold overlay retains rnd(10). The hero newsym adds TER_MON only when glyph_at is not an object. Awaited source presence/absence message precedes browse_map(TER_DETECT|TER_OBJ plus conditional TER_MON), then map_redisplay and return0. Removed the object_detect browse_map placeholder. C-discarded void gaps remain explicit: pline.c:impossible for illegal classes and display_nhwindow(WIN_MAP,TRUE) for stale-map-only no-current-object results. Existing map_redisplay has a named display.c:under_ground gap. No synthetic message/RNG/state substitute is introduced for those gaps.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "use_crystal_ball",
+                "source": "detect.c:use_crystal_ball1345 consumes object_detect(NULL,class) from object-symbol lookup;1350 consumes object_detect(NULL,ROCK_CLASS) for a custom boulder symbol. ret controls unclear-vision feedback. apply.c:doapply4358-4359 CRYSTAL_BALL dispatches use_crystal_ball; js/apply.js4874-4875 awaits the existing production caller."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_object_detection",
+                "source": "potion.c:peffect_object_detection955-963 consumes object_detect(otmp,0), returns1 early or exercises A_WIS then returns0. potion.c:peffects1371-1375 dispatches POT_OBJECT_DETECTION and SPE_DETECT_TREASURE. js/potion.js corresponding helper and peffects preserve both return gates."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects1533-1545 routes SPE_DETECT_TREASURE through peffects(pseudo), blessing the pseudo-book at skilled rank. Independent #wizcast enters the production spelleffects function from spell.c:dowizcast787-819, as normal #cast does; no whole caller credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/getpos-show-valid.test.mjs",
+              "scripts/steal.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/object-detect-ball-rings-a135.session.json",
+              "recordings/detect.c/object-detect-ball-covered-ring-a135.session.json",
+              "recordings/detect.c/object-detect-ball-empty-a135.session.json",
+              "recordings/detect.c/object-detect-ball-boulder-a135.session.json",
+              "recordings/detect.c/crystal-ball-object-map.session.json",
+              "recordings/detect.c/object-detect-ball-custom-boulder-a135.session.json",
+              "recordings/detect.c/object-detect-potion-blessed-a135.session.json",
+              "recordings/detect.c/object-detect-potion-uncursed-a135.session.json",
+              "recordings/detect.c/object-detect-spell-all-a135.session.json",
+              "recordings/detect.c/object-detect-spell-elf-a135.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-crystal-ball-object",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 38,
+                "source": "apply.c:doapply CRYSTAL_BALL -> detect.c:use_crystal_ball object-class branch1345 -> object_detect603-791 rings map -> browse_map106-119/getpos -> map_redisplay95-102/docrt vision repaint and normal-map restoration"
+              }
+            ],
+            "checkedAt": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2"
+          }
+        ],
+        "entryPointReview": "Whole-source search rg object_detect across upstream/src finds exactly the two use_crystal_ball call sites1345/1350 and peffect_object_detection957. All are active in the recorder. Object-class crystal-ball entry is covered by admitted v27 and independent ring, covered-ring, empty-result, and boulder/class-symbol-ambiguity recipes; distinct custom-boulder-symbol entry uses S_boulder:^, which C checks before trap detection, and records the large-stones message. The potion helper is reached by quaffing independently wished blessed and uncursed potions; the uncursed wished stack merges and its C comparison-tip More is explicitly acknowledged. Detect-treasure spell pseudo-book entry is reached by independent human/elf #wizcast selections through canonical spelleffects/peffects. Both spell recipes record actual presence-of-objects maps. The historical independent object-map blocked recipe now matches and is renamed to crystal-ball-object-map, with its recording; it intentionally ends at the valid getpos-tip input boundary. None of the source callers is treated as inactive. No whole use_crystal_ball, peffects, spelleffects, browse_map/getpos, docrt or vision completion credit is claimed.",
+        "entryPoints": [
+          {
+            "name": "Crystal-ball object-class detection",
+            "functions": [
+              "object_detect"
+            ],
+            "recordings": [
+              "recordings/detect.c/object-detect-ball-rings-a135.session.json",
+              "recordings/detect.c/object-detect-ball-covered-ring-a135.session.json",
+              "recordings/detect.c/object-detect-ball-empty-a135.session.json",
+              "recordings/detect.c/object-detect-ball-boulder-a135.session.json",
+              "recordings/detect.c/crystal-ball-object-map.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-crystal-ball-object",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 38,
+                "source": "apply.c:doapply CRYSTAL_BALL -> detect.c:use_crystal_ball object-class branch1345 -> object_detect603-791 rings map -> browse_map106-119/getpos -> map_redisplay95-102/docrt vision repaint and normal-map restoration"
+              }
+            ]
+          },
+          {
+            "name": "Crystal-ball custom boulder-symbol detection",
+            "functions": [
+              "object_detect"
+            ],
+            "recordings": [
+              "recordings/detect.c/object-detect-ball-custom-boulder-a135.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Quaff object-detection potion",
+            "functions": [
+              "object_detect"
+            ],
+            "recordings": [
+              "recordings/detect.c/object-detect-potion-blessed-a135.session.json",
+              "recordings/detect.c/object-detect-potion-uncursed-a135.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Cast detect-treasure spell",
+            "functions": [
+              "object_detect"
+            ],
+            "recordings": [
+              "recordings/detect.c/object-detect-spell-all-a135.session.json",
+              "recordings/detect.c/object-detect-spell-elf-a135.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-wield-setuwep-artifact-light-v27-20261007",
@@ -193248,6 +193373,59 @@
           "recordingSha256": "c1b55a3b8bfa997d98cb4ae826642727fb1f6b4c0ef4336f6ee121032714128e",
           "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
           "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
+        }
+      }
+    },
+    {
+      "id": "port-do-wear-helmet-on-telepathy-v27-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete helmet donning effects and telepathy admission",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v27/v27-helm-telepathy"
+      ],
+      "selectionReason": "Admitted v27 case v27-helm-telepathy stops at do_wear.c:Helmet_on because JavaScript rejects HELM_OF_TELEPATHY before setworn and the delayed callback; investigations/synthetic/v27/v27-helm-telepathy.json traces the whole Helmet_on function and its required adj_abon helper.",
+      "detail": "Port whole do_wear.c Helmet_on, complete adj_abon for HELM_OF_BRILLIANCE, and wire accessory_or_armor_on and set_wear admission. Preserve canonical worn.c TELEPAT ownership and allmain/display redraw behavior without adding a redundant telepathy redraw.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Helmet_on",
+          "line": 434,
+          "endLine": 517,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 434,
+        "to": 517
+      },
+      "requiredFunctions": [
+        {
+          "name": "adj_abon",
+          "line": 3319,
+          "endLine": 3341,
+          "declared": true,
+          "sourceFile": "do_wear.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v27/v27-helm-telepathy": {
+          "session": "synthetic/v27/v27-helm-telepathy",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-helm-telepathy",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-helm-telepathy.session.json",
+          "recordingSha256": "fe3e219056ec5efcc8a2af38ed8ae0ab4a869cc37ed1c2509f416c68ba04469d",
+          "evaluationPath": "challenges/evaluations/accepted-e08393de56cde7fc1ef8c8d297a533bd7522cfa2-v27.json",
+          "evaluationCommit": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2"
         }
       }
     }

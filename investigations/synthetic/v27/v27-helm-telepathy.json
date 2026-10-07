@@ -1,0 +1,115 @@
+{
+  "session": "synthetic/v27/v27-helm-telepathy",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-helm-telepathy",
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingSha256": "fe3e219056ec5efcc8a2af38ed8ae0ab4a869cc37ed1c2509f416c68ba04469d",
+  "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+  "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+  "remainingScreens": 8,
+  "recordedSteps": 39,
+  "status": "complete",
+  "commit": "76417879468cfeb65fa59ad60447a803684c6747",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-helm-telepathy",
+    "session": "synthetic/v27/v27-helm-telepathy",
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recording": "challenges/cases/v27/v27-helm-telepathy.session.json",
+    "recordingPath": "challenges/cases/v27/v27-helm-telepathy.session.json",
+    "recordingSha256": "fe3e219056ec5efcc8a2af38ed8ae0ab4a869cc37ed1c2509f416c68ba04469d",
+    "recipe": "challenges/cases/v27/v27-helm-telepathy.recipe.session.json",
+    "recipeSha256": "f43494f8ccc7d676458e347581f6050ab1e42e3c7b6cba6dc2fc65454038260f",
+    "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+    "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+    "evaluationUtc": "2026-10-07T18:10:31.065Z",
+    "remainingScreens": 8,
+    "recordedSteps": 39,
+    "step": 31,
+    "kind": "stop",
+    "function": "Helmet_on",
+    "sourceFile": "do_wear.c",
+    "cFile": "do_wear.c",
+    "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Helmet_on() for otyp 100",
+    "metrics": {
+      "screens": {
+        "matched": 31,
+        "total": 39
+      },
+      "rng": {
+        "matched": 2625,
+        "total": 2632
+      },
+      "cursors": {
+        "matched": 31,
+        "total": 39
+      }
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 31,
+      "key": "m",
+      "screen": {
+        "index": 31,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 31,
+          "key": "m"
+        },
+        "kind": "js-missing"
+      },
+      "rng": {
+        "index": 2625,
+        "cEntry": "rn2(12)=11",
+        "cCaller": "mcalcmove(mon.c:1164)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 31,
+          "key": "m"
+        }
+      },
+      "boundary": {
+        "name": "UnsupportedHeroCommandBoundaryError",
+        "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Helmet_on() for otyp 100"
+      }
+    },
+    "sourceBucket": "do_wear.c:Helmet_on",
+    "sourceTrace": "do_wear.c:434-514 Helmet_on includes HELM_OF_TELEPATHY in no-extra-effect cases at446. Property ownership is set earlier through setworn; this arm does not discover the type or directly call see_monsters. js/do_wear.js helmetOnPorted excludes it, and command preflight refuses before donning completes at31.",
+    "wholeSourceScope": "Whole do_wear.c:Helmet_on reconciliation and source accessory_or_armor_on callback, canonical TELEPAT extrinsic/render behavior."
+  },
+  "summary": "The first source loss is the #wear completion turn for HELM_OF_TELEPATHY. C do_wear.c:Helmet_on() explicitly treats this type as a no-extra-effect case and reaches its common known/inventory tail; JavaScript rejects the type in helmetOnPorted() and accessory_or_armor_on() before setworn() and the delayed callback. C and JavaScript both already own the TELEPAT worn property/range and monster redraw path. The complete source task is a file-port of Helmet_on(), including its other omitted branches, with adj_abon() completed for HELM_OF_BRILLIANCE and the command/startup callback admission wired.",
+  "source": {
+    "file": "do_wear.c",
+    "branch": "When an unworn HELM_OF_TELEPATHY is selected through #wear outside the quest-level restriction, canwearobj() and retouch_object() succeed, accessory_or_armor_on() installs W_ARMH and schedules Helmet_on() after the helm's one-turn oc_delay. The C switch takes the explicit HELM_OF_TELEPATHY no-extra-effect arm, then marks the helm known and updates inventory if needed.",
+    "functions": [
+      "Helmet_on",
+      "adj_abon"
+    ],
+    "callers": [
+      "do_wear.c:dowear() -> accessory_or_armor_on() -> delayed Helmet_on() callback; JavaScript command W -> js/do_wear.js:dowear() -> accessory_or_armor_on().",
+      "hack.c:unmul() invokes ga.afternmv after the dressing delay and discards Helmet_on()'s int result; JavaScript js/hack.js:unmul() invokes state.afternmv.",
+      "do_wear.c:set_wear() directly calls Helmet_on() for a starting or changed uarmh; allmain.c:moveloop_preamble() calls set_wear(NULL), and zap.c:poly_obj() calls set_wear(otmp) after a worn object transforms. JavaScript reaches these through js/moveloop_preamble.js or js/zap.js into js/do_wear.js:set_wear().",
+      "do_wear.c:Helmet_on() and Helmet_off(), Gloves_on(), Gloves_off() call adj_abon(); the current JavaScript helper has the glove arm but not C's HELM_OF_BRILLIANCE arm."
+    ],
+    "dependencies": [
+      "do_wear.c:adj_abon() (3319-3337) is required for the whole Helmet_on() scope: its HELM_OF_BRILLIANCE arm marks the helm known, adjusts INT/WIS by spe, and sets disp.botl. Its C return is void and all callers discard it; js/do_wear.js:adj_abon() currently implements only the GAUNTLETS_OF_DEXTERITY arm.",
+      "worn.c:setworn() installs the helm slot and TELEPAT extrinsic before Helmet_on(); worn.c:recalc_telepat_range() sets the range from worn TELEPAT sources. Both are void state updates and are present in js/worn.js.",
+      "allmain.c:moveloop_core() redraws monsters when Unblind_telepat is active at 462-467; display.c:tp_sensemon()/sensemon() reads TELEPAT and unblind_telepat_range. The corresponding js/allmain.js and js/display.js paths exist at the examined commit; Helmet_on() must not add a redundant see_monsters() call to the telepathy arm.",
+      "Helmet_on() returns 0, ignored by both set_wear() and unmul(). No C callee return value is consumed by Helmet_on(); accessory_or_armor_on() separately returns ECMD_TIME to dowear() after scheduling the delayed action."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved evaluation challenges/evaluations/baseline-76417879-v27.json, case v27-helm-telepathy: 31/39 screens and cursors match, 2625/2632 RNG calls match, leaving 8 screens. Its immutable case identity is recording SHA-256 fe3e219056ec5efcc8a2af38ed8ae0ab4a869cc37ed1c2509f416c68ba04469d and manifest case-corpus SHA-256 24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277.",
+    "The prepared case diagnostic in challenges/manifests/v27.json records the first mismatch at segment 0, zero-based step 31, key m: screen js-missing and boundary “unsupported hero command: an unported branch of this command: wear reached an unported branch: Helmet_on() for otyp 100”. C records the delayed wear completion at that boundary; its step-31 RNG begins rn2(12)=11 at mcalcmove(mon.c:1164). The saved C replay receipt says record-session exited 0 and reproduced the recording byte-for-byte.",
+    "Upstream nethack-c/upstream/src/do_wear.c:434-514 lists HELM_OF_TELEPATHY among Helmet_on()'s bare-break types at 441-446; after the switch, the common tail marks uarmh known and updates inventory at 510-513. At do_wear.c:2375-2400 accessory_or_armor_on() calls setworn(), assigns Helmet_on() to ga.afternmv for uarmh, and spends oc_delay through nomul()/unmul().",
+    "The JavaScript stop is the stale allowlist, not a missing downstream telepathy renderer: js/do_wear.js:2109-2156 omits HELM_OF_TELEPATHY from helmetOnPorted() and throws in Helmet_on(); js/do_wear.js:3617-3622 repeats the preflight refusal before setworn(). scripts/wear-armor.test.mjs:1162-1195 currently expects these refusals and repeats the obsolete no-redraw premise.",
+    "C worn.c:50-69 and 73-145 owns TELEPAT extrinsic/range in setworn(); allmain.c:462-467 and display.c:166-177 redraw and read unblind telepathy. The examined baseline commit 76417879468cfeb65fa59ad60447a803684c6747 already contains matching JavaScript paths in js/worn.js:310-401, js/allmain.js:1674-1686, and js/display.js:312-325; those files are unchanged at current HEAD.",
+    "The whole-function file-port scope is do_wear.c:Helmet_on() (434-514), with caller admission updates in accessory_or_armor_on() and set_wear(). It must also cover the currently refused HELM_OF_CAUTION, HELM_OF_BRILLIANCE, and CORNUTHAUM arms; HELM_OF_BRILLIANCE requires the missing HELM_OF_BRILLIANCE arm of do_wear.c:adj_abon() (3319-3337), so include that complete helper or record it explicitly as an unported gap.",
+    "Runtime evidence plan: once the source task lands, replay admitted v27/v27-helm-telepathy, segment 0 through step 31, to cover the sighted #wear path, setworn property installation, delayed callback, and Helmet_on() telepathy arm. Add independent recordings under recipes/do_wear.c/ and recordings/do_wear.c/ for the omitted CAUTION, BRILLIANCE (wear and removal to cover adj_abon deltas), and CORNUTHAUM Wizard/non-Wizard branches unless existing matching recordings are verified; use an Archeologist startup case to exercise set_wear() and inspect the zap.c transformed-worn-item caller as a separate frontier."
+  ]
+}
