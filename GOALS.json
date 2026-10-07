@@ -191916,7 +191916,7 @@
     {
       "id": "port-insight-enlightenment-polymorph-v26-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete enlightenment menus for polymorphed heroes",
       "cFile": "insight.c",
       "sessions": [
@@ -191930,22 +191930,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "640c56012666c28a4462ee285c8a7b783399e4fa",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "enlightenment",
           "line": 383,
           "endLine": 467,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "background_enlightenment",
           "line": 468,
           "endLine": 727,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -191957,9 +191960,9 @@
           "name": "youhiding",
           "line": 2022,
           "endLine": 2080,
-          "declared": false,
+          "declared": true,
           "sourceFile": "insight.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -192209,7 +192212,213 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "enlightenment",
+            "implementation": "js/insight.js",
+            "symbol": "enlightenment",
+            "sourceReview": "Read whole insight.c:383-464 and each direct helper. Saved u.mfemale determines the original-role title under Upolyd; Snprintf title has BUFSZ-1 byte bound. Preserve BASIC background -> basics -> characteristics then status then optional MAGIC attributes, separator/reminders/bones and elapsed-time order, including source three final modes. Remove obsolete unsupported final-mode guard. Retain the existing line-collection/UI-owner split: live callers await select_menu(PICK_NONE), final disclose uses its existing text window; fix missing artifact presentation in its bounded caller. Source function makes output and delegated display RNG; no new core RNG. Existing characteristics/status/attributes/fmt_elapsed_time owners are reused, audited and receive identical source mode/final values; no broader source credit. Whole C132 youhiding dependency and display-self ownership remain unchanged. See inherited owner limits separately.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "doattributes",
+                "source": "insight.c doattributes:2017 passes BASIC plus wizard/explore MAGIC; existing live select_menu owner presents and dismisses the collected lines."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "do_enlightenment_effect",
+                "source": "zap.c:2525-2535 self-knowledge message, live enlightenment(MAGIC,0), feeling-subsides message and exercise. Remove only obsolete Upolyd skip; ordinary awaited message/menu ordering and existing WIS RNG remain. zapnodir wand and potion.c peffect_enlightenment are active callers."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_hallucination",
+                "source": "potion.c:710 rare blessed hallucination enlightenment(MAGIC,0); existing await/menu owner retained. C132 hidden-trapper independent recording refreshes this direct source call and its status_enlightenment -> youhiding owner."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "fountain.c:290 natural fate19 self-knowledge enlightenment(MAGIC,0); existing menu, exercise and subsides order unchanged. New independently selected natural branch recording."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c:2163 ENLIGHTENING calls enlightenment(MAGIC,0); bounded correction adds the existing PICK_NONE live menu owner before ECMD_TIME. Retouch, cooldown, artifact touch, RNG and other invocation arms unchanged."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "end.c:651 passes BASIC|MAGIC and how>=PANICKED ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD. Correct only this argument; existing text-window caller retained. Independent ordinary QUIT and existing death recordings prove both modes."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polymorph-enlightenment.test.mjs",
+              "scripts/insight.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/artifact-invoke.test.mjs",
+              "scripts/end-really-done.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-priestess-incubus.session.json",
+              "recordings/insight.c/enlightenment-priest-nymph.session.json",
+              "recordings/insight.c/enlightenment-monk-trapper.session.json",
+              "recordings/insight.c/enlightenment-wand-giant.session.json",
+              "recordings/insight.c/enlightenment-fountain.session.json",
+              "recordings/insight.c/enlightenment-artifact-giant.session.json",
+              "recordings/insight.c/enlightenment-quit-priestess.session.json",
+              "recordings/insight.c/enlightenment-quit-wizard.session.json",
+              "recordings/insight.c/attributes-enlightenment-final-disclosure.session.json",
+              "recordings/insight.c/hiding-potion-enlightenment.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-giant-enlightenment",
+                "segment": 0,
+                "fromStep": 67,
+                "throughStep": 77,
+                "source": "potion.c peffect_enlightenment:795-808 -> zap.c do_enlightenment_effect:2525-2535 -> insight.c enlightenment(MAGICENLIGHTENMENT,ENL_GAMEINPROGRESS). Boundary68 displays the live polymorphed MAGIC-only menu;69 resumes the caller and its WIS exercise. No BASIC background/basics attribution to this route."
+              }
+            ],
+            "checkedAt": "640c56012666c28a4462ee285c8a7b783399e4fa"
+          },
+          {
+            "name": "background_enlightenment",
+            "implementation": "js/insight.js",
+            "symbol": "background_enlightenment",
+            "sourceReview": "Read whole insight.c:468-727. Use saved original gender for role/rank, canonical source Role_switch=urole.mnum with existing botl.c rank_of, current flags.female only for current form. Restore current-form paragraph before underlying actually-role; intrinsic male/female/neuter suppress redundancy and source vampshifted macro adds vampire-base pmname/article. Preserve pantheon/alignment-change and original-gender lines, body-part/right-hand selection, location precedence and byte-bounded Snprintf; use existing observable_depth, source Blind macro for bigroom, source final at_midnight/at_night snapshots, moon line, all three Friday13 tenses, and omit human XP under Upolyd. Canonical rank_of/pmname/just_an/an/body_part/observable_depth/depth/newuexp and macro owners were read; no replacement RNG or invented state. SCORE_ON_BOTL is disabled by reference config.h:627 and its excluded paragraph is source-pinned.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "enlightenment",
+                "source": "insight.c:408 first BASIC section, before basics_enlightenment and characteristics. Reached by live ^X and final alive/dead disclosure recordings."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polymorph-enlightenment.test.mjs",
+              "scripts/insight.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/artifact-invoke.test.mjs",
+              "scripts/end-really-done.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-priestess-incubus.session.json",
+              "recordings/insight.c/enlightenment-priest-nymph.session.json",
+              "recordings/insight.c/enlightenment-monk-trapper.session.json",
+              "recordings/insight.c/enlightenment-quit-priestess.session.json",
+              "recordings/insight.c/enlightenment-quit-wizard.session.json",
+              "recordings/insight.c/attributes-enlightenment-final-disclosure.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "640c56012666c28a4462ee285c8a7b783399e4fa"
+          }
+        ],
+        "entryPointReview": "All six direct enlightenment source callers traced: insight.c doattributes, zap.c do_enlightenment_effect, potion.c peffect_hallucination, fountain.c drinkfountain, artifact.c ENLIGHTENING, end.c disclose. Zap helper further has both active wand and potion callers, covered independently/admitted. There is no spell of enlightenment object in the reference source; no spell entry is claimed. end.c dump_everything:594 call is inside #ifdef DUMPLOG, disabled in config.h:669 and source-pinned in polymorph-enlightenment.test.mjs. PANICKED skips disclose in really_done; ordinary QUIT >= PANICKED selects alive and is independently recorded. Whole background/basics execute only when BASIC is set: three independent polymorphed ^X routes and human/monster final disclosure prove their production paths. MAGIC-only routes deliberately omit those sections. C132 hidden potion is reused and freshly rerecorded/compared via its existing recipe without modifying its immutable recording. New inputs were independently chosen, not copied from synthetic cases; natural fountain seed was first found in predefined93371100..93371163 range after40 replays. C independently established startup More dismissal, forced succubus form, wand/ Eyes slots and quit input count. Matrix verifies actual menu/form/HP/HD/XP/hiding/caller-continuation output before full differential. No aggregate scan/scoring or full checkpoint run.",
+        "entryPoints": [
+          {
+            "name": "^X BASIC attributes while polymorphed",
+            "functions": [
+              "enlightenment",
+              "background_enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-priestess-incubus.session.json",
+              "recordings/insight.c/enlightenment-priest-nymph.session.json",
+              "recordings/insight.c/enlightenment-monk-trapper.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "wand of enlightenment shared live effect",
+            "functions": [
+              "enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-wand-giant.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "potion of enlightenment shared live effect",
+            "functions": [
+              "enlightenment"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-giant-enlightenment",
+                "segment": 0,
+                "fromStep": 67,
+                "throughStep": 77,
+                "source": "potion.c peffect_enlightenment:795-808 -> zap.c do_enlightenment_effect:2525-2535 -> insight.c enlightenment(MAGICENLIGHTENMENT,ENL_GAMEINPROGRESS). Boundary68 displays the live polymorphed MAGIC-only menu;69 resumes the caller and its WIS exercise. No BASIC background/basics attribution to this route."
+              }
+            ]
+          },
+          {
+            "name": "blessed hallucination potion MAGIC-only enlightenment",
+            "functions": [
+              "enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/hiding-potion-enlightenment.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "fountain self-knowledge",
+            "functions": [
+              "enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-fountain.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "artifact ENLIGHTENING invocation",
+            "functions": [
+              "enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-artifact-giant.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "endgame alive disclosure",
+            "functions": [
+              "enlightenment",
+              "background_enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/enlightenment-quit-priestess.session.json",
+              "recordings/insight.c/enlightenment-quit-wizard.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "endgame dead disclosure",
+            "functions": [
+              "enlightenment",
+              "background_enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/attributes-enlightenment-final-disclosure.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "640c56012666c28a4462ee285c8a7b783399e4fa",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-sit-rndcurse-v26-20261007",
