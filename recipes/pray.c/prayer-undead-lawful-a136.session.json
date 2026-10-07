@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent undead-prayer setup. Debug experience level8 keeps human HP above the turning damage bound20, then a controlled vampire transformation takes the lawful godvoice branch.",
+  "segments": [
+    {
+      "seed": 13627011,
+      "datetime": "20920912100000",
+      "nethackrc": "OPTIONS=name:OrisonReturn,role:Priest,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #levelchange\n8\n       #polyself\nvampire\n#pray\ny    "
+    }
+  ]
+}

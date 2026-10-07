@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Moloch prayer outside Gehennom. A wished unaligned altar takes p_type-2; acknowledge laughter/finish messages (negative prayer types bypass wizard force-success), and observe wake, alignment penalty and Wisdom exercise before the early return.",
+  "segments": [
+    {
+      "seed": 13627021,
+      "datetime": "20920914143000",
+      "nethackrc": "OPTIONS=name:DarkOrison,role:Archeologist,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017unaligned altar\n#pray\ny    "
+    }
+  ]
+}

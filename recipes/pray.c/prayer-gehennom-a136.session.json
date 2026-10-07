@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Gehennom prayer, acknowledging source level-arrival waits before #pray and refusing wizard force-success. The callback prints the inability to help, draws rnl for positive alignment, then follows the existing angrygods response rather than p_type0 penalties.",
+  "segments": [
+    {
+      "seed": 13627031,
+      "datetime": "20920915150000",
+      "nethackrc": "OPTIONS=name:DarkOrison,role:Archeologist,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0016gehennom\n   #pray\ny n      "
+    }
+  ]
+}

@@ -9,12 +9,11 @@
 //        dosacrifice() (1854-1896), eval_offering() (1898-1957),
 //        offer_corpse() (1959-2122),
 //        blocked_boulder() (2677-2719), can_pray() (2124-2173),
-//        dopray() (2199-2273), prayer_done() (2276-2343),
+//        dopray() (2199-2273), prayer_done() (2276-2346),
 //        maybe_turn_mon_iter() (2347-2405), doturn() (2407-2489),
 //        u_gname() (2524), and align_gname() (2530).
 //
-// prayer_done() wires water_prayer() in p_types 0 through 3. Its Moloch,
-// undead, and Gehennom arms remain explicit boundaries; pray_revive() and
+// prayer_done() handles delayed prayer resolution; pray_revive() and
 // the unported angrygods() cases remain source gaps. pleased() is ported below;
 // its calls to helpers without a running-game owner use note_unported().
 
@@ -27,6 +26,7 @@ import {
     A_NONE,
     A_ORIGINAL,
     A_CG_CONVERT,
+    A_CON,
     A_STR,
     A_WIS,
     ALTAR,
@@ -56,6 +56,7 @@ import {
     HVY_ENCUMBER,
     INTRINSIC,
     IS_ALTAR,
+    KILLED_BY_AN,
     LARGEST_INT,
     MAXULEV,
     MM_NOMSG,
@@ -133,7 +134,7 @@ import { stuck_ring, unchanger } from './do_wear.js';
 import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { near_capacity, nomul, You_can_move_again } from './hack.js';
+import { losehp, near_capacity, nomul, You_can_move_again } from './hack.js';
 import {
     heroDeaf,
     heroUnaware,
@@ -235,7 +236,7 @@ import {
 import { couldsee } from './vision.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import { Monnam, a_monnam } from './do_name.js';
-import { killed, mon_offmap } from './mon.js';
+import { killed, mon_offmap, wake_nearby } from './mon.js';
 import { monflee } from './monmove.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -1651,32 +1652,48 @@ export async function water_prayer(bless_water, state = game) {
     return changed > 0;
 }
 
-// C ref: pray.c prayer_done() (2276-2343), the ga.afternmv callback dopray()
-// installs. This function wires all four water_prayer() caller arms; its
-// Moloch, undead, and Gehennom arms remain explicit boundaries.
-//
-// C's return value distinguishes the Inhell arm from the rest, and only
-// moveloop_core()'s occupation loop reads an afternmv result; unmul() discards
-// it. Nothing is returned here.
+// C ref: pray.c prayer_done() (2276-2346), the ga.afternmv callback dopray()
+// installs. Preserve the integer result even though hack.c unmul() discards
+// it. Undead turning reverts the hero before applying damage to human HP.
 export async function prayer_done(state = game) {
+    const alignment = state.gp.p_aligntyp;
     state.u.uinvulnerable = false;
     if (state.gp.p_type === -2) {
-        // Praying at an unaligned altar: wake_nearby(), adjalign(-2) and,
-        // outside Gehennom, "Nothing else happens."
-        throw new UnsupportedPrayerError("prayer_done()'s Moloch arm");
+        await ttyPline(
+            `You ${heroDeaf(state) ? 'intuit' : 'hear'} diabolical laughter all around you...`,
+            state,
+        );
+        await wake_nearby(false, { state });
+        adjalign(-2, state);
+        await exercise(A_WIS, false, state);
+        if (!In_hell(state.u.uz, state)) {
+            await ttyPline('Nothing else happens.', state);
+            return 1;
+        }
     } else if (state.gp.p_type === -1) {
-        // Praying while polymorphed into an undead creature: godvoice(),
-        // rehumanize() and losehp(rnd(20)).
-        throw new UnsupportedPrayerError("prayer_done()'s undead arm");
+        await godvoice(alignment, alignment === A_LAWFUL
+            ? 'Vile creature, thou durst call upon me?'
+            : 'Walk no more, perversion of nature!', state);
+        await ttyPline('You feel like you are falling apart.', state);
+        await rehumanize(state);
+        await losehp(rnd(20), 'residual undead turning effect', KILLED_BY_AN, state);
+        await exercise(A_CON, false, state, { rn2 }, {
+            encumberMessage: encumber_msg,
+        });
+        return 1;
     }
     if (In_hell(state.u.uz, state)) {
-        // "Since you are in Gehennom, %s can't help you." plus an rnl() roll
-        // against u.ualign.record that decides whether angrygods() runs.
-        throw new UnsupportedPrayerError("prayer_done()'s Gehennom arm");
+        await ttyPline(
+            `Since you are in Gehennom, ${align_gname(alignment, state)} can't help you.`,
+            state,
+        );
+        if (state.u.ualign.record <= 0 || rnl(state.u.ualign.record))
+            await angrygods(state.u.ualign.type, state);
+        return 0;
     }
 
     if (state.gp.p_type === 0) {
-        if (on_altar(state) && state.u.ualign.type !== state.gp.p_aligntyp)
+        if (on_altar(state) && state.u.ualign.type !== alignment)
             await water_prayer(false, state);
         state.u.ublesscnt += rnz(250);
         change_luck(-3, state);
@@ -1684,7 +1701,7 @@ export async function prayer_done(state = game) {
     } else if (state.gp.p_type === 1) {
         // C calls water_prayer(FALSE) before angrygods() and skips p_type 0's
         // prayer-delay and Luck penalties.
-        if (on_altar(state) && state.u.ualign.type !== state.gp.p_aligntyp)
+        if (on_altar(state) && state.u.ualign.type !== alignment)
             await water_prayer(false, state);
         await angrygods(state.u.ualign.type, state);
     } else if (state.gp.p_type === 2) {
@@ -1694,7 +1711,7 @@ export async function prayer_done(state = game) {
             change_luck(-3, state);
             await gods_upset(state.u.ualign.type, state);
         } else {
-            await pleased(state.gp.p_aligntyp, state);
+            await pleased(alignment, state);
         }
     } else {
         // C discards pray_revive()'s result, then calls water_prayer(TRUE).
@@ -1702,8 +1719,9 @@ export async function prayer_done(state = game) {
             note_unported('pray.c pray_revive');
             await water_prayer(true, state);
         }
-        await pleased(state.gp.p_aligntyp, state);
+        await pleased(alignment, state);
     }
+    return 1;
 }
 
 // C ref: pray.c maybe_turn_mon_iter() (2347-2405). `iter_mons()` invokes this

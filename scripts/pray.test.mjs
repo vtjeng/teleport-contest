@@ -1456,22 +1456,9 @@ test('water_prayer() hides BUC knowledge under blindness or hallucination',
         }
     });
 
-// Every prayer_done() arm outside the four water callers still stops by name,
-// at the arm C would have taken. The successful p_type 3 arm runs pleased().
-test('prayer_done() runs pleased() and keeps the remaining source gaps', async () => {
+// Existing water caller branches keep their source order after the new arms.
+test('prayer_done() runs pleased() and its water caller branches', async () => {
     await startedGame();
-    for (const [p_type, pattern] of [
-        [-2, /Moloch arm/u],
-        [-1, /undead arm/u],
-    ]) {
-        game.gp = { p_type, p_aligntyp: A_LAWFUL };
-        game.u.uinvulnerable = true;
-        await assert.rejects(prayer_done(game), pattern, `p_type ${p_type}`);
-        // pray.c:2280 clears invulnerability before any arm is chosen, so the
-        // shimmering light dopray() raised is gone even on a refused arm.
-        assert.equal(game.u.uinvulnerable, false, `p_type ${p_type}`);
-    }
-
     // pray.c:2340 reaches pleased() for a coaligned successful prayer. The
     // fresh hero has no trouble and a zero alignment record, so this checks
     // the satisfaction line and final rnz(350) timer without selecting a
@@ -1491,7 +1478,12 @@ test('prayer_done() runs pleased() and keeps the remaining source gaps', async (
     const hellDnum = game.dungeons.findIndex((d) => d?.flags?.hellish);
     assert.ok(hellDnum >= 0, 'the dungeon list holds a hellish branch');
     game.u.uz = { dnum: hellDnum, dlevel: 1 };
-    await assert.rejects(prayer_done(game), /Gehennom arm/u);
+    // Nonpositive alignment short-circuits rnl and enters the existing
+    // minimum-anger response, which returns to this callback with result0.
+    game.u.ualign.record = 0;
+    clearTtyMessageWindow(game);
+    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
+    assert.equal(await prayer_done(game), 0);
     game.u.uz = uz;
 
     // pray.c:2316 reaches water_prayer() only for a hero who is both standing
@@ -1516,7 +1508,7 @@ test('prayer_done() runs pleased() and keeps the remaining source gaps', async (
     for (let i = 0; i < 128; ++i) game.nhDisplay.pushKey(32);
     const crossAlignedError = await prayer_done(game).catch((error) => error);
     assert.equal(crossAlignedWater.cursed, true);
-    if (crossAlignedError) {
+    if (crossAlignedError instanceof Error) {
         assert.ok(
             crossAlignedError instanceof UnsupportedPrayerError,
             `${crossAlignedError.constructor?.name}: ${crossAlignedError.message}`,
@@ -1542,7 +1534,7 @@ test('prayer_done() runs pleased() and keeps the remaining source gaps', async (
     for (let i = 0; i < 128; ++i) game.nhDisplay.pushKey(32);
     const p1Error = await prayer_done(game).catch((error) => error);
     assert.equal(p1Water.cursed, true);
-    if (p1Error) {
+    if (p1Error instanceof Error) {
         assert.ok(
             p1Error instanceof UnsupportedPrayerError,
             `${p1Error.constructor?.name}: ${p1Error.message}`,
@@ -1570,7 +1562,7 @@ test('prayer_done() runs pleased() and keeps the remaining source gaps', async (
         clearTtyMessageWindow(game);
         for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
         const error = await prayer_done(game).catch((error) => error);
-        if (error) {
+        if (error instanceof Error) {
             // angrygods() can still refuse whichever case its rn2() draws;
             // what must not happen is the water_prayer() stop.
             assert.ok(error instanceof UnsupportedPrayerError, name);
@@ -2082,3 +2074,37 @@ test('maybe_turn_mon_iter() clears a confused turn target once per command',
         assert.equal(monster.mcanmove, true);
         state.u.uprops[CONFUSION].intrinsic = 0;
     });
+
+test('prayer_done reconciles the whole C callback and return order', () => {
+    const cStart = PRAY_C.indexOf('staticfn int\nprayer_done(void)');
+    const cBody = PRAY_C.slice(cStart, PRAY_C.indexOf('staticfn void\nmaybe_turn_mon_iter', cStart));
+    const jsStart = PRAY_JS.indexOf('export async function prayer_done(');
+    const jsBody = PRAY_JS.slice(jsStart, PRAY_JS.indexOf('// C ref: pray.c maybe_turn_mon_iter()', jsStart));
+    // C caches the prayer's alignment before clearing invulnerability.
+    assert.match(cBody, /aligntyp alignment = gp\.p_aligntyp;\s*u\.uinvulnerable = FALSE;/u);
+    assert.match(cBody, /wake_nearby\(FALSE\);\s*adjalign\(-2\);\s*exercise\(A_WIS, FALSE\);/u);
+    assert.match(cBody, /rehumanize\(\);[\s\S]*losehp\(rnd\(20\), "residual undead turning effect", KILLED_BY_AN\);\s*exercise\(A_CON, FALSE\);\s*return 1;/u);
+    assert.match(cBody, /u\.ualign\.record <= 0 \|\| rnl\(u\.ualign\.record\)/u);
+    assert.match(jsBody, /const alignment = state\.gp\.p_aligntyp;\s*state\.u\.uinvulnerable = false;/u);
+    assert.match(jsBody, /await wake_nearby\(false, \{ state \}\);\s*adjalign\(-2, state\);\s*await exercise\(A_WIS, false, state\);/u);
+    assert.match(jsBody, /await rehumanize\(state\);\s*await losehp\(rnd\(20\), 'residual undead turning effect', KILLED_BY_AN, state\);\s*await exercise\(A_CON, false, state, \{ rn2 \}, \{\s*encumberMessage: encumber_msg,\s*\}\);\s*return 1;/u);
+    assert.match(jsBody, /state\.u\.ualign\.record <= 0 \|\| rnl\(state\.u\.ualign\.record\)/u);
+    assert.match(jsBody, /return 0;/u);
+    assert.doesNotMatch(jsBody, /throw new UnsupportedPrayerError/u);
+});
+
+test('prayer_done unaligned-altar arm clears invulnerability and penalizes alignment', async () => {
+    await startedGame();
+    // C's p_type -2 outside Gehennom returns after the laughter, wake,
+    // alignment penalty and Wisdom exercise; no angry/pleased callee runs.
+    game.gp = { p_type: -2, p_aligntyp: A_LAWFUL };
+    game.u.uinvulnerable = true;
+    const record = game.u.ualign.record;
+    const abuse = game.u.ualign.abuse;
+    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
+    assert.equal(await prayer_done(game), 1);
+    assert.equal(game.u.uinvulnerable, false);
+    assert.equal(game.u.ualign.record, record - 2);
+    assert.equal(game.u.ualign.abuse, abuse + 2);
+    assert.match(game._pending_message, /Nothing else happens\.$/u);
+});
