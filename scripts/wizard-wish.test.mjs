@@ -1,4 +1,4 @@
-// The wish prompt: wizcmds.c wiz_wish(), zap.c makewish()'s head, and the
+// The wish prompt: wizcmds.c wiz_wish(), zap.c makewish(), and the
 // cmd.c can_do_extcmd() call rhack() makes for the key a command is bound to.
 //
 // scripts/run-wizard-wish.mjs holds the strict differential evidence: eight
@@ -297,8 +297,7 @@ test('makewish() announces the wish when flags.verbose is set', async () => {
 test('a terminal that goes away at the prompt suspends the wish', async () => {
     // zap.c:6339-6342. win/tty/getline.c:87 raises iflags.term_gone for the
     // byte that reads back as EOF, and makewish() then returns instead of
-    // reading the buffer. allmain.c:200 is the only reader of resume_wish and
-    // is not ported, so the flag is written and nothing takes it back up yet.
+    // reading the buffer. allmain.c:200 resumes this wish before elapsed turns.
     //
     // No fresh recording can reach this arm: scripts/record-session.mjs sends
     // each replay key as Buffer.from(k, 'utf8'), which turns 0xFF into the two
@@ -325,7 +324,9 @@ test('the wish command restores flags.verbose after makewish() returns',
     await runSegment({ ...segment, moves: `.${WIZWISH_KEY}lam${EOF_BYTE}` });
 
     assert.equal(game.iflags.term_gone, 1);
-    assert.equal(game.context.resume_wish, 1);
+    // The next moveloop_core iteration calls makewish, clearing the saved flag
+    // before its resumed prompt exhausts this input stream (allmain.c:200-201).
+    assert.equal(game.context.resume_wish, 0);
     // js/options.js:297 defaults flags.verbose to true and this segment's
     // nethackrc does not clear it, so a missing restore would leave it false.
     assert.equal(game.flags.verbose, true);
@@ -620,4 +621,14 @@ test('makewish() populates wished containers through mkbox_cnts()', async () => 
     const inside = [];
     for (let obj = held[0].cobj; obj; obj = obj.nobj) inside.push(obj.oclass);
     assert.deepEqual(inside, [GEM_CLASS]);
+});
+
+// zap.c:6339-6342 guards resume_wish with !iflags.debug_fuzzer. An EOF byte
+// cannot be sent through the UTF-8 C recorder; use the source-pinned fixture.
+test('makewish does not schedule a terminal-gone wish during debug fuzzing', async () => {
+    const { state } = wishState(EOF_BYTE);
+    state.u = { uconduct: {} };
+    state.iflags.debug_fuzzer = true;
+    await makewish(state);
+    assert.equal(state.context.resume_wish, 0); // Entry reset survives the fuzzer arm.
 });

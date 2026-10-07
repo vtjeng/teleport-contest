@@ -4187,3 +4187,28 @@ test('wererat infection gets its daytime allmain change roll before dosounds',
         assert.equal(game.mvl_change, 0,
             'a planned pending change does not mutate the live game');
     });
+
+// allmain.c:200-201 resumes a saved wish before context.move's elapsed-turn
+// gate. The reference recorder encodes EOF as UTF-8, so it cannot record that
+// saved flag; set it directly and exercise the production moveloop_core caller.
+test('moveloop_core resumes a pending wish before reading the next command', async () => {
+    // Independent setup only creates a real initialized loop and display.
+    await runSegment({ seed: 92650201, datetime: '20761111124500',
+        nethackrc: 'OPTIONS=name:ResumeWish,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!debug_mongen\n',
+        moves: ' ' }); // Dismiss the startup welcome before scheduling the wish.
+    game.context.move = false; // No elapsed turn should precede the resumed wish.
+    game.context.resume_wish = 1; // C records this after non-fuzzer EOF.
+    game.flags.verbose = false;
+    const prompts = [];
+    game._preNhgetchHook = () => {
+        const line = game.nhDisplay.grid[0].map(c => c.ch).join('').trim();
+        if (!line.endsWith('--More--')) prompts.push(line);
+    };
+    // getlin first dismisses the pending full-moon announcement, then reads
+    // the wish, followed by the ordinary wait command.
+    for (const key of ' nothing\n.') game.nhDisplay.pushKey(key.charCodeAt(0));
+    await moveloop_core();
+    assert.equal(game.context.resume_wish, 0);
+    assert.equal(prompts[0], 'For what do you wish?');
+    assert.equal(game.u.uconduct.wishes, 0); // Explicit nothing retains wishless conduct.
+});

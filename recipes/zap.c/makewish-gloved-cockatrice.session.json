@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent source-selected makewish safety/placement variation. Seeds92650101-104 initialize independent maps; Wizard has bare hands, Knight starts with gloves, harmless newt is safe, and a flesh golem remains unsafe despite poly_when_stoned. Wishes end before touching/eating the corpse; this witnesses makewish -> hold_another_object placement rather than later corpse handling.",
+  "segments": [
+    {
+      "seed": 92650102,
+      "datetime": "20761111124000",
+      "nethackrc": "OPTIONS=name:WishSafety,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": " \u0017cockatrice corpse\n."
+    }
+  ]
+}

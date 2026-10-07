@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C125 blind vision_recalc epilogue witness: gnome Wizard in fire elemental form replaces the hero square with lava. Fixed seed 125070101; no seed search. Stops after the terrain command redraw, without a sit/combat tail. BLOCKED: the vision redraw matches, but later trap.c:fire_damage_chain -> erode_obj consumes an unported rnl(4) draw for polymorph-dropped floor equipment (run-EAOUVH final step48). Retain this independently chosen failing recipe outside the passing matrix.",
+  "segments": [
+    {
+      "seed": 125070101,
+      "datetime": "20491203101529",
+      "nethackrc": "OPTIONS=name:BlindRedraw,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nfire elemental\n               \u0017lava\n"
+    }
+  ]
+}

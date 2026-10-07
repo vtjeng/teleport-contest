@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T02:41:09.124Z",
+  "capturedAt": "2026-10-07T03:55:20.807Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -22910,12 +22910,186 @@
         "type": "accepted",
         "at": "2026-10-07T02:41:00.946Z",
         "task": "C124"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c124-published",
+        "type": "published",
+        "at": "2026-10-07T02:41:51.848Z",
+        "task": "C124",
+        "commit": "99e67ce3bdd259d9fbd92d7fd15145faba88006b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "late-receipt-B115-original-20261007",
+        "type": "received",
+        "at": "2026-10-07T02:42:48.222Z",
+        "task": "B115",
+        "delivery": "59269ee31c996eab8793c03e9a1e512d265de6b4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B125-kick-terrain-20261007",
+        "type": "assign",
+        "at": "2026-10-07T02:50:20.072Z",
+        "task": "B125",
+        "worker": "B",
+        "goal": "port-dokick-kick-door-nondoor-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A115-20261007",
+        "type": "assign",
+        "at": "2026-10-07T02:51:13.050Z",
+        "task": "A115",
+        "worker": "A2",
+        "goal": "port-zap-makewish-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C125-20261007",
+        "type": "assign",
+        "at": "2026-10-07T02:51:58.173Z",
+        "task": "C125",
+        "worker": "C",
+        "goal": "fix-vision-recalc-blind-epilogue-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5515619c2337f5d82ec018b00cc902adb956005b",
+        "type": "ready",
+        "at": "2026-10-07T03:01:29.083Z",
+        "task": "C125",
+        "delivery": "5515619c2337f5d82ec018b00cc902adb956005b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C125-20261007",
+        "type": "received",
+        "at": "2026-10-07T03:02:00.412Z",
+        "task": "C125",
+        "delivery": "5515619c2337f5d82ec018b00cc902adb956005b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-14b2b9f4ab7fb44c864645c25c53372121b5ead2",
+        "type": "ready",
+        "at": "2026-10-07T03:03:36.504Z",
+        "task": "A115",
+        "delivery": "14b2b9f4ab7fb44c864645c25c53372121b5ead2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A115-20261007",
+        "type": "received",
+        "at": "2026-10-07T03:04:22.214Z",
+        "task": "A115",
+        "delivery": "14b2b9f4ab7fb44c864645c25c53372121b5ead2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C125-20261007",
+        "type": "integrating",
+        "at": "2026-10-07T03:05:07.441Z",
+        "task": "C125",
+        "integration": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7dd00e95a45865debb3f4ca490c72a57337c78a0",
+        "type": "ready",
+        "at": "2026-10-07T03:10:35.148Z",
+        "task": "B125",
+        "delivery": "7dd00e95a45865debb3f4ca490c72a57337c78a0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B125-20261007",
+        "type": "received",
+        "at": "2026-10-07T03:11:19.740Z",
+        "task": "B125",
+        "delivery": "7dd00e95a45865debb3f4ca490c72a57337c78a0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C125-20261007",
+        "type": "validated",
+        "at": "2026-10-07T03:15:06.546Z",
+        "task": "C125",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C125-20261007",
+        "type": "accepted",
+        "at": "2026-10-07T03:24:31.037Z",
+        "task": "C125"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C125-20261007",
+        "type": "published",
+        "at": "2026-10-07T03:27:02.124Z",
+        "task": "C125",
+        "commit": "e9049a73e7890de7653f02e82d2c8d9c2f525ef6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C126-20261007",
+        "type": "assign",
+        "at": "2026-10-07T03:30:39.161Z",
+        "task": "C126",
+        "worker": "C",
+        "goal": "port-apply-rub-ok-dorub-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A115-20261007",
+        "type": "integrating",
+        "at": "2026-10-07T03:31:16.506Z",
+        "task": "A115",
+        "integration": "266e97fec61794e9d402c66dcdd247f32d534123"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-92984e948776f709c5b6ac29d38684ceb373b569",
+        "type": "ready",
+        "at": "2026-10-07T03:42:35.682Z",
+        "task": "C126",
+        "delivery": "92984e948776f709c5b6ac29d38684ceb373b569"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C126-20261007",
+        "type": "received",
+        "at": "2026-10-07T03:43:15.371Z",
+        "task": "C126",
+        "delivery": "92984e948776f709c5b6ac29d38684ceb373b569"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A115-20261007",
+        "type": "validated",
+        "at": "2026-10-07T03:54:56.641Z",
+        "task": "A115",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-A115-20261007",
+        "type": "accepted",
+        "at": "2026-10-07T03:54:57.489Z",
+        "task": "A115"
       }
     ]
   },
   "development": {
-    "executionCommit": "f224a115f09ed49085e7e66baab3edbf155515aa",
-    "measuredAt": "2026-10-07T02:34:28.625Z",
+    "executionCommit": "266e97fec61794e9d402c66dcdd247f32d534123",
+    "measuredAt": "2026-10-07T03:44:45.258Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
