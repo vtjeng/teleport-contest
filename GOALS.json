@@ -183457,7 +183457,7 @@
     {
       "id": "port-do-revive-corpse-v24-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port corpse revival callbacks across object locations and timer dispatch",
       "cFile": "do.c",
       "sessions": [
@@ -183471,22 +183471,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "81a2baa5587e1af6b16bca3f6aa22f6907caa079",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "revive_corpse",
           "line": 2111,
           "endLine": 2250,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "revive_mon",
           "line": 2251,
           "endLine": 2298,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -183661,7 +183664,189 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "revive_corpse",
+            "implementation": "js/do.js",
+            "symbol": "revive_corpse",
+            "sourceReview": "Read whole do.c:2111-2250 and each consumed-return owner. Save where/species, buried-auto-reviver classification, wielded state, eaten adjective, corpse_xname, carrier, contained/buried coordinates and immediate/outer container before revive can delete the object. Preserve inventory wield/backpack; visible/invisible floor and three Rider effects; visible or unseen monster carrier; nested outer-location carrier/inventory/floor messages; buried maketrap(PIT), seen marking, claw/scratching message, newsym then fill_pit; lost-location diagnostic; true/false return. Reuse canonical get_obj_location/get_container_location, naming, visibility, locomotion, revive creation/deletion, maketrap/t_at/fill_pit, youHear and dist2; no invented return/RNG/effect. Soundeffect is nosound recorder macro, not a missing function. Diagnostic impossible return is discarded and named note_unported(pline.c impossible). Existing zap.c:revive retains its eat.c:cant_finish_meal discarded-call gap; selected first-bite Rider caller does not have an eatfood occupation so that C callee is a no-op in this witness. Existing fill_pit retains its discarded do.c:flooreffects boulder gap. Removed obsolete non-floor refusal. Forward existing caller envs in mon/apply/rloco; compose existing setnotworn with setwornEnv hooks for useup/obfree before deallocation. All selected helper production callers are awaited. do.c:zombify_mon is a separate unported timer callback and remains explicit outside scope.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "revive_mon",
+                "source": "do.c:2277 consumed revival Boolean after optional Rider displacement"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "revive_nasty",
+                "source": "hack.c:122 consumed floor revival result in boulder handling"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "rider_corpse_revival",
+                "source": "pickup.c:310 discarded revival result before Wisdom exercise"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "cprefx",
+                "source": "eat.c:831-850 bounded Rider caller: done(DIED), exercise A_WIS, consume revive result for actual corpse, then zero_victual. No whole cprefx or end.c claim."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_tinning_kit",
+                "source": "apply.c:2211 consumed result before Rider verbalize or corpse evasion"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloco",
+                "source": "teleport.c:2109 consumed result before any object extraction/teleport draws"
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "meatobj",
+                "source": "mon.c:1560 consumed result before newsym and floor-chain continuation"
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "meatcorpse",
+                "source": "mon.c:1679 consumed result before newsym and floor-chain continuation"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-revive.test.mjs",
+              "scripts/zap-ray.test.mjs",
+              "scripts/pickup.test.mjs",
+              "scripts/apply-tinning-kit.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-tin.test.mjs",
+              "scripts/monster-pickup.test.mjs",
+              "scripts/monmove-items.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/b123-troll-inventory-timeout.session.json",
+              "recordings/do.c/b123-troll-wielded-timeout.session.json",
+              "recordings/do.c/b123-troll-floor-timeout.session.json",
+              "recordings/do.c/b123-troll-sack-timeout.session.json",
+              "recordings/do.c/b123-troll-floor-sack-timeout.session.json",
+              "recordings/do.c/b123-troll-holding-failure.session.json",
+              "recordings/do.c/b123-rider-tinning-floor.session.json",
+              "recordings/do.c/b123-rider-eating-protected.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-troll-corpse-revives-forced-wait",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 164,
+                "source": "mkobj.c:start_corpse_timeout -> timeout.c:nh_timeout/run_timers -> timeout_funcs[REVIVE_MON] -> do.c:revive_mon:2277 -> revive_corpse OBJ_INVENT -> zap.c:revive -> makemon_revival and useup. The due callback occurs at zero-based89; timer removal, creation, backpack message, inventory/weight changes and ensuing elapsed-turn actions match through final164."
+              }
+            ],
+            "checkedAt": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
+          },
+          {
+            "name": "revive_mon",
+            "implementation": "js/do.js",
+            "symbol": "revive_mon",
+            "sourceReview": "Read whole do.c:2255-2292. Read is_displacer, is_rider, get_obj_location, m_at, canseemon, Monnam, dist2, whole teleport.c:rloc owner, rider_revival_time, obj_has_timer/peek_timer and start_timer. Preserve is_displacer/floor/location/obstacle/stasis strict-less short circuit; save notice/name before awaited RLOC_NOMSG and choose vanish/appear/teleports from post-relocation visibility/distance; consume revive_corpse result; failed Rider rn2(99) before rider_revival_time(TRUE), else existing ROT_CORPSE suppresses only You_feel then d(5,50)-elapsed age with lower clamp1; calculate delay even for an existing action timer; start only when absent, discard Boolean. Callback arg is canonical object (C a_obj). timeout_funcs[REVIVE_MON] lazy-imports do.js; all-prefix refusal preflight remains intact, object timed count decrements before callback, and due REVIVE_MON requests existing live nh_timeout handoff before monster planning. No clone output/creation and no new allmain owner. ZOMBIFY_MON remains the real unsupported callback fixture after removing stale REVIVE_MON refusal expectations. No new pure helper.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "reviveMonCallback",
+                "source": "timeout.c:timeout_funcs[REVIVE_MON]:1982 -> run_timers:2216-2240 -> do.c:revive_mon; due TIMER_OBJECT dispatch through nh_timeout live handoff"
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "revive_mon",
+                "source": "A failed Rider schedules a future REVIVE_MON through start_timer; the shared table invokes the same callback again. C do.c:zombify_mon:2311 also calls revive_mon but its entire callback remains unported/outside this task."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-revive.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/b123-troll-inventory-timeout.session.json",
+              "recordings/do.c/b123-troll-wielded-timeout.session.json",
+              "recordings/do.c/b123-troll-floor-timeout.session.json",
+              "recordings/do.c/b123-troll-sack-timeout.session.json",
+              "recordings/do.c/b123-troll-floor-sack-timeout.session.json",
+              "recordings/do.c/b123-troll-holding-failure.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-troll-corpse-revives-forced-wait",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 164,
+                "source": "mkobj.c:start_corpse_timeout -> timeout.c:nh_timeout/run_timers -> timeout_funcs[REVIVE_MON] -> do.c:revive_mon:2277 -> revive_corpse OBJ_INVENT -> zap.c:revive -> makemon_revival and useup. The due callback occurs at zero-based89; timer removal, creation, backpack message, inventory/weight changes and ensuing elapsed-turn actions match through final164."
+              }
+            ],
+            "checkedAt": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
+          }
+        ],
+        "entryPointReview": "The selected do.c functions are shared helpers: the runtime timeout callback covers location-based automatic revival and failed scheduling, apply.c tinning covers the visible real-Rider floor effects/Boolean caller, and eat.c first-bite Rider ingestion covers life-saving, chewed corpse naming and consumed-result victual replacement. Both whole selected functions have production replay evidence. Existing floor callers revive_nasty/rider_corpse_revival/rloco/meatobj/meatcorpse retain their source consumed/discarded return order and canonical shared floor arm; no completion claim is added for their whole parent functions. Per coordinator authorization, the same floor arm is established through the completely matching tinning recording while independent pickup/rloco probes preserve their external startup-VFS blocker. New source-pinned real-owner tests cover monster-held corpse, outer monster container and buried pit reveal/redraw ordering; independent buried C setup is blocked before revival and supplies no runtime completion claim for that arm. Rider retry, one-in-99 rot, clamp and duplicate timing are source-pinned with exact draw sequences; the independent bag-of-holding recipe establishes failed scheduling through the production timer. Source no-sound Soundeffect macro is inactive in recorder. ZOMBIFY_MON, eat.c other cprefx arms, artifact-light shutdown and broader trap/drop/level-change/initial VFS records remain outside scope.",
+        "entryPoints": [
+          {
+            "name": "REVIVE_MON object timeout and object-location revival",
+            "functions": [
+              "revive_mon",
+              "revive_corpse"
+            ],
+            "recordings": [
+              "recordings/do.c/b123-troll-inventory-timeout.session.json",
+              "recordings/do.c/b123-troll-wielded-timeout.session.json",
+              "recordings/do.c/b123-troll-floor-timeout.session.json",
+              "recordings/do.c/b123-troll-sack-timeout.session.json",
+              "recordings/do.c/b123-troll-floor-sack-timeout.session.json",
+              "recordings/do.c/b123-troll-holding-failure.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-troll-corpse-revives-forced-wait",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 164,
+                "source": "mkobj.c:start_corpse_timeout -> timeout.c:nh_timeout/run_timers -> timeout_funcs[REVIVE_MON] -> do.c:revive_mon:2277 -> revive_corpse OBJ_INVENT -> zap.c:revive -> makemon_revival and useup. The due callback occurs at zero-based89; timer removal, creation, backpack message, inventory/weight changes and ensuing elapsed-turn actions match through final164."
+              }
+            ]
+          },
+          {
+            "name": "Rider floor corpse handled by tinning kit",
+            "functions": [
+              "revive_corpse"
+            ],
+            "recordings": [
+              "recordings/do.c/b123-rider-tinning-floor.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Survived first-bite Rider ingestion and victual reset",
+            "functions": [
+              "revive_corpse"
+            ],
+            "recordings": [
+              "recordings/do.c/b123-rider-eating-protected.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "81a2baa5587e1af6b16bca3f6aa22f6907caa079",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-mkroom-mkundead-v24-20261006",
