@@ -193803,7 +193803,7 @@
         "synthetic/v27/v27-sunsword-unwield"
       ],
       "selectionReason": "v27-sunsword-unwield has 23 remaining screens at step 17; investigations/synthetic/v27/v27-sunsword-unwield.json traces the first cause to whole wield.c:setuwep and its missing end_burn artifact-light path.",
-      "detail": "Port the complete setuwep function in its wield.c JavaScript owner, reuse canonical timeout.c:end_burn and naming/blindness/light/inventory owners, and wire every active caller with source-ordered awaits while retaining the do_takeoff and iron-bars frontiers.",
+      "detail": "Port the complete setuwep function in its wield.c JavaScript owner, reuse canonical timeout.c:end_burn and naming/blindness/light/inventory owners, and wire every active caller with source-ordered awaits. Complete the takeoff-all occupation family and its worn-category predicate so the primary-weapon removal caller is reachable, and wire the bounded fragile-weapon iron-bars caller without claiming incomplete hit_bars branches.",
       "openedAt": null,
       "openStanding": null,
       "closedAt": null,
@@ -193821,6 +193821,64 @@
         "from": 100,
         "to": 137
       },
+      "requiredFunctions": [
+        {
+          "name": "select_off",
+          "line": 2696,
+          "endLine": 2821,
+          "declared": false,
+          "sourceFile": "do_wear.c",
+          "complete": false
+        },
+        {
+          "name": "do_takeoff",
+          "line": 2824,
+          "endLine": 2896,
+          "declared": false,
+          "sourceFile": "do_wear.c",
+          "complete": false
+        },
+        {
+          "name": "take_off",
+          "line": 2900,
+          "endLine": 2987,
+          "declared": false,
+          "sourceFile": "do_wear.c",
+          "complete": false
+        },
+        {
+          "name": "reset_remarm",
+          "line": 3014,
+          "endLine": 3018,
+          "declared": true,
+          "sourceFile": "do_wear.c",
+          "complete": false
+        },
+        {
+          "name": "doddoremarm",
+          "line": 3022,
+          "endLine": 3057,
+          "declared": true,
+          "sourceFile": "do_wear.c",
+          "complete": false
+        },
+        {
+          "name": "menu_remarm",
+          "line": 3090,
+          "endLine": 3138,
+          "declared": false,
+          "sourceFile": "do_wear.c",
+          "complete": false
+        },
+        {
+          "name": "is_worn_by_type",
+          "line": 609,
+          "endLine": 612,
+          "declared": true,
+          "sourceFile": "pickup.c",
+          "complete": false
+        }
+      ],
       "syntheticProvenance": {
         "synthetic/v27/v27-sunsword-unwield": {
           "session": "synthetic/v27/v27-sunsword-unwield",
