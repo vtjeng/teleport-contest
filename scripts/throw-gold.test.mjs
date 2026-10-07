@@ -390,25 +390,30 @@ test('a worn helmet adds a second line to the ceiling message', async () => {
     assert.deepEqual(coinsAt(game.u.ux, game.u.uy), [PURSE.debug]);
 });
 
-test('gold retains its ghitm gap while thrown weapons reach thitmonst',
+test('gold wakes an uninterested monster while thrown weapons reach thitmonst',
     async () => {
     // zap.c bhit() returns the monster and leaves the caller to decide what
     // hits it: dothrow.c throwit_mon_hit():1492 reaches thitmonst(), and
-    // throw_gold():2712 reaches dokick.c ghitm(). The gold call is still a
-    // gap; the completed thitmonst now handles the thrown weapon. Keeping the
+    // throw_gold():2712 reaches dokick.c ghitm(). A dog does not like gold,
+    // so ghitm wakes it and leaves the coins for the placement tail. Keeping the
     // Healer's little dog directly north makes both commands hit a monster.
     const rc = 'OPTIONS=name:Volley,role:Healer,race:human,gender:female,'
         + 'align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n'
         + 'OPTIONS=!acoustics\n';
     const base = { seed: 6120001, datetime: '20000110090000', nethackrc: rc };
 
+    await runSegment({ ...base, moves: '.' });
+    const amount = purseInPack().quan;
+    const target = { x: game.u.ux, y: game.u.uy - 1 };
     const goldBoundaries = [];
-    await runSegment({ ...base, moves: '.t$k' }, {
+    await runSegment({ ...base, moves: '.t$k ' }, {
         onBoundary: (error) => goldBoundaries.push(error),
     });
-    assert.equal(goldBoundaries.length, 1);
-    assert.match(goldBoundaries[0].message, /ghitm\(\)/u);
-    assert.doesNotMatch(goldBoundaries[0].message, /thitmonst\(\)/u);
+    assert.deepEqual(goldBoundaries, []);
+    // The ordinary turn can move the dog and overwrite gb.bhitpos through
+    // another monster action; the source landing square was saved above.
+    assert.deepEqual(coinsAt(target.x, target.y), [amount]);
+    assert.equal(purseInPack(), null);
 
     const weaponBoundaries = [];
     await runSegment({ ...base, moves: '.tck' }, {

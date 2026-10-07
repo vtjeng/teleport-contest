@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ghitm throw_gold witness. Create the greedy target, wish a single coin and throw west along the C-observed adjacent target path. Inputs are independent of admitted v25 and existing gold recipes.",
+  "segments": [
+    {
+      "seed": 92681001,
+      "datetime": "20800304121000",
+      "nethackrc": "OPTIONS=name:KickProof,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".\u0007leprechaun\n\u00171 gold piece\nt$h"
+    }
+  ]
+}

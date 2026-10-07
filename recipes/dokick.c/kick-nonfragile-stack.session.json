@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dokick.c nonfragile variation: drop three starting food rations, move west and kick one east; whole-stack weight temporarily becomes one-item weight before split and physical flight.",
+  "segments": [
+    {
+      "seed": 92681001,
+      "datetime": "20800304121000",
+      "nethackrc": "OPTIONS=name:KickProof,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".ddh\u0004l"
+    }
+  ]
+}

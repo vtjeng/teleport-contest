@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED: zap.c:bhit calls the partial void zap_map helper for opening/locking/striking drawbridge effects. This independently chosen wizard setup is a proposed drawbridge-entry probe, not a C-recorded witness; its drawbridge topology and wand inventory letter have not been verified. Whole bhit caller completion remains outside this delivery until zap_map drawbridge behavior and a reachable setup are verified.",
+  "segments": [
+    {
+      "seed": 92681004,
+      "datetime": "20800304121000",
+      "nethackrc": "OPTIONS=name:BhitBridge,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".\u0017open drawbridge\n\u0017wand of locking\nzjl"
+    }
+  ]
+}
