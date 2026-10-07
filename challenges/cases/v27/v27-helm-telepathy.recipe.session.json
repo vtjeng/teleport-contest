@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first extension mission: do_wear.c:Helmet_on HELM_OF_TELEPATHY. Wish and wear helm of telepathy while sighted. Expected C observation: Helmet completion discovers telepathy and refreshes monster senses. Planned from C source before this candidate's JS comparison.",
+  "segments": [
+    {
+      "seed": 92731001,
+      "datetime": "20771118113000",
+      "nethackrc": "OPTIONS=name:V27BProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed helm of telepathy\nWm       "
+    }
+  ]
+}
