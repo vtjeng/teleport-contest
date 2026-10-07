@@ -838,7 +838,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
             makeknown(RIN_ADORNMENT);
             if (ring.owornmask)
                 await remove_worn_item(ring, false, state, effectEnv);
-            freeinv(ring, effectEnv);
+            await freeinv(ring, effectEnv);
             mpickobj(mon, ring, effectEnv);
         } else {
             if (state.uleft && state.uright
@@ -883,13 +883,13 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                     `${who} puts ${the(xname(ring, state), state)} on your `
                         + `right ${body_part(HAND, state.youmonst)}.`,
                 );
-                setworn(ring, RIGHT_RING, { state });
+                await setworn(ring, RIGHT_RING, { state });
             } else if (!state.uleft) {
                 await pline(
                     `${who} puts ${the(xname(ring, state), state)} on your `
                         + `left ${body_part(HAND, state.youmonst)}.`,
                 );
-                setworn(ring, LEFT_RING, { state });
+                await setworn(ring, LEFT_RING, { state });
             } else if (state.uright
                 && state.uright.otyp !== RIN_ADORNMENT) {
                 await pline(
@@ -898,7 +898,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 );
                 await Ring_gone(state.uright, state);
                 if (state.utotype || !m_next2u(mon, state)) return 1;
-                setworn(ring, RIGHT_RING, { state });
+                await setworn(ring, RIGHT_RING, { state });
             } else if (state.uleft
                 && state.uleft.otyp !== RIN_ADORNMENT) {
                 await pline(
@@ -907,7 +907,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 );
                 await Ring_gone(state.uleft, state);
                 if (state.utotype || !m_next2u(mon, state)) return 1;
-                setworn(ring, LEFT_RING, { state });
+                await setworn(ring, LEFT_RING, { state });
             } else {
                 note_unported('pline.c impossible');
             }

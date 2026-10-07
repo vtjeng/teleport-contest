@@ -3395,7 +3395,7 @@ test('object detection potion and spell inspect objects underfoot', async () => 
         const x = game.u.ux;
         const y = game.u.uy;
         // A floor dagger on the hero's square increments countHere, exercising
-        // C's nearby-object message without entering the later browse_map gap.
+        // C's nearby-object message without entering the later browse_map branch.
         const dagger = mksobj(DAGGER, false, false, { state: game });
         place_object(dagger, x, y, { state: game });
         game.u.aexe[A_WIS] = 0;

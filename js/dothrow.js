@@ -2291,7 +2291,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
             obj = null;
             unsplitTarget = null;
         }
-        freeinv(otmp, { state });
+        await freeinv(otmp, { state });
         await throwit(otmp, wep_mask, twoweap, oldslot, state);
         if (state.program_state?.gameover) return ECMD_TIME;
         await encumber_msg(state);
@@ -3311,7 +3311,7 @@ async function throw_gold(obj, state = game) {
         }
         return ECMD_CANCEL;
     }
-    freeinv(obj, { state });
+    await freeinv(obj, { state });
     if (u.uswallow) {
         throw new UnsupportedThrowError('digests() for a swallowed hero');
     }

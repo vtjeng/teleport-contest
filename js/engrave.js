@@ -974,7 +974,7 @@ export async function doengrave(state = game, env = {}) {
         await say(`${Tobjnam(de.otmp, 'turns', state)}, then ${otense(de.otmp, 'fade', state)}.`);
         if (!IS_GRAVE(currentTyp))
             await say(`You are not going to get anywhere trying to write in the ${de.frosted ? 'frost' : 'dust'} with your dust.`);
-        useup(de.otmp, { state, hooks: env.inventoryHooks ?? {} });
+        await useup(de.otmp, { state, hooks: env.inventoryHooks ?? {} });
         de.otmp = null;
         de.ptext = false;
     }

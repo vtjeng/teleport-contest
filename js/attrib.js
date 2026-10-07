@@ -529,11 +529,11 @@ export class UnsupportedAbilityChangeError extends Error {
 // &HWarning and &HSee_invisible; the port passes the prop.h index that pointer
 // stood for, so the comparison is against those two indices. Every other
 // property that changes here redraws nothing.
-function postadjabil(propertyIndex, state) {
+function postadjabil(propertyIndex, state, env) {
     if (!state.u.ulevel) /* initializing hero; don't attempt screen update yet */
         return;
     if (propertyIndex === WARNING || propertyIndex === SEE_INVIS)
-        see_monsters(state);
+        return see_monsters(state, env);
 }
 
 // C ref: attrib.c adjabil(). The traversal walks the role table and then the
@@ -612,7 +612,7 @@ export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
             }
         }
         if (prevabil !== property.intrinsic) /* it changed */
-            postadjabil(entry.ability, state);
+            await postadjabil(entry.ability, state, env);
         ++index;
     }
 

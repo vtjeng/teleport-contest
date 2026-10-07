@@ -249,7 +249,7 @@ function blockedProperty(obj, mask, state) {
 function artifactIntrinsic(obj, on, mask, env) {
     if (!obj.oartifact) return;
     const hook = requiredHook(env, 'setArtifactIntrinsic', obj);
-    hook(obj, on, mask, env);
+    return hook(obj, on, mask, env);
 }
 
 function monsterUnseesProperty(index, obj, env) {
@@ -269,7 +269,7 @@ function removeSlotEffects(obj, slotMask, callerMask, env) {
     monsterUnseesProperty(oprop, obj, env);
     const blocked = blockedProperty(obj, callerMask, state);
     if (blocked) property(state, blocked).blocked &= ~slotMask;
-    artifactIntrinsic(obj, false, callerMask, env);
+    return artifactIntrinsic(obj, false, callerMask, env);
 }
 
 function addSlotEffects(obj, slotMask, callerMask, env) {
@@ -282,7 +282,7 @@ function addSlotEffects(obj, slotMask, callerMask, env) {
         const blocked = blockedProperty(obj, callerMask, state);
         if (blocked) property(state, blocked).blocked |= slotMask;
     }
-    artifactIntrinsic(obj, true, callerMask, env);
+    return artifactIntrinsic(obj, true, callerMask, env);
 }
 
 function preflightSetworn(obj, mask, env) {
@@ -358,7 +358,25 @@ export function set_twoweap(enabled, state = game) {
 
 // C ref: worn.c setworn(). The I_SPECIAL/uskin restore case is deliberately
 // outside the new-game boundary; all ordinary worn slots are complete here.
+// Worn setters normally complete without waiting. Artifact display can
+// suspend, so advance the source statements until that operation completes.
+function finishWornSteps(steps) {
+    const advance = (value, failed = false) => {
+        const step = failed ? steps.throw(value) : steps.next(value);
+        if (step.done) return step.value;
+        if (step.value && typeof step.value.then === 'function')
+            return Promise.resolve(step.value).then(
+                result => advance(result), error => advance(error, true));
+        return advance(step.value);
+    };
+    return advance(undefined);
+}
+
 export function setworn(obj, mask, env = {}) {
+    return finishWornSteps(setworn_steps(obj, mask, env));
+}
+
+function* setworn_steps(obj, mask, env) {
     const normalized = wornEnv(env);
     const { state } = normalized;
     preflightSetworn(obj, mask, normalized);
@@ -370,13 +388,13 @@ export function setworn(obj, mask, env = {}) {
                 set_twoweap(false, state);
             old.owornmask &= ~slot.mask;
             if (!(slot.mask & (W_SWAPWEP | W_QUIVER)))
-                removeSlotEffects(old, slot.mask, mask, normalized);
+                yield removeSlotEffects(old, slot.mask, mask, normalized);
             cancelDoff(old, slot.mask, normalized);
         }
         state[slot.field] = obj ?? null;
         if (obj) {
             obj.owornmask |= slot.mask;
-            addSlotEffects(obj, slot.mask, mask, normalized);
+            yield addSlotEffects(obj, slot.mask, mask, normalized);
         }
     }
 
@@ -399,6 +417,10 @@ export function setworn(obj, mask, env = {}) {
 }
 
 export function setnotworn(obj, env = {}) {
+    return finishWornSteps(setnotworn_steps(obj, env));
+}
+
+function* setnotworn_steps(obj, env) {
     if (!obj) return null;
     const normalized = wornEnv(env);
     const { state } = normalized;
@@ -421,7 +443,7 @@ export function setnotworn(obj, env = {}) {
         property(state, oprop).extrinsic &= ~slot.mask;
         monsterUnseesProperty(oprop, obj, normalized);
         obj.owornmask &= ~slot.mask;
-        artifactIntrinsic(obj, false, slot.mask, normalized);
+        yield artifactIntrinsic(obj, false, slot.mask, normalized);
         const blocked = blockedProperty(obj, slot.mask, state);
         if (blocked) property(state, blocked).blocked &= ~slot.mask;
     }

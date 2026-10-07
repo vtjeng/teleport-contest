@@ -380,7 +380,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                 // Other worn items use setnotworn(). Preserve that source
                 // transition even in focused fixtures without optional hooks.
                 const hooks = env.hooks ?? {};
-                setnotworn(obj, {
+                await setnotworn(obj, {
                     ...env,
                     hooks: {
                         cancelDoff: hooks.cancelDoff ?? (() => {}),
@@ -399,7 +399,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
         // C loops invent.c useup() or mthrowu.c m_useup() once per destroyed
         // item. Monster removal also owns worn extrinsics and MON_WEP cleanup.
         for (let i = 0; i < cnt; i++) {
-            if (u_carry) useup(obj, objectGenerationEnv(env));
+            if (u_carry) await useup(obj, objectGenerationEnv(env));
             else await m_useup(carrier, obj, env);
         }
         if (dmg) {

@@ -9,11 +9,13 @@ import {
     SEE_INVIS,
     TELEPAT,
 } from '../js/const.js';
-import { knowninvisible, see_nearby_objects } from '../js/display.js';
+import { docrt, knowninvisible, see_nearby_objects } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
 import { game } from '../js/gstate.js';
 import { POT_HEALING, POTION_CLASS } from '../js/objects.js';
+import { runSegment } from '../js/jsmain.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
 
 function nearbyObjectState() {
@@ -142,4 +144,25 @@ test('planned nearby-object observation mutates only its supplied state', () => 
     }]);
     assert.equal(game.objects?.[POT_HEALING]?.oc_encountered, undefined,
         'clone discovery does not write through to the live game');
+});
+
+test('docrt redraws the hero through vision while monster overlays are deferred', async () => {
+    // An independent Wizard startup initializes the canonical vision buffers.
+    // No commands are needed: docrt's source contract is the redraw itself.
+    await runSegment({ seed: 136072, datetime: '20971007120000', moves: '',
+        nethackrc: 'OPTIONS=name:Redraw,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n' });
+    clearTtyMessageWindow(game); // Isolate redraw from the startup welcome More.
+    const { ux, uy } = game.u;
+    const location = game.level.at(ux, uy);
+    // Map memory belongs to the underlying floor object, not the hero overlay.
+    location.remembered_glyph = { glyph: GLYPH_OBJ_OFF + POT_HEALING };
+    game.gd ??= {};
+    game.gd.defer_see_monsters = true;
+    await docrt();
+    assert.equal(location.disp_glyph.ch, '@',
+        'display.c docrt_flags restores vision before its deferred see_monsters call');
+    assert.equal(game.gd.defer_see_monsters, true,
+        'only the allmain.c post-restore consumer clears the deferral');
+    assert.equal(game.program_state.in_docrt, false);
+    assert.equal(game.disp.botlx, true);
 });

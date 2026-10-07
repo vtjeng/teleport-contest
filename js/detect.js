@@ -233,6 +233,7 @@ import {
     do_clear_area_async,
     recalc_block_point,
     unblock_point,
+    vision_recalc,
     vision_reset,
 } from './vision.js';
 import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
@@ -835,16 +836,15 @@ function heroConfused(state) {
         && !confusion?.blocked);
 }
 
-// C ref: detect.c object_detect() (603-793). Floor, buried, and monster
+// C ref: detect.c object_detect() (603-791). Floor, buried, and monster
 // inventories are scanned in C order; when a contained match is mapped its
 // parent location is copied to the matched object before display.c maps it.
+// The transient object map remains visible until browse_map() finishes.
 export async function object_detect(detector = null, objectClass = 0,
     state = game) {
     let oclass = objectClass;
-    if (!Number.isInteger(oclass) || oclass < 0 || oclass >= MAXOCLASSES) {
-        await ttyPline(
-            `impossible: object_detect:  illegal class ${oclass}`, state,
-        );
+    if (oclass < 0 || oclass >= MAXOCLASSES) {
+        note_unported('pline.c impossible');
         oclass = 0;
     }
 
@@ -866,10 +866,9 @@ export async function object_detect(detector = null, objectClass = 0,
         && detector.blessed);
     let count = 0;
     let countHere = 0;
+    let terrainType = TER_DETECT | TER_OBJ;
     const floorObjects = state.level?.objlist ?? null;
     const buriedObjects = state.level?.buriedobjlist ?? null;
-
-    state.gk ??= {};
 
     if (detectKnown) {
         for (let obj = state.invent ?? null; obj; obj = obj.nobj)
@@ -914,19 +913,18 @@ export async function object_detect(detector = null, objectClass = 0,
             && M_AP_TYPE(monster) === M_AP_OBJECT
             && (!oclass
                 || oclass === state.objects[monster.mappearance]?.oc_class);
-        const goldCarrier = findgold(monster.minvent)
-            && (!oclass || oclass === COIN_CLASS);
-        if (mimic || goldCarrier) {
+        if (mimic || (findgold(monster.minvent)
+            && (!oclass || oclass === COIN_CLASS))) {
             ++count;
             break;
         }
     }
 
-    state.gk.known = clear_stale_map(
+    const staleMap = clear_stale_map(
         !oclass ? MAXOCLASSES + 1 : oclass, 0, state,
     );
 
-    if (!state.gk.known && !count) {
+    if (!staleMap && !count) {
         if (!countHere) {
             if (detector)
                 await strange_feeling(
@@ -1005,13 +1003,14 @@ export async function object_detect(detector = null, objectClass = 0,
     const currentGlyph = glyph_at(state.u.ux, state.u.uy, state);
     if (!glyph_is_object(currentGlyph)) {
         newsym(state.u.ux, state.u.uy);
+        terrainType |= TER_MON;
     }
     await ttyPline(
         `You detect the ${count ? 'presence' : 'absence'} of ${description}.`,
         state,
     );
     if (!count) note_unported('detect.c display_nhwindow');
-    else note_unported('detect.c browse_map');
+    else await browse_map(terrainType, 'object', state);
     await map_redisplay(state);
     return 0;
 }
@@ -1305,13 +1304,16 @@ async function furniture_detect(state = game) {
 }
 
 // C ref: detect.c map_redisplay() (94-103). Restore the saved map constraints
-// before redrawing; display.c's specialized underwater and buried overlays are
-// void callees outside this task and remain named gaps.
+// before redrawing. docrt() expects its caller to supply C's vision phases;
+// the buried overlay remains a named void-callee gap.
 export async function map_redisplay(state = game) {
     if (state !== game)
         throw new TypeError('map_redisplay() redraws the global game');
     reconstrain_map(state);
-    await docrt();
+    await docrt({
+        suspendVision: () => vision_recalc(2, { state }),
+        restoreVision: () => vision_recalc(0, { state }),
+    });
     if (state.u.uinwater) await under_water(2, state);
     if (state.u.uburied) note_unported('display.c under_ground');
 }
@@ -1425,7 +1427,7 @@ export async function use_crystal_ball(optr, state = game) {
             break;
         case 5:
             await ttyPline(`${Tobjnam(obj, 'explode', state)}!`, state);
-            useup(obj, { state });
+            await useup(obj, { state });
             optr.obj = obj = null;
             await losehp(
                 halfPhysicalDamage(rnd(30), state),
@@ -1447,7 +1449,7 @@ export async function use_crystal_ball(optr, state = game) {
             );
             if (obj.spe < 0) {
                 await ttyPline(`${Tobjnam(obj, 'implode', state)}!`, state);
-                useup(obj, { state });
+                await useup(obj, { state });
                 optr.obj = null;
             }
         } else {
@@ -1510,7 +1512,7 @@ export async function use_crystal_ball(optr, state = game) {
         await ttyPline('The vision is unclear.', state);
         if (obj.spe < 0) {
             await ttyPline(`${Tobjnam(obj, 'implode', state)}!`, state);
-            useup(obj, { state });
+            await useup(obj, { state });
             optr.obj = obj = null;
             return;
         }
@@ -1796,7 +1798,7 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
             }
         }
     }
-    see_monsters(state);
+    await see_monsters(state);
     if (refresh) await docrt();
 }
 

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first detect.c object_detect recipe. A new Wizard seed wishes a charged blessed ball; ring search enters the transient object map and canonical getpos. Probe inputs choose the inventory letter from C only. A wished ring is dropped, then the hero moves left inside the starting room, guaranteeing a matching object away from the hero.",
+  "segments": [
+    {
+      "seed": 13527011,
+      "datetime": "20910607180000",
+      "nethackrc": "OPTIONS=name:ObjectBrowse,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed crystal ball (0:3)\n\u0017uncursed ring of warning\ndphao =     "
+    }
+  ]
+}

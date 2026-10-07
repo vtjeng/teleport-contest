@@ -3152,6 +3152,19 @@ function preflightFreeinvCore(obj, env) {
 }
 
 function freeinv_core(obj, env, facts) {
+    const steps = freeinv_core_steps(obj, env, facts);
+    const advance = (value, failed = false) => {
+        const step = failed ? steps.throw(value) : steps.next(value);
+        if (step.done) return step.value;
+        if (isThenable(step.value))
+            return Promise.resolve(step.value).then(
+                result => advance(result), error => advance(error, true));
+        return advance(step.value);
+    };
+    return advance(undefined);
+}
+
+function* freeinv_core_steps(obj, env, facts) {
     const { state } = env;
     if (obj.oclass === COIN_CLASS) {
         state.disp ??= {};
@@ -3176,9 +3189,7 @@ function freeinv_core(obj, env, facts) {
             if (!have?.questart) note_unported('pline.c impossible');
             if (have) have.questart = 0;
         }
-        // invent.c:freeinv_core() discards this void helper's result. Its
-        // carried-artifact removal branch is not ported in artifacts.js.
-        note_unported('artifact.c set_artifact_intrinsic');
+        yield set_artifact_intrinsic(obj, false, W_ART, state, env);
     }
 
     if (obj.otyp === LOADSTONE) {
@@ -3205,9 +3216,12 @@ export function freeinv(obj, env = {}) {
     const facts = preflightFreeinvCore(obj, normalized);
     normalized.state.invent = extract_nobj(obj, inventoryHead(normalized.state));
     obj.pickup_prev = false;
-    freeinv_core(obj, normalized, facts);
-    update_inventory(normalized);
-    return obj;
+    const effects = freeinv_core(obj, normalized, facts);
+    const finish = () => {
+        update_inventory(normalized);
+        return obj;
+    };
+    return isThenable(effects) ? Promise.resolve(effects).then(finish) : finish();
 }
 
 // Floor/migration owners stay outside this first substrate. A future level
@@ -4081,22 +4095,20 @@ function addinv_core1(obj, env, facts) {
     }
 
     const finish = () => {
-        if (obj.oartifact)
-            set_artifact_intrinsic(obj, true, W_ART, state);
-
-        // C ref: invent.c addinv_core1(). Special-level creation sets nomerge
-        // only until the tracked prize reaches the hero's inventory. The
-        // source calls record_achievement() directly before clearing the id.
-        if (facts.prize) {
-            record_achievement(facts.prize.achievement, state);
-            state.context.achieveo[facts.prize.oidField] = 0;
-            obj.nomerge = false;
-        }
+        const intrinsic = obj.oartifact
+            ? set_artifact_intrinsic(obj, true, W_ART, state, env) : null;
+        const afterIntrinsic = () => {
+            if (facts.prize) {
+                record_achievement(facts.prize.achievement, state);
+                state.context.achieveo[facts.prize.oidField] = 0;
+                obj.nomerge = false;
+            }
+        };
+        return isThenable(intrinsic)
+            ? Promise.resolve(intrinsic).then(afterIntrinsic) : afterIntrinsic();
     };
-
-    if (isThenable(artifactTouch))
-        return Promise.resolve(artifactTouch).then(finish);
-    finish();
+    return isThenable(artifactTouch)
+        ? Promise.resolve(artifactTouch).then(finish) : finish();
 }
 
 function preflightAddinvCores(obj, env) {
@@ -4848,7 +4860,7 @@ async function gotoDrop(obj, drop_fmt, drop_arg, normalized) {
         else
             note_unported('do.c dropx');
     } else {
-        freeinv(obj, normalized);
+        await freeinv(obj, normalized);
         // invent.c:1302 calls dothrow.c:hitfloor() and discards its void result.
         const { hitfloor } = await import('./dothrow.js');
         await hitfloor(obj, false, normalized.state, normalized);
@@ -4918,13 +4930,17 @@ export function useupall(obj, env = {}) {
     requireInventoryRefresh(normalized);
     preflightFreeinvCore(obj, normalized);
     preflightObfree(obj, null, normalized);
-    if (obj.owornmask) {
-        requiredHook(normalized, 'setNotWorn', obj)(obj, normalized);
+    const afterWear = () => {
         if (obj.owornmask)
             throw new Error('setNotWorn must clear owornmask');
-    }
-    freeinv(obj, normalized);
-    obfree(obj, null, normalized);
+        const extracted = freeinv(obj, normalized);
+        const finish = () => { obfree(obj, null, normalized); };
+        return isThenable(extracted)
+            ? Promise.resolve(extracted).then(finish) : finish();
+    };
+    const unworn = obj.owornmask
+        ? requiredHook(normalized, 'setNotWorn', obj)(obj, normalized) : null;
+    return isThenable(unworn) ? Promise.resolve(unworn).then(afterWear) : afterWear();
 }
 
 // C ref: invent.c useup() (1319-1333). One item of a stack is consumed; the
@@ -4937,7 +4953,7 @@ export function useup(obj, env = {}) {
         obj.owt = weight(obj, normalized);
         update_inventory(normalized);
     } else {
-        useupall(obj, normalized);
+        return useupall(obj, normalized);
     }
 }
 

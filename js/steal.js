@@ -333,15 +333,15 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
             else if (obj === state.uarmu)
                 await Shirt_off(state);
             else
-                setworn(null, obj.owornmask & W_ARMOR, setwornEnv(state));
+                await setworn(null, obj.owornmask & W_ARMOR, setwornEnv(state));
         } else if (obj.owornmask & W_AMUL) {
             await Amulet_off(state, env);
         } else if (obj.owornmask & W_RING) {
-            await Ring_gone(obj, state);
+            await Ring_gone(obj, state, env);
         } else if (obj.owornmask & W_TOOL) {
             await Blindf_off(obj, state);
         } else if (obj.owornmask & W_WEAPONS) {
-            if (obj === state.uwep) uwepgone({ state });
+            if (obj === state.uwep) await uwepgone({ ...env, state });
             if (obj === state.uswapwep) uswapwepgone({ state });
             if (obj === state.uquiver) uqwepgone({ state });
         }
@@ -350,7 +350,7 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
             if (unchain_ball)
                 unpunish(state, env);
         } else if (obj.owornmask) {
-            setnotworn(obj, { state });
+            await setnotworn(obj, { state });
         }
 
         if (obj.where === OBJ_DELETED)
@@ -432,7 +432,7 @@ async function stealarm(state = game, rawEnv = {}) {
                             state,
                             rawEnv,
                         );
-                    freeinv(obj, { state });
+                    await freeinv(obj, { ...rawEnv, state });
                     await ttyPline(
                         `${Monnam(monster, state)} steals `
                             + `${donameFresh(obj, state)}!`,
@@ -800,7 +800,7 @@ export async function steal(
     if (otmp.unpaid)
         subfrombill(otmp, shop_keeper(state.u.ushops[0], state), state, env);
 
-    freeinv(otmp, { state });
+    await freeinv(otmp, { ...env, state });
 
     // shorten the "stole" message if we just gave a worn-item-removal message
     if ((state.iflags?.last_msg ?? -1) === PLNMSG_MON_TAKES_OFF_ITEM

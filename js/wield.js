@@ -165,7 +165,7 @@ export async function setuwep(obj, env = {}) {
         ...env, state,
         hooks: { ...worn.hooks, ...env.hooks },
     };
-    setworn(obj, W_WEP, normalized);
+    await setworn(obj, W_WEP, normalized);
     if ((state.uwep ?? null) === obj
         && (is_art(state.uwep, ART_OGRESMASHER)
             || is_art(olduwep, ART_OGRESMASHER))) {
@@ -1201,9 +1201,15 @@ export function uwepgone(env = {}) {
                 + '(needs end_burn + Tobjnam message)',
             );
         }
-        setworn(null, W_WEP, setwornEnv(state));
-        state.unweapon = true;
-        update_inventory({ state });
+        // C uwepgone calls setworn directly, then updates unweapon/inventory.
+        // Preserve the accepted artifact owner's asynchronous handoff.
+        const effects = setworn(null, W_WEP, setwornEnv(state, env));
+        const finish = () => {
+            state.unweapon = true;
+            update_inventory({ state });
+        };
+        return effects && typeof effects.then === 'function'
+            ? Promise.resolve(effects).then(finish) : finish();
     }
 }
 

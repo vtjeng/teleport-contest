@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent outside-map variation: searching rings on this C-observed level returns no detection; crystal-ball return handling prints the unclear-vision line. The other recipe adds a ring away from the hero.",
+  "segments": [
+    {
+      "seed": 13527011,
+      "datetime": "20910607180000",
+      "nethackrc": "OPTIONS=name:ObjectBrowse,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed crystal ball (0:3)\nao =  "
+    }
+  ]
+}
