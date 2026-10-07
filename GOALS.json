@@ -191274,7 +191274,7 @@
     {
       "id": "port-steed-mount-steed-v26-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete mount checks and wounded-leg feedback",
       "cFile": "steed.c",
       "sessions": [
@@ -191288,15 +191288,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ed31d3aee992418d4a1285e0eb05e06546b20496",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mount_steed",
           "line": 197,
           "endLine": 386,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -191469,7 +191472,95 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mount_steed",
+            "implementation": "js/steed.js",
+            "symbol": "mount_steed",
+            "sourceReview": "Read complete steed.c:mount_steed197-386 and sole C caller doride177-192. Compared every eligibility guard, expression short circuit, RNG call, message, field mutation and success transition. Replaced wounded-leg, long-worm-tail, petrifying-touch, trapped-steed and untaming-leash UnsupportedSteedError placeholders. Wound feedback uses do.c:legs_in_no_shape; source force&&wizard acceptance calls heal_legs before remaining guards. Preserved the source HWounded_legs intrinsic-mask prompt plural, which differs from the EWounded_legs feedback side mask. Canonical a_monnam, mon_nam/Monnam, mhe and trapname own source naming; mhe gets canonical canspotmon for its consumed visibility result. Read mondata.c:pronoun_gender and its non-humanoid neutral result, do_name.c:a_monnam/mon_nam/Monnam and existing wrappers, trap.c:trapname and its display RNG, and do.c:legs_in_no_shape/heal_legs. C-discarded unported void callees are explicit note_unported(trap.c instapetrify) and note_unported(apply.c m_unleash); no substitute death or leash mutation is invented. All other existing source branches are retained: hallucination, wound, size/form, burden, hidden/mimic target, worm tail, held/punished/test_move, saddle/petrifying touch, tame/minion/trap, decrement/resist, underwater, can_saddle/can_ride, levitation, eroded armor, impairment and slip damage, wake and success. rnd(MAXULEV/2+5) remains behind every impairment short circuit; rn1(5,10) follows the slip message and is half-physical rounded up. maybewakesteed precedes success feedback; polearm unweapon, u.usteed, stealth block/feedback, remove_monster, awaited teleds and disp.botl keep source order.",
+            "callers": [
+              {
+                "path": "js/steed.js",
+                "symbol": "doride",
+                "source": "steed.c:doride177-192 obtains direction and wizard force confirmation; mount_steed(m_at(...),force) consumed as ECMD_TIME or ECMD_OK at187-188. Existing cmd.js doextcmd #ride registry calls this production dispatcher; no whole doride/dismount credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mount-steed.test.mjs",
+              "scripts/dismount-steed.test.mjs",
+              "scripts/ride-direction.test.mjs",
+              "scripts/wounded-legs.test.mjs"
+            ],
+            "recordings": [
+              "recordings/steed.c/mount-wounded-heal.session.json",
+              "recordings/steed.c/mount-wounded-decline.session.json",
+              "recordings/steed.c/mount-normal-check.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-wounded-rider-mount",
+                "segment": 0,
+                "fromStep": 20,
+                "throughStep": 34,
+                "source": "wizcmds.c:wiz_intrinsic writes timed WOUNDED_LEGS -> cmd.c:#ride -> steed.c:doride direction and declined force -> mount_steed Wounded_legs -> do.c:legs_in_no_shape -> FALSE/ECMD_OK"
+              }
+            ],
+            "checkedAt": "ed31d3aee992418d4a1285e0eb05e06546b20496"
+          }
+        ],
+        "entryPointReview": "Upstream search found exactly one active C caller: steed.c:doride187, exposed by cmd.c:extcmdlist #ride. Normal false-force entry is witnessed by the admitted wound-refusal range and independent normal impairment/slip recording. Debug true-force entry has independent accepted-heal mounted and declined-heal unmounted recordings, covering the new input wait and continuation. Existing successful normal mount/dismount and normal guard/slip matrices are refreshed separately. All eligibility guards have source-pinned tests, including worm tail, trapped non-humanoid pronoun, force-heal bit mismatch, and explicit void-callee gaps. Petrifier with worn saddle is unreachable from valid saddle owners: can_saddle excludes cockatrice/chickatrice, put_saddle_on_mon/use_saddle gate saddle creation and mon_break_armor removes invalid equipment after shape change; its artificial fixture pins the source touch message and skipped instapetrify. Leashed non-Knight untaming is a valid source branch, and m_unleash cleanup remains an explicit void gap rather than completion evidence for apply.c. Whole mount_steed caller is wired; no whole caller/helper owner is newly claimed.",
+        "entryPoints": [
+          {
+            "name": "Normal #ride mount attempt",
+            "functions": [
+              "mount_steed"
+            ],
+            "recordings": [
+              "recordings/steed.c/mount-normal-check.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-wounded-rider-mount",
+                "segment": 0,
+                "fromStep": 20,
+                "throughStep": 34,
+                "source": "wizcmds.c:wiz_intrinsic writes timed WOUNDED_LEGS -> cmd.c:#ride -> steed.c:doride direction and declined force -> mount_steed Wounded_legs -> do.c:legs_in_no_shape -> FALSE/ECMD_OK"
+              }
+            ]
+          },
+          {
+            "name": "Debug force mount with wounded-leg healing",
+            "functions": [
+              "mount_steed"
+            ],
+            "recordings": [
+              "recordings/steed.c/mount-wounded-heal.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Debug force mount with declined wound healing",
+            "functions": [
+              "mount_steed"
+            ],
+            "recordings": [
+              "recordings/steed.c/mount-wounded-decline.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ed31d3aee992418d4a1285e0eb05e06546b20496",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-insight-youhiding-v26-20261007",
