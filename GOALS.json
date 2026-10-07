@@ -190722,7 +190722,7 @@
     {
       "id": "fix-explode-retributive-role-v26-20261007",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Use the canonical original role for retributive wand damage",
       "cFile": "explode.c",
       "sessions": [
@@ -190736,8 +190736,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "explode",
       "session": "synthetic/v26/v26-break-create-monster-wand",
       "step": 75,
@@ -190950,7 +190953,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-lock-pick-lock-v26-20261007",
