@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked cheap Rider-species variation of the independent Death ingestion witness. The same zap.c:revive -> temporary doppelganger -> newcham_initial -> topten.c:get_rnd_toptenentry missing initial vfs:record mismatch recurs: C draws rnd(10), JS skips it. Retained as explicit source dependency, not passing runtime evidence.",
+  "segments": [
+    {
+      "seed": 12310649,
+      "datetime": "20910317101200",
+      "nethackrc": "OPTIONS=name:CorpseReturn,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n100a\n    \u0017corpse of Famine\n    ey n   "
+    }
+  ]
+}

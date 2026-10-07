@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked controlled empty-level Death ingestion variation. C genocide removes generated monsters, proving the rnd(10) mismatch belongs to zap.c:revive -> read.c:cant_revive temporary doppelganger -> makemon/newcham_initial -> topten.c:tt_doppel/get_rnd_toptenentry. The JS initial VFS record file is absent; C recorder creates it empty. Do not claim this recording matches.",
+  "segments": [
+    {
+      "seed": 12310649,
+      "datetime": "20910317101200",
+      "nethackrc": "OPTIONS=name:CorpseReturn,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n100a\n    \u0017blessed scroll of genocide\n    rp  *\n    \u0017corpse of Death\n    ey n    "
+    }
+  ]
+}

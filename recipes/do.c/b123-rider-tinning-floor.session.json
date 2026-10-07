@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent floor Rider tinning caller: C invent.c:hold_another_object intentionally drops unsafe wished Rider corpses. apply.c:use_tinning_kit finds that floor corpse and uses revive_corpse before verbalizing. Inventory shape remains covered by a focused source test.",
+  "segments": [
+    {
+      "seed": 12310647,
+      "datetime": "20910317101200",
+      "nethackrc": "OPTIONS=name:CorpseReturn,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n100a\n    \u0017uncursed tinning kit\n    \u0017corpse of Death\n    aoy   "
+    }
+  ]
+}

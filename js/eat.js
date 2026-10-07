@@ -1132,6 +1132,7 @@ async function consume_tin(mesg, state = game, env = {}) {
         // C calls cprefx after setting the opened tin's charge and before
         // cpostfx; both are discarded-void calls in that source order.
         await cprefx(monsterNumber, state, eatEnv);
+        if (state.program_state?.gameover) return;
         if (context.tin) await cpostfx(monsterNumber, state, eatEnv);
         if (!context.tin) return;
 
@@ -2226,10 +2227,27 @@ async function cprefx(pm, state, env = {}) {
         break;
     case PM_DEATH:
     case PM_PESTILENCE:
-    case PM_FAMINE:
-        // "Eating that is instantly fatal." then done(DIED), and on the far
-        // side of life-saving exercise(A_WIS) and revive_corpse().
-        throw new UnsupportedEatError('done(DIED) for a Rider corpse');
+    case PM_FAMINE: {
+        // C ref: eat.c:831-850. done() returns only after life-saving; the
+        // JS finalizer's gameover flag represents C's non-returning death.
+        await (env.message ?? ttyPline)('Eating that is instantly fatal.', state);
+        state.killer ??= {};
+        state.killer.name = `unwisely ate the body of ${
+            state.mons[pm].pmnames[NEUTRAL]}`;
+        state.killer.format = NO_KILLER_PREFIX;
+        await done(DIED, state, env);
+        if (state.program_state?.gameover) return;
+        await exercise(A_WIS, false, state, env.random ?? { rn2 }, {
+            encumberMessage: env.encumberMessage ?? encumber_msg,
+        });
+        const piece = victual(state).piece;
+        if (piece && piece.otyp === CORPSE) {
+            const { revive_corpse } = await import('./do.js');
+            if (await revive_corpse(piece, state, env))
+                state.context.victual = zero_victual();
+        }
+        return;
+    }
     case PM_GREEN_SLIME:
         if (!hungerProperty(state, SLIMED).intrinsic
             && !propertyActive(state, UNCHANGING)
@@ -3440,7 +3458,10 @@ async function start_eating(otmp, already_partly_eaten, state, env) {
 
     if (otmp.otyp === CORPSE || otmp.globby) {
         await cprefx(victual(state).piece.corpsenm, state, env);
-        if (!meal.piece || !meal.eating) return;
+        // cprefx may replace the whole victual after revival. Read the
+        // canonical struct again, as C does, rather than the saved meal.
+        if (state.program_state?.gameover
+            || !victual(state).piece || !victual(state).eating) return;
     }
 
     const oldNomovemsg = state.nomovemsg;
