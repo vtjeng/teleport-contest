@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent do.c:flooreffects dry floor witness: a human Valkyrie wishes a boulder too heavy to hold, so invent.c:hold_another_object uses dropy/dropz to place it on the ordinary floor. Different role, seed, date and caller from the admitted giant manual-drop case.",
+  "segments": [
+    {
+      "seed": 13326001,
+      "datetime": "20800407121500",
+      "nethackrc": "OPTIONS=name:BoulderFloor,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017boulder\n            ."
+    }
+  ]
+}
