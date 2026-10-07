@@ -184278,7 +184278,7 @@
     {
       "id": "fix-apply-use-grease-drop-env-v24-20261006",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire cursed grease slips through the canonical drop environment",
       "cFile": "apply.c",
       "sessions": [
@@ -184292,8 +184292,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "use_grease",
       "session": "synthetic/v24/v24-cursed-grease-slip",
       "step": 30,
@@ -184466,7 +184469,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-explode-fatal-last-msg-v24-20261007",

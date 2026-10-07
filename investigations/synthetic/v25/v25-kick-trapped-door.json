@@ -1,0 +1,87 @@
+{
+  "session": "synthetic/v25/v25-kick-trapped-door",
+  "corpus": "synthetic",
+  "batch": "v25",
+  "caseId": "v25-kick-trapped-door",
+  "remainingScreens": 7,
+  "recordedSteps": 40,
+  "manifestPath": "challenges/manifests/v25.json",
+  "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+  "recordingSha256": "474adc7523bc23eaf4a93c62c7750b8306311dfecab0bb9a5f7d7a5f60502268",
+  "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+  "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+  "status": "complete",
+  "commit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v25",
+    "caseId": "v25-kick-trapped-door",
+    "session": "synthetic/v25/v25-kick-trapped-door",
+    "manifestPath": "challenges/manifests/v25.json",
+    "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+    "recording": "challenges/cases/v25/v25-kick-trapped-door.session.json",
+    "recordingPath": "challenges/cases/v25/v25-kick-trapped-door.session.json",
+    "recordingSha256": "474adc7523bc23eaf4a93c62c7750b8306311dfecab0bb9a5f7d7a5f60502268",
+    "recipe": "challenges/cases/v25/v25-kick-trapped-door.recipe.session.json",
+    "recipeSha256": "9d2b6ac7c9c172d2c5205d0d64a27c4d4c4bdd710859356daf604c343bba76a8",
+    "replayInputSha256": "6bc0286d388cbaacf2ee80ef4a23bbc56c713f2afd3880fc002fd1889560e766",
+    "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+    "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+    "evaluationArtifact": "challenges/evaluations/20261007010702-v25.json",
+    "evaluationUtc": "2026-10-07T01:07:09.780Z",
+    "remainingScreens": 7,
+    "recordedSteps": 40,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 33,
+        "total": 40
+      },
+      "rng": {
+        "matched": 2749,
+        "total": 2761
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 40
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: kick_door()'s D_TRAPPED caller branch",
+      "step": 33
+    },
+    "step": 33,
+    "kind": "stop",
+    "sourceFile": "dokick.c",
+    "function": "kick_door",
+    "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: kick_door()'s D_TRAPPED caller branch",
+    "cFile": "dokick.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "A successful kick against a trapped closed or locked door reaches an unsupported D_TRAPPED branch in dokick.c:kick_door. C announces the kick, exercises Strength negatively, clears the door to D_NODOOR, calls b_trapped(\"door\", FOOT), then refreshes the tile and vision. The JavaScript branch throws before those effects. The complete function port must also replace its existing shop and town refusal sites with source-backed implementations or explicit unported-call records.",
+  "source": {
+    "file": "dokick.c",
+    "functions": [
+      "kick_door"
+    ],
+    "branch": "The target is a D_TRAPPED door that is closed or locked; the hero is not levitating; and the attempt succeeds through the doorbuster check or rnl(35) being below avrg_attrib plus martial Dexterity.",
+    "callers": [
+      "dokick.c:dokick (1465-1469): after monster, pool, object, and nondoor handling, IS_DOOR targets call kick_door(x, y, avrg_attrib)."
+    ],
+    "dependencies": [
+      "trap.c:b_trapped is already implemented in js/trap.js; kick_door ignores its C return value.",
+      "Whole-function follow-up sites in dokick.c:kick_door: shop-door add_damage/pay_for_damage and town get_iter_mons/get_iter_mons_xy callbacks are still unsupported in JavaScript; their C return values are discarded."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Replayed only this recording using the exact evaluated root snapshot 9aea0fdd726850fad5342bc3eabb32f89a78a0c0 and its nethack-c/upstream gitlink 16ff59115315917b93185d026aeefea06db9b0f4. scanSyntheticSession reported screensEmitted=33 of recordedSteps=40, then refused the next h input with “kick_door()'s D_TRAPPED caller branch”; the saved queue places that stop at zero-based step 33 with 7 screens remaining. The replay reported no earlier screen, cursor, or RNG divergence.",
+    "nethack-c/upstream/src/dokick.c:kick_door, lines 934-939: after the doorbuster/rnl success check, D_TRAPPED prints “You kick the door.” when verbose, calls exercise(A_STR, FALSE), sets gm.maploc->doormask = D_NODOOR, then calls b_trapped(\"door\", FOOT). The shared successful-door tail calls feel_newsym and recalc_block_point before shop and town follow-ups.",
+    "nethack-c/upstream/src/dokick.c:dokick, lines 1465-1469, is the source caller. At the evaluated commit, js/dokick.js:kick_door lines 658-664 throws UnsupportedKickError at D_TRAPPED before the source effects; js/trap.js:b_trapped already implements the explosion path. Other unsupported branches remain inside kick_door at the shop/town follow-ups and are included when scoping its whole-function port."
+  ]
+}
