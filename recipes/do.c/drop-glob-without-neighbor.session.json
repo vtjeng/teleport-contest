@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13927031,
+      "datetime": "20900412101112",
+      "nethackrc": "OPTIONS=name:GlobPlace,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed small glob of gray ooze\nde   "
+    }
+  ],
+  "comment": "Independent C-first ordinary dry-floor glob drop without another glob; two randomized neighbor-order draws precede ordinary placement."
+}

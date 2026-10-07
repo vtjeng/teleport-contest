@@ -49,6 +49,8 @@ import {
 import { PM_SMALL_MIMIC } from '../js/monsters.js';
 import {
     DROP_CASES,
+    GLOB_DROP_CASES,
+    loadGlobDropRecipe,
     ENGRAVING_DROP_CASES,
     LOADSTONE_CASE,
     MEATRING_CASE,
@@ -76,6 +78,22 @@ test('the drop matrix keeps replay inputs only', () => {
         assert.ok(recipe.segments.every(
             (segment) => !Object.hasOwn(segment, 'steps'),
         ));
+    }
+});
+
+test('glob drop recipes cover local, adjacent and incompatible floor searches', () => {
+    // The four independent inputs cover no match, local match, adjacent match,
+    // and a floor glob rejected by C's same-type mergable test.
+    assert.equal(GLOB_DROP_CASES.length, 4);
+    assert.equal(GLOB_DROP_CASES.filter(entry => entry.merged).length, 2);
+    assert.equal(GLOB_DROP_CASES.filter(entry => entry.adjacent).length, 1);
+    assert.equal(GLOB_DROP_CASES.filter(entry => entry.neighborType).length, 1);
+    for (const entry of GLOB_DROP_CASES) {
+        const recipe = loadGlobDropRecipe(entry.name);
+        assert.equal(recipe.version, 5); // Replay-only C recipe schema.
+        assert.equal(recipe.segments.length, 1); // Each case is a fresh game.
+        assert.ok(!Object.hasOwn(recipe.segments[0], 'steps'));
+        assert.ok(recipe.segments[0].moves.includes(entry.command));
     }
 });
 

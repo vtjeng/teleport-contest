@@ -34,9 +34,10 @@
 
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { BURN, DUST, ENGRAVE, OBJ_FLOOR } from '../js/const.js';
+import { BURN, DUST, ENGRAVE, OBJ_FLOOR, OBJ_INVENT, SHRINK_GLOB } from '../js/const.js';
 import { engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
+import { GLOB_OF_GRAY_OOZE, GLOB_OF_BROWN_PUDDING } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
 import { runDifferential, validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
@@ -261,7 +262,100 @@ function floorPile(state) {
     return pile;
 }
 
+// do.c:dropx -> flooreffects globby branch: the original free glob is
+// consumed by a same-type floor neighbor, even when it outweighs that neighbor.
+export const GLOB_DROP_CASES = [
+    { name: 'drop-glob-without-neighbor', type: GLOB_OF_GRAY_OOZE,
+        command: 'de', merged: false, adjacent: false },
+    { name: 'drop-glob-on-floor-glob', type: GLOB_OF_GRAY_OOZE,
+        command: 'df', merged: true, adjacent: false },
+    { name: 'drop-glob-beside-floor-glob', type: GLOB_OF_BROWN_PUDDING,
+        command: 'df', merged: true, adjacent: true },
+    { name: 'drop-glob-on-different-glob', type: GLOB_OF_BROWN_PUDDING,
+        neighborType: GLOB_OF_GRAY_OOZE,
+        command: 'df', merged: false, adjacent: false },
+];
+
+export function loadGlobDropRecipe(name) {
+    assert.ok(GLOB_DROP_CASES.some(entry => entry.name === name));
+    const recipe = JSON.parse(readFileSync(new URL(
+        `../recipes/do.c/${name}.session.json`, import.meta.url), 'utf8'));
+    validateCleanRecipe(recipe, name);
+    return recipe;
+}
+
+function floorGlobs(type) {
+    const globs = [];
+    for (let obj = game.level.objlist; obj; obj = obj.nobj)
+        if (obj.otyp === type) globs.push(obj);
+    return globs;
+}
+
+export async function verifyGlobDropSegment(segment, entry) {
+    const command = segment.moves.lastIndexOf(entry.command);
+    assert.ok(command >= 0);
+    await runSegment({ ...segment, moves: segment.moves.slice(0, command) });
+    const beforeFloor = floorGlobs(entry.type);
+    assert.equal(beforeFloor.length, entry.merged ? 1 : 0);
+    let incoming = game.invent;
+    while (incoming && incoming.otyp !== entry.type) incoming = incoming.nobj;
+    assert.ok(incoming, 'the intended glob exists before the final drop');
+    assert.equal(incoming.where, OBJ_INVENT);
+    const other = entry.neighborType ? floorGlobs(entry.neighborType)[0] : null;
+    if (entry.neighborType) assert.ok(other, 'the incompatible floor glob exists');
+    const otherId = other?.o_id;
+    const otherWeight = other?.owt;
+    const incomingId = incoming.o_id;
+    const floorId = beforeFloor[0]?.o_id;
+    const floorWeight = beforeFloor[0]?.owt ?? 0;
+    const incomingWeight = incoming.owt;
+    const priorMoves = game.moves;
+    const floorPosition = beforeFloor[0]
+        ? [beforeFloor[0].ox, beforeFloor[0].oy] : [game.u.ux, game.u.uy];
+    if (entry.merged) {
+        assert.equal(Math.abs(floorPosition[0] - game.u.ux)
+            + Math.abs(floorPosition[1] - game.u.uy), entry.adjacent ? 1 : 0);
+        assert.ok(incomingWeight > floorWeight,
+            'obj_meld preserves the smaller floor glob before the weight test');
+    }
+    let boundary;
+    await runSegment(segment, { onBoundary: error => { boundary = error; } });
+    assert.equal(boundary, undefined);
+    const [survivor, extra] = floorGlobs(entry.type);
+    assert.ok(survivor);
+    assert.equal(extra, undefined, 'no deleted incoming object is placed again');
+    assert.equal(survivor.o_id, entry.merged ? floorId : incomingId);
+    assert.equal(survivor.where, OBJ_FLOOR);
+    assert.deepEqual([survivor.ox, survivor.oy], floorPosition);
+    assert.equal(survivor.owt, floorWeight + incomingWeight);
+    assert.equal(survivor.quan, 1); // C globs merge by weight, never quantity.
+    assert.equal(survivor.timed, 1); // The floor survivor owns one shrink timer.
+    const timers = [];
+    for (let timer = game.gt.timer_base; timer; timer = timer.next) {
+        if (timer.func_index === SHRINK_GLOB && timer.arg === survivor)
+            timers.push(timer);
+        if (entry.merged) assert.notEqual(timer.arg?.o_id, incomingId);
+    }
+    assert.equal(timers.length, 1);
+    if (entry.neighborType) {
+        const [retained, extraOther] = floorGlobs(entry.neighborType);
+        assert.equal(extraOther, undefined);
+        assert.equal(retained.o_id, otherId);
+        assert.equal(retained.owt, otherWeight);
+        assert.equal(retained.timed, 1); // Different types keep separate timers.
+    }
+    assert.equal(game.moves, priorMoves + 1); // Ordinary drop consumes one turn.
+    for (let obj = game.invent; obj; obj = obj.nobj)
+        assert.notEqual(obj.o_id, incomingId);
+    console.log(`${entry.name}: correct floor survivor, combined weight and shrink timer`);
+}
+
 export async function verifyDropCommandSegment(segment) {
+    const glob = GLOB_DROP_CASES.find(entry => {
+        const input = loadGlobDropRecipe(entry.name).segments[0];
+        return input.seed === segment.seed && input.moves === segment.moves;
+    });
+    if (glob) return verifyGlobDropSegment(segment, glob);
     const engraved = ENGRAVING_DROP_CASES.find(entry =>
         loadEngravingDropRecipe(entry.name).segments[0].seed === segment.seed);
     if (engraved) {
@@ -345,12 +439,17 @@ export async function runDropCommandMatrix() {
         label: entry.name, recipe: loadEngravingDropRecipe(entry.name),
     }));
     const result = await runFreshMatrix({
-        entries: process.env.DROP_ENGRAVING_ONLY ? engravingEntries : [
+        entries: process.env.DROP_GLOB_ONLY
+            ? GLOB_DROP_CASES.map(entry => ({ label: entry.name,
+                recipe: loadGlobDropRecipe(entry.name) }))
+            : process.env.DROP_ENGRAVING_ONLY ? engravingEntries : [
             { label: 'drop command', recipe: loadDropCommandRecipe() },
             { label: 'drop loadstone', recipe: loadDropLoadstoneRecipe() },
             { label: 'drop meat ring', recipe: loadDropMeatRingRecipe() },
             { label: 'drop merge', recipe: loadDropMergeRecipe() },
             ...engravingEntries,
+            ...GLOB_DROP_CASES.map(entry => ({ label: entry.name,
+                recipe: loadGlobDropRecipe(entry.name) })),
         ],
         summaryLabel: 'DROP COMMAND',
         verifySegment: verifyDropCommandSegment,
@@ -358,6 +457,11 @@ export async function runDropCommandMatrix() {
             const entry = ENGRAVING_DROP_CASES.find(candidate =>
                 loadEngravingDropRecipe(candidate.name).segments[0].seed
                     === recipe.segments[0].seed);
+            const globEntry = GLOB_DROP_CASES.find(candidate => {
+                const input = loadGlobDropRecipe(candidate.name).segments[0];
+                return input.seed === recipe.segments[0].seed
+                    && input.moves === recipe.segments[0].moves;
+            });
             let recording;
             const differential = await runDifferential(recipe, process.env, {
                 transformRecording: raw => {
@@ -365,6 +469,11 @@ export async function runDropCommandMatrix() {
                     return raw;
                 },
             });
+            if (globEntry && differential.passed) {
+                mkdirSync('recordings/do.c', { recursive: true });
+                writeFileSync(`recordings/do.c/${globEntry.name}.session.json`,
+                    JSON.stringify(recording, null, 2) + '\n');
+            }
             if (entry) {
                 mkdirSync('.cache/drop-engraving-fresh', { recursive: true });
                 writeFileSync(`.cache/drop-engraving-fresh/${entry.name}.json`,

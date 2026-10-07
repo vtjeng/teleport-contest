@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13927031,
+      "datetime": "20900412101112",
+      "nethackrc": "OPTIONS=name:GlobPlace,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed small glob of gray ooze\nde\u0017uncursed large glob of gray ooze\ndf   "
+    }
+  ],
+  "comment": "Independent C-first two ordinary gray ooze glob drops on one square; the floor glob consumes the incoming free glob before stackobj."
+}

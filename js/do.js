@@ -92,6 +92,8 @@ import {
     ROT_CORPSE,
     OBJ_FLOOR,
     OBJ_FREE,
+    OBJ_DELETED,
+    OBJ_LUAFREE,
     CXN_SINGULAR,
     ROOM,
     RLOC_NOMSG,
@@ -1092,14 +1094,19 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                 return true;
             }
         } else if (obj.globby) {
-            let survivor = obj;
-            while (survivor) {
-                const other = obj_nexto_xy(survivor, x, y, true, state);
+            let globbyobj = obj;
+            while (globbyobj) {
+                const other = obj_nexto_xy(globbyobj, x, y, true, state);
                 if (!other) break;
-                await pudding_merge_message(survivor, other, state, rawEnv);
-                survivor = obj_meld(survivor, other, state, rawEnv);
+                await pudding_merge_message(globbyobj, other, state, rawEnv);
+                // C discards obj_meld's survivor and tests its original
+                // incoming pointer, which obj_absorb nulls when consumed.
+                // The JS lifecycle marks deletion, including Lua retention.
+                obj_meld(globbyobj, other, state, rawEnv);
+                if (globbyobj.where === OBJ_DELETED
+                    || globbyobj.where === OBJ_LUAFREE) globbyobj = null;
             }
-            return !survivor;
+            return !globbyobj;
         } else if (state.context?.mon_moving && IS_ALTAR(state.level?.at(x, y)?.typ)
             && cansee(x, y, state)) {
             await doaltarobj(obj, state);
@@ -1851,9 +1858,8 @@ export function preflight_dropx(obj, env = {}) {
     // member into it. The survivor keeps its light and timers across an
     // ordinary drop; light.c finds their new location through that same object.
     // Compatible lit candles use merged()'s canonical light/timer owners.
-    // Generic timed and glob-specific floor effects remain outside this tail.
-    if (obj.globby)
-        throw new UnsupportedDropError('a globby object');
+    // Globs coalesce in flooreffects before ordinary stacking; other timed
+    // members retain their generic merge lifecycle boundary below.
     // obfree()'s remaining operations are reached by an object the drop chain
     // already stops: canletgo() refuses a leash tied to a pet, the unpaid test
     // below refuses a billed object and the shop-level test refuses an unpaid
@@ -1946,6 +1952,9 @@ export function preflight_dropx(obj, env = {}) {
         member = member.nexthere) {
         if (!member.lamplit && !member.timed && !member.globby) continue;
         if (!mergable(obj, member, normalized)) continue;
+        // A compatible floor glob consumes the incoming free glob in
+        // flooreffects; invent.c:stackobj never reaches that timed member.
+        if (obj.globby && member.globby) continue;
         if (isCandle(member) && member.lamplit && !member.globby) {
             // merged() extracts this older candle and end_burn() stops its
             // burn before obj_stop_timers is considered. Validate that owner
