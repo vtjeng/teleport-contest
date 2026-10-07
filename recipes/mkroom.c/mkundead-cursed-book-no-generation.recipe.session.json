@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source variation: debug_mongen=true makes makemon.c:makemon return null before creation. The book still runs every mkroom.c:mkundead selection/placement attempt and marks graveyard; this is no-creation evidence.",
+  "segments": [
+    {
+      "seed": 123061002,
+      "datetime": "21120305123400",
+      "nethackrc": "OPTIONS=name:UndeadBook,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " mO>qr\n\u0017cursed Book of the Dead\nrf     "
+    }
+  ]
+}

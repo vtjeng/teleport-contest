@@ -65,9 +65,11 @@ import {
 import { In_hell, induced_align, level_difficulty } from './dungeon.js';
 import { dist2 } from './hacklib.js';
 import { game } from './gstate.js';
-import { add_to_container } from './invent.js';
+import { add_to_container, sobj_at } from './invent.js';
 import { occupied, somexyspace, topologize } from './mklev.js';
-import { makemon, mongets } from './makemon_create.js';
+import { makemon, makemon_runtime, mongets } from './makemon_create.js';
+import { enexto } from './teleport.js';
+import { revive } from './zap.js';
 import { mkclass, set_malign } from './makemon.js';
 import { ndemon } from './minion.js';
 import {
@@ -510,6 +512,38 @@ export function courtmon(state = game, random = SOURCE_RANDOM) {
     if (i > 30) return state.mons[PM_HOBGOBLIN];
     if (i > 15) return mkclass(S_GNOME, 0, { state, random });
     return mkclass(S_KOBOLD, 0, { state, random });
+}
+
+// C ref: mkroom.c mkundead(). Select and place each attempt before examining
+// its floor corpse. A successful revival consumes that attempt's creation.
+export async function mkundead(mm, reviveCorpses, mmFlags, state = game, rawEnv = {}) {
+    const random = { ...SOURCE_RANDOM, ...(rawEnv.random ?? {}) };
+    let env = { ...rawEnv, state, random };
+    // makemon's runtime suffix may interrupt an occupation after creation.
+    // Supply its existing owner to both the Bell and Book call paths.
+    if (state.go?.occupation && !env.hooks?.stopOccupation) {
+        const { stop_occupation } = await import('./allmain.js');
+        env = {
+            ...env,
+            hooks: {
+                ...(env.hooks ?? {}),
+                stopOccupation: (_monster, hookEnv) => stop_occupation(state, hookEnv),
+            },
+        };
+    }
+    let count = Math.trunc((level_difficulty(state) + 1) / 10) + random.rnd(5);
+    while (count-- > 0) {
+        const species = morguemon(state, random);
+        if (!species) continue;
+        const coordinate = enexto(mm.x, mm.y, species, env);
+        if (!coordinate) continue;
+        if (reviveCorpses) {
+            const corpse = sobj_at(CORPSE, coordinate.x, coordinate.y, state);
+            if (corpse && await revive(corpse, false, env)) continue;
+        }
+        await makemon_runtime(species, coordinate.x, coordinate.y, mmFlags, env);
+    }
+    state.level.flags.graveyard = true;
 }
 
 // C ref: mkroom.c morguemon().

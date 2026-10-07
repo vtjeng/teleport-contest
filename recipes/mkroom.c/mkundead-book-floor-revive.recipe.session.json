@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source branch recipe selected from the declared JS-only range 123061100-123061163: 14/64 seeds revived at least one floor corpse, no refused setups; first positive seed 123061103 chosen. Wish/drop an ordinary newt corpse, step east, then read the cursed Book. mkundead consumes revive(FALSE) success rather than creating its selected undead at that square. Initial range probes were corrected for the observed g Book label and for debug_mongen blocking all makemon calls; the range was never widened.",
+  "segments": [
+    {
+      "seed": 123061103,
+      "datetime": "21120305123400",
+      "nethackrc": "OPTIONS=name:FloorRevive,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " mO>q\n\u0017newt corpse\ndfl\u0017cursed Book of the Dead\nrg          "
+    }
+  ]
+}
