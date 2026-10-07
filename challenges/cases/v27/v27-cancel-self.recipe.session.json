@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v27 mission: zap.c:cancel_monst. Wish cancellation wand and zap self with worn cursed gear. Expected C observation: Hero cancellation strips intrinsic/equipment magic. Inputs planned before JS comparison; seed independently selected for this batch.",
+  "segments": [
+    {
+      "seed": 92731001,
+      "datetime": "20771118113000",
+      "nethackrc": "OPTIONS=name:V27BProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed wand of cancellation (0:5)\nzm.      "
+    }
+  ]
+}

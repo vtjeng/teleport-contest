@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v27 mission: do.c:dropx -> flooreffects; mkobj.c:obj_meld. Wish a brown-pudding glob, drop it on ordinary floor. Expected C observation: Globby floor placement without ordinary corpse handling. Inputs planned before JS comparison; seed independently selected for this batch.",
+  "segments": [
+    {
+      "seed": 92731001,
+      "datetime": "20771118113000",
+      "nethackrc": "OPTIONS=name:V27BProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed glob of brown pudding\ndm    "
+    }
+  ]
+}
