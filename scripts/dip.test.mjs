@@ -14,6 +14,7 @@ import {
     ALTAR,
     AM_LAWFUL,
     AM_NONE,
+    ECMD_TIME,
     ER_GREASED,
     ER_NOTHING,
     F_LOOTED,
@@ -26,6 +27,11 @@ import { back_to_glyph, altar_to_glyph } from '../js/display.js';
 import { dipfountain } from '../js/fountain.js';
 import { polymorph_sink } from '../js/do.js';
 import { game } from '../js/gstate.js';
+import { addinv } from '../js/invent.js';
+import { mksobj } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { DAGGER, POT_ACID } from '../js/objects.js';
+import { potion_dip } from '../js/potion.js';
 import { PM_WATER_NYMPH } from '../js/monsters.js';
 import { short_oname } from '../js/objnam.js';
 import { altarmask_at } from '../js/pray.js';
@@ -438,3 +444,45 @@ test('dipfountain source checks early return with rn2(2)', async () => {
         /if \(er == ER_DESTROYED \|\| \(er != ER_NOTHING && !rn2\(2\)\)\)/u,
     );
 });
+
+// potion.c:2639 passes 0 as a null const-char pointer, not a description.
+// trap.c:240-241 then derives cxname before corrosion or grease messages.
+for (const greased of [false, true]) {
+    test(`acid dip uses the object's name for ${greased ? 'greased plural' : 'ordinary singular'} gear`, async () => {
+        await startedGame(); // Seed initializes catalog and inventory only.
+        const env = objectGenerationEnv({ state: game });
+        const obj = mksobj(DAGGER, false, false, env);
+        obj.blessed = obj.cursed = obj.oerodeproof = false;
+        obj.oeroded = obj.oeroded2 = 0; // An initially intact iron weapon.
+        obj.greased = greased;
+        obj.quan = greased ? 2 : 1; // Plural grease subject vs singular corrosion.
+        addinv(obj, { state: game });
+        const acid = mksobj(POT_ACID, false, false, env);
+        acid.quan = 1; // C poof consumes the entire single dose.
+        addinv(acid, { state: game });
+        acid.dknown = false; // Keep the unrelated call-name prompt out of this test.
+        const events = [];
+        const draws = [];
+        const result = await potion_dip(obj, acid, game, {
+            message(line) { events.push([line, obj.oeroded2, acid.in_use]); },
+            random: {
+                rn2(bound) {
+                    draws.push(bound);
+                    return 1; // rn2(2)=1 retains grease, avoiding a second message.
+                },
+                rnl() { assert.fail('unblessed gear needs no luck draw'); },
+            },
+        });
+        assert.equal(result, ECMD_TIME);
+        assert.deepEqual(events, [[greased
+            ? 'Your daggers are protected by the layer of grease!'
+            : 'Your dagger corrodes!', 0, true]]); // Message precedes erosion.
+        assert.deepEqual(draws, greased ? [2] : []); // Only grease makes a draw.
+        assert.equal(obj.oeroded2, greased ? 0 : 1);
+        assert.equal(obj.greased, greased);
+        const inventory = [];
+        for (let item = game.invent; item; item = item.nobj) inventory.push(item);
+        assert.ok(inventory.includes(obj));
+        assert.ok(!inventory.includes(acid)); // Both ER_DAMAGED/ER_GREASED call poof.
+    });
+}

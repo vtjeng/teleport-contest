@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first potion.c:potion_dip acid caller probe. Seed/date fixed before recording, without a scan. Barbarian starting gear and wishes supply the selected target and acid; exact inventory letters were checked from C before comparison. The ordinary spear corrodes; the greased plural daggers reach protective naming. Space acknowledges the erosion message, Enter declines the call-name prompt, and period ends after potion consumption. C-first input completion: rn2(2)=0 dissolves grease, adding a second More before the call-name prompt. Two spaces acknowledge both source messages, then Enter declines the name and period waits.",
+  "segments": [
+    {
+      "seed": 92661002,
+      "datetime": "20771112114000",
+      "nethackrc": "OPTIONS=name:AcidProof,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u00172 greased uncursed daggers\n\u0017uncursed potion of acid\n#dip\nef  \n."
+    }
+  ]
+}
