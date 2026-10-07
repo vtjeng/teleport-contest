@@ -185403,6 +185403,169 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-dokick-kick-door-nondoor-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete door and terrain kick handling",
+      "cFile": "dokick.c",
+      "sessions": [
+        "synthetic/v25/v25-kick-tree",
+        "synthetic/v25/v25-kick-sink",
+        "synthetic/v25/v25-kick-secret-door",
+        "synthetic/v25/v25-kick-trapped-door"
+      ],
+      "selectionReason": "",
+      "detail": "Port whole consecutive dokick.c kick_door and kick_nondoor functions in source order. Replace their live terrain refusals, preserve avrg_attrib, door traps, shop and town discarded-void gaps, tree and sink RNG, state, messages, and production dokick caller. Use the four cited v25 cases plus independent C variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "kick_door",
+          "line": 910,
+          "endLine": 973,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "kick_nondoor",
+          "line": 974,
+          "endLine": 1256,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 910,
+        "to": 1256
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-kick-tree": {
+          "session": "synthetic/v25/v25-kick-tree",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-kick-tree",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-kick-tree.session.json",
+          "recordingSha256": "ee6ff06aee466e3ac3ce60f6b9ee58c2cc68ea5b99a3bb293fefa954e8819268",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        },
+        "synthetic/v25/v25-kick-sink": {
+          "session": "synthetic/v25/v25-kick-sink",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-kick-sink",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-kick-sink.session.json",
+          "recordingSha256": "9761ac7fafb4149dad9c06d0234f5cc995ec563138ceea03546af103d916a349",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        },
+        "synthetic/v25/v25-kick-secret-door": {
+          "session": "synthetic/v25/v25-kick-secret-door",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-kick-secret-door",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-kick-secret-door.session.json",
+          "recordingSha256": "ae4b5d2f7a83d8bb2aba446b925a7f44b6b32d46519ab1e90456c3dae9024042",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        },
+        "synthetic/v25/v25-kick-trapped-door": {
+          "session": "synthetic/v25/v25-kick-trapped-door",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-kick-trapped-door",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-kick-trapped-door.session.json",
+          "recordingSha256": "474adc7523bc23eaf4a93c62c7750b8306311dfecab0bb9a5f7d7a5f60502268",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        }
+      }
+    },
+    {
+      "id": "fix-vision-recalc-blind-epilogue-v25-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Run the blind vision recalculation epilogue",
+      "cFile": "vision.c",
+      "sessions": [],
+      "selectionReason": "The complete v25 investigation traces the first mismatch at step 45 from the lava glyph left over the blind hero to vision.c:vision_recalc returning before its shared epilogue.",
+      "detail": "Match vision.c vision_recalc blind control!=2 path through the shared hero redraw, bounds update, and notice_all_mons epilogue. Preserve all existing vision output and prove the v25 lava wish through step 45 with an independent variation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "vision_recalc",
+      "session": "synthetic/v25/v25-sit-lava",
+      "step": 45,
+      "syntheticProvenance": {
+        "synthetic/v25/v25-sit-lava": {
+          "session": "synthetic/v25/v25-sit-lava",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-sit-lava",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-sit-lava.session.json",
+          "recordingSha256": "66627a56954e1a1a32b51cac7cfd2e6856bc52463cba478480bbd3e4ef15fc6e",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        }
+      }
+    },
+    {
+      "id": "port-zap-makewish-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete wish placement and unsafe-corpse handling",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v25/v25-flesh-golem-eats-cockatrice"
+      ],
+      "selectionReason": "The complete v25 investigation traces the first mismatch at step 54 to zap.c:makewish omitting the unsafe-corpse wishedfor and materialize branch.",
+      "detail": "Port whole zap.c makewish in source order, including the unsafe corpse wishedfor/materialize branch, all consumed return values, messaging, placement, and existing production callers. Use the cited v25 flesh-golem case and independent C variations without case-specific logic.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "makewish",
+          "line": 6314,
+          "endLine": 6428,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 6314,
+        "to": 6428
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-flesh-golem-eats-cockatrice": {
+          "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-flesh-golem-eats-cockatrice",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+          "evaluationPath": "challenges/evaluations/20261007023452-v25.json",
+          "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
+        }
+      }
     }
   ]
 }
