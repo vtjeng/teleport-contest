@@ -187795,7 +187795,7 @@
     {
       "id": "fix-do-dropx-nonmerging-lit-object-v25-20261007",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Allow ordinary nonmerging lit objects to remain lit when dropped",
       "cFile": "do.c",
       "sessions": [],
@@ -187807,8 +187807,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "532068f894fa97f4ace2680f195baf3aae875050",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dropx",
       "session": "synthetic/v25/v25-drop-lit-candle",
       "step": 29,
@@ -187987,7 +187990,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "532068f894fa97f4ace2680f195baf3aae875050",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-dig-bury-objs-whole-v24-20261007",
