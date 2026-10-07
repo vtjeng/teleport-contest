@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91410132,
+      "datetime": "21330517101600",
+      "nethackrc": "OPTIONS=name:NovelBlank,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  .\u0017novel\n\u0017uncursed wand of cancellation\ndf zg> i ."
+    }
+  ],
+  "comment": "Independent C-first cheap cancellation variation: drop the wished novel f at the hero square, then zap cancellation downward with wand g. This reaches zap_updown/bhito/cancel_item through the floor-object entry rather than self-cancel inventory. Keep the same seed and clock to isolate object location and dispatch."
+}

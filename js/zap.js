@@ -50,7 +50,7 @@ import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import {
     bot, cmap_to_glyph, flush_screen, glyph_is_invisible, glyph_is_monster, glyph_at, map_glyphinfo, map_invisible, glyph_is_warning, newsym, knowninvisible, obj_to_glyph, shieldeff, tmp_at, unmap_invisible, unmap_object, zapdir_to_glyph, } from './display.js';
 import {
-    christen_monst, hliquid, a_monnam, noit_Monnam, Monnam, mon_nam, monsterCommonName, rndmonnam, } from './do_name.js';
+    christen_monst, free_oname, hliquid, a_monnam, noit_Monnam, Monnam, mon_nam, monsterCommonName, rndmonnam, } from './do_name.js';
 import { get_mtraits } from './corpstat.js';
 import { eaten_stat, fix_petrification, vegetarian } from './eat.js';
 import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
@@ -86,6 +86,7 @@ import {
     obj_extract_self,
     delobj,
     delobj_core,
+    container_weight,
     mergedRuntime,
     sobj_at,
 } from './invent.js';
@@ -2775,9 +2776,8 @@ export async function break_statue(obj, state = game, random = { rn1 }, rawEnv =
     return true;
 }
 
-// C ref: zap.c cancel_item() (1239-1362). The void blank_novel() callee is
-// still an explicit source gap; timer returns and the surrounding object
-// mutations remain source ordered.
+// C ref: zap.c cancel_item() (1239-1362). Timer returns and the surrounding
+// object mutations remain source ordered.
 export async function cancel_item(obj, state = game, rawEnv = {}) {
     const otyp = obj.otyp;
     const alterationEnv = objectGenerationEnv({
@@ -2872,7 +2872,7 @@ export async function cancel_item(obj, state = game, rawEnv = {}) {
                 alterCost(COST_CANCEL);
                 obj.otyp = SPE_BLANK_PAPER;
                 if (otyp === SPE_NOVEL)
-                    note_unported('zap.c blank_novel');
+                    blank_novel(obj, alterationEnv);
             }
             break;
         case POTION_CLASS:
@@ -2898,6 +2898,16 @@ export async function cancel_item(obj, state = game, rawEnv = {}) {
     }
     await unbless(obj, alterationEnv);
     await uncurse(obj, alterationEnv);
+}
+
+// C ref: zap.c blank_novel() (1367-1376). The caller changes otyp first;
+// novelidx is the obj.h alias of corpsenm, and containers share this weight update.
+export function blank_novel(obj, env = {}) {
+    if (obj.otyp !== SPE_BLANK_PAPER)
+        throw new Error('blank_novel requires a blank spellbook');
+    obj.novelidx = 0;
+    free_oname(obj);
+    container_weight(obj, env);
 }
 
 // C ref: zap.c drain_item() (1382-1455). Drain one positive enchantment or
