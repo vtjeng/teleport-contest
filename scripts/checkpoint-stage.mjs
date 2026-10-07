@@ -14,7 +14,8 @@ import { digest } from './checkpoint-reuse.mjs';
 
 const VERSION = 1;
 export const TEST_SHARDS = 4; // Separate the three known slow files and leave one general shard.
-const ARTIFACTS = { score: ['development-standing.json'], scan: ['session-results.json'] };
+export const RECORDING_SHARDS = 4; // Trial: divide the six-minute replay stage without duplicating setup per recording.
+const ARTIFACTS = { score: ['development-standing.json'], scan: ['scan-cache.json'] };
 const USAGE = `Usage:
   node scripts/checkpoint-stage.mjs --list
   node scripts/checkpoint-stage.mjs run <group> <output-directory>
@@ -30,11 +31,15 @@ function check(condition, message) {
 }
 
 export function trialGroups() {
-    const { tests: [tests], ...groups } = checkpointGroups();
+    const { tests: [tests], recordings: [recordings], ...groups } = checkpointGroups();
     return { ...Object.fromEntries(Array.from({ length: TEST_SHARDS }, (_, index) => {
         const shard = `${index + 1}/${TEST_SHARDS}`;
         return [`tests-${index + 1}`, [{ ...tests, label: `test shard ${shard}`,
             command: process.execPath, args: ['scripts/run-test-suite.mjs', 'default', '--shard', shard] }]];
+    })), ...Object.fromEntries(Array.from({ length: RECORDING_SHARDS }, (_, index) => {
+        const shard = `${index + 1}/${RECORDING_SHARDS}`;
+        return [`recordings-${index + 1}`, [{ ...recordings, label: `recordings batch ${shard}`,
+            args: [...recordings.args, '--shard', shard] }]];
     })), ...groups };
 }
 
@@ -72,7 +77,14 @@ export function combineStages(stages, commit, run) {
         informational: false, skipped: false,
         detail: tests.filter(result => !result.passed).map(result => result.label).join(', ') },
     ...Object.keys(checkpointGroups()).filter(group => group !== 'tests')
-        .flatMap(group => byGroup.get(group).results)];
+        .flatMap(group => {
+            if (group !== 'recordings') return byGroup.get(group).results;
+            const batches = Array.from({ length: RECORDING_SHARDS }, (_, index) =>
+                byGroup.get(`recordings-${index + 1}`).results[0]);
+            return [{ label: 'recordings corpus', passed: batches.every(result => result.passed),
+                informational: false, skipped: false,
+                detail: batches.map(result => result.detail).join('; ') }];
+        })];
 }
 
 function head() {

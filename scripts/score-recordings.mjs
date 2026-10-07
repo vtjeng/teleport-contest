@@ -7,7 +7,7 @@ import { boundedMain } from './run-bounded.mjs';
 // is committed. `npm run checkpoint` runs this beside the development score
 // and fails when any recording stops matching.
 
-import { cpSync, existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -18,17 +18,29 @@ import {
     parseRunnerBundle,
     removeScoringWorkspace,
     runScorer,
+    sizeBalancedBatches,
 } from './scoring-workspace.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const RECORDINGS_DIR = join(PROJECT_ROOT, 'recordings');
-export const USAGE = 'Usage: node scripts/score-recordings.mjs';
+export const USAGE = 'Usage: node scripts/score-recordings.mjs [--shard index/count]';
 
 export function parseArgs(args) {
     if (args.length === 0) return { help: false };
     if (args.length === 1 && (args[0] === '--help' || args[0] === '-h'))
         return { help: true };
+    if (args.length === 2 && args[0] === '--shard' && /^[1-9]\d*\/[1-9]\d*$/u.test(args[1])) {
+        const [index, count] = args[1].split('/').map(Number);
+        if (Number.isSafeInteger(index) && Number.isSafeInteger(count) && index <= count)
+            return { help: false, shard: { index, count } };
+    }
     throw new Error(USAGE);
+}
+
+export function selectRecordings(recordings, shard, root = RECORDINGS_DIR) {
+    if (!shard) return recordings;
+    const batches = sizeBalancedBatches(recordings.map(path => statSync(join(root, path)).size), shard.count);
+    return (batches[shard.index - 1] ?? []).map(index => recordings[index]);
 }
 
 /** Every `*.session.json` under `root`, relative to it, sorted. */
@@ -76,11 +88,12 @@ export function formatSummary(totals) {
 }
 
 async function main(args) {
-    if (parseArgs(args).help) {
+    const options = parseArgs(args);
+    if (options.help) {
         console.log(USAGE);
         return;
     }
-    const recordings = listRecordings();
+    const recordings = selectRecordings(listRecordings(), options.shard);
     if (recordings.length === 0) {
         console.log('recordings: none under recordings/');
         return;

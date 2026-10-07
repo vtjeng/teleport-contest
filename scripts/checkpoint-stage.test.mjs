@@ -16,7 +16,7 @@ function stages() {
     }));
 }
 
-test('parallel groups partition every serial check and retain scan ordering', () => {
+test('CI includes every local checkpoint check and scans before checking input boundaries', () => {
     const groups = checkpointGroups();
     assert.deepEqual(Object.keys(groups), ['tests', 'sources', 'score', 'recordings', 'scan']);
     // Summarizer closures are recreated on each call; compare command identity.
@@ -26,13 +26,13 @@ test('parallel groups partition every serial check and retain scan ordering', ()
     assert.deepEqual(groups.scan.map(({ label }) => label), ['session scan', 'end-of-input over-read']);
 });
 
-test('aggregation accepts complete results regardless of job completion order', () => {
+test('CI jobs may finish in any order without changing the combined checkpoint', () => {
     const combined = combineStages(stages().reverse(), COMMIT, RUN);
     assert.deepEqual(combined.map(({ label }) => label), checkpointCommands().map(({ label }) => label));
     assert.ok(combined.every(({ passed }) => passed));
 });
 
-test('aggregation refuses missing, duplicate, unknown, stale, or mixed-attempt stages', () => {
+test('missing jobs or results from another candidate cannot complete the checkpoint', () => {
     const mutations = [
         parts => parts.pop(), // Missing scan cannot authorize acceptance.
         parts => parts.push(parts[0]), // A duplicate cannot fill a missing group.
@@ -48,7 +48,7 @@ test('aggregation refuses missing, duplicate, unknown, stale, or mixed-attempt s
     }
 });
 
-test('aggregation rejects missing checks and forged informational or skipped verdicts', () => {
+test('a job cannot omit a required check or relabel it as optional', () => {
     const mutations = [
         parts => parts[0].results.pop(),
         parts => parts[0].results.push(parts[0].results[0]),
@@ -65,7 +65,7 @@ test('aggregation rejects missing checks and forged informational or skipped ver
     }
 });
 
-test('trial test jobs use every shard once and share non-test serial commands', () => {
+test('the CI test jobs request each Node test shard exactly once', () => {
     const groups = trialGroups();
     assert.deepEqual(Object.keys(groups).filter(group => group.startsWith('tests-')),
         Array.from({ length: TEST_SHARDS }, (_, index) => `tests-${index + 1}`));
@@ -75,15 +75,22 @@ test('trial test jobs use every shard once and share non-test serial commands', 
     }
 });
 
-test('hosted run identity requires an explicit run and attempt', () => {
+test('GitHub results identify their repository, workflow run, and attempt', () => {
     assert.deepEqual(runIdentity({}), { provider: 'local' });
     assert.deepEqual(runIdentity({ GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY: RUN.repository,
         GITHUB_RUN_ID: RUN.id, GITHUB_RUN_ATTEMPT: RUN.attempt }), RUN);
     assert.throws(() => runIdentity({ GITHUB_ACTIONS: 'true' }), /run ID/u);
 });
 
-test('failed checks remain failed when stages are combined', () => {
+test('one failed test job keeps the combined checkpoint red', () => {
     const parts = stages();
     parts[0].results[0].passed = false;
     assert.equal(combineStages(parts, COMMIT, RUN)[0].passed, false);
+});
+
+test('one failed recordings batch keeps the complete corpus check red', () => {
+    const parts = stages();
+    parts.find(part => part.group === 'recordings-1').results[0].passed = false;
+    const corpus = combineStages(parts, COMMIT, RUN).find(result => result.label === 'recordings corpus');
+    assert.equal(corpus.passed, false);
 });
