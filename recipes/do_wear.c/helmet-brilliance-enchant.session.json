@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Wizard variation removes the starting cloak, wears +1 brilliance, reads a blessed enchant-armor scroll, then removes the helm. C confirms no starting blindfold at this seed: the helm is o and the second wished scroll is p. Exercises read.c:1279 adj_abon with positive enchantment before Helmet_off negates the full bonus.",
+  "segments": [
+    {
+      "seed": 91370721,
+      "datetime": "21210215101700",
+      "nethackrc": "OPTIONS=name:Helmet,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed +1 helm of brilliance\n  Tb  Wo..  \u0017blessed scroll of enchant armor\n  rp..  To..  "
+    }
+  ]
+}

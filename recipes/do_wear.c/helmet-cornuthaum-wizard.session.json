@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Wizard cornuthaum variation wears and removes an uncursed -2 hat. C ignores spe and gives the Wizard +1 Charisma on wearing, then reverses it on removal. C inventory confirms this seed has a starting blindfold and assigns the wished hat letter p.",
+  "segments": [
+    {
+      "seed": 91370720,
+      "datetime": "21210215101700",
+      "nethackrc": "OPTIONS=name:Helmet,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed -2 cornuthaum\n  Wp..  Tp..  "
+    }
+  ]
+}

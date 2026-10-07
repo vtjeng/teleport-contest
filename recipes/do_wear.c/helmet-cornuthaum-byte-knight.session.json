@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Knight variation reaches ABON(A_CHA)=-128 using two source-valid adornment rings. Cornuthaum wearing crosses the signed-byte boundary and its removal reverses it. The rings leave their source sums within byte range before Helmet_on.",
+  "segments": [
+    {
+      "seed": 91370719,
+      "datetime": "21210215101700",
+      "nethackrc": "OPTIONS=name:Helmet,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed -64 ring of adornment\n  Pil  \u0017uncursed -64 ring of adornment\n  Pj  \u0017uncursed cornuthaum\n  Td  Wk..  Tk..  "
+    }
+  ]
+}
