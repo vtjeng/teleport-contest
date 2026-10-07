@@ -189408,7 +189408,7 @@
     {
       "id": "port-uhitm-mhitm-ad-cold-v26-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete cold attack handler in all combat directions",
       "cFile": "uhitm.c",
       "sessions": [
@@ -189422,15 +189422,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9c713afc4bf47c40ef07201b56da0513b4e09ceb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_cold",
           "line": 2626,
           "endLine": 2683,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -189611,7 +189614,115 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_cold",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_cold",
+            "sourceReview": "Compared whole uhitm.c:2626-2681 in definition order. Snapshot orig_dmg before all branches. Hero attacker: negate first with damage=0/return; Blind gates only messages; evaluate cold resistance before defended; shield before resistance message; golem effects before zeroing; add returned destroy_items damage using orig_dmg. Hero defender: hitmsg before cancellation; frost text; Cold_resistance selects seen-resistance set/clear and zeroes only attack damage; consume the unconditional rn2(20) gate after resistance; discard destroy_items return and forward canonical state/random/planning env. Monster pair: cancellation return; gv.vis&&canseemon gates location-bearing first message and plain resistance message; resistance text before shield/golem effects/zeroing; add returned inventory damage based on orig_dmg. Removed both old unsupported cold-arm placeholders and the cold helper unsupported operation requirement. Direct callees read: mhitm_mgc_atk_negated/magic_negation, hitmsg, Resists_Elem/defended, Monnam/mon_nam, heroIsBlind/Cold_resistance, monstseesu/monstunseesu, display.c:shieldeff, mon.c:golemeffects/worn.c:mon_adjust_speed, and zap.c:destroy_items/maybe_destroy_item. The consumed inventory return uses separately owned A132 dependency 90143b2dc53e8081f705b6368de90fa6bdf84b1a. Read its complete source diff: destroy_items clears bits before traversal, rescans the current head through nxt_unbypassed_obj, clears the surviving live chain on exit, and maybe_destroy_item consumes canonical m_useup removal for each item; no inventory-owner completion credit is claimed in B132. No new discarded-return gaps.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:4781-4832 AD_COLD dispatches mhitm_ad_cold(magr,mattk,mdef,mhm). JS retains the awaited matching arm. Hero combat reaches it through do_attack/hmonas/damageum, C uhitm.c:566,5546/5587 and4854. Monster-to-hero hitmu calls it at mhitu.c:1191; monster-pair mdamagem calls it at mhitm.c:1059."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:4854 supplies &gy.youmonst as attacker before damage is deducted from the defender."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:1191 supplies &gy.youmonst as defender after base damage rolls."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:1059 supplies both monster pointers after base damage and contact checks."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-cold.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/uhitm-ad-fire.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/cold-hero-flesh-golem-frost-b132.session.json",
+              "recordings/uhitm.c/cold-hero-iron-golem-frost-b132.session.json",
+              "recordings/uhitm.c/cold-monster-hero-tourist-b132.session.json",
+              "recordings/uhitm.c/cold-monster-hero-wizard-b132.session.json",
+              "recordings/uhitm.c/cold-monster-pair-flesh-golem-no-sparkle-b132.session.json",
+              "recordings/uhitm.c/cold-monster-pair-ice-devil-flesh-golem-b132.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-ice-troll-cold-claw",
+                "segment": 0,
+                "fromStep": 70,
+                "throughStep": 90,
+                "source": "uhitm.c:do_attack -> hmonas ice-troll AT_CLAW/AD_COLD -> damageum -> mhitm_adtyping -> mhitm_ad_cold hero-attacker arm; ordinary target frost, cancellation/inventory draw and returned damage."
+              }
+            ],
+            "checkedAt": "9c713afc4bf47c40ef07201b56da0513b4e09ceb"
+          }
+        ],
+        "entryPointReview": "Active entries are the three combat directions routed by mhitm_adtyping: polymorphed hero melee, monster melee against the hero, and monster-versus-monster melee (including Conflict/pet routes). None is compile-time inactive. The admitted v26 ice-troll claw covers hero melee; independent flesh/iron golem recordings cover cold resistance, shield animation and flesh-golem slowing. Wizard/Tourist recordings cover hitmu including the inventory level gate and potion-shattering return being discarded. Unarmed ice-devil/flesh-golem Conflict recordings establish fightm/mattackm/mdamagem wiring, with sparkle enabled and disabled. Other attack types and the armed mattackm branch are outside this selected source function; C-confirmed blocked recipes retain the named weapon caller limit.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero cold melee",
+            "functions": [
+              "mhitm_ad_cold"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/cold-hero-flesh-golem-frost-b132.session.json",
+              "recordings/uhitm.c/cold-hero-iron-golem-frost-b132.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-ice-troll-cold-claw",
+                "segment": 0,
+                "fromStep": 70,
+                "throughStep": 90,
+                "source": "uhitm.c:do_attack -> hmonas ice-troll AT_CLAW/AD_COLD -> damageum -> mhitm_adtyping -> mhitm_ad_cold hero-attacker arm; ordinary target frost, cancellation/inventory draw and returned damage."
+              }
+            ]
+          },
+          {
+            "name": "Monster cold melee against hero",
+            "functions": [
+              "mhitm_ad_cold"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/cold-monster-hero-tourist-b132.session.json",
+              "recordings/uhitm.c/cold-monster-hero-wizard-b132.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster-pair cold melee through Conflict",
+            "functions": [
+              "mhitm_ad_cold"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/cold-monster-pair-flesh-golem-no-sparkle-b132.session.json",
+              "recordings/uhitm.c/cold-monster-pair-ice-devil-flesh-golem-b132.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9c713afc4bf47c40ef07201b56da0513b4e09ceb",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-dig-digactualhole-v26-20261007",
