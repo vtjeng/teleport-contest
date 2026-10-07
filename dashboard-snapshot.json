@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T02:41:09.124Z",
+  "capturedAt": "2026-10-07T02:52:20.286Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -22910,6 +22910,52 @@
         "type": "accepted",
         "at": "2026-10-07T02:41:00.946Z",
         "task": "C124"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "c124-published",
+        "type": "published",
+        "at": "2026-10-07T02:41:51.848Z",
+        "task": "C124",
+        "commit": "99e67ce3bdd259d9fbd92d7fd15145faba88006b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "late-receipt-B115-original-20261007",
+        "type": "received",
+        "at": "2026-10-07T02:42:48.222Z",
+        "task": "B115",
+        "delivery": "59269ee31c996eab8793c03e9a1e512d265de6b4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B125-kick-terrain-20261007",
+        "type": "assign",
+        "at": "2026-10-07T02:50:20.072Z",
+        "task": "B125",
+        "worker": "B",
+        "goal": "port-dokick-kick-door-nondoor-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A115-20261007",
+        "type": "assign",
+        "at": "2026-10-07T02:51:13.050Z",
+        "task": "A115",
+        "worker": "A2",
+        "goal": "port-zap-makewish-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C125-20261007",
+        "type": "assign",
+        "at": "2026-10-07T02:51:58.173Z",
+        "task": "C125",
+        "worker": "C",
+        "goal": "fix-vision-recalc-blind-epilogue-v25-20261007",
+        "kind": "implementation"
       }
     ]
   },
