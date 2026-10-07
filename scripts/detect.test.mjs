@@ -60,6 +60,7 @@ import {
     findone,
     gold_detect,
     monster_detect,
+    object_detect,
     o_in,
     o_material,
     openone,
@@ -2445,4 +2446,40 @@ test('detect.c food_detect consumes its no-food strange-feeling scroll', async (
     assert.equal(scroll.quan, 19);
     assert.equal(game.gk.known, false);
     assert.equal(game._pending_message, 'Your nose twitches.');
+});
+
+test('object_detect preserves its C browser and terrain-bit order', () => {
+    const source = cDefinition('int\nobject_detect(', '\n/*\n * Used by: crystal balls');
+    const js = readFileSync(new URL('../js/detect.js', import.meta.url), 'utf8');
+    const start = js.indexOf('export async function object_detect(');
+    const implementation = js.slice(start, js.indexOf('\n// C ref: detect.c:monster_detect', start));
+    assert.match(source, /ter_typ = TER_DETECT \| TER_OBJ;/u);
+    assert.match(source, /newsym\(u\.ux, u\.uy\);\s*ter_typ \|= TER_MON;/u);
+    assert.match(source, /browse_map\(ter_typ, "object"\);\s*map_redisplay\(\);/u);
+    assert.doesNotMatch(source, /gk\.known/u);
+    assert.match(implementation, /let terrainType = TER_DETECT \| TER_OBJ;/u);
+    assert.match(implementation, /newsym\(state\.u\.ux, state\.u\.uy\);\s*terrainType \|= TER_MON;/u);
+    assert.match(implementation, /await browse_map\(terrainType, 'object', state\);\s*await map_redisplay\(state\);/u);
+    assert.doesNotMatch(implementation, /state\.gk/u);
+});
+
+test('object_detect does not overwrite scroll knowledge when nothing is found', async () => {
+    // An empty detection level reaches C's early return without browsing or
+    // a detector message. gk.known belongs to other detection/scroll owners.
+    await emptyDetectionLevel(13527001);
+    game.gk.known = true;
+    assert.equal(await object_detect(null, 0, game), 1);
+    assert.equal(game.gk.known, true);
+});
+
+test('map_redisplay forwards docrt vision phases around the memory repaint', () => {
+    const source = cDefinition('staticfn void\nmap_redisplay(', '\n/* use getpos()');
+    const display = readFileSync(new URL('../nethack-c/upstream/src/display.c', import.meta.url), 'utf8');
+    const docrt = display.slice(display.indexOf('docrt_flags(int refresh_flags)'), display.indexOf('\nvoid\nredraw_map(', display.indexOf('docrt_flags(int refresh_flags)')));
+    assert.match(source, /reconstrain_map\(\);\s*docrt\(\);/u);
+    // docrtRecalc paints memory with vision off, then refreshes visible cells.
+    assert.match(docrt, /vision_recalc\(2\);[\s\S]*show_glyph\(x, y, lev->glyph\);[\s\S]*vision_recalc\(0\);[\s\S]*see_monsters\(\);/u);
+    const js = readFileSync(new URL('../js/detect.js', import.meta.url), 'utf8');
+    const implementation = js.slice(js.indexOf('export async function map_redisplay('), js.indexOf('// C ref: detect.c level_distance()'));
+    assert.match(implementation, /await docrt\(\{\s*suspendVision: \(\) => vision_recalc\(2, \{ state \}\),\s*restoreVision: \(\) => vision_recalc\(0, \{ state \}\),\s*\}\);/u);
 });

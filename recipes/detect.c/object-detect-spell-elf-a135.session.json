@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent elf Wizard variation of the spell all-class detector, with different source character state and startup inventory.",
+  "segments": [
+    {
+      "seed": 13527032,
+      "datetime": "20910610190000",
+      "nethackrc": "OPTIONS=name:TreasureCast,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizcast\n>h  .       "
+    }
+  ]
+}
