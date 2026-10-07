@@ -1,6 +1,6 @@
 // Mobile light-source ownership for burning objects and luminous monsters.
 // C refs: src/light.c new_light_source(), del_light_source(),
-// candle_light_range(); src/zap.c get_obj_location(), get_mon_location().
+// obj_merge_light_sources(), candle_light_range(); src/zap.c get_obj_location(), get_mon_location().
 
 import {
     BURIED_TOO,
@@ -37,7 +37,7 @@ import {
 } from './objects.js';
 // js/timeout.js imports this file; both sides use the other's exports only
 // inside function bodies, so the cycle resolves.
-import { obj_is_local } from './timeout.js';
+import { end_burn, obj_is_local } from './timeout.js';
 
 export class UnsupportedLightOperationError extends Error {
     constructor(operation) {
@@ -345,28 +345,33 @@ export function get_obj_location(obj, locflags = 0, state = game) {
     }
 }
 
-// C ref: light.c candle_light_range(). Ordinary candle stacks grow at square
-// thresholds; the invocation candelabrum uses its source-specific 1..7-candle
-// bands.
-export function candle_light_range(obj) {
-    if (obj?.otyp === CANDELABRUM_OF_INVOCATION) {
-        const candles = Math.trunc(obj.spe);
-        if (candles < 1 || candles > 7) {
-            throw new RangeError(
-                `candle_light_range: invalid candelabrum count ${obj.spe}`,
-            );
+// C ref: light.c obj_merge_light_sources() (808–822). merged() has already
+// added src's quantity to dest and extracted src. Attaching candles to a lit
+// candelabrum passes the same object twice, preserving its burn timer.
+export function obj_merge_light_sources(src, dest, env = {}) {
+    const state = env.state ?? game;
+    if (src !== dest) end_burn(src, true, { ...env, state });
+    for (let source = lightGlobals(state).light_base; source;
+        source = source.next) {
+        if (source.type === LS_OBJECT && source.id === dest) {
+            source.range = candle_light_range(dest);
+            state.vision_full_recalc = 1;
+            break;
         }
-        return candles < 4 ? 2 : candles < 7 ? 3 : 4;
     }
-    if (obj?.otyp !== TALLOW_CANDLE && obj?.otyp !== WAX_CANDLE)
-        throw new UnsupportedLightOperationError('candle_light_range object type');
-    const quantity = Math.trunc(obj.quan);
-    if (quantity < 1)
-        throw new RangeError(`candle_light_range: invalid quantity ${obj.quan}`);
+}
 
-    let radius = 1;
-    while (radius * radius <= quantity && radius < MAX_RADIUS) ++radius;
-    return radius;
+// C ref: light.c candle_light_range() (843–877). Preserve all source arms,
+// including the lamp-range fallback and candelabrum bands without validation.
+export function candle_light_range(obj) {
+    if (obj.otyp === CANDELABRUM_OF_INVOCATION)
+        return obj.spe < 4 ? 2 : obj.spe < 7 ? 3 : 4;
+    if (obj.otyp === TALLOW_CANDLE || obj.otyp === WAX_CANDLE) {
+        let radius = 1;
+        while (radius * radius <= obj.quan && radius < MAX_RADIUS) ++radius;
+        return radius;
+    }
+    return 3;
 }
 
 // C ref: light.c arti_light_radius() (881-911). Returns the light radius an

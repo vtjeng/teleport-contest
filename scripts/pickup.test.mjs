@@ -50,6 +50,7 @@ import {
     st_resists,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { begin_burn } from '../js/timeout.js';
 import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
     calc_capacity,
@@ -69,7 +70,7 @@ import {
     PM_SHOPKEEPER,
     PM_STONE_GOLEM,
 } from '../js/monsters.js';
-import { mksobj_at, splitobj, unsplitobj, clear_splitobjs } from '../js/obj.js';
+import { mksobj_at, splitobj, unsplitobj, clear_splitobjs, weight } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { addinv, look_here, obj_extract_self } from '../js/invent.js';
 import { HLIQUIDS } from '../js/random_text_data.js';
@@ -105,6 +106,7 @@ import {
     LONG_SWORD,
     RIN_PROTECTION,
     SACK,
+    TALLOW_CANDLE,
     SCR_IDENTIFY,
     SCR_SCARE_MONSTER,
     TOOL_CLASS,
@@ -1004,34 +1006,30 @@ test('pickup projects merged-gold weight with carry_count rounding', async () =>
     assert.equal(inv_weight(state), 2 * weight_cap(state) - 1);
 });
 
-test('pickup projects sight-created merge dependencies before observation',
+test('pickup observes and merges lit candles through the canonical light owner',
     async () => {
         const state = await heroOnAnEmptySquare();
         state.flags.pickup = true;
-        const target = carryGeneratedObject(state, ELVEN_DAGGER);
-        const incoming = objectUnderHero(state);
+        const target = carryGeneratedObject(state, TALLOW_CANDLE);
+        const incoming = typedObjectUnderHero(state, TALLOW_CANDLE);
+        target.quan = 1; // mksobj may generate a multi-candle stack.
+        target.owt = weight(target, { state });
         matchStackTraits(incoming, target);
+        // Equal fuel puts both candles in the same 25-turn merge bucket.
+        target.age = incoming.age = 100;
+        begin_burn(target, false, { state });
+        begin_burn(incoming, false, { state });
         target.dknown = true;
-        incoming.dknown = false;
-        target.lamplit = true;
-        incoming.lamplit = true;
-        target.pickup_prev = true;
-        const links = { nobj: incoming.nobj, nexthere: incoming.nexthere };
-        const beforeDisco = [...state.svd.disco];
-        const beforeToplines = state._ttyToplines;
-        const beforeLootReset = state.loot_reset_justpicked;
-
-        await assert.rejects(
-            () => pickup(1, state),
-            /mergeLightSources is not available/u,
-        );
-        assertStillOnBothFloorChains(state, incoming, links);
-        assert.equal(incoming.dknown, false);
-        assert.equal(target.quan, 1);
-        assert.equal(target.pickup_prev, true);
-        assert.deepEqual(state.svd.disco, beforeDisco);
-        assert.equal(state._ttyToplines, beforeToplines);
-        assert.equal(state.loot_reset_justpicked, beforeLootReset);
+        incoming.dknown = false; // Sight observes this before mergable().
+        quiet(state);
+        assert.equal(await pickup(1, state), 1);
+        assert.equal(incoming.dknown, true);
+        assert.equal(target.quan, 2); // One candle from each stack.
+        assert.equal(target.lamplit, true);
+        assert.equal(target.timed, 1); // Only the survivor's burn remains.
+        assert.equal(incoming.where, OBJ_DELETED);
+        assert.equal(incoming.lamplit, false);
+        assert.equal(incoming.timed, 0);
     });
 
 test('sighted pickup discovers a merge and prints comparison before prinv',
@@ -1084,46 +1082,34 @@ test('sighted pickup discovers a merge and prints comparison before prinv',
         );
     });
 
-test('pickup projects an earlier selected object as the later merge target',
+test('pickup merges a later lit candle into its earlier selected candle',
     async () => {
         const state = await heroOnAnEmptySquare();
         state.flags.pickup = true;
-        const later = objectUnderHero(state);
-        const earlier = objectUnderHero(state);
+        const later = typedObjectUnderHero(state, TALLOW_CANDLE);
+        const earlier = typedObjectUnderHero(state, TALLOW_CANDLE);
+        earlier.quan = 1; // Fix the stack size before copying merge traits.
+        earlier.owt = weight(earlier, { state });
         matchStackTraits(later, earlier);
-        earlier.lamplit = true;
-        later.lamplit = true;
-        earlier.dknown = false;
-        later.dknown = false;
-        const floorHead = state.level.objects[state.u.ux][state.u.uy];
-        const levelHead = state.level.objlist;
-        const firstLinks = { nobj: earlier.nobj, nexthere: earlier.nexthere };
-        const secondLinks = { nobj: later.nobj, nexthere: later.nexthere };
-        const carriedHead = state.invent;
-        carriedHead.pickup_prev = true;
-        const beforeToplines = state._ttyToplines;
-
-        await assert.rejects(
-            () => pickup(1, state),
-            /mergeLightSources is not available/u,
-        );
-        assert.equal(state.level.objects[state.u.ux][state.u.uy], floorHead);
-        assert.equal(state.level.objlist, levelHead);
-        assert.deepEqual(
-            { nobj: earlier.nobj, nexthere: earlier.nexthere },
-            firstLinks,
-        );
-        assert.deepEqual(
-            { nobj: later.nobj, nexthere: later.nexthere },
-            secondLinks,
-        );
-        assert.equal(earlier.where, OBJ_FLOOR);
-        assert.equal(later.where, OBJ_FLOOR);
-        assert.equal(earlier.dknown, false);
-        assert.equal(later.dknown, false);
-        assert.equal(state.invent, carriedHead);
-        assert.equal(carriedHead.pickup_prev, true);
-        assert.equal(state._ttyToplines, beforeToplines);
+        // Equal fuel permits merging after both initially unknown stacks
+        // become observed; each initially owns a separate burn timer.
+        earlier.age = later.age = 100;
+        begin_burn(earlier, false, { state });
+        begin_burn(later, false, { state });
+        earlier.dknown = later.dknown = false;
+        quiet(state);
+        // The second pickup line dismisses the first candle pickup feedback.
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        assert.equal(await pickup(1, state), 1);
+        assert.equal(earlier.where, OBJ_INVENT);
+        assert.equal(later.where, OBJ_DELETED);
+        assert.equal(earlier.quan, 2); // The selected stacks contain one each.
+        assert.equal(earlier.dknown, true);
+        assert.equal(later.dknown, true);
+        assert.equal(earlier.lamplit, true);
+        assert.equal(earlier.timed, 1);
+        assert.equal(later.lamplit, false);
+        assert.equal(later.timed, 0);
     });
 
 test('pickup commits a selected pile in source order and merges later items',

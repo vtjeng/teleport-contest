@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent carried candle merge: separately light a floor stack and a carried candle, then pick up the floor stack. The carried survivor preserves its burn while the floor source is extinguished.",
+  "segments": [
+    {
+      "seed": 13827013,
+      "datetime": "20841126130500",
+      "nethackrc": "OPTIONS=name:CandleField,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u00173 uncursed wax candles\nagdg\u0017uncursed wax candle\nah,   "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first tallow candle variation: eight lit candles and one lit candle merge on the floor and cross the nine-candle light-radius threshold.",
+  "segments": [
+    {
+      "seed": 13827019,
+      "datetime": "20841123160500",
+      "nethackrc": "OPTIONS=name:CandleField,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u00178 uncursed tallow candles\nafdf\u0017uncursed tallow candle\nagdg"
+    }
+  ]
+}

@@ -17,6 +17,7 @@ import {
     LAVAWALL,
     LS_MONSTER,
     LS_OBJECT,
+    MAX_RADIUS,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     MOAT,
@@ -34,6 +35,7 @@ import {
     WATER,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import * as light from '../js/light.js';
 import { resetGame } from '../js/gstate.js';
 import {
     candle_light_range,
@@ -132,6 +134,98 @@ test('the candelabrum uses its source candle-count light bands', () => {
             spe,
         }), expected);
     }
+});
+
+test('candle_light_range preserves every whole C result arm', async () => {
+    const source = await readFile(new URL('../nethack-c/upstream/src/light.c',
+        import.meta.url), 'utf8');
+    const start = source.indexOf('candle_light_range(struct obj *obj)');
+    const body = source.slice(start, source.indexOf('/* light emitting artifact', start));
+    assert.match(body, /radius = \(obj->spe < 4\) \? 2 : \(obj->spe < 7\) \? 3 : 4/u);
+    assert.match(body, /radius = 3; \/\* lamp's value \*\//u);
+    // C does not reject empty/full candelabrum counts; it applies the bands.
+    assert.equal(candle_light_range({ otyp: CANDELABRUM_OF_INVOCATION, spe: 0 }), 2);
+    assert.equal(candle_light_range({ otyp: CANDELABRUM_OF_INVOCATION, spe: 8 }), 4);
+    // The complete fallback arm returns lamp range for other object types.
+    assert.equal(candle_light_range({ otyp: OIL_LAMP }), 3);
+    // Ordinary-candle thresholds include the initial radius before the loop.
+    for (const [quan, range] of [[0, 1], [1, 2], [3, 2], [4, 3],
+        [8, 3], [9, 4], [MAX_RADIUS * MAX_RADIUS, MAX_RADIUS]]) {
+        assert.equal(candle_light_range({ otyp: TALLOW_CANDLE, quan }), range);
+    }
+});
+
+test('obj_merge_light_sources stops only the absorbed burn before growing survivor light', () => {
+    const state = darkRoomState();
+    // Two independent candle timers start at the same map point; merged()
+    // has already added quantity before light.c receives its source/dest.
+    const absorbed = floorCandle(state, 5, 7);
+    const survivor = floorCandle(state, 5, 7);
+    survivor.quan = 4; // Four candles cross C's square threshold to radius 3.
+    const survivingLight = state.gl.light_base;
+    const survivingTimer = state.gt.timer_base;
+    const survivingAge = survivor.age;
+    state.moves += 7; // Seven elapsed turns leave 193 of the initial 200 fuel.
+    state.vision_full_recalc = 0;
+    light.obj_merge_light_sources(absorbed, survivor, { state });
+    assert.equal(absorbed.lamplit, false);
+    assert.equal(absorbed.timed, 0);
+    assert.equal(absorbed.age, 193);
+    assert.equal(survivor.age, survivingAge);
+    assert.equal(survivor.lamplit, true);
+    assert.equal(survivor.timed, 1);
+    assert.equal(state.gt.timer_base, survivingTimer);
+    assert.equal(survivingTimer.next, null);
+    assert.equal(state.gl.light_base, survivingLight);
+    assert.equal(survivingLight.next, null);
+    assert.equal(survivingLight.range, 3);
+    assert.equal(state.vision_full_recalc, 1);
+});
+
+test('adding to a lit candelabrum updates its range without stopping its timer', () => {
+    const state = darkRoomState();
+    const candelabrum = { otyp: CANDELABRUM_OF_INVOCATION, quan: 1,
+        spe: 3, age: 200, where: OBJ_FLOOR, ox: 5, oy: 7,
+        lamplit: false, timed: 0 }; // Initial three-candle range is two.
+    begin_burn(candelabrum, false, { state });
+    const timer = state.gt.timer_base;
+    const source = state.gl.light_base;
+    candelabrum.spe = 4; // use_candle adds one candle before calling light.c.
+    state.vision_full_recalc = 0;
+    light.obj_merge_light_sources(candelabrum, candelabrum, { state });
+    assert.equal(state.gt.timer_base, timer);
+    assert.equal(candelabrum.lamplit, true);
+    assert.equal(candelabrum.timed, 1);
+    assert.equal(state.gl.light_base, source);
+    assert.equal(source.range, 3);
+    assert.equal(state.vision_full_recalc, 1);
+    // C sets the recalc flag even when another attachment keeps this range.
+    state.vision_full_recalc = 0;
+    light.obj_merge_light_sources(candelabrum, candelabrum, { state });
+    assert.equal(state.vision_full_recalc, 1);
+});
+
+test('obj_merge_light_sources keeps cloned timers and object lights isolated', () => {
+    const state = darkRoomState();
+    // Distinct floor sources share no inventory refresh or live message path.
+    const survivor = floorCandle(state, 5, 7);
+    const absorbed = floorCandle(state, 5, 7);
+    const liveTimer = state.gt.timer_base;
+    const liveLight = state.gl.light_base;
+    const clone = structuredClone(state);
+    const cloneAbsorbed = clone.gl.light_base.id;
+    const cloneSurvivor = clone.gl.light_base.next.id;
+    cloneSurvivor.quan = 4; // Four candles cross the square threshold.
+    light.obj_merge_light_sources(cloneAbsorbed, cloneSurvivor, { state: clone });
+    assert.equal(cloneAbsorbed.lamplit, false);
+    assert.equal(cloneAbsorbed.timed, 0);
+    assert.equal(clone.gl.light_base.id, cloneSurvivor);
+    assert.equal(clone.gl.light_base.range, 3); // C four-candle range.
+    assert.equal(absorbed.lamplit, true);
+    assert.equal(absorbed.timed, 1); // Live source retains its own burn.
+    assert.equal(survivor.quan, 1); // Cloned quantity does not reach live state.
+    assert.equal(state.gt.timer_base, liveTimer);
+    assert.equal(state.gl.light_base, liveLight);
 });
 
 // light.c obj_sheds_light() delegates to obj_is_burning(), whose C body checks
