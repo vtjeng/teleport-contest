@@ -17,6 +17,8 @@ import {
     BRCORNER,
     BURN,
     CONFUSION,
+    COLNO,
+    ROWNO,
     CORPSTAT_FEMALE,
     CORPSTAT_MALE,
     CORR,
@@ -218,6 +220,8 @@ import { rndmonnam } from '../js/do_name.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap, makeLocation } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
+import { init_vision_globals, vision_recalc, vision_reset } from '../js/vision.js';
+import { wiz_intrinsic } from '../js/wizcmds.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
@@ -10148,3 +10152,66 @@ test('DECgraphics pool renders as raw backtick, not diamond', () => {
         'browser path should translate backtick to Unicode diamond',
     );
 });
+
+// wizcmds.c's final docrt is separate from the tty intrinsic-menu repair.
+// Each docrt_flags shuts vision down, paints remembered glyphs, restores
+// vision (which remaps visible objects), and only then overlays monsters.
+for (const heroMemory of [true, false])
+    test(`wiz_intrinsic final redraw remaps hallucinated objects; memory=${heroMemory}`,
+        async () => {
+            const source = readFileSync(
+                new URL('../nethack-c/upstream/src/display.c', import.meta.url),
+                'utf8',
+            );
+            const caller = readFileSync(
+                new URL('../nethack-c/upstream/src/wizcmds.c', import.meta.url),
+                'utf8',
+            );
+            assert.match(caller, /wiz_intrinsic\(void\)[\s\S]*?docrt\(\);/u);
+            assert.match(source, /vision_recalc\(2\);[\s\S]*?show_glyph\(x, y, lev->glyph\);[\s\S]*?vision_recalc\(0\);[\s\S]*?see_monsters\(\);/u);
+            const x = 7, y = 4;
+            const state = visibleCellState({ x, y, ux: x - 1, uy: y });
+            for (let col = 1; col < COLNO; ++col)
+                for (let row = 0; row < ROWNO; ++row) {
+                    state.level.at(col, row).typ = ROOM;
+                    state.level.at(col, row).lit = true;
+                }
+            state.wizard = true;
+            state.nhDisplay = new GameDisplay(null);
+            state.nhDisplay.onEmptyQueue = () => {
+                throw new Error('intrinsic redraw requested an unprovided key');
+            };
+            state.nhDisplay.pushKey(27); // cancel the property menu
+            state.iflags = { cbreak: true };
+            init_objects(state, () => 0);
+            state.disp = {};
+            state.level.monlist = [];
+            state.level.flags.hero_memory = true;
+            state.u.uprops[HALLUC].intrinsic = 30;
+            const object = { otyp: POT_BOOZE, oclass: POTION_CLASS,
+                ox: x, oy: y, where: OBJ_FLOOR, dknown: true };
+            state.level.objects[x][y] = object;
+            initRng(20261007126);
+            init_vision_globals();
+            vision_reset();
+            vision_recalc(0);
+            const location = state.level.at(x, y);
+            const priorMemory = location.remembered_glyph;
+            state.level.flags.hero_memory = heroMemory;
+            const seed = 20261007127;
+            initRng(seed);
+            random_object_glyph_info(state); // menu dismissal's redraw
+            const expected = random_object_glyph_info(state); // final docrt
+            const next = rn2_on_display_rng(997);
+            initRng(seed);
+            await wiz_intrinsic(state);
+            if (heroMemory)
+                assert.equal(location.remembered_glyph.glyph, expected.glyph);
+            else
+                assert.deepEqual(location.remembered_glyph, priorMemory,
+                    'disabled hero memory preserves the old stored glyph');
+            assert.equal(location.disp_glyph.glyph, expected.glyph);
+            assert.equal(rn2_on_display_rng(997), next,
+                'both source redraws consume the display stream exactly once');
+            assert.equal(object.dknown, true);
+        });

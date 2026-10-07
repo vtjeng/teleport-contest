@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside C127 caller repair: display.c doredraw -> docrt -> docrt_flags must own vision_recalc(2)/(0). The existing JS doredraw caller still invokes docrt without those callbacks, so the Ctrl-R redraw cannot yet establish whole display.c caller completion while hallucinating. This independent recipe is retained as blocked evidence; not part of the passing matrix. No generic docrt default change is claimed.",
+  "segments": [
+    {
+      "seed": 127070204,
+      "datetime": "20550204162317",
+      "nethackrc": "OPTIONS=name:RedrawProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " dbh#wizintrinsic\nh\n  #wizintrinsic\n\u001b\u0012"
+    }
+  ]
+}
