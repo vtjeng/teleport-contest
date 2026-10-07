@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T01:27:42.254Z",
+  "capturedAt": "2026-10-07T02:22:00.519Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -22816,12 +22816,67 @@
         "type": "accepted",
         "at": "2026-10-07T01:27:29.879Z",
         "task": "B124"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B124-261c3721",
+        "type": "published",
+        "at": "2026-10-07T01:29:19.423Z",
+        "task": "B124",
+        "commit": "261c37214f73b60547dd071f4d320bbba3c21af0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A114-f778fafe",
+        "type": "integrating",
+        "at": "2026-10-07T01:31:01.096Z",
+        "task": "A114",
+        "integration": "f778fafebcbff52efeb10ee0797aeab328c9efb4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A114-41b75610",
+        "type": "integrating",
+        "at": "2026-10-07T01:47:09.008Z",
+        "task": "A114",
+        "integration": "41b75610e7bb1931d69ad6f35fe6b1f2aed16c93"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A114-c20657b3",
+        "type": "integrating",
+        "at": "2026-10-07T02:03:05.761Z",
+        "task": "A114",
+        "integration": "c20657b3dda65723ca2d4237f07cc6adb2c24daf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "a114-review-integration",
+        "type": "integrating",
+        "at": "2026-10-07T02:06:28.225Z",
+        "task": "A114",
+        "integration": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "a114-validated",
+        "type": "validated",
+        "at": "2026-10-07T02:14:46.311Z",
+        "task": "A114",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "a114-accepted",
+        "type": "accepted",
+        "at": "2026-10-07T02:21:30.872Z",
+        "task": "A114"
       }
     ]
   },
   "development": {
-    "executionCommit": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
-    "measuredAt": "2026-10-07T01:19:31.882Z",
+    "executionCommit": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+    "measuredAt": "2026-10-07T02:14:14.848Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
