@@ -10,7 +10,7 @@
   "recordingSha256": "3cfbc4023915bdcd4306e0f50c3de267addc8352bf23eb10705460841e233811",
   "evaluationPath": "challenges/evaluations/20261007050439-v25.json",
   "evaluationCommit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
-  "commit": "216727c926f89591de2fcfbe9e9819b2c0b8af8a",
+  "commit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v25",
