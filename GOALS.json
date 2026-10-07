@@ -184480,7 +184480,7 @@
     {
       "id": "fix-explode-fatal-last-msg-v24-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Match fatal explosion wording after intervening item damage messages",
       "cFile": "explode.c",
       "sessions": [
@@ -184488,8 +184488,12 @@
       ],
       "selectionReason": "The current complete v24 investigation isolates the remaining one-screen mismatch to explode selecting fatal wording from iflags.last_msg after vpline clears the caught-in-explosion marker; explode and the message-state contract have no active reservation.",
       "detail": "Implement the narrow explode.c:explode fatal-wording branch and the corresponding pline.c:vpline last-message reset in the existing JavaScript message pipeline. Preserve all explosion damage, item-damage, message, and cursor order. Verify the admitted v24 pyrolisk egg case and focused last-message behavior without claiming unrelated whole-source completion.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "261c37214f73b60547dd071f4d320bbba3c21af0",
+      "openStanding": {
+        "sha": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "explode",
@@ -184508,7 +184512,235 @@
           "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
           "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-eat-pyrolisk-egg",
+          "session": "synthetic/v24/v24-eat-pyrolisk-egg",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-eat-pyrolisk-egg.session.json",
+          "recordingPath": "challenges/cases/v24/v24-eat-pyrolisk-egg.session.json",
+          "recordingSha256": "d740fef7e4236d8895adf3cc186996c3703822821d3cdbf922e427b432457365",
+          "recipe": "challenges/cases/v24/v24-eat-pyrolisk-egg.recipe.session.json",
+          "recipeSha256": "faa55bbd5fde5eabeab76b5870ce2930d6eff901454695c27196cf7e6a21f17d",
+          "replayInputSha256": "6a6c7538e1bfbfcfeaa001ce540beee35dc724c9a462e13bdc8690d2f64d9526",
+          "evaluationPath": "challenges/evaluations/20261007012022-v24.json",
+          "evaluationCommit": "7bf6a466cb12dce5cbec84e10c78261d8c54e447",
+          "evaluationArtifact": "challenges/evaluations/20261007012022-v24.json",
+          "evaluationUtc": "2026-10-07T01:21:51.233Z",
+          "remainingScreens": 1,
+          "recordedSteps": 30,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 30
+            },
+            "rng": {
+              "matched": 2540,
+              "total": 2540
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 30
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 27,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 27,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 27,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 27,
+                "key": " "
+              },
+              "cCursor": [
+                30,
+                0,
+                1
+              ],
+              "jsCursor": [
+                20,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 27,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-eat-pyrolisk-egg.json",
+            "result": {
+              "session": "synthetic/v24/v24-eat-pyrolisk-egg",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-eat-pyrolisk-egg",
+              "remainingScreens": 1,
+              "recordedSteps": 30,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "d740fef7e4236d8895adf3cc186996c3703822821d3cdbf922e427b432457365",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-eat-pyrolisk-egg",
+                "session": "synthetic/v24/v24-eat-pyrolisk-egg",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-eat-pyrolisk-egg.session.json",
+                "recordingPath": "challenges/cases/v24/v24-eat-pyrolisk-egg.session.json",
+                "recordingSha256": "d740fef7e4236d8895adf3cc186996c3703822821d3cdbf922e427b432457365",
+                "recipe": "challenges/cases/v24/v24-eat-pyrolisk-egg.recipe.session.json",
+                "recipeSha256": "faa55bbd5fde5eabeab76b5870ce2930d6eff901454695c27196cf7e6a21f17d",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 1,
+                "recordedSteps": 30,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 30
+                  },
+                  "rng": {
+                    "matched": 2540,
+                    "total": 2540
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 30
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 27,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 27,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 27,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 27,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      30,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      20,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 27,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The remaining mismatch is fatal-blast wording after a pyrolisk egg burns the hero’s cloak. C sets iflags.last_msg to CAUGHT_IN_EXPLOSION after the caught message, but the intervening cloak-smouldering message clears it in pline.c:vpline; explode() then prints “The fireball is fatal.” Port this last_msg flow through js/tty_message.js and branch in js/explode.js instead of always printing “It is fatal.”",
+              "source": {
+                "file": "explode.c",
+                "branch": "When a non-polymorphed hero takes lethal fire damage from a visible explosion while verbose messages are enabled, explode() emits the caught-in-explosion message and marks iflags.last_msg. If a later pline message (here, the cloak-smouldering item damage message) clears that marker before the fatal-message branch, C uses pline_The(\"%s is fatal.\", str); otherwise it uses \"It is fatal.\".",
+                "functions": [
+                  "explode"
+                ],
+                "callers": [
+                  "eat.c:fprefx (2099-2109) consumes an EGG laid by PM_PYROLISK and calls explode(u.ux, u.uy, -11, d(3, 6), 0, EXPL_FIERY); js/eat.js:fprefx (3179-3185) is the corresponding production caller.",
+                  "explode.c:explode (594-603, 668-675) marks the caught-in-explosion message and later selects fatal wording; js/explode.js:explode (655-692) is the corresponding runtime implementation."
+                ],
+                "dependencies": [
+                  "pline.c:vpline (280-281) resets iflags.last_msg to PLNMSG_UNKNOWN after a displayed message. Implement the same emitted-message reset in js/tty_message.js so the intervening cloak message cancels the explosion marker before js/explode.js selects fatal wording."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved queue entry from challenges/evaluations/20261006225046-v24.json at 84d84e111155ac834c43327b7c696055df294349 has 29/30 matching screens and cursors and 2540/2540 matching RNG calls. Its first mismatch is step 27 after Space: the C/JS first cells are T/I and the cursor columns are 30/20. The one-session diagnostic replay reproduces this signature; it reports replay revision 3470fce7b2ee7ab949c421ea2abd70fac3854b4e, whose js/eat.js, js/explode.js, and js/tty_message.js files are unchanged at the examined 84d84e1 commit.",
+                "C eat.c:fprefx (2102-2109) consumes the pyrolisk egg and calls explode() with type -11 and EXPL_FIERY. The matching JS eat.js:fprefx branch reaches js/explode.js:explode with the same fireball route.",
+                "C explode.c:explode sets iflags.last_msg to PLNMSG_CAUGHT_IN_EXPLOSION after its caught message (602-603). It applies fire damage and item effects before checking the marker at 668-672. The recorded step 26 includes “Your cloak smoulders!”, so pline.c:vpline has cleared the marker by the fatal wording; C therefore emits “The fireball is fatal.”",
+                "JS explode.js:explode (655-692) neither sets the caught-in-explosion marker nor chooses between the source branches; it always sends “It is fatal.” The JS TTY pipeline in tty_message.js (453-582) does not apply pline.c:vpline’s last_msg reset after an emitted message. Fix the narrow state/message contract in those two existing implementations."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
