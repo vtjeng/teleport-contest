@@ -39,12 +39,11 @@ import {
     PICKLOCK_DID_NOTHING,
     PICKLOCK_DID_SOMETHING,
     PICKLOCK_LEARNED_SOMETHING,
-    UnsupportedLockError,
     pick_lock,
     reset_pick,
 } from '../js/lock.js';
 import { newMonster } from '../js/monst.js';
-import { M1_NOHANDS, S_FELINE } from '../js/monsters.js';
+import { M1_NOHANDS, PM_PURPLE_WORM, S_FELINE } from '../js/monsters.js';
 import {
     ARROW,
     CHEST,
@@ -220,8 +219,8 @@ test('a closed or locked door prompts to lock or unlock', async () => {
 test('AUTOUNLOCK_UNTRAP fires on the manual path', async () => {
     // Regression: lock.js guarded this with `autounlock &&`, skipping it when
     // rx=0 (manual #apply). C lock.c:605 checks flags.autounlock
-    // unconditionally. With rx=0 and AUTOUNLOCK_UNTRAP set, pick_lock must
-    // throw UnsupportedLockError.
+    // unconditionally. With rx=0 it still asks about the door trap; quit
+    // returns PICKLOCK_DID_NOTHING before beginning an occupation.
     await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
     doorNorth().flags = D_LOCKED;
     game.flags ??= {};
@@ -230,13 +229,9 @@ test('AUTOUNLOCK_UNTRAP fires on the manual path', async () => {
     // Push 'k' for get_adjacent_loc's direction prompt (north, toward the
     // door). rx=0 is the manual path (hero typed #apply, not walked into the
     // door).
-    answer('k');
-    await assert.rejects(
-        () => pick_lock(pick, 0, 0, null, game),
-        (error) => error instanceof UnsupportedLockError
-            && error.branch === 'AUTOUNLOCK_UNTRAP door path',
-        'manual pick_lock with AUTOUNLOCK_UNTRAP must throw',
-    );
+    answer('k', 'q');
+    assert.equal(await pick_lock(pick, 0, 0, null, game), PICKLOCK_DID_NOTHING);
+    assert.match(game._ttyPreviousMessage, /^Check this door for a trap\?/u);
 });
 
 test('a hero in a pit cannot reach over its edge', async () => {
@@ -488,11 +483,11 @@ test('a drawbridge wall names the drawbridge instead of the door', async () => {
     }
 });
 
-test('a monster on the chosen square stops before the door is read',
+test('a visible monster on the chosen square spends a turn before reading the door',
     async () => {
     // lock.c:559-576. C separates a seen monster from a door mimic and falls
-    // through for anything else; this port stops for any monster, so the test
-    // uses one whose square would otherwise answer the live arm.
+    // through for anything else. The visible monster occupies a square
+    // whose open door would otherwise select the doormask arm.
     await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
     const x = game.u.ux;
     const y = game.u.uy - 1;
@@ -508,14 +503,11 @@ test('a monster on the chosen square stops before the door is read',
         },
     });
     answer(LOCK_PICK_SLOT, 'k');
-    await assert.rejects(
-        () => doapply(game),
-        (error) => error instanceof UnsupportedLockError
-            && error.branch === 'a monster on the chosen square',
-    );
+    assert.equal(await doapply(game), ECMD_TIME);
+    assert.equal(pendingTopLine(), "I don't think the newt would appreciate that.");
 });
 
-test('pick_lock stops on every entry doapply() does not use', async () => {
+test('pick_lock handles dummy tools, resumed occupations and guards', async () => {
     // lock.c:421. A nonzero rx with null container is the autounlock door
     // path, now ported. The test setup leaves the door at D_ISOPEN, so
     // pick_lock reports "You cannot lock an open door." without prompting.
@@ -528,24 +520,20 @@ test('pick_lock stops on every entry doapply() does not use', async () => {
     );
 
     // lock.c:373-376, do_loot_cont()'s Null pick.
-    await assert.rejects(
-        () => pick_lock(null, 0, 0, null, game),
-        (error) => error instanceof UnsupportedLockError
-            && error.branch === "do_loot_cont()'s Null pick",
-    );
+    await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
+    answer('k');
+    assert.equal(await pick_lock(null, 0, 0, null, game), PICKLOCK_LEARNED_SOMETHING);
 
     // lock.c:380. Both halves of the resume test have to hold: reset_pick()
     // leaves usedtime 0, and a different tool starts a fresh attempt. It is
     // also what builds gx.xlock in the first place, because nothing on a
     // freshly made level has touched the occupation context yet.
+    await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
     reset_pick(game);
     game.xlock.usedtime = 1;
     game.xlock.picktyp = LOCK_PICK;
-    await assert.rejects(
-        () => pick_lock(pick, 0, 0, null, game),
-        (error) => error instanceof UnsupportedLockError
-            && error.branch === 'resuming an interrupted attempt',
-    );
+    assert.equal(await pick_lock(pick, 0, 0, null, game), PICKLOCK_DID_SOMETHING);
+    assert.equal(game.go.occtxt, 'picking the lock');
     // Each half on its own lets the attempt through to the door. A fresh
     // replay in between keeps the pending open-door message from turning the
     // next prompt into a --More--.
@@ -566,18 +554,14 @@ test('pick_lock stops on every entry doapply() does not use', async () => {
     // call reaches this pair.
     await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
     game.youmonst.data = { ...game.youmonst.data, mflags1: M1_NOHANDS };
-    await assert.rejects(
-        () => pick_lock(lockPick(), 0, 0, null, game),
-        (error) => error instanceof UnsupportedLockError
-            && error.branch === "pick_lock()'s no-hands message",
-    );
+    assert.equal(await pick_lock(lockPick(), 0, 0, null, game), PICKLOCK_DID_NOTHING);
+    assert.match(pendingTopLine(), /you have no hands!/u);
+    await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
     game.youmonst.data = { ...game.youmonst.data, mflags1: 0 };
     game.u.uswallow = 1;
-    await assert.rejects(
-        () => pick_lock(lockPick(), 0, 0, null, game),
-        (error) => error instanceof UnsupportedLockError
-            && error.branch === "pick_lock()'s engulfed message",
-    );
+    game.u.ustuck = newMonster({ data: game.mons[PM_PURPLE_WORM] });
+    assert.equal(await pick_lock(lockPick(), 0, 0, null, game), PICKLOCK_DID_NOTHING);
+    assert.match(pendingTopLine(), /^You can't lock or unlock /u);
 });
 
 test('get_adjacent_loc turns a direction into the square it names',

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B135 prayer entry; bounded C-only seed range7135202..7135211 yielded curse witnesses7135203/04/05. Keep the first prayer through curse completion, before another anger owner is selected.",
+  "segments": [
+    {
+      "seed": 7135203,
+      "datetime": "20381104142000",
+      "nethackrc": "OPTIONS=name:CurseSource,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen,time\n",
+      "moves": " #pray\ny n   "
+    }
+  ]
+}

@@ -190964,25 +190964,32 @@
     {
       "id": "port-lock-pick-lock-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete lock selection behavior for monsters, doors, and boxes",
       "cFile": "lock.c",
       "sessions": [
         "synthetic/v26/v26-lock-key-visible-monster"
       ],
-      "selectionReason": "Next admitted v26 mismatch: 8 remaining screens at step 55 where a visible monster should produce the source message and spend a turn.",
+      "selectionReason": "Dependency-aware worker queue selected ready delivery B134 after C131 publication; admitted v26-lock-key-visible-monster first stops in lock.c pick_lock.",
       "detail": "Port whole partially implemented pick_lock and preserve its existing doapply, do_loot_cont, and doopen_indir callers. Implement visible-monster, shopkeeper/Oracle, door-mimic, door, box, autounlock, and artifact-touch behavior in source order; retain discarded unported side effects as named gaps.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "f85f3914bae20f4953002d1283b646d42f2a8256",
+      "openStanding": {
+        "sha": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "pick_lock",
           "line": 358,
           "endLine": 659,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -191002,12 +191009,272 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
+      },
+      "activeStanding": {
+        "sha": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-lock-key-visible-monster",
+          "session": "synthetic/v26/v26-lock-key-visible-monster",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+          "recordingPath": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+          "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+          "recipe": "challenges/cases/v26/v26-lock-key-visible-monster.recipe.session.json",
+          "recipeSha256": "bd2284aca6fa81ddb0d57ed6b9e36a030ccd91b3dd650e978bb6ede0a130a9cb",
+          "replayInputSha256": "bf302173e9c1efc3f7ccf733747c1ccf258246092d53f7c4cf73dce04d1412a9",
+          "evaluationPath": "challenges/evaluations/accepted-2487002c122fbc56a7fccfd3378c1eae307b2d4a-v26.json",
+          "evaluationCommit": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+          "evaluationArtifact": "challenges/evaluations/accepted-2487002c122fbc56a7fccfd3378c1eae307b2d4a-v26.json",
+          "evaluationUtc": "2026-10-07T16:36:56.045Z",
+          "remainingScreens": 8,
+          "recordedSteps": 63,
+          "previousScreensMatched": 55,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 55,
+              "total": 63
+            },
+            "rng": {
+              "matched": 2711,
+              "total": 2719
+            },
+            "cursors": {
+              "matched": 55,
+              "total": 63
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+            "step": 55
+          },
+          "step": 55,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-lock-key-visible-monster.json",
+            "result": {
+              "session": "synthetic/v26/v26-lock-key-visible-monster",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-lock-key-visible-monster",
+              "remainingScreens": 8,
+              "recordedSteps": 63,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "commit": "a882a9784160f83d2b3317ed977c51c754490472",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-lock-key-visible-monster",
+                "session": "synthetic/v26/v26-lock-key-visible-monster",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+                "recordingPath": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+                "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+                "recipe": "challenges/cases/v26/v26-lock-key-visible-monster.recipe.session.json",
+                "recipeSha256": "bd2284aca6fa81ddb0d57ed6b9e36a030ccd91b3dd650e978bb6ede0a130a9cb",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 8,
+                "recordedSteps": 63,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 55,
+                    "total": 63
+                  },
+                  "rng": {
+                    "matched": 2711,
+                    "total": 2719
+                  },
+                  "cursors": {
+                    "matched": 55,
+                    "total": 63
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+                  "step": 55
+                },
+                "step": 55,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "status": "complete",
+              "summary": "The refusal at segment 0 step 55 is an unsupported JavaScript placeholder, not a C precondition. C accepts the adjacent square containing a visible ordinary monster far enough to report that the monster would not appreciate lock picking, then returns PICKLOCK_LEARNED_SOMETHING so the apply command spends a turn. JavaScript currently throws for any monster at the chosen square before checking visibility or map disguise, so it both rejects valid C behavior and skips the recorded message and turn. Port the whole partially implemented lock.c:pick_lock function, including its other fail-closed branches, while preserving its existing doapply, do_loot_cont, and doopen_indir callers.",
+              "source": {
+                "file": "lock.c",
+                "branch": "In the adjacent-door arm, C first gets mtmp with m_at(cc.x, cc.y). A visible monster whose M_AP_TYPE is neither M_AP_FURNITURE nor M_AP_OBJECT enters the monster response arm. For this skeleton-key case C prints \"I don't think the giant ant would appreciate that.\" with mon_nam() and returns PICKLOCK_LEARNED_SOMETHING. A credit card used on a shopkeeper or the Oracle has its own verbalize branch. A door-mimicking monster is handled next; otherwise even a monster can fall through to ordinary door/map checks. The mere presence of a monster is not a precondition.",
+                "functions": [
+                  "pick_lock"
+                ],
+                "callers": [
+                  "apply.c:doapply() calls pick_lock(obj, 0, 0, NULL) for LOCK_PICK, CREDIT_CARD, and SKELETON_KEY (4285-4289); the recorded direct apply path reaches this caller. JavaScript is already wired through apply.js:doapply().",
+                  "pickup.c:do_loot_cont() calls pick_lock(unlocktool, ox, oy, cobj) for container autounlock (2125-2135); JavaScript is already wired through pickup.js:do_loot_cont().",
+                  "lock.c:doopen_indir() calls pick_lock(unlocktool, cc.x, cc.y, NULL) for door autounlock (876-883); JavaScript is already wired through lock.js:doopen_indir()."
+                ],
+                "dependencies": [
+                  "For the reproduced ordinary visible-monster arm, reuse the existing source-backed m_at (monst.js), canseemon (display.js), M_AP_TYPE (const.js), mon_nam (do_name.js), and ttyPline (tty_message.js). Apply.c converts every nonzero PICKLOCK result, including PICKLOCK_LEARNED_SOMETHING, to ECMD_TIME.",
+                  "The whole pick_lock function also has a distinct CREDIT_CARD shopkeeper/Oracle arm requiring SetVoice and verbalize, and a door-mimic arm requiring is_door_mappear and stumble_onto_mimic. C then calls maybe_absorb_item(mtmp, pick, 50, 10), whose result it discards; if still unported, preserve the gap with note_unported('lock.c maybe_absorb_item') rather than inventing effects.",
+                  "Audit the existing AUTOUNLOCK_UNTRAP and autounlock artifact-touch branches against lock.c:472-480, 605-612, and 628-630. could_untrap and touch_artifact return values control C behavior; untrap results are discarded. The corresponding JavaScript paths currently include fail-closed throws in pick_lock."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved baseline challenges/evaluations/20261007095608-v26.json at evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44 records 55/63 matching screens and cursors, 2711/2719 matching RNG calls, and 8 remaining screens. The exact queue first stop is segment 0, zero-based step 55: UnsupportedLockError from the monster-on-square placeholder.",
+                "The independently recorded C input challenges/cases/v26/v26-lock-key-visible-monster.session.json has key h at segment 0 step 55 and shows the message \"I don't think the giant ant would appreciate that.\" The step advances the turn; its RNG trace includes mcalcmove, maybe_generate_rnd_mon, gethungry, and moveloop_core.",
+                "Upstream nethack-c/upstream/src/lock.c:559-570 checks m_at, canseemon, and disguise type before emitting the ordinary-monster response and returning PICKLOCK_LEARNED_SOMETHING. Lines 571-576 separately handle a door mimic. This directly contradicts treating m_at() != NULL as a lock-picking precondition.",
+                "The JavaScript placeholder is js/lock.js:867-870: it throws UnsupportedLockError whenever m_at returns a monster. Its message template at js/lock.js:148 says \"picking a lock requires ...\"; this is internal fail-closed diagnostic wording, not a C game message or behavior.",
+                "Because pick_lock is an existing partial implementation and the unported arm is inside that whole C function, selection.md requires a file-port of lock.c:pick_lock, not a narrow divergence-fix. The source already has production callers in apply.c, pickup.c, and lock.c, with corresponding JavaScript calls in apply.js, pickup.js, and lock.js; validate their wiring while implementing the whole function."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pick_lock",
+            "implementation": "js/lock.js",
+            "symbol": "pick_lock",
+            "sourceReview": "Read complete lock.c:358-659 in definition order. Preserve dummy zero object, resumed-attempt guards and reset, no-hands/swallow/tool guards, supplied/manual coordinates, floor up/lava/pool/reach guards, container chain and discovered-container filtering, broken/card/artifact conditions, all three chance tables and cursed integer division, pit guard, visible ordinary/shop/Oracle monsters, door mimic reveal, nondoor glyph/lastseen comparison, exact doormask switch, unconditional AUTOUNLOCK_UNTRAP door check, declined prompt, touch_artifact consumed Boolean and shared context/occupation tail. Read direct dependencies nohands, get_adjacent_loc/yn_function, can_reach_floor, safe_qbuf/name helpers, could_untrap/untrap, is_magic_key/touch_artifact, lock_action/reset_pick/picklock/set_occupation, m_at/canseemon, stumble_onto_mimic/that_is_a_mimic/wakeup, feel_location/update_mapseen_for. Corrected consumed monst.h is_door_mappear predicate to canonical generated S_hcdoor/S_vcdoor symbols; focused regression failed before and passed after correction. Exported existing trap.c untrap owner for awaited production use, without changing its body. Removed obsolete pick_lock UnsupportedLockError refusals; unrelated lock owner refusals remain. Source steal.c:772-811 maybe_absorb_item is void; C discards its result, so skip only that callee with note_unported, preserving reveal before gap and learned-something return after it. SetVoice has no state/output effect in reference tty build. Invalid-tool impossible diagnostic is a named pline gap for invalid input; no RNG/output/state is invented.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c lock-pick/credit-card/skeleton-key switch arm calls pick_lock(obj,0,0,NULL), maps nonzero to ECMD_TIME, then common arti_speak tail; existing awaited caller remains."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "do_loot_cont",
+                "source": "pickup.c:2112-2145 floor locked-container autounlock calls pick_lock(unlocktool,cobj->ox,cobj->oy,cobj), including NULL tool for untrap-only option; result controls ECMD_TIME."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen_indir",
+                "source": "lock.c doopen_indir locked-door AUTOUNLOCK_APPLY_KEY arm calls pick_lock(otmp,x,y,NULL) after door message; existing production autoopen path remains."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock-pick-lock.test.mjs",
+              "scripts/apply-lock-pick.test.mjs",
+              "scripts/closed-door-autoopen.test.mjs",
+              "scripts/lock.test.mjs",
+              "scripts/loot-command.test.mjs",
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-manual-visible-b134.session.json",
+              "recordings/lock.c/pick-lock-container-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-container-cursed-b134.session.json",
+              "recordings/lock.c/pick-lock-door-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-door-untrap-b134.session.json",
+              "recordings/lock.c/pick-lock-container-untrap-b134.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-lock-key-visible-monster",
+                "segment": 0,
+                "fromStep": 55,
+                "throughStep": 62,
+                "source": "cmd.c apply dispatcher -> apply.c doapply lock-tool arm -> lock.c pick_lock visible-monster guard returns PICKLOCK_LEARNED_SOMETHING, caller spends a turn."
+              }
+            ],
+            "checkedAt": "6230bfd1a69cb9aec23c350e4e7b45b747a48594"
+          }
+        ],
+        "entryPointReview": "All three active source entries are manual apply of lock tools, floor-container #loot autounlock, and door #open/autoopen autounlock. C recorder includes all three; none is build-inactive. Manual visible-monster evidence is admitted plus independent, container recordings cover ordinary/cursed occupation, door recordings cover ordinary occupation plus canonical no-trap untrap. Pure consumed door-mimic predicate and rarely reachable resumed/dummy/chance branches are source-pinned; discarded mimic absorption remains outside this unit. Independent untrap-only container recording also exercises the active NULL-tool/dummy path.",
+        "entryPoints": [
+          {
+            "name": "Manual lock-tool apply",
+            "functions": [
+              "pick_lock"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-manual-visible-b134.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-lock-key-visible-monster",
+                "segment": 0,
+                "fromStep": 55,
+                "throughStep": 62,
+                "source": "cmd.c apply dispatcher -> apply.c doapply lock-tool arm -> lock.c pick_lock visible-monster guard returns PICKLOCK_LEARNED_SOMETHING, caller spends a turn."
+              }
+            ]
+          },
+          {
+            "name": "Floor-container autounlock through #loot",
+            "functions": [
+              "pick_lock"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-container-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-container-cursed-b134.session.json",
+              "recordings/lock.c/pick-lock-container-untrap-b134.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Door autounlock through autoopen",
+            "functions": [
+              "pick_lock"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-door-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-door-untrap-b134.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-steed-mount-steed-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete mount checks and wounded-leg feedback",
       "cFile": "steed.c",
       "sessions": [
@@ -191015,17 +191282,24 @@
       ],
       "selectionReason": "Next admitted v26 mismatch after lock selection: 7 remaining screens where C refuses mounting with wounded-leg feedback and JavaScript throws.",
       "detail": "Port whole mount_steed and retain doride wiring. Preserve wounded-leg feedback, debug force-heal, mount eligibility, saddle, pet, trap, levitation, encumbrance, and state transitions in source order using canonical legs_in_no_shape and heal_legs helpers.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "b4755e128d543965758843fd6eac7886fdb86779",
+      "openStanding": {
+        "sha": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "ed31d3aee992418d4a1285e0eb05e06546b20496",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mount_steed",
           "line": 197,
           "endLine": 386,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -191045,12 +191319,253 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
+      },
+      "activeStanding": {
+        "sha": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-wounded-rider-mount",
+          "session": "synthetic/v26/v26-wounded-rider-mount",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+          "recordingPath": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+          "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+          "recipe": "challenges/cases/v26/v26-wounded-rider-mount.recipe.session.json",
+          "recipeSha256": "5c5f4d281c57d875bc7d6eabbf2b6f86fde968b6e43527b93e713ca7673cf0be",
+          "replayInputSha256": "48983f695077e962873d6d208f3b2a80645bfb868ce3faa3878ba444405a61ff",
+          "evaluationPath": "challenges/evaluations/accepted-6230bfd1a69cb9aec23c350e4e7b45b747a48594-v26.json",
+          "evaluationCommit": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+          "evaluationArtifact": "challenges/evaluations/accepted-6230bfd1a69cb9aec23c350e4e7b45b747a48594-v26.json",
+          "evaluationUtc": "2026-10-07T16:49:10.545Z",
+          "remainingScreens": 7,
+          "recordedSteps": 35,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2733,
+              "total": 2733
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "steed.c",
+          "function": "mount_steed",
+          "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+          "cFile": "steed.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-wounded-rider-mount.json",
+            "result": {
+              "session": "synthetic/v26/v26-wounded-rider-mount",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-wounded-rider-mount",
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "remainingScreens": 7,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "feb68ba893d0499cd0aaa04e32e2e7ff11f850b8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-wounded-rider-mount",
+                "session": "synthetic/v26/v26-wounded-rider-mount",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+                "recordingPath": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+                "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+                "recipe": "challenges/cases/v26/v26-wounded-rider-mount.recipe.session.json",
+                "recipeSha256": "5c5f4d281c57d875bc7d6eabbf2b6f86fde968b6e43527b93e713ca7673cf0be",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 7,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2733,
+                    "total": 2733
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "steed.c",
+                "function": "mount_steed",
+                "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+                "cFile": "steed.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "With timed wounded legs, the recorded #ride answer declines the optional debug force prompt. C intentionally refuses the mount after printing “Your leg is in no shape for riding.” JavaScript currently throws UnsupportedSteedError at this guard, stopping before the expected screen and cursor. This is a missing branch in the partially ported steed.c:mount_steed function; the shared wounded-leg feedback and healing helpers already exist in js/do.js.",
+              "source": {
+                "file": "steed.c",
+                "branch": "When Wounded_legs is true at mount_steed entry, the function calls legs_in_no_shape(\"riding\", FALSE). It then asks “Heal your legs?” only when force && wizard; otherwise, including the recorded declined force prompt, it returns FALSE without mounting. An accepted force-heal answer clears the wound and continues through the remaining mount checks.",
+                "functions": [
+                  "mount_steed"
+                ],
+                "callers": [
+                  "steed.c:doride() (177-192), which obtains the force answer and returns mount_steed() as ECMD_TIME or ECMD_OK",
+                  "cmd.c:extcmdlist doride entry (around 1834), which exposes the production #ride command"
+                ],
+                "dependencies": [
+                  "do.c:legs_in_no_shape() (2408-2423), already implemented in js/do.js",
+                  "do.c:heal_legs() (2448-2486), already implemented in js/do.js and used by the force && wizard affirmative branch",
+                  "youprop.h:Wounded_legs/HWounded_legs/EWounded_legs; JavaScript stores the timeout and wounded-side bits in WOUNDED_LEGS intrinsic/extrinsic state"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/manifests/v26.json records the case route: steed.c:doride asks the debug force question; the response at step 27 is n; C emits “Your leg is in no shape for riding.” at step 28.",
+                "nethack-c/upstream/src/steed.c:178-192 shows doride passing the force flag to mount_steed and mapping FALSE to ECMD_OK. nethack-c/upstream/src/steed.c:225-238 shows the wounded-leg guard, feedback call, optional force-heal question, and intentional FALSE return.",
+                "nethack-c/upstream/src/do.c:2408-2423 defines legs_in_no_shape, which derives side and singular/plural wording from EWounded_legs. js/do.js:3053-3077 already implements this feedback helper; js/do.js:3128-3159 implements heal_legs for the force affirmative branch.",
+                "js/steed.js:456-482 currently throws UnsupportedSteedError when WOUNDED_LEGS is active instead of calling legs_in_no_shape and following C’s conditional heal-or-return path. The saved evaluation reports the first mismatch at step 28 with matched RNG (2733/2733), and missing screen/cursor output from the JavaScript stop.",
+                "Selection scope is the whole steed.c:mount_steed function, as required for a C file-port. Its existing doride caller is already wired in js/steed.js; the implementation task must retain that production path and remove the unsupported placeholder when the complete function is ported."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mount_steed",
+            "implementation": "js/steed.js",
+            "symbol": "mount_steed",
+            "sourceReview": "Read complete steed.c:mount_steed197-386 and sole C caller doride177-192. Compared every eligibility guard, expression short circuit, RNG call, message, field mutation and success transition. Replaced wounded-leg, long-worm-tail, petrifying-touch, trapped-steed and untaming-leash UnsupportedSteedError placeholders. Wound feedback uses do.c:legs_in_no_shape; source force&&wizard acceptance calls heal_legs before remaining guards. Preserved the source HWounded_legs intrinsic-mask prompt plural, which differs from the EWounded_legs feedback side mask. Canonical a_monnam, mon_nam/Monnam, mhe and trapname own source naming; mhe gets canonical canspotmon for its consumed visibility result. Read mondata.c:pronoun_gender and its non-humanoid neutral result, do_name.c:a_monnam/mon_nam/Monnam and existing wrappers, trap.c:trapname and its display RNG, and do.c:legs_in_no_shape/heal_legs. C-discarded unported void callees are explicit note_unported(trap.c instapetrify) and note_unported(apply.c m_unleash); no substitute death or leash mutation is invented. All other existing source branches are retained: hallucination, wound, size/form, burden, hidden/mimic target, worm tail, held/punished/test_move, saddle/petrifying touch, tame/minion/trap, decrement/resist, underwater, can_saddle/can_ride, levitation, eroded armor, impairment and slip damage, wake and success. rnd(MAXULEV/2+5) remains behind every impairment short circuit; rn1(5,10) follows the slip message and is half-physical rounded up. maybewakesteed precedes success feedback; polearm unweapon, u.usteed, stealth block/feedback, remove_monster, awaited teleds and disp.botl keep source order.",
+            "callers": [
+              {
+                "path": "js/steed.js",
+                "symbol": "doride",
+                "source": "steed.c:doride177-192 obtains direction and wizard force confirmation; mount_steed(m_at(...),force) consumed as ECMD_TIME or ECMD_OK at187-188. Existing cmd.js doextcmd #ride registry calls this production dispatcher; no whole doride/dismount credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mount-steed.test.mjs",
+              "scripts/dismount-steed.test.mjs",
+              "scripts/ride-direction.test.mjs",
+              "scripts/wounded-legs.test.mjs"
+            ],
+            "recordings": [
+              "recordings/steed.c/mount-wounded-heal.session.json",
+              "recordings/steed.c/mount-wounded-decline.session.json",
+              "recordings/steed.c/mount-normal-check.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-wounded-rider-mount",
+                "segment": 0,
+                "fromStep": 20,
+                "throughStep": 34,
+                "source": "wizcmds.c:wiz_intrinsic writes timed WOUNDED_LEGS -> cmd.c:#ride -> steed.c:doride direction and declined force -> mount_steed Wounded_legs -> do.c:legs_in_no_shape -> FALSE/ECMD_OK"
+              }
+            ],
+            "checkedAt": "ed31d3aee992418d4a1285e0eb05e06546b20496"
+          }
+        ],
+        "entryPointReview": "Upstream search found exactly one active C caller: steed.c:doride187, exposed by cmd.c:extcmdlist #ride. Normal false-force entry is witnessed by the admitted wound-refusal range and independent normal impairment/slip recording. Debug true-force entry has independent accepted-heal mounted and declined-heal unmounted recordings, covering the new input wait and continuation. Existing successful normal mount/dismount and normal guard/slip matrices are refreshed separately. All eligibility guards have source-pinned tests, including worm tail, trapped non-humanoid pronoun, force-heal bit mismatch, and explicit void-callee gaps. Petrifier with worn saddle is unreachable from valid saddle owners: can_saddle excludes cockatrice/chickatrice, put_saddle_on_mon/use_saddle gate saddle creation and mon_break_armor removes invalid equipment after shape change; its artificial fixture pins the source touch message and skipped instapetrify. Leashed non-Knight untaming is a valid source branch, and m_unleash cleanup remains an explicit void gap rather than completion evidence for apply.c. Whole mount_steed caller is wired; no whole caller/helper owner is newly claimed.",
+        "entryPoints": [
+          {
+            "name": "Normal #ride mount attempt",
+            "functions": [
+              "mount_steed"
+            ],
+            "recordings": [
+              "recordings/steed.c/mount-normal-check.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-wounded-rider-mount",
+                "segment": 0,
+                "fromStep": 20,
+                "throughStep": 34,
+                "source": "wizcmds.c:wiz_intrinsic writes timed WOUNDED_LEGS -> cmd.c:#ride -> steed.c:doride direction and declined force -> mount_steed Wounded_legs -> do.c:legs_in_no_shape -> FALSE/ECMD_OK"
+              }
+            ]
+          },
+          {
+            "name": "Debug force mount with wounded-leg healing",
+            "functions": [
+              "mount_steed"
+            ],
+            "recordings": [
+              "recordings/steed.c/mount-wounded-heal.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Debug force mount with declined wound healing",
+            "functions": [
+              "mount_steed"
+            ],
+            "recordings": [
+              "recordings/steed.c/mount-wounded-decline.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ed31d3aee992418d4a1285e0eb05e06546b20496",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-insight-youhiding-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port hidden-form descriptions and caller messages",
       "cFile": "insight.c",
       "sessions": [
@@ -191058,8 +191573,12 @@
       ],
       "selectionReason": "Next admitted v26 mismatch: 7 remaining screens at step 41 because mimic state is updated but the youhiding message call is skipped.",
       "detail": "Port whole youhiding and wire both polyself.c dohide sites plus attributes_enlightenment. Preserve mimic, hiding, clinger, underwater, trap, object, furniture, and enlightenment wording in source order; remove only the caller refusal needed to reach the polymorphed enlightenment path.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "d74623f21704418a1502f9154998f8e39cd67328",
+      "openStanding": {
+        "sha": "599e3e6df48d02636d91d53bd092999a691b1242",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -191088,7 +191607,204 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "599e3e6df48d02636d91d53bd092999a691b1242",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-mimic-hide",
+          "session": "synthetic/v26/v26-mimic-hide",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-mimic-hide.session.json",
+          "recordingPath": "challenges/cases/v26/v26-mimic-hide.session.json",
+          "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+          "recipe": "challenges/cases/v26/v26-mimic-hide.recipe.session.json",
+          "recipeSha256": "f5a5be35a73801885992e001ccd04d5b379faf3c2c8e73a3e5eea5e8a62533eb",
+          "replayInputSha256": "76f1390aeb5e5dd95fa6343ea400b67f0fe4d438704251a5bd9dbcdc4177fbbc",
+          "evaluationPath": "challenges/evaluations/hosted-37659404968-1-v26.json",
+          "evaluationCommit": "599e3e6df48d02636d91d53bd092999a691b1242",
+          "evaluationArtifact": "challenges/evaluations/hosted-37659404968-1-v26.json",
+          "evaluationUtc": "2026-10-07T17:30:38.215Z",
+          "remainingScreens": 7,
+          "recordedSteps": 48,
+          "previousScreensMatched": 41,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2925,
+              "total": 2925
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 41,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 41,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-mimic-hide.json",
+            "result": {
+              "session": "synthetic/v26/v26-mimic-hide",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-mimic-hide",
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "remainingScreens": 7,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "1c767ef4db333bc77d9aa9e6e66046299b89e905",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-mimic-hide",
+                "session": "synthetic/v26/v26-mimic-hide",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-mimic-hide.session.json",
+                "recordingPath": "challenges/cases/v26/v26-mimic-hide.session.json",
+                "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+                "recipe": "challenges/cases/v26/v26-mimic-hide.recipe.session.json",
+                "recipeSha256": "f5a5be35a73801885992e001ccd04d5b379faf3c2c8e73a3e5eea5e8a62533eb",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 7,
+                "recordedSteps": 48,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 41,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 2925,
+                    "total": 2925
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 41,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 41,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At zero-based step 41, Enter completes #monster after the hero has polymorphed into a small mimic. C dispatches through domonability() to dohide(), which sets the mimic disguise to M_AP_OBJECT/STRANGE_OBJECT and redraws the hero, then youhiding(FALSE, 0) prints “You are now mimicking a strange object.” JavaScript reaches the same state and keeps RNG and cursor parity, but polyself.js:dohide() records note_unported(\"insight.c youhiding\") instead of producing that message. The missing source owner is insight.c:youhiding(). Port that whole function and wire its dohide and enlightenment callers; the polymorphed enlightenment route is currently blocked by an UnsupportedEnlightenmentError guard.",
+              "source": {
+                "file": "insight.c",
+                "branch": "For a polymorphed mimic with no prior disguise, polyself.c:dohide() sets U_AP_TYPE to M_AP_OBJECT and mappearance to STRANGE_OBJECT, then calls youhiding(FALSE, 0). youhiding() builds “mimicking a strange object” from simple_typename() and an(), and its non-enlightenment arm prints “You are now …”. The same whole function also handles already-hidden wording and enlightenment-line output.",
+                "functions": [
+                  "youhiding"
+                ],
+                "callers": [
+                  "cmd.c:domonability() dispatches the #monster command to polyself.c:dohide(); dohide() calls youhiding(FALSE, 1) for an existing hiding/disguise and youhiding(FALSE, 0) after entering hiding.",
+                  "insight.c:attributes_enlightenment() calls youhiding(TRUE, final) for a polymorphed hero who is hidden or mimicking; js/insight.js:enlightenment() currently rejects Upolyd before reaching that call."
+                ],
+                "dependencies": [
+                  "The active mimic-object arm uses objnam.c:simple_typename() and an(); their JavaScript counterparts exist in js/objnam.js.",
+                  "Other youhiding() arms use hides_under()/is_clinger(), dungeon.c:ceiling()/surface(), pager.c:waterbody_name(), trap.c:t_at(), and objnam.c:ansimpleoname(); corresponding JavaScript helpers exist. Preserve their source-selected wording when porting the whole function.",
+                  "Wire js/polyself.js:dohide() at both note_unported(\"insight.c youhiding\") sites and js/insight.js:attributes_enlightenment() at its note_unported site. Narrow/remove js/insight.js:enlightenment()’s UnsupportedEnlightenmentError(\"a polymorphed hero\") guard as needed so the C enlightenment caller is reachable, and record evidence for both caller paths."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261007095608-v26.json identifies synthetic/v26/v26-mimic-hide at zero-based segment 0, step 41, key Enter as the first mismatch. It reports 41/48 screens, 2925/2925 RNG calls, and 48/48 cursors; the first differing screen cell is row 0, column 0 (C “Y”, JS space).",
+                "Queue provenance identifies batch v26, manifest challenges/manifests/v26.json (SHA-256 3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7), recording challenges/cases/v26/v26-mimic-hide.session.json (SHA-256 7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f), and evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44. The recipe first uses #polyself to become a small mimic, then types #monster; steps 34–40 enter the command name and step 41’s newline dispatches it.",
+                "Upstream nethack-c/upstream/src/cmd.c:domonability() selects dohide() for a hider. In polyself.c:dohide() lines 1865–1872, the unhidden mimic receives M_AP_OBJECT/STRANGE_OBJECT, newsym() runs, and youhiding(FALSE, 0) is called. In insight.c:youhiding() lines 2022–2077, U_AP_TYPE==M_AP_OBJECT formats the appearance as “mimicking a strange object”; the non-enlightenment arm prints “You are now mimicking a strange object.” No random call or additional state update occurs in this message function.",
+                "The matching JavaScript call path is js/cmd.js:domonability() to js/polyself.js:dohide(). That function assigns the same disguise and calls newsym(), then reaches note_unported(\"insight.c youhiding\") at line 2750. js/insight.js:attributes_enlightenment() has the second caller gap at line 1251; its parent enlightenment() currently throws for Upolyd at line 1965.",
+                "This is missing source behavior rather than a defect in implemented mimic state: the saved trace matches through the completed #monster command name, the state-setting branch is present, and the first observed difference is the message emitted by the unported youhiding() callee. Use a file-port for the whole insight.c:youhiding() function, wire all direct callers, and include evidence for the command path and the polymorphed enlightenment path."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-insight-enlightenment-polymorph-v26-20261007",
@@ -191153,7 +191869,7 @@
     {
       "id": "port-sit-rndcurse-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port random inventory cursing and its active callers",
       "cFile": "sit.c",
       "sessions": [
@@ -191161,17 +191877,24 @@
       ],
       "selectionReason": "Final admitted v26 mismatch: 2 remaining screens and 13 RNG calls because the throne curse path skips rndcurse.",
       "detail": "Port whole rndcurse in source message and RNG order, including Magicbane, Antimagic, Half spell damage, inventory selection, artifact resistance, BUC changes, update_inventory, and saddle cursing. Wire active throne, monster-cast, prayer, and confused-book callers; keep the higher unported intervene caller explicit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "f47ab731d01174e48a7508972584a76169245235",
+      "openStanding": {
+        "sha": "ed31d3aee992418d4a1285e0eb05e06546b20496",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "33f3c8cb853b29c8b0878892d39460ee11beeeb8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rndcurse",
           "line": 569,
           "endLine": 643,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -191191,6 +191914,371 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
+      },
+      "activeStanding": {
+        "sha": "ed31d3aee992418d4a1285e0eb05e06546b20496",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-sit-throne",
+          "session": "synthetic/v26/v26-sit-throne",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-sit-throne.session.json",
+          "recordingPath": "challenges/cases/v26/v26-sit-throne.session.json",
+          "recordingSha256": "f9e854c524cd067a9d39816d783a2f229ca55a2e5e2167afc5dd2d40fb8a621d",
+          "recipe": "challenges/cases/v26/v26-sit-throne.recipe.session.json",
+          "recipeSha256": "9922aa359102b5550c4b15f3f8062a595182b84b34a39eba949f23a7bb109d4f",
+          "replayInputSha256": "5b66ac9655978d797090c20cf4bb87ef028a544fc600a4b9a10572251e391056",
+          "evaluationPath": "challenges/evaluations/accepted-ed31d3aee992418d4a1285e0eb05e06546b20496-v26.json",
+          "evaluationCommit": "ed31d3aee992418d4a1285e0eb05e06546b20496",
+          "evaluationArtifact": "challenges/evaluations/accepted-ed31d3aee992418d4a1285e0eb05e06546b20496-v26.json",
+          "evaluationUtc": "2026-10-07T17:09:14.699Z",
+          "remainingScreens": 2,
+          "recordedSteps": 59,
+          "previousScreensMatched": 57,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 57,
+              "total": 59
+            },
+            "rng": {
+              "matched": 2913,
+              "total": 2926
+            },
+            "cursors": {
+              "matched": 58,
+              "total": 59
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 59,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2913,
+              "cEntry": "rnd(3)=2",
+              "cCaller": "rndcurse(sit.c:593)",
+              "jsEntry": "rn2(3)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": " "
+              },
+              "stepIndex": 53
+            },
+            "cursor": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": " "
+              },
+              "cCursor": [
+                67,
+                0,
+                1
+              ],
+              "jsCursor": [
+                29,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-sit-throne.json",
+            "result": {
+              "session": "synthetic/v26/v26-sit-throne",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-sit-throne",
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingPath": "challenges/cases/v26/v26-sit-throne.session.json",
+              "recordingSha256": "f9e854c524cd067a9d39816d783a2f229ca55a2e5e2167afc5dd2d40fb8a621d",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "remainingScreens": 2,
+              "recordedSteps": 59,
+              "status": "complete",
+              "commit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-sit-throne",
+                "session": "synthetic/v26/v26-sit-throne",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-sit-throne.session.json",
+                "recordingPath": "challenges/cases/v26/v26-sit-throne.session.json",
+                "recordingSha256": "f9e854c524cd067a9d39816d783a2f229ca55a2e5e2167afc5dd2d40fb8a621d",
+                "recipe": "challenges/cases/v26/v26-sit-throne.recipe.session.json",
+                "recipeSha256": "9922aa359102b5550c4b15f3f8062a595182b84b34a39eba949f23a7bb109d4f",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 2,
+                "recordedSteps": 59,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 57,
+                    "total": 59
+                  },
+                  "rng": {
+                    "matched": 2913,
+                    "total": 2926
+                  },
+                  "cursors": {
+                    "matched": 58,
+                    "total": 59
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 59,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2913,
+                    "cEntry": "rnd(3)=2",
+                    "cCaller": "rndcurse(sit.c:593)",
+                    "jsEntry": "rn2(3)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": " "
+                    },
+                    "stepIndex": 53
+                  },
+                  "cursor": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      67,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      29,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The step-52 screen and cursor mismatch follows the missing sit.c:rndcurse() call in the effect-9 throne path. The prior verbalize() input boundary is aligned: after it is dismissed, C enters rndcurse(), whose first aura message creates another --More--; JavaScript records note_unported() and ends the move without that message. At step 53, C begins rndcurse RNG while JavaScript has reached throne_sit_effect()’s removal draw.",
+              "source": {
+                "file": "sit.c",
+                "branch": "For an ordinary throne, throne_sit_effect() selects effect 9, and Luck is zero or below, so it calls rndcurse() after verbalize() announces the curse. rndcurse() first checks the wielded Magicbane branch, then Antimagic, prints the malignant-aura message, counts non-gold inventory, draws a curse count from 6 divided by the Antimagic and Half_spell_damage modifiers, and repeatedly selects inventory items. It skips already-cursed objects, applies the artifact resistance draw when relevant, unblesses blessed items or curses other items, refreshes inventory, then checks a steed saddle.",
+                "functions": [
+                  "rndcurse"
+                ],
+                "callers": [
+                  "C sit.c:throne_sit_effect() case 9 (around line 143) calls rndcurse() when Luck <= 0. The assigned recording reaches this call. JavaScript js/sit.js:403-426 calls note_unported(\"sit.c rndcurse\") at the corresponding branch.",
+                  "C mcastu.c:castmu() MCAST_CURSE_ITEMS arm (lines 831-835) calls rndcurse(). JavaScript js/mcastu.js:812-816 records recordMcastGap(\"sit.c rndcurse\", env).",
+                  "C pray.c:angrygods() cases 4-5 (lines 752-759) call rndcurse() when rn2(2) is nonzero or attrcurse() returns zero. JavaScript js/pray.js:2350-2355 preserves the rn2/attrcurse structure but records note_unported() at both rndcurse call sites.",
+                  "C spell.c:confused_book() default arm (lines 180-183) calls rndcurse(). JavaScript js/spell.js:380-382 records note_unported(\"sit.c rndcurse\").",
+                  "C wizard.c:intervene() case 2 (lines 784-799) calls rndcurse(). No JavaScript intervene() caller was found at the examined commit; js/allmain.js:1148 identifies intervene() as unported. Keep that higher-level gap explicit if this port does not include it."
+                ],
+                "dependencies": [
+                  "rndcurse() is void; its callers discard its return. Preserve its message and random-call order because the first source-visible effect is the aura message, before the first inventory draw.",
+                  "Preserve the Magicbane short circuit: u_wield_art(ART_MAGICBANE) gates rn2(20); a nonzero result prints the artifact aura and returns. The existing JavaScript u_wield_art helper in js/trap.js is private, so js/sit.js must use an equivalent source-backed check or expose a shared helper.",
+                  "Read Antimagic and Half_spell_damage before computing rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1)); call shieldeff() before the aura message when Antimagic is active.",
+                  "Traverse inventory in nobj order while excluding COIN_CLASS. Preserve rnd(nobj) selection, already-cursed skips, the SPFX_INTEL artifact resistance rn2(10) < 8 branch, and unbless()/curse() mutations. Existing JavaScript counterparts are in js/obj.js; unbless() is asynchronous and its side effects must be awaited.",
+                  "Call update_inventory() after the inventory loop when nobj is nonzero. For a steed, preserve the short-circuit !rn2(4), which_armor(usteed, W_SADDLE), cursed check, BUC mutation, visibility-dependent glow message, and bknown update. Existing counterparts are in js/invent.js and js/worn.js.",
+                  "The current JS spec_ability() and shieldeff() implementations are in js/artifacts.js and js/display.js. Preserve source conditions and message formatting for the artifact and saddle branches."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261007095608-v26.json measures this case at evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44: 57/59 screens, 2913/2926 RNG entries, and 58/59 cursors. Its first screen and cursor mismatch is step 52: C row 0 column 59 contains \"-\" and cursor [67,0,1], while JavaScript has a blank cell and cursor [29,6,1]. The first RNG mismatch is step 53, C rnd(3)=2 @ rndcurse(sit.c:593) versus JavaScript rn2(3)=1 @ throne_sit_effect(sit.c:225).",
+                "The immutable recording challenges/cases/v26/v26-sit-throne.session.json has 59 steps. At steps 45-51 the Wizard answers the throne-effect getlin prompt with \"9\"; step 51 ends on \"A voice echoes:--More--\". Step 52 is a space and C shows the quoted curse followed by --More--; step 53 is another space and C records rnd(3)=2 at rndcurse():593, then rnd(14)=3 and rnd(14)=8 at rndcurse():596. These saved steps show that the first prompt was dismissed before the second boundary appeared.",
+                "C nethack-c/upstream/src/sit.c:39-145 runs effect 9, emits \"A voice echoes:\", calls verbalize(), then calls rndcurse() when Luck is not positive. In the recording, the step-51 More belongs to verbalize() replacing a line that cannot be appended to \"A voice echoes:\". After step 52 dismisses that boundary, rndcurse() prints \"You feel a malignant aura surround you.\" before its first draw; that next line cannot share the quoted curse line, so C reaches a second More on the quote at the step-52 snapshot. This explains the cursor and screen difference without attributing it to a misordered input read.",
+                "At the evaluated JavaScript source, js/sit.js:403-426 emits the voice message and calls pline.js:verbalize(), then substitutes note_unported(\"sit.c rndcurse\") for the C call when Luck <= 0. The TTY path in js/tty_message.js:454-601 consumes the first More while verbalize() replaces the prior line. Once that call returns, the skipped rndcurse() emits no aura message and makes no inventory draws, so the JavaScript action proceeds to the throne removal draw. The relevant JS files are unchanged between evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44 and examined commit 977b52fc55dfcecf490d4102dac0dbead3fbfc3b; the C submodule gitlink is 16ff59115315917b93185d026aeefea06db9b0f4 at both commits.",
+                "The missing source unit is the whole void function C nethack-c/upstream/src/sit.c:569-638. Its first RNG draw in the recorded branch is rnd(3) at line 593; its two subsequent rnd(14) item selections at line 596 precede throne_sit_effect() line 225. JavaScript currently reaches the line-225 rn2(3) first because it skipped the function. Port rndcurse() as a whole and wire its existing C-mirroring JavaScript call sites; keep the unrelated unported wizard.c:intervene() caller visible."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rndcurse",
+            "implementation": "js/sit.js",
+            "symbol": "rndcurse",
+            "sourceReview": "Read whole sit.c:569-638, direct callers and all consumed-return dependencies. Translate wielded Magicbane rn2(20) short-circuit; Antimagic shield before aura; nobj count excluding coins; source re-read of Antimagic/Half_spell_damage after aura/count; integer count bound; rnd(nobj) chain traversal; cursed/null skips; SPFX_INTEL resistance rn2(10)<8 and Tobjnam; awaited unbless/curse then update_inventory; steed short-circuit rn2(4), consumed which_armor, cursed skip, BUC before visible glow/hcolor and Hallucination/Blind bknown assignment. Canonical objectGenerationEnv carries actual state/random/message/planning through object BUC owners. Planning uses clone-local messages and supplied clone inventory; no live display is published. Consumed is_art/spec_ability/which_armor owners read and tested through source contracts; pure existing helpers remain in their canonical modules. Read mkobj.c unbless/curse, object_generation hooks, inventory refresh, shieldeff, Tobjnam/Yobjnam2/hcolor, Hallucination/Blind source property rules. Replace existing caller gap markers with awaited direct source calls, preserving message, draw and return order. rndcurse has no skipped callee. Wizard intervene higher owner remains outside assignment; cursed_book default wired but cannot run for current valid book levels.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c:143 effect9 calls rndcurse when Luck<=0 after verbalize; dosit and cmd.c #sit dispatch are existing production path."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "castmu",
+                "source": "mcastu.c:831-835 mcast_spell MCAST_CURSE_ITEMS calls rndcurse after need-help message and before zero damage; monmove/mhitu production planning and live handoff carry env/state/RNG."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "angrygods",
+                "source": "pray.c:752-759 cases4/5 call rndcurse after rn2(2) or consumed attrcurse returns0. Both branches awaited before source prayer timeout tail."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "cursed_book",
+                "source": "spell.c:180-183 default calls rndcurse; read.c/spell.c study_book/learn callers are unchanged. Source-unreachable for valid current spellbook types (all levels<=7, switch handles every0..6 draw); confused_book is a distinct function with no rndcurse call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rndcurse.test.mjs",
+              "scripts/sit-command.test.mjs",
+              "scripts/mcastu.test.mjs",
+              "scripts/pray.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/rndcurse-lich-blind-b135.session.json",
+              "recordings/sit.c/rndcurse-lich-visible-b135.session.json",
+              "recordings/sit.c/rndcurse-prayer-first-b135.session.json",
+              "recordings/sit.c/rndcurse-prayer-variation-b135.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-sit-throne",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 58,
+                "source": "cmd.c #sit -> sit.c dosit/throne_sit_effect case9 (Luck<=0) -> rndcurse aura/Antimagic display/inventory draws/BUC mutations/update_inventory before throne removal."
+              }
+            ],
+            "checkedAt": "33f3c8cb853b29c8b0878892d39460ee11beeeb8"
+          }
+        ],
+        "entryPointReview": "Active source/runtime families are throne #sit effect9, hostile monster MCAST_CURSE_ITEMS, and divine anger cases4/5. Admitted throne range and independent monster/prayer recordings cover these families. Cursed_book default is defensively wired and source-pinned but mathematically unreachable in the current reference data: every valid book level<=7, rn2(lev) returns at most6, and cases0..6 are explicit. No write to oc_level exists in source (rg only found an equality read). Wizard.c intervene is an unported higher dispatcher, retained as assigned rather than expanded; no whole wizard/intervention completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Throne curse through #sit",
+            "functions": [
+              "rndcurse"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-sit-throne",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 58,
+                "source": "cmd.c #sit -> sit.c dosit/throne_sit_effect case9 (Luck<=0) -> rndcurse aura/Antimagic display/inventory draws/BUC mutations/update_inventory before throne removal."
+              }
+            ]
+          },
+          {
+            "name": "Monster curse-items spell",
+            "functions": [
+              "rndcurse"
+            ],
+            "recordings": [
+              "recordings/sit.c/rndcurse-lich-blind-b135.session.json",
+              "recordings/sit.c/rndcurse-lich-visible-b135.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Divine anger curse through prayer",
+            "functions": [
+              "rndcurse"
+            ],
+            "recordings": [
+              "recordings/sit.c/rndcurse-prayer-first-b135.session.json",
+              "recordings/sit.c/rndcurse-prayer-variation-b135.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "33f3c8cb853b29c8b0878892d39460ee11beeeb8",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

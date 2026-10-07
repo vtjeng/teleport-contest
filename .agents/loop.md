@@ -185,7 +185,13 @@ separately from other goals.
    hosted checkpoint workflow under `.agents/validation.md` by default. Use
    `npm run checkpoint` only when hosted validation is unavailable or blocked,
    and state the concrete reason. Import the hosted run's saved evidence; do
-   not repeat its checks locally. Keep one full-validation owner for local
+   not repeat its checks locally. Give each hosted checkpoint one monitoring
+   owner. Once its run ID is known, start one watch and retain its process
+   handle through completion. While it runs, preview the next delivery.
+   Do not issue additional status queries for that run unless the watch
+   fails or the user requests details. After completion, import the result
+   through the existing exact-commit checks.
+   Keep one full-validation owner for local
    runs and retain its process handle until completion. Do not change main's HEAD during the
    run. Use its running time for the read-only next-delivery preview above
    when a delivery is queued. If it fails, preserve the results and wait for
@@ -197,8 +203,16 @@ separately from other goals.
    evidence, scores, and goal closure under `.agents/scoring.md` before
    integrating unrelated work. Close a source goal only after its entry
    points are verified, its required challenge evaluation is complete, and
-   its saved development scan is current. Finish closure commands while HEAD
-   still names the tested commit. Then commit the closure records,
+   its saved development scan is current. After recording source evidence
+   and reviewing per-case regressions, run
+   `node scripts/accept-task.mjs --task <id> --ledger <shared-ledger>`
+   while HEAD still names the tested commit. The helper imports reviewed
+   evaluations, closes the goal, appends its score, and records acceptance.
+   If it fails, diagnose the error and retry at the same tested commit.
+   Use manual closure commands only for a concrete helper limitation;
+   state that limitation and preserve every acceptance requirement.
+   After acceptance, resume the idle worker as step 6 specifies, then
+   commit the closure records,
    investigation updates, and new challenge reports together. The publication
    check verifies these report-only changes; keep code and test-input changes
    in a separately validated delivery. Record only the goal's active
@@ -206,6 +220,8 @@ separately from other goals.
    `.agents/validation.md` for new evidence when later commits change inputs
    to the checkpoint. After a challenge preparation task passes, leave its
    case files unadmitted and record no challenge score or mismatch-queue entry.
+   Run the same acceptance helper; preparation tasks skip goal closure and
+   synthetic import.
    When the batch-admission gate in `.agents/selection.md` later passes, recheck
    every included case against the immediately preceding batch and unresolved
    older cases using current evaluations and the packet's C behavior, state,
@@ -213,7 +229,7 @@ separately from other goals.
    Then admit the oldest prepared manifest with the next version number, commit
    it, and save its first evaluation at that committed implementation before
    selecting failures. Do not admit a batch merely because its worker has finished.
-6. Record acceptance and send `ACCEPTED` with the tested commit and checkpoint
+6. Send `ACCEPTED` with the helper's tested commit and checkpoint
    result. As part of this handoff, check the submitting worker's current
    task and turn. If it is idle, use `followup_task` on the same worker
    immediately: merge accepted main at the clean boundary, then select and

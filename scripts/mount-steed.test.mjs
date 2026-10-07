@@ -2,11 +2,17 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_DEX,
     ARTICLE_A,
     ARTICLE_NONE,
     ARTICLE_THE,
     ARTICLE_YOUR,
     BLINDED,
+    BEAR_TRAP,
+    BOTH_SIDES,
+    LEFT_SIDE,
+    RIGHT_SIDE,
+    WOUNDED_LEGS,
     CONFUSION,
     DOOR,
     DO_MOVE,
@@ -46,7 +52,7 @@ import {
     test_move,
     weight_cap,
 } from '../js/hack.js';
-import { UnsupportedSteedError, can_ride, mount_steed } from '../js/steed.js';
+import { can_ride, mount_steed } from '../js/steed.js';
 import {
     M1_HUMANOID,
     M1_SLITHY,
@@ -439,9 +445,10 @@ test('a long worm is refused only when the target is not its head', async () => 
         return pony;
     });
     for (const [dx, dy] of [[1, 0], [0, 1], [1, 1]]) {
-        const { error } = await worm(dx, dy)();
-        assert.ok(error instanceof UnsupportedSteedError, `${dx},${dy}`);
-        assert.match(error.message, /long worm tail/u, `${dx},${dy}`);
+        const { error, result } = await worm(dx, dy)();
+        assert.equal(error, null, `${dx},${dy}`);
+        assert.equal(result, false);
+        assert.equal(toplines(), "You couldn't ride a saddled long worm, let alone its tail.");
     }
     // On the head itself the guard falls through, and the guards below it
     // reach can_saddle(), which no S_WORM passes.
@@ -661,28 +668,48 @@ test('a greased or cursed saddle fails the mount without an impairment roll',
     }
 });
 
-test('mount_steed stops at the arms this port has not reached', async () => {
-    const segment = knightSlipSegment();
-    const stops = [
-        // steed.c:296, the petrifying steed; instapetrify() ends the game.
-        [(state) => {
-            const pony = m_at(state.u.ux, state.u.uy + 1);
-            pony.data = state.mons.find((pm) => pm.pmnames[2] === 'cockatrice');
-            return pony;
-        }, /petrifier/u],
-        // steed.c:301-307, the trapped steed; the message needs mhe() and
-        // trapname().
-        [(state) => {
-            const pony = m_at(state.u.ux, state.u.uy + 1);
-            pony.mtrapped = 1;
-            return pony;
-        }, /trapped steed/u],
-    ];
-    for (const [mutate, pattern] of stops) {
-        const { error } = await mountAfter(segment, mutate);
-        assert.ok(error instanceof UnsupportedSteedError, String(pattern));
-        assert.match(error.message, pattern);
-    }
+test('a trapped steed is refused with its pronoun and actual trap name', async () => {
+    const { result, error } = await mountAfter(knightSlipSegment(), state => {
+        const pony = m_at(state.u.ux, state.u.uy + 1);
+        // mondata.c:pronoun_gender uses "it" for a non-humanoid pony, regardless of sex.
+        pony.female = false;
+        pony.mtrapped = 1;
+        state.level.traps.push({ tx: pony.mx, ty: pony.my, ttyp: BEAR_TRAP });
+        return pony;
+    });
+    assert.equal(error, null);
+    assert.equal(result, false);
+    assert.equal(toplines(), "You can't mount the saddled pony while it's trapped in a bear trap.");
+});
+
+test('a petrifying touch records its unported void callee without a mount refusal', async () => {
+    const { result, error } = await mountAfter(knightSlipSegment(), state => {
+        const pony = m_at(state.u.ux, state.u.uy + 1);
+        // Only an artificial saddle/petrifier pairing can get past which_armor;
+        // valid saddle creation requires can_saddle, which rejects cockatrices.
+        pony.data = state.mons.find(pm => pm.pmnames[2] === 'cockatrice');
+        // Supply source message acknowledgments for touch plus cannot-ride text.
+        state.nhDisplay.onEmptyQueue = () => ' '.charCodeAt(0);
+        return pony;
+    });
+    assert.equal(error, null);
+    assert.equal(result, false);
+    assert.ok(game.unported.has('trap.c instapetrify'));
+});
+
+test('untaming a leashed steed records the skipped void cleanup', async () => {
+    const { result, error } = await mountAfter(knightSlipSegment(), state => {
+        const pony = m_at(state.u.ux, state.u.uy + 1);
+        // Non-Knights decrement tameness; one point reaches the untaming arm.
+        state.urole.mnum = PM_VALKYRIE;
+        pony.mtame = 1;
+        pony.mleashed = 1;
+        return pony;
+    });
+    assert.equal(error, null);
+    assert.equal(result, false);
+    assert.equal(toplines(), 'The saddled pony resists and its leash comes off!');
+    assert.ok(game.unported.has('apply.c m_unleash'));
 });
 
 // --- the helpers the slip path calls ---
@@ -1236,4 +1263,49 @@ test('an unsaddled fixture monster refuses a saddle, which is what keeps the '
     assert.equal(cockatrice.misc_worn_check & W_SADDLE, 0);
     // The pony's own saddle is what the guard above it reads.
     assert.ok(pony.misc_worn_check & W_SADDLE);
+});
+
+// steed.c:mount_steed checks Wounded_legs before the monster, and the debug
+// heal question reads HWounded_legs low bits rather than wounded-side bits.
+test('force-healing uses the intrinsic prompt plural and preserves a declined wound', async () => {
+    for (const [timeout, sides, answer, plural] of [
+        // prop.h BOTH_SIDES in the intrinsic field means plural even with only left extrinsic.
+        [BOTH_SIDES, LEFT_SIDE, 'n', 's'],
+        // A one-turn intrinsic timeout has no side mask despite both extrinsic side bits.
+        [1, BOTH_SIDES, 'n', ''],
+        // Same singular prompt, but healing clears both canonical wound fields.
+        [1, RIGHT_SIDE, 'y', ''],
+    ]) {
+        await runSegment({ ...knightSlipSegment(), moves: '.' });
+        clearTtyMessageWindow(game);
+        game.wizard = true;
+        game.u.uprops[WOUNDED_LEGS].intrinsic = timeout;
+        game.u.uprops[WOUNDED_LEGS].extrinsic = sides;
+        // set_wounded_legs charges one temporary Dexterity point on a new wound.
+        game.u.atemp[A_DEX] = -1;
+        const display = game.nhDisplay;
+        const priorRead = display.readKey;
+        const prompts = [];
+        const rngBefore = getRngLog().length;
+        display.readKey = async () => {
+            const line = display.grid[0].map(cell => cell.ch).join('').trimEnd();
+            if (line.includes('--More--')) return ' '.charCodeAt(0);
+            assert.ok(line.includes('Heal your leg'), line);
+            prompts.push(line);
+            return answer.charCodeAt(0);
+        };
+        try {
+            // An absent monster makes the continued, healed path return FALSE
+            // after the question, without adding success-path RNG to this test.
+            assert.equal(await mount_steed(null, true, game), false);
+        } finally {
+            display.readKey = priorRead;
+        }
+        assert.ok(prompts.some(text => text.includes(`Heal your leg${plural}?`)));
+        assert.equal(getRngLog().length, rngBefore);
+        const wounded = game.u.uprops[WOUNDED_LEGS];
+        assert.equal(wounded.intrinsic, answer === 'y' ? 0 : timeout);
+        assert.equal(wounded.extrinsic, answer === 'y' ? 0 : sides);
+        assert.equal(game.u.atemp[A_DEX], answer === 'y' ? 0 : -1);
+    }
 });

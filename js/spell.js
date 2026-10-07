@@ -378,7 +378,10 @@ export async function cursed_book(book, state = game, env = {}) {
         }
         return true;
     default:
-        if (state === game) note_unported('sit.c rndcurse');
+        {
+            const { rndcurse } = await import('./sit.js');
+            await rndcurse(state, { ...env, random, message });
+        }
         break;
     }
     return false;

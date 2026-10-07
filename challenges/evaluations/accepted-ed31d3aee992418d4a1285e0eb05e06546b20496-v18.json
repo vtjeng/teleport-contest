@@ -1,0 +1,983 @@
+{
+  "version": 1,
+  "batch": "v18",
+  "manifestPath": "challenges/manifests/v18.json",
+  "sha": "ed31d3aee992418d4a1285e0eb05e06546b20496",
+  "utc": "2026-10-07T17:09:09.870Z",
+  "status": "complete",
+  "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "f9b6dd311eda5c6b3bc4bc114a9240d3b82e4e93d51c957bbaf999f9f9456a7d",
+  "inputFiles": [
+    "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.recipe.session.json",
+    "challenges/cases/v18/green-slime-infects-wizard-c59-rest-prefix-corrected.session.json",
+    "challenges/cases/v18/green-slime-infects-wizard-c59.recipe.session.json",
+    "challenges/cases/v18/green-slime-infects-wizard-c59.session.json",
+    "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-continuation.recipe.session.json",
+    "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-continuation.session.json",
+    "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-pager-continued.recipe.session.json",
+    "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-pager-continued.session.json",
+    "challenges/cases/v18/wizard-dog-eats-wished-tripe-ration-c59-hero-vacates.recipe.session.json",
+    "challenges/cases/v18/wizard-dog-eats-wished-tripe-ration-c59-hero-vacates.session.json",
+    "challenges/cases/v18/wizard-flashes-hostile-orc-with-camera-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-flashes-hostile-orc-with-camera-c59.session.json",
+    "challenges/cases/v18/wizard-hostile-disenchanter-AD-ENCH-c59-valid-time.recipe.session.json",
+    "challenges/cases/v18/wizard-hostile-disenchanter-AD-ENCH-c59-valid-time.session.json",
+    "challenges/cases/v18/wizard-hostile-fire-ant-AD-FIRE-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-hostile-fire-ant-AD-FIRE-c59.session.json",
+    "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-c59.session.json",
+    "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.session.json",
+    "challenges/cases/v18/wizard-hostile-homunculus-AD-SLEE-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-hostile-homunculus-AD-SLEE-c59.session.json",
+    "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.recipe.session.json",
+    "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59-two-waits.session.json",
+    "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-hostile-mind-flayer-AD-DRIN-c59.session.json",
+    "challenges/cases/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.recipe.session.json",
+    "challenges/cases/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.session.json",
+    "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+    "challenges/cases/v18/wizard-identifies-wished-giant-ant-egg-c59-menu-continued.recipe.session.json",
+    "challenges/cases/v18/wizard-identifies-wished-giant-ant-egg-c59-menu-continued.session.json",
+    "challenges/cases/v18/wizard-kicks-hostile-orc-with-kicking-boots-c59-southwest.recipe.session.json",
+    "challenges/cases/v18/wizard-kicks-hostile-orc-with-kicking-boots-c59-southwest.session.json",
+    "challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.session.json",
+    "challenges/cases/v18/wizard-pick-lock-trapped-chest-c59-invisibility-trap-effect.recipe.session.json",
+    "challenges/cases/v18/wizard-pick-lock-trapped-chest-c59-invisibility-trap-effect.session.json",
+    "challenges/cases/v18/wizard-probes-hostile-orc-c59-more-continued.recipe.session.json",
+    "challenges/cases/v18/wizard-probes-hostile-orc-c59-more-continued.session.json",
+    "challenges/cases/v18/wizard-reads-confuse-monster-scroll-c59-corrected-slot.recipe.session.json",
+    "challenges/cases/v18/wizard-reads-confuse-monster-scroll-c59-corrected-slot.session.json",
+    "challenges/cases/v18/wizard-reads-uncursed-enchant-armor-scroll-c59-inventory-continued.recipe.session.json",
+    "challenges/cases/v18/wizard-reads-uncursed-enchant-armor-scroll-c59-inventory-continued.session.json",
+    "challenges/cases/v18/wizard-reads-uncursed-enchant-armor-scroll-c59-state-continued.recipe.session.json",
+    "challenges/cases/v18/wizard-reads-uncursed-enchant-armor-scroll-c59-state-continued.session.json",
+    "challenges/cases/v18/wizard-searches-wished-secret-door-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-searches-wished-secret-door-c59.session.json",
+    "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.session.json",
+    "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.session.json",
+    "challenges/cases/v18/wizard-sets-stunned-intrinsic-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-sets-stunned-intrinsic-c59.session.json",
+    "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.recipe.session.json",
+    "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+    "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59.session.json",
+    "challenges/cases/v18/wizard-wields-silver-saber-hits-succubus-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-wields-silver-saber-hits-succubus-c59.session.json",
+    "challenges/cases/v18/wizard-wields-silver-saber-retries-succubus-strike-c59.recipe.session.json",
+    "challenges/cases/v18/wizard-wields-silver-saber-retries-succubus-strike-c59.session.json",
+    "challenges/cases/v18/wizard-wishes-silver-saber-c59-setup.recipe.session.json",
+    "challenges/cases/v18/wizard-wishes-silver-saber-c59-setup.session.json",
+    "challenges/manifests/v18.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "green-slime-infects-wizard-c59-rest-prefix-corrected",
+      "recordingSha256": "223d67b8b4f92402b974d927a934b38d71ffb4a49db2b403127c53f5baea0dca",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 107,
+          "total": 107
+        },
+        "rng": {
+          "matched": 2630,
+          "total": 2630
+        },
+        "cursors": {
+          "matched": 107,
+          "total": 107
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "green-slime-infects-wizard-c59",
+      "recordingSha256": "f8a3e48fd66160f3f994fff778e95a517b9e14d6e8470853da9e4f5130a9ce0d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 104,
+          "total": 104
+        },
+        "rng": {
+          "matched": 2510,
+          "total": 2510
+        },
+        "cursors": {
+          "matched": 104,
+          "total": 104
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-applies-wet-towel-clears-glib-c59-continuation",
+      "recordingSha256": "a0c9881421363a63cdd96ba0bf7bad6f1036c09bffdda1c4d8270b0160202f04",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 42,
+          "total": 42
+        },
+        "rng": {
+          "matched": 2319,
+          "total": 2319
+        },
+        "cursors": {
+          "matched": 42,
+          "total": 42
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-applies-wet-towel-clears-glib-c59-pager-continued",
+      "recordingSha256": "95038979f2d2b602dfb224ac5833e1ffd4dc95180c0087b32db0495d571d5fe5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2318,
+          "total": 2318
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-dog-eats-wished-tripe-ration-c59-hero-vacates",
+      "recordingSha256": "51503ddf8d5fe527d0c99003f9853250330e4a9e198fa58cef09026bc2b65f28",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2818,
+          "total": 2818
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-flashes-hostile-orc-with-camera-c59",
+      "recordingSha256": "4894d95169a156c62e8f0b64d558ad46c71aeb75023930b99c4a68a93c7c560e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2599,
+          "total": 2599
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+      "recordingSha256": "24506f6c6117cac9c0765b30baa3425588f1cbf28d57c2d3ddc4a13f86ccfde4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 36,
+          "total": 36
+        },
+        "rng": {
+          "matched": 2376,
+          "total": 2376
+        },
+        "cursors": {
+          "matched": 36,
+          "total": 36
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-hostile-fire-ant-ad-fire-c59",
+      "recordingSha256": "2e089f493a758b81379deef6739e2d35cfb17dede196be6ca6c725bbb4e5be10",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2576,
+          "total": 2576
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-hostile-ghoul-ad-plys-c59",
+      "recordingSha256": "6ff79a58cba2e224399e994a9c0a21436b2a684e2d5a3fe14b6a11bae5934c8f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2572,
+          "total": 2572
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+      "recordingSha256": "06622a44a32a9503c3f2b94d8996967db0b890fd679494777b09a3b08333c7ea",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 37,
+          "total": 37
+        },
+        "rng": {
+          "matched": 2371,
+          "total": 2371
+        },
+        "cursors": {
+          "matched": 37,
+          "total": 37
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-hostile-homunculus-ad-slee-c59",
+      "recordingSha256": "67ea3708f5bc7c7fbec6513c3bd64f368e82511610af6910855607cbf7c366a1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2386,
+          "total": 2386
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+      "recordingSha256": "b1cc90c4d15255a78d9c4b52745cabc3966fc3d708fcf79319805b1023677bd0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2288,
+          "total": 2288
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-hostile-mind-flayer-ad-drin-c59",
+      "recordingSha256": "62303dcdd82ee7ef7933cbbd9e1b35f885822efacb67d3c42f0c2bdcfa096b15",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2279,
+          "total": 2279
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+      "recordingSha256": "94201c2ad2fe39dceef576abc3e9ed9913d1ff4608826b37174920eeb8afb1b0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 3480,
+          "total": 3480
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-hostile-wraith-ad-drli-c59",
+      "recordingSha256": "f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2854,
+          "total": 2854
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-identifies-wished-giant-ant-egg-c59-menu-continued",
+      "recordingSha256": "2cd02423ff0fb58418637ce7029dda74d745affdff2abf25b962cf65adcd6767",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 4454,
+          "total": 4454
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-kicks-hostile-orc-with-kicking-boots-c59-southwest",
+      "recordingSha256": "511f3eb68f3a86b539dd9b006a814fd99671790fae7489e6c2574931b97edb28",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2906,
+          "total": 2906
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-learns-egg-type-from-identification-c59",
+      "recordingSha256": "e7baee31752ff24439cb9cabdcc104485f43efa81069503390284a08fd3fbaca",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 70,
+          "total": 70
+        },
+        "rng": {
+          "matched": 4533,
+          "total": 4533
+        },
+        "cursors": {
+          "matched": 70,
+          "total": 70
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-pick-lock-trapped-chest-c59-invisibility-trap-effect",
+      "recordingSha256": "7d27f50f7d2086fd25a8b3b844136cb3eeea4073ed660c3fc4e9cb0ce30d26e5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 69,
+          "total": 69
+        },
+        "rng": {
+          "matched": 2463,
+          "total": 2463
+        },
+        "cursors": {
+          "matched": 69,
+          "total": 69
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-probes-hostile-orc-c59-more-continued",
+      "recordingSha256": "d3fd73b18cb1c351d6642904b82ffe9e8fbd0a73f93dda42854f74ae5f08f622",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 64,
+          "total": 64
+        },
+        "rng": {
+          "matched": 3056,
+          "total": 3056
+        },
+        "cursors": {
+          "matched": 64,
+          "total": 64
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-confuse-monster-scroll-c59-corrected-slot",
+      "recordingSha256": "8c6929b3ee27e1ff291e8802b67b6feb0c10bbdc3b180c572b56d9b001a82ad2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 63,
+          "total": 63
+        },
+        "rng": {
+          "matched": 2777,
+          "total": 2777
+        },
+        "cursors": {
+          "matched": 63,
+          "total": 63
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-uncursed-enchant-armor-scroll-c59-inventory-continued",
+      "recordingSha256": "a9c65493c56e5de4e865cdf81c3c83f9bba150c6b0257b4930fcdb0bd6446797",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 48,
+          "total": 48
+        },
+        "rng": {
+          "matched": 2704,
+          "total": 2704
+        },
+        "cursors": {
+          "matched": 48,
+          "total": 48
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-uncursed-enchant-armor-scroll-c59-state-continued",
+      "recordingSha256": "c242efc7501607bb4820ffca814a112591107a71d6cbf3e9e9fcf7a2c12f4a8d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2714,
+          "total": 2714
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-searches-wished-secret-door-c59",
+      "recordingSha256": "78c4b50fa1d2990a9b6cd22cdf6621127ccdd799073f4fdd2c0d4f5c393b1003",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 40
+        },
+        "rng": {
+          "matched": 1978,
+          "total": 1978
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sets-slimed-intrinsic-c59",
+      "recordingSha256": "b3aa2e3021038d79bea1f6836e4e39c9980346f4106582250afefd013992ae1d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 18,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2403,
+          "total": 2403
+        },
+        "cursors": {
+          "matched": 18,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sets-slimed-intrinsic-five-turns-c59",
+      "recordingSha256": "c47a4783649f4ad9ffb4b42459e9a26b63604b538a8ab078cf7c33887e257010",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 19
+        },
+        "rng": {
+          "matched": 2591,
+          "total": 2591
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sets-stunned-intrinsic-c59",
+      "recordingSha256": "237640772c4943d2ad389bf9a496cc400248508a7f6329b68cedb8ccb5545d1f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 18,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2670,
+          "total": 2670
+        },
+        "cursors": {
+          "matched": 18,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-untraps-wished-floor-bear-trap-c59-detected",
+      "recordingSha256": "b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 2578,
+          "total": 2578
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-untraps-wished-floor-bear-trap-c59",
+      "recordingSha256": "2cc2a2032dee6623c2949bbe1f9b4dd4c4b702f3435ce2bfe2adb207c4864767",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2562,
+          "total": 2562
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-wields-silver-saber-hits-succubus-c59",
+      "recordingSha256": "fd7a2e020782219178e07acc4c06b5c2a0b701796cfa6f35b710bc33f6981fc4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 65,
+          "total": 65
+        },
+        "rng": {
+          "matched": 2360,
+          "total": 2360
+        },
+        "cursors": {
+          "matched": 65,
+          "total": 65
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-wields-silver-saber-retries-succubus-strike-c59",
+      "recordingSha256": "697e8aad18d9b7e64ac2d1f2b084d05fb91020d5438d73d45f72f32a46368cb3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 66,
+          "total": 66
+        },
+        "rng": {
+          "matched": 2384,
+          "total": 2384
+        },
+        "cursors": {
+          "matched": 66,
+          "total": 66
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-wishes-silver-saber-c59-setup",
+      "recordingSha256": "e0dedebba64346648860f14bf90b9219407d21240f9bae011a63c86a4027e4b8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2354,
+          "total": 2354
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 32,
+      "total": 32
+    },
+    "screens": {
+      "matched": 1483,
+      "total": 1483
+    },
+    "rng": {
+      "matched": 85863,
+      "total": 85863
+    },
+    "cursors": {
+      "matched": 1483,
+      "total": 1483
+    }
+  }
+}
