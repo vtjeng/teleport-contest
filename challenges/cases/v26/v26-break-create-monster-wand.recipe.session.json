@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: apply.c:do_break_wand create-monster explosion. wish charged create monster wand; apply/break. Expected C observation: wand explosion and surrounding monster creation. Planned before JavaScript comparison. C-only correction from observed inventory letter, prompt or source terrain/strength precondition; no v26 JS comparison has run.",
+  "segments": [
+    {
+      "seed": 92630005,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nhill giant\n          \u0017uncursed wand of create monster (0:3)\naoy          "
+    }
+  ]
+}

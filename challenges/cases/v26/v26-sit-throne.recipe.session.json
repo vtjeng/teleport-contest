@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: sit.c:dosit throne decree. wish throne; sit repeatedly. Expected C observation: royal decree effect or throne vanishes. Planned before JavaScript comparison. C source permits choosing throne effect in wizard play; choose inventory curse at first reached decree prompt.",
+  "segments": [
+    {
+      "seed": 92630015,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017throne\n#sit\n     #sit\n     #sit\n     #sit\n     9\n       "
+    }
+  ]
+}

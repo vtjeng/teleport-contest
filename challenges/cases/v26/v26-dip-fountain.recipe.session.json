@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: fountain.c:dipfountain water damage and fate. wish dagger and fountain; dip dagger into fountain. Expected C observation: fountain fate branch and object wetting. Planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92630007,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed dagger\n\u0017fountain\n#dip\noy         "
+    }
+  ]
+}

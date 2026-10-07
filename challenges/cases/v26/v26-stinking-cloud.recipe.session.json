@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: read.c:seffect_stinking_cloud -> region.c:create_gas_cloud. wish stinking cloud scroll; read and select nearby target. Expected C observation: gas-cloud map region created. Planned before JavaScript comparison. C-only correction from observed inventory letter, prompt or source terrain/strength precondition; no v26 JS comparison has run. Further C-only prompt/terrain correction; no JS comparison yet.",
+  "segments": [
+    {
+      "seed": 92630017,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed scroll of stinking cloud\nrp      .        "
+    }
+  ]
+}

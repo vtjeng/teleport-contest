@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v26 extension: steed.c:mount_steed wounded-leg refusal. Knight with starting saddled pony; timed wounded legs; try to mount pony. Expected: legs are in no shape for riding; wizard may offer healing. Planned before this candidate JS comparison.",
+  "segments": [
+    {
+      "seed": 92630303,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n17m\n #ride\nj       "
+    }
+  ]
+}
