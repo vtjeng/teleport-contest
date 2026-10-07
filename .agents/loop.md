@@ -211,7 +211,16 @@ separately from other goals.
    it, and save its first evaluation at that committed implementation before
    selecting failures. Do not admit a batch merely because its worker has finished.
 6. Record acceptance and send `ACCEPTED` with the tested commit and checkpoint
-   result. Run `worker-state.mjs sync-main --commit <accepted-commit>` to
+   result. As part of this handoff, check the submitting worker's current
+   task and turn. If it is idle, use `followup_task` on the same worker
+   immediately: merge accepted main at the clean boundary, then select and
+   claim the next independent task under "Seed continuation". Send this
+   continuation before dashboard generation, publication, or another
+   integration; do not wait for the delivery queue to drain. If the worker
+   already has a task, send the acceptance without replacing its assignment.
+   If continuation is blocked, record the specific dependency and its owner
+   in the existing ledger and assign independent work when available.
+   Run `worker-state.mjs sync-main --commit <accepted-commit>` to
    verify local main. Refresh `dashboard-snapshot.json` from the shared worker
    ledger and the passing checkpoint summary with
    `node scripts/dashboard-snapshot.mjs --ledger <shared-ledger> --checkpoint <summary> --output dashboard-snapshot.json`.
@@ -235,6 +244,13 @@ separately from other goals.
    summary as `supplementalCheckpoint` in the publication event. The later
    checkpoint must cover those inputs; subsequent changes may only be checked
    reports.
+
+After publication and the required one-shot CI status check, run
+`worker-state.mjs next` and start the next dependency-ready delivery.
+Handle worker handoffs promptly, but do not defer a ready integration for
+optional investigations or housekeeping. If integration cannot proceed,
+record the blocker in the existing ledger and resolve it or take another
+independent ready delivery under the goal-parking rules.
 
 Before treating an old test failure as an ongoing blocker, check whether
 current main and saved results already establish the fix. If they do,
