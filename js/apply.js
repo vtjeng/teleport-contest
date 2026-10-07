@@ -1121,6 +1121,20 @@ export function number_leashed(state = game) {
     return count;
 }
 
+// C ref: apply.c o_unleash() (711-724). The object owns the attachment id;
+// clear it even when its monster is no longer on this level.
+export function o_unleash(object, env = {}) {
+    const state = env.state ?? game;
+    for (let monster = state.level.monlist; monster; monster = monster.nmon) {
+        if (monster.m_id === object.leashmon) {
+            monster.mleashed = 0;
+            break;
+        }
+    }
+    object.leashmon = 0;
+    update_inventory({ ...env, state });
+}
+
 // C ref: apply.c leashable() (761-766). The source reads mnum and the
 // monster's current data; newcham() calls this after installing its new form.
 export function leashable(monster) {
@@ -3341,7 +3355,7 @@ export async function use_candle(obj, state = game, env = {}) {
 // transitions. Other missing effect helpers are void or explicitly discarded,
 // so their C call sites remain named gaps. Trouble state is stored in the
 // intrinsic timeout and property flags in u.uprops.
-async function use_unicorn_horn(obj, state = game, env = {}) {
+export async function use_unicorn_horn(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const recordGap = (source) => {
         if (state === game) note_unported(source);

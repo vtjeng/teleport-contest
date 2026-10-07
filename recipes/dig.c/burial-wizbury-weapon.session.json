@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dig.c burial witness. Seed, date and role fixed before recording without a scan. Drop source starting gear and invoke active DEBUG wizbury twice; C verifies object identity and first/empty message branches. This setup avoids the preserved unrelated heavy-wish overflow blocker.",
+  "segments": [
+    {
+      "seed": 92671002,
+      "datetime": "20780113140500",
+      "nethackrc": "OPTIONS=name:BurialProof,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " da #wizbury\n #wizbury\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mounted normal-form #monster entry: a Knight mounts a tame saddled red dragon without a ranged target. The reference forced pet_ranged_attk branch is silent for this setup, so the dispatcher and command-time result match despite the explicitly recorded discarded-return gap. This witness does not establish active ranged targeting/attack behavior. Level12 supplies riding-capable stats without depending on a starting pet.",
+  "segments": [
+    {
+      "seed": 129070104,
+      "datetime": "20401204115701",
+      "nethackrc": "OPTIONS=name:SteedAbility,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none\n",
+      "moves": " #levelchange\n12\n                \u0007tame saddled red dragon\n   #ride\nu  #monster\n ."
+    }
+  ]
+}

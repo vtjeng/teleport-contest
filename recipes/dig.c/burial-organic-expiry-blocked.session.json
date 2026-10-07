@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED outside the A117 timer-scheduling boundary: whole dig.c:bury_objs and bury_an_obj bury the starting food stack and schedule ROT_ORGANIC for 250 + rnd(250). Continuing rest beyond that maximum requires timeout.c:timeout_funcs ROT_ORGANIC -> dig.c:rot_organic, whose timer registry operation/contents loop remain unported. No matching recording or expiry completion is claimed.",
+  "segments": [
+    {
+      "seed": 92671001,
+      "datetime": "20780113140500",
+      "nethackrc": "OPTIONS=name:BurialProof,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " dd#wizbury\n#wizbury\n.............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................."
+    }
+  ]
+}

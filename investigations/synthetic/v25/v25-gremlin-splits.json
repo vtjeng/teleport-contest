@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v25/v25-gremlin-splits",
+  "corpus": "synthetic",
+  "batch": "v25",
+  "caseId": "v25-gremlin-splits",
+  "remainingScreens": 5,
+  "recordedSteps": 55,
+  "manifestPath": "challenges/manifests/v25.json",
+  "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+  "recordingSha256": "aad1e275233a76b9d39a6b2c4171d20497fe4a4ad95b754882d079545a6f2887",
+  "evaluationPath": "challenges/evaluations/20261007055545-v25.json",
+  "evaluationCommit": "532068f894fa97f4ace2680f195baf3aae875050",
+  "status": "complete",
+  "commit": "dce113a014a4b92d866b5a71e839719c60dcabad",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v25",
+    "caseId": "v25-gremlin-splits",
+    "session": "synthetic/v25/v25-gremlin-splits",
+    "manifestPath": "challenges/manifests/v25.json",
+    "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+    "recording": "challenges/cases/v25/v25-gremlin-splits.session.json",
+    "recordingPath": "challenges/cases/v25/v25-gremlin-splits.session.json",
+    "recordingSha256": "aad1e275233a76b9d39a6b2c4171d20497fe4a4ad95b754882d079545a6f2887",
+    "recipe": "challenges/cases/v25/v25-gremlin-splits.recipe.session.json",
+    "recipeSha256": "abf2b8957782fab12fbcfc5b9518704437f4cf41ff37434faf60f19ac58c5737",
+    "replayInputSha256": "367beee2b68d7ec98cb5fd5714d5003572310ce9a1c8e2e9c503368c51c3f020",
+    "evaluationPath": "challenges/evaluations/20261007055545-v25.json",
+    "evaluationCommit": "532068f894fa97f4ace2680f195baf3aae875050",
+    "evaluationArtifact": "challenges/evaluations/20261007055545-v25.json",
+    "evaluationUtc": "2026-10-07T05:57:49.177Z",
+    "remainingScreens": 5,
+    "recordedSteps": 55,
+    "previousScreensMatched": 50,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 50,
+        "total": 55
+      },
+      "rng": {
+        "matched": 2561,
+        "total": 2610
+      },
+      "cursors": {
+        "matched": 50,
+        "total": 55
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: domonability gremlin-split for gremlin form",
+      "step": 50
+    },
+    "step": 50,
+    "kind": "stop",
+    "sourceFile": "cmd.c",
+    "function": "domonability",
+    "message": "unsupported hero command: domonability gremlin-split for gremlin form",
+    "cFile": "cmd.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first stop is the cmd.c:domonability gremlin arm, not a missing split algorithm. Existing potion.c:split_mon and mhitu.c:cloneu already own source HP division and returned clone creation. Port the complete dispatcher in source order, wire gremlin and the existing intrinsic unicorn-horn caller, and retain forced steed ranged attack as a named discarded-return dependency. No game code has yet changed.",
+  "source": {
+    "file": "cmd.c",
+    "functions": [
+      "domonability"
+    ],
+    "branch": "The #monster dispatcher tests source ability predicates in order; a gremlin-form hero on fountain terrain calls split_mon and dries the fountain only for a returned clone, a pool discards the clone return, and dry terrain emits the source no-fountain feedback. Unicorn form calls the existing null-object use_unicorn_horn owner and spends a turn; the remaining forced steed breath is an explicit discarded-return dependency.",
+    "callers": [
+      "cmd.c extcmdlist monster at1772 -> doextcmd/rhack -> domonability; js/cmd.js existing monster handler/runMonAbilityCommand awaits domonability.",
+      "cmd.c do_mcmd MCMD.MONABILITY at4791 queues domonability, but its sole menu producer at4476-4480 is inside #if0, so this is an inactive input entry in the reference build; preserve the existing JS queue consumer and source-pin the build exclusion."
+    ],
+    "dependencies": [
+      "potion.c split_mon2873-2920 and js/potion.js349-390 already preserve returned clone and hero/monster integer HP splits; audited both whole definitions. mhitu.c cloneu2616-2640 and js/mhitu.js496-547 own source runtime clone creation, christening, tame initialization and current HP split; existing verified independent recording is recordings/mhitu.c/b112-cloneu-m2h-metal-lieutenant-brown-split.session.json.",
+      "fountain.c dryup201-239 and js/fountain.js534 onward own source rn2(3), wizard y_n, terrain/redraw order. Existing caller forwarding should use live state.",
+      "apply.c use_unicorn_horn2258-2392 is already verified and implemented at js/apply.js3344; minimally export it and call with null object for intrinsic unicorn ability. Existing named discarded helper gaps remain unchanged, including multi-trouble shuffle_int_array.",
+      "polyself.c dobreathe,dospit,doremove,dogaze,dosummon,dohide,dospinweb,domindblast,dopoly and wizard.c aggravate retain existing source owners/return contracts. A117 owns only dospinweb supporting burial reconciliation; do not edit that function or its shared paths.",
+      "dogmove.c pet_ranged_attk is void/discarded here in C and existing JS forced=TRUE refuses; replace the dispatcher substitute with note_unported at the exact source call and ECMD_TIME, without inventing ranged effects or claiming that callee."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Fresh frozen process run-EyVDUy at merged accepted worker base dce113a014a4b92d866b5a71e839719c60dcabad reproduces 50/55 screens/cursors,2561/2610 RNG for the immutable v25 recording; .cache/B-next-gremlin-before.log. The saved evaluation20261007055545-v25 at532068f894fa97f4ace2680f195baf3aae875050 reports the same first stop.",
+    "Read admitted C recipe and recording; step50 completes #monster after gremlin polymorph and wished fountain. Exact JS throw is cmd.js3569-3572; complete upstream owner is cmd.c890-950. Recipe comment incorrectly attributes split_mon to mon.c; its canonical definition is potion.c2873.",
+    "Read complete C dispatcher, source split_mon and cloneu and canonical JS equivalents. All source predicate/return ordering preceding and following gremlin must remain; dryup consumes clone truth only at the fountain arm. The helper loops and shared HP aliases must be preserved rather than replaced with custom clone creation.",
+    "Whole-source plan includes source branch tests and independent C-first fountain, dry-floor and intrinsic-unicorn variations, plus matching v25 segment0 through54. Existing ability-owner production recordings cover other #monster forms; enumerate them before closure. A representative forced steed case must stay explicit if its runtime prerequisite is blocked.",
+    "A117 reservations cover cmd.c:doextcmd and polyself.c:dospinweb supporting burial; this selected cmd.c:domonability function and bounded apply export are independent. No code edit, reservation claim, new C recording or aggregate scan has been performed during this investigation.",
+    "Caller audit: cmd.c mcmd_addmenu(MCMD_MONABILITY)4476-4480 is enclosed in #if0. The compiled do_mcmd4791 consumer cannot be selected by this menu in a valid input stream; no independent context-menu recording is required. JS has the same consumer and no active producer. The live #monster command remains the required entry."
+  ]
+}

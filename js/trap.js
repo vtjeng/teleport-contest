@@ -2363,28 +2363,29 @@ function untrap_prob(ttmp, state = game) {
 
 // C ref: trap.c cnv_trap_obj() (5340-5371). Replace trap with object(s);
 // Helge Hafting.
-export async function cnv_trap_obj(otyp, cnt, ttmp, bury_it, state = game) {
-    const otmp = mksobj(otyp, true, false, { state });
+export async function cnv_trap_obj(otyp, cnt, ttmp, bury_it, state = game, rawEnv = {}) {
+    const env = objectGenerationEnv({ ...rawEnv, state });
+    const otmp = mksobj(otyp, true, false, env);
     otmp.quan = cnt;
-    otmp.owt = weight(otmp, { state });
+    otmp.owt = weight(otmp, env);
     /* Only dart traps are capable of being poisonous */
     if (otyp !== DART) otmp.opoisoned = 0;
-    place_object(otmp, ttmp.tx, ttmp.ty, { state });
+    place_object(otmp, ttmp.tx, ttmp.ty, env);
     if (bury_it) {
-        // C: bury_an_obj(otmp, NULL). bury_an_obj is ported in js/bury.js but
-        // the bury-then-unearth flow is rarely exercised through this path.
-        note_unported('dig.c bury_an_obj via cnv_trap_obj');
+        const { bury_an_obj } = await import('./bury.js');
+        await bury_an_obj(otmp, env);
     } else {
         /* Sell your own traps only... */
         if (ttmp.madeby_u) {
             // C: sellobj(otmp, ttmp->tx, ttmp->ty). shk.c, not ported.
             note_unported('shk.c sellobj');
         }
-        stackobj(otmp, { state });
+        stackobj(otmp, env);
     }
-    newsym(ttmp.tx, ttmp.ty);
+    if (!env.planning)
+        (env.newsym ?? newsym)(ttmp.tx, ttmp.ty, state);
     if (state.u.utrap && state.u.ux === ttmp.tx && state.u.uy === ttmp.ty)
-        await reset_utrap(true, state);
+        await reset_utrap(!env.planning, state);
     const mtmp = m_at(ttmp.tx, ttmp.ty, state);
     if (mtmp && mtmp.mtrapped) mtmp.mtrapped = 0;
     deltrap(ttmp, state);

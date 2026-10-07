@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole cmd.c:domonability witness. Seed chosen directly, not searched; race/form/terrain changes exercise the dispatched source arm.",
+  "segments": [
+    {
+      "seed": 129070101,
+      "datetime": "20401204115701",
+      "nethackrc": "OPTIONS=name:MonAbility,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none\n",
+      "moves": " #polyself\ngremlin\n      \u0017fountain\n#monster\n y."
+    }
+  ]
+}

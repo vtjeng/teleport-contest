@@ -1,0 +1,96 @@
+{
+  "session": "synthetic/v25/v25-kick-potion",
+  "corpus": "synthetic",
+  "batch": "v25",
+  "caseId": "v25-kick-potion",
+  "remainingScreens": 5,
+  "recordedSteps": 47,
+  "manifestPath": "challenges/manifests/v25.json",
+  "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+  "recordingSha256": "3abf4bc86aee81cdabceeead9919b886c8b83b3776687418dda4fae1f9d7a2cf",
+  "evaluationPath": "challenges/evaluations/20261007064611-v25.json",
+  "evaluationCommit": "c8d3fb2782a75f3ff724f7f338767d4a4793804f",
+  "status": "complete",
+  "commit": "e7814c45279bfa852e89cd0eae2b80971fe8e48f",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v25",
+    "caseId": "v25-kick-potion",
+    "session": "synthetic/v25/v25-kick-potion",
+    "manifestPath": "challenges/manifests/v25.json",
+    "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+    "recording": "challenges/cases/v25/v25-kick-potion.session.json",
+    "recordingPath": "challenges/cases/v25/v25-kick-potion.session.json",
+    "recordingSha256": "3abf4bc86aee81cdabceeead9919b886c8b83b3776687418dda4fae1f9d7a2cf",
+    "recipe": "challenges/cases/v25/v25-kick-potion.recipe.session.json",
+    "recipeSha256": "9d27a9ad58095ef3df0961c790d7bcce7ab5c9b49ec526f085f0159d11d60371",
+    "replayInputSha256": "367beee2b68d7ec98cb5fd5714d5003572310ce9a1c8e2e9c503368c51c3f020",
+    "evaluationPath": "challenges/evaluations/20261007064611-v25.json",
+    "evaluationCommit": "c8d3fb2782a75f3ff724f7f338767d4a4793804f",
+    "evaluationArtifact": "challenges/evaluations/20261007064611-v25.json",
+    "evaluationUtc": "2026-10-07T06:48:09.270Z",
+    "remainingScreens": 5,
+    "recordedSteps": 47,
+    "previousScreensMatched": 42,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 42,
+        "total": 47
+      },
+      "rng": {
+        "matched": 2307,
+        "total": 2318
+      },
+      "cursors": {
+        "matched": 42,
+        "total": 47
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 42,
+      "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: dokick()'s object-pile arm, which needs kick_object() and with it every box, boulder and statue that arm handles"
+    },
+    "step": 42,
+    "kind": "stop",
+    "sourceFile": "dokick.c",
+    "function": "kick_object",
+    "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: dokick()'s object-pile arm, which needs kick_object() and with it every box, boulder and statue that arm handles",
+    "cFile": "dokick.c",
+    "luaFile": null,
+    "line": 489
+  },
+  "goalKind": "file-port",
+  "summary": "The first mismatch is the absent floor-object kick owner. At segment 0 step 42, direction h after Ctrl-D should call dokick.c:kick_object and really_kick_object; C prints the singular kick message and evaluates hero_breaks before splitting the two-potion stack. JavaScript refuses the whole object-pile arm. Port whole kick_object/really_kick_object, with required ghitm and the KICKED_WEAPON path of existing zap.c:bhit; preserve wrapper lifetime, message waits, breakage-before-split and result-dependent command handling.",
+  "source": {
+    "file": "dokick.c",
+    "branch": "The hero stands east of a floor stack of two uncursed healing potions, is not levitating, and answers the kick direction with h. dokick passes its guard/direction/monster/terrain checks and enters OBJ_AT at 1452-1463. kick_object saves the top object in gk.kickedobj and its killer name; really_kick_object computes range, prints singular kick feedback, and calls hero_breaks before the splitobj/flight path. The recorded fragile stack breaks as a whole.",
+    "functions": [
+      "kick_object",
+      "really_kick_object",
+      "ghitm"
+    ],
+    "callers": [
+      "cmd.c Ctrl-D kick command -> dokick.c:dokick1452-1463 -> kick_object489-503 -> really_kick_object508-790; caller uses its result to choose ECMD_TIME/recoil versus kick_ouch. js/cmd.js kick dispatch already awaits dokick; js/dokick.js1143-1146 currently refuses this whole caller branch.",
+      "really_kick_object747-748 consumes ghitm for a kicked gold stack or existing dothrow.c:thitmonst for other objects. dothrow.c:throw_gold2712 is ghitm's other production caller and must be wired in the same task if ghitm is ported."
+    ],
+    "dependencies": [
+      "Read whole kick_object489-503, really_kick_object508-790 and ghitm295-407. Required same-file ghitm return owner is absent in JS; its other throw_gold caller currently throws UnsupportedThrowError(ghitm). Reserve/wire the bounded dothrow.c:throw_gold caller; do not claim whole throw_gold.",
+      "zap.c:bhit3827-4139 is return-valued. Existing JS supports thrown/tethered/zapped/flashed/invisible paths but rejects KICKED_WEAPON at js/zap.js3927. Required completion adds source kicked start offset/range decrement, physical bars/web/shade handling, coin-pile/down-gate ship_object return, pool/lava landing stop, and cleanup. Keep rock skip and heavy-ball constraints restricted to THROWN_WEAPON as C requires. Reuse existing ship_object/hits_bars/shade_miss/state.gb.bhitpos owners; compare the whole bhit source and preserve existing callers.",
+      "Reuse and source-check existing consumed-return owners polyself.c:polymon (stone-golem transformation evidence exists), obj weight/splitobj, shk.c:find_objowner/contained_gold, dothrow.c:hero_breaks/thitmonst and do.c:flooreffects. Existing thitmonst has complete source evidence; do not reimplement it. No numeric or note_unported return substitutes.",
+      "The box lock path calls existing lock.c:breakchestlock(FALSE); its JS helper is private, so export the source owner for the bounded call or retain a named discarded-call gap. Trap reveal/statue/chest effects, snuff_candle, object extraction/place/stack, container_impact_dmg, impact_disturbs_zombies and shop billing remain source-ordered. Missing discarded-return calls get explicit gaps; no fabricated messages/state/RNG.",
+      "Preserve gk.kickedobj as the single C ownership slot: set from the pile, update after splitobj/bhit outparam, clear after a returning really_kick_object, and retain it during fatal handling. gb.bhitpos is the existing ray endpoint owner; no second endpoint/global copy. Async message waits must retain both owners at the corresponding source boundary."
+    ]
+  },
+  "evidence": [
+    "Current complete saved evaluation challenges/evaluations/20261007064611-v25.json at c8d3fb2782a75f3ff724f7f338767d4a4793804f reports 42/47 matching screens/cursors and2307/2318 RNG for this case: exactly 5 remaining screens. Manifest and recording hashes are retained above. Only this assigned case was replayed; no corpus scan, new C recording or scoring was performed.",
+    "Targeted replay node scripts/run-bounded.mjs focused -- node scripts/scan-sessions.mjs --json --synthetic v25/v25-kick-potion (run-qqjKkn) at e7814c45279bfa852e89cd0eae2b80971fe8e48f emits 42 boundaries and stops at step 42 direction h with the object-pile refusal. It records Ctrl-D kick at 41 and direction answer h at42; the diagnostic field command=movewest describes the key lookup, while issued command/answer context proves this is a kick. Diagnostic .cache/v25-kick-potion/replay.json and .cache/synthetic-scans/v25/v25-kick-potion.json retain the result. git diff --exit-code c8d3fb2782a75f3ff724f7f338767d4a4793804f -- js scripts confirms replay code equals the evaluated accepted integration.",
+    "Recording step 39 drops 2 uncursed potions of healing, step 40 moves east, step 41 asks In what direction?, and step 42 key h prints You kick an uncursed potion of healing.--More-- with rn2(100)=79 at zap.c:obj_resists1469. Step43 space prints 2 uncursed potions of healing shatter! You smell a peculiar odor..., then logs exercise rn2(19)=2 and later obj_resists rn2(100)=21 before the ordinary turn tail. These subsequent calls are recorded observations; the first cause is the missing kick owner, not potion naming/exposure.",
+    "dokick.c:679 hero_breaks occurs before stack splitting at 692-694 and before flight at731. dothrow.c:hero_breaks2417-2441 calls breaktest then breakmsg then return-valued breakobj. Existing JS hero_breaks1569 implements that order. This potion outcome does not reach bhit, boxes, gold catches, shop billing or petrifying bare-foot corpse transformation; it cannot certify those whole-function branches.",
+    "Actionable task scope is whole dokick.c:kick_object489-503/really_kick_object508-790 plus consumed ghitm295-407, required zap.c:bhit source completion for kicked weapons, and bounded production caller wirings in dokick, dothrow throw_gold and lock breakchestlock export. Minimum reservations: source:dokick.c:kick_object, source:dokick.c:really_kick_object, source:dokick.c:ghitm, source:dokick.c:dokick (object-pile caller only), source:dothrow.c:throw_gold (ghitm caller only), source:zap.c:bhit, source:lock.c:breakchestlock (export/caller only), contract:kicked-object-lifecycle. Initial write set js/dokick.js, js/zap.js, js/dothrow.js, js/lock.js, their focused kick/ray/throw/lock tests, a fresh kick matrix, recipes/dokick.c and recordings/dokick.c; any required new callee owner needs a scope event before edits. Focused test files include scripts/dokick.test.mjs, scripts/kick-command.test.mjs, scripts/dokick-shipping.test.mjs, scripts/zap-ray.test.mjs, scripts/dothrow.test.mjs, scripts/dothrow-thitmonst.test.mjs, scripts/throw-gold.test.mjs and scripts/lock.test.mjs.",
+    "Independent validation should use fresh seeds/roles/setup for fragile floor stacks and a nonfragile single/split stack flight, then verify kicked start offset/range endpoint and object ownership. Add cheap source branches for heavy boulder no-move/kick_ouch, box impact, web/pit, coin pile/ghitm catch and shop boundary where independently reachable. Source-pin range arithmetic/truncation, top-of-pile saved killer name, breakage-before-split, ghitm return/catches and bhit kicked-vs-thrown gates. Keep recorder/source blockers as explicit incomplete entry evidence; the admitted potion range alone cannot close whole source scope."
+  ]
+}
