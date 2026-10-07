@@ -189072,6 +189072,82 @@
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
       }
+    },
+    {
+      "id": "fix-explode-retributive-role-v26-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Use the canonical original role for retributive wand damage",
+      "cFile": "explode.c",
+      "sessions": [
+        "synthetic/v26/v26-break-create-monster-wand"
+      ],
+      "selectionReason": "Next admitted v26 mismatch after the boulder case: 10 remaining screens from an incorrect role lookup in a broken-wand explosion.",
+      "detail": "Use urole.mnum as C Role_switch for the wand-class hero dose reductions while preserving original damage for monsters, items, floor effects, and wake radius. Cover /5, /2, default, truncation, polymorph independence, and non-wand behavior.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "explode",
+      "session": "synthetic/v26/v26-break-create-monster-wand",
+      "step": 75,
+      "syntheticProvenance": {
+        "synthetic/v26/v26-break-create-monster-wand": {
+          "session": "synthetic/v26/v26-break-create-monster-wand",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-break-create-monster-wand",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-break-create-monster-wand.session.json",
+          "recordingSha256": "10e4342414ffd9693ec89f6f1fd8097a59ae50307a246ab4cdeaf3c589cc4dbb",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-lock-pick-lock-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete lock selection behavior for monsters, doors, and boxes",
+      "cFile": "lock.c",
+      "sessions": [
+        "synthetic/v26/v26-lock-key-visible-monster"
+      ],
+      "selectionReason": "Next admitted v26 mismatch: 8 remaining screens at step 55 where a visible monster should produce the source message and spend a turn.",
+      "detail": "Port whole partially implemented pick_lock and preserve its existing doapply, do_loot_cont, and doopen_indir callers. Implement visible-monster, shopkeeper/Oracle, door-mimic, door, box, autounlock, and artifact-touch behavior in source order; retain discarded unported side effects as named gaps.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pick_lock",
+          "line": 358,
+          "endLine": 659,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 358,
+        "to": 659
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-lock-key-visible-monster": {
+          "session": "synthetic/v26/v26-lock-key-visible-monster",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-lock-key-visible-monster",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+          "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
     }
   ]
 }
