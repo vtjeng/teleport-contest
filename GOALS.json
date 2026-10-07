@@ -192838,7 +192838,7 @@
     {
       "id": "port-artifact-set-intrinsic-warning-v27-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete artifact intrinsic state and warning redraws",
       "cFile": "artifact.c",
       "sessions": [
@@ -192846,8 +192846,12 @@
       ],
       "selectionReason": "v27-sting-orc-warning has 23 remaining screens at step 10; investigations/synthetic/v27/v27-sting-orc-warning.json traces the first cause to whole artifact.c:set_artifact_intrinsic and its required display.c:see_monsters warning redraw.",
       "detail": "Port every set_artifact_intrinsic property arm, removal survey, invoked-property shutdown, and production setter/inventory/name caller; reconcile whole see_monsters with source-ordered awaited Sting_effects and all production callers.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "81b06ec37e02e84db7740cdc12b9d9127ea0ff93",
+      "openStanding": {
+        "sha": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -192886,7 +192890,162 @@
           "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
           "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-sting-orc-warning",
+          "session": "synthetic/v27/v27-sting-orc-warning",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recording": "challenges/cases/v27/v27-sting-orc-warning.session.json",
+          "recordingPath": "challenges/cases/v27/v27-sting-orc-warning.session.json",
+          "recordingSha256": "6173806f06b5b15d55c7f01e75bb1034d777c6d670515e72c5d688d69445b4a5",
+          "recipe": "challenges/cases/v27/v27-sting-orc-warning.recipe.session.json",
+          "recipeSha256": "bfb3adfe741f7d0dca893a09cb533815931f8edc69bd4f77bf58acc91dd5108e",
+          "replayInputSha256": "872262f6cfe2e69ac4b8e2b807cd889ef69451d56abbd3a049f304bff77a7745",
+          "evaluationPath": "challenges/evaluations/accepted-e08393de56cde7fc1ef8c8d297a533bd7522cfa2-v27.json",
+          "evaluationCommit": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+          "evaluationArtifact": "challenges/evaluations/accepted-e08393de56cde7fc1ef8c8d297a533bd7522cfa2-v27.json",
+          "evaluationUtc": "2026-10-07T18:57:14.487Z",
+          "remainingScreens": 23,
+          "recordedSteps": 33,
+          "previousScreensMatched": 10,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 10,
+              "total": 33
+            },
+            "rng": {
+              "matched": 2624,
+              "total": 2695
+            },
+            "cursors": {
+              "matched": 10,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: artifact display requires an artifact that changes what the hero sees (ESP/WARN/XRAY)",
+            "step": 10
+          },
+          "step": 10,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: artifact display requires an artifact that changes what the hero sees (ESP/WARN/XRAY)",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v27/v27-sting-orc-warning.json",
+            "result": {
+              "session": "synthetic/v27/v27-sting-orc-warning",
+              "corpus": "synthetic",
+              "batch": "v27",
+              "caseId": "v27-sting-orc-warning",
+              "remainingScreens": 23,
+              "recordedSteps": 33,
+              "manifestPath": "challenges/manifests/v27.json",
+              "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+              "recordingSha256": "6173806f06b5b15d55c7f01e75bb1034d777c6d670515e72c5d688d69445b4a5",
+              "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+              "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+              "status": "complete",
+              "commit": "be9649de905f74f20bf8c0cc1b3ed10aa73ea8ea",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v27",
+                "caseId": "v27-sting-orc-warning",
+                "session": "synthetic/v27/v27-sting-orc-warning",
+                "manifestPath": "challenges/manifests/v27.json",
+                "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+                "recording": "challenges/cases/v27/v27-sting-orc-warning.session.json",
+                "recordingPath": "challenges/cases/v27/v27-sting-orc-warning.session.json",
+                "recordingSha256": "6173806f06b5b15d55c7f01e75bb1034d777c6d670515e72c5d688d69445b4a5",
+                "recipe": "challenges/cases/v27/v27-sting-orc-warning.recipe.session.json",
+                "recipeSha256": "bfb3adfe741f7d0dca893a09cb533815931f8edc69bd4f77bf58acc91dd5108e",
+                "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+                "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+                "evaluationArtifact": "challenges/evaluations/baseline-76417879-v27.json",
+                "evaluationUtc": "2026-10-07T18:10:31.065Z",
+                "remainingScreens": 23,
+                "recordedSteps": 33,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 10,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 2624,
+                    "total": 2695
+                  },
+                  "cursors": {
+                    "matched": 10,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "segment": 0,
+                  "step": 10,
+                  "message": "unsupported hero command: an unported branch of this command: artifact display requires an artifact that changes what the hero sees (ESP/WARN/XRAY)"
+                },
+                "step": 10,
+                "kind": "stop",
+                "sourceFile": "artifact.c",
+                "function": "set_artifact_intrinsic"
+              },
+              "summary": "At zero-based step 10 the hero wields Sting. JavaScript refuses artifact.c:set_artifact_intrinsic before applying SPFX_WARN. C sets EWarn_of_mon and context.warntype.obj to M2_ORC, redraws monsters, then emits the glow through display.c:see_monsters -> artifact.c:Sting_effects. Select the whole set_artifact_intrinsic function with whole see_monsters reconciliation and source-ordered awaited setter/display callers; a WARN-only mask change reaches an existing see_monsters refusal.",
+              "source": {
+                "file": "artifact.c",
+                "branch": "Sting has SPFX_WARN|SPFX_DFLAG2 and mtype M2_ORC. ready_weapon installs it through setuwep -> setworn -> set_artifact_intrinsic(TRUE,W_WEP). The SPFX_WARN branch consumes spec_m2, sets EWarn_of_mon and context.warntype.obj, and calls see_monsters; changed warning count triggers Sting_effects before storing the count.",
+                "functions": [
+                  "set_artifact_intrinsic"
+                ],
+                "callers": [
+                  "wield.c:ready_weapon169–273 -> setuwep -> worn.c:setworn106/130. JS route: js/wield.js:622 -> js/worn.js:setuwep/setworn -> js/do_wear.js:setwornEnv.setArtifactIntrinsic -> js/artifacts.js:set_artifact_intrinsic.",
+                  "Other direct C sites: worn.c:setnotworn173, invent.c:addinv_core1991, invent.c:freeinv_core1383, do_name.c:oname407. Their existing owner calls/gaps need reconciliation.",
+                  "display.c:see_monsters also runs from allmain.c sensing upkeep. js/allmain.js:1686 currently calls it synchronously, so subsequent monster creation/movement requires the same source-ordered glow/message handoff."
+                ],
+                "dependencies": [
+                  "Whole display.c:see_monsters1486–1529 supporting reconciliation: defer guard, dead/arriving skips, live warning count, awaited Sting_effects before count assignment, final hero redraw. JS4058–4105 throws on warning count changes.",
+                  "artifact.c:spec_m21065–1074 is a consumed pure result; existing js/artifacts.js:1629 and scripts/artifacts.test.mjs:1645 implement and test it. Extend values to Sting/Orcrist/Grimtooth as appropriate.",
+                  "artifact.c:Sting_effects2465–2502 and glow_strength/glow_verb/glow_color already exist. Audit source order and planning message environment rather than duplicating them.",
+                  "Existing potion.c:make_hallucinated async owner replaces the HALRES inline/refusal; existing worn.c:recalc_telepat_range covers ESP. XRAY writes u.xray_range and vision_full_recalc.",
+                  "worn.js:setworn/setnotworn, do_wear.js:setwornEnv, invent.js:addinv_core1/freeinv_core and do_name.js:oname use synchronous seams or gaps. Await impure work at each source boundary, preserving removal-before-addition and display/message order.",
+                  "Carried-off W_ART inventory surveys preserve resistance/spfx also supplied by other artifacts. Invoked-property shutdown calls existing arti_invoke with discarded result; retain named limits for unsupported branches.",
+                  "Async see_monsters consumers span potion/artifacts/sit/timeout/pray/attrib/display/wizcmds/allmain/mon/detect/teleport/polyself/do_wear/eat. Coordinate an exact write set including synchronous wrappers before editing."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Baseline challenges/evaluations/baseline-76417879-v27.json at 76417879468cfeb65fa59ad60447a803684c6747 reports10/33 screens/cursors and2624/2695 RNG matches:23 remaining screens. Corpus digest 24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277 was verified with corpusDigest(manifest.cases), and the actual recording bytes match 6173806f06b5b15d55c7f01e75bb1034d777c6d670515e72c5d688d69445b4a5.",
+                "Focused scorer-compatible replay .cache/v27-sting-audit/replay.json on be9649de reproduces missing screen/cursor at segment0 step10 key m and the ESP/WARN/XRAY refusal. This worker commit merges published baseline76417879 preserving history; git diff baseline..HEAD -- js is empty. RNG first absent at step11 is mcalcmove: downstream after refusal, not the source cause.",
+                "Decoded C screens: step8 receives Sting; step9 prompts to wield; step10 shows the wielded name with --More--; step11 says “Sting flickers light blue!”; only step28 explicitly creates the peaceful orc. Initial level orcs trigger warning before that later creation; do not attribute the first glow to step28.",
+                "artilist.h129–140 defines Sting/Orcrist SPFX_WARN|SPFX_DFLAG2,M2_ORC. Whole artifact.c:set_artifact_intrinsic715–892 selects defn/cary, preserves shared carried resistance/spfx on removal, applies every property in order, refreshes HALRES/ESP/WARN/XRAY state, shuts down invoked property on carried removal, and toggles Sunsword blindness resistance. WARN824–840 consumes spec_m2: nonzero uses EWarn_of_mon plus context.warntype.obj and see_monsters; zero uses ordinary EWarning. No WARN RNG draw occurs.",
+                "js/artifacts.js1036–1114 is partial: W_ART off, ESP/WARN/XRAY and active HALRES transitions refuse. Complete the entire C function rather than only WARN. C display.c1486–1529 invokes Sting_effects(new_count), then stores gw.warn_obj_cnt; JS display.js4091–4098 instead throws “see_monsters() toggling a warning artifact”. Clearing the first guard alone cannot reach the complete recording.",
+                "Enumerated upstream direct intrinsic callers: worn.c106/130/173, invent.c991/1383, do_name.c407. JS freeinv_core and oname record discarded intrinsic gaps; worn hook/addinv call the partial owner. Wire each in the same task. Existing tests explicitly assert obsolete artifact refusals and freeinv gap strings; update them.",
+                "Independent evidence beyond admitted wield/start warning must cover unwield/stop warning with Orcrist or Grimtooth variation, generic Warning (mtype0), carried on/off with overlapping resistance/cspfx, ESP pickup/removal, XRAY, HALRES while hallucinating/restoring, and invoked-property shutdown. Runtime production families remain unverified until matching independent recipes/recordings exist. Keep explicit discarded-return worm-tail or other source dependency limits with outside-limit recipes.",
+                "Investigation replay run-YWjrzn used only the assigned existing recording. No C game, aggregate scan/scoring, implementation claim, or game-code edit was made."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-detect-object-detect-browse-map-v27-20261007",
