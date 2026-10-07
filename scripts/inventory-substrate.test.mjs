@@ -23,6 +23,7 @@ import {
     HVY_ENCUMBER,
     IN_SIGHT,
     LAST_PROP,
+    LS_OBJECT,
     LAVAPOOL,
     LEVITATION,
     LOST_EXPLODING,
@@ -121,6 +122,8 @@ import {
     sobj_at,
 } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
+import { del_light_source, light_globals_init } from '../js/light.js';
+import { begin_burn, timeout_globals_init } from '../js/timeout.js';
 import { game } from '../js/gstate.js';
 import { oname } from '../js/do_name.js';
 import {
@@ -622,11 +625,12 @@ test('addinv sequence projection carries source merge state forward', () => {
 
 test('addinv sequence projection preserves the lit-merge age exception', () => {
     const state = initializedState();
-    const first = instance(ARROW, state, { age: 10, lamplit: true });
-    const second = instance(ARROW, state, { age: 20, lamplit: true });
+    // Lit candle ages in the same C age/25 bucket must not be averaged.
+    const first = instance(TALLOW_CANDLE, state, { age: 10, lamplit: true });
+    const second = instance(TALLOW_CANDLE, state, { age: 20, lamplit: true });
     const plans = preflight_addinv_sequence(
         [first, second],
-        { state, hooks: { mergeLightSources: () => {} } },
+        { state },
         { observeObjects: true },
     );
 
@@ -797,18 +801,24 @@ test('stackobj transfers live merge state before deleting the older pile', () =>
     // two and three make survivor identity and combined weight observable.
     const older = instance(TALLOW_CANDLE, state, {
         age: 100,
-        lamplit: true,
+        lamplit: false,
         quan: 2,
-        timed: 1,
+        timed: 0,
     });
     const newer = instance(TALLOW_CANDLE, state, {
         age: 100,
-        lamplit: true,
+        lamplit: false,
         quan: 3,
-        timed: 1,
+        timed: 0,
     });
+    timeout_globals_init(state);
+    light_globals_init(state);
     place_object(older, 10, 5, { state });
     place_object(newer, 10, 5, { state });
+    begin_burn(older, false, { state });
+    begin_burn(newer, false, { state });
+    const survivorTimer = state.gt.timer_base;
+    const survivorLight = state.gl.light_base;
     const events = [];
 
     assert.equal(stackobj(newer, {
@@ -823,21 +833,19 @@ test('stackobj transfers live merge state before deleting the older pile', () =>
                 assert.equal(newer.nexthere, older);
                 remove_object(obj, { state });
             },
-            mergeLightSources(obj, target) {
-                events.push(['light', obj, target]);
+            deleteObjectLightSource(obj) {
+                events.push(['light', obj, newer]);
+                // C merged extracted the absorbed stack before end_burn;
+                // stop_timer unlinks its only timer before cleanup_burn.
                 assert.equal(obj.where, OBJ_FREE);
                 assert.equal(obj.nobj, null);
                 assert.equal(obj.nexthere, null);
                 assert.equal(obj.lamplit, true);
-                assert.equal(obj.timed, 1);
-                assert.equal(target.where, OBJ_FLOOR);
-                assert.equal(target.lamplit, true);
-                assert.equal(target.timed, 1);
+                assert.equal(obj.timed, 0);
+                del_light_source(LS_OBJECT, obj, state);
             },
-            stopObjectTimers(obj) {
-                events.push(['timers', obj]);
-                assert.equal(obj.lamplit, false);
-                obj.timed = 0;
+            stopObjectTimers() {
+                assert.fail('end_burn cleared timed before C merged tests it');
             },
         },
     }), newer);
@@ -845,7 +853,6 @@ test('stackobj transfers live merge state before deleting the older pile', () =>
     assert.deepEqual(events, [
         ['extract', older],
         ['light', older, newer],
-        ['timers', older],
     ]);
     assert.equal(state.level.objects[10][5], newer);
     assert.equal(state.level.objlist, newer);
@@ -855,6 +862,10 @@ test('stackobj transfers live merge state before deleting the older pile', () =>
     assert.equal(newer.timed, 1);
     assert.equal(newer.nobj, null);
     assert.equal(newer.nexthere, null);
+    assert.equal(state.gt.timer_base, survivorTimer);
+    assert.equal(survivorTimer.next, null);
+    assert.equal(state.gl.light_base, survivorLight);
+    assert.equal(survivorLight.range, 3); // Five candles reach C radius three.
     assert.equal(older.where, OBJ_DELETED);
     assert.equal(older.lamplit, false);
     assert.equal(older.timed, 0);
@@ -1590,7 +1601,7 @@ test('glob absorption bypasses comparison and generic shop-free seams', () => {
     assert.equal(incoming.where, OBJ_DELETED);
 });
 
-test('worn and timed merges require their canonical cleanup seams', () => {
+test('worn merges require their canonical worn-mask cleanup seam', () => {
     const wornState = initializedState();
     const target = instance(DART, wornState, { quan: 2 });
     const incoming = instance(DART, wornState, {
@@ -1618,28 +1629,6 @@ test('worn and timed merges require their canonical cleanup seams', () => {
     assert.equal(target.quan, 3);
     assert.equal(target.owornmask, W_WEP);
     assert.equal(incoming.where, OBJ_DELETED);
-
-    const timedState = initializedState();
-    const firstRation = instance(FOOD_RATION, timedState);
-    const timedRation = instance(FOOD_RATION, timedState, { timed: 1 });
-    addinv(firstRation, { state: timedState });
-    assert.throws(
-        () => addinv(timedRation, { state: timedState }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'stopObjectTimers',
-    );
-    let stoppedWhere;
-    addinv(timedRation, {
-        state: timedState,
-        hooks: {
-            stopObjectTimers(obj) {
-                stoppedWhere = obj.where;
-                obj.timed = 0;
-            },
-        },
-    });
-    assert.equal(stoppedWhere, OBJ_FREE);
-    assert.equal(timedRation.where, OBJ_DELETED);
 });
 
 test('inventory reset stops timers on top-level and nested objects', () => {
@@ -3121,7 +3110,7 @@ function ordinaryDropFixture(otyp = HEAVY_IRON_BALL) {
 
 // C ref: do.c dropx()/dropz(), invent.c stackobj()/merged(). The newly
 // dropped object survives; only a compatible absorbed pile member needs the
-// unported light/timer merge operations.
+// canonical light/timer merge operations.
 test('drop admission preserves a nonmerging lit survivor', async () => {
     for (const otyp of [TALLOW_CANDLE, OIL_LAMP]) {
         const { hooks, obj, state } = ordinaryDropFixture(otyp);
@@ -3159,22 +3148,37 @@ test('an incompatible lit pile member permits a lit survivor drop', async () => 
     assert.equal(member.timed, 1);
 });
 
-test('a compatible lit candle merge is refused before extraction', () => {
+test('a compatible lit candle drop preserves its survivor and canonical burn timer', async () => {
     const { hooks, lines, obj, state } = ordinaryDropFixture(TALLOW_CANDLE);
-    obj.lamplit = true;
-    obj.timed = 1;
+    timeout_globals_init(state);
+    light_globals_init(state);
+    obj.age = 100; // Both stacks share C's same 25-turn age bucket.
     const member = newObject({
         ...obj, o_id: obj.o_id + 1, where: OBJ_FLOOR,
         ox: 10, oy: 5, nobj: null, nexthere: null,
     });
     state.level.objlist = member;
     state.level.objects[10][5] = member;
-    assert.throws(() => preflight_dropx(obj, { state, hooks }), /floor pile/u);
+    begin_burn(obj, false, { state });
+    begin_burn(member, false, { state });
+    const admission = preflight_dropx(obj, { state, hooks });
     assert.equal(state.invent, obj);
-    assert.equal(obj.where, OBJ_INVENT);
     assert.equal(state.level.objlist, member);
-    assert.equal(state.level.objects[10][5], member);
-    assert.deepEqual(lines, []);
+    assert.deepEqual(lines, []); // The admission check writes no output.
+    await dropx(obj, { state, hooks }, admission);
+    assert.equal(state.invent, null);
+    assert.equal(state.level.objects[10][5], obj);
+    assert.equal(state.level.objlist, obj);
+    assert.equal(obj.quan, 2); // The dropped candle absorbs the older one.
+    assert.equal(obj.lamplit, true);
+    assert.equal(obj.timed, 1);
+    assert.equal(member.where, OBJ_DELETED);
+    assert.equal(member.lamplit, false);
+    assert.equal(member.timed, 0);
+    assert.equal(state.gl.light_base.id, obj);
+    assert.equal(state.gl.light_base.next, null);
+    assert.equal(state.gt.timer_base.arg, obj);
+    assert.equal(state.gt.timer_base.next, null);
 });
 
 test('dropy reaches dropz without container-impact handling', async () => {

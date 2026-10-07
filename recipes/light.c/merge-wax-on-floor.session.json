@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first candle floor merge, Samurai fixed starting inventory. Three lit wax candles are dropped, then one separately lit wax candle is dropped onto them; quantity four crosses light.c candle_light_range square threshold. New seed/date chosen before comparison.",
+  "segments": [
+    {
+      "seed": 13827013,
+      "datetime": "20841121140500",
+      "nethackrc": "OPTIONS=name:CandleField,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u00173 uncursed wax candles\nagdg\u0017uncursed wax candle\nahdh.."
+    }
+  ]
+}

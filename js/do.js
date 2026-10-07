@@ -267,7 +267,7 @@ import {
     S_ZOMBIE,
 } from './monsters.js';
 import {
-    is_pick, obj_meld, obj_nexto_xy, objectType, place_object,
+    is_pick, isCandle, obj_meld, obj_nexto_xy, objectType, place_object,
     pudding_merge_message, remove_object, set_bknown, splitobj, weight,
 } from './obj.js';
 import { oinit } from './o_init.js';
@@ -351,7 +351,7 @@ import {
 } from './stairs.js';
 import { Punished, dismount_steed, stucksteed } from './steed.js';
 import { enexto, rloc, safe_teleds } from './teleport.js';
-import { burn_away_slime, obj_has_timer, rider_revival_time, run_timers, start_timer } from './timeout.js';
+import { burn_away_slime, obj_has_timer, preflight_end_burn, rider_revival_time, run_timers, start_timer } from './timeout.js';
 import {
     climb_pit,
     fill_pit,
@@ -1850,9 +1850,8 @@ export function preflight_dropx(obj, env = {}) {
     // stackobj() preserves the newly dropped object and absorbs an older pile
     // member into it. The survivor keeps its light and timers across an
     // ordinary drop; light.c finds their new location through that same object.
-    // An absorbed lit or timed member needs merged()'s unported light/timer
-    // operations, so the compatible-pile walk below still refuses that merge.
-    // Glob-specific floor and merge effects remain outside this tail.
+    // Compatible lit candles use merged()'s canonical light/timer owners.
+    // Generic timed and glob-specific floor effects remain outside this tail.
     if (obj.globby)
         throw new UnsupportedDropError('a globby object');
     // obfree()'s remaining operations are reached by an object the drop chain
@@ -1946,11 +1945,18 @@ export function preflight_dropx(obj, env = {}) {
     for (let member = state.level.objects[x][y] ?? null; member;
         member = member.nexthere) {
         if (!member.lamplit && !member.timed && !member.globby) continue;
-        if (mergable(obj, member, normalized)) {
-            throw new UnsupportedDropError(
-                'a lit, timed, or globby object in the floor pile',
-            );
+        if (!mergable(obj, member, normalized)) continue;
+        if (isCandle(member) && member.lamplit && !member.globby) {
+            // merged() extracts this older candle and end_burn() stops its
+            // burn before obj_stop_timers is considered. Validate that owner
+            // while the drop is still atomic; generic timed/glob paths below
+            // retain their separate lifecycle boundary.
+            preflight_end_burn(member, true, normalized);
+            continue;
         }
+        throw new UnsupportedDropError(
+            'a lit, timed, or globby object in the floor pile',
+        );
     }
 
     preflight_update_inventory(normalized);

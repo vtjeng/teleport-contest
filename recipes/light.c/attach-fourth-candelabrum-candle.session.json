@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first lit candelabrum attachment: attach three unlit candles, light it, attach a fourth unlit candle without splitting; light.c obj_merge_light_sources receives the candelabrum for both arguments.",
+  "segments": [
+    {
+      "seed": 13827029,
+      "datetime": "20841124170500",
+      "nethackrc": "OPTIONS=name:CandleField,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed candelabrum of invocation\n\u00173 uncursed wax candles\nagyaf   \u0017uncursed wax candle\nahy   "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent inventory adjustment merge: create two separately lit wax-candle stacks and use #adjust to combine them into the first inventory slot, exercising merged through doorganize rather than pickup or floor stacking.",
+  "segments": [
+    {
+      "seed": 13827013,
+      "datetime": "20841126130500",
+      "nethackrc": "OPTIONS=name:CandleField,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u00173 uncursed wax candles\nag\u0017uncursed wax candle\nah#adjust\nhg   "
+    }
+  ]
+}

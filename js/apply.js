@@ -600,7 +600,7 @@ import {
     flash_hits_mon,
     force_attack,
 } from './uhitm.js';
-import { get_obj_location, transient_light_cleanup } from './light.js';
+import { get_obj_location, obj_merge_light_sources, transient_light_cleanup } from './light.js';
 import {
     bhit,
     bhitm,
@@ -3345,7 +3345,7 @@ export async function use_candle(obj, state = game, env = {}) {
         );
     }
     if (candelabrum.lamplit)
-        note_unported('light.c obj_merge_light_sources');
+        obj_merge_light_sources(candelabrum, candelabrum, { ...env, state });
     await useupall(obj, { ...env, state });
     candelabrum.owt = weight(candelabrum, { ...env, state });
     update_inventory({ ...env, state });

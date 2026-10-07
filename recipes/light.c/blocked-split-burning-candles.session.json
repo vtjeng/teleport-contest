@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked outside A138 by mkobj.c:splitobj discarded timeout.c:obj_split_timers and light.c:obj_split_light_source. Lighting three wax candles then dropping one requires independent timer and light ownership for the split; those source callees remain unported.",
+  "segments": [
+    {
+      "seed": 13827013,
+      "datetime": "20841121140500",
+      "nethackrc": "OPTIONS=name:CandleField,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u00173 uncursed wax candles\nagd1g   "
+    }
+  ]
+}

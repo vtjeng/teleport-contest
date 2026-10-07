@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent candelabrum variation: six attached tallow candles are lit, then a seventh unlit candle is attached without splitting, exercising the seven-candle radius and feedback.",
+  "segments": [
+    {
+      "seed": 13827029,
+      "datetime": "20841203170500",
+      "nethackrc": "OPTIONS=name:CandleField,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed candelabrum of invocation\n\u00176 uncursed tallow candles\nagyaf   \u0017uncursed tallow candle\nahy     "
+    }
+  ]
+}

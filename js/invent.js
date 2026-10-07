@@ -178,7 +178,7 @@ import {
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { body_part, mbodypart } from './polyself.js';
-import { learn_egg_type } from './timeout.js';
+import { learn_egg_type, obj_stop_timers } from './timeout.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
@@ -319,7 +319,7 @@ import {
     unknwn_contnr_contents,
     weight,
 } from './obj.js';
-import { get_obj_location } from './light.js';
+import { get_obj_location, obj_merge_light_sources } from './light.js';
 import {
     an,
     assertPricedObjectNameable,
@@ -2670,8 +2670,7 @@ function requiredHook(env, name, obj) {
 // the shop moves obj to OBJ_ONBILL, 'billed' when it merged an existing bill
 // entry, or 'unbilled' when normal deletion and price adjustment should run.
 // 'preserved' is obfree's diagnostic return when the merge target lacks a bill.
-// Merge effects: mergeLightSources(obj, target, env),
-// mergeWornMasks(target, obj, env). absorbGlob(target, obj, env) owns
+// Merge effects: mergeWornMasks(target, obj, env). absorbGlob(target, obj, env) owns
 // mkobj.c obj_absorb(), including globby_bill_fixup(), timeout recombination,
 // target updates, and leaving obj deallocated as OBJ_DELETED or OBJ_LUAFREE.
 // inventoryComparisonDiscovered(target, env), setNotWorn(obj, env).
@@ -3749,11 +3748,27 @@ export function obfree(obj, merge = null, rawEnv = {}) {
     dealloc_obj(obj, env);
 }
 
+// merged() owns the source timer-stop call after light merging. Supply the
+// canonical timeout owner for every inventory and floor caller; the optional
+// timer hook remains a focused test seam, not a missing runtime dependency.
+function mergedEnv(env) {
+    const normalized = inventoryEnv(env);
+    return {
+        ...normalized,
+        hooks: {
+            stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
+                obj, hookEnv.state, hookEnv,
+            ),
+            ...normalized.hooks,
+        },
+    };
+}
+
 // Mutation prefix of invent.c merged(), through the point immediately before
 // its comparison-discovery pline().  The live pickup path can suspend at that
 // call boundary before obfree() deletes the incoming object.
 function beginMerged(otmp, obj, env = {}) {
-    const normalized = inventoryEnv(env);
+    const normalized = mergedEnv(env);
     if (!preflightMerged(otmp, obj, normalized)) return null;
 
     if (!obj.lamplit && !obj.globby) {
@@ -3779,10 +3794,7 @@ function beginMerged(otmp, obj, env = {}) {
     if (obj.pickup_prev && otmp.where === OBJ_INVENT)
         otmp.pickup_prev = true;
 
-    if (obj.lamplit) {
-        requiredHook(normalized, 'mergeLightSources', obj)(obj, otmp, normalized);
-        obj.lamplit = false;
-    }
+    if (obj.lamplit) obj_merge_light_sources(obj, otmp, normalized);
     if (obj.timed) stopObjectTimers(obj, normalized);
 
     let discovered = false;
@@ -3877,8 +3889,8 @@ export function mergedRuntime(otmp, obj, env = {}) {
 // selected floor sequence before observing or unlinking its first object, so
 // the merge target can be the projected result of an earlier selection.
 function preflightMerged(otmp, obj, normalized) {
+    normalized = mergedEnv(normalized);
     if (!mergable(otmp, obj, normalized)) return false;
-    if (obj.lamplit) requiredHook(normalized, 'mergeLightSources', obj);
     if (obj.timed) requiredHook(normalized, 'stopObjectTimers', obj);
     if (obj.owornmask && otmp.where === OBJ_INVENT)
         requiredHook(normalized, 'mergeWornMasks', obj);
