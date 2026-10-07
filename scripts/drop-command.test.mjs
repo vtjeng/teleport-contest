@@ -16,23 +16,25 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     PIT,
+    POOL,
     ROOM,
     SINK,
     W_ARMS,
     W_SADDLE,
 } from '../js/const.js';
 import {
-    UnsupportedDropError, _dropInternals, canletgo, dodrop,
+    UnsupportedDropError, _dropInternals, canletgo, dodrop, dropCommandEnv, preflight_dropx,
 } from '../js/do.js';
 import { game } from '../js/gstate.js';
 import { addinv, any_obj_ok } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
+import { getRngLog } from '../js/rng.js';
 import { mksobj, newObject } from '../js/obj.js';
 import { stairway_at } from '../js/stairs.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     ELVEN_DAGGER, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
-    CORPSE, RIN_SEARCHING, SPEAR,
+    BOULDER, CORPSE, RIN_SEARCHING, SPEAR,
     TWO_HANDED_SWORD, WEAPON_CLASS,
 } from '../js/objects.js';
 import { PM_SMALL_MIMIC } from '../js/monsters.js';
@@ -855,3 +857,55 @@ test('ordinary lit candle and oil-lamp drops preserve light/timer identity',
         for (const path of LIT_DROP_RECIPES)
             await verifyLitDropSegment(loadLitDropRecipe(path).segments[0]);
     });
+
+// do.c:flooreffects starts with FALSE; a boulder on dry ROOM terrain
+// neither fills water nor a trap. dropz then places the surviving object.
+test('an ordinary boulder leaves inventory and lands on the room floor', async () => {
+    const state = await startedGame();
+    const { ux, uy } = state.u;
+    // The initial upstairs square is changed to ROOM to isolate the dry-floor arm.
+    state.level.at(ux, uy).typ = ROOM;
+    const boulder = addinv(mksobj(BOULDER, false, false, { state }), { state });
+    // A different prior hit position detects failure to restore C gb.bhitpos.
+    state.gb = { bhitpos: { x: ux + 1, y: uy } };
+    const priorHit = { ...state.gb.bhitpos };
+    const rngBefore = getRngLog().length;
+    assert.equal(await _dropInternals.drop(boulder, state), ECMD_TIME);
+    assert.equal(boulder.where, OBJ_FLOOR);
+    assert.equal(boulder.ox, ux);
+    assert.equal(boulder.oy, uy);
+    assert.ok(pileAt(state, ux, uy).includes(boulder));
+    assert.ok(!letters(state).includes(boulder.invlet));
+    assert.equal(state._ttyToplines, 'You drop a boulder.');
+    // do.c:boulder_hits_pool returns before rn2(10) on a dry square.
+    assert.equal(getRngLog().length, rngBefore);
+    assert.deepEqual(state.gb.bhitpos, priorHit);
+});
+
+// The bounded ordinary floor fix keeps trap and liquid paths outside admission.
+test('boulders at a pit or pool stop before inventory removal', async () => {
+    for (const [hazard, refusal] of [
+        // engrave.c:can_reach_floor refuses the visible pit edge before the trap guard.
+        ['pit', /unreachable floor/u],
+        ['pool', /liquid terrain/u],
+    ]) {
+        const state = await startedGame();
+        const { ux, uy } = state.u;
+        const boulder = addinv(mksobj(BOULDER, false, false, { state }), { state });
+        if (hazard === 'pit') {
+            // do.c:flooreffects has a separate boulder/pit consumption branch.
+            state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: true });
+        } else {
+            // do.c:boulder_hits_pool runs rn2(10), unlike the dry-floor arm.
+            state.level.at(ux, uy).typ = POOL;
+        }
+        const rngBefore = getRngLog().length;
+        assert.throws(() => preflight_dropx(boulder, dropCommandEnv(state)),
+            error => error instanceof UnsupportedDropError
+                && refusal.test(error.message));
+        assert.equal(boulder.where, OBJ_INVENT);
+        assert.ok(letters(state).includes(boulder.invlet));
+        assert.ok(!pileAt(state, ux, uy).includes(boulder));
+        assert.equal(getRngLog().length, rngBefore);
+    }
+});

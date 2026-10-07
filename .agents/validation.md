@@ -28,10 +28,13 @@ competition holdout is outside this workspace.
   command to recover or stop that run; `--help` gives the syntax.
   Do not start another copy to check whether the first has finished.
 - After committing a combined integration candidate, the orchestrator obtains
-  a passing local or hosted checkpoint for that exact commit. Workers submit immutable deliveries after focused
-  tests, lint and required fresh differentials; they do not run a redundant
-  branch-only full checkpoint before each handoff. A standalone game change
-  outside the multi-worker loop still requires a post-commit checkpoint.
+  a passing hosted checkpoint for that exact commit by default. Use a local
+  checkpoint only when hosted validation is unavailable or blocked, and state
+  the concrete reason in the progress report. Workers submit immutable
+  deliveries after focused tests, lint and required fresh differentials; they
+  do not run a redundant branch-only full checkpoint before each handoff. A
+  standalone game change outside the multi-worker loop still requires a
+  post-commit checkpoint.
   The local `npm run checkpoint` command tests HEAD in a fresh
   worktree, initializes C from the local repository, and excludes uncommitted
   changes. Use `npm run checkpoint -- --commit <revision>` to select another
@@ -56,7 +59,7 @@ competition holdout is outside this workspace.
   `sessions/holdout/`, and the
   recordings corpus over `recordings/`, which fails when any recording stops
   matching.
-- To validate on GitHub, push the committed candidate to an
+- To run the default full validation on GitHub, push the committed candidate to an
   `integration-checkpoint/*` branch. Wait for the Checkpoint workflow to finish,
   then run `node scripts/fetch-hosted-checkpoint.mjs <run-id>` outside the
   sandbox. It requires a successful run from this repository's checkpoint

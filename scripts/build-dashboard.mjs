@@ -22,12 +22,17 @@ export function escapeJsonForScript(json) {
     .replaceAll('\u2029', '\\u2029');
 }
 
-export function injectDashboardData(template, data, queueData) {
+export function injectDashboardData(template, data, queueData, commit) {
   // Use replacer callbacks because JSON can contain `$'`, `$&`, and other
   // replacement-pattern sequences that String.replace() would interpret.
-  return template
+  const html = template
     .replace('/*DATA_PLACEHOLDER*/null', () => escapeJsonForScript(data))
     .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData));
+  if (commit === undefined) return html;
+  if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Expected a full dashboard commit SHA');
+  // The template omits explicit head/body tags. Prefix metadata rather than
+  // depending on a closing head tag that is not present.
+  return `<meta name="dashboard-commit" content="${commit}">\n${html}`;
 }
 
 function main() {
@@ -48,7 +53,8 @@ function main() {
 
   const template = readFileSync(join(__dirname, 'dashboard.template.html'), 'utf8');
 
-  const html = injectDashboardData(template, data, queueData.trim());
+  const commit = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+  const html = injectDashboardData(template, data, queueData.trim(), commit);
 
   const outPath = process.argv[2] || 'dashboard.html';
   writeFileSync(outPath, html);

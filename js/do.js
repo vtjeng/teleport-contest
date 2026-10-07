@@ -366,7 +366,7 @@ import { seetrap } from './trap_effects.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
-import { cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
+import { block_point, cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
 import { welded, weldmsg } from './wield.js';
 import { bimanual, bypass_objlist, nxt_unbypassed_obj, setnotworn, setuqwep, setuswapwep, setuwep } from './worn.js';
 import { resurrect } from './wizard.js';
@@ -1904,16 +1904,8 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('shipping or floor effects at a trap');
     if (is_lava(x, y, state) || is_pool(x, y, state))
         throw new UnsupportedDropError('liquid terrain');
-    // flooreffects()'s first arm reads the object rather than the square, and
-    // it sits past freeinv() in dropx(): without it here, a caller that has
-    // admitted the drop prints its message and empties the inventory slot
-    // before discovering the stop. A wished boulder is how that is reached.
-    // The one other object-reading arm, the potion on hot ground at :399-403,
-    // needs level.flags.temperature above 0, which only a Lua level
-    // description sets and js/mklev.js:271 leaves at 0, so it stays where
-    // flooreffects() has it.
-    if (obj.otyp === BOULDER)
-        throw new UnsupportedDropError('a boulder landing on the floor');
+    // do.c:flooreffects leaves a boulder intact on dry terrain without a
+    // pit or hole. The trap and liquid guards above bound this floor path.
     // Doorways and stairways add no flooreffects() branch when shipping
     // leaves the object on this level.
     if (location.typ !== ROOM && location.typ !== CORR
@@ -2090,7 +2082,15 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
         obj,
         normalized.state.u.ux,
         normalized.state.u.uy,
-        normalized,
+        {
+            ...normalized,
+            hooks: {
+                // mkobj.c:place_object blocks vision for the landed boulder.
+                // Supply the source operation for every dropz caller.
+                blockPoint: (x, y, env) => block_point(x, y, env.state),
+                ...normalized.hooks,
+            },
+        },
     );
     if (withImpact) {
         // C do.c:dropz() calls container_impact_dmg() after placement and
