@@ -188931,7 +188931,7 @@
     {
       "id": "port-dig-digactualhole-v26-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete hole creation and hero fall behavior",
       "cFile": "dig.c",
       "sessions": [
@@ -188945,15 +188945,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "digactualhole",
           "line": 640,
           "endLine": 837,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -188967,7 +188970,7 @@
           "endLine": 592,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "goto_level",
@@ -189255,7 +189258,189 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "digactualhole",
+            "implementation": "js/dig.js",
+            "symbol": "digactualhole",
+            "sourceReview": "Read complete dig.c:640-829, BY_YOU/BY_OBJECT definitions203-204, all three dighole calls960/1016/1018, and apply.c:do_break_wand4071-4072. Compared pre-trap buried-ball/INFLOOR release, consumed furniture_handled and Can_dig_down fallback, old terrain/alignment/object-head capture, consumed awaited maketrap, fault attribution and visible/felt trap state, source actor/verbose/furniture messages, then staged PIT/HOLE aftermath in source order. PIT billing/wake/switch_terrain precede rn1(4,2), vision flag and pickup; adjacent monsters fly/float or use existing mintrap. HOLE checks flight/levitation and returned next_to_u before floor impact/pickup or falling via existing goto_level and spoteffects. Adjacent monster exclusion uses grounded, count_wsegs>5, MZ_HUGE and ustuck; existing teleport_pet, get_level/depth/ledger_no and migrate_to_level owners retain source ordering. Removed non-PIT/non-hero guard and impossible-fallback gap. BY_OBJECT is null and remains heros_fault without the BY_YOU wake/dig message. Named permitted discarded-result gaps remain: dig.c buried_ball_to_punishment, pray.c desecrate_altar(FALSE,oldAlignment), shk.c add_damage/pay_for_damage/shopdig/make_angry_shk, dokick.c impact_drop and pline.c impossible. Returned owners are reused, not newly credited: next_to_u retains leashed-companion/steed refusals; teleport_pet retains its m_unleash gap; migrate_to_level retains its shopkeeper/worm/leash/disguise limitations; unearth_objs retains buried-ball restoration refusal. The task does not claim those owner branches implemented.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "dighole",
+                "source": "dig.c:960,1016,1018 hero-created PIT/HOLE selected after source dig_check/fillholetyp; js/dig.js1650/1697 now reaches whole digactualhole"
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "dig",
+                "source": "dig.c:374 downward pick occupation -> dighole -> digactualhole; existing occupation dispatcher remains source-owned"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_dig",
+                "source": "dig.c:1604-1607 vertical digging zap -> dighole(FALSE,TRUE,NULL) -> digactualhole"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "do_break_wand",
+                "source": "apply.c:4071-4072 now awaits digactualhole(x,y,BY_OBJECT,rn2(obj->spe)<3||!Can_dig_down&&!candig?PIT:HOLE) at the existing nine-square wand loop; argument draw remains before entry"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/hole-down-wand-wizard.session.json",
+              "recordings/dig.c/hole-down-wand-vampire.session.json",
+              "recordings/dig.c/hole-broken-wand-caveman.session.json",
+              "recordings/dig.c/hole-broken-wand-three-charges.session.json",
+              "recordings/dig.c/hole-pick-pit-archeologist.session.json",
+              "recordings/dig.c/hole-pick-pit-female.session.json"
+            ],
+            "sourceFile": "dig.c",
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-digging-down",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 40,
+                "source": "zap command -> zap.c:weffects -> dig.c:zap_dig1548-1607 -> dighole1000-1019 -> digactualhole690 -> trap.c:maketrap519-523/hole_destination. Step31 creates HOLE and starts the hero fall, followed by do.c:goto_level and hack.c:spoteffects arrival; all recorded input/RNG/screens/cursors match through40."
+              }
+            ],
+            "checkedAt": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75"
+          },
+          {
+            "name": "maketrap",
+            "implementation": "js/trap.js",
+            "symbol": "maketrap",
+            "sourceReview": "Read complete trap.c:454-588 and trap.h struct/union aliases, plus returned choose_trapnote and hole_destination/dng_bottom, existing mk_trap_statue and the BOULDER/1L mkroll_launch arm. Compared existing-trap rejection and compatible utrap reset, terrain rejection, record allocation/reuse, all field reset and type dispatch, hole-destination draws before terrain work, drawbridge-under ice/flags, floor conversion, unearth_objs/recalc_block_point, fixed teleport destination, head-first new linkage and old-place Sokoban callback. Production reset now defaults to the existing synchronous reset_utrap(FALSE) owner. Every existing vlaunchinfo view is reset on replacement, and teledest aliases launch with the source -1 sentinel. PIT/SPIKED_PIT shop-wall/door billing now records the source discarded add_damage branch; fixed teleporter self-target diagnostic records pline.c impossible. Existing returned choose_trapnote/hole_destination and discarded statue/rolling-launch/terrain owners remain in place; no unrelated callee source credit. Retain discarded shk.c:add_damage and trap.c:maybe_finish_sokoban gaps, existing buried-ball owner refusal and explicit injected-capability preflights. Existing rolling-launch redraw hook availability is unchanged; no whole mkroll_launch completion is claimed.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "digactualhole",
+                "source": "dig.c:690 consumes maketrap before trap visibility/messages/aftermath"
+              },
+              {
+                "path": "js/mktrap.js",
+                "symbol": "mktrap",
+                "source": "mklev.c:2099 common generation owner consumes maketrap; six fresh recordings also include ordinary generated trap startup"
+              },
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "readobjnam",
+                "source": "objnam.c:3573 trap wishing consumes maketrap; existing dispatcher continues to await runtime creation"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_trap",
+                "source": "apply.c:2932 existing trap-setting caller consumes maketrap"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-generation.test.mjs",
+              "scripts/hero-teleport-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/hole-down-wand-wizard.session.json",
+              "recordings/dig.c/hole-down-wand-vampire.session.json",
+              "recordings/dig.c/hole-broken-wand-caveman.session.json",
+              "recordings/dig.c/hole-broken-wand-three-charges.session.json",
+              "recordings/dig.c/hole-pick-pit-archeologist.session.json",
+              "recordings/dig.c/hole-pick-pit-female.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-digging-down",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 40,
+                "source": "zap command -> zap.c:weffects -> dig.c:zap_dig1548-1607 -> dighole1000-1019 -> digactualhole690 -> trap.c:maketrap519-523/hole_destination. Step31 creates HOLE and starts the hero fall, followed by do.c:goto_level and hack.c:spoteffects arrival; all recorded input/RNG/screens/cursors match through40."
+              }
+            ],
+            "checkedAt": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75"
+          }
+        ],
+        "entryPointReview": "digactualhole has three active command routes: pick-axe/mattock downward occupation -> dighole; vertical digging wand/spell -> zap_dig -> dighole; applied/broken digging wand -> BY_OBJECT neighbor/hero creation. The admitted case and fresh Wizard/vampire recordings cover down-zap falling/nonfalling, both Archeologist recordings cover occupation PIT creation, and four/three-charge Caveman recordings cover wand-break neighbor HOLE/PIT and final hero PIT duration through step41. Whole maketrap is the required helper; its other existing callers (do.c zombie pit; mkmaze portal/vibrating square; mklev/sp_lev generation; monmove spider/web; polyself dospinweb; muse digging; apply use_trap; trap float_down web; music earthquake; objnam wish; zap boulder_fracture) keep their direct common-owner wiring. Full C/JS caller inventories are .cache/C130-maketrap-C-callers.txt and .cache/C130-maketrap-callers.txt; helper-only creation dispatch does not add new command wiring. Focused importer tests refresh these existing owners. No new gap is used as a consumed return. Source-pinned checks cover fallback/candig, flight, unseen BY_OBJECT attribution, old furniture label, floor entrapment release, existing trap reset and union/teleport alias. Bat setup never reaches the target because zap.c:dozap2632 rejects no hands; blocked recipe retained. Westward Wizard setup stays on stairs and dig.c:zap_dig bounces instead of creating a hole; blocked recipe retained and eastward movement was established from C map. The extended pick occupation stopped near a generated monster; minimal pit recipe retains the reached entry. No challenge recipe was copied to regression inputs. All six independent final recordings match every boundary. Retained shop/altar/floor-impact/buried-ball and existing callee refusal limitations are not claimed as separate source completion.",
+        "entryPoints": [
+          {
+            "name": "Downward digging wand or spell from diggable floor",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "digactualhole"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "maketrap"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/hole-down-wand-wizard.session.json",
+              "recordings/dig.c/hole-down-wand-vampire.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-digging-down",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 40,
+                "source": "zap command -> zap.c:weffects -> dig.c:zap_dig1548-1607 -> dighole1000-1019 -> digactualhole690 -> trap.c:maketrap519-523/hole_destination. Step31 creates HOLE and starts the hero fall, followed by do.c:goto_level and hack.c:spoteffects arrival; all recorded input/RNG/screens/cursors match through40."
+              }
+            ]
+          },
+          {
+            "name": "Downward pick-axe digging occupation",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "digactualhole"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "maketrap"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/hole-pick-pit-archeologist.session.json",
+              "recordings/dig.c/hole-pick-pit-female.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Applied/broken digging wand BY_OBJECT sweep",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "digactualhole"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "maketrap"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/hole-broken-wand-caveman.session.json",
+              "recordings/dig.c/hole-broken-wand-three-charges.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-rumors-doconsult-v26-20261007",
