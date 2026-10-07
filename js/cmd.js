@@ -137,7 +137,7 @@ import {
 } from './display.js';
 import {
     dodown,
-    dodrop,
+    dodrop, doddrop,
     dowipe,
     doup,
     UnsupportedDropError,
@@ -891,14 +891,12 @@ export async function y_n(query, state = game) {
 // C's `char c` is a key byte here, which is what yn_function() answers and
 // what readchar() below it produces, so the comparisons are against codes.
 //
-// accept_q has no caller: paranoid_query() below is the port's only entry and
-// passes FALSE, so the ynqchars arm and the `!accept_q` half of the fold are
-// carried for the shape of the C function rather than for a path a game
-// reaches.
+// query_category() passes accept_q TRUE for paranoid Auto-select All;
+// paranoid_query() and unsafe corpse confirmation pass FALSE.
 const KEY_N = 'n'.charCodeAt(0);
 const KEY_Q = 'q'.charCodeAt(0);
 const KEY_Y = 'y'.charCodeAt(0);
-async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) {
+export async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) {
     let c = KEY_N; /* default result */
 
     if (be_paranoid) {
@@ -1852,7 +1850,7 @@ export function end_of_input(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'call', 'name',
-    'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'pickup', 'pay',
+    'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'droptype', 'pickup', 'pay',
     'takeoff', 'remove', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
@@ -5164,6 +5162,8 @@ async function doextcmd(key, state) {
         return await runUpCommand(key, state);
     case 'dodrop':
         return await runDropCommand(key, state);
+    case 'doddrop':
+        return await failClosedCommand(key, state, () => doddrop(state));
     case 'dopickup':
         return await runPickupCommand(key, state);
     case 'dopay':
@@ -5887,6 +5887,16 @@ export async function rhack(key, state = game) {
             // holdback, ECMD_TIME for u_rooted/u_stuck_cannot_go/overloaded
             // and for the successful ascent.
             const res = await runUpCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'droptype') {
+            // C ref: cmd.c rhack() result handling (3810-3818). D and
+            // #droptype share doddrop's no-time/time result.
+            const res = await failClosedCommand(key, state, () => doddrop(state));
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

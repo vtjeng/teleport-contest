@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13226002,
+      "datetime": "20800406121500",
+      "nethackrc": "OPTIONS=name:MultiDrop1,role:Tourist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,menustyle:full\n",
+      "moves": " Da\n3a\n      ."
+    }
+  ]
+}

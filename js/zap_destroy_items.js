@@ -40,6 +40,7 @@ import {
     Resists_Elem,
 } from './mondata.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { m_useup } from './mthrowu.js';
 import { isMetallic, objectType, weight } from './obj.js';
 import {
     The,
@@ -71,7 +72,7 @@ import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { Fire_resistance, inventory_resistance_check } from './zap.js';
 import { Ring_gone } from './do_wear.js';
-import { setnotworn } from './worn.js';
+import { bypass_objlist, nxt_unbypassed_obj, setnotworn } from './worn.js';
 import { recharge } from './read.js';
 import { canseemon } from './display.js';
 
@@ -395,13 +396,11 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
             if (obj === state.current_wand)
                 state.current_wand = null;
         }
-        // C loops invent.c useup() for the hero and mon.c m_useup() for a
-        // monster, one call per destroyed item. m_useup() is unported;
-        // removeObjectQuantity() is the same single-item removal against a
-        // monster's pack.
+        // C loops invent.c useup() or mthrowu.c m_useup() once per destroyed
+        // item. Monster removal also owns worn extrinsics and MON_WEP cleanup.
         for (let i = 0; i < cnt; i++) {
             if (u_carry) useup(obj, objectGenerationEnv(env));
-            else await removeObjectQuantity(obj, 1, env);
+            else await m_useup(carrier, obj, env);
         }
         if (dmg) {
             if (!u_carry) {
@@ -441,11 +440,6 @@ const MAX_ITEMS_DESTROYED = 20;
 // first `limit` eligible stacks fill items_to_destroy[] in order, and every
 // stack past that replaces a random one of them.
 //
-// C's bypass traversal is not modelled. bypass_objlist() clears the bit over
-// the whole chain, nxt_unbypassed_obj() sets it on each object it hands back,
-// and the closing bypass_objlist() clears it again -- so the chain enters and
-// leaves this function with every bit clear, nothing between the two walks
-// reads a bit, and a plain nobj walk visits the same objects in the same order.
 export async function destroy_items(mon, dmgtyp, dmg_in, env) {
     const { state, random } = env;
     /* initialize items_to_destroy; 0 should not be a valid o_id for anything */
@@ -455,7 +449,7 @@ export async function destroy_items(mon, dmgtyp, dmg_in, env) {
     );
     let elig_stacks = 0; /* number of destroyable objects found so far */
     const u_carry = mon === state.youmonst;
-    const objchn = u_carry ? state.invent : mon.minvent;
+    const objchn = () => u_carry ? state.invent : mon.minvent;
     let dmg_out = 0; /* damage caused by items getting destroyed */
     let where = NOBJ_STATES;
 
@@ -475,7 +469,9 @@ export async function destroy_items(mon, dmgtyp, dmg_in, env) {
         return 0; /* nothing destroyed */
     }
 
-    for (let obj = objchn; obj; obj = obj.nobj) {
+    bypass_objlist(objchn(), false, state);
+    let obj;
+    while ((obj = nxt_unbypassed_obj(objchn(), state))) {
         if (!destroyable(obj, dmgtyp))
             continue; /* this dmg type can't destroy this obj */
 
@@ -526,6 +522,7 @@ export async function destroy_items(mon, dmgtyp, dmg_in, env) {
             }
         }
     }
+    bypass_objlist(objchn(), false, state);
     return dmg_out;
 }
 

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13226007,
+      "datetime": "20800406121500",
+      "nethackrc": "OPTIONS=name:CorpseDrop,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,menustyle:full\n",
+      "moves": " \u0017uncursed leather gloves\nWe \u0017cockatrice corpse\nTeyes\n dfno\n ."
+    }
+  ]
+}
