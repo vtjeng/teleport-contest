@@ -27664,7 +27664,16 @@
         "sha": "539cc66f4d5359b40b527c90c210b7b6f72debf6",
         "screens": 6905,
         "rng": 508614
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "kick_nondoor",
+          "sourceFile": "dokick.c",
+          "reason": "Synthetic v25 kick-tree, kick-sink, and kick-secret-door reach live kick_nondoor terrain branches that the earlier wall-only evidence explicitly left as refusals; the function was therefore partial rather than complete.",
+          "followupGoal": "port-dokick-kick-door-nondoor-v25-20261007",
+          "at": "54c8d479e09416eeefc95ff22755a010c6088e73"
+        }
+      ]
     },
     {
       "id": "port-do-legs-in-no-shape-kick",
@@ -185435,7 +185444,7 @@
           "line": 974,
           "endLine": 1256,
           "declared": true,
-          "complete": true
+          "complete": false
         }
       ],
       "range": {
