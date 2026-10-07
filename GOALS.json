@@ -192838,7 +192838,7 @@
     {
       "id": "port-artifact-set-intrinsic-warning-v27-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete artifact intrinsic state and warning redraws",
       "cFile": "artifact.c",
       "sessions": [
@@ -192846,17 +192846,24 @@
       ],
       "selectionReason": "v27-sting-orc-warning has 23 remaining screens at step 10; investigations/synthetic/v27/v27-sting-orc-warning.json traces the first cause to whole artifact.c:set_artifact_intrinsic and its required display.c:see_monsters warning redraw.",
       "detail": "Port every set_artifact_intrinsic property arm, removal survey, invoked-property shutdown, and production setter/inventory/name caller; reconcile whole see_monsters with source-ordered awaited Sting_effects and all production callers.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "81b06ec37e02e84db7740cdc12b9d9127ea0ff93",
+      "openStanding": {
+        "sha": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "66b552d0bb2c158b1501eb551a9fc97b3fa47afc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "set_artifact_intrinsic",
           "line": 716,
           "endLine": 907,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -192870,7 +192877,7 @@
           "endLine": 1531,
           "declared": true,
           "sourceFile": "display.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -192886,12 +192893,508 @@
           "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
           "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
         }
+      },
+      "activeStanding": {
+        "sha": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-sting-orc-warning",
+          "session": "synthetic/v27/v27-sting-orc-warning",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recording": "challenges/cases/v27/v27-sting-orc-warning.session.json",
+          "recordingPath": "challenges/cases/v27/v27-sting-orc-warning.session.json",
+          "recordingSha256": "6173806f06b5b15d55c7f01e75bb1034d777c6d670515e72c5d688d69445b4a5",
+          "recipe": "challenges/cases/v27/v27-sting-orc-warning.recipe.session.json",
+          "recipeSha256": "bfb3adfe741f7d0dca893a09cb533815931f8edc69bd4f77bf58acc91dd5108e",
+          "replayInputSha256": "872262f6cfe2e69ac4b8e2b807cd889ef69451d56abbd3a049f304bff77a7745",
+          "evaluationPath": "challenges/evaluations/accepted-e08393de56cde7fc1ef8c8d297a533bd7522cfa2-v27.json",
+          "evaluationCommit": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+          "evaluationArtifact": "challenges/evaluations/accepted-e08393de56cde7fc1ef8c8d297a533bd7522cfa2-v27.json",
+          "evaluationUtc": "2026-10-07T18:57:14.487Z",
+          "remainingScreens": 23,
+          "recordedSteps": 33,
+          "previousScreensMatched": 10,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 10,
+              "total": 33
+            },
+            "rng": {
+              "matched": 2624,
+              "total": 2695
+            },
+            "cursors": {
+              "matched": 10,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: artifact display requires an artifact that changes what the hero sees (ESP/WARN/XRAY)",
+            "step": 10
+          },
+          "step": 10,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: artifact display requires an artifact that changes what the hero sees (ESP/WARN/XRAY)",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v27/v27-sting-orc-warning.json",
+            "result": {
+              "session": "synthetic/v27/v27-sting-orc-warning",
+              "corpus": "synthetic",
+              "batch": "v27",
+              "caseId": "v27-sting-orc-warning",
+              "remainingScreens": 23,
+              "recordedSteps": 33,
+              "manifestPath": "challenges/manifests/v27.json",
+              "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+              "recordingSha256": "6173806f06b5b15d55c7f01e75bb1034d777c6d670515e72c5d688d69445b4a5",
+              "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+              "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+              "status": "complete",
+              "commit": "be9649de905f74f20bf8c0cc1b3ed10aa73ea8ea",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v27",
+                "caseId": "v27-sting-orc-warning",
+                "session": "synthetic/v27/v27-sting-orc-warning",
+                "manifestPath": "challenges/manifests/v27.json",
+                "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+                "recording": "challenges/cases/v27/v27-sting-orc-warning.session.json",
+                "recordingPath": "challenges/cases/v27/v27-sting-orc-warning.session.json",
+                "recordingSha256": "6173806f06b5b15d55c7f01e75bb1034d777c6d670515e72c5d688d69445b4a5",
+                "recipe": "challenges/cases/v27/v27-sting-orc-warning.recipe.session.json",
+                "recipeSha256": "bfb3adfe741f7d0dca893a09cb533815931f8edc69bd4f77bf58acc91dd5108e",
+                "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+                "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+                "evaluationArtifact": "challenges/evaluations/baseline-76417879-v27.json",
+                "evaluationUtc": "2026-10-07T18:10:31.065Z",
+                "remainingScreens": 23,
+                "recordedSteps": 33,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 10,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 2624,
+                    "total": 2695
+                  },
+                  "cursors": {
+                    "matched": 10,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "segment": 0,
+                  "step": 10,
+                  "message": "unsupported hero command: an unported branch of this command: artifact display requires an artifact that changes what the hero sees (ESP/WARN/XRAY)"
+                },
+                "step": 10,
+                "kind": "stop",
+                "sourceFile": "artifact.c",
+                "function": "set_artifact_intrinsic"
+              },
+              "summary": "At zero-based step 10 the hero wields Sting. JavaScript refuses artifact.c:set_artifact_intrinsic before applying SPFX_WARN. C sets EWarn_of_mon and context.warntype.obj to M2_ORC, redraws monsters, then emits the glow through display.c:see_monsters -> artifact.c:Sting_effects. Select the whole set_artifact_intrinsic function with whole see_monsters reconciliation and source-ordered awaited setter/display callers; a WARN-only mask change reaches an existing see_monsters refusal.",
+              "source": {
+                "file": "artifact.c",
+                "branch": "Sting has SPFX_WARN|SPFX_DFLAG2 and mtype M2_ORC. ready_weapon installs it through setuwep -> setworn -> set_artifact_intrinsic(TRUE,W_WEP). The SPFX_WARN branch consumes spec_m2, sets EWarn_of_mon and context.warntype.obj, and calls see_monsters; changed warning count triggers Sting_effects before storing the count.",
+                "functions": [
+                  "set_artifact_intrinsic"
+                ],
+                "callers": [
+                  "wield.c:ready_weapon169–273 -> setuwep -> worn.c:setworn106/130. JS route: js/wield.js:622 -> js/worn.js:setuwep/setworn -> js/do_wear.js:setwornEnv.setArtifactIntrinsic -> js/artifacts.js:set_artifact_intrinsic.",
+                  "Other direct C sites: worn.c:setnotworn173, invent.c:addinv_core1991, invent.c:freeinv_core1383, do_name.c:oname407. Their existing owner calls/gaps need reconciliation.",
+                  "display.c:see_monsters also runs from allmain.c sensing upkeep. js/allmain.js:1686 currently calls it synchronously, so subsequent monster creation/movement requires the same source-ordered glow/message handoff."
+                ],
+                "dependencies": [
+                  "Whole display.c:see_monsters1486–1529 supporting reconciliation: defer guard, dead/arriving skips, live warning count, awaited Sting_effects before count assignment, final hero redraw. JS4058–4105 throws on warning count changes.",
+                  "artifact.c:spec_m21065–1074 is a consumed pure result; existing js/artifacts.js:1629 and scripts/artifacts.test.mjs:1645 implement and test it. Extend values to Sting/Orcrist/Grimtooth as appropriate.",
+                  "artifact.c:Sting_effects2465–2502 and glow_strength/glow_verb/glow_color already exist. Audit source order and planning message environment rather than duplicating them.",
+                  "Existing potion.c:make_hallucinated async owner replaces the HALRES inline/refusal; existing worn.c:recalc_telepat_range covers ESP. XRAY writes u.xray_range and vision_full_recalc.",
+                  "worn.js:setworn/setnotworn, do_wear.js:setwornEnv, invent.js:addinv_core1/freeinv_core and do_name.js:oname use synchronous seams or gaps. Await impure work at each source boundary, preserving removal-before-addition and display/message order.",
+                  "Carried-off W_ART inventory surveys preserve resistance/spfx also supplied by other artifacts. Invoked-property shutdown calls existing arti_invoke with discarded result; retain named limits for unsupported branches.",
+                  "Async see_monsters consumers span potion/artifacts/sit/timeout/pray/attrib/display/wizcmds/allmain/mon/detect/teleport/polyself/do_wear/eat. Coordinate an exact write set including synchronous wrappers before editing."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Baseline challenges/evaluations/baseline-76417879-v27.json at 76417879468cfeb65fa59ad60447a803684c6747 reports10/33 screens/cursors and2624/2695 RNG matches:23 remaining screens. Corpus digest 24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277 was verified with corpusDigest(manifest.cases), and the actual recording bytes match 6173806f06b5b15d55c7f01e75bb1034d777c6d670515e72c5d688d69445b4a5.",
+                "Focused scorer-compatible replay .cache/v27-sting-audit/replay.json on be9649de reproduces missing screen/cursor at segment0 step10 key m and the ESP/WARN/XRAY refusal. This worker commit merges published baseline76417879 preserving history; git diff baseline..HEAD -- js is empty. RNG first absent at step11 is mcalcmove: downstream after refusal, not the source cause.",
+                "Decoded C screens: step8 receives Sting; step9 prompts to wield; step10 shows the wielded name with --More--; step11 says “Sting flickers light blue!”; only step28 explicitly creates the peaceful orc. Initial level orcs trigger warning before that later creation; do not attribute the first glow to step28.",
+                "artilist.h129–140 defines Sting/Orcrist SPFX_WARN|SPFX_DFLAG2,M2_ORC. Whole artifact.c:set_artifact_intrinsic715–892 selects defn/cary, preserves shared carried resistance/spfx on removal, applies every property in order, refreshes HALRES/ESP/WARN/XRAY state, shuts down invoked property on carried removal, and toggles Sunsword blindness resistance. WARN824–840 consumes spec_m2: nonzero uses EWarn_of_mon plus context.warntype.obj and see_monsters; zero uses ordinary EWarning. No WARN RNG draw occurs.",
+                "js/artifacts.js1036–1114 is partial: W_ART off, ESP/WARN/XRAY and active HALRES transitions refuse. Complete the entire C function rather than only WARN. C display.c1486–1529 invokes Sting_effects(new_count), then stores gw.warn_obj_cnt; JS display.js4091–4098 instead throws “see_monsters() toggling a warning artifact”. Clearing the first guard alone cannot reach the complete recording.",
+                "Enumerated upstream direct intrinsic callers: worn.c106/130/173, invent.c991/1383, do_name.c407. JS freeinv_core and oname record discarded intrinsic gaps; worn hook/addinv call the partial owner. Wire each in the same task. Existing tests explicitly assert obsolete artifact refusals and freeinv gap strings; update them.",
+                "Independent evidence beyond admitted wield/start warning must cover unwield/stop warning with Orcrist or Grimtooth variation, generic Warning (mtype0), carried on/off with overlapping resistance/cspfx, ESP pickup/removal, XRAY, HALRES while hallucinating/restoring, and invoked-property shutdown. Runtime production families remain unverified until matching independent recipes/recordings exist. Keep explicit discarded-return worm-tail or other source dependency limits with outside-limit recipes.",
+                "Investigation replay run-YWjrzn used only the assigned existing recording. No C game, aggregate scan/scoring, implementation claim, or game-code edit was made."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "set_artifact_intrinsic",
+            "implementation": "js/artifacts.js",
+            "symbol": "set_artifact_intrinsic",
+            "sourceReview": "Read whole artifact.c:715-892 and artilist.h. Preserved defn/cary selection, other-carried-artifact resistance and cspfx surveys, SEARCH -> HALRES -> ESP -> STLTH/REGEN/TCTRL -> WARN -> EREGEN/HSPDAM/HPHDAM -> XRAY -> REFLECT -> PROTECT -> active invoked power off -> Sunsword blindness resistance. Awaited each impure dependency before the following C statement; mask-only paths retain synchronous results for existing startup owners. HALRES calls canonical make_hallucinated (no inline mask substitute), ESP recalc_telepat_range precedes see_monsters, warning obj flags precede repaint, and active arti_invoke shutdown precedes the final Sunsword arm. Existing spec_m2 result is source-pinned. Deleted UnsupportedArtifactDisplayError, all selected function refusals, and its cmd import/catch registry. No unported callee in this selected source function.",
+            "callers": [
+              {
+                "path": "js/worn.js",
+                "symbol": "setworn",
+                "source": "worn.c:106,130, via do_wear.c callbacks and wield.c:setuwep"
+              },
+              {
+                "path": "js/worn.js",
+                "symbol": "setnotworn",
+                "source": "worn.c:173, via inventory consumption/removal"
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "addinv_core1",
+                "source": "invent.c:991, via addinv/pickup and wishes"
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "freeinv_core",
+                "source": "invent.c:1383, via freeinv/drop/consumption"
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "oname",
+                "source": "do_name.c:407, via do_oname naming a wielded artifact"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/artifact-intrinsic.test.mjs",
+              "scripts/artifacts.test.mjs",
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/worn.test.mjs",
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/artifact.c/intrinsic-artifact-ingestion.session.json",
+              "recordings/artifact.c/intrinsic-esp-carry-remove.session.json",
+              "recordings/artifact.c/intrinsic-eyes-wear-remove.session.json",
+              "recordings/artifact.c/intrinsic-hallres-active.session.json",
+              "recordings/artifact.c/intrinsic-hallres-wield-remove.session.json",
+              "recordings/artifact.c/intrinsic-invoke-remove.session.json",
+              "recordings/artifact.c/intrinsic-mirror-carry-remove.session.json",
+              "recordings/artifact.c/intrinsic-orcrist-remove.session.json",
+              "recordings/artifact.c/intrinsic-sting-naming.session.json",
+              "recordings/artifact.c/intrinsic-sting-remove.session.json",
+              "recordings/artifact.c/intrinsic-worn-artifact-ingestion.session.json"
+            ],
+            "sourceFile": "artifact.c",
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-sting-orc-warning",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 32,
+                "source": "wield.c:ready_weapon -> wield.c:setuwep/worn.c:setworn -> artifact.c:set_artifact_intrinsic -> display.c:see_monsters -> artifact.c:Sting_effects; allmain.c:moveloop_core subsequent perception upkeep"
+              }
+            ],
+            "checkedAt": "66b552d0bb2c158b1501eb551a9fc97b3fa47afc"
+          },
+          {
+            "name": "see_monsters",
+            "implementation": "js/display.js",
+            "symbol": "see_monsters",
+            "sourceReview": "Read whole display.c:1486-1529 and its source callers. First honor gd.defer_see_monsters; mark steed/stuck as meverseen; skip dead and MON_STILL_ARRIVING monsters; redraw each live monster before worm-tail handling and warning count. Retain worm.c:see_wsegs as an explicit discarded-result gap, with no invented RNG/message/state substitute and no skip of the following warning count. Call canonical Sting_effects and finish its pending More before assigning gw.warn_obj_cnt and repainting the unmounted hero. Removed the old warning-count refusal and omitted worm-count continuation. Clone state and caller-owned display/message operations remain separate from live output; planning defaults suppress feedback while retaining warning state. Deferred restore producer and clear/awaited post-restore consumer are bounded supporting callers.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "set_artifact_intrinsic",
+                "source": "artifact.c:804,833"
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c:457,468"
+              },
+              {
+                "path": "js/moveloop_preamble.js",
+                "symbol": "moveloop_preamble",
+                "source": "allmain.c:94; restore.c:684 producer"
+              },
+              {
+                "path": "js/attrib.js",
+                "symbol": "postadjabil",
+                "source": "attrib.c:785, propagated and awaited by adjabil"
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "do_vicinity_map",
+                "source": "detect.c:1581"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "docrt",
+                "source": "display.c:1761"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Helmet_on",
+                "source": "do_wear.c:449; only HELM_OF_CAUTION caller arm admitted in this task"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Helmet_off",
+                "source": "do_wear.c:546"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dragon_armor_handling",
+                "source": "do_wear.c:844"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Amulet_off",
+                "source": "do_wear.c:1104"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_on",
+                "source": "do_wear.c:1286,1291"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_off_or_gone",
+                "source": "do_wear.c:1383,1389"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "givit",
+                "source": "eat.c:1079"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eataccessory",
+                "source": "eat.c:2294"
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "mon.c:3662"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:460"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polyman",
+                "source": "polyself.c:267"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c:1018"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "make_hallucinated",
+                "source": "potion.c:424"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "toggle_blindness",
+                "source": "potion.c:350"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_see_invisible",
+                "source": "potion.c:872"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_monster_detection",
+                "source": "potion.c:942"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c:1320"
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "attrcurse",
+                "source": "sit.c:680,710"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "teleds",
+                "source": "teleport.c:537"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "decrement_property_timeouts",
+                "source": "timeout.c:770,933"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/artifact-intrinsic.test.mjs",
+              "scripts/display.test.mjs",
+              "scripts/display-visibility.test.mjs",
+              "scripts/moveloop-preamble.test.mjs"
+            ],
+            "recordings": [
+              "recordings/artifact.c/intrinsic-caution-helmet-refresh.session.json",
+              "recordings/artifact.c/intrinsic-esp-carry-remove.session.json",
+              "recordings/artifact.c/intrinsic-hallres-active.session.json",
+              "recordings/artifact.c/intrinsic-hallres-wield-remove.session.json",
+              "recordings/artifact.c/intrinsic-invoke-remove.session.json",
+              "recordings/artifact.c/intrinsic-mirror-carry-remove.session.json",
+              "recordings/artifact.c/intrinsic-orcrist-remove.session.json",
+              "recordings/artifact.c/intrinsic-see-invisible-ring-refresh.session.json",
+              "recordings/artifact.c/intrinsic-sting-naming.session.json",
+              "recordings/artifact.c/intrinsic-sting-remove.session.json",
+              "recordings/artifact.c/intrinsic-warning-ring-refresh.session.json"
+            ],
+            "sourceFile": "display.c",
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-sting-orc-warning",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 32,
+                "source": "wield.c:ready_weapon -> wield.c:setuwep/worn.c:setworn -> artifact.c:set_artifact_intrinsic -> display.c:see_monsters -> artifact.c:Sting_effects; allmain.c:moveloop_core subsequent perception upkeep"
+              }
+            ],
+            "checkedAt": "66b552d0bb2c158b1501eb551a9fc97b3fa47afc"
+          }
+        ],
+        "entryPointReview": "Both selected units are helpers rather than commands. The entry families below enumerate newly admitted artifact/display paths and their matching production witnesses. Direct helper callers are listed per C source site; mechanical awaits also propagate through existing production worn setters, inventory consumption and removal, naming, perception effects, movement and upkeep. Existing caller modules retain their independent source limitations; no whole caller-owner credit is claimed. Synchronous new-game and tutorial initialization use u_init.c:mksobj(otyp,TRUE,FALSE), so artifact display cannot suspend there; current artilist has no shield, shirt, ball, chain or coin artifacts, and split/merge paths cannot make stackable artifacts. Source-pinned tests establish those data restrictions. Restore worn reconstruction and the synchronous startup reconstruction remain explicit outside-limit dependencies, separate from the selected deferral state contract. HELM_OF_TELEPATHY admission remains reserved for the queued whole Helmet_on goal. The retained blocked Eyes corridor and non-own-role touch recipes exercise outside-limit dependencies after/before the selected intrinsic transition respectively; neither is claimed as a fully matching recording.",
+        "entryPoints": [
+          {
+            "name": "carried artifact acquisition and removal",
+            "functions": [
+              "set_artifact_intrinsic",
+              {
+                "sourceFile": "display.c",
+                "name": "see_monsters"
+              }
+            ],
+            "recordings": [
+              "recordings/artifact.c/intrinsic-esp-carry-remove.session.json",
+              "recordings/artifact.c/intrinsic-mirror-carry-remove.session.json",
+              "recordings/artifact.c/intrinsic-invoke-remove.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "artifact wielding and unwielding, warning and hallucination resistance",
+            "functions": [
+              "set_artifact_intrinsic",
+              {
+                "sourceFile": "display.c",
+                "name": "see_monsters"
+              }
+            ],
+            "recordings": [
+              "recordings/artifact.c/intrinsic-sting-remove.session.json",
+              "recordings/artifact.c/intrinsic-orcrist-remove.session.json",
+              "recordings/artifact.c/intrinsic-hallres-wield-remove.session.json",
+              "recordings/artifact.c/intrinsic-hallres-active.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-sting-orc-warning",
+                "segment": 0,
+                "fromStep": 10,
+                "throughStep": 32,
+                "source": "wield.c:ready_weapon -> wield.c:setuwep/worn.c:setworn -> artifact.c:set_artifact_intrinsic -> display.c:see_monsters -> artifact.c:Sting_effects; allmain.c:moveloop_core subsequent perception upkeep"
+              }
+            ]
+          },
+          {
+            "name": "sighted Eyes wear and removal",
+            "functions": [
+              "set_artifact_intrinsic"
+            ],
+            "recordings": [
+              "recordings/artifact.c/intrinsic-eyes-wear-remove.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "naming a wielded artifact",
+            "functions": [
+              "set_artifact_intrinsic",
+              {
+                "sourceFile": "display.c",
+                "name": "see_monsters"
+              }
+            ],
+            "recordings": [
+              "recordings/artifact.c/intrinsic-sting-naming.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "carried and wielded artifact ingestion",
+            "functions": [
+              "set_artifact_intrinsic"
+            ],
+            "recordings": [
+              "recordings/artifact.c/intrinsic-artifact-ingestion.session.json",
+              "recordings/artifact.c/intrinsic-worn-artifact-ingestion.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "ordinary warning and see-invisible accessory refresh",
+            "functions": [
+              {
+                "sourceFile": "display.c",
+                "name": "see_monsters"
+              }
+            ],
+            "recordings": [
+              "recordings/artifact.c/intrinsic-warning-ring-refresh.session.json",
+              "recordings/artifact.c/intrinsic-see-invisible-ring-refresh.session.json",
+              "recordings/artifact.c/intrinsic-caution-helmet-refresh.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "66b552d0bb2c158b1501eb551a9fc97b3fa47afc",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-detect-object-detect-browse-map-v27-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete object detection map browsing",
       "cFile": "detect.c",
       "sessions": [
@@ -192905,15 +193408,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "object_detect",
           "line": 603,
           "endLine": 797,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -193163,7 +193669,129 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "object_detect",
+            "implementation": "js/detect.js",
+            "symbol": "object_detect",
+            "sourceReview": "Read and reconciled the complete detect.c:object_detect603-791 body. Preserved class bounds, custom boulder-symbol ambiguity, hallucination/confused-scroll wording, blessed potion/book recursive observation, floor then buried-object counts, steed coordinates, monster inventory counts and mimic/gold short circuit with its early break. Audited stale-map removal before count/countHere early returns; deleted the JS-only gk.known initialization/assignment and fabricated impossible message. Full-map order remains cls/unconstrain, buried objects, coordinate-ordered floor piles, monster inventories and cursed mimic/gold overrides; contained matches inherit owner coordinates, mimic corpse metadata is source-derived and gold overlay retains rnd(10). The hero newsym adds TER_MON only when glyph_at is not an object. Awaited source presence/absence message precedes browse_map(TER_DETECT|TER_OBJ plus conditional TER_MON), then map_redisplay and return0. Removed the object_detect browse_map placeholder. C-discarded void gaps remain explicit: pline.c:impossible for illegal classes and display_nhwindow(WIN_MAP,TRUE) for stale-map-only no-current-object results. Existing map_redisplay has a named display.c:under_ground gap. No synthetic message/RNG/state substitute is introduced for those gaps.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "use_crystal_ball",
+                "source": "detect.c:use_crystal_ball1345 consumes object_detect(NULL,class) from object-symbol lookup;1350 consumes object_detect(NULL,ROCK_CLASS) for a custom boulder symbol. ret controls unclear-vision feedback. apply.c:doapply4358-4359 CRYSTAL_BALL dispatches use_crystal_ball; js/apply.js4874-4875 awaits the existing production caller."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_object_detection",
+                "source": "potion.c:peffect_object_detection955-963 consumes object_detect(otmp,0), returns1 early or exercises A_WIS then returns0. potion.c:peffects1371-1375 dispatches POT_OBJECT_DETECTION and SPE_DETECT_TREASURE. js/potion.js corresponding helper and peffects preserve both return gates."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects1533-1545 routes SPE_DETECT_TREASURE through peffects(pseudo), blessing the pseudo-book at skilled rank. Independent #wizcast enters the production spelleffects function from spell.c:dowizcast787-819, as normal #cast does; no whole caller credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/getpos-show-valid.test.mjs",
+              "scripts/steal.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/object-detect-ball-rings-a135.session.json",
+              "recordings/detect.c/object-detect-ball-covered-ring-a135.session.json",
+              "recordings/detect.c/object-detect-ball-empty-a135.session.json",
+              "recordings/detect.c/object-detect-ball-boulder-a135.session.json",
+              "recordings/detect.c/crystal-ball-object-map.session.json",
+              "recordings/detect.c/object-detect-ball-custom-boulder-a135.session.json",
+              "recordings/detect.c/object-detect-potion-blessed-a135.session.json",
+              "recordings/detect.c/object-detect-potion-uncursed-a135.session.json",
+              "recordings/detect.c/object-detect-spell-all-a135.session.json",
+              "recordings/detect.c/object-detect-spell-elf-a135.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-crystal-ball-object",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 38,
+                "source": "apply.c:doapply CRYSTAL_BALL -> detect.c:use_crystal_ball object-class branch1345 -> object_detect603-791 rings map -> browse_map106-119/getpos -> map_redisplay95-102/docrt vision repaint and normal-map restoration"
+              }
+            ],
+            "checkedAt": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2"
+          }
+        ],
+        "entryPointReview": "Whole-source search rg object_detect across upstream/src finds exactly the two use_crystal_ball call sites1345/1350 and peffect_object_detection957. All are active in the recorder. Object-class crystal-ball entry is covered by admitted v27 and independent ring, covered-ring, empty-result, and boulder/class-symbol-ambiguity recipes; distinct custom-boulder-symbol entry uses S_boulder:^, which C checks before trap detection, and records the large-stones message. The potion helper is reached by quaffing independently wished blessed and uncursed potions; the uncursed wished stack merges and its C comparison-tip More is explicitly acknowledged. Detect-treasure spell pseudo-book entry is reached by independent human/elf #wizcast selections through canonical spelleffects/peffects. Both spell recipes record actual presence-of-objects maps. The historical independent object-map blocked recipe now matches and is renamed to crystal-ball-object-map, with its recording; it intentionally ends at the valid getpos-tip input boundary. None of the source callers is treated as inactive. No whole use_crystal_ball, peffects, spelleffects, browse_map/getpos, docrt or vision completion credit is claimed.",
+        "entryPoints": [
+          {
+            "name": "Crystal-ball object-class detection",
+            "functions": [
+              "object_detect"
+            ],
+            "recordings": [
+              "recordings/detect.c/object-detect-ball-rings-a135.session.json",
+              "recordings/detect.c/object-detect-ball-covered-ring-a135.session.json",
+              "recordings/detect.c/object-detect-ball-empty-a135.session.json",
+              "recordings/detect.c/object-detect-ball-boulder-a135.session.json",
+              "recordings/detect.c/crystal-ball-object-map.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-crystal-ball-object",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 38,
+                "source": "apply.c:doapply CRYSTAL_BALL -> detect.c:use_crystal_ball object-class branch1345 -> object_detect603-791 rings map -> browse_map106-119/getpos -> map_redisplay95-102/docrt vision repaint and normal-map restoration"
+              }
+            ]
+          },
+          {
+            "name": "Crystal-ball custom boulder-symbol detection",
+            "functions": [
+              "object_detect"
+            ],
+            "recordings": [
+              "recordings/detect.c/object-detect-ball-custom-boulder-a135.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Quaff object-detection potion",
+            "functions": [
+              "object_detect"
+            ],
+            "recordings": [
+              "recordings/detect.c/object-detect-potion-blessed-a135.session.json",
+              "recordings/detect.c/object-detect-potion-uncursed-a135.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Cast detect-treasure spell",
+            "functions": [
+              "object_detect"
+            ],
+            "recordings": [
+              "recordings/detect.c/object-detect-spell-all-a135.session.json",
+              "recordings/detect.c/object-detect-spell-elf-a135.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-wield-setuwep-artifact-light-v27-20261007",
@@ -193250,6 +193878,240 @@
           "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
         }
       }
+    },
+    {
+      "id": "port-do-wear-helmet-on-telepathy-v27-20261007",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete helmet donning effects and telepathy admission",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v27/v27-helm-telepathy"
+      ],
+      "selectionReason": "Admitted v27 case v27-helm-telepathy stops at do_wear.c:Helmet_on because JavaScript rejects HELM_OF_TELEPATHY before setworn and the delayed callback; investigations/synthetic/v27/v27-helm-telepathy.json traces the whole Helmet_on function and its required adj_abon helper.",
+      "detail": "Port whole do_wear.c Helmet_on, complete adj_abon for HELM_OF_BRILLIANCE, and wire accessory_or_armor_on and set_wear admission. Preserve canonical worn.c TELEPAT ownership and allmain/display redraw behavior without adding a redundant telepathy redraw.",
+      "openedAt": "66b552d0bb2c158b1501eb551a9fc97b3fa47afc",
+      "openStanding": {
+        "sha": "66b552d0bb2c158b1501eb551a9fc97b3fa47afc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Helmet_on",
+          "line": 434,
+          "endLine": 517,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 434,
+        "to": 517
+      },
+      "requiredFunctions": [
+        {
+          "name": "adj_abon",
+          "line": 3319,
+          "endLine": 3341,
+          "declared": true,
+          "sourceFile": "do_wear.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v27/v27-helm-telepathy": {
+          "session": "synthetic/v27/v27-helm-telepathy",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-helm-telepathy",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-helm-telepathy.session.json",
+          "recordingSha256": "fe3e219056ec5efcc8a2af38ed8ae0ab4a869cc37ed1c2509f416c68ba04469d",
+          "evaluationPath": "challenges/evaluations/accepted-e08393de56cde7fc1ef8c8d297a533bd7522cfa2-v27.json",
+          "evaluationCommit": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2"
+        }
+      },
+      "activeStanding": {
+        "sha": "66b552d0bb2c158b1501eb551a9fc97b3fa47afc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-helm-telepathy",
+          "session": "synthetic/v27/v27-helm-telepathy",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recording": "challenges/cases/v27/v27-helm-telepathy.session.json",
+          "recordingPath": "challenges/cases/v27/v27-helm-telepathy.session.json",
+          "recordingSha256": "fe3e219056ec5efcc8a2af38ed8ae0ab4a869cc37ed1c2509f416c68ba04469d",
+          "recipe": "challenges/cases/v27/v27-helm-telepathy.recipe.session.json",
+          "recipeSha256": "f43494f8ccc7d676458e347581f6050ab1e42e3c7b6cba6dc2fc65454038260f",
+          "replayInputSha256": "08a4b28dc717cdf2d110189018c7184c74565d77232c60fc1c786d86ba26d602",
+          "evaluationPath": "challenges/evaluations/accepted-66b552d0bb2c158b1501eb551a9fc97b3fa47afc-v27.json",
+          "evaluationCommit": "66b552d0bb2c158b1501eb551a9fc97b3fa47afc",
+          "evaluationArtifact": "challenges/evaluations/accepted-66b552d0bb2c158b1501eb551a9fc97b3fa47afc-v27.json",
+          "evaluationUtc": "2026-10-07T20:13:05.615Z",
+          "remainingScreens": 8,
+          "recordedSteps": 39,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2625,
+              "total": 2632
+            },
+            "cursors": {
+              "matched": 31,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Helmet_on() for otyp 100",
+            "step": 31
+          },
+          "step": 31,
+          "kind": "stop",
+          "sourceFile": "do_wear.c",
+          "function": "Helmet_on",
+          "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Helmet_on() for otyp 100",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v27/v27-helm-telepathy.json",
+            "result": {
+              "session": "synthetic/v27/v27-helm-telepathy",
+              "corpus": "synthetic",
+              "batch": "v27",
+              "caseId": "v27-helm-telepathy",
+              "manifestPath": "challenges/manifests/v27.json",
+              "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+              "recordingSha256": "fe3e219056ec5efcc8a2af38ed8ae0ab4a869cc37ed1c2509f416c68ba04469d",
+              "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+              "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+              "remainingScreens": 8,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "76417879468cfeb65fa59ad60447a803684c6747",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v27",
+                "caseId": "v27-helm-telepathy",
+                "session": "synthetic/v27/v27-helm-telepathy",
+                "manifestPath": "challenges/manifests/v27.json",
+                "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+                "recording": "challenges/cases/v27/v27-helm-telepathy.session.json",
+                "recordingPath": "challenges/cases/v27/v27-helm-telepathy.session.json",
+                "recordingSha256": "fe3e219056ec5efcc8a2af38ed8ae0ab4a869cc37ed1c2509f416c68ba04469d",
+                "recipe": "challenges/cases/v27/v27-helm-telepathy.recipe.session.json",
+                "recipeSha256": "f43494f8ccc7d676458e347581f6050ab1e42e3c7b6cba6dc2fc65454038260f",
+                "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+                "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+                "evaluationUtc": "2026-10-07T18:10:31.065Z",
+                "remainingScreens": 8,
+                "recordedSteps": 39,
+                "step": 31,
+                "kind": "stop",
+                "function": "Helmet_on",
+                "sourceFile": "do_wear.c",
+                "cFile": "do_wear.c",
+                "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Helmet_on() for otyp 100",
+                "metrics": {
+                  "screens": {
+                    "matched": 31,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2625,
+                    "total": 2632
+                  },
+                  "cursors": {
+                    "matched": 31,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "segment": 0,
+                  "step": 31,
+                  "key": "m",
+                  "screen": {
+                    "index": 31,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": "m"
+                    },
+                    "kind": "js-missing"
+                  },
+                  "rng": {
+                    "index": 2625,
+                    "cEntry": "rn2(12)=11",
+                    "cCaller": "mcalcmove(mon.c:1164)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": "m"
+                    }
+                  },
+                  "boundary": {
+                    "name": "UnsupportedHeroCommandBoundaryError",
+                    "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Helmet_on() for otyp 100"
+                  }
+                },
+                "sourceBucket": "do_wear.c:Helmet_on",
+                "sourceTrace": "do_wear.c:434-514 Helmet_on includes HELM_OF_TELEPATHY in no-extra-effect cases at446. Property ownership is set earlier through setworn; this arm does not discover the type or directly call see_monsters. js/do_wear.js helmetOnPorted excludes it, and command preflight refuses before donning completes at31.",
+                "wholeSourceScope": "Whole do_wear.c:Helmet_on reconciliation and source accessory_or_armor_on callback, canonical TELEPAT extrinsic/render behavior."
+              },
+              "summary": "The first source loss is the #wear completion turn for HELM_OF_TELEPATHY. C do_wear.c:Helmet_on() explicitly treats this type as a no-extra-effect case and reaches its common known/inventory tail; JavaScript rejects the type in helmetOnPorted() and accessory_or_armor_on() before setworn() and the delayed callback. C and JavaScript both already own the TELEPAT worn property/range and monster redraw path. The complete source task is a file-port of Helmet_on(), including its other omitted branches, with adj_abon() completed for HELM_OF_BRILLIANCE and the command/startup callback admission wired.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "When an unworn HELM_OF_TELEPATHY is selected through #wear outside the quest-level restriction, canwearobj() and retouch_object() succeed, accessory_or_armor_on() installs W_ARMH and schedules Helmet_on() after the helm's one-turn oc_delay. The C switch takes the explicit HELM_OF_TELEPATHY no-extra-effect arm, then marks the helm known and updates inventory if needed.",
+                "functions": [
+                  "Helmet_on",
+                  "adj_abon"
+                ],
+                "callers": [
+                  "do_wear.c:dowear() -> accessory_or_armor_on() -> delayed Helmet_on() callback; JavaScript command W -> js/do_wear.js:dowear() -> accessory_or_armor_on().",
+                  "hack.c:unmul() invokes ga.afternmv after the dressing delay and discards Helmet_on()'s int result; JavaScript js/hack.js:unmul() invokes state.afternmv.",
+                  "do_wear.c:set_wear() directly calls Helmet_on() for a starting or changed uarmh; allmain.c:moveloop_preamble() calls set_wear(NULL), and zap.c:poly_obj() calls set_wear(otmp) after a worn object transforms. JavaScript reaches these through js/moveloop_preamble.js or js/zap.js into js/do_wear.js:set_wear().",
+                  "do_wear.c:Helmet_on() and Helmet_off(), Gloves_on(), Gloves_off() call adj_abon(); the current JavaScript helper has the glove arm but not C's HELM_OF_BRILLIANCE arm."
+                ],
+                "dependencies": [
+                  "do_wear.c:adj_abon() (3319-3337) is required for the whole Helmet_on() scope: its HELM_OF_BRILLIANCE arm marks the helm known, adjusts INT/WIS by spe, and sets disp.botl. Its C return is void and all callers discard it; js/do_wear.js:adj_abon() currently implements only the GAUNTLETS_OF_DEXTERITY arm.",
+                  "worn.c:setworn() installs the helm slot and TELEPAT extrinsic before Helmet_on(); worn.c:recalc_telepat_range() sets the range from worn TELEPAT sources. Both are void state updates and are present in js/worn.js.",
+                  "allmain.c:moveloop_core() redraws monsters when Unblind_telepat is active at 462-467; display.c:tp_sensemon()/sensemon() reads TELEPAT and unblind_telepat_range. The corresponding js/allmain.js and js/display.js paths exist at the examined commit; Helmet_on() must not add a redundant see_monsters() call to the telepathy arm.",
+                  "Helmet_on() returns 0, ignored by both set_wear() and unmul(). No C callee return value is consumed by Helmet_on(); accessory_or_armor_on() separately returns ECMD_TIME to dowear() after scheduling the delayed action."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/baseline-76417879-v27.json, case v27-helm-telepathy: 31/39 screens and cursors match, 2625/2632 RNG calls match, leaving 8 screens. Its immutable case identity is recording SHA-256 fe3e219056ec5efcc8a2af38ed8ae0ab4a869cc37ed1c2509f416c68ba04469d and manifest case-corpus SHA-256 24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277.",
+                "The prepared case diagnostic in challenges/manifests/v27.json records the first mismatch at segment 0, zero-based step 31, key m: screen js-missing and boundary “unsupported hero command: an unported branch of this command: wear reached an unported branch: Helmet_on() for otyp 100”. C records the delayed wear completion at that boundary; its step-31 RNG begins rn2(12)=11 at mcalcmove(mon.c:1164). The saved C replay receipt says record-session exited 0 and reproduced the recording byte-for-byte.",
+                "Upstream nethack-c/upstream/src/do_wear.c:434-514 lists HELM_OF_TELEPATHY among Helmet_on()'s bare-break types at 441-446; after the switch, the common tail marks uarmh known and updates inventory at 510-513. At do_wear.c:2375-2400 accessory_or_armor_on() calls setworn(), assigns Helmet_on() to ga.afternmv for uarmh, and spends oc_delay through nomul()/unmul().",
+                "The JavaScript stop is the stale allowlist, not a missing downstream telepathy renderer: js/do_wear.js:2109-2156 omits HELM_OF_TELEPATHY from helmetOnPorted() and throws in Helmet_on(); js/do_wear.js:3617-3622 repeats the preflight refusal before setworn(). scripts/wear-armor.test.mjs:1162-1195 currently expects these refusals and repeats the obsolete no-redraw premise.",
+                "C worn.c:50-69 and 73-145 owns TELEPAT extrinsic/range in setworn(); allmain.c:462-467 and display.c:166-177 redraw and read unblind telepathy. The examined baseline commit 76417879468cfeb65fa59ad60447a803684c6747 already contains matching JavaScript paths in js/worn.js:310-401, js/allmain.js:1674-1686, and js/display.js:312-325; those files are unchanged at current HEAD.",
+                "The whole-function file-port scope is do_wear.c:Helmet_on() (434-514), with caller admission updates in accessory_or_armor_on() and set_wear(). It must also cover the currently refused HELM_OF_CAUTION, HELM_OF_BRILLIANCE, and CORNUTHAUM arms; HELM_OF_BRILLIANCE requires the missing HELM_OF_BRILLIANCE arm of do_wear.c:adj_abon() (3319-3337), so include that complete helper or record it explicitly as an unported gap.",
+                "Runtime evidence plan: once the source task lands, replay admitted v27/v27-helm-telepathy, segment 0 through step 31, to cover the sighted #wear path, setworn property installation, delayed callback, and Helmet_on() telepathy arm. Add independent recordings under recipes/do_wear.c/ and recordings/do_wear.c/ for the omitted CAUTION, BRILLIANCE (wear and removal to cover adj_abon deltas), and CORNUTHAUM Wizard/non-Wizard branches unless existing matching recordings are verified; use an Archeologist startup case to exercise set_wear() and inspect the zap.c transformed-worn-item caller as a separate frontier."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

@@ -401,7 +401,7 @@ export async function confused_book(book, state = game, env = {}) {
         if (state === game) note_unported('windows.c display_nhwindow');
         await message('You accidentally tear the spellbook to pieces.', state);
         if (state === game) note_unported('do.c trycall');
-        useup(book, { state, hooks: {} });
+        await useup(book, { state, hooks: {} });
         return true;
     }
     const next = state.context?.spbook?.book === book;
@@ -727,7 +727,7 @@ export async function learn(state = game, env = {}) {
         if (fadedToBlank) update_inventory({ state, hooks: {} });
     }
     if (book.cursed && await cursed_book(book, state, { ...env, random })) {
-        useup(book, { state, hooks: {} });
+        await useup(book, { state, hooks: {} });
         spbook.book = null;
         spbook.o_id = 0;
         return 0;
@@ -870,7 +870,7 @@ export async function study_book(spellbook, state = game, env = {}) {
                     if (!gone)
                         await message('The spellbook crumbles to dust!', state);
                     if (state === game) note_unported('do.c trycall');
-                    useup(spellbook, { state, hooks: {} });
+                    await useup(spellbook, { state, hooks: {} });
                 } else {
                     spellbook.in_use = false;
                 }

@@ -2855,7 +2855,7 @@ async function hmon_hitmon_weapon_ranged(hmd, mon, obj, state, env, random) {
             state.gn ??= {};
             state.gn.unweapon = true;
         }
-        useup(obj, { ...env, state });
+        await useup(obj, { ...env, state });
         hmd.hittxt = true;
         if (hmd.mdat !== state.mons[PM_SHADE]) hmd.dmg++;
     }
@@ -2908,7 +2908,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
                 state,
             );
             change_luck(-2, state);
-            useup(obj, lifeEnv);
+            await useup(obj, lifeEnv);
             hmd.unarmed = false;
             hmd.get_dmg_bonus = false;
             hmd.hittxt = true;
@@ -2925,7 +2925,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
         // release_camera_demon() is a discarded side effect in C.  Preserve
         // that explicit source boundary without inventing a monster or draw.
         note_unported('dothrow.c release_camera_demon');
-        useup(obj, lifeEnv);
+        await useup(obj, lifeEnv);
         hmd.doreturn = true;
         hmd.retval = true;
         return;
@@ -2987,7 +2987,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             );
             obj.known = true;
             if (hmd.thrown) obfree(obj, null, lifeEnv);
-            else useupall(obj, lifeEnv);
+            else await useupall(obj, lifeEnv);
             const { munstone } = await import('./muse.js');
             if (!await munstone(mon, true, state, lifeEnv))
                 note_unported('trap.c minstapetrify');
@@ -3029,7 +3029,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             if (hmd.thrown) place_object(obj, mon.mx, mon.my, lifeEnv);
         } else if (obj.corpsenm === PM_PYROLISK) {
             if (hmd.thrown) obfree(obj, null, lifeEnv);
-            else useupall(obj, lifeEnv);
+            else await useupall(obj, lifeEnv);
             const { explode } = await import('./explode.js');
             await explode(mon.mx, mon.my, -11, random.d(3, 6), 0, 5,
                 state, lifeEnv);
@@ -3039,7 +3039,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
         } else {
             await message('Splat!', state);
             if (hmd.thrown) obfree(obj, null, lifeEnv);
-            else useupall(obj, lifeEnv);
+            else await useupall(obj, lifeEnv);
             await exercise(A_WIS, false, state);
         }
         return;
@@ -3087,7 +3087,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             await setmangry(mon, true, lifeEnv);
         }
         if (hmd.thrown) obfree(obj, null, lifeEnv);
-        else useup(obj, lifeEnv);
+        else await useup(obj, lifeEnv);
         hmd.hittxt = true;
         hmd.get_dmg_bonus = false;
         hmd.dmg = 0;
@@ -3109,7 +3109,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             hmd.dmg = dmgval(obj, mon, state, lifeEnv);
         }
         if (hmd.thrown) obfree(obj, null, lifeEnv);
-        else useup(obj, lifeEnv);
+        else await useup(obj, lifeEnv);
         hmd.hittxt = true;
         hmd.get_dmg_bonus = false;
         return;
@@ -3151,7 +3151,7 @@ async function hmon_hitmon_potion(hmd, mon, obj, state, env) {
         // needs do_wear.c cancel_doff() and the other canonical worn hooks.
         // Preserve caller-specific hooks such as artifact-light cleanup.
         const worn = setwornEnv(state);
-        setuwep(null, {
+        await setuwep(null, {
             ...env,
             state,
             hooks: { ...(env.hooks ?? {}), ...worn.hooks },
@@ -3159,7 +3159,7 @@ async function hmon_hitmon_potion(hmd, mon, obj, state, env) {
     }
     // freeinv() is the source extraction before potionhit(), including the
     // stack and worn-slot bookkeeping owned by invent.c/worn.c.
-    freeinv(obj, { ...env, state });
+    await freeinv(obj, { ...env, state });
     await potionhit(
         mon,
         obj,
@@ -3429,7 +3429,7 @@ async function hmon_hitmon_jousting(hmd, mon, obj, state, env, random) {
     if (hmd.jousting < 0) {
         set_twoweap(false, state);
         if (obj === state.uwep)
-            uwepgone({ ...env, state });
+            await uwepgone({ ...env, state });
         await (env.message ?? ttyPline)(
             `${Yname2(obj, state)} shatters on impact!`, state,
         );

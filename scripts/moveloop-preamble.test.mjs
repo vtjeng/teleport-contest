@@ -883,3 +883,16 @@ test('resuming skips new-game RNG, movement, and track initialization', async ()
     assert.deepEqual(state.track, { existing: true });
     assert.equal(state.program_state.in_moveloop, 1);
 });
+
+test('restore preamble clears visibility deferral before monster refresh', async () => {
+    // Ordinary lunar date keeps the source calendar prefix silent.
+    const state = preambleState('20260129120000');
+    state.gd = {defer_see_monsters: true};
+    state.u.ux = 4; state.u.uy = 3; // One distinct hero repaint coordinate.
+    const redraws = [];
+    await moveloop_preamble(true, state, {redraw: (x,y) => {
+        assert.equal(state.gd.defer_see_monsters, false);
+        redraws.push([x,y]);
+    }});
+    assert.deepEqual(redraws, [[4,3]]);
+});

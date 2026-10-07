@@ -1471,7 +1471,13 @@ test('WIN_STOP suppresses trap input waiting but still redraws', async () => {
     await dosearch0(1, { state: game, random });
 
     assert.equal(trap.tseen, true);
-    assert.equal(location.disp_ch, trap_glyph_info(trap, game).ch);
+    // docrt() restores the trap from map memory, then vision_recalc(0)
+    // reapplies the visible region over that remembered glyph.
+    assert.equal(location.disp_ch, '#');
+    assert.deepEqual(
+        location.remembered_glyph,
+        rememberedGlyphContract(trap_glyph_info(trap, game)),
+    );
     assert.equal(game._pending_message, '');
     assert.equal(game._ttyMessageStopped, true);
     assert.equal(game.nhDisplay.inputQueueLength, 1);

@@ -331,7 +331,7 @@ export async function dowrite(pen, state = game, env = {}) {
             await ttyPline('You give up on the idea.', state);
         } else {
             await ttyPline('You tear it up.', state);
-            useup(paper, writeEnv(state));
+            await useup(paper, writeEnv(state));
         }
         return ECMD_TIME;
     } else if (i === SPE_BOOK_OF_THE_DEAD) {
@@ -393,7 +393,7 @@ export async function dowrite(pen, state = game, env = {}) {
             await ttyPline(
                 'The scroll is now useless and disappears!', state,
             );
-            useup(paper, writeEnv(state));
+            await useup(paper, writeEnv(state));
         }
         obfree(new_obj, null, writeEnv(state));
         return ECMD_TIME;
@@ -448,7 +448,7 @@ export async function dowrite(pen, state = game, env = {}) {
                 `You write "${writtenText}" and the scroll disappears.`,
                 state,
             );
-            useup(paper, writeEnv(state));
+            await useup(paper, writeEnv(state));
         }
         obfree(new_obj, null, writeEnv(state));
         return ECMD_TIME;
@@ -462,13 +462,13 @@ export async function dowrite(pen, state = game, env = {}) {
             'You fail to write the scroll correctly and it disappears.',
             state,
         );
-        useup(paper, writeEnv(state));
+        await useup(paper, writeEnv(state));
         obfree(new_obj, null, writeEnv(state));
         return ECMD_TIME;
     }
 
     /* use up old scroll / spellbook */
-    useup(paper, writeEnv(state));
+    await useup(paper, writeEnv(state));
 
     /* success */
     if (new_obj.oclass === SPBOOK_CLASS) {

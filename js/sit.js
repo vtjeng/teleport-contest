@@ -959,7 +959,7 @@ export async function attrcurse(state = game, rawEnv = {}) {
             );
             if (heroIsBlind(state) && !blindTelepathy) {
                 const { see_monsters } = await import('./display.js');
-                see_monsters(state);
+                await see_monsters(state);
             }
             await message('Your senses fail!', state);
         } else if (propertyId === SEE_INVIS) {
@@ -969,7 +969,7 @@ export async function attrcurse(state = game, rawEnv = {}) {
                 // its mimic detection side effects remain a named source gap.
                 note_unported('display.c set_mimic_blocking');
                 const { newsym, see_monsters } = await import('./display.js');
-                see_monsters(state);
+                await see_monsters(state);
                 newsym(u.ux, u.uy, state);
             }
             await message(`You ${Hallucination(state)

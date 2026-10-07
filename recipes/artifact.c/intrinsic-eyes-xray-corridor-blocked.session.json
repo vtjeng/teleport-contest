@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED by vision.c:vision_recalc missing XRAY IN_SIGHT circle overlay after artifact.c:set_artifact_intrinsic writes xray_range=3 and vision_full_recalc=1. C-first hidden-corridor witness; pre-artifact quest pager pronouns now match. B136 does not claim whole vision.",
+  "segments": [
+    {
+      "seed": 81361017,
+      "datetime": "21200112104500",
+      "nethackrc": "OPTIONS=name:Intrinsic,role:Monk,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed Eyes of the Overworld\n  Wk  Rk  dk  "
+    }
+  ]
+}

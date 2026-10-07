@@ -2291,7 +2291,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
             obj = null;
             unsplitTarget = null;
         }
-        freeinv(otmp, { state });
+        await freeinv(otmp, { state });
         await throwit(otmp, wep_mask, twoweap, oldslot, state);
         if (state.program_state?.gameover) return ECMD_TIME;
         await encumber_msg(state);
@@ -2414,7 +2414,7 @@ async function return_throw_to_inv(obj, wepMask, twoweap, oldslot, state) {
             setuqwep(null, { state });
         }
         if ((wepMask & W_WEP) && !state.uwep)
-            setuwep(result, { state });
+            await setuwep(result, { state });
         else if ((wepMask & W_SWAPWEP) && !state.uswapwep)
             setuswapwep(result, { state });
         else if ((wepMask & W_QUIVER) && !state.uquiver)
@@ -2758,7 +2758,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                 obj = await addinv_before(obj, oldslot, { state });
                 await encumber_msg(state);
                 if (obj.owornmask & W_QUIVER) setuqwep(null, { state });
-                setuwep(obj, { state });
+                await setuwep(obj, { state });
                 set_twoweap(twoweap, state);
                 if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
                     newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);
@@ -3311,7 +3311,7 @@ async function throw_gold(obj, state = game) {
         }
         return ECMD_CANCEL;
     }
-    freeinv(obj, { state });
+    await freeinv(obj, { state });
     if (u.uswallow) {
         throw new UnsupportedThrowError('digests() for a swallowed hero');
     }

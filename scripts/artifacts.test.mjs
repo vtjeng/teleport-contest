@@ -27,7 +27,6 @@ import {
     ART_WEREBANE,
     AFTER_LAST_ARTIFACT,
     NROFARTIFACTS,
-    UnsupportedArtifactDisplayError,
     artifactTouchable,
     artifact_hit,
     artifact_defends,
@@ -59,7 +58,7 @@ import {
 } from '../js/artifacts.js';
 import {
     A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ANTIMAGIC, BLND_RES,
-    ENERGY_REGENERATION, FLYING,
+    ENERGY_REGENERATION, FLYING, TELEPAT,
     BLINDED, HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM,
     OBJ_MINVENT, SLIMED,
     UNCHANGING,
@@ -661,7 +660,7 @@ test('a self-willed artifact blast skips rn2(4) when the first operand fires', a
 // runs. artilist.h:170 gives Grayswandir NO_CARY and a zero cspfx, so holding
 // it grants nothing at all; :33 gives the Eye of the Aethiopica SPFX_EREGEN
 // and SPFX_HSPDAM to carry.
-test('carrying an artifact sets the extrinsics its cary fields name', () => {
+test('carrying an artifact sets the extrinsics its cary fields name', async () => {
     const state = stateFor('Val', 'neutral');
     init_artifacts(state);
     state.u = { uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
@@ -678,20 +677,13 @@ test('carrying an artifact sets the extrinsics its cary fields name', () => {
     // SPFX_HPHDAM is the Orb of Fate's, not this one's.
     assert.equal(state.u.uprops[HALF_PHDAM].extrinsic, 0);
 
-    // The Orb of Detection carries SPFX_ESP, which artifact.c:797-804 follows
-    // with recalc_telepat_range() and see_monsters().  The refusal reads cspfx
-    // before the cary mask below it, so it leaves every extrinsic alone --
-    // which is the whole point of putting it there rather than in C's place.
-    // artilist.h:219-223 gives the Orb CARY(AD_MAGM) and SPFX_HSPDAM as well,
-    // so a refusal in C's position would have written ANTIMAGIC and
-    // HALF_SPDAM first.
-    const untouched = state.u.uprops.map((prop) => prop.extrinsic);
-    assert.throws(
-        () => set_artifact_intrinsic({ oartifact: ART_ORB_OF_DETECTION }, true,
-                                     W_ART, state),
-        UnsupportedArtifactDisplayError,
-    );
-    assert.deepEqual(state.u.uprops.map((prop) => prop.extrinsic), untouched);
+    // artilist.h Orb of Detection: carry magic resistance, ESP, half spell
+    // damage. artifact.c applies defense first, ESP/repaint, then HSPDAM.
+    await set_artifact_intrinsic({ oartifact: ART_ORB_OF_DETECTION }, true,
+                                W_ART, state);
+    assert.equal(state.u.uprops[ANTIMAGIC].extrinsic, W_ART);
+    assert.equal(state.u.uprops[TELEPAT].extrinsic, W_ART);
+    assert.equal(state.u.uprops[HALF_SPDAM].extrinsic, W_ART);
     // An ordinary object returns before reading any field.
     set_artifact_intrinsic({ oartifact: 0 }, true, W_ART, state);
 });
@@ -828,20 +820,19 @@ test('a hero touches a self-willed artifact her role and kind match', async () =
     assert.deepEqual(draws, [4]);
 });
 
-test('set_artifact_intrinsic refuses removing a carried artifact', () => {
-    // artifact.c:748-779: the "off" path for carried (W_ART) artifacts surveys
-    // the rest of inventory to avoid clearing a property another carried
-    // artifact also grants, and may shut down an invoked power. Neither survey
-    // is ported, so the off half throws.
+test('set_artifact_intrinsic removes carried effects not shared by inventory', () => {
+    // artifact.c:748-779 retains masks only when a remaining artifact shares
+    // cary.adtyp or cspfx; an empty inventory clears both Eye carry effects.
     const state = stateFor('Val', 'neutral');
     init_artifacts(state);
     state.u = { uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
         blocked: 0, extrinsic: 0, intrinsic: 0,
     })) };
     const eye = { oartifact: ART_EYE_OF_THE_AETHIOPICA };
-
-    assert.throws(() => set_artifact_intrinsic(eye, false, W_ART, state),
-                  UnsupportedArtifactDisplayError);
+    set_artifact_intrinsic(eye, true, W_ART, state);
+    set_artifact_intrinsic(eye, false, W_ART, state);
+    assert.equal(state.u.uprops[ENERGY_REGENERATION].extrinsic, 0);
+    assert.equal(state.u.uprops[HALF_SPDAM].extrinsic, 0);
 });
 
 test('set_artifact_intrinsic sets worn intrinsics from defn and spfx', () => {
@@ -888,7 +879,7 @@ test('what_gives identifies Sunsword blindness resistance from state.uwep', () =
     assert.equal(what_gives(BLND_RES, state), sunsword);
 });
 
-test('wielding Grayswandir sets hallucination resistance (SPFX_HALRES)', () => {
+test('wielding Grayswandir sets hallucination resistance (SPFX_HALRES)', async () => {
     // artifact.c:787-797: SPFX_HALRES calls make_hallucinated((long)!on, ...,
     // wp_mask). For a non-hallucinating hero this is just a mask write:
     // potion.c:389-390 sets EHalluc_resistance |= mask.
@@ -900,39 +891,34 @@ test('wielding Grayswandir sets hallucination resistance (SPFX_HALRES)', () => {
     })) };
 
     // Wielding on: set the resistance.
-    set_artifact_intrinsic(
+    await set_artifact_intrinsic(
         { oartifact: ART_GRAYSWANDIR }, true, W_WEP, state);
     assert.notEqual(state.u.uprops[HALLUC_RES].extrinsic & W_WEP, 0,
         'HALLUC_RES should be set when wielding Grayswandir');
 
     // Unwielding off: clear the resistance.
-    set_artifact_intrinsic(
+    await set_artifact_intrinsic(
         { oartifact: ART_GRAYSWANDIR }, false, W_WEP, state);
     assert.equal(state.u.uprops[HALLUC_RES].extrinsic & W_WEP, 0,
         'HALLUC_RES should be cleared when unwielding Grayswandir');
 });
 
-test('set_artifact_intrinsic refuses SPFX_HALRES while hallucinating', () => {
-    // artifact.c:787-797: if the hero IS hallucinating, make_hallucinated()
-    // sets changed=true and follows with see_monsters(), see_objects(),
-    // see_traps(), update_inventory(), and a pline, none of which is ported.
+test('Grayswandir suppresses hallucination without clearing its timeout', async () => {
+    // artifact.c:787-797 passes a mask to potion.c make_hallucinated; only
+    // resistance changes, preserving the active HALLUC timeout.
     const state = stateFor('Val', 'neutral');
     init_artifacts(state);
     state.u = { uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
         blocked: 0, extrinsic: 0, intrinsic: 0,
     })) };
-    // Simulate an active hallucination timer.
-    state.u.uprops[HALLUC].intrinsic = 100;
-
-    assert.throws(
-        () => set_artifact_intrinsic(
-            { oartifact: ART_GRAYSWANDIR }, true, W_WEP, state),
-        UnsupportedArtifactDisplayError,
-    );
-    // Extrinsic should remain unchanged because the refusal fires before
-    // the mask write.
-    assert.equal(state.u.uprops[HALLUC_RES].extrinsic, 0,
-        'HALLUC_RES should not be set when the refusal fires');
+    state.disp = {};
+    state.u.uprops[HALLUC].intrinsic = 100; // Nonzero source timeout.
+    const messages = [];
+    await set_artifact_intrinsic({ oartifact: ART_GRAYSWANDIR }, true,
+        W_WEP, state, { planning: true, message: async text => messages.push(text) });
+    assert.equal(state.u.uprops[HALLUC_RES].extrinsic, W_WEP);
+    assert.equal(state.u.uprops[HALLUC].intrinsic, 100);
+    assert.deepEqual(messages, ['Everything looks SO boring now.']);
 });
 
 // artifact.c is_art() (2808-2814). A simple check whether obj->oartifact

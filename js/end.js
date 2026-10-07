@@ -798,7 +798,7 @@ export async function done(how, state = game, source = {}) {
         await ttyPline('You feel much better!', state);
         await ttyPline('The medallion crumbles to dust!', state);
         if (state.uamul)
-            useup(state.uamul, lifeEnv);
+            await useup(state.uamul, lifeEnv);
         const attributeEnv = {
             ...source,
             ...(source.random ? { random: source.random } : {}),

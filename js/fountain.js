@@ -1247,7 +1247,7 @@ export async function dipsink(obj, state = game, env = {}) {
         const { trycall } = await import('./do.js');
         await trycall(obj, state);
     }
-    useup(obj, { ...env, state });
+    await useup(obj, { ...env, state });
 }
 
 // C ref: fountain.c sink_backs_up() (805-831). The first discovery sets

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first display.c see_monsters caller variation through do_wear.c Ring_on/Ring_off_or_gone; source set_mimic_blocking remains a discarded-result gap for see-invisible.",
+  "segments": [
+    {
+      "seed": 81361017,
+      "datetime": "21200112104500",
+      "nethackrc": "OPTIONS=name:Intrinsic,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " \u0017uncursed ring of see invisible\n Pil  Ri  di  "
+    }
+  ]
+}

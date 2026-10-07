@@ -812,7 +812,7 @@ async function break_armor(state, rawEnv = {}) {
                 state,
                 env,
             );
-            setworn(null, otmp.owornmask & W_ARMU, setwornEnv(state));
+            await setworn(null, otmp.owornmask & W_ARMU, setwornEnv(state));
             await dropp(otmp, state, env);
         }
     }
@@ -953,7 +953,7 @@ async function drop_weapon(alone, state, rawEnv = {}) {
             }
             // Drop primary weapon.
             const otmp = state.uwep;
-            uwepgone({ state });
+            await uwepgone({ state });
             if (otmp.in_use)
                 updateinv = false;
             else if (candropwep)
@@ -1333,7 +1333,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     state.disp ??= {};
     state.disp.botl = true;
     state.vision_full_recalc = 1;
-    see_monsters(state, { redraw });
+    await see_monsters(state, { ...rawEnv, redraw });
     await encumber_msg(state, { message });
 
     note_unported('artifact.c retouch_equipment');
@@ -1481,7 +1481,7 @@ async function polyman(fmt, arg, state, rawEnv = {}) {
         && !rawEnv.planning)
         await spoteffects(true, state);
 
-    see_monsters(state, { redraw });
+    await see_monsters(state, { ...rawEnv, redraw });
 }
 
 // ---------- change_sex --------------------------------------------------
@@ -1685,7 +1685,7 @@ export async function newman(state = game) {
 
     state.disp ??= {};
     state.disp.botl = true;
-    see_monsters(state);
+    await see_monsters(state);
     await encumber_msg(state);
 
     note_unported('artifact.c retouch_equipment');

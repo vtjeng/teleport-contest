@@ -458,7 +458,7 @@ async function consume_offering(otmp, state) {
             },
         },
     };
-    if (carried(otmp)) useup(otmp, env);
+    if (carried(otmp)) await useup(otmp, env);
     else await useupf(otmp, 1, env);
     await exercise(A_WIS, true, state);
 }
@@ -677,7 +677,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
             },
         },
     };
-    if (carried(otmp)) useup(otmp, useupEnv);
+    if (carried(otmp)) await useup(otmp, useupEnv);
     else await useupf(otmp, 1, useupEnv);
 }
 
@@ -2178,7 +2178,7 @@ export async function pleased(g_align, state = game) {
                 ?? grant(STEALTH, 'Stealth');
             if (gift) {
                 await ttyPline(`"and thus I grant thee the gift of ${gift}!"`, state);
-                if (gift === 'Telepathy' && heroIsBlind(state)) see_monsters(state);
+                if (gift === 'Telepathy' && heroIsBlind(state)) await see_monsters(state);
             } else {
                 const prop = u.uprops[PROTECTION];
                 prop.intrinsic ??= 0;

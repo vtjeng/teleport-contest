@@ -5078,6 +5078,10 @@ test('docrt suppresses glyph notices for its entire redraw', async () => {
         my: y,
     };
 
+    // docrt now owns the source vision shutdown/recalculation sequence.
+    // Raw display fixtures must initialize the visibility links like startup.
+    init_vision_globals();
+    vision_reset();
     await docrt();
 
     assert.equal(state.program_state.in_docrt, false);
@@ -8237,6 +8241,10 @@ test('initial three-line status preserves tty overlap until the forced refresh',
     );
 
     state.disp.botlx = false;
+    // docrt now owns the source vision shutdown/recalculation sequence.
+    // Raw display fixtures must initialize the visibility links like startup.
+    init_vision_globals();
+    vision_reset();
     await docrt();
     assert.equal(state.disp.botlx, true, 'docrt invalidates tty status');
     state.program_state.in_moveloop = 1;

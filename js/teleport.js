@@ -1653,7 +1653,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
      *  vision recalculation because the hero is now in a new location.
      */
     redraw(u.ux0, u.uy0, state);
-    see_monsters(state, { redraw });
+    await see_monsters(state, { ...env, redraw });
     state.vision_full_recalc = 1;
     nomul(0, state);
     notice_mon_off(state);

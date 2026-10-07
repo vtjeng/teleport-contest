@@ -57,6 +57,7 @@ import {
     OBJ_FREE,
     OBJ_INVENT,
     W_SADDLE,
+    W_WEP,
     Upolyd,
     engulfing_u,
     has_ebones,
@@ -68,7 +69,7 @@ import {
     DEAF,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import {
+import { set_artifact_intrinsic,
     artifact_exists,
     artifact_name,
     exist_artifact,
@@ -256,6 +257,19 @@ export function safe_oname(obj) {
 // retain their source order through note_unported() while gameplay state that
 // the JavaScript port owns is updated here.
 export function oname(obj, name, oflgs, env = {}) {
+    const steps = oname_steps(obj, name, oflgs, env);
+    const advance = (value, failed = false) => {
+        const step = failed ? steps.throw(value) : steps.next(value);
+        if (step.done) return step.value;
+        if (step.value && typeof step.value.then === 'function')
+            return Promise.resolve(step.value).then(
+                result => advance(result), error => advance(error, true));
+        return advance(step.value);
+    };
+    return advance(undefined);
+}
+
+function* oname_steps(obj, name, oflgs, env) {
     const state = env.state ?? game;
     const via_naming = (oflgs & ONAME_VIA_NAMING) !== 0;
     const skip_inv_update = (oflgs & ONAME_SKIP_INVUPD) !== 0;
@@ -288,7 +302,7 @@ export function oname(obj, name, oflgs, env = {}) {
         }
         /* activate warning if you've just named your weapon "Sting" */
         if (obj === state.uwep)
-            note_unported('artifact.c set_artifact_intrinsic()');
+            yield set_artifact_intrinsic(obj, true, W_WEP, state, env);
         /* if obj is owned by a shop, increase your bill */
         if (obj.unpaid)
             alter_cost(obj, 0, state);
@@ -853,7 +867,7 @@ export async function do_oname(obj, state = game) {
         if (aname) finalName = aname;
     }
 
-    oname(obj, finalName,
+    await oname(obj, finalName,
         ONAME_VIA_NAMING | ONAME_KNOW_ARTI, { state });
 }
 

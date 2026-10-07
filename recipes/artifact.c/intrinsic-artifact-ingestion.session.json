@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first artifact ingestion caller: polymorph into a rust monster before wishing for a nonunique iron artifact; no wielded object is dropped before selection.",
+  "segments": [
+    {
+      "seed": 81361017,
+      "datetime": "21200112104500",
+      "nethackrc": "OPTIONS=name:Intrinsic,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": " #polyself\nrust monster\n   \u0017uncursed Excalibur\n  mei  "
+    }
+  ]
+}

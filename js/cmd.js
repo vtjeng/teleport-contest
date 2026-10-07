@@ -113,7 +113,7 @@ import {
     use_unicorn_horn,
     UnsupportedApplyError,
 } from './apply.js';
-import { UnsupportedArtifactDisplayError, doinvoke } from './artifacts.js';
+import { doinvoke } from './artifacts.js';
 import { ballrelease, placebc, unplacebc } from './ball.js';
 import {
     dosearch,
@@ -2887,7 +2887,6 @@ export function failClosedCommandRefusals() {
         // stops above really_done() after the forced status work, and a debug
         // or explore death can draw "Die?" before savelife() refuses.
         UnsupportedEndOfGameError,
-        UnsupportedArtifactDisplayError,
         UnsupportedDropError,
         UnsupportedLevelChangeError,
         // Keep the experience/attribute refusal classes recognizable at this

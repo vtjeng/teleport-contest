@@ -1157,22 +1157,26 @@ test('the remaining bare Cloak_on arms keep their source effects', async () => {
     }
 });
 
-test('the four unported Helmet_on arms are refused, while DUNCE_CAP curses',
+// C do_wear.c:449 redraws before Helmet_on's common known/inventory tail.
+test('Helmet_on admits caution and reaches the source known tail without RNG', async () => {
+    await setup(segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`), OFF);
+    game.uarmh = armor(HELM_OF_CAUTION, { known: false, spe: 0 });
+    const before = getRngLog().length;
+    assert.equal(await Helmet_on(game), 0);
+    assert.equal(game.uarmh.known, true);
+    assert.equal(getRngLog().length, before);
+});
+
+test('the remaining unported Helmet_on arms are refused, while DUNCE_CAP curses',
     async () => {
-    // do_wear.c:448-505. Eight of Helmet_on()'s twelve labels are carried: the
-    // fedora, the four bare-break arms, HELM_OF_OPPOSITE_ALIGNMENT which calls
-    // uchangealign() and falls through to the shared DUNCE_CAP curse path, and
-    // DUNCE_CAP itself. The four below remain refused, and the
-    // last of them is the one C's own switch also answers with a bare break:
-    // the helm of telepathy needs no arm here because objects.h:485 gives it
-    // TELEPAT as its oc_oprop, so setworn() raises the extrinsic that
-    // display.h sensemon() reads. Wearing one would change what the hero
-    // senses with no arm in this file to blame.
+    // do_wear.c:448-505. Caution now reaches its direct see_monsters call.
+    // Brilliance, cornuthaum, and telepathy admission remain with the whole
+    // Helmet_on source task; the refusal must precede setworn and its delay.
     //
     // The refusal is hoisted above setworn(), so a refused helmet never
     // reaches the slot and never spends its oc_delay.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
-    for (const otyp of [HELM_OF_CAUTION, HELM_OF_BRILLIANCE, CORNUTHAUM,
+    for (const otyp of [HELM_OF_BRILLIANCE, CORNUTHAUM,
         HELM_OF_TELEPATHY]) {
         await setup(segment, OFF);
         const obj = armor(otyp, { dknown: 1, spe: 0 });
@@ -1919,13 +1923,6 @@ test('the branches accessory_or_armor_on cannot run name themselves',
     // HELM_OF_OPPOSITE_ALIGNMENT arm instead.
     delete game.qstart_level;
 
-    // do_wear.c:2355-2356 retouch_object(), refused for an artifact alone.
-    await assert.rejects(
-        () => accessory_or_armor_on(
-            armor(SMALL_SHIELD, { dknown: 1, oartifact: 1 }), game,
-        ),
-        refusal(UnsupportedWearError, 'retouch_object() for an artifact'),
-    );
     // do_wear.c:2363-2364 remove_worn_item(), for armor held in a weapon slot.
     await assert.rejects(
         () => accessory_or_armor_on(

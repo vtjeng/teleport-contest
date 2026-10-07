@@ -160,7 +160,7 @@ import {
     paranoid_query,
     yn_function,
 } from './cmd.js';
-import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
+import { artifact_light, retouch_object, set_artifact_intrinsic } from './artifacts.js';
 import { obj_resists } from './bury.js';
 import { game } from './gstate.js';
 import { nomul, spoteffects, unmul } from './hack.js';
@@ -415,17 +415,7 @@ export class UnsupportedTakeOffError extends Error {
     }
 }
 
-// The same fail-closed boundary for the 'W' half of do_wear.c. The halves share
-// three functions, not one: equip_ok(), which reaches canwearobj() on the
-// wearing pass alone because `T` and `R` pass removing TRUE and return before
-// it; takeoffContext(), whose mask accessory_or_armor_on() clears; and
-// setwornEnv(), whose hook set every setworn() call takes. What separates the
-// classes is ownership rather than isolation: the wear spine raises
-// UnsupportedWearError for every branch it owns, while setwornEnv()'s
-// setArtifactIntrinsic hook keeps the take-off name. A `W` cannot reach that
-// hook today only because accessory_or_armor_on() refuses obj.oartifact above
-// setworn(); relaxing that refusal would let a wear command raise the take-off
-// class, so move the hook's name with it.
+// Fail-closed boundary for the unported wearing branches of do_wear.c.
 export class UnsupportedWearError extends Error {
     constructor(what) {
         super(`wear reached an unported branch: ${what}`);
@@ -641,16 +631,18 @@ function cancel_doff(obj, slotmask, env) {
 // inside setworn() (worn.c:73-142) itself; worn.js injects them because their
 // owners sit in other source files. It lives here because cancel_doff() does,
 // and do.c drop() imports it for its setuwep(), setuqwep() and setuswapwep()
-// calls. setnotworn() (worn.c:150) calls the same three, but nothing reaches
-// it, and its copies are not interchangeable: they run for every matching
+// calls. setnotworn() (worn.c:150) calls the same three from removal callers;
+// its copies are not interchangeable: they run for every matching
 // slot, where setworn()'s sit inside the `wp->w_mask & ~(W_SWAPWEP |
 // W_QUIVER)` gate at worn.c:93 that js/worn.js removeSlotEffects()
 // reproduces, and setnotworn() runs cancel_doff() before the property work
 // rather than after it.
-export function setwornEnv(state = game) {
+export function setwornEnv(state = game, rawEnv = {}) {
     return {
+        ...rawEnv,
         state,
         hooks: {
+            ...rawEnv.hooks,
             cancelDoff: cancel_doff,
             // C ref: worn.c:102 monstunseesu_prop(p).
             monsterUnseesProperty: (propertyIndex, env) => {
@@ -659,9 +651,8 @@ export function setwornEnv(state = game) {
             // C ref: worn.c:105-106 set_artifact_intrinsic(). artifact.c owns
             // the full implementation; the hook forwards with the caller's
             // state so the right uprops array is updated.
-            setArtifactIntrinsic: (obj, on, mask, _env) => {
-                set_artifact_intrinsic(obj, on, mask, state);
-            },
+            setArtifactIntrinsic: (obj, on, mask, env) =>
+                set_artifact_intrinsic(obj, on, mask, state, env),
         },
     };
 }
@@ -768,7 +759,7 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
     let observable;
 
     // C clears any weapon-slot alias with the matching canonical setter.
-    if (obj === state.uwep) setuwep(null, setwornEnv(state));
+    if (obj === state.uwep) await setuwep(null, setwornEnv(state));
     else if (obj === state.uswapwep)
         setuswapwep(null, setwornEnv(state));
     else if (obj === state.uquiver) setuqwep(null, setwornEnv(state));
@@ -804,11 +795,11 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
         await toggle_stealth(obj, maskedOldprop, true, state, env);
         break;
     case RIN_WARNING:
-        see_monsters(state, { redraw: env.redraw });
+        await see_monsters(state, { ...env, redraw: env.redraw });
         break;
     case RIN_SEE_INVISIBLE: {
         note_unported('display.c set_mimic_blocking');
-        see_monsters(state, { redraw: env.redraw });
+        await see_monsters(state, env);
         const invisibility = state.u.uprops[INVIS];
         const invisible = Boolean((invisibility?.intrinsic
             || invisibility?.extrinsic) && !invisibility?.blocked);
@@ -881,16 +872,17 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
 // increase accuracy/damage (uhitinc/udaminc), and protection (learnring +
 // find_ac). The levitation arm awaits float_down(); other unported effect
 // arms still throw.
-async function Ring_off_or_gone(obj, gone, state = game) {
+async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
+    const env = wearOperationEnv(rawEnv);
     const mask = obj.owornmask & W_RING;
     takeoffContext(state).mask &= ~mask;
     if (!(state.u.uprops[objectType(obj, state).oc_oprop]?.extrinsic & mask)) {
         // impossible("Strange... I didn't know you had that ring.");
     }
     if (gone)
-        setnotworn(obj, setwornEnv(state));
+        await setnotworn(obj, setwornEnv(state, env));
     else
-        setworn(null, obj.owornmask, setwornEnv(state));
+        await setworn(null, obj.owornmask, setwornEnv(state, env));
 
     switch (obj.otyp) {
     case RIN_TELEPORTATION:
@@ -920,14 +912,26 @@ async function Ring_off_or_gone(obj, gone, state = game) {
         );
         break;
     case RIN_WARNING:
-        // see_monsters() redraws; the extrinsic change is already done.
-        throw new UnsupportedTakeOffError(
-            `see_monsters() for Ring_off otyp ${obj.otyp}`,
-        );
-    case RIN_SEE_INVISIBLE:
-        throw new UnsupportedTakeOffError(
-            `set_mimic_blocking() + see_monsters() for Ring_off otyp ${obj.otyp}`,
-        );
+        await see_monsters(state, env);
+        break;
+    case RIN_SEE_INVISIBLE: {
+        const seeInvisible = state.u.uprops[SEE_INVIS];
+        const canSeeInvisible = Boolean(seeInvisible?.intrinsic
+            || seeInvisible?.extrinsic);
+        const invisibility = state.u.uprops[INVIS];
+        const invisible = Boolean((invisibility?.intrinsic
+            || invisibility?.extrinsic) && !invisibility?.blocked);
+        if (!canSeeInvisible) {
+            note_unported('display.c set_mimic_blocking');
+            await see_monsters(state, env);
+        }
+        if (invisible && !canSeeInvisible && !heroIsBlind(state)) {
+            env.redraw(state.u.ux, state.u.uy, state);
+            await env.message('Suddenly you cannot see yourself.', state);
+            learnring(obj, true, state);
+        }
+        break;
+    }
     case RIN_INVISIBILITY:
         throw new UnsupportedTakeOffError(
             `invisibility newsym for Ring_off otyp ${obj.otyp}`,
@@ -972,15 +976,15 @@ async function Ring_off_or_gone(obj, gone, state = game) {
 // C ref: do_wear.c Ring_gone() (1455-1458). Removes a ring that is leaving the
 // hero's possession entirely (theft, destruction); uses setnotworn() rather
 // than setworn(null, mask).
-export async function Ring_gone(obj, state = game) {
-    await Ring_off_or_gone(obj, true, state);
+export async function Ring_gone(obj, state = game, env = {}) {
+    await Ring_off_or_gone(obj, true, state, env);
 }
 
 // C ref: do_wear.c Ring_off() (1449-1452). Unlike Ring_gone(), ordinary
 // removal clears the worn slot with setworn() and applies the ring's off
 // effects through Ring_off_or_gone().
-export async function Ring_off(obj, state = game) {
-    await Ring_off_or_gone(obj, false, state);
+export async function Ring_off(obj, state = game, env = {}) {
+    await Ring_off_or_gone(obj, false, state, env);
 }
 
 // Raised where Amulet_on() or Blindf_on() reaches a branch this port has not
@@ -1011,7 +1015,7 @@ async function Amulet_on(obj, state = game) {
         );
     }
 
-    setworn(obj, W_AMUL, setwornEnv(state));
+    await setworn(obj, W_AMUL, setwornEnv(state));
 
     switch (state.uamul.otyp) {
     case AMULET_OF_ESP:
@@ -1114,10 +1118,10 @@ export async function Amulet_off(state = game, env = {}) {
     switch (amul.otyp) {
     case AMULET_OF_ESP:
         // C removes the telepathy source before see_monsters() redraws.
-        setworn(null, W_AMUL, setwornEnv(state));
+        await setworn(null, W_AMUL, setwornEnv(state));
         await off_msg(amul, state, message);
         earlyOffMessage = true;
-        see_monsters(state, { redraw: env.redraw });
+        await see_monsters(state, env);
         break;
     case AMULET_OF_LIFE_SAVING:
     case AMULET_VERSUS_POISON:
@@ -1129,7 +1133,7 @@ export async function Amulet_off(state = game, env = {}) {
     case AMULET_OF_MAGICAL_BREATHING:
         // C removes the amulet before both drowning and gas checks, and prints
         // off_msg() before either branch's specific message.
-        setworn(null, W_AMUL, setwornEnv(state));
+        await setworn(null, W_AMUL, setwornEnv(state));
         await off_msg(amul, state, message);
         earlyOffMessage = true;
 
@@ -1157,7 +1161,7 @@ export async function Amulet_off(state = game, env = {}) {
         }
         break;
     case AMULET_OF_STRANGULATION: {
-        setworn(null, W_AMUL, setwornEnv(state));
+        await setworn(null, W_AMUL, setwornEnv(state));
         await off_msg(amul, state, message);
         earlyOffMessage = true;
 
@@ -1179,7 +1183,7 @@ export async function Amulet_off(state = game, env = {}) {
         break;
     }
     case AMULET_OF_RESTFUL_SLEEP: {
-        setworn(null, W_AMUL, setwornEnv(state));
+        await setworn(null, W_AMUL, setwornEnv(state));
         const sleepy = state.u.uprops[SLEEPY];
         if (!sleepy.extrinsic && !(sleepy.intrinsic & ~TIMEOUT))
             sleepy.intrinsic &= ~TIMEOUT;
@@ -1190,7 +1194,7 @@ export async function Amulet_off(state = game, env = {}) {
 
         // Remove the source before recomputing flight; C deliberately calls
         // float_vs_flight() before reading the new Flying value.
-        setworn(null, W_AMUL, setwornEnv(state));
+        await setworn(null, W_AMUL, setwornEnv(state));
         await off_msg(amul, state, message);
         earlyOffMessage = true;
 
@@ -1220,7 +1224,7 @@ export async function Amulet_off(state = game, env = {}) {
     }
 
     // C always performs this second setworn(), even after an early removal.
-    setworn(null, W_AMUL, setwornEnv(state));
+    await setworn(null, W_AMUL, setwornEnv(state));
     if (!earlyOffMessage)
         await off_msg(amul, state, message);
     if (makeKnown)
@@ -1238,8 +1242,8 @@ export async function Amulet_off(state = game, env = {}) {
 // - set_bc(0): fires only when Punished. No ported session is punished while
 //   putting on a blindfold.
 // - The "regaining sight" branch (already_blind && !Blind): applies only to
-//   the Eyes of the Overworld artifact. accessory_or_armor_on() refuses
-//   artifacts above the dispatch, so this branch is unreachable.
+//   the Eyes of the Overworld artifact while already blind. This caller
+//   branch remains outside the current sighted artifact-wearing admission.
 async function Blindf_on(obj, state = game) {
     const already_blind = heroIsBlind(state);
 
@@ -1253,7 +1257,7 @@ async function Blindf_on(obj, state = game) {
         );
     }
 
-    setworn(obj, W_TOOL, setwornEnv(state));
+    await setworn(obj, W_TOOL, setwornEnv(state));
     await on_msg(obj, state);
 
     let changed = false;
@@ -1273,8 +1277,8 @@ async function Blindf_on(obj, state = game) {
         }
     } else if (already_blind && !heroIsBlind(state)) {
         // Hero regained sight -- only the Eyes of the Overworld artifact does
-        // this. accessory_or_armor_on() refuses artifacts, so this branch is
-        // unreachable in the current port.
+        // this. This blind Eyes caller branch remains outside the current
+        // sighted artifact-wearing admission.
         throw new UnsupportedAccessoryOnError(
             'Blindf_on() regaining sight (Eyes of the Overworld)',
         );
@@ -1300,8 +1304,8 @@ async function Blindf_on(obj, state = game) {
 //      "still cannot see" for non-lenses items.
 //   3. ( Blind && !was_blind): lost sight on removal (Eyes of the Overworld).
 //      Prints "You can't see anything now!" and sets ball-and-chain if
-//      Punished. Not reachable in current port because artifacts are refused
-//      by accessory_or_armor_on().
+//      Punished. The blind Eyes caller branch remains outside the current
+//      sighted artifact-wearing admission.
 //   4. (!Blind && !was_blind): no change, no message.
 //
 // Fail-closed items:
@@ -1321,7 +1325,7 @@ export async function Blindf_off(otmp, state = game) {
     }
 
     takeoffContext(state).mask &= ~W_TOOL;
-    setworn(null, otmp.owornmask, setwornEnv(state));
+    await setworn(null, otmp.owornmask, setwornEnv(state));
     if (!nooffmsg)
         await off_msg(otmp, state);
 
@@ -1333,8 +1337,8 @@ export async function Blindf_off(otmp, state = game) {
                 await ttyPline('You still cannot see.', state);
         } else {
             // Lost sight on removal -- only Eyes of the Overworld does this.
-            // accessory_or_armor_on() refuses artifacts, so this branch is
-            // unreachable in the current port.
+            // This blind Eyes caller branch remains outside the current
+            // sighted artifact-wearing admission.
             throw new UnsupportedTakeOffError(
                 'Blindf_off() lost sight (Eyes of the Overworld)',
             );
@@ -1460,7 +1464,7 @@ async function dragon_armor_handling(
             state.u.uprops[INFRAVISION].extrinsic &= ~W_ARM;
         }
         // C calls see_monsters() unconditionally for both put-on and take-off
-        see_monsters(state, { redraw });
+        await see_monsters(state, { ...env, redraw });
         break;
     case GOLD_DRAGON_SCALES:
     case GOLD_DRAGON_SCALE_MAIL:
@@ -1565,7 +1569,7 @@ export async function Armor_off(state = game, rawEnv = {}) {
     const takeoff = takeoffContext(state);
 
     takeoff.mask &= ~W_ARM;
-    setworn(null, W_ARM, setwornEnv(state));
+    await setworn(null, W_ARM, setwornEnv(state));
     takeoff.cancelled_don = false;
 
     // C handles gold dragon artifact light before dragon_armor_handling(),
@@ -1596,7 +1600,7 @@ async function Armor_gone(state, rawEnv = {}) {
     const takeoff = takeoffContext(state);
 
     takeoff.mask &= ~W_ARM;
-    setnotworn(otmp, setwornEnv(state));
+    await setnotworn(otmp, setwornEnv(state));
     takeoff.cancelled_don = false;
 
     // C performs this non-fatal light cleanup before dragon armor handling.
@@ -1733,7 +1737,7 @@ export async function Boots_off(state = game) {
     takeoff.mask &= ~W_ARMF;
     // C must clear the slot before levitation is recalculated. setworn() also
     // clears the footwear extrinsic and the object's W_ARMF bit in one owner.
-    setworn(null, W_ARMF, setwornEnv(state));
+    await setworn(null, W_ARMF, setwornEnv(state));
 
     switch (otyp) {
     case SPEED_BOOTS: {
@@ -2026,7 +2030,7 @@ export async function Cloak_off(state = game, rawEnv = {}) {
         ?.extrinsic ?? 0) & ~WORN_CLOAK;
     takeoffContext(state).mask &= ~W_ARMC;
     /* For mummy wrapping, taking it off first resets `Invisible'. */
-    setworn(null, W_ARMC, setwornEnv(state));
+    await setworn(null, W_ARMC, setwornEnv(state));
 
     switch (otyp) {
     case ORCISH_CLOAK:
@@ -2117,7 +2121,7 @@ function hcolor(colorpref, state) {
 // dknown clear and teleport.c's arrival tests, all of which call it. C feeds
 // that state a redraw this port does not have, allmain.c moveloop_core()'s
 // `Unblind_telepat` arm at 462-466, so a telepathy helm would diverge on the
-// turn after it went on. It joins the five arms refused by otyp below.
+// turn after it went on. Its admission remains with the queued whole Helmet_on port.
 const PLAIN_HELMETS_ON = new Set([
     HELMET, DENTED_POT, ELVEN_LEATHER_HELM, DWARVISH_IRON_HELM, ORCISH_HELM,
 ]);
@@ -2128,7 +2132,8 @@ const PLAIN_HELMETS_ON = new Set([
 // but the fedora and the dented pot an oc_delay of 1, so the callback itself
 // runs a turn after the slot and the status line have already moved.
 function helmetOnPorted(otyp) {
-    return otyp === FEDORA || otyp === HELM_OF_OPPOSITE_ALIGNMENT
+    return otyp === FEDORA || otyp === HELM_OF_CAUTION
+        || otyp === HELM_OF_OPPOSITE_ALIGNMENT
         || otyp === DUNCE_CAP
         || PLAIN_HELMETS_ON.has(otyp);
 }
@@ -2156,6 +2161,9 @@ async function Helmet_on(state) {
         throw new UnsupportedWearError(`Helmet_on() for otyp ${otyp}`);
 
     switch (otyp) {
+    case HELM_OF_CAUTION:
+        await see_monsters(state); // C do_wear.c:449.
+        break;
     case FEDORA:
         if (state.urole?.mnum === PM_ARCHEOLOGIST) change_luck(1, state);
         break;
@@ -2280,8 +2288,8 @@ export async function Helmet_off(state = game) {
     case HELM_OF_CAUTION:
         // C updates the property before see_monsters(), then returns without
         // reaching the common setworn() below.
-        setworn(null, W_ARMH, setwornEnv(state));
-        see_monsters(state);
+        await setworn(null, W_ARMH, setwornEnv(state));
+        await see_monsters(state);
         takeoffContext(state).cancelled_don = false;
         return 0;
     case HELM_OF_BRILLIANCE:
@@ -2299,7 +2307,7 @@ export async function Helmet_off(state = game) {
         note_unported('pline.c impossible');
         break;
     }
-    setworn(null, W_ARMH, setwornEnv(state));
+    await setworn(null, W_ARMH, setwornEnv(state));
     return 0;
 }
 
@@ -2423,7 +2431,7 @@ export async function Gloves_off(state = game) {
         note_unported('pline.c impossible');
         break;
     }
-    setworn(null, W_ARMG, setwornEnv(state));
+    await setworn(null, W_ARMG, setwornEnv(state));
     takeoff.cancelled_don = false;
     await encumber_msg(state);
 
@@ -3049,7 +3057,7 @@ export async function glibr(state = game, env = {}) {
         } finally {
             object.quan = savedQuantity;
         }
-        setuwep(null, setwornEnv(state));
+        await setuwep(null, setwornEnv(state));
         cmdq_clear(CQ_CANNED, state);
         if (await canLetGo(object, '', state)) await drop(object);
     }
@@ -3554,12 +3562,12 @@ async function accessory_or_armor_on(obj, state = game) {
         }
     }
 
-    // C ref: do_wear.c:2355 retouch_object(&obj, FALSE), on the same
-    // derivation js/apply.js:219-232 and js/eat.js:2095-2105 record for
-    // doapply() and doeat(): artifact.c retouch_object() answers 1 with no
-    // side effect for every object that is not an artifact.
-    if (obj.oartifact)
-        throw new UnsupportedWearError('retouch_object() for an artifact');
+    // C ref: do_wear.c:2355-2356. Artifact touch precedes every slot write.
+    if (obj.oartifact) {
+        const selected = { obj };
+        if (!await retouch_object(selected, false, state)) return ECMD_TIME;
+        obj = selected.obj;
+    }
 
     if (armor) {
         /* if the armor is wielded, release it for wearing (won't be
@@ -3643,7 +3651,7 @@ async function accessory_or_armor_on(obj, state = game) {
             );
         }
 
-        setworn(obj, mask, setwornEnv(state));
+        await setworn(obj, mask, setwornEnv(state));
         /* if there's no delay, we'll execute 'afternmv' immediately */
         state.afternmv = afternmv;
 
@@ -3662,7 +3670,7 @@ async function accessory_or_armor_on(obj, state = game) {
     } else { /* not armor */
         if (ring) {
             /* Ring_on() expects ring to already be worn as uleft or uright */
-            setworn(obj, mask, setwornEnv(state));
+            await setworn(obj, mask, setwornEnv(state));
             await Ring_on(obj, state);
             /* is_worn(): 'obj' will always be worn here except when putting
                on a ring of levitation while at a sink location */
@@ -3962,7 +3970,7 @@ async function wornarm_destroyed(wornarm, state = game) {
     for (let invobj = state.invent; invobj;) {
         const nextobj = invobj.nobj;
         if (invobj === wornarm && invobj.o_id === wornId) {
-            useup(wornarm, { state });
+            await useup(wornarm, { state });
             break;
         }
         invobj = nextobj;

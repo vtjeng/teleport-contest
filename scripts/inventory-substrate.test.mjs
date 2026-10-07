@@ -142,6 +142,8 @@ import {
     PM_NEWT,
     monst_globals_init,
 } from '../js/monsters.js';
+import { setnotworn } from '../js/worn.js';
+import { setwornEnv } from '../js/do_wear.js';
 import { init_objects } from '../js/o_init.js';
 import { add_rect_to_reg, create_region } from '../js/region.js';
 import {
@@ -1938,9 +1940,9 @@ test('freeinv_core clears each special ownership bit in C order', () => {
     assert.deepEqual(state.context.tin, { tin: null, o_id: 0 });
 });
 
-test('freeinv_core records the carried-intrinsic void gap and continues', () => {
+test('freeinv_core clears carried intrinsics before its luck and quest tails', () => {
     // The C Grayswandir row has NO_CARY, so its removed carry effects have no
-    // property mask to clear. The unported general off helper remains named.
+    // property mask to clear. The complete off helper leaves no obsolete gap.
     const state = artifactHolderState(A_LAWFUL);
     const saber = instance(SILVER_SABER, state, {
         oartifact: ART_GRAYSWANDIR,
@@ -1952,7 +1954,7 @@ test('freeinv_core records the carried-intrinsic void gap and continues', () => 
         freeinv(saber, { state });
         assert.equal(state.invent, null);
         assert.equal(saber.where, OBJ_FREE);
-        assert.equal(game.unported.has('artifact.c set_artifact_intrinsic'), true);
+        assert.equal(game.unported.has('artifact.c set_artifact_intrinsic'), false);
     } finally {
         game.unported = previousUnported;
     }
@@ -1973,7 +1975,7 @@ test('freeinv_core records the carried-intrinsic void gap and continues', () => 
         freeinv(orb, { state: lucky });
         assert.equal(lucky.u.moreluck, 0);
         assert.equal(lucky.disp.botl, true);
-        assert.equal(game.unported.has('artifact.c set_artifact_intrinsic'), true);
+        assert.equal(game.unported.has('artifact.c set_artifact_intrinsic'), false);
     } finally {
         game.unported = previousLuckUnported;
     }
@@ -1992,7 +1994,7 @@ test('freeinv_core records the carried-intrinsic void gap and continues', () => 
     try {
         freeinv(mirror, { state: quest });
         assert.equal(quest.u.uhave.questart, 0);
-        assert.equal(game.unported.has('artifact.c set_artifact_intrinsic'), true);
+        assert.equal(game.unported.has('artifact.c set_artifact_intrinsic'), false);
     } finally {
         game.unported = previousQuestUnported;
     }
@@ -2835,8 +2837,7 @@ test('quest artifact touch finishes before intrinsic and inventory insertion', a
     const questText = [];
     let pagerSawPreInsertionState = false;
     assert.equal(preflight_addinv(mirror, { state }).object, mirror);
-    await assert.rejects(
-        addinv(mirror, {
+    await addinv(mirror, {
             state,
             random: { rn2: (n) => (randomCalls.push(n), 0) },
             questPagerOutput: {
@@ -2849,11 +2850,8 @@ test('quest artifact touch finishes before intrinsic and inventory insertion', a
                     questText.push(...lines);
                 },
             },
-        }),
-        /artifact display requires/u,
-    );
-    // Source order is observable before the existing unrelated intrinsic
-    // display gap stops addinv_core1(): observe, set touched, load/shuffle the
+        });
+    // Source order: observe, set touched, load/shuffle the
     // pager's Lua state, deliver gotit, exercise Wisdom, then set intrinsic.
     assert.equal(state.u.uhave.questart, 1);
     assert.equal(state.svq.quest_status.touched_artifact, true);
@@ -2863,8 +2861,8 @@ test('quest artifact touch finishes before intrinsic and inventory insertion', a
     assert.match(questText.map((line) => line.text).join('\n'),
         /pick up .*Magic Mirror of Merlin/u);
     assert.equal(mirror.how_lost, 0);
-    assert.equal(mirror.where, OBJ_FREE);
-    assert.equal(state.invent, null);
+    assert.equal(mirror.where, OBJ_INVENT);
+    assert.equal(state.invent, mirror);
 
     // Grayswandir is nobody's quest artifact, so the same path admits it and
     // the object still reaches inventory without the quest-artifact mark.
@@ -3870,4 +3868,33 @@ test('will_feel_cockatrice reads both halves of Stone_resistance', () => {
             will_feel_cockatrice(corpse, true, state), expected, label,
         );
     }
+});
+
+// invent.c:useupall reaches worn.c:setnotworn before extracting/deleting the
+// object. A pending artifact glow must keep the original object alive.
+test('useupall awaits artifact removal before extraction and deallocation', async () => {
+    const state = artifactHolderState(A_LAWFUL);
+    const saber = instance(SILVER_SABER, state, {
+        oartifact: ART_GRAYSWANDIR, owornmask: W_WEP, where: OBJ_INVENT,
+    });
+    state.invent = state.uwep = saber;
+    state.u.uprops[HALLUC].intrinsic = 7; // Active timeout makes HALRES repaint.
+    state.u.uprops[HALLUC_RES].extrinsic = W_WEP;
+    let release, entered;
+    const messageEntered = new Promise(resolve => { entered = resolve; });
+    const pending = useupall(saber, {
+        state, hooks: {setNotWorn: obj => setnotworn(obj, setwornEnv(state, {
+            planning: true, redraw: () => {}, message: async () => {
+                entered();
+                await new Promise(resolve => { release = resolve; });
+            },
+        }))},
+    });
+    await messageEntered;
+    assert.equal(saber.where, OBJ_INVENT);
+    assert.equal(state.uwep, null); // C setnotworn clears the pointer first.
+    release(); await pending;
+    assert.equal(saber.where, OBJ_DELETED);
+    assert.equal(state.invent, null);
+    assert.equal(state.u.uprops[HALLUC].intrinsic, 7);
 });
