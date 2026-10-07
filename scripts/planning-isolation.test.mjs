@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { COLNO, CORR, ROWNO, ROOM } from '../js/const.js';
+import { COLNO, CORR, P_DAGGER, P_QUARTERSTAFF, P_SKILLED, P_BASIC, ROWNO, ROOM } from '../js/const.js';
+import { drain_weapon_skill } from '../js/weapon.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { t_at } from '../js/trap.js';
@@ -17,6 +18,43 @@ import {
 } from '../js/vision.js';
 
 const DATETIME = '20260930120000';
+
+test('planned weapon forgetting owns the advancement history and skill records', async () => {
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/weapon.c', import.meta.url), 'utf8',
+    );
+    assert.match(cSource,
+        /drain_weapon_skill\(int n\)[\s\S]*?u\.skill_record\[i\] = u\.skill_record\[i \+ 1\];[\s\S]*?P_SKILL\(skill\)--;[\s\S]*?P_ADVANCE\(skill\) = prevadv \+ rn2\(curradv - prevadv\)/u);
+    await runSegment({
+        // Independent Wizard startup initializes the production skill owner.
+        seed: 128070401, datetime: DATETIME,
+        nethackrc: 'OPTIONS=name:SkillCopy,role:Wizard,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '',
+    });
+    // Two recorded advances make deletion shift a surviving history entry.
+    game.u.skills_advanced = 2;
+    game.u.skill_record = [P_DAGGER, P_QUARTERSTAFF];
+    game.u.weapon_skills[P_DAGGER].skill = P_SKILLED;
+    // weapon.c's skilled -> basic drain clamps practice into [20, 80).
+    game.u.weapon_skills[P_DAGGER].advance = 100;
+    const before = structuredClone(game.u);
+    const planned = planningState(game);
+    const draws = [];
+    await drain_weapon_skill(1, planned, {
+        random: { rn2(bound) { draws.push(bound); return 0; } },
+        message: async () => {},
+    });
+    assert.deepEqual(draws, [2, 60], 'history selection precedes practice loss');
+    assert.deepEqual(game.u, before, 'planning never drains live hero skills');
+    assert.notStrictEqual(planned.u.skill_record, game.u.skill_record);
+    assert.notStrictEqual(planned.u.weapon_skills, game.u.weapon_skills);
+    assert.notStrictEqual(planned.u.weapon_skills[P_DAGGER], game.u.weapon_skills[P_DAGGER]);
+    assert.equal(planned.u.skills_advanced, 1); // One source history entry was removed.
+    assert.equal(planned.u.skill_record[0], P_QUARTERSTAFF);
+    assert.equal(planned.u.weapon_skills[P_DAGGER].skill, P_BASIC);
+    assert.equal(planned.u.weapon_skills[P_DAGGER].advance, 20); // Zero draw chooses the source lower bound.
+});
 
 function mapMemory(state) {
     return state.level.locations.map((column) => column.map((location) => ({
