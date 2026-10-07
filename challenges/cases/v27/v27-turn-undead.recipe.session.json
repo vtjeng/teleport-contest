@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v27 mission: pray.c:doturn/maybe_turn_mon_iter. Priest calls turn against adjacent zombie. Expected C observation: Turn resistance, peacefulness/death and paralysis. Inputs planned before JS comparison; seed independently selected for this batch.",
+  "segments": [
+    {
+      "seed": 92731001,
+      "datetime": "20771118113000",
+      "nethackrc": "OPTIONS=name:V27BProbe,role:Priest,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0007hostile human zombie\n       #turn\n............    "
+    }
+  ]
+}

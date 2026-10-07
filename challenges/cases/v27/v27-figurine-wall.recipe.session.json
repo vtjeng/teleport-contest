@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v27 mission: apply.c:figurine_location_checks/use_figurine. Apply figurine of little dog toward a wall. Expected C observation: Location refusal without figurine consumption. Inputs planned before JS comparison; seed independently selected for this batch.",
+  "segments": [
+    {
+      "seed": 92731001,
+      "datetime": "20771118113000",
+      "nethackrc": "OPTIONS=name:V27BProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed figurine of a little dog\n\u0017wall\nl amh    "
+    }
+  ]
+}
