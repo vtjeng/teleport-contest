@@ -11,7 +11,7 @@
   "evaluationPath": "challenges/evaluations/20261007055545-v24.json",
   "evaluationCommit": "532068f894fa97f4ace2680f195baf3aae875050",
   "status": "complete",
-  "commit": "e7ed0b2656ee2ebe6646fa2fb04e88293b0ec089",
+  "commit": "532068f894fa97f4ace2680f195baf3aae875050",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v24",
