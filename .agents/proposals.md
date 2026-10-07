@@ -23,9 +23,15 @@ list, with measured improvements sent to the main agent for integration:
   trial, the goal CLI shard took 121 seconds, versus 87 and 84 seconds for
   the two suites the prototype caches, so caching those suites would not
   remove that trial's longest test shard.
-- Automate routine acceptance: unfinished prototype, not committed. Keep
-  source review, regression decisions, worker dispatch, and publication with
-  the orchestrator; exercise deterministic closure against existing commands.
+- Automate routine acceptance: `scripts/accept-task.mjs` consumes reviewed
+  checkpoint and synthetic evidence, imports measurements, closes the goal,
+  and records acceptance without repeating aggregate validation. Focused
+  checks exercise real goal and ledger commands, stale evidence, two-batch
+  completeness, partial-failure recovery, and preparation tasks. Keep source
+  review, regression decisions, worker dispatch, and publication with the
+  orchestrator. The two-batch fixture needs one caller command instead of
+  seven; its elapsed-time difference remains unresolved within measured
+  variation. Independent review and complete hosted validation precede handoff.
 - Reuse successful checks on retries: `c692427d` supports earlier successful
   attempts of the same hosted run and commit. Run `37586670719` attempt 2
   passed after rerunning the score job; its combined evidence retained ten

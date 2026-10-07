@@ -49,12 +49,13 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
         recipe: 'challenges/cases/partial.recipe.json', recipeSha256: digest(recipe),
         recording: 'challenges/cases/partial.session.json', recordingSha256: digest(recording) };
     json('challenges/manifest.json', { version: 1, cases: [entry] });
+    json('challenges/manifests/v2.json', { version: 1, batch: 'v2', cases: [entry] });
     const git = (...args) => execFileSync('git', ['-c', 'user.name=Acceptance fixture',
         '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false',
         '-c', 'core.hooksPath=/dev/null', ...args], { cwd: root, encoding: 'utf8' }).trim();
     git('init', '-qb', 'main');
     git('add', '.gitignore', 'package.json', 'SCORE.tsv', 'GOALS.json', 'js/fixture.js', 'frozen/session_loader.mjs',
-        'challenges/manifest.json', entry.recipe, entry.recording);
+        'challenges/manifest.json', 'challenges/manifests/v2.json', entry.recipe, entry.recording);
     git('commit', '-qm', 'Fixture candidate');
     const commit = git('rev-parse', 'HEAD');
     const artifacts = join(root, '.git/checkpoint-results', commit, 'fixture');
@@ -76,6 +77,12 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
         inputsSha256: snapshot.sha256, inputFiles: snapshot.files.map(file => file.path),
         cases, totals: totalsFor(cases),
     });
+    const second = JSON.parse(readFileSync(join(artifacts, 'synthetic/ci-v1.json'), 'utf8'));
+    const secondInputs = challengeInputSnapshot(root, 'v2');
+    json(`.git/checkpoint-results/${commit}/fixture/synthetic/ci-v2.json`, {
+        ...second, batch: 'v2', manifestPath: 'challenges/manifests/v2.json',
+        inputsSha256: secondInputs.sha256, inputFiles: secondInputs.files.map(file => file.path),
+    });
     let ledger = createLedger('acceptance-fixture', root);
     let sequence = 0;
     const send = event => { ledger = recordEvent(ledger, { id: `fixture-${++sequence}`, ...event }); };
@@ -88,10 +95,14 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     send({ type: 'integrating', task: 'A1', integration: commit });
     json('.cache/ledger.json', ledger);
     const options = { task: 'A1', ledger: '.cache/ledger.json' };
+    const originalLedger = readFileSync(join(root, options.ledger), 'utf8');
+    const originalGoals = readFileSync(join(root, 'GOALS.json'), 'utf8');
     // A dirty implementation must stop before any score or acceptance write.
     write('js/fixture.js', 'export const fixture = false;\n');
     assert.throws(() => acceptTask(options, root), /outside closure/u);
     assert.equal(readRows(join(root, 'SCORE.tsv')).length, 0);
+    assert.equal(readFileSync(join(root, options.ledger), 'utf8'), originalLedger);
+    assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
     write('js/fixture.js', 'export const fixture = true;\n');
     const evaluationPath = `.git/checkpoint-results/${commit}/fixture/synthetic/ci-v1.json`;
     const evaluation = JSON.parse(readFileSync(join(root, evaluationPath), 'utf8'));
@@ -99,28 +110,67 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     for (const [changed, error] of [
         [{ sha: 'f'.repeat(40) }, /complete current batch/u],
         [{ manifestSha256: digest('different batch') }, /membership digest mismatch/u],
+        [{ inputsSha256: undefined }, /complete current batch/u], // Legacy evidence is not fresh evidence.
+        [{ inputsSha256: digest('different inputs') }, /complete current batch/u],
     ]) {
         json(evaluationPath, { ...evaluation, ...changed });
         assert.throws(() => acceptTask(options, root), error);
         assert.equal(readRows(join(root, 'SCORE.tsv')).length, 0);
+        assert.equal(readFileSync(join(root, options.ledger), 'utf8'), originalLedger);
     }
     json(evaluationPath, evaluation);
+    for (const batch of ['v1', 'v2']) {
+        const path = join(artifacts, `synthetic/ci-${batch}.json`);
+        const bytes = readFileSync(path);
+        rmSync(path); // Remove only this disposable fixture artifact to simulate an incomplete download.
+        assert.throws(() => acceptTask(options, root), /missing reviewed synthetic batch/u);
+        assert.equal(readRows(join(root, 'SCORE.tsv')).length, 0);
+        assert.equal(readFileSync(join(root, options.ledger), 'utf8'), originalLedger);
+        writeFileSync(path, bytes);
+    }
     // Fail the real goal command after import, then resume without duplicate scores/events.
-    const originalGoals = readFileSync(join(root, 'GOALS.json'), 'utf8');
     const brokenGoals = JSON.parse(originalGoals);
     brokenGoals.goals[0].summary = '';
     json('GOALS.json', brokenGoals);
     assert.throws(() => acceptTask(options, root), /needs a summary/u);
-    assert.deepEqual(readRows(join(root, 'SCORE.tsv')).map(row => row.event), ['challenge']);
+    assert.deepEqual(readRows(join(root, 'SCORE.tsv')).map(row => row.event), ['challenge', 'challenge']);
     assert.equal(summarizeLedger(JSON.parse(readFileSync(join(root, '.cache/ledger.json'), 'utf8')))
         .tasks.A1.status, 'validated');
     write('GOALS.json', originalGoals);
+    const validatedLedger = readFileSync(join(root, options.ledger), 'utf8');
+    const importedRows = readFileSync(join(root, 'SCORE.tsv'), 'utf8');
+    for (const changed of [{ allPassed: false }, { commit: 'e'.repeat(40) }]) {
+        json(`.git/checkpoint-results/${commit}/latest.json`, { ...summary, ...changed });
+        assert.throws(() => acceptTask(options, root), /passing checkpoint at HEAD/u);
+        assert.equal(readFileSync(join(root, options.ledger), 'utf8'), validatedLedger);
+        assert.equal(readFileSync(join(root, 'SCORE.tsv'), 'utf8'), importedRows);
+        assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
+    }
+    json(`.git/checkpoint-results/${commit}/latest.json`, summary);
+    const wrongCoordinator = JSON.parse(validatedLedger);
+    wrongCoordinator.coordinatorRoot = join(root, 'other-coordinator');
+    json('.cache/ledger.json', wrongCoordinator);
+    const wrongLedger = readFileSync(join(root, options.ledger), 'utf8');
+    assert.throws(() => acceptTask(options, root), /belong to this coordinator/u);
+    assert.equal(readFileSync(join(root, options.ledger), 'utf8'), wrongLedger);
+    assert.equal(readFileSync(join(root, 'SCORE.tsv'), 'utf8'), importedRows);
+    assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
+    write('.cache/ledger.json', validatedLedger);
+    // A later run at the same HEAD must not replace the result already validated.
+    json(`.git/checkpoint-results/${commit}/latest.json`, {
+        ...summary, artifacts: join(artifacts, 'later-run'), score: { ...summary.score, screensMatched: 0 },
+    });
+    assert.throws(() => acceptTask(options, root), /checkpoint changed after validation/u);
+    assert.equal(readFileSync(join(root, options.ledger), 'utf8'), validatedLedger);
+    assert.equal(readFileSync(join(root, 'SCORE.tsv'), 'utf8'), importedRows);
+    assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
+    json(`.git/checkpoint-results/${commit}/latest.json`, summary);
     const receipt = acceptTask(options, root);
     assert.equal(receipt.handle, 'existing-worker');
     assert.equal(receipt.commit, commit);
     const rows = readRows(join(root, 'SCORE.tsv'));
-    assert.deepEqual(rows.map(row => row.event), ['challenge', 'goal']);
-    assert.equal(rows[1].screens_matched, '2');
+    assert.deepEqual(rows.map(row => row.event), ['challenge', 'challenge', 'goal']);
+    assert.equal(rows[2].screens_matched, '2');
     assert.equal(challengeState(root, rows, commit).status, 'measured');
     const goal = JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8')).goals[0];
     assert.equal(goal.status, 'closed');
@@ -130,4 +180,29 @@ test('acceptance imports reviewed measurements, closes once, and returns the exi
     assert.deepEqual(acceptTask(options, root), receipt);
     assert.deepEqual(readRows(join(root, 'SCORE.tsv')), rows);
     assert.deepEqual(JSON.parse(readFileSync(join(root, '.cache/ledger.json'), 'utf8')), accepted);
+
+    // Reuse this disposable repository for preparation; no extra Git history is needed.
+    write('GOALS.json', originalGoals);
+    write('SCORE.tsv', COLUMNS.join('\t') + '\n');
+    for (const batch of ['v1', 'v2'])
+        rmSync(join(root, `challenges/evaluations/accepted-${commit}-${batch}.json`));
+    json(`.git/checkpoint-results/${commit}/latest.json`, summary);
+    const preparation = JSON.parse(originalLedger);
+    const assignment = preparation.events.find(event => event.type === 'assign');
+    delete assignment.goal;
+    assignment.kind = 'challenge-preparation';
+    assignment.reservations = ['challenge-batch:v3']; // v1 and v2 are already admitted.
+    assignment.allowedPaths = ['challenges/cases/v3/'];
+    preparation.events.find(event => event.type === 'ready').paths = ['challenges/cases/v3/new.recipe.json'];
+    json('.cache/ledger.json', preparation);
+    for (const path of ['GOALS.json', 'SCORE.tsv']) {
+        const before = readFileSync(join(root, path), 'utf8');
+        write(path, before + '\n'); // Valid but uncheckpointed central-record edit.
+        assert.throws(() => acceptTask(options, root), /outside closure/u);
+        assert.deepEqual(JSON.parse(readFileSync(join(root, options.ledger), 'utf8')), preparation);
+        write(path, before);
+    }
+    assert.equal(acceptTask(options, root).handle, 'existing-worker');
+    assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), originalGoals);
+    assert.equal(readRows(join(root, 'SCORE.tsv')).length, 0);
 });
