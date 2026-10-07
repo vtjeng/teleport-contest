@@ -1,0 +1,696 @@
+{
+  "version": 1,
+  "batch": "v25",
+  "manifestPath": "challenges/manifests/v25.json",
+  "sha": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+  "utc": "2026-10-07T02:16:39.555Z",
+  "status": "complete",
+  "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "d29bb33c312766f2de2a8360b94147ebe3f3d967e194b3eb56af39f0b7643aa3",
+  "inputFiles": [
+    "challenges/cases/v25/v25-axe-tree.recipe.session.json",
+    "challenges/cases/v25/v25-axe-tree.session.json",
+    "challenges/cases/v25/v25-cursed-horn.recipe.session.json",
+    "challenges/cases/v25/v25-cursed-horn.session.json",
+    "challenges/cases/v25/v25-cursed-touchstone.recipe.session.json",
+    "challenges/cases/v25/v25-cursed-touchstone.session.json",
+    "challenges/cases/v25/v25-cursed-towel.recipe.session.json",
+    "challenges/cases/v25/v25-cursed-towel.session.json",
+    "challenges/cases/v25/v25-dip-acid.recipe.session.json",
+    "challenges/cases/v25/v25-dip-acid.session.json",
+    "challenges/cases/v25/v25-drop-lit-candle.recipe.session.json",
+    "challenges/cases/v25/v25-drop-lit-candle.session.json",
+    "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.recipe.session.json",
+    "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+    "challenges/cases/v25/v25-gremlin-splits.recipe.session.json",
+    "challenges/cases/v25/v25-gremlin-splits.session.json",
+    "challenges/cases/v25/v25-kick-altar.recipe.session.json",
+    "challenges/cases/v25/v25-kick-altar.session.json",
+    "challenges/cases/v25/v25-kick-fountain.recipe.session.json",
+    "challenges/cases/v25/v25-kick-fountain.session.json",
+    "challenges/cases/v25/v25-kick-potion.recipe.session.json",
+    "challenges/cases/v25/v25-kick-potion.session.json",
+    "challenges/cases/v25/v25-kick-secret-door.recipe.session.json",
+    "challenges/cases/v25/v25-kick-secret-door.session.json",
+    "challenges/cases/v25/v25-kick-sink.recipe.session.json",
+    "challenges/cases/v25/v25-kick-sink.session.json",
+    "challenges/cases/v25/v25-kick-throne.recipe.session.json",
+    "challenges/cases/v25/v25-kick-throne.session.json",
+    "challenges/cases/v25/v25-kick-trapped-door.recipe.session.json",
+    "challenges/cases/v25/v25-kick-trapped-door.session.json",
+    "challenges/cases/v25/v25-kick-tree.recipe.session.json",
+    "challenges/cases/v25/v25-kick-tree.session.json",
+    "challenges/cases/v25/v25-rub-empty-lamp.recipe.session.json",
+    "challenges/cases/v25/v25-rub-empty-lamp.session.json",
+    "challenges/cases/v25/v25-sit-lava.recipe.session.json",
+    "challenges/cases/v25/v25-sit-lava.session.json",
+    "challenges/cases/v25/v25-throw-cockatrice.recipe.session.json",
+    "challenges/cases/v25/v25-throw-cockatrice.session.json",
+    "challenges/manifests/v25.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v25-kick-tree",
+      "recordingSha256": "ee6ff06aee466e3ac3ce60f6b9ee58c2cc68ea5b99a3bb293fefa954e8819268",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 10,
+          "total": 25
+        },
+        "rng": {
+          "matched": 2486,
+          "total": 2523
+        },
+        "cursors": {
+          "matched": 10,
+          "total": 25
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-kick-sink",
+      "recordingSha256": "9761ac7fafb4149dad9c06d0234f5cc995ec563138ceea03546af103d916a349",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 10,
+          "total": 21
+        },
+        "rng": {
+          "matched": 2184,
+          "total": 2260
+        },
+        "cursors": {
+          "matched": 10,
+          "total": 21
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-kick-fountain",
+      "recordingSha256": "5f23460b795195af77db7ce4b0a24bb5ba336dcabcc094cb03cd2630b9aaeac9",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 14,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2814,
+          "total": 2828
+        },
+        "cursors": {
+          "matched": 14,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-kick-altar",
+      "recordingSha256": "da6e0cea0e7e56cd931d35611a2ab17e4a4c64034c26197655b1f26a9efc7fc4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 23
+        },
+        "rng": {
+          "matched": 2809,
+          "total": 2809
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 23
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-kick-throne",
+      "recordingSha256": "8b36e40f9f4c674d3e66cd722277ff45cb58fd303ca993d3b3af3b63377dc21e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 16,
+          "total": 16
+        },
+        "rng": {
+          "matched": 5592,
+          "total": 5592
+        },
+        "cursors": {
+          "matched": 16,
+          "total": 16
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-kick-potion",
+      "recordingSha256": "3abf4bc86aee81cdabceeead9919b886c8b83b3776687418dda4fae1f9d7a2cf",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 42,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2307,
+          "total": 2318
+        },
+        "cursors": {
+          "matched": 42,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-rub-empty-lamp",
+      "recordingSha256": "96984ba3ef6982e8ad57293ed80c8c91192091fb3810cfef0f0ce4b54db2e470",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2087,
+          "total": 2104
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-flesh-golem-eats-cockatrice",
+      "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 62
+        },
+        "rng": {
+          "matched": 2908,
+          "total": 3044
+        },
+        "cursors": {
+          "matched": 58,
+          "total": 62
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-throw-cockatrice",
+      "recordingSha256": "f9d57e04bc6b32eefbfbd09c9ae96d3cceaa74d3873f8b8646c81690c6e7af00",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 78,
+          "total": 78
+        },
+        "rng": {
+          "matched": 2722,
+          "total": 2722
+        },
+        "cursors": {
+          "matched": 78,
+          "total": 78
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-cursed-horn",
+      "recordingSha256": "258ee6d53207ca45827671a0faedbd143f515a465bd2fdbe4be3dfea7f92426d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 2769,
+          "total": 2769
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-cursed-towel",
+      "recordingSha256": "584d20a1175ba7f5125adf427e194b292f6f0b81c6ca0b3a31c4dd16b67e8023",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 22,
+          "total": 22
+        },
+        "rng": {
+          "matched": 2850,
+          "total": 2850
+        },
+        "cursors": {
+          "matched": 22,
+          "total": 22
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-gremlin-splits",
+      "recordingSha256": "aad1e275233a76b9d39a6b2c4171d20497fe4a4ad95b754882d079545a6f2887",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 55
+        },
+        "rng": {
+          "matched": 2561,
+          "total": 2610
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 55
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-drop-lit-candle",
+      "recordingSha256": "3cfbc4023915bdcd4306e0f50c3de267addc8352bf23eb10705460841e233811",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2232,
+          "total": 2241
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-cursed-touchstone",
+      "recordingSha256": "3f52bdaab08fa07cb00351bca954fdb0c20c87d10c96adf52622f9e31c6d6142",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2752,
+          "total": 2752
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-axe-tree",
+      "recordingSha256": "c29e19171f0f110fe07abd8ce15c97170772d027b4ff774a5f658c46b6077c4d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 63,
+          "total": 63
+        },
+        "rng": {
+          "matched": 2653,
+          "total": 2653
+        },
+        "cursors": {
+          "matched": 63,
+          "total": 63
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-dip-acid",
+      "recordingSha256": "f46124ccaff9317081445ea3bef330d0e520ab8636725e1504ba025fb3cfb049",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 55
+        },
+        "rng": {
+          "matched": 2652,
+          "total": 2652
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 55
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-sit-lava",
+      "recordingSha256": "66627a56954e1a1a32b51cac7cfd2e6856bc52463cba478480bbd3e4ef15fc6e",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 45,
+          "total": 55
+        },
+        "rng": {
+          "matched": 2653,
+          "total": 2653
+        },
+        "cursors": {
+          "matched": 55,
+          "total": 55
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-kick-trapped-door",
+      "recordingSha256": "474adc7523bc23eaf4a93c62c7750b8306311dfecab0bb9a5f7d7a5f60502268",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 40
+        },
+        "rng": {
+          "matched": 2749,
+          "total": 2761
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v25-kick-secret-door",
+      "recordingSha256": "ae4b5d2f7a83d8bb2aba446b925a7f44b6b32d46519ab1e90456c3dae9024042",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2460,
+          "total": 2488
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 30
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 7,
+      "total": 19
+    },
+    "screens": {
+      "matched": 676,
+      "total": 759
+    },
+    "rng": {
+      "matched": 52240,
+      "total": 52629
+    },
+    "cursors": {
+      "matched": 690,
+      "total": 759
+    }
+  }
+}

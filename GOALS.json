@@ -184480,7 +184480,7 @@
     {
       "id": "fix-explode-fatal-last-msg-v24-20261007",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Match fatal explosion wording after intervening item damage messages",
       "cFile": "explode.c",
       "sessions": [
@@ -184494,8 +184494,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "explode",
       "session": "synthetic/v24/v24-eat-pyrolisk-egg",
       "step": 27,
@@ -184740,7 +184743,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8e6c14facc6bb713c353e5ed7c520aa2376d7dc4",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
