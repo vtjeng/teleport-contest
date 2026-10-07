@@ -9,6 +9,40 @@ retires it.
 
 ## Assess asynchronous GitHub validation
 
+**Integration-speed worklist.** The user requested completion of the whole
+list, with measured improvements sent to the main agent for integration:
+
+- Immediate worker continuation after acceptance: integrated as `37b4aff3`.
+- Prune redundant test setup and reassess obsolete workflow support:
+  `36993385` and `9f76d280` sent for integration. Historical span records and
+  delivery provenance remain necessary; do not delete their guards as Git tests.
+- Reuse unrelated tooling tests: experimental `6e9557d7`, not ready for
+  integration. Benchmark after pruning; the remaining goal CLI suite may
+  still determine the test phase's duration.
+- Automate routine acceptance: unfinished prototype, not committed. Keep
+  source review, regression decisions, worker dispatch, and publication with
+  the orchestrator; exercise deterministic closure against existing commands.
+- Reuse successful checks on retries: `c692427d` supports earlier successful
+  attempts of the same hosted run and commit. Nine focused tests pass; a real
+  hosted retry remains to be exercised before integration.
+- Parallel hosted checkpoint and deferred-check alternatives: trial
+  `37584894987` at `6d4c0bf7` passed both serial baselines and all eleven
+  parallel groups. All fixed-workload counts, recording totals and check
+  verdicts agree. Four recording groups replace the initial single long job.
+  Native Node sharding replaces the initial custom test partitioner.
+- Synthetic CI: `b5c0080e` groups consecutive cases in numeric batch order,
+  100 per job, at most four jobs concurrently. Trial `37586240132` covers 675
+  cases across 25 admitted batches; complete hosted results remain pending.
+  The user's Free account has 20 concurrent jobs; serial benchmark jobs are
+  opt-in rather than part of ordinary trials.
+- Flaky resource limits: `237ad770` separates regex correctness from explicit
+  CPU/RSS measurements, preserving adversarial cases and hang watchdogs.
+  `4f9d5ee0` clears and relaxes the nurse event watchdog. Both were sent for
+  integration after focused validation. Retain local memory limits, replay
+  hang watchdogs and CI job timeouts; they protect execution rather than
+  assert performance. The five-second corpse-worker watchdog is retained
+  pending evidence that it causes failures.
+
 **Question.** Could independent checkpoint jobs on GitHub Actions replace
 the serial local checkpoint, returning exact-commit acceptance evidence?
 Alternatively, could selected checks run after publication with failures
