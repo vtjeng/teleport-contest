@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T18:10:56.612Z",
+  "capturedAt": "2026-10-07T19:09:17.408Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -24550,12 +24550,91 @@
         "at": "2026-10-07T17:59:37.324Z",
         "task": "C133",
         "commit": "22d3660f7e367cdd5534e9fdd1b24001d3e49208"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B136-20261007",
+        "type": "assign",
+        "at": "2026-10-07T18:20:55.128Z",
+        "task": "B136",
+        "worker": "B",
+        "goal": "port-artifact-set-intrinsic-warning-v27-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A135-object-detect-20261007",
+        "type": "assign",
+        "at": "2026-10-07T18:23:09.796Z",
+        "task": "A135",
+        "worker": "A2",
+        "goal": "port-detect-object-detect-browse-map-v27-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C134-20261007",
+        "type": "assign",
+        "at": "2026-10-07T18:33:04.465Z",
+        "task": "C134",
+        "worker": "C",
+        "goal": "port-wield-setuwep-artifact-light-v27-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0d80edbf7ced8b7d64c13cc8aa14b4993216e54c",
+        "type": "ready",
+        "at": "2026-10-07T18:50:24.407Z",
+        "task": "A135",
+        "delivery": "0d80edbf7ced8b7d64c13cc8aa14b4993216e54c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A135-0d80edbf-20261007",
+        "type": "received",
+        "at": "2026-10-07T18:51:29.125Z",
+        "task": "A135",
+        "delivery": "0d80edbf7ced8b7d64c13cc8aa14b4993216e54c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A135-e08393de-20261007",
+        "type": "integrating",
+        "at": "2026-10-07T18:53:59.032Z",
+        "task": "A135",
+        "integration": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A135-e08393de56cde7fc1ef8c8d297a533bd7522cfa2-validated",
+        "type": "validated",
+        "at": "2026-10-07T19:01:21.245Z",
+        "task": "A135",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A135-e08393de56cde7fc1ef8c8d297a533bd7522cfa2-accepted",
+        "type": "accepted",
+        "at": "2026-10-07T19:03:00.647Z",
+        "task": "A135"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A136-prayer-done-20261007",
+        "type": "assign",
+        "at": "2026-10-07T19:08:03.594Z",
+        "task": "A136",
+        "worker": "A2",
+        "goal": "port-pray-prayer-done-v27-20261007",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "22d3660f7e367cdd5534e9fdd1b24001d3e49208",
-    "measuredAt": "2026-10-07T18:09:33.867Z",
+    "executionCommit": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
+    "measuredAt": "2026-10-07T18:59:03.544Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

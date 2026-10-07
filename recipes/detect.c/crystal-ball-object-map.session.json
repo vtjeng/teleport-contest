@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Blocked independent detect.c object-detection recipe. It reaches object_detect() and reports rings, then the C source calls detect.c:browse_map() to open farlook; the JavaScript path records that void callee gap, so the final browsing boundary cannot match.",
+  "_comment": "Independent historical crystal-ball ring-detection recipe, formerly blocked by the missing browse_map caller. It now reaches the temporary object-map getpos tip; the session intentionally ends at that valid input boundary.",
   "segments": [
     {
       "seed": 81140281,

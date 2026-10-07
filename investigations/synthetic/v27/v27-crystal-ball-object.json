@@ -1,0 +1,129 @@
+{
+  "session": "synthetic/v27/v27-crystal-ball-object",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-crystal-ball-object",
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingSha256": "b51cfb91376945de594e32bd66d4e151322427028fc268ee92214f5f1b990447",
+  "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+  "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+  "remainingScreens": 28,
+  "recordedSteps": 63,
+  "status": "complete",
+  "commit": "76417879468cfeb65fa59ad60447a803684c6747",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-crystal-ball-object",
+    "session": "synthetic/v27/v27-crystal-ball-object",
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recording": "challenges/cases/v27/v27-crystal-ball-object.session.json",
+    "recordingPath": "challenges/cases/v27/v27-crystal-ball-object.session.json",
+    "recordingSha256": "b51cfb91376945de594e32bd66d4e151322427028fc268ee92214f5f1b990447",
+    "recipe": "challenges/cases/v27/v27-crystal-ball-object.recipe.session.json",
+    "recipeSha256": "8c5e70f491e11add1b371d3bf5cab25a474f94c35222fef5d0bcf60856b07523",
+    "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+    "evaluationArtifact": "challenges/evaluations/baseline-76417879-v27.json",
+    "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+    "evaluationUtc": "2026-10-07T18:10:31.065Z",
+    "remainingScreens": 28,
+    "recordedSteps": 63,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 35,
+        "total": 63
+      },
+      "rng": {
+        "matched": 2633,
+        "total": 2633
+      },
+      "cursors": {
+        "matched": 61,
+        "total": 63
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 35,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 35,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 10,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "cursor": {
+        "index": 35,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 35,
+          "key": " "
+        },
+        "cCursor": [
+          16,
+          8,
+          1
+        ],
+        "jsCursor": [
+          36,
+          5,
+          1
+        ]
+      }
+    },
+    "step": 35,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null
+  },
+  "summary": "After successful crystal-ball ring detection, detect.c:object_detect() calls browse_map() at segment 0 step 35. C opens the farlook tip and retains its detection map until getpos exits. JavaScript replaces this caller with note_unported and immediately restores the ordinary map. Reconcile whole object_detect and wire the existing canonical browser, including TER_MON and map restoration. getpos is the next reached C function, while object_detect owns the first missing call.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "detect.c",
+    "branch": "A sighted, non-hallucinating hero successfully uses a blessed charged crystal ball and selects rings (=). Objects away from the hero make ct nonzero, so object_detect uses browse_map rather than its absence-only display branch. The step-34 presence-of-rings More prompt matches; step 35 acknowledges it and exposes the omitted browsing boundary.",
+    "functions": [
+      "object_detect"
+    ],
+    "callers": [
+      "apply.c:doapply4358-4359 / js/apply.js:4873-4875 invoke use_crystal_ball. detect.c:use_crystal_ball1345/1350 / js/detect.js:1530/1540 consume object_detect returns for class-symbol and custom boulder-symbol searches.",
+      "potion.c:peffect_object_detection955-963 / js/potion.js:1987-1991 consume object_detect(detector,0). potion.c:peffects1371-1375 / js/potion.js:2040-2041 route object-detection potions and detect-treasure spells there; spell.c:spelleffects1535 reaches that potion dispatcher.",
+      "detect.c:object_detect782-787 must await browse_map(TER_DETECT|TER_OBJ plus conditional TER_MON,\"object\") before map_redisplay. js/detect.js:1013-1015 currently records display/browse gaps and immediately redraws."
+    ],
+    "dependencies": [
+      "Reuse/source-audit existing detect.c:browse_map106-119 (js/detect.js:399-418), unconstrain_map69-81, reconstrain_map85-91 and map_redisplay95-102. Browser starts at hero coordinates, awaits existing getpos, temporarily sets autodescribe/terrainmode, clears terrainmode and restores autodescribe before reconstraining/redrawing.",
+      "Consumed-return callees already have implementations: detect.c:o_in201-225, clear_stale_map316-332/check_map_spot269-307, invent.c:findgold, display glyph_at/glyph_is_object and class/species predicates. Audit them before source-completion credit. o_in recursively returns the first matching contained object while excluding SchroedingersBox.",
+      "C discards getpos return in browse_map. getpos.c:getpos771 onward / js/getpos.js:894 onward supplies TIP_GETPOS, instructions, cursor/input loop and automatic descriptions. Reuse its current owner and independently verify newly reached input branches; do not claim whole getpos.",
+      "Zero ct with stale-map changes still reaches an explicit display_nhwindow(WIN_MAP,TRUE) gap in JS. Reconcile or retain a blocked recipe/evidence limit under the source-discarded-callee rule. map_redisplay retains display.c:under_ground as a named void gap for buried heroes."
+    ]
+  },
+  "evidence": [
+    "Examined published baseline 76417879468cfeb65fa59ad60447a803684c6747 after a history-preserving sync. js/detect.js, js/getpos.js and js/potion.js match the baseline. No game code, challenge data or central records changed during the investigation.",
+    "Baseline challenges/evaluations/baseline-76417879-v27.json measures 35/63 screens, 2633/2633 RNG calls and 61/63 cursors: 28 remaining screens. Assigned replay .cache/v27-crystal-ball-object/replay.json/.log, bounded run-UVznfO, reproduces the prepared trace without a stop boundary or RNG difference.",
+    "Segment 0 zero-based step 35, key space, is the first substantive boundary: C opens the farlook tip (first screen cell difference row0,column10: C T, JS space). C cursor is [16,8,1], JS [36,5,1]. Step34 matches the presence-of-rings More prompt; C step36 shows instructions plus Move cursor to object while JS consumes the space as an ordinary unknown command. C step37 shows Done More and step38 redraws the normal map.",
+    "Whole detect.c:object_detect603-791 owns observation; floor/buried/monster scans; mimic/gold overlays; stale-map handling; buried-before-floor-before-monster display order; temporary constraints; presence/absence messages; browser/display; restoration; and 0/1 return. First missing caller is line785; js/detect.js:841-1017 is partial and replaces it with note_unported.",
+    "Other source defects in this same unit must remain in scope: detect.c773-776 ORs TER_MON when the hero square is not an object glyph; JS calls newsym but does not maintain this terrain accumulator. JS also assigns clear_stale_map result to state.gk.known, while C object_detect uses it only as a condition and does not write gk.known. Preserve source state and browser filtering rather than copying gold_detect knowledge handling.",
+    "Actionable scope: whole object_detect reconciliation, reservation source:detect.c:object_detect plus contract:temporary-detection-map. Initial paths js/detect.js, scripts/detect.test.mjs and relevant getpos tests, recipes/detect.c/, recordings/detect.c/. Production callers are already wired; preserve their consumed 0/1 return semantics. Expand caller/helper scope only for source-required corrections, with no whole use_crystal_ball/potion/getpos credit.",
+    "Independent validation plan: use admitted v27 crystal-ball-object segment0 steps32-38; independently design charged-ball ring/object-class and custom boulder-symbol variations with relevant setup changes. Cover potion and spell all-class entry points, blessed recursive dknown, here-only/nothing/stale branches, monster/container objects, detection terrain bits, getpos navigation/exit and constraint/autodescribe restoration. Source-pin pure helpers and record reachable impure entry points; keep concrete blocked branches separate.",
+    "Evidence limits: this read-only trace and one assigned baseline JS replay establish cause/scope, not source completion or a passing implementation. No C games recorded, other sessions replayed, or aggregate validation/scoring run. Newly wired browsing may expose distinct getpos/display defects; retain exact blockers instead of claiming those whole owners complete."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent ring-class detection with a covered floor ring. Drop the wished ring p, then an oil lamp q over it, move left and apply the ball. Detection shows the ring; docrt vision recalculation must restore the top lamp after getpos exits.",
+  "segments": [
+    {
+      "seed": 13527011,
+      "datetime": "20910607180000",
+      "nethackrc": "OPTIONS=name:ObjectBrowse,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed crystal ball (0:3)\n\u0017uncursed ring of warning\n\u0017uncursed oil lamp\ndpdqhao =     "
+    }
+  ]
+}

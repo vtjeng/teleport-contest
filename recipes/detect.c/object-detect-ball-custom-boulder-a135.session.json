@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent custom boulder-symbol caller. S_boulder:^ is not an object or monster class; use_crystal_ball checks the custom boulder before its trap-symbol branch and calls object_detect(null,ROCK_CLASS). A wished boulder supplies a distant match.",
+  "segments": [
+    {
+      "seed": 13527011,
+      "datetime": "20910607180000",
+      "nethackrc": "OPTIONS=name:ObjectBrowse,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\nSYMBOLS=S_boulder:^\n",
+      "moves": " \u0017blessed crystal ball (0:3)\n\u0017boulder\nhao ^     "
+    }
+  ]
+}

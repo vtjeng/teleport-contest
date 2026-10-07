@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13527021,
+      "datetime": "20910609183000",
+      "nethackrc": "OPTIONS=name:PotionBrowse,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed potion of object detection\nqo  . "
+    }
+  ],
+  "comment": "Independent blessed potion caller: quaff object detection, acknowledge the temporary-map help and select the hero location; blessed detection marks recursive inventory descriptions before browsing."
+}
