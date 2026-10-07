@@ -1,0 +1,117 @@
+{
+  "session": "synthetic/v27/v27-pray-undead",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-pray-undead",
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingSha256": "c1b55a3b8bfa997d98cb4ae826642727fb1f6b4c0ef4336f6ee121032714128e",
+  "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+  "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+  "remainingScreens": 19,
+  "recordedSteps": 52,
+  "status": "complete",
+  "commit": "2623632711a6b69cd9f5f1de3dd9c58cb25f28ae",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-pray-undead",
+    "session": "synthetic/v27/v27-pray-undead",
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recording": "challenges/cases/v27/v27-pray-undead.session.json",
+    "recordingPath": "challenges/cases/v27/v27-pray-undead.session.json",
+    "recordingSha256": "c1b55a3b8bfa997d98cb4ae826642727fb1f6b4c0ef4336f6ee121032714128e",
+    "recipe": "challenges/cases/v27/v27-pray-undead.recipe.session.json",
+    "recipeSha256": "b387961484c1ce1808e42fe13fb47743c7461b0e39504306539eead65e5c85bc",
+    "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+    "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747",
+    "evaluationUtc": "2026-10-07T18:10:31.065Z",
+    "remainingScreens": 19,
+    "recordedSteps": 52,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 33,
+        "total": 52
+      },
+      "rng": {
+        "matched": 2653,
+        "total": 2656
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 52
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 33,
+      "message": "a delayed action reached prayer reached an unported branch: prayer_done()'s undead arm",
+      "sourceFile": "pray.c",
+      "function": "prayer_done",
+      "rng": {
+        "index": 2653,
+        "cEntry": "rn2(4)=1",
+        "cCaller": "godvoice(pray.c:1425)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 33,
+          "key": "y"
+        }
+      },
+      "screen": {
+        "index": 33,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 33,
+          "key": "y"
+        },
+        "kind": "js-missing"
+      }
+    },
+    "step": 33,
+    "kind": "stop",
+    "sourceFile": "pray.c",
+    "function": "prayer_done",
+    "message": "The delayed callback throws on prayer_done()'s p_type == -1 arm before godvoice() runs."
+  },
+  "summary": "A lawful Priest polymorphed into a vampire reaches gp.p_type == -1 outside Gehennom. dopray() schedules prayer_done() as afternmv; the JS callback throws UnsupportedPrayerError on the undead arm, so it stops at boundary 33 before C godvoice() draws rn2(4). Port the whole pray.c:prayer_done() function, including its other named arms. The C trace then rehumanizes before rnd(20) damage and Constitution exercise. The v27 manifest is prepared-unadmitted, so its replay cannot close source evidence.",
+  "source": {
+    "file": "pray.c",
+    "branch": "gp.p_type == -1 when can_pray() classifies a non-chaotic undead hero praying outside Gehennom to a lawful god; the assigned case uses a lawful Priest and debug polymorphs into a vampire.",
+    "functions": [
+      "prayer_done"
+    ],
+    "callers": [
+      "pray.c:dopray() assigns ga.afternmv = prayer_done at 2260-2263.",
+      "hack.c:unmul() clears ga.afternmv and calls the callback at 4200-4206; it discards prayer_done()'s int result.",
+      "allmain.c:moveloop_core() calls unmul() when the three-turn gm.multi countdown reaches zero at 380-383.",
+      "js/cmd.js dispatches dopray() at 5187-5189; js/pray.js:dopray() stores state.afternmv = prayer_done at 1600-1603.",
+      "js/allmain.js runs the due callback through runUnmulAtTurnBoundary() at 1162-1164; js/hack.js:unmul() clears and awaits state.afternmv at 1159-1165."
+    ],
+    "dependencies": [
+      "pray.c:godvoice() has no consumed return; js/pray.js:2239-2248 already implements its rn2(4) voice selection and message.",
+      "polyself.c:rehumanize() is a void form transition; js/polyself.js:2106-2168 implements the route and calls polyman(). Preserve it before losehp().",
+      "hack.c:losehp(rnd(20), ...) consumes rnd(20) as damage; js/hack.js:1273+ implements losehp().",
+      "attrib.c:exercise(A_CON, FALSE) mutates the hero attribute; js/attrib.js:978+ implements it and consumes the later exercise draw.",
+      "pray.c:water_prayer(FALSE) returns a boolean consumed by prayer_done() when gp.p_type == 2; js/pray.js:1620-1651 already implements it.",
+      "The rnz(250) result updates u.ublesscnt, and the rnl(u.ualign.record) result gates angrygods() in Gehennom; preserve both consumed results and source order.",
+      "pray.c:pray_revive() returns a boolean that prayer_done() explicitly discards in the coaligned altar arm; js/pray.js records this gap with note_unported('pray.c pray_revive').",
+      "angrygods() and pleased() are void callees reached by other prayer_done() arms but remain partial in js/pray.js; they are separate source frontiers. UnsupportedPrayerError also remains needed by angrygods() and other prayer code."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "challenges/evaluations/baseline-76417879-v27.json, case v27-pray-undead: 33/52 screens and cursors match, 2653/2656 RNG calls match; 19 screens remain. The case first diverges at step 33.",
+    "challenges/manifests/v27.json, case sourcePointers and localComparison: C first adds rn2(4)=1 from godvoice(pray.c:1425) at step 33; the JS segment has only 33 screens. The manifest status is prepared-unadmitted.",
+    "challenges/cases/v27/v27-pray-undead.session.json: step 33 records the godvoice rn2(4) call; the following C boundary shows Ptah's voice; step 47 records \"You feel like you are falling apart. You return to human form!\", rnd(20)=6, then exercise rn2(2)=0.",
+    "nethack-c/upstream/src/pray.c:2164-2167 assigns p_type -1 to an undead hero outside Gehennom praying to a lawful god; pray.c:2276-2305 resets invulnerability, calls godvoice, reports falling apart, calls rehumanize(), then loses rnd(20) HP and exercises Constitution.",
+    "js/pray.js:1661-1670 clears uinvulnerable and throws UnsupportedPrayerError for gp.p_type == -1. js/allmain.js:586-600 catches that delayed callback refusal; the assigned-case diagnostic reports the resulting stop after 33 screens.",
+    "The production callback path is pray.c:dopray() -> ga.afternmv -> hack.c:unmul() -> allmain.c:moveloop_core(); the matching JS path is cmd.js -> pray.js:dopray() -> allmain.js delayed-turn handler -> hack.js:unmul().",
+    "Source-owned state crosses that callback in gp.p_type and gp.p_aligntyp, ga.afternmv, gm.multi, gn.nomovemsg, and u.uinvulnerable. The undead arm then changes the current form and human HP; keep rehumanize() before losehp(rnd(20)).",
+    "Evidence plan: v27 cannot be cited for completion because challenges/manifests/v27.json says prepared-unadmitted. Create an independent recipes/pray.c recipe and recordings/pray.c recording for a lawful Priest, debug polymorph into vampire, and #pray outside Gehennom; choose a new seed, datetime, and input sequence rather than copying v27. Confirm matching RNG, all screens/cursors, godvoice, rehumanization, rnd(20) damage, and Constitution exercise. Check p_type -2, Gehennom, and p_type 0-3 arms in whole-function review; angrygods()/pleased() remain separate partial frontiers.",
+    "A focused rg search for \"Vile creature\", \"falling apart\", or \"residual undead turning effect\" in recordings/pray.c returned no matches, so the existing pray.c recording corpus has no identified matching undead-prayer evidence."
+  ]
+}

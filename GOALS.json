@@ -192973,6 +192973,49 @@
           "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
         }
       }
+    },
+    {
+      "id": "port-pray-prayer-done-v27-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete delayed prayer resolution",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v27/v27-pray-undead"
+      ],
+      "selectionReason": "v27-pray-undead has 19 remaining screens at step 33; investigations/synthetic/v27/v27-pray-undead.json traces the first cause to whole pray.c:prayer_done at the delayed p_type -1 callback.",
+      "detail": "Port every prayer_done arm and preserve delayed callback state, Moloch/Gehennom/undead ordering, godvoice RNG, rehumanize-before-damage, and p_type 0-3 dispatch. Keep partial void angry/pleased/pray_revive callees as named frontiers unless their entry-point evidence requires separate source work.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "prayer_done",
+          "line": 2276,
+          "endLine": 2346,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2276,
+        "to": 2346
+      },
+      "syntheticProvenance": {
+        "synthetic/v27/v27-pray-undead": {
+          "session": "synthetic/v27/v27-pray-undead",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-pray-undead",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-pray-undead.session.json",
+          "recordingSha256": "c1b55a3b8bfa997d98cb4ae826642727fb1f6b4c0ef4336f6ee121032714128e",
+          "evaluationPath": "challenges/evaluations/baseline-76417879-v27.json",
+          "evaluationCommit": "76417879468cfeb65fa59ad60447a803684c6747"
+        }
+      }
     }
   ]
 }
