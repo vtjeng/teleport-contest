@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent neutral undead-prayer variation. Source can_pray requires its neutral-undead rn2(10) gate before taking p_type-1; a new Priest seed and gender exercise the alternative godvoice quote. Debug level8 prevents the residual-turning damage from being fatal. C-only gate observation selects seed13627022 because it reaches rn2(10)==0 and the neutral turning quote; no wizard force prompt occurs in p_type-1.",
+  "segments": [
+    {
+      "seed": 13627022,
+      "datetime": "20920913173000",
+      "nethackrc": "OPTIONS=name:OrisonReturn,role:Priest,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #levelchange\n8\n         #polyself\nvampire\n  #pray\ny        "
+    }
+  ]
+}
