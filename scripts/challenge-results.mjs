@@ -11,7 +11,8 @@ const SHA = /^[a-f0-9]{40}$/u;
 const ID = /^[a-z0-9][a-z0-9-]*$/u;
 const BATCH = /^v(?:[1-9]\d*)$/u;
 const FUTURE_BATCH = /^v(?:[2-9]|[1-9]\d+)$/u;
-const METRICS = ['sessions', 'screens', 'rng', 'cursors'];
+const CASE_METRICS = ['screens', 'rng', 'cursors'];
+const METRICS = ['sessions', ...CASE_METRICS];
 // Validate every component before opening a file. Neither traversal nor a
 // symlink inside challenges/ may substitute a recording from another corpus.
 export function challengePath(root, relative) {
@@ -171,7 +172,7 @@ export function totalsFor(cases) {
     for (const entry of cases) {
         totals.sessions.total++;
         totals.sessions.matched += Number(entry.passed);
-        for (const key of METRICS.slice(1)) {
+        for (const key of CASE_METRICS) {
             const metric = entry.metrics[key];
             if (!checkCount(metric)) throw new Error(`invalid ${key} counts for ${entry.id}`);
             totals[key].matched += metric.matched;
@@ -204,7 +205,7 @@ export function validateEvaluation(evaluation) {
             throw new Error('invalid or duplicate evaluation case');
         ids.add(entry.id);
         if (evaluation.status === 'complete' && (typeof entry.passed !== 'boolean'
-            || !['screens', 'rng', 'cursors'].every(key => checkCount(entry.metrics?.[key]))))
+            || !CASE_METRICS.every(key => checkCount(entry.metrics?.[key]))))
             throw new Error(`incomplete measurement for ${entry.id}`);
         if (evaluation.status === 'complete' && entry.passed !== Boolean(!entry.error
             && entry.metrics.screens.matched === entry.metrics.screens.total
@@ -268,11 +269,11 @@ export function compareEvaluationCases(previous, current) {
         if (!old) result.push({ ...row, status: 'added' });
         else if (entry.recordingSha256 !== old.recordingSha256
             || previous.scorerSha256 !== current.scorerSha256
-            || !['screens', 'rng', 'cursors'].every(key => entry.metrics[key].total === old.metrics[key].total)) {
+            || !CASE_METRICS.every(key => entry.metrics[key].total === old.metrics[key].total)) {
             result.push({ ...row, status: 'incomparable' });
         } else {
             const delta = { sessions: Number(entry.passed) - Number(old.passed) };
-            for (const key of ['screens', 'rng', 'cursors'])
+            for (const key of CASE_METRICS)
                 delta[key] = entry.metrics[key].matched - old.metrics[key].matched;
             result.push({ ...row, status: 'compared', delta,
                 errorChanged: !isDeepStrictEqual(old.error ?? null, entry.error ?? null) });
