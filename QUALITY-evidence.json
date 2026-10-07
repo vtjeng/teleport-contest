@@ -18353,5 +18353,45 @@
       "unverified": []
     },
     "recordedAt": "2026-10-06T11:18:11.530Z"
+  },
+  {
+    "kind": "review",
+    "head": "c20657b3dda65723ca2d4237f07cc6adb2c24daf",
+    "auditedRange": "1f1183948f4a03280a8fffd3c3684266882fb7b7..c20657b3dda65723ca2d4237f07cc6adb2c24daf",
+    "level": "full",
+    "areas": [
+      "monsters",
+      "commands"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 1 raw, 1 deduplicated, 1 confirmed, 1 applied, 0 deferred, 0 rejected, 0 unverified. Full correctness pass over the explosion fatal-message fix. Behavior, readability-risk, test-quality, variable-flow, and concurrency finders ran; concurrency applied because the range changes shared message state across asynchronous output, and performance did not apply. The sole confirmed finding strengthened the test oracle for source-ordered item-loss messages before the fatal line. No production defect or workflow warning remained. The prepared head passed the full checkpoint, fixed and recording corpora, focused fresh differentials, and the admitted v24 replay range.",
+    "auditMetrics": {
+      "wallTimeSeconds": 996,
+      "counts": {
+        "raw": 1,
+        "deduplicated": 1,
+        "confirmed": 1,
+        "applied": 1,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 1,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [],
+      "readiness": {
+        "boundary": "The reviewed range covers js/explode.js explode() and js/tty_message.js vpline(). Synthetic v24 case v24-eat-pyrolisk-egg executes the lethal explosion through step 29; two fresh oil explosions exercise the nonfatal and fatal message paths; focused tty-message tests execute vpline() marker preservation and reset behavior.",
+        "sourceReview": "The orchestrator and independent reviewers traced explode.c explode() and pline.c vpline() against upstream C, including item-damage message order, fatal wording, message-state changes, screen output, and PRNG order. No note_unported() call or Unsupported*Error remains in the reviewed branches.",
+        "completeness": "The prepared head passed the full checkpoint, fixed 44-session workload, 1,113-recording corpus, and quality health check. The applied test uses a deterministic carried scroll loss, and an intentional early last_msg read made it fail with the wrong fatal wording before the production source order made it pass. No note_unported() result supplies data in scope."
+      },
+      "rejections": [],
+      "deferrals": []
+    },
+    "recordedAt": "2026-10-07T02:05:24.312Z"
   }
 ]
