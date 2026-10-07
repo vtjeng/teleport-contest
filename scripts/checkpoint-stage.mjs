@@ -15,7 +15,7 @@ import { digest } from './checkpoint-reuse.mjs';
 const VERSION = 1;
 export const TEST_SHARDS = 4; // Separate the three known slow files and leave one general shard.
 export const RECORDING_SHARDS = 4; // Trial: divide the six-minute replay stage without duplicating setup per recording.
-const ARTIFACTS = { score: ['development-standing.json'], scan: ['scan-cache.json'] };
+const ARTIFACTS = { score: ['development-standing.json', 'session-results.json'], scan: ['scan-cache.json'] };
 const USAGE = `Usage:
   node scripts/checkpoint-stage.mjs --list
   node scripts/checkpoint-stage.mjs run <group> <output-directory>
