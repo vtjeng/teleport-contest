@@ -17,6 +17,7 @@ import {
     HOLE,
     ICE,
     LEVEL_TELEP,
+    LAST_PROP,
     MAGIC_PORTAL,
     MAGIC_TRAP,
     MELT_ICE_AWAY,
@@ -53,6 +54,11 @@ function initializedState(dlevel = 1) {
         ulevel: 1,
         uz: { dnum: 0, dlevel },
         uevent: { invoked: false },
+        // C initializes every property record; reset_utrap reads flight and
+        // levitation even when both are absent.
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+            intrinsic: 0, extrinsic: 0, blocked: 0,
+        })),
     };
     state.dungeons = [{
         depth_start: 1,
@@ -365,12 +371,13 @@ test('maketrap resets only incompatible hero trap states during replacement', ()
         utraptype: TT_BEARTRAP,
     });
 
-    assert.throws(
-        () => maketrap(10, 5, WEB, { state }),
-        /hero-trap reset support/,
-    );
-    assert.equal(existing.ttyp, ARROW_TRAP);
-    assert.deepEqual([state.u.utrap, state.u.utraptype], [7, TT_BEARTRAP]);
+    // trap.c:471-477 calls the existing reset_utrap(FALSE) owner before
+    // replacement; no injected reset callback is required in production.
+    assert.equal(maketrap(10, 5, WEB, { state }), existing);
+    assert.equal(existing.ttyp, WEB);
+    assert.deepEqual([state.u.utrap, state.u.utraptype], [0, TT_NONE]);
+    state.u.utrap = 7; // Re-enter the incompatible bear trap for the seam check.
+    state.u.utraptype = TT_BEARTRAP;
 
     const resets = [];
     const replacement = maketrap(10, 5, WEB, {
@@ -483,4 +490,25 @@ test('count_traps counts traps of a specific type', () => {
     assert.equal(count_traps(PIT, state), 1);
     // A type with no traps still returns 0.
     assert.equal(count_traps(BEAR_TRAP, state), 0);
+});
+
+// trap.h aliases every vlaunchinfo field, and maketrap zeroes the union
+// even when reusing an existing record. TELEP_TRAP's teledest aliases launch.
+test('maketrap clears all launch-union arms and uses the source launch alias', () => {
+    const state = initializedState();
+    const trap = maketrap(10, 5, ARROW_TRAP, { state });
+    Object.assign(trap, { tnote: 9, conjoined: 5, launch_otyp: 27,
+        launch2: { x: 12, y: 6 }, vl: { v_tnote: 9 } });
+    // Arbitrary old values expose stale replacement fields; the reset value
+    // is zero_vl, with launch/dst initialized to the source sentinel -1.
+    assert.equal(maketrap(10, 5, TELEP_TRAP, { state }), trap);
+    assert.deepEqual([trap.tnote, trap.conjoined, trap.launch_otyp], [0, 0, 0]);
+    assert.deepEqual(trap.launch2, { x: 0, y: 0 });
+    assert.deepEqual(trap.launch, { x: -1, y: -1 });
+    assert.equal(trap.teledest, trap.launch);
+    state.launchplace = { x: 1, y: 1 };
+    state.xstart = 20; // sp_lev's fixed-destination origin, away from the trap.
+    state.ystart = 8;
+    maketrap(10, 5, TELEP_TRAP, { state });
+    assert.deepEqual(trap.launch, { x: 21, y: 9 });
 });

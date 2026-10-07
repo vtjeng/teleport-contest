@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first C130 downward-wand entry: a new chaotic male Wizard, seed and date vary the admitted route. C setup confirmed slot o. Its map showed westward movement blocked by a wall on the startup stairs; moving east instead reaches ordinary floor before the down-zap.",
+  "segments": [
+    {
+      "seed": 92688011,
+      "datetime": "20770908113500",
+      "nethackrc": "OPTIONS=name:C130Probe,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "l\u0017uncursed wand of digging\nzo>          "
+    }
+  ]
+}

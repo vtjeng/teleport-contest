@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap occupation variation: independently selected female Archeologist changes the starting hero while retaining the source pit entry.",
+  "segments": [
+    {
+      "seed": 92688016,
+      "datetime": "20770909114000",
+      "nethackrc": "OPTIONS=name:C130Probe,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h ae  >"
+    }
+  ]
+}
