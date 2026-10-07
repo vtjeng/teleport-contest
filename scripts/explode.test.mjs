@@ -62,6 +62,7 @@ import {
     GOLD_PIECE,
     LEATHER_ARMOR,
     ROCK,
+    SCR_BLANK_PAPER,
     SCROLL_CLASS,
     STATUE,
     WAND_CLASS,
@@ -915,4 +916,54 @@ test('fatal explosion wording follows the source last-message markers', async ()
         assert.deepEqual(draws, [5, 5]);
         assert.equal(getRngLog().length, rngBefore, 'wording consumes no RNG');
     }
+});
+
+test('an intervening item-loss message replaces the fatal antecedent', async () => {
+    await runSegment({ seed: 7710145, datetime: '20360214031600',
+        nethackrc: [
+            'OPTIONS=name:FatalItemWords,role:Wizard,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup',
+            '',
+        ].join('\n'), moves: '' });
+    game.flags.verbose = false;
+    game.iflags.last_msg = PLNMSG_TOWER_OF_FLAME;
+    game.u.uprops[DEAF].intrinsic = 1; // Keep the marker until item loss speaks.
+    for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarmg', 'uarms', 'uarmf', 'uarmu'])
+        game[slot] = null;
+    const scroll = mksobj(SCR_BLANK_PAPER, false, false, { state: game });
+    scroll.where = OBJ_INVENT;
+    scroll.dknown = true;
+    scroll.nobj = null;
+    game.invent = scroll;
+    game.u.uhp = 2; // Item loss costs 1 HP, then the 2-point blast is fatal.
+    for (const monster of game.level.monsters.flat().filter(Boolean))
+        game.level.monsters[monster.mx][monster.my] = null;
+    game.nhDisplay.pushKey(32);
+
+    const draws = [[5, 1], [5, 1], [3, 0], [2, 1]];
+    const lines = [];
+    const fatalBoundary = new Error('fatal message reached after item loss');
+    await assert.rejects(explode(game.u.ux, game.u.uy, -11, 2,
+        SCROLL_CLASS, EXPL_FIERY, game, {
+            random: {
+                rn2: (bound) => {
+                    const [expectedBound, value] = draws.shift();
+                    assert.equal(bound, expectedBound);
+                    return value;
+                },
+            },
+            message: async (line) => {
+                lines.push(line);
+                if (line.endsWith('is fatal.')) throw fatalBoundary;
+                await ttyPline(line, game);
+            },
+        }), (error) => error === fatalBoundary);
+
+    assert.deepEqual(lines, [
+        'Your unlabeled scroll catches fire and burns!',
+        'The tower of flame is fatal.',
+    ]);
+    assert.equal(game.invent, null);
+    assert.equal(game.iflags.last_msg, PLNMSG_UNKNOWN);
+    assert.deepEqual(draws, []);
 });
