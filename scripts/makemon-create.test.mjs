@@ -110,6 +110,7 @@ import {
     PM_CAVE_SPIDER,
     PM_CHAMELEON,
     PM_COYOTE,
+    PM_CYCLOPS,
     PM_DOPPELGANGER,
     PM_DOG,
     PM_ASMODEUS,
@@ -130,7 +131,6 @@ import {
     PM_GIANT_MUMMY,
     PM_GIANT_EEL,
     PM_GIANT_ZOMBIE,
-    PM_GIANT,
     PM_GOBLIN,
     PM_GRID_BUG,
     PM_HILL_GIANT,
@@ -152,6 +152,7 @@ import {
     PM_LICHEN,
     PM_LEPRECHAUN,
     PM_LONG_WORM,
+    PM_LORD_SURTUR,
     PM_MARILITH,
     PM_MASTER_LICH,
     PM_MINOTAUR,
@@ -5660,7 +5661,7 @@ test('the giant gemstone predicate remains is_giant rather than the glyph alone'
         );
     });
 
-test('stone giant NO_MINVENT and later giant families stop before inventory RNG',
+test('stone giant NO_MINVENT preserves non-giant and unique admission boundaries',
     () => {
         const suppressed = createPlannedStoneGiant({}, NO_MINVENT);
         assert.equal(suppressed.monster.minvent, null);
@@ -5673,13 +5674,9 @@ test('stone giant NO_MINVENT and later giant families stop before inventory RNG'
             false,
         );
 
-        for (const mndx of [
-            PM_GIANT,
-            PM_HILL_GIANT,
-            PM_FIRE_GIANT,
-            PM_FROST_GIANT,
-            PM_ETTIN,
-        ]) {
+        // Ettins share S_GIANT but not is_giant. Quest nemeses Cyclops and
+        // Lord Surtur are unique true giants with separate source lifecycles.
+        for (const mndx of [PM_ETTIN, PM_CYCLOPS, PM_LORD_SURTUR]) {
             const state = initialLevelState();
             const random = recordingRandom();
             assert.throws(
@@ -5699,6 +5696,69 @@ test('stone giant NO_MINVENT and later giant families stop before inventory RNG'
             assert.equal(state.level.monsters[MON_X][MON_Y], null);
             assert.equal(state.mvitals[mndx].born, 0);
             assert.equal(state.context.ident, 2);
+        }
+    });
+
+test('runtime random true giants use the source group and inventory lifecycle',
+    async () => {
+        // C makemon:1228-1247 selects generated species without an allowlist.
+        const sourceSelection = MAKEMON_C_SOURCE.slice(
+            MAKEMON_C_SOURCE.indexOf('        int tryct = 0;'),
+            MAKEMON_C_SOURCE.indexOf('    (void) propagate(mndx'),
+        );
+        assert.match(sourceSelection, /ptr = rndmonst\(\)/u);
+        assert.match(sourceSelection, /!goodpos\(x, y, &fakemon, gpflags\)/u);
+        // These are every generated ordinary true giant; the placeholder
+        // giant and unique quest nemeses have different source entry shapes.
+        for (const mndx of [
+            PM_STONE_GIANT, PM_HILL_GIANT, PM_FIRE_GIANT,
+            PM_FROST_GIANT, PM_STORM_GIANT,
+        ]) {
+            const state = initialLevelState();
+            state.in_mklev = false;
+            // D:20 and XL30 include the entire giant difficulty band; every
+            // square is floor so placement cannot obscure admission.
+            state.u.uz.dlevel = 20;
+            state.u.ulevel = 30;
+            leaveOnlyRandomSpecies(state, [mndx]);
+            for (let x = 1; x < COLNO; ++x)
+                for (let y = 0; y < ROWNO; ++y)
+                    state.level.at(x, y).typ = ROOM;
+            const random = recordingRandom();
+            const parent = await makemon_runtime(null, 0, 0, NO_MM_FLAGS, {
+                state, random: random.random,
+                hooks: { newsym: () => {} },
+                message: async () => {}, norepMessage: async () => {},
+            });
+            assert.equal(parent.data, state.mons[mndx]);
+            assert.equal(parent.mgenmklev, false);
+            // rn2(2) selects the source small-group arm. The recursive
+            // member must finish first and precede its parent in fmon.
+            const member = state.level.monlist;
+            assert.notEqual(member, parent);
+            assert.equal(member.nmon, parent);
+            assert.equal(parent.nmon, null);
+            assert.equal(state.mvitals[mndx].born, 2);
+            for (const monster of [member, parent]) {
+                assert.equal(monster.data, state.mons[mndx]);
+                assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+                const inventory = monsterInventory(monster);
+                assert.ok(inventory.some(obj => obj.otyp === BOULDER));
+                assert.ok(inventory.some(obj => obj.otyp === DILITHIUM_CRYSTAL));
+                for (const obj of inventory) {
+                    assert.equal(obj.where, OBJ_MINVENT);
+                    assert.equal(obj.ocarry, monster);
+                    assert.equal(obj.owt, weight(obj, { state }));
+                }
+            }
+            const memberIds = monsterInventory(member).map(obj => obj.o_id);
+            const parentIds = monsterInventory(parent).map(obj => obj.o_id);
+            assert.ok(Math.max(...memberIds) < Math.min(...parentIds));
+            // Both the member and parent take the two source weapon gates,
+            // then the offensive/defensive/miscellaneous inventory gates.
+            for (const bound of [5, 75, 50, 100])
+                assert.ok(random.calls.filter(call => call.kind === 'rn2'
+                    && call.args[0] === bound).length >= 2);
         }
     });
 
