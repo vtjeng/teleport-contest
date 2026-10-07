@@ -195535,7 +195535,7 @@
     {
       "id": "fix-zap-weffects-spell-ray-dispatch-v27-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Repair spell ray dispatch through zap.c weffects",
       "cFile": "zap.c",
       "sessions": [
@@ -195543,10 +195543,17 @@
       ],
       "selectionReason": "Select the current v27-cast-magic-missile mismatch from the saved 675359a0 evaluation and investigations/synthetic/v27/v27-cast-magic-missile.json. Source tracing isolates the implemented spell.js caller and existing ubuzz owner from zap.c:weffects lines 3461-3462, where JS retains a stale spell-casting refusal. This bounded repair is independent of C134 poly_obj/setuwep work.",
       "detail": "At segment 0 step 86, spell.js reaches zap.c:weffects for SPE_MAGIC_MISSILE. C computes 10 + abs(otyp - SPE_MAGIC_MISSILE) % 10 and u.ulevel / 2 + 1 with C integer division, then calls ubuzz after Wisdom exercise; JS refuses before dispatch. Preserve the disclose tail and existing ubuzz implementation. No whole weffects, ubuzz, or dobuzz completion credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "8ccf89f774a807af85e1289a7e8464ea799ece27",
+      "openStanding": {
+        "sha": "8ccf89f774a807af85e1289a7e8464ea799ece27",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8ccf89f774a807af85e1289a7e8464ea799ece27",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "weffects",
       "session": "synthetic/v27/v27-cast-magic-missile",
       "step": 86,
@@ -195563,6 +195570,18 @@
           "evaluationPath": "challenges/evaluations/accepted-cbb68414c54b980b99303a10bba3fdf302af37c7-v27.json",
           "evaluationCommit": "cbb68414c54b980b99303a10bba3fdf302af37c7"
         }
+      },
+      "activeStanding": {
+        "sha": "8ccf89f774a807af85e1289a7e8464ea799ece27",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8ccf89f774a807af85e1289a7e8464ea799ece27",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
