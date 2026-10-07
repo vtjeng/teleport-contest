@@ -189148,6 +189148,49 @@
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
       }
+    },
+    {
+      "id": "port-steed-mount-steed-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete mount checks and wounded-leg feedback",
+      "cFile": "steed.c",
+      "sessions": [
+        "synthetic/v26/v26-wounded-rider-mount"
+      ],
+      "selectionReason": "Next admitted v26 mismatch after lock selection: 7 remaining screens where C refuses mounting with wounded-leg feedback and JavaScript throws.",
+      "detail": "Port whole mount_steed and retain doride wiring. Preserve wounded-leg feedback, debug force-heal, mount eligibility, saddle, pet, trap, levitation, encumbrance, and state transitions in source order using canonical legs_in_no_shape and heal_legs helpers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mount_steed",
+          "line": 197,
+          "endLine": 386,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 197,
+        "to": 386
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-wounded-rider-mount": {
+          "session": "synthetic/v26/v26-wounded-rider-mount",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-wounded-rider-mount",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+          "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
     }
   ]
 }
