@@ -671,9 +671,8 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
         await message(`You kick ${corpse_xname(object(), null, CXN_PFX_THE, state)} with your bare ${makeplural(body_part(FOOT, state.youmonst))}.`, state, env);
         if (!(poly_when_stoned(state.youmonst.data, state)
             && await polymon(PM_STONE_GOLEM, state, env))) {
-            state.svk ??= {};
-            state.svk.killer ??= {};
-            state.svk.killer.name = `kicking ${killer_xname(object(), state)} barefoot`;
+            state.killer ??= {};
+            state.killer.name = `kicking ${killer_xname(object(), state)} barefoot`;
             note_unported('trap.c instapetrify');
         }
     }

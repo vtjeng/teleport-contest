@@ -106,20 +106,28 @@ test('ghitm wakes an uninterested sleeper without taking the gold', async () => 
     assert.notEqual(gold.ocarry, mon);
 });
 
-test('really_kick_object uses hallucination resistance in the trap name',
+test('really_kick_object uses both hallucination resistance sources',
     async () => {
-    const state = await goldState();
-    const x = state.u.ux;
-    const y = state.u.uy;
-    state.gk = { kickedobj: goldFor(state, 1) };
-    state.level.traps.push({ tx: x, ty: y, ttyp: WEB, tseen: 1 });
-    state.u.uprops[HALLUC].intrinsic = 1;
-    state.u.uprops[HALLUC_RES].extrinsic = 1;
-    const messages = [];
-    assert.equal(await kicks.really_kick_object(x, y, state, {
-        message: async text => messages.push(text),
-    }), 1);
-    assert.deepEqual(messages, ["You can't kick something that's in a web!"]);
+    for (const source of ['intrinsic', 'extrinsic']) {
+        const state = await goldState();
+        const x = state.u.ux;
+        const y = state.u.uy;
+        state.gk = { kickedobj: goldFor(state, 1) };
+        state.level.traps.push({ tx: x, ty: y, ttyp: WEB, tseen: 1 });
+        state.u.uprops[HALLUC].intrinsic = 1;
+        state.u.uprops[HALLUC_RES].intrinsic = 0;
+        state.u.uprops[HALLUC_RES].extrinsic = 0;
+        state.u.uprops[HALLUC_RES][source] = 1;
+        const messages = [];
+        assert.equal(await kicks.really_kick_object(x, y, state, {
+            message: async text => messages.push(text),
+        }), 1);
+        assert.deepEqual(
+            messages,
+            ["You can't kick something that's in a web!"],
+            source,
+        );
+    }
 });
 
 test('really_kick_object initializes the barefoot petrification killer',
@@ -141,11 +149,12 @@ test('really_kick_object initializes the barefoot petrification killer',
     state.uarmf = null;
     state.u.uprops[STONE_RES].intrinsic = 0;
     state.u.uprops[STONE_RES].extrinsic = 0;
-    delete state.svk;
+    delete state.killer;
     await kicks.really_kick_object(x, y, state, {
         message: async () => {},
     });
-    assert.match(state.svk.killer.name, /^kicking .* barefoot$/u);
+    assert.match(state.killer.name, /^kicking .* barefoot$/u);
+    assert.equal(state.svk, undefined);
     assert.ok(state.unported.has('trap.c instapetrify'));
 });
 
