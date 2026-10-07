@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap C-first option variation of the ice-devil/flesh-golem Conflict witness. Disabling sparkle exercises display.c:shieldeff early return from the cold-resistance branch while retaining golem slowing and the consumed inventory return. The input and original independently chosen seed are retained because only the source animation flag changes.",
+  "segments": [
+    {
+      "seed": 7132107,
+      "datetime": "20381021115000",
+      "nethackrc": "OPTIONS=name:ColdB132,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!debug_mongen\nOPTIONS=!sparkle\n",
+      "moves": "#wizintrinsic\na>>h\n \n#wizgenesis\nhostile flesh golem\n #wizgenesis\nhostile ice devil\n. . . . . . . . . . . . . . . . . "
+    }
+  ]
+}
