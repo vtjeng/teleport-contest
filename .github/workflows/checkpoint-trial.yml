@@ -3,6 +3,11 @@ on:
   push:
     branches: [codex/parallel-checkpoint]
   workflow_dispatch:
+    inputs:
+      benchmark:
+        description: Run two serial checkpoint baselines
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -11,8 +16,67 @@ env:
   TELEPORT_VALIDATION_EXTERNAL: '1'
 
 jobs:
+  synthetic-plan:
+    name: Plan admitted synthetic batches
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - id: plan
+        run: echo "matrix=$(node scripts/synthetic-ci.mjs plan)" >> "$GITHUB_OUTPUT"
+
+  synthetic:
+    name: Synthetic evaluations — group ${{ matrix.group }}
+    needs: synthetic-plan
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.synthetic-plan.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - run: node scripts/synthetic-ci.mjs run '${{ matrix.group }}'
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: synthetic-${{ matrix.group }}
+          path: .cache/synthetic-ci
+          include-hidden-files: true
+
+  synthetic-results:
+    name: Complete synthetic evaluation evidence
+    needs: synthetic
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: synthetic-*
+          path: .cache/synthetic-ci
+          merge-multiple: true
+      - run: node scripts/synthetic-ci.mjs combine
+      - uses: actions/upload-artifact@v7
+        with:
+          name: synthetic-evaluations
+          path: challenges/evaluations/ci-v*.json
+
   # Two identical baselines measure timing noise on the hosted runners.
   serial:
+    if: github.event_name == 'workflow_dispatch' && inputs.benchmark
     name: Serial checkpoint — baseline ${{ matrix.repeat }}
     strategy:
       fail-fast: false
