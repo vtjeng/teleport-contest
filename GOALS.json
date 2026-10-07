@@ -191274,7 +191274,7 @@
     {
       "id": "port-steed-mount-steed-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete mount checks and wounded-leg feedback",
       "cFile": "steed.c",
       "sessions": [
@@ -191282,8 +191282,12 @@
       ],
       "selectionReason": "Next admitted v26 mismatch after lock selection: 7 remaining screens where C refuses mounting with wounded-leg feedback and JavaScript throws.",
       "detail": "Port whole mount_steed and retain doride wiring. Preserve wounded-leg feedback, debug force-heal, mount eligibility, saddle, pet, trap, levitation, encumbrance, and state transitions in source order using canonical legs_in_no_shape and heal_legs helpers.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "b4755e128d543965758843fd6eac7886fdb86779",
+      "openStanding": {
+        "sha": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -191312,7 +191316,160 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-wounded-rider-mount",
+          "session": "synthetic/v26/v26-wounded-rider-mount",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+          "recordingPath": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+          "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+          "recipe": "challenges/cases/v26/v26-wounded-rider-mount.recipe.session.json",
+          "recipeSha256": "5c5f4d281c57d875bc7d6eabbf2b6f86fde968b6e43527b93e713ca7673cf0be",
+          "replayInputSha256": "48983f695077e962873d6d208f3b2a80645bfb868ce3faa3878ba444405a61ff",
+          "evaluationPath": "challenges/evaluations/accepted-6230bfd1a69cb9aec23c350e4e7b45b747a48594-v26.json",
+          "evaluationCommit": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+          "evaluationArtifact": "challenges/evaluations/accepted-6230bfd1a69cb9aec23c350e4e7b45b747a48594-v26.json",
+          "evaluationUtc": "2026-10-07T16:49:10.545Z",
+          "remainingScreens": 7,
+          "recordedSteps": 35,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2733,
+              "total": 2733
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "steed.c",
+          "function": "mount_steed",
+          "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+          "cFile": "steed.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-wounded-rider-mount.json",
+            "result": {
+              "session": "synthetic/v26/v26-wounded-rider-mount",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-wounded-rider-mount",
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "remainingScreens": 7,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "feb68ba893d0499cd0aaa04e32e2e7ff11f850b8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-wounded-rider-mount",
+                "session": "synthetic/v26/v26-wounded-rider-mount",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+                "recordingPath": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+                "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+                "recipe": "challenges/cases/v26/v26-wounded-rider-mount.recipe.session.json",
+                "recipeSha256": "5c5f4d281c57d875bc7d6eabbf2b6f86fde968b6e43527b93e713ca7673cf0be",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 7,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2733,
+                    "total": 2733
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "steed.c",
+                "function": "mount_steed",
+                "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+                "cFile": "steed.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "With timed wounded legs, the recorded #ride answer declines the optional debug force prompt. C intentionally refuses the mount after printing “Your leg is in no shape for riding.” JavaScript currently throws UnsupportedSteedError at this guard, stopping before the expected screen and cursor. This is a missing branch in the partially ported steed.c:mount_steed function; the shared wounded-leg feedback and healing helpers already exist in js/do.js.",
+              "source": {
+                "file": "steed.c",
+                "branch": "When Wounded_legs is true at mount_steed entry, the function calls legs_in_no_shape(\"riding\", FALSE). It then asks “Heal your legs?” only when force && wizard; otherwise, including the recorded declined force prompt, it returns FALSE without mounting. An accepted force-heal answer clears the wound and continues through the remaining mount checks.",
+                "functions": [
+                  "mount_steed"
+                ],
+                "callers": [
+                  "steed.c:doride() (177-192), which obtains the force answer and returns mount_steed() as ECMD_TIME or ECMD_OK",
+                  "cmd.c:extcmdlist doride entry (around 1834), which exposes the production #ride command"
+                ],
+                "dependencies": [
+                  "do.c:legs_in_no_shape() (2408-2423), already implemented in js/do.js",
+                  "do.c:heal_legs() (2448-2486), already implemented in js/do.js and used by the force && wizard affirmative branch",
+                  "youprop.h:Wounded_legs/HWounded_legs/EWounded_legs; JavaScript stores the timeout and wounded-side bits in WOUNDED_LEGS intrinsic/extrinsic state"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/manifests/v26.json records the case route: steed.c:doride asks the debug force question; the response at step 27 is n; C emits “Your leg is in no shape for riding.” at step 28.",
+                "nethack-c/upstream/src/steed.c:178-192 shows doride passing the force flag to mount_steed and mapping FALSE to ECMD_OK. nethack-c/upstream/src/steed.c:225-238 shows the wounded-leg guard, feedback call, optional force-heal question, and intentional FALSE return.",
+                "nethack-c/upstream/src/do.c:2408-2423 defines legs_in_no_shape, which derives side and singular/plural wording from EWounded_legs. js/do.js:3053-3077 already implements this feedback helper; js/do.js:3128-3159 implements heal_legs for the force affirmative branch.",
+                "js/steed.js:456-482 currently throws UnsupportedSteedError when WOUNDED_LEGS is active instead of calling legs_in_no_shape and following C’s conditional heal-or-return path. The saved evaluation reports the first mismatch at step 28 with matched RNG (2733/2733), and missing screen/cursor output from the JavaScript stop.",
+                "Selection scope is the whole steed.c:mount_steed function, as required for a C file-port. Its existing doride caller is already wired in js/steed.js; the implementation task must retain that production path and remove the unsupported placeholder when the complete function is ported."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-insight-youhiding-v26-20261007",
