@@ -6,7 +6,8 @@ import {
     OBJ_MIGRATING, TRAPDOOR,
 } from '../js/const.js';
 import {
-    container_impact_dmg, down_gate, drop_to, otransit_msg, ship_object,
+    container_impact_dmg, down_gate, drop_to, otransit_msg,
+    really_kick_object, ship_object,
 } from '../js/dokick.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -155,6 +156,45 @@ test('ship_object breaks mirrors and hero-laid eggs before migration', async () 
         assert.deepEqual(draws, [100]);
         assert.deepEqual(messages, [`You hear a muffled ${result}.`]);
     }
+});
+
+test('really_kick_object keeps a gate-broken object cleared', async () => {
+    const state = await setup();
+    const x = state.u.ux + 1;
+    const y = state.u.uy;
+    const gateX = x + 1;
+    state.level.at(x, y).typ = state.level.at(state.u.ux, state.u.uy).typ;
+    state.level.at(gateX, y).typ = state.level.at(state.u.ux, state.u.uy).typ;
+    state.stairs = {
+        sx: gateX,
+        sy: y,
+        up: false,
+        isladder: true,
+        tolev: { dnum: 0, dlevel: 2 },
+        next: null,
+    };
+    state.u.dx = 1;
+    state.u.dy = 0;
+    const obj = mksobj(MIRROR, false, false, { state });
+    place_object(obj, x, y, { state });
+    state.gk = { kickedobj: obj };
+    const rolls = [0, 1];
+    assert.equal(await really_kick_object(x, y, state, {
+        message: async () => {},
+        norepMessage: async () => {},
+        redraw: () => {},
+        random: {
+            rn2(n) {
+                assert.equal(n, 100);
+                return rolls.shift();
+            },
+        },
+    }), 1);
+    assert.deepEqual(rolls, []);
+    assert.equal(state.gk.kickedobj, null);
+    assert.equal(obj.where, OBJ_DELETED);
+    assert.notEqual(state.gm.migrating_objs, obj);
+    assert.notEqual(state.level.objects[gateX][y], obj);
 });
 
 test('ship_object leaves a boulder over a hole after the stay-here roll', async () => {

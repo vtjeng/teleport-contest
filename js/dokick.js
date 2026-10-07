@@ -778,7 +778,6 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     redraw(x, y);
     const ref = { obj: object() };
     const monster = await bhit(u.dx, u.dy, range, KICKED_WEAPON, null, null, ref, state, random, env);
-    state.gk.kickedobj = ref.obj;
     if (!object()) return 1;
     if (monster) {
         if (monster.isshk && object().where === OBJ_MINVENT && object().ocarry === monster) return 1;
