@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dokick.c:kick_nondoor looted-sink variation. A newly chosen male Wizard wishes a looted sink, steps north and kicks south repeatedly. Loot bits skip the exhausted pudding/dish-washer branches while retaining pipe, backup and pain branches. The unconstrained dish-washer probe is preserved separately with its mhitu.c:mayberem blocker.",
+  "segments": [
+    {
+      "seed": 12510735,
+      "datetime": "20951007144500",
+      "nethackrc": "OPTIONS=name:TerrainKick,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0017looted sink\nk\u0004j\u0004j\u0004j\u0004j   "
+    }
+  ]
+}
