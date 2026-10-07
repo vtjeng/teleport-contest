@@ -191668,7 +191668,7 @@
     {
       "id": "port-sit-rndcurse-v26-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port random inventory cursing and its active callers",
       "cFile": "sit.c",
       "sessions": [
@@ -191682,15 +191682,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "33f3c8cb853b29c8b0878892d39460ee11beeeb8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rndcurse",
           "line": 569,
           "endLine": 643,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -191970,7 +191973,112 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rndcurse",
+            "implementation": "js/sit.js",
+            "symbol": "rndcurse",
+            "sourceReview": "Read whole sit.c:569-638, direct callers and all consumed-return dependencies. Translate wielded Magicbane rn2(20) short-circuit; Antimagic shield before aura; nobj count excluding coins; source re-read of Antimagic/Half_spell_damage after aura/count; integer count bound; rnd(nobj) chain traversal; cursed/null skips; SPFX_INTEL resistance rn2(10)<8 and Tobjnam; awaited unbless/curse then update_inventory; steed short-circuit rn2(4), consumed which_armor, cursed skip, BUC before visible glow/hcolor and Hallucination/Blind bknown assignment. Canonical objectGenerationEnv carries actual state/random/message/planning through object BUC owners. Planning uses clone-local messages and supplied clone inventory; no live display is published. Consumed is_art/spec_ability/which_armor owners read and tested through source contracts; pure existing helpers remain in their canonical modules. Read mkobj.c unbless/curse, object_generation hooks, inventory refresh, shieldeff, Tobjnam/Yobjnam2/hcolor, Hallucination/Blind source property rules. Replace existing caller gap markers with awaited direct source calls, preserving message, draw and return order. rndcurse has no skipped callee. Wizard intervene higher owner remains outside assignment; cursed_book default wired but cannot run for current valid book levels.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c:143 effect9 calls rndcurse when Luck<=0 after verbalize; dosit and cmd.c #sit dispatch are existing production path."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "castmu",
+                "source": "mcastu.c:831-835 mcast_spell MCAST_CURSE_ITEMS calls rndcurse after need-help message and before zero damage; monmove/mhitu production planning and live handoff carry env/state/RNG."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "angrygods",
+                "source": "pray.c:752-759 cases4/5 call rndcurse after rn2(2) or consumed attrcurse returns0. Both branches awaited before source prayer timeout tail."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "cursed_book",
+                "source": "spell.c:180-183 default calls rndcurse; read.c/spell.c study_book/learn callers are unchanged. Source-unreachable for valid current spellbook types (all levels<=7, switch handles every0..6 draw); confused_book is a distinct function with no rndcurse call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rndcurse.test.mjs",
+              "scripts/sit-command.test.mjs",
+              "scripts/mcastu.test.mjs",
+              "scripts/pray.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/rndcurse-lich-blind-b135.session.json",
+              "recordings/sit.c/rndcurse-lich-visible-b135.session.json",
+              "recordings/sit.c/rndcurse-prayer-first-b135.session.json",
+              "recordings/sit.c/rndcurse-prayer-variation-b135.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-sit-throne",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 58,
+                "source": "cmd.c #sit -> sit.c dosit/throne_sit_effect case9 (Luck<=0) -> rndcurse aura/Antimagic display/inventory draws/BUC mutations/update_inventory before throne removal."
+              }
+            ],
+            "checkedAt": "33f3c8cb853b29c8b0878892d39460ee11beeeb8"
+          }
+        ],
+        "entryPointReview": "Active source/runtime families are throne #sit effect9, hostile monster MCAST_CURSE_ITEMS, and divine anger cases4/5. Admitted throne range and independent monster/prayer recordings cover these families. Cursed_book default is defensively wired and source-pinned but mathematically unreachable in the current reference data: every valid book level<=7, rn2(lev) returns at most6, and cases0..6 are explicit. No write to oc_level exists in source (rg only found an equality read). Wizard.c intervene is an unported higher dispatcher, retained as assigned rather than expanded; no whole wizard/intervention completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Throne curse through #sit",
+            "functions": [
+              "rndcurse"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-sit-throne",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 58,
+                "source": "cmd.c #sit -> sit.c dosit/throne_sit_effect case9 (Luck<=0) -> rndcurse aura/Antimagic display/inventory draws/BUC mutations/update_inventory before throne removal."
+              }
+            ]
+          },
+          {
+            "name": "Monster curse-items spell",
+            "functions": [
+              "rndcurse"
+            ],
+            "recordings": [
+              "recordings/sit.c/rndcurse-lich-blind-b135.session.json",
+              "recordings/sit.c/rndcurse-lich-visible-b135.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Divine anger curse through prayer",
+            "functions": [
+              "rndcurse"
+            ],
+            "recordings": [
+              "recordings/sit.c/rndcurse-prayer-first-b135.session.json",
+              "recordings/sit.c/rndcurse-prayer-variation-b135.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "33f3c8cb853b29c8b0878892d39460ee11beeeb8",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
