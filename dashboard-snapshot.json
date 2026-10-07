@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T02:52:20.286Z",
+  "capturedAt": "2026-10-07T03:25:26.582Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -22956,12 +22956,83 @@
         "worker": "C",
         "goal": "fix-vision-recalc-blind-epilogue-v25-20261007",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5515619c2337f5d82ec018b00cc902adb956005b",
+        "type": "ready",
+        "at": "2026-10-07T03:01:29.083Z",
+        "task": "C125",
+        "delivery": "5515619c2337f5d82ec018b00cc902adb956005b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C125-20261007",
+        "type": "received",
+        "at": "2026-10-07T03:02:00.412Z",
+        "task": "C125",
+        "delivery": "5515619c2337f5d82ec018b00cc902adb956005b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-14b2b9f4ab7fb44c864645c25c53372121b5ead2",
+        "type": "ready",
+        "at": "2026-10-07T03:03:36.504Z",
+        "task": "A115",
+        "delivery": "14b2b9f4ab7fb44c864645c25c53372121b5ead2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A115-20261007",
+        "type": "received",
+        "at": "2026-10-07T03:04:22.214Z",
+        "task": "A115",
+        "delivery": "14b2b9f4ab7fb44c864645c25c53372121b5ead2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C125-20261007",
+        "type": "integrating",
+        "at": "2026-10-07T03:05:07.441Z",
+        "task": "C125",
+        "integration": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7dd00e95a45865debb3f4ca490c72a57337c78a0",
+        "type": "ready",
+        "at": "2026-10-07T03:10:35.148Z",
+        "task": "B125",
+        "delivery": "7dd00e95a45865debb3f4ca490c72a57337c78a0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B125-20261007",
+        "type": "received",
+        "at": "2026-10-07T03:11:19.740Z",
+        "task": "B125",
+        "delivery": "7dd00e95a45865debb3f4ca490c72a57337c78a0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C125-20261007",
+        "type": "validated",
+        "at": "2026-10-07T03:15:06.546Z",
+        "task": "C125",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C125-20261007",
+        "type": "accepted",
+        "at": "2026-10-07T03:24:31.037Z",
+        "task": "C125"
       }
     ]
   },
   "development": {
-    "executionCommit": "f224a115f09ed49085e7e66baab3edbf155515aa",
-    "measuredAt": "2026-10-07T02:34:28.625Z",
+    "executionCommit": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0",
+    "measuredAt": "2026-10-07T03:14:54.794Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
