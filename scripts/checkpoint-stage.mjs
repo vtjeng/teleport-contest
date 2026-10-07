@@ -56,7 +56,14 @@ export function combineStages(stages, commit, run) {
     check(stages.length === Object.keys(groups).length, 'missing or duplicate checkpoint stage');
     const byGroup = new Map();
     for (const stage of stages) {
-        check(stage.version === VERSION && stage.commit === commit && isDeepStrictEqual(stage.run, run),
+        // A native failed-job retry keeps successful artifacts from earlier
+        // attempts of this exact workflow run. Preserve their actual attempt.
+        const sameRun = isDeepStrictEqual(stage.run, run)
+            || (run.provider === 'github' && stage.run?.provider === 'github'
+                && stage.run.repository === run.repository && stage.run.id === run.id
+                && /^[1-9]\d*$/u.test(stage.run.attempt ?? '')
+                && Number(stage.run.attempt) <= Number(run.attempt));
+        check(stage.version === VERSION && stage.commit === commit && sameRun,
             'checkpoint stage has a different schema, commit, run, or attempt');
         check(Object.hasOwn(groups, stage.group) && !byGroup.has(stage.group), 'unknown or duplicate checkpoint stage');
         const expected = groups[stage.group];
@@ -128,7 +135,8 @@ export function combineDirectory(output) {
         JSON.parse(readFileSync(join(output, group, 'stage.json'), 'utf8')));
     const results = combineStages(stages, commit, run);
     const summary = { ...checkpointSummary(results, commit), hostedRun: run,
-        stages: stages.map(({ group, durationMs, runtime }) => ({ group, durationMs, runtime })) };
+        stages: stages.map(({ group, durationMs, runtime, run: executedRun }) =>
+            ({ group, durationMs, runtime, run: executedRun })) };
     // A successful trial must contain the same artifacts closure consumes.
     // Do not manufacture a passing summary from incomplete remote output.
     if (summary.allPassed) for (const [group, names] of Object.entries(ARTIFACTS)) {
