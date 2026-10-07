@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED for whole vision.c:vision_recalc completion: its shared skip epilogue calls hack.c:notice_all_mons(TRUE), but the synchronous JS vision path does not invoke the existing async notice owner. spot_monsters makes that retained source omission active. Rogue/underwater/x-ray branches also remain partial. This continuation recipe is not claimed as passing C125 evidence; investigate async notice ordering before recording/closing the whole unit.",
+  "segments": [
+    {
+      "seed": 125070103,
+      "datetime": "20491203101529",
+      "nethackrc": "OPTIONS=name:BlindRedraw,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,spot_monsters\n",
+      "moves": " \u0007hostile newt\n  #polyself\nfire elemental\n               \u0017floor\n"
+    }
+  ]
+}
