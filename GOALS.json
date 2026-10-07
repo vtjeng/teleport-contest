@@ -194244,13 +194244,13 @@
       "id": "port-dogmove-dog-move-leash-v27-20261007",
       "kind": "file-port",
       "status": "queued",
-      "summary": "Complete tame dog movement and leashed pet repositioning",
+      "summary": "Complete tame dog movement and consumed pet-action dependencies",
       "cFile": "dogmove.c",
       "sessions": [
         "synthetic/v27/v27-leash-tame-dog"
       ],
-      "selectionReason": "Admitted v27 case v27-leash-tame-dog stops before a leashed tame dog's normal action; the complete investigation traces the missing owner to whole dogmove.c:dog_move and its production planner adapter.",
-      "detail": "Port whole dogmove.c:dog_move, wire the existing canonical mdisplacem and leashed repositioning callbacks, and remove the special starting-pet refusal. Preserve apply.c:check_leash as a separate void-owner gap unless a scope expansion ports that whole owner and its active callers.",
+      "selectionReason": "v27-leash-tame-dog stops before a leashed tame dog action; whole dog_move owns the mismatch, and source/runtime audits require complete dog_starve, dog_hunger, best_target, and pet_ranged_attk behavior.",
+      "detail": "Port whole dog_move and its dog_starve, dog_hunger, best_target, and pet_ranged_attk dependencies. Wire canonical mondied, mdisplacem, leashed repositioning, ranged result mapping, and source state. Reconcile the existing sounds.c beg/domonoise planning adapter only as needed. Keep source-discarded quickmimic, apply.c:m_unleash/check_leash, and minion.c:lose_guardian_angel as named gaps unless separately expanded.",
       "openedAt": null,
       "openStanding": null,
       "closedAt": null,
@@ -194268,6 +194268,40 @@
         "from": 977,
         "to": 1361
       },
+      "requiredFunctions": [
+        {
+          "name": "dog_starve",
+          "line": 348,
+          "endLine": 361,
+          "declared": false,
+          "sourceFile": "dogmove.c",
+          "complete": false
+        },
+        {
+          "name": "dog_hunger",
+          "line": 362,
+          "endLine": 399,
+          "declared": true,
+          "sourceFile": "dogmove.c",
+          "complete": false
+        },
+        {
+          "name": "best_target",
+          "line": 838,
+          "endLine": 888,
+          "declared": true,
+          "sourceFile": "dogmove.c",
+          "complete": false
+        },
+        {
+          "name": "pet_ranged_attk",
+          "line": 889,
+          "endLine": 976,
+          "declared": true,
+          "sourceFile": "dogmove.c",
+          "complete": false
+        }
+      ],
       "syntheticProvenance": {
         "synthetic/v27/v27-leash-tame-dog": {
           "session": "synthetic/v27/v27-leash-tame-dog",
