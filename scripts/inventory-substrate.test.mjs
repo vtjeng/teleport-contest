@@ -3121,6 +3121,64 @@ function ordinaryDropFixture(otyp = HEAVY_IRON_BALL) {
     return { hooks, lines, obj, state };
 }
 
+// C ref: do.c dropx()/dropz(), invent.c stackobj()/merged(). The newly
+// dropped object survives; only a compatible absorbed pile member needs the
+// unported light/timer merge operations.
+test('drop admission preserves a nonmerging lit survivor', async () => {
+    for (const otyp of [TALLOW_CANDLE, OIL_LAMP]) {
+        const { hooks, obj, state } = ordinaryDropFixture(otyp);
+        obj.lamplit = true;
+        obj.timed = 1;
+        const admission = preflight_dropx(obj, { state, hooks });
+        assert.equal(state.invent, obj);
+        assert.equal(obj.where, OBJ_INVENT);
+        assert.equal(state.level.objects[10][5], null);
+        await dropx(obj, { state, hooks }, admission);
+        assert.equal(state.invent, null);
+        assert.equal(state.level.objects[10][5], obj);
+        assert.equal(obj.where, OBJ_FLOOR);
+        assert.equal(obj.lamplit, true);
+        assert.equal(obj.timed, 1);
+    }
+});
+
+test('an incompatible lit pile member permits a lit survivor drop', async () => {
+    const { hooks, obj, state } = ordinaryDropFixture(TALLOW_CANDLE);
+    obj.lamplit = true;
+    obj.timed = 1;
+    const member = instance(OIL_LAMP, state, {
+        lamplit: true, timed: 1, where: OBJ_FLOOR,
+        ox: 10, oy: 5, nobj: null, nexthere: null,
+    });
+    state.level.objlist = member;
+    state.level.objects[10][5] = member;
+    await dropx(obj, { state, hooks });
+    assert.equal(state.invent, null);
+    assert.equal(state.level.objects[10][5], obj);
+    assert.equal(obj.nexthere, member);
+    assert.equal(obj.lamplit, true);
+    assert.equal(member.lamplit, true);
+    assert.equal(member.timed, 1);
+});
+
+test('a compatible lit candle merge is refused before extraction', () => {
+    const { hooks, lines, obj, state } = ordinaryDropFixture(TALLOW_CANDLE);
+    obj.lamplit = true;
+    obj.timed = 1;
+    const member = newObject({
+        ...obj, o_id: obj.o_id + 1, where: OBJ_FLOOR,
+        ox: 10, oy: 5, nobj: null, nexthere: null,
+    });
+    state.level.objlist = member;
+    state.level.objects[10][5] = member;
+    assert.throws(() => preflight_dropx(obj, { state, hooks }), /floor pile/u);
+    assert.equal(state.invent, obj);
+    assert.equal(obj.where, OBJ_INVENT);
+    assert.equal(state.level.objlist, member);
+    assert.equal(state.level.objects[10][5], member);
+    assert.deepEqual(lines, []);
+});
+
 test('dropy reaches dropz without container-impact handling', async () => {
     const { hooks, obj, state } = ordinaryDropFixture();
     state.invent = null;
@@ -3498,14 +3556,8 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             ['wrong ownership', /ownership/u, ({ obj }) => {
                 obj.where = OBJ_FLOOR;
             }],
-            // invent.c merged() asks its caller for an operation for each of
-            // these two before it can absorb the landing object into a pile
-            // member, and shk.c obfree() asks for both of them again. A timer
-            // on the surviving dropped object follows it onto the floor.
-            ['lit lamp', /lit or globby/u, ({ obj }) => {
-                obj.lamplit = true;
-            }, OIL_LAMP],
-            ['globby object', /lit or globby/u, ({ obj }) => {
+            // Globs retain their separate floor and merging dependencies.
+            ['globby object', /a globby object/u, ({ obj }) => {
                 obj.globby = true;
             }],
             // shk.c obfree()'s last operation: lock.c reset_pick(), for the

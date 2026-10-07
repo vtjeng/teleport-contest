@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 128070103,
+      "datetime": "20360707123400",
+      "nethackrc": "OPTIONS=name:DropLight,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none\n",
+      "moves": " \u0017uncursed tallow candle\naede\u0017uncursed tallow candle\nafdf."
+    }
+  ],
+  "comment": "Outside this divergence: a compatible lit candle stack reaches invent.c:merged -> light.c:obj_merge_light_sources and timeout.c:obj_stop_timers for the absorbed floor member. dropx retains the source-compatible special-pile refusal until that merge owner is reconciled. C-first witness reaches both lit drops; intentionally no regression recording admitted."
+}
