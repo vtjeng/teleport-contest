@@ -570,6 +570,7 @@ import {
     setwornEnv,
 } from './do_wear.js';
 import {
+    dropCommandEnv,
     dropx,
     boulder_hits_pool,
     legs_in_no_shape,
@@ -5245,7 +5246,7 @@ export async function use_grease(obj, state = game, env = {}) {
             `${Tobjnam(obj, 'slip', state)} from your ${fingers_or_gloves(false, state)}.`,
             state,
         );
-        await dropx(obj, { ...env, state });
+        await dropx(obj, dropCommandEnv(state, { ...env, state }));
         return ECMD_TIME;
     }
 
@@ -5256,7 +5257,7 @@ export async function use_grease(obj, state = game, env = {}) {
                 `${Tobjnam(obj, 'slip', state)} from your ${fingers_or_gloves(false, state)}.`,
                 state,
             );
-            await dropx(obj, { ...env, state });
+            await dropx(obj, dropCommandEnv(state, { ...env, state }));
             return ECMD_TIME;
         }
 
