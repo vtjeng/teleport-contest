@@ -4,6 +4,7 @@ import {
     appendFileSync,
     mkdtempSync,
     readFileSync,
+    rmSync,
     writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -184,7 +185,6 @@ function sourceDashboardData(workGoals = []) {
             generatedAt: '2026-01-01T00:00:00Z',
             screens: 0, screensTotal: 1, rng: 0, rngTotal: 1,
             sessions: 0, sessionsTotal: 1, totalGoals: 0,
-            medianTotalMin: null, medianGoalSelectionMin: null,
         },
         goals: [], progress: [], workGoals,
         developmentSessions: { executionCommit: 'a'.repeat(40), sessions: [] },
@@ -343,12 +343,12 @@ test('unmeasured challenge cases remain visible in the remaining filter', () => 
     assert.match(rendered.get('challengeTable').innerHTML, /Incomplete metrics/u);
 });
 
-test('score rows expose named development and local holdout measures', () => {
+test('score rows expose named development and local holdout measures', t => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-scores-'));
+    t.after(() => rmSync(fixture, { recursive: true, force: true }));
     git(fixture, ['init', '--quiet']);
     git(fixture, ['config', 'user.name', 'Dashboard Test']);
     git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
-    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
     const measured = commit(fixture, 'Record development and holdout', '2026-01-01T00:10:00Z');
     writeFileSync(join(fixture, 'SCORE.tsv'), [
         SCORE_HEADER,
@@ -757,32 +757,30 @@ test('queued goals remain visible in the source inventory', () => {
     }
 });
 
-test('progress points carry what the chart readout shows', () => {
+test('progress points carry what the chart readout shows', t => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-chart-'));
+    t.after(() => rmSync(fixture, { recursive: true, force: true }));
     git(fixture, ['init', '--quiet']);
     git(fixture, ['config', 'user.name', 'Dashboard Test']);
     git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
-    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
-    // Three goals, ten minutes apart, so the whole range is under a day and
-    // the readout has to print clock times as well as dates.
-    const first = commit(fixture, 'Close alpha goal', '2026-01-01T00:10:00Z');
-    const second = commit(fixture, 'Close beta goal', '2026-01-01T00:20:00Z');
-    const third = commit(fixture, 'Close gamma goal', '2026-01-01T00:30:00Z');
+    // Measurements ten minutes apart share one commit. Their recorded times
+    // must set the chart range, independent of Git's single commit time.
+    const measured = commit(fixture, 'Implementation', '2026-01-01T00:00:00Z');
 
     writeFileSync(join(fixture, 'SCORE.tsv'), [
         SCORE_HEADER,
         scoreRow({
-            utc: '2026-01-01T00:10:00Z', sha: first, event: 'goal',
+            utc: '2026-01-01T00:10:00Z', sha: measured, event: 'goal',
             screens: 40, holdoutScreens: 0, holdoutScreensTotal: 10,
             note: 'alpha closes. Second sentence.',
         }),
         scoreRow({
-            utc: '2026-01-01T00:20:00Z', sha: second, event: 'goal',
+            utc: '2026-01-01T00:20:00Z', sha: measured, event: 'goal',
             screens: 55, holdoutScreens: 0, holdoutScreensTotal: 10,
             note: 'beta closes. Second sentence.',
         }),
         scoreRow({
-            utc: '2026-01-01T00:30:00Z', sha: third, event: 'goal',
+            utc: '2026-01-01T00:30:00Z', sha: measured, event: 'goal',
             screens: 55, holdoutScreens: 0, holdoutScreensTotal: 10,
             note: 'gamma closes. Second sentence.',
         }),
@@ -830,8 +828,9 @@ test('progress points carry what the chart readout shows', () => {
     assert.equal(height, 2 * 44 - 1);
 });
 
-test('score history sums public and holdout progress into one development set', () => {
+test('score history sums public and holdout progress into one development set', t => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-history-'));
+    t.after(() => rmSync(fixture, { recursive: true, force: true }));
     git(fixture, ['init', '--quiet']);
     git(fixture, ['config', 'user.name', 'Dashboard Test']);
     git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
@@ -868,37 +867,15 @@ test('score history sums public and holdout progress into one development set', 
 });
 
 test('the chart opens on the last week of measurements', () => {
-    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-week-'));
-    git(fixture, ['init', '--quiet']);
-    git(fixture, ['config', 'user.name', 'Dashboard Test']);
-    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
-    commit(fixture, 'Baseline', '2025-12-31T00:00:00Z');
-    // Goals across 24 days. Only the last two fall in the week before the
-    // newest one, which is what the chart opens on.
+    // Rendering depends on measured points, not a Git repository. The CLI
+    // tests above cover conversion from SCORE.tsv into this shape.
+    const data = sourceDashboardData();
+    // Four measurements span 24 days; only the last two are in the last week.
     const days = ['2026-01-01', '2026-01-10', '2026-01-20', '2026-01-25'];
-    const shas = days.map(
-        (day, i) => commit(fixture, `Close goal ${i} goal`, `${day}T00:00:00Z`),
-    );
-
-    writeFileSync(join(fixture, 'SCORE.tsv'), [
-        SCORE_HEADER,
-        ...shas.map((sha, i) => scoreRow({
-            utc: `${days[i]}T00:00:00Z`,
-            sha,
-            event: 'goal',
-            screens: 10 * (i + 1),
-            holdoutScreens: 0,
-            holdoutScreensTotal: 10,
-            note: `goal${i} closes.`,
-        })),
-        '',
-    ].join('\n'));
-
-    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
-        cwd: fixture,
-        encoding: 'utf8',
+    data.scoreHistory[0].points = days.map((day, index) => ({
+        utc: `${day}T00:00:00Z`, screens: 10 * (index + 1), screensTotal: 110,
+        note: `goal${index} closes.`, // Increasing scores keep all points visible.
     }));
-    assert.equal(data.progress.length, 4);
 
     const rendered = renderDashboard(data);
     // 25 Jan is the newest goal, so the opening window runs back to 18 Jan and
