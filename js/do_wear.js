@@ -5,7 +5,8 @@
 //        (186-259), Cloak_on()
 //        (325-380), Cloak_off()
 //        (382-431), Helmet_on() (433-515), Helmet_off() (517-564),
-//        hard_helmet() (568-571), Gloves_on() (576-607), Shield_on() (704-730),
+//        hard_helmet() (568-571), Gloves_on() (576-607),
+//        wielding_corpse() (608-643), Gloves_off() (646-701), Shield_on() (704-730),
 //        Shield_off() (732-756), Shirt_on() (758-775), Shirt_off() (777-794),
 //        dragon_armor_handling() (798-884), Armor_on() (886-906),
 //        Armor_off() (908-930), fingers_or_gloves() (59-65),
@@ -39,6 +40,7 @@ import {
     ALL_TYPES,
     ALL_TYPES_SELECTED,
     BUCX_TYPES,
+    BUFSZ,
     INVORDER_SORT,
     MENU_TRADITIONAL,
     MENU_COMBINATION,
@@ -63,6 +65,7 @@ import {
     ACID_RES,
     CMDQ_KEY,
     CQ_CANNED,
+    CXN_ARTICLE,
     DETECT_MONSTERS,
     DISPLACED,
     EF_DESTROY,
@@ -170,10 +173,11 @@ import {
     set_occupation,
     yn_function,
 } from './cmd.js';
-import { artifact_light, retouch_object, set_artifact_intrinsic } from './artifacts.js';
+import { artifact_light, retouch_object, set_artifact_intrinsic, Stone_resistance } from './artifacts.js';
 import { obj_resists } from './bury.js';
 import { game } from './gstate.js';
 import { nomul, spoteffects, unmul } from './hack.js';
+import { strsubst, truncateByteString } from './hacklib.js';
 import { rescham, restartcham } from './mon.js';
 import { region_danger } from './region.js';
 import {
@@ -204,6 +208,7 @@ import {
     nolimbs,
     num_horns,
     slithy,
+    touch_petrifies,
     verysmall,
 } from './mondata.js';
 import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, PM_WIZARD, S_CENTAUR } from './monsters.js';
@@ -215,6 +220,7 @@ import {
     drown,
     float_down,
     float_up,
+    instapetrify,
     unconscious,
 } from './trap.js';
 import {
@@ -361,13 +367,16 @@ import {
     an,
     boots_simple_name,
     cloak_simple_name,
+    corpse_xname,
     donameFresh,
     gloves_simple_name,
     helm_simple_name,
+    killer_xname,
     obj_is_pname,
     otense,
     shield_simple_name,
     shirt_simple_name,
+    simpleonames,
     suit_simple_name,
     the,
     thesimpleoname,
@@ -388,6 +397,7 @@ import {
 } from './potion.js';
 import { rn2, rnl, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
+import { remove_worn_item } from './steal.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
@@ -1572,7 +1582,7 @@ async function on_msg(otmp, state) {
 // takeoff owners.  The gold arm uses make_hallucinated() on both transitions;
 // Armor_on() still keeps its separate artifact-light boundary.
 async function dragon_armor_handling(
-    otmp, puton, _on_purpose, state, rawEnv = {},
+    otmp, puton, on_purpose, state, rawEnv = {},
 ) {
     if (!otmp)
         return;
@@ -1654,12 +1664,8 @@ async function dragon_armor_handling(
             state.u.uprops[STONE_RES].extrinsic |= W_ARM;
         } else {
             state.u.uprops[STONE_RES].extrinsic &= ~W_ARM;
-            // Take-off also calls wielding_corpse() for cockatrice check.  The
-            // C callee's return is discarded and its full petrification path
-            // remains outside this source span.
-            if ((state.uwep?.otyp === CORPSE)
-                || (state.u.twoweap && state.uswapwep?.otyp === CORPSE))
-                note_unported('do_wear.c wielding_corpse');
+            await wielding_corpse(state.uwep, otmp, on_purpose, state, env);
+            await wielding_corpse(state.uswapwep, otmp, on_purpose, state, env);
         }
         break;
     case WHITE_DRAGON_SCALES:
@@ -2544,17 +2550,51 @@ function Gloves_on(state) {
     return 0;
 }
 
+// C ref: do_wear.c wielding_corpse() (608-643).
+export async function wielding_corpse(
+    obj, how, voluntary, state = game, rawEnv = {},
+) {
+    if (!obj || obj.otyp !== CORPSE || state.uarmg) return;
+    if (obj !== state.uwep && (obj !== state.uswapwep || !state.u.twoweap))
+        return;
+    if (touch_petrifies(state.mons[obj.corpsenm]) && !Stone_resistance(state)) {
+        const env = wearOperationEnv(rawEnv);
+        await env.message(
+            `You ${how && is_gloves(how, state) ? 'now wield' : 'are wielding'} `
+                + `${corpse_xname(obj, null, CXN_ARTICLE, state)} in your bare `
+                + `${makeplural(body_part(HAND, state.youmonst))}.`, state, env,
+        );
+        const cause = how
+            ? `${voluntary ? 'removing' : 'losing'} ${is_gloves(how, state)
+                ? gloves_simple_name(how, state)
+                : strsubst(simpleonames(how, state), 'set of ', '')}`
+            : 'resistance timing out';
+        const killer = truncateByteString(
+            `${cause} while wielding ${killer_xname(obj, state)}`, BUFSZ - 1,
+        );
+        await instapetrify(killer, state, env);
+        // C's done() never returns after an actual death. The JS end owner
+        // returns after retaining the recorder's final terminal boundary.
+        if (state.program_state?.gameover) return;
+        // Life-saving can return without restoring resistance. A successful
+        // stone-golem transformation instead keeps the corpse wielded.
+        if (!Stone_resistance(state))
+            await remove_worn_item(obj, false, state, env);
+    }
+}
+
 // C ref: do_wear.c Gloves_off() (646-701).  This is separate from the
 // ordinary Armor_off-style dispatcher because polymorph can force gloves off
 // while carrying a slipping-fingers timeout and can immediately recalculate
-// encumbrance.  The cockatrice helper is a discarded void call; keep its
-// source boundary explicit when that rare wielded-corpse case is reached.
-export async function Gloves_off(state = game) {
+// encumbrance and can expose a wielded petrifying corpse.
+export async function Gloves_off(state = game, rawEnv = {}) {
     const gloves = state.uarmg;
     if (!gloves) return 0;
     const oldprop = (state.u?.uprops?.[objectType(gloves, state).oc_oprop]
         ?.extrinsic ?? 0) & ~WORN_GLOVES;
     const takeoff = takeoffContext(state);
+    const env = wearOperationEnv(rawEnv);
+    const on_purpose = !state.context?.mon_moving && !gloves.in_use;
 
     takeoff.mask &= ~W_ARMG;
     switch (gloves.otyp) {
@@ -2581,15 +2621,15 @@ export async function Gloves_off(state = game) {
         note_unported('pline.c impossible');
         break;
     }
-    await setworn(null, W_ARMG, setwornEnv(state));
+    await setworn(null, W_ARMG, setwornEnv(state, env));
     takeoff.cancelled_don = false;
-    await encumber_msg(state);
+    await encumber_msg(state, env);
 
     if (Glib(state)) make_glib(0, state);
     if (state.uwep?.otyp === CORPSE)
-        note_unported('do_wear.c wielding_corpse');
+        await wielding_corpse(state.uwep, gloves, on_purpose, state, env);
     if (state.u.twoweap && state.uswapwep?.otyp === CORPSE)
-        note_unported('do_wear.c wielding_corpse');
+        await wielding_corpse(state.uswapwep, gloves, on_purpose, state, env);
     if (state.iflags?.status_conditions?.barehanded) {
         state.disp ??= {};
         state.disp.botl = true;

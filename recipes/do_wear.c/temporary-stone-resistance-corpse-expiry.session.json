@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do_wear.c:wielding_corpse evidence: temporary-stone-resistance-corpse-expiry. Newly selected seed/clock, setup and species; initial C-only setup probes may be corrected from observed inventory letters, source delay and More boundaries before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 91400122,
+      "datetime": "21320317101600",
+      "nethackrc": "OPTIONS=name:ProtectionLossProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n>2d\n \u0017uncursed cockatrice corpse\nwo .          .."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do_wear.c:wielding_corpse evidence: glove-removal-life-saving-variation. Newly selected seed/clock, setup and species; initial C-only setup probes may be corrected from observed inventory letters, source delay and More boundaries before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 91400123,
+      "datetime": "21320317101700",
+      "nethackrc": "OPTIONS=name:ProtectionLossProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed gauntlets of dexterity\nWo \u0017uncursed amulet of life saving\nPp \u0017uncursed chickatrice corpse\nwq Toyes\n          n...."
+    }
+  ]
+}

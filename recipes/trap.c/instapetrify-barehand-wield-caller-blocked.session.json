@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside selected do_wear.c:wielding_corpse caller boundary: acquire a cockatrice corpse wearing gloves, remove gloves while not wielding it, then try wielding it bare-handed. Blocked by existing wield.c:cant_wield_corpse discarded trap.c:instapetrify caller; this task does not wire or complete that older source caller.",
+  "segments": [
+    {
+      "seed": 91400125,
+      "datetime": "21320317101900",
+      "nethackrc": "OPTIONS=name:ProtectionLossProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed leather gloves\nWo \u0017uncursed cockatrice corpse\nToyes\nwp          .."
+    }
+  ]
+}
