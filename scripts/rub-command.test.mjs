@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -8,6 +9,7 @@ import {
 } from '../js/cmd.js';
 import {
     CMDQ_EXTCMD,
+    BLINDED,
     CMDQ_KEY,
     CQ_CANNED,
     ECMD_CANCEL,
@@ -133,6 +135,11 @@ test('rub_ok suggests lamps, gray stones, and royal jelly', () => {
     }
     // objects.h's potion of water is outside every accepted family.
     assert.equal(rub_ok({ otyp: POT_WATER }), GETOBJ_EXCLUDE);
+    const source = readFileSync(new URL(
+        '../nethack-c/upstream/src/apply.c', import.meta.url,
+    ), 'utf8');
+    assert.match(source,
+        /rub_ok\(struct obj \*obj\)[\s\S]*?if \(!obj\)\s*return GETOBJ_EXCLUDE;[\s\S]*?obj->otyp == OIL_LAMP \|\| obj->otyp == MAGIC_LAMP[\s\S]*?obj->otyp == BRASS_LANTERN \|\| is_graystone\(obj\)[\s\S]*?obj->otyp == LUMP_OF_ROYAL_JELLY\)\s*return GETOBJ_SUGGEST;\s*return GETOBJ_EXCLUDE;/u);
 });
 
 test('dorub cancellation preserves the wished-for lamp and command time',
@@ -233,6 +240,47 @@ for (const { label, rolls, message } of [
     });
 }
 
+for (const { label, otyp, charge, blind, rolls, message } of [
+    // apply.c:1816-1835: zero and negative spe both skip rn2(3), but not
+    // rn2(2). Pin each feedback result and Blind's alternate smoke text.
+    { label: 'empty magic smoke', otyp: MAGIC_LAMP, charge: 0,
+        blind: false, rolls: [1], message: 'You see a puff of smoke.' },
+    { label: 'negative magic charge', otyp: MAGIC_LAMP, charge: -1,
+        blind: false, rolls: [0], message: 'Nothing happens.' },
+    { label: 'blind empty magic smoke', otyp: MAGIC_LAMP, charge: 0,
+        blind: true, rolls: [1], message: 'You smell smoke.' },
+    { label: 'blind charged magic smoke', otyp: MAGIC_LAMP, charge: 1,
+        blind: true, rolls: [2, 1], message: 'You smell smoke.' },
+    // apply.c:1836-1843: nonmagic lamps have no random feedback selection.
+    { label: 'oil lamp', otyp: OIL_LAMP, charge: 0,
+        blind: false, rolls: [], message: 'Nothing happens.' },
+    { label: 'brass lantern', otyp: BRASS_LANTERN, charge: 0,
+        blind: false, rolls: [], message: 'Anyway, nothing exciting happens.' },
+]) {
+    test(`dorub handles ${label} in source order`, async () => {
+        const lamp = await prepareAlreadyWieldedMagicLamp();
+        lamp.otyp = otyp;
+        lamp.spe = charge;
+        // Ten turns keep this constructed direct invocation Blind without
+        // approaching an unrelated timeout transition.
+        if (blind) game.u.uprops[BLINDED].intrinsic = 10;
+        const original = structuredClone({ ...lamp, nobj: null });
+        const remaining = [...rolls];
+        const bounds = [];
+        // The lantern's two source messages can require a More response.
+        game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+        assert.equal(await dorub(game, { random: {
+            rn2(bound) { bounds.push(bound); return remaining.shift(); },
+        } }), ECMD_TIME);
+        assert.deepEqual(bounds, otyp === MAGIC_LAMP
+            ? charge > 0 ? [3, 2] : [2] : []);
+        assert.deepEqual(remaining, []);
+        assert.equal(game._pending_message, message);
+        assert.deepEqual(structuredClone({ ...lamp, nobj: null }), original);
+        assert.equal(game.uwep, lamp);
+    });
+}
+
 test('dorub transforms a releasing magic lamp before creating the djinni',
     async () => {
     const lamp = await prepareAlreadyWieldedMagicLamp();
@@ -262,11 +310,61 @@ test('dorub transforms a releasing magic lamp before creating the djinni',
             assert.equal(releasedLamp.age, 1234);
         },
     }), ECMD_TIME);
-    assert.equal(bounds[0], 3);
+    // makeknown -> o_init.c:483 exercise(A_WIS,TRUE) draws rn2(19) after
+    // the djinni owner returns, as attrib.c:509 specifies.
+    assert.deepEqual(bounds, [3, 19]);
     assert.equal(released, true);
     assert.equal(game.uwep, lamp);
     assert.equal(lamp.otyp, OIL_LAMP);
     assert.equal(lamp.spe, 0);
+});
+
+test('dorub schedules an already lit transformed lamp before djinni release',
+    async () => {
+    const lamp = await prepareAlreadyWieldedMagicLamp();
+    // apply.c:1827-1828: a lit MAGIC_LAMP has no fuel timer until its type
+    // changes to OIL_LAMP. begin_burn(TRUE) keeps the existing light and
+    // schedules the first fuel segment; timeout.c leaves 150 fuel at expiry.
+    lamp.lamplit = true;
+    const calls = [];
+    assert.equal(await dorub(game, {
+        random: {
+            rn2(bound) { calls.push(['rn2', bound]); return 0; },
+            rn1(bound, base) { calls.push(['rn1', bound, base]); return 1234; },
+        },
+        async djinniFromBottle(obj) {
+            assert.equal(obj, lamp);
+            assert.equal(obj.otyp, OIL_LAMP);
+            assert.equal(obj.spe, 0);
+            assert.equal(obj.lamplit, true);
+            assert.equal(obj.timed, 1);
+            assert.equal(obj.age, 150);
+            calls.push(['djinni']);
+        },
+    }), ECMD_TIME);
+    // The discovery draw follows the djinni, not the fuel timer setup.
+    assert.deepEqual(calls, [
+        ['rn2', 3], ['rn1', 500, 1000], ['djinni'], ['rn2', 19],
+    ]);
+});
+
+test('dorub preserves a failed wield return without queuing or lamp RNG',
+    async () => {
+    await runSegment(segmentThroughWish());
+    const lamp = inventoryObject(MAGIC_LAMP);
+    const weapon = game.uwep;
+    // apply.c:1806-1812 returns ECMD_OK when wield_tool cannot replace a
+    // welded weapon. The starting Wizard quarterstaff supplies that state.
+    weapon.cursed = true;
+    game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+    game.nhDisplay.pushKey(lamp.invlet.charCodeAt(0));
+    let draws = 0;
+    assert.equal(await dorub(game, { random: {
+        rn2() { draws++; return 0; },
+    } }), ECMD_OK);
+    assert.equal(draws, 0);
+    assert.equal(game.uwep, weapon);
+    assert.equal(game.command_queue[CQ_CANNED].length, 0);
 });
 
 for (const {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C126 input plan, fixed seed and clock; no seed search. Blindness from the worn blindfold selects smell when an empty magic lamp smoke roll succeeds; repeated rub commands sample both source feedback outcomes. Setup corrected from saved independent C inventory/prompt observations in .cache/C126-rub-blind-empty-magic-lamp-initial.json: select the recorded lamp letter; the blindfold is q for this seed. Remove surplus idle spaces after feedback.",
+  "segments": [
+    {
+      "seed": 126070104,
+      "datetime": "20510314092653",
+      "nethackrc": "OPTIONS=name:RubBranches,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed magic lamp (0)\n \u0017uncursed blindfold\n Pq #rub\np#rub\np#rub\np"
+    }
+  ]
+}

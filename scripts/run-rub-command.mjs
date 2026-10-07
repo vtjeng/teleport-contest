@@ -5,11 +5,14 @@
 // JavaScript port.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import { CQ_CANNED, W_WEP } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { MAGIC_LAMP, OIL_LAMP } from '../js/objects.js';
+import { BRASS_LANTERN, MAGIC_LAMP, OIL_LAMP } from '../js/objects.js';
+import { PM_EARTH_ELEMENTAL } from '../js/monsters.js';
+import { heroIsBlind } from '../js/startup_a11y.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
@@ -225,6 +228,54 @@ async function verifyRubLampRelease(segment) {
     return replay;
 }
 
+// These seeds were chosen as a fixed consecutive set before comparing C;
+// no seed scan. Blindness is varied through a worn blindfold, and the nohands
+// case changes form instead of relying on a directly constructed state.
+const feedbackCases = [
+    { name: 'rub-empty-magic-lamp', otyp: MAGIC_LAMP },
+    { name: 'rub-oil-lamp', otyp: OIL_LAMP },
+    { name: 'rub-brass-lantern', otyp: BRASS_LANTERN },
+    { name: 'rub-blind-empty-magic-lamp', otyp: MAGIC_LAMP, blind: true },
+    { name: 'rub-nohands-form', nohands: true },
+];
+
+export function loadRubFeedbackRecipes() {
+    return feedbackCases.map(entry => ({ ...entry, recipe: validateCleanRecipe(
+        JSON.parse(readFileSync(new URL(
+            `../recipes/apply.c/${entry.name}.recipe.session.json`, import.meta.url,
+        ))), entry.name,
+    ) }));
+}
+
+async function verifyRubFeedback(segment) {
+    const entry = loadRubFeedbackRecipes().find(item =>
+        item.recipe.segments[0].seed === segment.seed);
+    let boundary = null;
+    await runSegment(segment, { onBoundary: error => { boundary = error; } });
+    assert.equal(boundary, null);
+    if (entry.nohands) {
+        assert.equal(game.u.umonnum, PM_EARTH_ELEMENTAL);
+        assert.equal(game.nhDisplay.toplines,
+            "You aren't able to rub anything without hands.");
+        return;
+    }
+    assert.equal(game.uwep?.otyp, entry.otyp);
+    assert.equal(game.uwep?.owornmask & W_WEP, W_WEP);
+    assert.equal(game.command_queue[CQ_CANNED].length, 0);
+    if (entry.otyp === MAGIC_LAMP) assert.equal(game.uwep.spe, 0);
+    if (entry.blind) {
+        assert.equal(heroIsBlind(game), true);
+        assert.match(game.nhDisplay.toplines, /You smell smoke\./u);
+    } else if (entry.otyp === BRASS_LANTERN) {
+        assert.match(game.nhDisplay.toplines, /Anyway, nothing exciting happens\./u);
+    } else if (entry.otyp === OIL_LAMP) {
+        assert.match(game.nhDisplay.toplines, /Nothing happens\./u);
+    } else {
+        assert.match(game.nhDisplay.toplines,
+            /(?:You see a puff of smoke|Nothing happens)\./u);
+    }
+}
+
 export async function runRubCommandMatrix() {
     const cancellation = await runFreshMatrix({
         entries: [{
@@ -238,6 +289,16 @@ export async function runRubCommandMatrix() {
     });
     if (!cancellation.passed) return cancellation;
     assert.equal(cancellation.totals.segments, 1);
+
+    const feedback = await runFreshMatrix({
+        entries: loadRubFeedbackRecipes().map(entry => ({
+            label: entry.name, recipe: entry.recipe,
+        })),
+        verifySegment: verifyRubFeedback,
+        summaryLabel: 'RUB EMPTY AND ORDINARY LAMP FEEDBACK',
+        chunkLimit: 1,
+    });
+    if (!feedback.passed) return feedback;
 
     const nonrelease = await runFreshMatrix({
         entries: [
@@ -299,15 +360,15 @@ export async function runRubCommandMatrix() {
     return {
         passed: true,
         totals: {
-            segments: cancellation.totals.segments + nonrelease.totals.segments
+            segments: cancellation.totals.segments + feedback.totals.segments + nonrelease.totals.segments
                 + release.totals.segments,
-            rng: cancellation.totals.rng + nonrelease.totals.rng
+            rng: cancellation.totals.rng + feedback.totals.rng + nonrelease.totals.rng
                 + release.totals.rng,
-            screens: cancellation.totals.screens + nonrelease.totals.screens
+            screens: cancellation.totals.screens + feedback.totals.screens + nonrelease.totals.screens
                 + release.totals.screens,
-            cursors: cancellation.totals.cursors + nonrelease.totals.cursors
+            cursors: cancellation.totals.cursors + feedback.totals.cursors + nonrelease.totals.cursors
                 + release.totals.cursors,
-            animFrames: cancellation.totals.animFrames
+            animFrames: cancellation.totals.animFrames + feedback.totals.animFrames
                 + nonrelease.totals.animFrames + release.totals.animFrames,
         },
     };

@@ -186940,7 +186940,7 @@
     {
       "id": "port-apply-rub-ok-dorub-v25-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete lamp and object rubbing behavior",
       "cFile": "apply.c",
       "sessions": [
@@ -186948,24 +186948,31 @@
       ],
       "selectionReason": "Select synthetic/v25/v25-rub-empty-lamp from challenges/evaluations/20261007031630-v25.json and investigations/synthetic/v25/v25-rub-empty-lamp.json. Its five unmatched screens begin at step 34 where the already-wielded empty magic lamp reaches apply.c:dorub. Complete consecutive rub_ok/dorub, preserve the canned wield retry, charged and empty lamp RNG, blind smoke, lantern/default feedback, and reuse existing return-valued stone, jelly, wield, burn, and djinni owners.",
       "detail": "Port apply.c:rub_ok and dorub lines 1770-1843 in source order. The current JavaScript wrongly nests the whole magic-lamp arm under spe > 0 and refuses empty magic lamps, blind smoke, brass lanterns, and ordinary default rubbing. Use the admitted v25 case and independent empty, oil, lantern, blind, cancellation, wield/requeue, and charged-lamp variations. Keep artifact-light shutdown and any source-discarded gaps precisely named.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "7c62b202d747ea9b09a033eac09bd40ef0781de6",
+      "openStanding": {
+        "sha": "1492781324fc20c0fc4428a5cdd1bc94eb4ea8c7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rub_ok",
           "line": 1770,
           "endLine": 1784,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dorub",
           "line": 1785,
           "endLine": 1846,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -186984,6 +186991,321 @@
           "recordingSha256": "96984ba3ef6982e8ad57293ed80c8c91192091fb3810cfef0f0ce4b54db2e470",
           "evaluationPath": "challenges/evaluations/20261007031630-v25.json",
           "evaluationCommit": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0"
+        }
+      },
+      "activeStanding": {
+        "sha": "1492781324fc20c0fc4428a5cdd1bc94eb4ea8c7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-rub-empty-lamp",
+          "session": "synthetic/v25/v25-rub-empty-lamp",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recording": "challenges/cases/v25/v25-rub-empty-lamp.session.json",
+          "recordingPath": "challenges/cases/v25/v25-rub-empty-lamp.session.json",
+          "recordingSha256": "96984ba3ef6982e8ad57293ed80c8c91192091fb3810cfef0f0ce4b54db2e470",
+          "recipe": "challenges/cases/v25/v25-rub-empty-lamp.recipe.session.json",
+          "recipeSha256": "59997a2959f00c79f9885de7ed5bf47b22ff48ed9ed46ce661cc519f45640687",
+          "replayInputSha256": "aed54deecc533d2a4ab47681b8a46bd4892e74632f6c1a62bf765fa62151f925",
+          "evaluationPath": "challenges/evaluations/20261007040906-v25.json",
+          "evaluationCommit": "1492781324fc20c0fc4428a5cdd1bc94eb4ea8c7",
+          "evaluationArtifact": "challenges/evaluations/20261007040906-v25.json",
+          "evaluationUtc": "2026-10-07T04:11:15.751Z",
+          "remainingScreens": 5,
+          "recordedSteps": 39,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2087,
+              "total": 2104
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires dorub() with an empty or non-magic already-wielded lamp",
+            "step": 34
+          },
+          "step": 34,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "dorub",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires dorub() with an empty or non-magic already-wielded lamp",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v25/v25-rub-empty-lamp.json",
+            "result": {
+              "session": "synthetic/v25/v25-rub-empty-lamp",
+              "corpus": "synthetic",
+              "batch": "v25",
+              "caseId": "v25-rub-empty-lamp",
+              "remainingScreens": 5,
+              "recordedSteps": 39,
+              "manifestPath": "challenges/manifests/v25.json",
+              "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+              "recordingSha256": "96984ba3ef6982e8ad57293ed80c8c91192091fb3810cfef0f0ce4b54db2e470",
+              "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+              "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+              "commit": "71291cddc9ce9b3fc384dd20d0338d406d60b9ba",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v25",
+                "caseId": "v25-rub-empty-lamp",
+                "session": "synthetic/v25/v25-rub-empty-lamp",
+                "manifestPath": "challenges/manifests/v25.json",
+                "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+                "recording": "challenges/cases/v25/v25-rub-empty-lamp.session.json",
+                "recordingPath": "challenges/cases/v25/v25-rub-empty-lamp.session.json",
+                "recordingSha256": "96984ba3ef6982e8ad57293ed80c8c91192091fb3810cfef0f0ce4b54db2e470",
+                "recipe": "challenges/cases/v25/v25-rub-empty-lamp.recipe.session.json",
+                "recipeSha256": "59997a2959f00c79f9885de7ed5bf47b22ff48ed9ed46ce661cc519f45640687",
+                "replayInputSha256": "6bc0286d388cbaacf2ee80ef4a23bbc56c713f2afd3880fc002fd1889560e766",
+                "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+                "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+                "evaluationArtifact": "challenges/evaluations/20261007010702-v25.json",
+                "evaluationUtc": "2026-10-07T01:07:09.780Z",
+                "remainingScreens": 5,
+                "recordedSteps": 39,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2087,
+                    "total": 2104
+                  },
+                  "cursors": {
+                    "matched": 34,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires dorub() with an empty or non-magic already-wielded lamp",
+                  "step": 34
+                },
+                "step": 34,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "dorub",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires dorub() with an empty or non-magic already-wielded lamp",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "file-port",
+              "summary": "The #rub command selects an already-wielded MAGIC_LAMP with spe==0. C skips the spe>0/rn2(3) release test, then draws rn2(2) for smoke versus Nothing happens and returns ECMD_TIME. JavaScript restricts the entire MAGIC_LAMP arm to spe>0 and otherwise throws before the source feedback. Whole apply.c:rub_ok/dorub completion must restore empty-lamp, Blind smoke, BRASS_LANTERN two-message and generic tool branches while retaining wield/queued continuation and existing stone/jelly/djinni owners.",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "rub_ok",
+                  "dorub"
+                ],
+                "branch": "Hero has hands, getobj(rub,rub_ok,GETOBJ_NOFLAGS) selects an object already equal to uwep; MAGIC_LAMP spe<=0 must short-circuit only rn2(3), not the enclosing lamp type arm. Other whole-function paths include cancellation, stones/jelly, wield_tool/command requeue, charged release and lamp/nonlamp feedback.",
+                "callers": [
+                  "cmd.c extcmdlist rub row -> rhack; js/cmd.js5746 rub arm -> runApplyCommand -> apply.c dorub via registered tool dispatch",
+                  "apply.c1808 cmdq_add_ec(CQ_CANNED,dorub), then cmdq_add_key invlet -> queued second command after wield_tool"
+                ],
+                "dependencies": [
+                  "Pure apply.c rub_ok uses objects and is_graystone and has existing focused tests; refresh whole callback evidence.",
+                  "Returned use_stone and use_royal_jelly owners already have verified source evidence; inspect their whole return contracts during implementation.",
+                  "Returned wield.c wield_tool is source-aligned in js/wield.js1054-1128; its source ready_weapon/setuwep/queue operations need caller evidence. Existing artifact-light shutdown in setuwep remains a named outside-limit dependency.",
+                  "Discarded check_unpaid_usage, begin_burn(alreadyLit), djinni_from_bottle, makeknown and update_inventory have existing owners; audit charged lamp order and light transition. Pending makewish integration can be reused at the next clean boundary for wish-path evidence."
+                ]
+              },
+              "evidence": [
+                "Saved v25 admission queue reports 34/39 screens matched (5 remaining), first stop at segment0 step34 after selecting the already-wielded empty magic lamp. Evaluation challenges/evaluations/20261007010702-v25.json at9aea0fdd726850fad5342bc3eabb32f89a78a0c0 retains input/hash provenance.",
+                "Bounded run-iv3hSi refresh at worker delivery7dd00e95a45865debb3f4ca490c72a57337c78a0 reproduces the same 34/39 stop, no earlier divergence, UnsupportedApplyError for empty/nonmagic already-wielded lamp; artifact /tmp/teleport-loop-worker-b-20260925/.cache/B125-next-rub-replay.json. `git diff 71291cddc9ce9b3fc384dd20d0338d406d60b9ba..7dd00e95a45865debb3f4ca490c72a57337c78a0 -- js/apply.js js/wield.js js/timeout.js js/potion.js js/cmd.js` is empty, so the source diagnosis applies to the published examined commit.",
+                "Read complete C apply.c1770-1843 and js/apply.js2015-2027,2209-2279. C tests type MAGIC_LAMP outside the charged release condition; JS combines type and positive spe at2238, then throws at2276. C1833 chooses Blind smell text and1836-1841 handles lantern/default; JS Blind branch throws2265 and lantern/default are missing.",
+                "Smallest independently assignable source task is whole apply.c rub_ok/dorub, preserve dispatcher and canned command wiring, refresh pure callback test and all source branches. Expected write set js/apply.js, scripts/rub-command.test.mjs, scripts/run-rub-command.mjs, recipes/apply.c and recordings/apply.c. Existing independent rub matrix covers cancel, wield/requeue, charged smoke/nothing and several djinni outcomes; add independently chosen empty magic/oil lamp, brass lantern and Blind smoke variations. No game edits or C recordings were created for this investigation."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "rub_ok",
+            "implementation": "js/apply.js",
+            "symbol": "rub_ok",
+            "sourceReview": "Read complete apply.c1770-1782 and obj.h413-415 is_graystone. Pure selection callback returns GETOBJ_EXCLUDE for null/other objects and GETOBJ_SUGGEST for OIL_LAMP, MAGIC_LAMP, BRASS_LANTERN, LUCKSTONE, LOADSTONE, FLINT, TOUCHSTONE, and LUMP_OF_ROYAL_JELLY. Existing implementation already matches whole source; source-pinned result tests refreshed without inventing a second callback.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "dorub",
+                "source": "apply.c1793 getobj(\"rub\",rub_ok,GETOBJ_NOFLAGS); canonical inventory owner calls this pure ranking callback."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/rub-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "e61af74e9cd0087d730c364dcc8488bf0702ad32"
+          },
+          {
+            "name": "dorub",
+            "implementation": "js/apply.js",
+            "symbol": "dorub",
+            "sourceReview": "Read complete apply.c1785-1846 in definition order. Preserve nohands free return before getobj; canceled ECMD_CANCEL; GEM/FOOD returned use_stone/use_royal_jelly owners; nonwielded tool returned wield_tool and exact CQ_CANNED extcmd then letter append; failed wield ECMD_OK; enclosing MAGIC_LAMP type test; spe>0 short-circuit only rn2(3); transformation to OIL_LAMP/spe0/rn1(500,1000) before conditional begin_burn(TRUE), awaited djinni, makeknown and update_inventory; else rn2(2) selects sighted/Blind smoke or nothing. Lantern messages are separately awaited in order, ordinary/default feedback has no lamp RNG, final ECMD_TIME shared. Removed both owned UnsupportedApplyError sites and obsolete partial comment. Reused current stone/jelly/wield/burn/djinni/discovery owners after reading their implementations; source-pinned tests include first burn timer before djinni and o_init.c483 -> attrib.c509 discovery rn2(19) afterward. Existing inherited limits are not claimed: wield.c:setuwep via js/worn.js still lacks production endArtifactLight closure for unwielding an already shining artifact (recipes/wield.c/b121-sunsword-unwield.session.json); shk.c:check_unpaid_usage has an existing unpaid-shop fee refusal; use_royal_jelly retains explicit note_unported(\"timeout.c kill_egg\") for its discarded void call, and stone owner retains shk.c gem_learned note where applicable. No owner or callee source-completion credit is added.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runRubCommand",
+                "source": "cmd.c1835-1836 extcmdlist M(r) rub row uses dorub; production rhack dispatch reaches runRubCommand; cmd.js5141 canned dorub and5750 rub extended command return handler results. js/cmd.js change is only the coordinator-approved obsolete caller comment, with no behavior/source credit."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "dorub",
+                "source": "apply.c1808-1809 CQ_CANNED dorub then obj->invlet; existing command queue consumes return and selected object identity on the next turn."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rub-command.test.mjs",
+              "scripts/apply.test.mjs",
+              "scripts/apply-royal-jelly.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/rub-empty-magic-lamp.session.json",
+              "recordings/apply.c/rub-oil-lamp.session.json",
+              "recordings/apply.c/rub-brass-lantern.session.json",
+              "recordings/apply.c/rub-blind-empty-magic-lamp.session.json",
+              "recordings/apply.c/rub-nohands-form.session.json",
+              "recordings/apply.c/rub-selection-cancel.session.json",
+              "recordings/apply.c/rub-charged-magic-lamp-smoke.session.json",
+              "recordings/apply.c/rub-charged-magic-lamp-wish.session.json",
+              "recordings/apply.c/rub-charged-magic-lamp-hostile.session.json",
+              "recordings/apply.c/touchstone-rub-independent.session.json",
+              "recordings/apply.c/royal-jelly-rubs-plain-egg-c57-independent.session.json",
+              "recordings/apply.c/royal-jelly-rubs-blessed-plain-egg-c57-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-rub-empty-lamp",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 38,
+                "source": "cmd.c extcmdlist rub -> rhack -> apply.c dorub:1785-1846; selected empty MAGIC_LAMP already equals uwep, skips rn2(3), evaluates rn2(2), prints smoke/nothing and returns ECMD_TIME; rub_ok is getobj callback at1793."
+              }
+            ],
+            "checkedAt": "e61af74e9cd0087d730c364dcc8488bf0702ad32"
+          }
+        ],
+        "entryPointReview": "Active entry points are the #rub/meta-r command through cmd.c extcmdlist/rhack and dorub's own canned continuation after wield_tool. rub_ok executes within getobj in both. No reference-build exclusions. Independent new fixed seeds126070101-105/20510314092653 cover empty MAGIC_LAMP, oil lamp, lantern, worn-blindfold smoke and earth-elemental nohands; state assertions establish wielded identity, empty charge, blindness/form, messages and drained canned queue. Existing independent charged smoke, canceled object selection, djinni wish/hostile recipes are now preserved under apply.c; complete pre-existing matrix refresh also covers charged nothing, tame/peaceful/vanish and beatitude-dependent djinni draws. Existing stone and two royal-jelly recordings refresh the returned helper caller arms without claiming their unrelated effects. Setup observations retained: some independently selected seeds assigned lamp p rather than o, blindfold q; the lantern requires two More responses, observed separately after wield then first Adventure message. Initial parity-only probes that selected the wrong inventory slot were excluded from final evidence by production assertions. Floating-eye variation stopped earlier at polyself.c polymon/break_armor -> do.c dropx unreachable-floor refusal; retained recipes/apply.c/rub-floating-eye-blocked.recipe.session.json, .cache/C126-rub-nohands-form-initial.json and .cache/C126-nohands-initial-compare.json. Earth-elemental variation reaches nohands fully without that levitating drop dependency. A constructed lit-release test first omitted the correct discovery exercise draw; source o_init.c483/attrib.c509 proves rn2(19) after djinni and the expectation was corrected. No seed search, central record edit, extra source credit or game owner change.",
+        "entryPoints": [
+          {
+            "name": "Rub command object filtering, cancellation, stone/jelly and lamp/nohands feedback",
+            "functions": [
+              "rub_ok",
+              "dorub"
+            ],
+            "recordings": [
+              "recordings/apply.c/rub-empty-magic-lamp.session.json",
+              "recordings/apply.c/rub-oil-lamp.session.json",
+              "recordings/apply.c/rub-brass-lantern.session.json",
+              "recordings/apply.c/rub-blind-empty-magic-lamp.session.json",
+              "recordings/apply.c/rub-nohands-form.session.json",
+              "recordings/apply.c/rub-selection-cancel.session.json",
+              "recordings/apply.c/rub-charged-magic-lamp-smoke.session.json",
+              "recordings/apply.c/rub-charged-magic-lamp-wish.session.json",
+              "recordings/apply.c/rub-charged-magic-lamp-hostile.session.json",
+              "recordings/apply.c/touchstone-rub-independent.session.json",
+              "recordings/apply.c/royal-jelly-rubs-plain-egg-c57-independent.session.json",
+              "recordings/apply.c/royal-jelly-rubs-blessed-plain-egg-c57-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-rub-empty-lamp",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 38,
+                "source": "cmd.c extcmdlist rub -> rhack -> apply.c dorub:1785-1846; selected empty MAGIC_LAMP already equals uwep, skips rn2(3), evaluates rn2(2), prints smoke/nothing and returns ECMD_TIME; rub_ok is getobj callback at1793."
+              }
+            ]
+          },
+          {
+            "name": "Queued rub continuation after successful tool wield",
+            "functions": [
+              "rub_ok",
+              "dorub"
+            ],
+            "recordings": [
+              "recordings/apply.c/rub-empty-magic-lamp.session.json",
+              "recordings/apply.c/rub-oil-lamp.session.json",
+              "recordings/apply.c/rub-brass-lantern.session.json",
+              "recordings/apply.c/rub-blind-empty-magic-lamp.session.json",
+              "recordings/apply.c/rub-charged-magic-lamp-smoke.session.json",
+              "recordings/apply.c/rub-charged-magic-lamp-wish.session.json",
+              "recordings/apply.c/rub-charged-magic-lamp-hostile.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-potion-dip-acid-null-description-v25-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Pass the acid-dip erosion description with JavaScript null semantics",
+      "cFile": "potion.c",
+      "sessions": [],
+      "selectionReason": "Select the one-screen v25 acid-dip mismatch from investigations/synthetic/v25/v25-dip-acid.json. Source tracing limits the correction to potion.c:potion_dip and the shared erosion-description contract.",
+      "detail": "At segment 0 step 50, C prints “Your dagger corrodes!” while JavaScript prints “Your 0 corrodes!”. potion.c:potion_dip passes integer constant 0 as a null char pointer to trap.c:erode_obj, whose null branch supplies cxname(obj); js/potion.js passes numeric 0, which js/trap_erode_obj.js treats as an explicit description. Replace that caller value with null and verify singular, plural or protected wording plus independent C acid-dip cases.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "potion_dip",
+      "session": "synthetic/v25/v25-dip-acid",
+      "step": 50,
+      "syntheticProvenance": {
+        "synthetic/v25/v25-dip-acid": {
+          "session": "synthetic/v25/v25-dip-acid",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-dip-acid",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-dip-acid.session.json",
+          "recordingSha256": "f46124ccaff9317081445ea3bef330d0e520ab8636725e1504ba025fb3cfb049",
+          "evaluationPath": "challenges/evaluations/20261007043256-v25.json",
+          "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32"
         }
       }
     }
