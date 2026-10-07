@@ -190241,7 +190241,7 @@
     {
       "id": "port-rumors-doconsult-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port Oracle consultation and wire the chat caller",
       "cFile": "rumors.c",
       "sessions": [
@@ -190249,8 +190249,12 @@
       ],
       "selectionReason": "Next complete admitted synthetic investigation: 10 remaining screens at step 33 where Oracle chat should return the no-gold message.",
       "detail": "Port whole doconsult and wire sounds.c domonnoise MS_ORACLE. Preserve no-gold, peacefulness, payment, minor and major consultation state in source order; retain outoracle as an explicit discarded-result gap until its separate implementation.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "ebd90eeb960a7ae31b4a357c3d23fd5ada20d674",
+      "openStanding": {
+        "sha": "9c713afc4bf47c40ef07201b56da0513b4e09ceb",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -190279,7 +190283,165 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "9c713afc4bf47c40ef07201b56da0513b4e09ceb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-oracle-chat",
+          "session": "synthetic/v26/v26-oracle-chat",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-oracle-chat.session.json",
+          "recordingPath": "challenges/cases/v26/v26-oracle-chat.session.json",
+          "recordingSha256": "88edad154596161f9e8139b22754d77351b638100bfefaa21764578d973714d4",
+          "recipe": "challenges/cases/v26/v26-oracle-chat.recipe.session.json",
+          "recipeSha256": "f0b62a3db6d80805e93f39118b6bfec1e1e5e58e18aecb4639e24b28529772fe",
+          "replayInputSha256": "7c02d5c8e3e0e02391e38103900f17733be91b670cf56548d3a1aa72bde0a8f9",
+          "evaluationPath": "challenges/evaluations/20261007154602-v26.json",
+          "evaluationCommit": "9c713afc4bf47c40ef07201b56da0513b4e09ceb",
+          "evaluationArtifact": "challenges/evaluations/20261007154602-v26.json",
+          "evaluationUtc": "2026-10-07T15:48:07.738Z",
+          "remainingScreens": 10,
+          "recordedSteps": 43,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 43
+            },
+            "rng": {
+              "matched": 2208,
+              "total": 2208
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 43
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: #chat needs oracle consultation (doconsult())",
+            "step": 33
+          },
+          "step": 33,
+          "kind": "stop",
+          "sourceFile": "rumors.c",
+          "function": "doconsult",
+          "message": "unsupported hero command: an unported branch of this command: #chat needs oracle consultation (doconsult())",
+          "cFile": "rumors.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-oracle-chat.json",
+            "result": {
+              "session": "synthetic/v26/v26-oracle-chat",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-oracle-chat",
+              "remainingScreens": 10,
+              "recordedSteps": 43,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "88edad154596161f9e8139b22754d77351b638100bfefaa21764578d973714d4",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "status": "complete",
+              "commit": "b3158961f5508f84d8e426b0e786ad35ac6eb95b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-oracle-chat",
+                "session": "synthetic/v26/v26-oracle-chat",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-oracle-chat.session.json",
+                "recordingPath": "challenges/cases/v26/v26-oracle-chat.session.json",
+                "recordingSha256": "88edad154596161f9e8139b22754d77351b638100bfefaa21764578d973714d4",
+                "recipe": "challenges/cases/v26/v26-oracle-chat.recipe.session.json",
+                "recipeSha256": "f0b62a3db6d80805e93f39118b6bfec1e1e5e58e18aecb4639e24b28529772fe",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 10,
+                "recordedSteps": 43,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 43
+                  },
+                  "rng": {
+                    "matched": 2208,
+                    "total": 2208
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 43
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: #chat needs oracle consultation (doconsult())",
+                  "step": 33
+                },
+                "step": 33,
+                "kind": "stop",
+                "sourceFile": "rumors.c",
+                "function": "doconsult",
+                "message": "unsupported hero command: an unported branch of this command: #chat needs oracle consultation (doconsult())",
+                "cFile": "rumors.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "#chat reaches rumors.c:doconsult() for the peaceful Oracle. At zero-based step 33, the hero has no gold, so C prints “You have no gold.” and returns ECMD_OK before prompting or charging. JavaScript currently throws at the MS_ORACLE arm before these guards. Port the whole doconsult() function and wire that arm; major consultations still depend on the unported outoracle() path and its oracle-list state.",
+              "source": {
+                "file": "rumors.c",
+                "branch": "sounds.c:domonnoise() selects MS_ORACLE and calls doconsult(mtmp). The recorded branch has a nonnull peaceful Oracle and money_cnt(gi.invent) == 0, so doconsult() takes its no-gold guard after setting gm.multi = 0 and returns ECMD_OK. The whole function also owns minor and major consultation prompts, payment, event flags, experience, and wisdom exercise.",
+                "functions": [
+                  "doconsult"
+                ],
+                "callers": [
+                  "sounds.c:domonnoise() MS_ORACLE switch arm directly returns doconsult(mtmp).",
+                  "sounds.c:dochat() returns domonnoise(mtmp) for the selected adjacent monster; sounds.c:dotalk() calls dochat(), and cmd.c maps #chat to dotalk().",
+                  "JavaScript path: js/cmd.js command dispatch -> js/sounds.js dochat() -> domonnoise() MS_ORACLE arm, currently an UnsupportedChatError."
+                ],
+                "dependencies": [
+                  "hack.c:money_cnt(gi.invent) reads carried gold; already implemented as js/invent.js:money_cnt().",
+                  "cmd.c:yn_function() via hack.h ynq() and y_n() macros prompts and records answers in repeat-command state; js/cmd.js provides yn_function() and y_n(), while js/lock.js:ynq() deliberately disables repeat recording for its lock-specific callers.",
+                  "invent.c:currency() formats consultation prices; already implemented as js/invent.js:currency().",
+                  "shk.c:money2mon() transfers the paid gold to the Oracle; already implemented as js/shk.js:money2mon().",
+                  "rumors.c:outrumor(1, BY_ORACLE) supplies minor-consultation text; implemented as js/random_text.js:outrumor().",
+                  "rumors.c:outoracle() supplies major-consultation text and consumes the saved oracle list; no JavaScript implementation or oracle_flg/oracle_cnt state is present, so the doconsult() port must record note_unported('rumors.c outoracle') until that callee is ported.",
+                  "insight.c:record_achievement(ACH_ORCL), attrib.c:exercise(A_WIS, ...), and exper.c:more_experienced()/newexplevel() are already represented by js/insight.js, js/attrib.js, and js/exper.js."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry .cache/v26-oracle-chat-queue-entry.json identifies synthetic/v26/v26-oracle-chat, 10 remaining screens, 43 recorded steps, and first stop at step 33; the immutable evaluation is challenges/evaluations/20261007095608-v26.json at evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44.",
+                "The C recording challenges/cases/v26/v26-oracle-chat.session.json has step 33 key j and screen message “You have no gold.”; the recipe creates a peaceful Oracle and invokes #chat, confirming the first C branch is doconsult()’s no-money guard rather than a later consultation prompt.",
+                "nethack-c/upstream/src/sounds.c:679-725 dispatches MS_ORACLE to doconsult(mtmp); sounds.c:1248-1420 shows dotalk()->dochat()->domonnoise(), and cmd.c:1692 registers dotalk for #chat.",
+                "nethack-c/upstream/src/rumors.c:696-770 sets gm.multi to zero, checks null/unpeaceful/no-money in order, and returns ECMD_OK with “You have no gold.” when the recorded hero carries no coins. The later whole-function branches charge the Oracle, emit minor or major consultation output, set uevent flags, award experience, and exercise Wisdom.",
+                "js/sounds.js:1031-1032 throws UnsupportedChatError from MS_ORACLE before any doconsult() guard. The implementation task is a file-port of the whole C doconsult() function plus production wiring in domonnoise(); use C-equivalent yn_function repeat recording for ynq, and retain outoracle() as a named unported gap until its own source work."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "fix-do-flooreffects-boulder-floor-v26-20261007",
