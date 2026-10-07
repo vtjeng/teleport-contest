@@ -10,6 +10,7 @@ import {
     A_WIS,
     ARTICLE_A,
     BLINDED,
+    BOTH_SIDES,
     CONFUSION,
     DIR_ERR,
     DISMOUNT_BONES,
@@ -73,12 +74,12 @@ import {
 import { isok } from './cmd_isok.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import { newsym } from './display.js';
-import { heal_legs } from './do.js';
+import { heal_legs, legs_in_no_shape } from './do.js';
 import { finish_meating } from './dogmove.js';
 import {
     Monnam,
+    a_monnam,
     YMonnam,
-    capitalizedMonsterName,
     hliquid,
     monsterCommonName,
     mon_nam,
@@ -99,6 +100,7 @@ import {
     bigmonst,
     gender,
     humanoid,
+    mhe,
     is_flyer,
     is_floater,
     is_swimmer,
@@ -139,6 +141,7 @@ import { teleds } from './teleport.js';
 import {
     float_down,
     t_at,
+    trapname,
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { use_skill } from './weapon.js';
@@ -445,21 +448,15 @@ export async function use_saddle(otmp, state = game, env = {}) {
     return ECMD_TIME;
 }
 
-// C ref: steed.c mount_steed() (197-383). Every guard down to the impairment
-// roll is ported, along with the roll, the slip a failed roll causes, and the
-// success path from 358. Six arms stop instead of running, each named at its
-// site.
-//
-// `force` is TRUE only for the debug-mode "Force the mount to succeed?"
-// question, which doride() refuses before calling here, so every `!force` term
-// below is live and no `force`-only arm can run.
+// C ref: steed.c mount_steed() (197-386). Eligibility, refusal, impairment
+// and successful mounting follow source order, including debug force-healing.
 export async function mount_steed(mtmp, force, state = game) {
     const u = state.u;
 
     /* Sanity checks */
     if (u.usteed) {
         await ttyPline(
-            `You are already riding ${monsterCommonName(u.usteed, state)}.`,
+            `You are already riding ${mon_nam(u.usteed, state)}.`,
             state,
         );
         return false;
@@ -471,14 +468,17 @@ export async function mount_steed(mtmp, force, state = game) {
         return false;
     }
     if (propertyActive(state, WOUNDED_LEGS)) {
-        // do.c legs_in_no_shape() (2408-2423) reads EWounded_legs' side bits
-        // and makeplural(), and the `force && wizard` heal_legs() question
-        // below it is debug-mode only. That message/prompt branch remains
-        // unported; heal_legs() itself is available. The property is live: do.c
-        // set_wounded_legs() writes it, and trap.c trapeffect_bear_trap()'s
-        // hero arm reaches that writer, so a hero who walks into a bear trap
-        // and then rides arrives here.
-        throw new UnsupportedSteedError('mount_steed() with wounded legs');
+        await legs_in_no_shape('riding', false, state);
+        // C intentionally derives the prompt plural from HWounded_legs,
+        // the intrinsic timeout, rather than the extrinsic side bits.
+        const plural = ((u.uprops[WOUNDED_LEGS].intrinsic & BOTH_SIDES)
+            === BOTH_SIDES) ? 's' : '';
+        if (force && state.wizard
+            && await y_n(`Heal your leg${plural}?`, state) === 'y'.charCodeAt(0)) {
+            await heal_legs(state);
+        } else {
+            return false;
+        }
     }
 
     if (Upolyd(state.u)) {
@@ -506,12 +506,11 @@ export async function mount_steed(mtmp, force, state = game) {
     }
     if (mtmp.data === state.mons?.[PM_LONG_WORM]
         && (u.ux + u.dx !== mtmp.mx || u.uy + u.dy !== mtmp.my)) {
-        // "You couldn't ride %s, let alone its tail." needs a_monnam(), whose
-        // suppress flags x_monnam() does not cover. A long worm cannot reach
-        // dungeon level one: makemon.c rndmonst_adj() caps generation at
-        // monmax_difficulty(1) == 1 for an experience level 1 hero and the
-        // long worm's difficulty is 9.
-        throw new UnsupportedSteedError('mount_steed() onto a long worm tail');
+        await ttyPline(
+            `You couldn't ride ${a_monnam(mtmp, { state })}, let alone its tail.`,
+            state,
+        );
+        return false;
     }
     if (u.uswallow || u.ustuck || u.utrap || Punished(state)
         || !await test_move(u.ux, u.uy, mtmp.mx - u.ux, mtmp.my - u.uy,
@@ -529,52 +528,48 @@ export async function mount_steed(mtmp, force, state = game) {
     }
 
     /* Is this a valid monster? */
-    const otmp = which_armor(mtmp, W_SADDLE);
+    const otmp = which_armor(mtmp, W_SADDLE, state);
     if (!otmp) {
         await ttyPline(
-            `${capitalizedMonsterName(mtmp, state)} is not saddled.`, state,
+            `${Monnam(mtmp, state)} is not saddled.`, state,
         );
         return false;
     }
 
     const ptr = mtmp.data;
     if (touch_petrifies(ptr) && !propertyActive(state, STONE_RES)) {
-        // instapetrify() ends the game through done(STONING), which no part of
-        // the port covers. The arm is unreachable as well: guard 9 above
-        // has already established that the monster wears a saddle, and the only
-        // routes to a worn saddle -- use_saddle(), makedog() and makemon()'s 1%
-        // pony -- all run behind can_saddle(), which admits neither the
-        // cockatrice nor the chickatrice that touch_petrifies() names.
-        throw new UnsupportedSteedError('mount_steed() onto a petrifier');
+        await ttyPline(`You touch ${mon_nam(mtmp, state)}.`, state);
+        // trap.c:instapetrify is a void callee; its death/poly effect is unported.
+        note_unported('trap.c instapetrify');
     }
     if (!mtmp.mtame || mtmp.isminion) {
         await ttyPline(
-            `I think ${monsterCommonName(mtmp, state)} would mind.`, state,
+            `I think ${mon_nam(mtmp, state)} would mind.`, state,
         );
         return false;
     }
     if (mtmp.mtrapped) {
-        // "You can't mount %s while %s's trapped in %s." needs mhe()
-        // (you.h:322, through pronoun_gender()) and trapname() (trap.c:7100),
-        // neither of which is ported.
-        throw new UnsupportedSteedError('mount_steed() onto a trapped steed');
+        const trap = t_at(mtmp.mx, mtmp.my, state);
+        await ttyPline(
+            `You can't mount ${mon_nam(mtmp, state)} while `
+                + `${mhe(mtmp, { state, canSpotMonster: canspotmon })}'s trapped in `
+                + `${an(trapname(trap.ttyp, false, state))}.`,
+            state,
+        );
+        return false;
     }
 
     if (!force && state.urole?.mnum !== PM_KNIGHT && !(--mtmp.mtame)) {
         /* no longer tame */
-        newsym(mtmp.mx, mtmp.my);
+        newsym(mtmp.mx, mtmp.my, state);
         await ttyPline(
-            `${capitalizedMonsterName(mtmp, state)} resists`
+            `${Monnam(mtmp, state)} resists`
             + `${mtmp.mleashed ? ' and its leash comes off' : ''}!`,
             state,
         );
         if (mtmp.mleashed) {
-            // m_unleash() is unported. apply.c:use_leash() and mon.c:newcham()
-            // now own the leash pair; this untaming cleanup still needs the
-            // source's feedback and inventory update behavior.
-            throw new UnsupportedSteedError(
-                'mount_steed() unleashing an untamed steed',
-            );
+            // apply.c:m_unleash is void; its leash-pair cleanup remains unported.
+            note_unported('apply.c m_unleash');
         }
         return false;
     }
@@ -595,7 +590,7 @@ export async function mount_steed(mtmp, force, state = game) {
     if (!force && !is_floater(ptr) && !is_flyer(ptr) && Levitation(state)
         && !Lev_at_will(state)) {
         await ttyPline(
-            `You cannot reach ${monsterCommonName(mtmp, state)}.`, state,
+            `You cannot reach ${mon_nam(mtmp, state)}.`, state,
         );
         return false;
     }
@@ -603,7 +598,7 @@ export async function mount_steed(mtmp, force, state = game) {
         && greatest_erosion(state.uarm)) {
         await ttyPline(
             `Your ${state.uarm.oeroded ? 'rusty' : 'corroded'} armor is too `
-            + `stiff to be able to mount ${monsterCommonName(mtmp, state)}.`,
+            + `stiff to be able to mount ${mon_nam(mtmp, state)}.`,
             state,
         );
         return false;
@@ -611,7 +606,7 @@ export async function mount_steed(mtmp, force, state = game) {
     // The disjunction short-circuits, so the rnd(MAXULEV / 2 + 5) call is made
     // only when every impairment ahead of it is absent. Wounded_legs cannot
     // reach this line: the guard above returns for it whenever `force` is
-    // FALSE, which it always is outside debug mode.
+    // FALSE. A forced debug mount bypasses this entire impairment disjunction.
     if (!force
         && (propertyIntrinsic(state, CONFUSION)
             || propertyActive(state, FUMBLING)
@@ -622,13 +617,13 @@ export async function mount_steed(mtmp, force, state = game) {
             || (u.ulevel + mtmp.mtame < rnd(MAXULEV / 2 + 5)))) {
         if (Levitation(state)) {
             await ttyPline(
-                `${capitalizedMonsterName(mtmp, state)} slips away from you.`,
+                `${Monnam(mtmp, state)} slips away from you.`,
                 state,
             );
             return false;
         }
         await ttyPline(
-            `You slip while trying to get on ${monsterCommonName(mtmp, state)}`
+            `You slip while trying to get on ${mon_nam(mtmp, state)}`
             + '.',
             state,
         );
@@ -646,18 +641,17 @@ export async function mount_steed(mtmp, force, state = game) {
     await maybewakesteed(mtmp, state);
     if (!force) {
         if (Levitation(state) && !is_floater(ptr) && !is_flyer(ptr)) {
-            /* Must have Lev_at_will at this point: the guard above returns
-               for every other levitating hero. Nothing in this port grants
-               Lev_at_will, so this line is unreachable today. */
+            /* Must have Lev_at_will at this point: the guard above rejects
+               every other levitating hero. */
             await ttyPline(
-                `${capitalizedMonsterName(mtmp, state)} magically floats up!`,
+                `${Monnam(mtmp, state)} magically floats up!`,
                 state,
             );
         }
-        await ttyPline(`You mount ${monsterCommonName(mtmp, state)}.`, state);
+        await ttyPline(`You mount ${mon_nam(mtmp, state)}.`, state);
         if (Flying(state)) {
             await ttyPline(
-                `You and ${monsterCommonName(mtmp, state)} take flight `
+                `You and ${mon_nam(mtmp, state)} take flight `
                 + 'together.',
                 state,
             );
