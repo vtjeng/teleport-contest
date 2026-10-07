@@ -1053,7 +1053,7 @@ test('Buried zombies reuses its shuffled pool and replaces timers after delay', 
     }
 });
 
-test('Buried zombies default path owns buried corpses and final timers', () => {
+test('Buried zombies default path owns buried corpses and final timers', async () => {
     const { level, room } = twoByTwoRoom();
     const state = {
         ...rawMonsterGenerationState(),
@@ -1071,7 +1071,8 @@ test('Buried zombies default path owns buried corpses and final timers', () => {
     reset_mvitals(state);
     timeout_globals_init(state);
 
-    run_themeroom_fill(fillById('buried_zombies'), room, 1, {
+    // sp_lev.c:create_object finishes burial before the Lua callback resumes.
+    await run_themeroom_fill(fillById('buried_zombies'), room, 1, {
         state,
         random: quietObjectRandom(),
     });
@@ -2399,14 +2400,15 @@ test('Buried treasure formats every directional engraving branch', () => {
     }
 });
 
-test('Buried treasure owns a real buried container and its random contents', () => {
+test('Buried treasure owns a real buried container and its random contents', async () => {
     const { context, level, random, room, state } = monsterDescriptorFixture();
     state.gz = { zombify: false };
     init_objects(state, () => 0);
     timeout_globals_init(state);
     light_globals_init(state);
 
-    run_themeroom_fill(fillById('buried_treasure'), room, 1, {
+    // sp_lev.c:create_object finishes burial before the Lua callback resumes.
+    await run_themeroom_fill(fillById('buried_treasure'), room, 1, {
         state,
         random,
         spObjectContext: context,
