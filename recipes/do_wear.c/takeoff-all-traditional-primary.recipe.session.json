@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first takeoff-all-traditional-primary route through the whole do_wear.c takeoff family; seed and menu variation are independently chosen. ",
+  "segments": [
+    {
+      "seed": 134372,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:TakeoffWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,menustyle:traditional\n",
+      "moves": " A)\ny   ."
+    }
+  ]
+}

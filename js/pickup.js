@@ -2451,7 +2451,7 @@ function menuClassCharacter(c) {
 }
 
 // C ref: pickup.c:469-471. menu_class_present().
-function menu_class_present(c, state) {
+export function menu_class_present(c, state = game) {
     return Boolean(c && state.gv?.valid_menu_classes?.includes(
         menuClassCharacter(c),
     ));
@@ -2514,6 +2514,12 @@ export function allow_category(otmp, state = game) {
         if (!classes.includes(bucx)) return false;
     }
     return !state.gp?.picked_filter || Boolean(otmp.pickup_prev);
+}
+
+// C ref: pickup.c is_worn_by_type() (608-612). allow_category may mark
+// Priest inventory curse knowledge, so this predicate is not pure.
+export function is_worn_by_type(otmp, state = game) {
+    return Boolean(is_worn(otmp) && allow_category(otmp, state));
 }
 
 export function allow_all() {

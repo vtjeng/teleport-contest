@@ -648,7 +648,12 @@ test('force-fight routes digging tools to use_pick_axe2 and installs its occupat
     // hack.c domove_fight_ironbars() (1993-2016), which runs first.
     const bars = await heroInARoom();
     targetTerrain(bars, IRONBARS);
-    await refusedWest(bars, /iron bars/u);
+    const primary = bars.uwep;
+    await forceFightWest(bars);
+    assert.equal(bars.uwep, primary, 'nonfragile primary survives breaktest');
+    assert.equal(target(bars).typ, IRONBARS);
+    // Existing hit_bars owns the missing Clonk/wake branches; no stand-in.
+    assert.ok(bars.unported.has('pline.c pline'));
 
     // hack.c domove_fight_web() (2018-2113), which runs second. Only a seen
     // web selects it.

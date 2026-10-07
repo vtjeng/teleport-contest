@@ -19,7 +19,9 @@
 //        (2430-2450), stuck_ring() (2656-2683), unchanger() (2685-2692),
 //        some_armor() (2630-2652), obj_erode_type() (3258-3273),
 //        destroy_arm() (3278-3316),
-//        select_off() (2694-2821), do_takeoff() W_SWAPWEP arm (2823-2843),
+//        select_off() (2694-2821), do_takeoff() (2823-2896),
+//        take_off() (2898-2987), doddoremarm() (3022-3056),
+//        menu_remarm() (3090-3140),
 //        reset_remarm() (3012-3018), remarm_swapwep() (3059-3087),
 //        inaccessible_equipment() (3338-3400), equip_ok() (3402-3447),
 //        wear_ok() (3463-3468), takeoff_ok() (3470-3475), and glibr()
@@ -28,16 +30,24 @@
 // do_wear.c find_ac() was ported earlier and lives in
 // js/u_init_inventory_attrs.js, beside the startup code that first calls it.
 //
-// The 'A' occupation spine -- the other do_takeoff() arms, take_off(), and
-// doddoremarm() -- is not ported. The W_SWAPWEP arm is reached separately by
-// remarm_swapwep(). better_not_take_that_off() is ported for select_off()'s
-// glove checks. armoroff()'s delayed and immediate dispatch covers all seven
-// armor categories, while
-// accessory_or_armor_on() fills all seven armor slots. Every refusal below
-// names the C function it stops in front of.
+// A/#takeoffall uses the source menu and occupation chain. Individual removal
+// callbacks retain their separately documented owner limitations.
 
 import {
     ARTICLE_YOUR,
+    ALL_FINISHED,
+    ALL_TYPES,
+    ALL_TYPES_SELECTED,
+    BUCX_TYPES,
+    INVORDER_SORT,
+    MENU_TRADITIONAL,
+    MENU_COMBINATION,
+    MENU_FULL,
+    PICK_ANY,
+    SIGNAL_NOMENU,
+    UNPAID_TYPES,
+    USE_INVLET,
+    WORN_TYPES,
     A_CG_HELM_OFF,
     A_CG_HELM_ON,
     A_CHA,
@@ -157,6 +167,7 @@ import {
     cmdq_peek,
     cmdq_pop,
     paranoid_query,
+    set_occupation,
     yn_function,
 } from './cmd.js';
 import { artifact_light, retouch_object, set_artifact_intrinsic } from './artifacts.js';
@@ -168,6 +179,9 @@ import { region_danger } from './region.js';
 import {
     carrying_stoning_corpse,
     getobj,
+    ggetobj,
+    is_worn,
+    wearing_armor,
     prinv,
     update_inventory,
     useup,
@@ -363,7 +377,10 @@ import {
     yname,
     erosion_matters,
 } from './objnam.js';
-import { encumber_msg, u_safe_from_fatal_corpse } from './pickup.js';
+import {
+    add_valid_menu_class, encumber_msg, is_worn_by_type, menu_class_present,
+    query_category, query_objlist, u_safe_from_fatal_corpse,
+} from './pickup.js';
 import { body_part, float_vs_flight } from './polyself.js';
 import {
     incr_itimeout, make_hallucinated, make_slimed, self_invis_message,
@@ -374,7 +391,7 @@ import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
-import { setuwep, Glib, welded } from './wield.js';
+import { empty_handed, setuwep, Glib, welded } from './wield.js';
 import { weapon_descr } from './weapon.js';
 import {
     bimanual,
@@ -438,9 +455,9 @@ const c_that_ = 'that';
 
 // C ref: context.h struct takeoff_info (51-57), reached through
 // svc.context.takeoff. `mask` is used by the ordinary remove-one path and
-// `what` by remarm_swapwep()'s W_SWAPWEP call to do_takeoff(). `delay` and
-// `disrobing` belong to the unported 'A' occupation spine. `cancelled_don` is
-// written by cancel_don(), which cancel_doff() below cannot reach, and by
+// `what` by remarm_swapwep() and the 'A' occupation. `delay` counts the
+// occupation's remaining turns; `disrobing` names its current activity.
+// `cancelled_don` is written by cancel_don(), which cancel_doff() below cannot reach, and by
 // Armor_off(). Nothing outside this file reads the field, and every path
 // through dotakeoff() leaves it at 0 again.
 function takeoffContext(state) {
@@ -448,50 +465,202 @@ function takeoffContext(state) {
     state.context.takeoff ??= { mask: 0, what: 0, cancelled_don: false };
     state.context.takeoff.what ??= 0;
     state.context.takeoff.cancelled_don ??= false;
+    state.context.takeoff.delay ??= 0;
+    state.context.takeoff.disrobing ??= '';
     return state.context.takeoff;
 }
 
-// C ref: do_wear.c reset_remarm() (3012-3018). C clears takeoff.what and
-// takeoff.disrobing here as well; see takeoffContext() for why the latter does
-// not exist.
-// Exported for cmd.c reset_occupations(), the first caller outside this file.
-export function reset_remarm(state = game) {
-    const takeoff = takeoffContext(state);
-    takeoff.what = 0;
-    takeoff.mask = 0;
+// C ref: do_wear.c:17-20. Removal order is independent of inventory order.
+const takeoff_order = [
+    WORN_BLINDF, W_WEP, WORN_SHIELD, WORN_GLOVES, LEFT_RING,
+    RIGHT_RING, WORN_CLOAK, WORN_HELMET, WORN_AMUL, WORN_ARMOR,
+    WORN_SHIRT, WORN_BOOTS, W_SWAPWEP, W_QUIVER,
+];
+
+// C ref: do_wear.c do_takeoff() (2823-2896).
+async function do_takeoff(state) {
+    let otmp = null;
+    const wasTwoweap = Boolean(state.u.twoweap);
+    const doff = takeoffContext(state);
+    doff.mask |= I_SPECIAL;
+    if (doff.what === W_WEP) {
+        if (!await cursed(state.uwep, state)) {
+            await setuwep(null, setwornEnv(state));
+            await ttyPline(wasTwoweap
+                ? 'You are no longer wielding either weapon.'
+                : `You are ${empty_handed(state)}.`, state);
+        }
+    } else if (doff.what === W_SWAPWEP) {
+        await setuswapwep(null, setwornEnv(state));
+        await ttyPline(wasTwoweap
+            ? 'You are no longer wielding two weapons at once.'
+            : 'You no longer have a second weapon readied.', state);
+    } else if (doff.what === W_QUIVER) {
+        await setuqwep(null, setwornEnv(state));
+        await ttyPline('You no longer have ammunition readied.', state);
+    } else if (doff.what === WORN_ARMOR) {
+        otmp = state.uarm;
+        if (!await cursed(otmp, state)) await Armor_off(state);
+    } else if (doff.what === WORN_CLOAK) {
+        otmp = state.uarmc;
+        if (!await cursed(otmp, state)) await Cloak_off(state);
+    } else if (doff.what === WORN_BOOTS) {
+        otmp = state.uarmf;
+        if (!await cursed(otmp, state)) await Boots_off(state);
+    } else if (doff.what === WORN_GLOVES) {
+        otmp = state.uarmg;
+        if (!await cursed(otmp, state)) await Gloves_off(state);
+    } else if (doff.what === WORN_HELMET) {
+        otmp = state.uarmh;
+        if (!await cursed(otmp, state)) await Helmet_off(state);
+    } else if (doff.what === WORN_SHIELD) {
+        otmp = state.uarms;
+        if (!await cursed(otmp, state)) await Shield_off(state);
+    } else if (doff.what === WORN_SHIRT) {
+        otmp = state.uarmu;
+        if (!await cursed(otmp, state)) await Shirt_off(state);
+    } else if (doff.what === WORN_AMUL) {
+        otmp = state.uamul;
+        if (!await cursed(otmp, state)) await Amulet_off(state);
+    } else if (doff.what === LEFT_RING) {
+        otmp = state.uleft;
+        if (!await cursed(otmp, state)) await Ring_off(otmp, state);
+    } else if (doff.what === RIGHT_RING) {
+        otmp = state.uright;
+        if (!await cursed(otmp, state)) await Ring_off(otmp, state);
+    } else if (doff.what === WORN_BLINDF) {
+        if (!await cursed(state.ublindf, state)) await Blindf_off(state.ublindf, state);
+    } else {
+        note_unported('pline.c impossible');
+    }
+    doff.mask &= ~I_SPECIAL;
+    return otmp;
 }
 
-// C ref: do_wear.c do_takeoff() (2823-2843), W_SWAPWEP arm only. The general
-// 'A' occupation reaches the other slot arms; remarm_swapwep() below fixes
-// `what` to W_SWAPWEP before this call, so no other arm is live here.
-async function do_takeoff(state) {
-    const wasTwoweap = Boolean(state.u.twoweap);
-    const takeoff = takeoffContext(state);
-    let otmp = null;
-
-    takeoff.mask |= I_SPECIAL;
-    if (takeoff.what === WORN_AMUL) {
-        // do_wear.c:2875-2878. The occupation caller consumes this pointer
-        // after Amulet_off() has performed its own source-ordered message.
-        otmp = state.uamul;
-        if (!await cursed(otmp, state))
-            await Amulet_off(state);
-    } else if (takeoff.what === W_SWAPWEP) {
-        // This direct command arm remains the only other helper branch wired.
-        setuswapwep(null, setwornEnv(state));
-        await ttyPline(
-            wasTwoweap
-                ? 'You are no longer wielding two weapons at once.'
-                : 'You no longer have a second weapon readied.',
-            state,
-        );
-    } else {
-        throw new UnsupportedTakeOffError(
-            `do_takeoff() mask ${takeoff.what}`,
-        );
+// C ref: do_wear.c take_off() (2898-2987), A occupation callback.
+export async function take_off(state = game) {
+    const doff = takeoffContext(state);
+    if (doff.what) {
+        if (doff.delay > 0) {
+            doff.delay--;
+            return 1;
+        }
+        const removed = await do_takeoff(state);
+        if (removed) await off_msg(removed, state);
+        doff.mask &= ~doff.what;
+        doff.what = 0;
     }
-    takeoff.mask &= ~I_SPECIAL;
-    return otmp;
+    for (const slot of takeoff_order) {
+        if (doff.mask & slot) {
+            doff.what = slot;
+            break;
+        }
+    }
+    let otmp = null;
+    doff.delay = 0;
+    if (!doff.what) {
+        await ttyPline(`You finish ${doff.disrobing}.`, state);
+        return 0;
+    } else if (doff.what === W_WEP || doff.what === W_SWAPWEP
+        || doff.what === W_QUIVER) {
+        doff.delay = 1;
+    } else if (doff.what === WORN_ARMOR) {
+        otmp = state.uarm;
+        if (state.uarmc) doff.delay += 2 * objectType(state.uarmc, state).oc_delay + 1;
+    } else if (doff.what === WORN_CLOAK) {
+        otmp = state.uarmc;
+    } else if (doff.what === WORN_BOOTS) {
+        otmp = state.uarmf;
+    } else if (doff.what === WORN_GLOVES) {
+        otmp = state.uarmg;
+    } else if (doff.what === WORN_HELMET) {
+        otmp = state.uarmh;
+    } else if (doff.what === WORN_SHIELD) {
+        otmp = state.uarms;
+    } else if (doff.what === WORN_SHIRT) {
+        otmp = state.uarmu;
+        if (state.uarm) doff.delay += 2 * objectType(state.uarm, state).oc_delay;
+        if (state.uarmc) doff.delay += 2 * objectType(state.uarmc, state).oc_delay + 1;
+    } else if (doff.what === WORN_AMUL || doff.what === LEFT_RING
+        || doff.what === RIGHT_RING || doff.what === WORN_BLINDF) {
+        doff.delay = 1;
+    } else {
+        note_unported('pline.c impossible');
+        return 0;
+    }
+    if (otmp) doff.delay += objectType(otmp, state).oc_delay;
+    if (doff.delay > 0) doff.delay--;
+    set_occupation(take_off, doff.disrobing, 0, state);
+    return 1;
+}
+
+// C ref: do_wear.c reset_remarm() (3012-3018).
+export function reset_remarm(state = game) {
+    const doff = takeoffContext(state);
+    doff.what = doff.mask = 0;
+    doff.disrobing = '';
+}
+
+// C ref: do_wear.c doddoremarm() (3022-3056), #takeoffall/A.
+export async function doddoremarm(state = game) {
+    const doff = takeoffContext(state);
+    let result = 0;
+    if (doff.what || doff.mask) {
+        await ttyPline(`You continue ${doff.disrobing}.`, state);
+        set_occupation(take_off, doff.disrobing, 0, state);
+        return ECMD_OK;
+    } else if (!state.uwep && !state.uswapwep && !state.uquiver
+        && !state.uamul && !state.ublindf && !state.uleft && !state.uright
+        && !wearing_armor(state)) {
+        await ttyPline('You are not wearing anything.', state);
+        return ECMD_OK;
+    }
+    add_valid_menu_class(0, state);
+    if (state.flags.menu_style !== MENU_TRADITIONAL
+        || (result = await ggetobj('take off', obj => select_off(obj, state),
+            0, false, null, state)) < -1) {
+        await menu_remarm(result, state);
+    }
+    if (doff.mask) {
+        doff.disrobing = (doff.mask & ~W_WEAPONS) ? 'disrobing' : 'disarming';
+        await take_off(state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: do_wear.c menu_remarm() (3090-3140).
+export async function menu_remarm(retry, state = game) {
+    let allWornCategories = true;
+    if (retry) {
+        allWornCategories = retry === -2;
+    } else if (state.flags.menu_style === MENU_FULL) {
+        allWornCategories = false;
+        const categories = await query_category('What type of things do you want to take off?',
+            state.invent, WORN_TYPES | ALL_TYPES | UNPAID_TYPES | BUCX_TYPES, state, PICK_ANY);
+        if (!categories.n) return 0;
+        for (const item of categories.pick_list) {
+            if (item.value === ALL_TYPES_SELECTED) allWornCategories = true;
+            else add_valid_menu_class(item.value, state);
+        }
+    } else if (state.flags.menu_style === MENU_COMBINATION) {
+        const feedback = { value: 0 };
+        const selected = await ggetobj('take off', obj => select_off(obj, state),
+            0, true, feedback, state);
+        if (feedback.value & ALL_FINISHED) return 0;
+        allWornCategories = selected === -2;
+    }
+    if (['u', 'B', 'U', 'C', 'X'].some(c => menu_class_present(c, state)))
+        allWornCategories = false;
+    const selected = await query_objlist(state.invent,
+        SIGNAL_NOMENU | USE_INVLET | INVORDER_SORT,
+        allWornCategories ? is_worn : is_worn_by_type, state,
+        'What do you want to take off?', PICK_ANY);
+    if (selected.n > 0) {
+        for (const item of selected.pick_list) await select_off(item.obj, state);
+    } else if (selected.n < 0 && state.flags.menu_style !== MENU_COMBINATION) {
+        await ttyPline('There is nothing else you can remove or unwield.', state);
+    }
+    return 0;
 }
 
 // C ref: do_wear.c remarm_swapwep() (3059-3087). This internal command is
@@ -1911,6 +2080,20 @@ async function toggle_stealth(obj, oldprop, on, state = game, rawEnv = {}) {
                 ? `and ${x_monnam(
                     steed,
                     ARTICLE_YOUR,
+    ALL_FINISHED,
+    ALL_TYPES,
+    ALL_TYPES_SELECTED,
+    BUCX_TYPES,
+    INVORDER_SORT,
+    MENU_TRADITIONAL,
+    MENU_COMBINATION,
+    MENU_FULL,
+    PICK_ANY,
+    SIGNAL_NOMENU,
+    UNPAID_TYPES,
+    USE_INVLET,
+    WORN_TYPES,
+
                     null,
                     SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION,
                     false,
@@ -3113,6 +3296,7 @@ export function unchanger(state = game) {
 function takeoffMaskFor(otmp, state) {
     if (otmp === state.uarm) return WORN_ARMOR;
     if (otmp === state.uarmc) return WORN_CLOAK;
+    if (otmp === state.uarmf) return WORN_BOOTS;
     if (otmp === state.uarmg) return WORN_GLOVES;
     if (otmp === state.uarmh) return WORN_HELMET;
     if (otmp === state.uarms) return WORN_SHIELD;
@@ -3121,9 +3305,11 @@ function takeoffMaskFor(otmp, state) {
     if (otmp === state.uright) return RIGHT_RING;
     if (otmp === state.uamul) return WORN_AMUL;
     if (otmp === state.ublindf) return WORN_BLINDF;
-    // C's remaining labels are uwep, uswapwep and uquiver, which only the 'A'
-    // command reaches, and then impossible("select_off: %s???").
-    throw new UnsupportedTakeOffError('select_off() for a wielded item');
+    if (otmp === state.uwep) return W_WEP;
+    if (otmp === state.uswapwep) return W_SWAPWEP;
+    if (otmp === state.uquiver) return W_QUIVER;
+    note_unported('pline.c impossible');
+    return 0;
 }
 
 // C ref: do_wear.c better_not_take_that_off() (2990-3010). Prompts the hero
@@ -3164,9 +3350,9 @@ export async function select_off(otmp, state = game) {
             && (state.uarmg.cursed || Glib(state))) {
             buf = `take off your ${Glib(state) ? 'slippery ' : ''}`
                 + gloves_simple_name(state.uarmg, state);
-            // C points at cg.zeroobj when Glib alone blocks removal. Its
+            // C points at cg.zeroobj whenever Glib blocks removal. Its
             // bknown write cannot affect the worn glove in that branch.
-            why = state.uarmg.cursed ? state.uarmg : { bknown: false };
+            why = Glib(state) ? { bknown: false } : state.uarmg;
         }
         if (why) {
             await ttyPline(`You cannot ${buf} to remove the ring.`, state);
@@ -3201,9 +3387,13 @@ export async function select_off(otmp, state = game) {
     }
     /* special boot checks */
     if (otmp === state.uarmf) {
-        // do_wear.c:2743-2754, the bear-trap and stuck-in-the-floor
-        // refusals. Boots_off() below them is unported too.
-        throw new UnsupportedTakeOffError('select_off() boot checks');
+        if (state.u.utrap && state.u.utraptype === TT_BEARTRAP) {
+            await ttyPline(`The bear trap prevents you from pulling your ${body_part(FOOT, state.youmonst)} out.`, state);
+            return 0;
+        } else if (state.u.utrap && state.u.utraptype === TT_INFLOOR) {
+            await ttyPline(`You are stuck in the ${surface(state.u.ux, state.u.uy, state)}, and cannot pull your ${makeplural(body_part(FOOT, state.youmonst))} out.`, state);
+            return 0;
+        }
     }
     /* special suit and shirt checks */
     if (otmp === state.uarm || otmp === state.uarmu) {
@@ -3218,12 +3408,9 @@ export async function select_off(otmp, state = game) {
             why = state.uarm;
         } else if (state.uwep && welded(state.uwep, state)
                    && bimanual(state.uwep, state)) {
-            // do_wear.c:2766-2770 names the weapon with is_sword(), the
-            // BATTLE_AXE test and c_weapon; welded() needs a cursed weapon,
-            // and u_init.c:1223 clears cursed on every starting object.
-            throw new UnsupportedTakeOffError(
-                'select_off() welded two-handed weapon',
-            );
+            buf = `release your ${is_sword(state.uwep, state) ? c_sword
+                : state.uwep.otyp === BATTLE_AXE ? c_axe : c_weapon}`;
+            why = state.uwep;
         }
         if (why) {
             await ttyPline(
@@ -3236,9 +3423,10 @@ export async function select_off(otmp, state = game) {
         }
     }
     /* basic curse check */
-    // C ref: do_wear.c:2777-2784. uquiver and a non-twoweap uswapwep skip it;
-    // neither can arrive here, because takeoffMaskFor() stops on both.
-    if (await cursed(otmp, state)) return 0;
+    if (!(otmp === state.uquiver
+        || (otmp === state.uswapwep && !state.u.twoweap))) {
+        if (await cursed(otmp, state)) return 0;
+    }
 
     takeoffContext(state).mask |= takeoffMaskFor(otmp, state);
     return 0;

@@ -37,6 +37,7 @@ import {
     CMDQ_EXTCMD,
     DIGTYP_UNDIGGABLE,
     ECMD_OK,
+    BRK_BY_HERO, BRK_FROM_INV, BRK_MELEE, BRK_KNOWN2BREAK, BRK_KNOWN2NOTBREAK,
     ECMD_TIME,
     EXT_ENCUMBER,
     HVY_ENCUMBER,
@@ -210,6 +211,7 @@ import {
     cmdq_peek,
     confdir,
     paranoid_query,
+    reset_occupations,
 } from './cmd.js';
 import {
     createCommandBindingModel,
@@ -256,7 +258,10 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import { game } from './gstate.js';
-import { carrying, delobj, sobj_at } from './invent.js';
+import { breaktest } from './dothrow.js';
+import { hit_bars } from './mthrowu.js';
+import { setuwep } from './wield.js';
+import { carrying, delobj, freeinv, sobj_at } from './invent.js';
 import { doopen_indir } from './lock.js';
 import {
     amorphous,
@@ -296,6 +301,7 @@ import {
 } from './mondata.js';
 import {
     is_pick,
+    splitobj,
     is_weptool,
     obj_ice_effects,
     objectType,
@@ -3563,19 +3569,27 @@ export function runStopsBeforeMonster(monster, run, state) {
     return seen || sensemon(monster, state);
 }
 
-// C ref: hack.c domove_fight_ironbars() (1993-2016). Its whole body is the
-// TRUE arm: a force-fight at iron bars swings the wielded weapon at them
-// through hit_bars(), which can break the weapon, unwield it and free it from
-// inventory. None of that is ported, so the guard that selects the arm is what
-// stops here; every other square falls through as C's `return FALSE`.
-function domove_fight_ironbars(x, y, state) {
-    if (state.context.forcefight
-        && state.level?.at(x, y)?.typ === IRONBARS
+// C ref: hack.c domove_fight_ironbars() (1993-2016). Existing hit_bars
+// owns its separate message/dissolve/wake gaps; this caller adds no stand-ins.
+async function domove_fight_ironbars(x, y, state) {
+    if (state.context.forcefight && state.level.at(x, y).typ === IRONBARS
         && state.uwep) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'force-fight against iron bars',
-        );
+        let obj = state.uwep;
+        let breakflags = BRK_BY_HERO | BRK_FROM_INV | BRK_MELEE;
+        const env = { state };
+        if (breaktest(obj, env)) {
+            if (obj.quan > 1) obj = splitobj(obj, 1, env);
+            else await setuwep(null, env);
+            await freeinv(obj, env);
+            breakflags |= BRK_KNOWN2BREAK;
+        } else {
+            breakflags |= BRK_KNOWN2NOTBREAK;
+        }
+        await hit_bars({ obj }, state.u.ux, state.u.uy, x, y,
+            breakflags, state);
+        return true;
     }
+    return false;
 }
 
 // C ref: hack.c domove_fight_web() (2018-2113). Its whole body is the TRUE
@@ -3978,7 +3992,10 @@ async function domove_core(state = game) {
     // the u.utrap block and before test_move(), so a force-fight answers the
     // square whatever else is true of the hero or the terrain.
     if (!displaceu) {
-        domove_fight_ironbars(newx, newy, state);
+        if (await domove_fight_ironbars(newx, newy, state)) {
+            state.domoveAttempting = 0;
+            return;
+        }
         domove_fight_web(newx, newy, state);
         if (await domove_fight_empty(newx, newy, state)) {
             state.domoveAttempting = 0;
@@ -4155,10 +4172,12 @@ async function domove_core(state = game) {
     // its class colour into its own.
     u_on_newpos(u.ux, u.uy, state);
 
-    // C ref: domove_core()'s run arm after u_on_newpos(). A run that walks
-    // onto a doorway or a furniture square such as a staircase ends there.
-    // reset_occupations() precedes it in C and has no ported occupation to
-    // reset. The run < 8 test excludes travel only.
+    // C ref: hack.c domove_core():2936. Moving resets interrupted takeoff,
+    // lock-picking, and trap-setting contexts through their canonical owners.
+    reset_occupations(state);
+
+    // C ref: domove_core()'s run arm after reset_occupations(). A run that
+    // walks onto a doorway or furniture ends there; run < 8 excludes travel.
     const destination = state.level?.at(newx, newy);
     if (state.context.run && state.context.run < 8
         && (IS_DOOR(destination.typ)
