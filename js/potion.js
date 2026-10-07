@@ -3571,7 +3571,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
         }
     }
     if (potion.otyp === POT_ACID) {
-        if (await erode_obj(obj, 0, ERODE_CORRODE, EF_GREASE, env)
+        if (await erode_obj(obj, null, ERODE_CORRODE, EF_GREASE, env)
             !== ER_NOTHING) {
             await poof(potion, state, env);
             return ECMD_TIME;

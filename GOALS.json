@@ -187281,16 +187281,23 @@
     {
       "id": "fix-potion-dip-acid-null-description-v25-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Pass the acid-dip erosion description with JavaScript null semantics",
       "cFile": "potion.c",
       "sessions": [],
       "selectionReason": "Select the one-screen v25 acid-dip mismatch from investigations/synthetic/v25/v25-dip-acid.json. Source tracing limits the correction to potion.c:potion_dip and the shared erosion-description contract.",
       "detail": "At segment 0 step 50, C prints “Your dagger corrodes!” while JavaScript prints “Your 0 corrodes!”. potion.c:potion_dip passes integer constant 0 as a null char pointer to trap.c:erode_obj, whose null branch supplies cxname(obj); js/potion.js passes numeric 0, which js/trap_erode_obj.js treats as an explicit description. Replace that caller value with null and verify singular, plural or protected wording plus independent C acid-dip cases.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "1a20b0bade1d2d0132d54ff840cd8595fceb4242",
+      "openStanding": {
+        "sha": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "potion_dip",
       "session": "synthetic/v25/v25-dip-acid",
       "step": 50,
@@ -187306,6 +187313,563 @@
           "recordingSha256": "f46124ccaff9317081445ea3bef330d0e520ab8636725e1504ba025fb3cfb049",
           "evaluationPath": "challenges/evaluations/20261007043256-v25.json",
           "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32"
+        }
+      },
+      "activeStanding": {
+        "sha": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-dip-acid",
+          "session": "synthetic/v25/v25-dip-acid",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recording": "challenges/cases/v25/v25-dip-acid.session.json",
+          "recordingPath": "challenges/cases/v25/v25-dip-acid.session.json",
+          "recordingSha256": "f46124ccaff9317081445ea3bef330d0e520ab8636725e1504ba025fb3cfb049",
+          "recipe": "challenges/cases/v25/v25-dip-acid.recipe.session.json",
+          "recipeSha256": "3ab2ac5ca336533a31db2446f1fee8b480183222d8e2748b3120b186e1b9a145",
+          "replayInputSha256": "2308e65b5e6be72bdf2fcb530a6ae01758fd50e11760072ce3b41f1606acaa44",
+          "evaluationPath": "challenges/evaluations/20261007043256-v25.json",
+          "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+          "evaluationArtifact": "challenges/evaluations/20261007043256-v25.json",
+          "evaluationUtc": "2026-10-07T04:34:48.397Z",
+          "remainingScreens": 1,
+          "recordedSteps": 55,
+          "previousScreensMatched": 54,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 54,
+              "total": 55
+            },
+            "rng": {
+              "matched": 2652,
+              "total": 2652
+            },
+            "cursors": {
+              "matched": 54,
+              "total": 55
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "q"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 5,
+              "cCell": {
+                "ch": "d",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "0",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "q"
+              },
+              "cCursor": [
+                29,
+                0,
+                1
+              ],
+              "jsCursor": [
+                24,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 50,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v25/v25-dip-acid.json",
+            "result": {
+              "session": "synthetic/v25/v25-dip-acid",
+              "corpus": "synthetic",
+              "batch": "v25",
+              "caseId": "v25-dip-acid",
+              "remainingScreens": 1,
+              "recordedSteps": 55,
+              "manifestPath": "challenges/manifests/v25.json",
+              "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+              "recordingSha256": "f46124ccaff9317081445ea3bef330d0e520ab8636725e1504ba025fb3cfb049",
+              "evaluationPath": "challenges/evaluations/20261007043256-v25.json",
+              "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+              "commit": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v25",
+                "caseId": "v25-dip-acid",
+                "session": "synthetic/v25/v25-dip-acid",
+                "manifestPath": "challenges/manifests/v25.json",
+                "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+                "recording": "challenges/cases/v25/v25-dip-acid.session.json",
+                "recordingPath": "challenges/cases/v25/v25-dip-acid.session.json",
+                "recordingSha256": "f46124ccaff9317081445ea3bef330d0e520ab8636725e1504ba025fb3cfb049",
+                "recipe": "challenges/cases/v25/v25-dip-acid.recipe.session.json",
+                "recipeSha256": "3ab2ac5ca336533a31db2446f1fee8b480183222d8e2748b3120b186e1b9a145",
+                "replayInputSha256": "2308e65b5e6be72bdf2fcb530a6ae01758fd50e11760072ce3b41f1606acaa44",
+                "evaluationPath": "challenges/evaluations/20261007043256-v25.json",
+                "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32",
+                "evaluationArtifact": "challenges/evaluations/20261007043256-v25.json",
+                "evaluationUtc": "2026-10-07T04:34:48.397Z",
+                "remainingScreens": 1,
+                "recordedSteps": 55,
+                "previousScreensMatched": 54,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 54,
+                    "total": 55
+                  },
+                  "rng": {
+                    "matched": 2652,
+                    "total": 2652
+                  },
+                  "cursors": {
+                    "matched": 54,
+                    "total": 55
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "q"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 5,
+                    "cCell": {
+                      "ch": "d",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "0",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "q"
+                    },
+                    "cCursor": [
+                      29,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      24,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 50,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "divergence-fix",
+              "summary": "The acid-dip caller passes numeric 0 as erode_obj’s optional description. C passes a null pointer, so erode_obj substitutes cxname(obj); JavaScript’s nullish fallback treats 0 as an explicit description and prints “Your 0 corrodes!” instead of “Your dagger corrodes!”. The source-backed correction is to pass null at potion.c:potion_dip’s acid arm.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "potion_dip"
+                ],
+                "branch": "After water, polymorph, potion-mixture, lichen-corpse, towel, and poison-coating branches, POT_ACID calls erode_obj(obj, NULL, ERODE_CORRODE, EF_GREASE). A non-greased corrodeable carried dagger reaches erode_obj’s name fallback and corrosion message.",
+                "callers": [
+                  "potion.c:dodip selects the target and potion, then calls potion_dip; js/potion.js dodip and altdip dispatch to the shared potion_dip implementation.",
+                  "potion.c:potion_dip calls trap.c:erode_obj with a null description; js/potion.js calls js/trap_erode_obj.js:erode_obj with numeric 0."
+                ],
+                "dependencies": [
+                  "trap.c:erode_obj is already implemented and uses description ?? cxname(obj); its source contract is correct for null and undefined callers."
+                ]
+              },
+              "evidence": [
+                "Evaluation challenges/evaluations/20261007043256-v25.json at e61af74e9cd0087d730c364dcc8488bf0702ad32 records 54/55 matching screens, 2,652/2,652 RNG calls, and 54/55 cursors. The first mismatch is segment 0 step 50 after key q: C prints “Your dagger corrodes!--More--” and JavaScript prints “Your 0 corrodes!--More--”.",
+                "Upstream potion.c:2638-2642 calls erode_obj(obj, 0, ERODE_CORRODE, EF_GREASE). In C, integer constant 0 is a null pointer constant for the const char * parameter. trap.c:232-233 replaces a null ostr with cxname(otmp).",
+                "JavaScript js/potion.js:3573-3574 passes numeric 0. js/trap_erode_obj.js:211 uses description ?? cxname(obj), so 0 survives the fallback and becomes the printed item description.",
+                "The smallest general correction is the potion_dip acid-arm argument from 0 to null, with source-pinned singular and plural/protected wording tests and independent acid-dip recordings. It does not reopen whole potion_dip or erode_obj source completion."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-display-hallucinated-object-memory-v24-20261007",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Preserve the C object-memory glyph through hallucination redraws",
+      "cFile": "display.c",
+      "sessions": [],
+      "selectionReason": "Select the six-screen v24 hallucination mismatch from investigations/synthetic/v24/v24-hallucinating-pear.json. Its current remaining-screen count is unchanged, and display.c map_object/docrt_flags own the source-traced memory and redraw path.",
+      "detail": "At segment 0 step 33, after #wizintrinsic enables hallucination, C redraws the remembered red potion glyph while JavaScript draws a hallucinated gem. Trace display.c map_object through see_objects/newsym and the final docrt_flags redraw, preserving display-RNG order and remembered glyph state; the pear-eating command begins later and is outside the first mismatch.",
+      "openedAt": "1ef9e75da0245b344a075dcfc9d6535e18fd42f1",
+      "openStanding": {
+        "sha": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7a862a458435036f4a2a008efa1fe9916761b912",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "map_object",
+      "session": "synthetic/v24/v24-hallucinating-pear",
+      "step": 33,
+      "syntheticProvenance": {
+        "synthetic/v24/v24-hallucinating-pear": {
+          "session": "synthetic/v24/v24-hallucinating-pear",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-hallucinating-pear",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-hallucinating-pear.session.json",
+          "recordingSha256": "d8d496ba5d72b069fbfc25c17aaf6f4863995f5f47455fe6712a36b02bee2450",
+          "evaluationPath": "challenges/evaluations/20261007043256-v24.json",
+          "evaluationCommit": "e61af74e9cd0087d730c364dcc8488bf0702ad32"
+        }
+      },
+      "activeStanding": {
+        "sha": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-hallucinating-pear",
+          "session": "synthetic/v24/v24-hallucinating-pear",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-hallucinating-pear.session.json",
+          "recordingPath": "challenges/cases/v24/v24-hallucinating-pear.session.json",
+          "recordingSha256": "d8d496ba5d72b069fbfc25c17aaf6f4863995f5f47455fe6712a36b02bee2450",
+          "recipe": "challenges/cases/v24/v24-hallucinating-pear.recipe.session.json",
+          "recipeSha256": "60c723703321508fe6b32b364bf0dcc96e97381e8a4c23e9a1943a2901eab449",
+          "replayInputSha256": "e27a59020f83dec6854d4826137b9f4186d027f3e1c6a727e4fc7e0dac4aa6c8",
+          "evaluationPath": "challenges/evaluations/20261007050439-v24.json",
+          "evaluationCommit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
+          "evaluationArtifact": "challenges/evaluations/20261007050439-v24.json",
+          "evaluationUtc": "2026-10-07T05:06:53.050Z",
+          "remainingScreens": 6,
+          "recordedSteps": 39,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2589,
+              "total": 2589
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 14,
+              "column": 48,
+              "cCell": {
+                "ch": "!",
+                "color": 1,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "*",
+                "color": 11,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-hallucinating-pear.json",
+            "result": {
+              "session": "synthetic/v24/v24-hallucinating-pear",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-hallucinating-pear",
+              "remainingScreens": 6,
+              "recordedSteps": 39,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "d8d496ba5d72b069fbfc25c17aaf6f4863995f5f47455fe6712a36b02bee2450",
+              "evaluationPath": "challenges/evaluations/20261006233641-v24.json",
+              "evaluationCommit": "47c7b201e75485a1b4da4faabd68ebe2cfbc440d",
+              "status": "complete",
+              "commit": "2d388d84defbd59bdac36f6b345dfb3720a6f3bb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-hallucinating-pear",
+                "session": "synthetic/v24/v24-hallucinating-pear",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-hallucinating-pear.session.json",
+                "recordingPath": "challenges/cases/v24/v24-hallucinating-pear.session.json",
+                "recordingSha256": "d8d496ba5d72b069fbfc25c17aaf6f4863995f5f47455fe6712a36b02bee2450",
+                "recipe": "challenges/cases/v24/v24-hallucinating-pear.recipe.session.json",
+                "recipeSha256": "60c723703321508fe6b32b364bf0dcc96e97381e8a4c23e9a1943a2901eab449",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 6,
+                "recordedSteps": 39,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2589,
+                    "total": 2589
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 14,
+                    "column": 48,
+                    "cCell": {
+                      "ch": "!",
+                      "color": 1,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "*",
+                      "color": 11,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 33,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first divergence is the remembered floor-object glyph after #wizintrinsic enables hallucination. On the space that dismisses the transition message, C shows the remembered red potion glyph while JavaScript shows a randomly hallucinated gem. The actionable owner is display.c's map-memory and redraw path through map_object and docrt_flags; the pear-eating path starts later at step 35.",
+              "source": {
+                "file": "display.c",
+                "branch": "During a visible hallucination transition, make_hallucinated refreshes visible objects and the wizard-intrinsic command then performs its final docrt redraw.",
+                "functions": [
+                  "map_object",
+                  "docrt_flags"
+                ],
+                "callers": [
+                  "potion.c:make_hallucinated -> display.c:see_objects -> newsym -> map_location -> map_object",
+                  "wizcmds.c:wiz_intrinsic -> display.c:docrt -> docrt_flags"
+                ],
+                "dependencies": [
+                  "Preserve potion.c:make_hallucinated's see_monsters, see_objects and see_traps order before its transition message.",
+                  "Preserve display.c:see_objects, newsym and map_location memory updates before docrt_flags redraws levl[x][y].glyph."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20261006225046-v24.json reports 33/39 matching screens, 2589/2589 core RNG calls, and 39/39 cursors. Its first mismatch is segment 0, step 33, key space, cell row 14 column 48: C `!` color 1; JavaScript `*` color 11.",
+                "The isolated replay `node scripts/scan-sessions.mjs --json --synthetic v24/v24-hallucinating-pear` emitted all 39 recorded steps and reproduced the same first divergence; diagnostic output is cached at `.cache/synthetic-scans/v24/v24-hallucinating-pear.json`. The replay did not record a new C game.",
+                "The recording issues `#wizintrinsic` before the first mismatch and `eat` only later. Upstream `nethack-c/upstream/src/potion.c:make_hallucinated()` calls `see_monsters()`, `see_objects()`, and `see_traps()` before printing the transition message; `nethack-c/upstream/src/display.c:see_objects()`, `newsym()`, and `map_object()` lead to `obj_to_glyph(..., newsym_rn2)`, whose hallucination arm in `nethack-c/upstream/include/display.h` selects random object glyphs from `rn2_on_display_rng`.",
+                "The corresponding port path is `js/potion.js:make_hallucinated()` through `js/display.js:see_objects()`, `newsym()`, `map_object()`, and `random_object_glyph_info()`, followed by `js/wizcmds.js:wiz_intrinsic()` calling `js/display.js:docrt()`. The saved evaluation logs core RNG only, so matching core RNG does not establish display-RNG parity.",
+                "Step 33 dismisses `Oh wow! Everything looks so cosmic!--More--`; the final wizard-intrinsic redraw then exposes the remembered-glyph difference. The `eat` command begins at step 35, so `eat.c:fprefx()` is not the first-mismatch owner.",
+                "Current evaluation `challenges/evaluations/20261006233641-v24.json` retains the same 33/39 screen, 2589/2589 core-RNG, and 39/39 cursor result at candidate `47c7b201e75485a1b4da4faabd68ebe2cfbc440d`."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7a862a458435036f4a2a008efa1fe9916761b912",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-do-dropx-nonmerging-lit-object-v25-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Allow ordinary nonmerging lit objects to remain lit when dropped",
+      "cFile": "do.c",
+      "sessions": [],
+      "selectionReason": "Select the five-screen v25 lit-candle stop from investigations/synthetic/v25/v25-drop-lit-candle.json. Source tracing limits the repair to dropx preflight admission when no compatible special floor object can merge.",
+      "detail": "At segment 0 step 29, JavaScript preflight_dropx rejects every lamplit object before freeinv. C dropx/dropy/dropz place this lit candle on an empty dry floor without extinguishing it, replacing its burn timer, or replacing its mobile light source. Admit nonglobby lit survivors under the existing compatible-pile guard; retain compatible lit or timed merges until canonical light-source and timer merge hooks are wired.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dropx",
+      "session": "synthetic/v25/v25-drop-lit-candle",
+      "step": 29,
+      "syntheticProvenance": {
+        "synthetic/v25/v25-drop-lit-candle": {
+          "session": "synthetic/v25/v25-drop-lit-candle",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-drop-lit-candle",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-drop-lit-candle.session.json",
+          "recordingSha256": "3cfbc4023915bdcd4306e0f50c3de267addc8352bf23eb10705460841e233811",
+          "evaluationPath": "challenges/evaluations/20261007050439-v25.json",
+          "evaluationCommit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c"
+        }
+      }
+    },
+    {
+      "id": "port-dig-bury-objs-whole-v24-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole object burial and wire pit-covering, boulder and freezing callers",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v24/v24-spider-web-over-pit"
+      ],
+      "selectionReason": "The complete valid investigation investigations/synthetic/v24/v24-spider-web-over-pit.json retains remainingScreens 0 and identifies an outstanding RNG-only omission at segment 0 step 53; whole bury_objs and required-return bury_an_obj are coherent, unreserved source owners. Caller functions are disjoint from B128 dropx and C127 display memory; preserve their reserved contracts.",
+      "detail": "#monster spider pit branch -> polyself.c:dospinweb -> dig.c:bury_objs -> bury_an_obj omits C obj_resists and rnd draws, shifting monster RNG. Preserve floor-list traversal, shop debt, timers, ownership, engraving, redraw, and concealment; wire bounded do.c and zap.c callers. Include or explicitly gap the active DEBUG wiz_debug_cmd_bury caller; keep hack.c moverock_core trap handling, timeout expiry, Lua burial, and other unported caller entries explicit without claiming unrelated owners.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "bury_an_obj",
+          "line": 1984,
+          "endLine": 2049,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "bury_objs",
+          "line": 2050,
+          "endLine": 2085,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1984,
+        "to": 2085
+      },
+      "syntheticProvenance": {
+        "synthetic/v24/v24-spider-web-over-pit": {
+          "session": "synthetic/v24/v24-spider-web-over-pit",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-spider-web-over-pit",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-spider-web-over-pit.session.json",
+          "recordingSha256": "17d00ca69b326937d155b3c6ddb6a5b819cd0014903c06c9ceec2a3c15b27b59",
+          "evaluationPath": "challenges/evaluations/20261007053641-v24.json",
+          "evaluationCommit": "7a862a458435036f4a2a008efa1fe9916761b912"
         }
       }
     }
