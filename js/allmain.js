@@ -1605,6 +1605,10 @@ export async function moveloop_core() {
     if (g.context?.bypasses)
         clear_bypasses(g);
 
+    // C ref: allmain.c:200-201 resumes a terminal-interrupted wish before
+    // context.move can allocate elapsed time or dispatch another command.
+    if (g.context?.resume_wish) await makewish(g);
+
     // C gates its entire elapsed-time block on the preceding command's
     // context.move value. Capture that value before the next command dispatch
     // below (including an internal repeat) resets it optimistically.
