@@ -188390,16 +188390,23 @@
     {
       "id": "fix-uhitm-brain-drain-owned-forgetting-v24-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore spell and weapon-skill forgetting after mind-flayer brain drain",
       "cFile": "uhitm.c",
       "sessions": [],
-      "selectionReason": "Continue the current v24 mind-flayer seed after accepted C124. The complete investigation retains zero remaining screens and locates the RNG-only omission at hero-defender AD_DRIN forgetting gates. Canonical losespells and drain_weapon_skill owners are already implemented and verified; restore their calls without overlapping A117 burial, B129 ability dispatch, or the v25 kick-object scope.",
+      "selectionReason": "Hosted v24 evaluation isolated the remaining mind-flayer brain-drain mismatch at step 109; C128 restores the source-ordered spell and weapon-skill forgetting path.",
       "detail": "At segment 0 step 109, C calls losespells after its first !rn2(5), then drain_weapon_skill(rnd(2)) after the second; JS skips both. Await existing owners in source order. The planning clone already isolates spell retention, study context, and Wisdom exercise, but aliases u.weapon_skills and u.skill_record with live state; isolate exactly those two arrays before restoring skill drain so planning cannot mutate the live hero.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "1b156891b44f4663baeadf268243bd610044054e",
+      "openStanding": {
+        "sha": "1b156891b44f4663baeadf268243bd610044054e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "1b156891b44f4663baeadf268243bd610044054e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "mhitm_ad_drin",
       "session": "synthetic/v24/v24-mind-flayer-blast",
       "step": 109,
@@ -188416,6 +188423,18 @@
           "evaluationPath": "challenges/evaluations/20261007072048-v24.json",
           "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
         }
+      },
+      "activeStanding": {
+        "sha": "1b156891b44f4663baeadf268243bd610044054e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1b156891b44f4663baeadf268243bd610044054e",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
