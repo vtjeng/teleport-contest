@@ -3355,7 +3355,7 @@ export async function use_candle(obj, state = game, env = {}) {
 // transitions. Other missing effect helpers are void or explicitly discarded,
 // so their C call sites remain named gaps. Trouble state is stored in the
 // intrinsic timeout and property flags in u.uprops.
-async function use_unicorn_horn(obj, state = game, env = {}) {
+export async function use_unicorn_horn(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const recordGap = (source) => {
         if (state === game) note_unported(source);
