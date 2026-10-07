@@ -38,7 +38,7 @@ import {
     In_hell, depth, dunlev, endgamelevelname, on_level, update_lastseentyp,
 } from './dungeon.js';
 import { money_cnt, sobj_at } from './invent.js';
-import { cansee, couldsee, seenv_matrix } from './vision.js';
+import { cansee, couldsee, seenv_matrix, vision_recalc } from './vision.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
 // other's exports only inside function bodies, so the cycle resolves.
 import {
@@ -4136,7 +4136,8 @@ export async function doredraw() {
 // C ref: display.c docrt()/docrt_flags() (1703-1775). Swallowed and underwater
 // displays take precedence over the ordinary remembered-map redraw. cls()
 // flushes pending messages before clearing the transient frame. Ordinary
-// redraw callers own vision recalculation through suspend/restoreVision;
+// vision recalculation brackets the remembered-map pass, including when
+// restore defers see_monsters(). Callers can supply equivalent vision callbacks;
 // overlayMonsters=false lets a caller perform its own final monster overlay.
 export async function docrt(options = {}) {
     if (!game.level || !game.u?.ux || game.program_state?.in_docrt) return;
@@ -4151,7 +4152,8 @@ export async function docrt(options = {}) {
         } else if (game.u.uinwater && !Is_waterlevel(game.u.uz)) {
             await under_water(1);
         } else {
-            options.suspendVision?.();
+            if (options.suspendVision) options.suspendVision();
+            else vision_recalc(2);
             await cls();
             // display.c docrt_flags() first paints remembered map glyphs,
             // without calling newsym(), and only then see_monsters() overlays
@@ -4180,7 +4182,8 @@ export async function docrt(options = {}) {
                         );
                     }
                 }
-            options.restoreVision?.();
+            if (options.restoreVision) options.restoreVision();
+            else vision_recalc(0);
             if (options.overlayMonsters !== false) await see_monsters(game);
         }
         // display.c post_map marks status dirty before leaving in_docrt.
