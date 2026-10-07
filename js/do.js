@@ -1724,12 +1724,13 @@ export function preflight_dropx(obj, env = {}) {
     if (obj.where !== OBJ_FREE && obj.where !== OBJ_INVENT)
         throw new UnsupportedDropError(`object ownership ${obj.where}`);
     // stackobj() preserves the newly dropped object and absorbs an older pile
-    // member into it.  A light or glob on the survivor has merge effects that
-    // are not ported.  A timer does not: it remains attached to the survivor,
-    // exactly as a corpse timer follows an ordinary drop.  The pile walk below
-    // still refuses a timed member that merged() would absorb and free.
-    if (obj.lamplit || obj.globby)
-        throw new UnsupportedDropError('a lit or globby object');
+    // member into it. The survivor keeps its light and timers across an
+    // ordinary drop; light.c finds their new location through that same object.
+    // An absorbed lit or timed member needs merged()'s unported light/timer
+    // operations, so the compatible-pile walk below still refuses that merge.
+    // Glob-specific floor and merge effects remain outside this tail.
+    if (obj.globby)
+        throw new UnsupportedDropError('a globby object');
     // obfree()'s remaining operations are reached by an object the drop chain
     // already stops: canletgo() refuses a leash tied to a pet, the unpaid test
     // below refuses a billed object and the shop-level test refuses an unpaid
@@ -1819,8 +1820,7 @@ export function preflight_dropx(obj, env = {}) {
     // invent.c stackobj() (4366-4375) hands this object to merged() (814-948)
     // as the survivor and each pile member in turn as the object absorbed, and
     // merged() reads lamplit and timed on that member at 851-854 and globby at
-    // 928. The test above answers for the wrong side of the merge on its own:
-    // mergable() forces lamplit to match and returns early for a glob, but
+    // 928. mergable() forces lamplit to match and returns early for a glob, but
     // rejects a timer mismatch only for EGG and a revivable CORPSE. mergable()
     // decides which members merged() can reach, so it is the gate here too.
     for (let member = state.level.objects[x][y] ?? null; member;

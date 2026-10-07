@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C127 source-input variation: u_init.c Caveman starting inventory; drop one flint, step away, set HALLUC through wiz_intrinsic, then cancel a second intrinsic menu. Exercises potion.c make_hallucinated -> see_objects/newsym/map_object and the separate final docrt_flags vision bracket. Seed/clock/role/object selected before C/JS comparison, independent of admitted pear.",
+  "segments": [
+    {
+      "seed": 127070203,
+      "datetime": "20550204162317",
+      "nethackrc": "OPTIONS=name:RedrawProbe,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " 1dch#wizintrinsic\nh\n #wizintrinsic\n\u001b"
+    }
+  ]
+}

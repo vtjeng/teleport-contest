@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T05:12:02.205Z",
+  "capturedAt": "2026-10-07T06:14:09.459Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -23239,12 +23239,118 @@
         "type": "accepted",
         "at": "2026-10-07T05:11:38.942Z",
         "task": "A116"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A116-1ef9e75d",
+        "type": "published",
+        "at": "2026-10-07T05:14:37.855Z",
+        "task": "A116",
+        "commit": "1ef9e75da0245b344a075dcfc9d6535e18fd42f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C127-7a862a45",
+        "type": "integrating",
+        "at": "2026-10-07T05:16:05.586Z",
+        "task": "C127",
+        "integration": "7a862a458435036f4a2a008efa1fe9916761b912"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3a389e34cc7c4da15d85c4b187974027a970817d",
+        "type": "ready",
+        "at": "2026-10-07T05:20:39.331Z",
+        "task": "B128",
+        "delivery": "3a389e34cc7c4da15d85c4b187974027a970817d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B128-3a389e34",
+        "type": "received",
+        "at": "2026-10-07T05:21:06.288Z",
+        "task": "B128",
+        "delivery": "3a389e34cc7c4da15d85c4b187974027a970817d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-C127-7a862a45",
+        "type": "validated",
+        "at": "2026-10-07T05:36:29.377Z",
+        "task": "C127",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C127-eda146ca",
+        "type": "accepted",
+        "at": "2026-10-07T05:42:54.660Z",
+        "task": "C127"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C127-37f1de8d",
+        "type": "published",
+        "at": "2026-10-07T05:43:44.583Z",
+        "task": "C127",
+        "commit": "37f1de8df9b63da8f71a050023a4875e63a49ab5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A117-20261007",
+        "type": "assign",
+        "at": "2026-10-07T05:44:00.774Z",
+        "task": "A117",
+        "worker": "A2",
+        "goal": "port-dig-bury-objs-whole-v24-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B128-532068f8",
+        "type": "integrating",
+        "at": "2026-10-07T05:45:55.975Z",
+        "task": "B128",
+        "integration": "532068f894fa97f4ace2680f195baf3aae875050"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-B128-532068f8",
+        "type": "validated",
+        "at": "2026-10-07T05:55:38.085Z",
+        "task": "B128",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B128-0c85bef9",
+        "type": "accepted",
+        "at": "2026-10-07T06:01:37.483Z",
+        "task": "B128"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B129-domonability-20261007",
+        "type": "assign",
+        "at": "2026-10-07T06:07:23.101Z",
+        "task": "B129",
+        "worker": "B",
+        "goal": "port-cmd-domonability-gremlin-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B128-759bab7f",
+        "type": "published",
+        "at": "2026-10-07T06:12:43.246Z",
+        "task": "B128",
+        "commit": "759bab7f5ef46a344fb9b966e1f76bc7d388c391"
       }
     ]
   },
   "development": {
-    "executionCommit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
-    "measuredAt": "2026-10-07T05:03:29.922Z",
+    "executionCommit": "759bab7f5ef46a344fb9b966e1f76bc7d388c391",
+    "measuredAt": "2026-10-07T06:12:31.028Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

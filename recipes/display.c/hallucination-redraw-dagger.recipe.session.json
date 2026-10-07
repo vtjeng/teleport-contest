@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C127 source-input variation: u_init.c Valkyrie starting inventory; drop one dagger, step away, set HALLUC through wiz_intrinsic, then cancel a second intrinsic menu. Exercises potion.c make_hallucinated -> see_objects/newsym/map_object and the separate final docrt_flags vision bracket. Seed/clock/role/object selected before C/JS comparison, independent of admitted pear.",
+  "segments": [
+    {
+      "seed": 127070201,
+      "datetime": "20550204162317",
+      "nethackrc": "OPTIONS=name:RedrawProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " dbh#wizintrinsic\nh\n #wizintrinsic\n\u001b"
+    }
+  ]
+}

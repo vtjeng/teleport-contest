@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 128070102,
+      "datetime": "20360707123400",
+      "nethackrc": "OPTIONS=name:DropLight,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none\n",
+      "moves": " \u0017uncursed oil lamp\naedehjl."
+    }
+  ]
+}
