@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13527022,
+      "datetime": "20910609183000",
+      "nethackrc": "OPTIONS=name:PotionBrowse,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed potion of object detection\n qg  . "
+    }
+  ],
+  "comment": "Independent uncursed potion caller. The wished potion merges with the starting stack; acknowledge the C comparison tip, quaff g, browse objects and select the hero location. Contrasts the blessed recursive-description branch."
+}

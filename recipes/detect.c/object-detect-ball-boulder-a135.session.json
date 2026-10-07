@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first symbol-ambiguity variation. S_boulder:0 matches the iron-ball class, so object_detect must show iron balls and/or large stones; the wished boulder on a dry floor is the guaranteed distant match.",
+  "segments": [
+    {
+      "seed": 13527011,
+      "datetime": "20910607180000",
+      "nethackrc": "OPTIONS=name:ObjectBrowse,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\nSYMBOLS=S_boulder:0\n",
+      "moves": " \u0017blessed crystal ball (0:3)\n\u0017boulder\nhao 0     "
+    }
+  ]
+}
