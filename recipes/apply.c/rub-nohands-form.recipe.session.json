@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C126 input plan, fixed seed and clock; no seed search. Earth-elemental M1_NOHANDS reaches dorub nohands guard before any selection. Earth elemental avoids the independently observed floating-eye unreachable-floor drop dependency.",
+  "segments": [
+    {
+      "seed": 126070105,
+      "datetime": "20510314092653",
+      "nethackrc": "OPTIONS=name:RubBranches,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nearth elemental\n               #rub\n"
+    }
+  ]
+}

@@ -2202,10 +2202,9 @@ export async function use_stone(tstone, state = game, env = {}) {
     return ECMD_TIME;
 }
 
-// C ref: apply.c dorub() (1785-1838), with gray stones delegated to
-// use_stone() and the sighted, charged magic-lamp outcomes at 1817-1835.
-// Royal jelly, empty lamps, blind smoke, and other already-wielded lamps
-// remain outside this partial caller port.
+// C ref: apply.c dorub() (1785-1846). The selected tool is wielded on one
+// turn and rubbed by its queued continuation; stones and jelly return their
+// owners' command results directly.
 export async function dorub(state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(
@@ -2235,9 +2234,9 @@ export async function dorub(state = game, env = {}) {
         return ECMD_OK;
     }
 
-    if (state.uwep.otyp === MAGIC_LAMP && state.uwep.spe > 0) {
+    if (state.uwep.otyp === MAGIC_LAMP) {
         const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
-        if (!random.rn2(3)) {
+        if (state.uwep.spe > 0 && !random.rn2(3)) {
             check_unpaid_usage(state.uwep, true, state);
             state.uwep.otyp = OIL_LAMP;
             state.uwep.spe = 0;
@@ -2258,24 +2257,23 @@ export async function dorub(state = game, env = {}) {
                 { ...env, random },
             );
             update_inventory({ ...env, state });
-            return ECMD_TIME;
-        }
-        if (random.rn2(2)) {
-            if (heroIsBlind(state)) {
-                throw new UnsupportedApplyError(
-                    'dorub() blind magic-lamp smoke',
-                );
-            }
-            await ttyPline('You see a puff of smoke.', state);
+        } else if (random.rn2(2)) {
+            await ttyPline(
+                `You ${heroIsBlind(state) ? 'smell' : 'see a puff of'} smoke.`,
+                state,
+            );
         } else {
             await ttyPline(nothing_happens, state);
         }
-        return ECMD_TIME;
+    } else if (obj.otyp === BRASS_LANTERN) {
+        await ttyPline(
+            'Rubbing the electric lamp is not particularly rewarding.', state,
+        );
+        await ttyPline('Anyway, nothing exciting happens.', state);
+    } else {
+        await ttyPline(nothing_happens, state);
     }
-
-    throw new UnsupportedApplyError(
-        'dorub() with an empty or non-magic already-wielded lamp',
-    );
+    return ECMD_TIME;
 }
 
 // C ref: apply.c its_dead() (196-309), the floor-object half of a listen.
