@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first extension before C recording/JS comparison: dig.c bury_an_obj -> read.c seffect_remove_curse -> buried_ball_to_freedom. Bury punished ball with debug owner; read remove curse before trap times out, then move to establish source freedom. C-only prompt correction before comparison, previous C evidence retained.",
+  "segments": [
+    {
+      "seed": 1382829,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".l\u0017uncursed scroll of punishment\nre   #wizbury\n\u0017blessed scroll of remove curse\nrf       l.\u001b\nll."
+    }
+  ]
+}

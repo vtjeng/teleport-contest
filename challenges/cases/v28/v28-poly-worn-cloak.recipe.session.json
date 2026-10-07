@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first planned v28 candidate: zap.c poly_obj:wear-mask branch -> do_wear.c set_wear. Target: C removes old worn object, places transformed armor in permitted slot and invokes wear effects.. Setup and directional selectors are reviewed from C before JavaScript comparison. C-observed setup correction preserved in .cache/v28-runs/attempt-1-next; no JavaScript result has been inspected for this candidate. C-only source prerequisite/prompt correction; prior attempt preserved in cache before any JS comparison.",
+  "segments": [
+    {
+      "seed": 1382816,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382816,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed leather cloak\nWe  \u0017uncursed wand of polymorph\nzf.       i "
+    }
+  ]
+}

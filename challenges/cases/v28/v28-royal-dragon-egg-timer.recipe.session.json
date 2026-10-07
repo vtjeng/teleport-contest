@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first extension planned before recording or JS comparison: apply.c use_royal_jelly -> timeout.c kill_egg. C cursed jelly kills a hatchable dragon egg; observe quiver and inspect egg, distinct from killer-bee species promotion target miss. C-only source prerequisite/prompt correction; prior attempt preserved in cache before any JS comparison.",
+  "segments": [
+    {
+      "seed": 1382826,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382826,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed red dragon egg\n\u0017cursed royal jelly\n#rub\nfe        ."
+    }
+  ]
+}

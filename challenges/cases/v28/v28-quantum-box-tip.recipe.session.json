@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first extension before C recording/JS comparison: pickup.c tip_check -> observe_quantum_cat. Wish source-permitted large box spe=1; tip to resolve SchroedingersBox. C live/dead cat branch and tip contents. C-only prompt correction before comparison, previous C evidence retained.",
+  "segments": [
+    {
+      "seed": 1382828,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed unlocked +1 large box\n#tip\ne        ."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first extension before C recording/JS comparison: zap.c dozap -> backfire. Source charged cursed wand repeated use across fixed unsearched seed; reach first exploding wand if chance triggers, retain miss/other consequences.",
+  "segments": [
+    {
+      "seed": 1382833,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".#levelchange\n30\n                                        \u0017cursed wand of light (0:127)\nze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze ze        n       ."
+    }
+  ]
+}

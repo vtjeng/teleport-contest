@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first planned v28 candidate: dig.c digactualhole:773,799 -> dokick.c impact_drop. Target: C floor objects transfer through hole and are observable below; source RNG and impact/fall messages.. Setup and directional selectors are reviewed from C before JavaScript comparison. C-observed setup correction preserved in .cache/v28-runs/attempt-1-next; no JavaScript result has been inspected for this candidate.",
+  "segments": [
+    {
+      "seed": 1382807,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382807,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".l\u0017uncursed wand of digging\ndd ze>      ."
+    }
+  ]
+}

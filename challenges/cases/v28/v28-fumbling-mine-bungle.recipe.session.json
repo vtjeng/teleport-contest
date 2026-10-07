@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first extension before C recording/JS comparison: apply.c set_trap -> trap.c dotrap. Acknowledge source intrinsic setting pager, then set mine while Fumbling; C bungle roll and triggered land mine if roll reaches.",
+  "segments": [
+    {
+      "seed": 1382831,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".l#wizintrinsic\n>s\n   \u0017cursed land mine\nae....................          ."
+    }
+  ]
+}

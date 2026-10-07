@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v28 candidate: dig.c dig:tree branch at481 -> mkobj.c rnd_treefruit_at; C tree-to-floor transition with fruit-selection RNG and any dropped produce.. Fixed unsearched seed1382804 and independent clock; inspect C setup and correct prompts before any JS comparison. First C setup corrected from its own inventory/pager/terrain observation; prior attempt preserved under .cache/v28-runs/attempt-1, no JavaScript results seen.",
+  "segments": [
+    {
+      "seed": 1382804,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382804,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed axe\nwe \u0017tree\nlaeh................. "
+    }
+  ]
+}

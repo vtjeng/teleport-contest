@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v28 candidate: apply.c use_trap:2821 -> trap.c dotrap; C botched setting triggers trap, with explosion/injury and trap lifecycle.. Fixed unsearched seed1382811 and independent clock; inspect C setup and correct prompts before any JS comparison. First C setup corrected from its own inventory/pager/terrain observation; prior attempt preserved under .cache/v28-runs/attempt-1, no JavaScript results seen.",
+  "segments": [
+    {
+      "seed": 1382811,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382811,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".l\u0017cursed land mine\nae.............. "
+    }
+  ]
+}

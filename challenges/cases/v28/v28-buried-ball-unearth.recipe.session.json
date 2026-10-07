@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first extension before C recording/JS comparison: dig.c digactualhole -> buried_ball_to_punishment. Bury punished ball away from stairs; wand down directly enters digactualhole without wield occupation prompts.",
+  "segments": [
+    {
+      "seed": 1382830,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".l\u0017uncursed scroll of punishment\nre   #wizbury\n\u0017uncursed wand of digging\nzf>       ."
+    }
+  ]
+}

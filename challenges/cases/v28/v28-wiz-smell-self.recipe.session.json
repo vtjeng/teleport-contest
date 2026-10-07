@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first extension before C recording/JS comparison: wizcmds.c wiz_smell -> mon.c usmellmon. Human olfaction debug command chooses current hero map glyph; source self sniff then escape repeated getpos. C-only prompt correction before comparison, previous C evidence retained.",
+  "segments": [
+    {
+      "seed": 1382832,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382823,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".#wizsmell\n   .   \u001b."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v28 source mission dig.c buried_ball_to_punishment:1935 and digactualhole:656; intended C extracts buried ball and reattaches chain before new hole behavior; verify with equipment/map output.. C-only source prerequisite/prompt correction; prior attempt preserved in cache before any JS comparison.",
+  "segments": [
+    {
+      "seed": 1382806,
+      "datetime": "20501203111213",
+      "nethackrc": "OPTIONS=name:Probe1382806,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed scroll of punishment\nre   #wizbury\n\u0017uncursed pick-axe\naf>           ."
+    }
+  ]
+}
