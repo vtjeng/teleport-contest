@@ -195729,6 +195729,37 @@
           "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f"
         }
       }
+    },
+    {
+      "id": "fix-trap-erode-owned-worn-removal-v27-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Await owned hero worn-item removal before erosion deletion",
+      "cFile": "trap.c",
+      "sessions": [],
+      "selectionReason": "Validated investigations/synthetic/v27/v27-destroy-worn-armor.json at accepted C135 commit 4770d645; 2 remaining screens; independent of A138 candle/dropx and B140 glove-petrification ownership.",
+      "detail": "Segment 0 step 41 stops after the MAX_ERODE destruction message: js/trap_erode_obj records the obsolete remove_worn_item gap, then delobj refuses the still-worn cloak. C trap.c erode_obj awaits source removal before delobj. Restore only this caller through canonical js/steal.js and preserve message, payment, unwear, and deletion order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "erode_obj",
+      "session": "synthetic/v27/v27-destroy-worn-armor",
+      "step": 41,
+      "syntheticProvenance": {
+        "synthetic/v27/v27-destroy-worn-armor": {
+          "session": "synthetic/v27/v27-destroy-worn-armor",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-destroy-worn-armor",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-destroy-worn-armor.session.json",
+          "recordingSha256": "a9d330b68f2e78060eb12ee28b98a816dc118b375c972f159ad56a47dfd7add6",
+          "evaluationPath": "challenges/evaluations/accepted-4770d6451a496f23894b62228420ad4c8268047f-v27.json",
+          "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f"
+        }
+      }
     }
   ]
 }

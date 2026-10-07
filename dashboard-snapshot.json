@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T22:47:41.859Z",
+  "capturedAt": "2026-10-07T22:52:26.887Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25157,6 +25157,32 @@
         "task": "A138",
         "worker": "A2",
         "goal": "port-light-obj-merge-light-sources-v27-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C135-5e522232",
+        "type": "published",
+        "at": "2026-10-07T22:49:43.223Z",
+        "task": "C135",
+        "commit": "5e5222320511679de2139f129f9097397ff810f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A137-original-6fb5679f",
+        "type": "received",
+        "at": "2026-10-07T22:50:12.413Z",
+        "task": "A137",
+        "delivery": "6fb5679fe16b2afd66a7268308fe36fbffe8af8c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C137-erode-worn-removal-20261007",
+        "type": "assign",
+        "at": "2026-10-07T22:52:04.436Z",
+        "task": "C137",
+        "worker": "C",
+        "goal": "fix-trap-erode-owned-worn-removal-v27-20261007",
         "kind": "implementation"
       }
     ]

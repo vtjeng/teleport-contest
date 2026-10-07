@@ -1,0 +1,247 @@
+{
+  "session": "synthetic/v27/v27-destroy-worn-armor",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-destroy-worn-armor",
+  "remainingScreens": 2,
+  "recordedSteps": 43,
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingPath": "challenges/cases/v27/v27-destroy-worn-armor.session.json",
+  "recordingSha256": "a9d330b68f2e78060eb12ee28b98a816dc118b375c972f159ad56a47dfd7add6",
+  "recipe": "challenges/cases/v27/v27-destroy-worn-armor.recipe.session.json",
+  "recipeSha256": "d5d9800a7d76ccfe59fab74997c08457f25bd2fb080fa89651f6dfbfa259aa38",
+  "evaluationPath": "challenges/evaluations/accepted-4770d6451a496f23894b62228420ad4c8268047f-v27.json",
+  "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f",
+  "evaluationArtifact": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4770d6451a496f23894b62228420ad4c8268047f/run-hosted-kJ8H2K/synthetic/ci-v27.json",
+  "firstMismatchStep": 41,
+  "firstMismatchSegment": 0,
+  "mismatchKind": "refusal",
+  "diagnostic": {
+    "comparison": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2637,
+          "js": 2629
+        },
+        "screens": {
+          "c": 43,
+          "js": 41
+        },
+        "cursors": {
+          "c": 43,
+          "js": 41
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": {
+        "index": 2629,
+        "cEntry": "rn2(19)=16",
+        "cCaller": "exercise(attrib.c:509)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 41,
+          "key": " "
+        }
+      },
+      "screenMismatch": {
+        "index": 41,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 41,
+          "key": " "
+        },
+        "kind": "js-missing"
+      },
+      "cursorMismatch": {
+        "index": 41,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 41,
+          "key": " "
+        },
+        "cCursor": [
+          36,
+          5,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "boundary": {
+      "name": "UnsupportedHeroCommandBoundaryError",
+      "message": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 148",
+      "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 148\n    at failClosedCommand (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:3022:19)\n    at async rhack (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:5853:25)\n    at async moveloop_core (file:///tmp/teleport-loop-worker-c-20260925/js/allmain.js:1786:9)\n    at async runSegment (file:///tmp/teleport-loop-worker-c-20260925/js/jsmain.js:779:13)\n    at async file:///tmp/teleport-loop-worker-c-20260925/.cache/C137-selected-diagnostic.mjs:6:32"
+    },
+    "hero": {
+      "ux": 37,
+      "uy": 4
+    },
+    "engraving": {
+      "nxt_engr": null,
+      "engr_x": 49,
+      "engr_y": 3,
+      "engr_txt": [
+        "d a ra?ium",
+        "ad aerarium",
+        "ad aerarium"
+      ],
+      "engr_time": 0,
+      "engr_type": 1,
+      "engr_szeach": 12,
+      "engr_alloc": 36,
+      "guardobjects": false,
+      "nowipeout": false,
+      "eread": false,
+      "erevealed": false
+    },
+    "unported": [
+      "steal.c remove_worn_item"
+    ]
+  },
+  "commit": "4770d6451a496f23894b62228420ad4c8268047f",
+  "status": "complete",
+  "mismatch": {
+    "session": "synthetic/v27/v27-destroy-worn-armor",
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-destroy-worn-armor",
+    "remainingScreens": 2,
+    "recordedSteps": 43,
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recordingPath": "challenges/cases/v27/v27-destroy-worn-armor.session.json",
+    "recordingSha256": "a9d330b68f2e78060eb12ee28b98a816dc118b375c972f159ad56a47dfd7add6",
+    "recipe": "challenges/cases/v27/v27-destroy-worn-armor.recipe.session.json",
+    "recipeSha256": "d5d9800a7d76ccfe59fab74997c08457f25bd2fb080fa89651f6dfbfa259aa38",
+    "evaluationPath": "challenges/evaluations/accepted-4770d6451a496f23894b62228420ad4c8268047f-v27.json",
+    "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f",
+    "evaluationArtifact": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4770d6451a496f23894b62228420ad4c8268047f/run-hosted-kJ8H2K/synthetic/ci-v27.json",
+    "firstMismatchStep": 41,
+    "firstMismatchSegment": 0,
+    "mismatchKind": "refusal",
+    "diagnostic": {
+      "comparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2637,
+            "js": 2629
+          },
+          "screens": {
+            "c": 43,
+            "js": 41
+          },
+          "cursors": {
+            "c": 43,
+            "js": 41
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": {
+          "index": 2629,
+          "cEntry": "rn2(19)=16",
+          "cCaller": "exercise(attrib.c:509)",
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 41,
+            "key": " "
+          }
+        },
+        "screenMismatch": {
+          "index": 41,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 41,
+            "key": " "
+          },
+          "kind": "js-missing"
+        },
+        "cursorMismatch": {
+          "index": 41,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 41,
+            "key": " "
+          },
+          "cCursor": [
+            36,
+            5,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "boundary": {
+        "name": "UnsupportedHeroCommandBoundaryError",
+        "message": "unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 148",
+        "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 148\n    at failClosedCommand (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:3022:19)\n    at async rhack (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:5853:25)\n    at async moveloop_core (file:///tmp/teleport-loop-worker-c-20260925/js/allmain.js:1786:9)\n    at async runSegment (file:///tmp/teleport-loop-worker-c-20260925/js/jsmain.js:779:13)\n    at async file:///tmp/teleport-loop-worker-c-20260925/.cache/C137-selected-diagnostic.mjs:6:32"
+      },
+      "hero": {
+        "ux": 37,
+        "uy": 4
+      },
+      "engraving": {
+        "nxt_engr": null,
+        "engr_x": 49,
+        "engr_y": 3,
+        "engr_txt": [
+          "d a ra?ium",
+          "ad aerarium",
+          "ad aerarium"
+        ],
+        "engr_time": 0,
+        "engr_type": 1,
+        "engr_szeach": 12,
+        "engr_alloc": 36,
+        "guardobjects": false,
+        "nowipeout": false,
+        "eread": false,
+        "erevealed": false
+      },
+      "unported": [
+        "steal.c remove_worn_item"
+      ]
+    }
+  },
+  "goalKind": "divergence-fix",
+  "summary": "Hero worn armor destruction skips the already-owned awaited remove_worn_item call, then delobj refuses the still-worn item. Restore that call at trap.c:erode_obj EF_DESTROY before deletion, preserving message/payment/unwear/delete order.",
+  "source": {
+    "file": "trap.c",
+    "branch": "A carried hero armor object at MAX_ERODE is destroyed by EF_DESTROY after its erosion message is acknowledged; its owornmask must be cleared by canonical remove_worn_item before delobj.",
+    "functions": [
+      "erode_obj"
+    ],
+    "callers": [
+      "read.c:seffects/seffect_destroy_armor -> do_wear.c:destroy_arm -> trap.c:erode_obj",
+      "trap.c:erode_obj EF_DESTROY -> steal.c:remove_worn_item -> do_wear.c armor-off owner -> invent.c:delobj"
+    ],
+    "dependencies": [
+      "Existing steal.c:remove_worn_item owner (read-only)",
+      "Existing awaited armor-off/setworn owners and invent.c:delobj/deallocation (read-only)",
+      "B140 Gloves_off remains outside editing scope; target independent cloak/suit paths"
+    ]
+  },
+  "evidence": [
+    "Exact accepted checkpoint 4770d6451a496f23894b62228420ad4c8268047f, /home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4770d6451a496f23894b62228420ad4c8268047f/run-hosted-kJ8H2K/synthetic/ci-v27.json: 41/43 screens/cursors,2629/2637 RNG; two remaining screens. .cache/C137-selected-diagnostic.json reproduces segment0 step41 key space refusal 'unsupported hero command: an unported branch of this command: setNotWorn is not available for otyp 148', with named gap steal.c remove_worn_item.",
+    "read.c:1387 invokes do_wear.c:destroy_arm3278–3316, which loops source-selected worn pieces, calls erode_obj with EF_PAY|EF_DESTROY and breaks on ER_DESTROYED. Existing js/do_wear.js destroy_arm retains that source path.",
+    "trap.c:erode_obj170–353 selects hero/monster/floor solely from carried()/mcarried(). At MAX_ERODE with EF_DESTROY,317–340 marks in_use, prints and waits, pays alterations, then if owornmask and carried calls remove_worn_item(otmp,TRUE); only afterward calls delobj. Existing JS victim classification already matches carried; hero branch instead calls note_unported then delobj, causing the live failure.",
+    "steal.c:remove_worn_item213–290 already has a canonical async js/steal.js owner. It preserves old in_use, cancels active donning, dispatches armor/amulet/ring/blindfold/weapon/punishment owners, catchall setnotworn, and restores old in_use. Cloak_off and Armor_off/setworn are awaited before returning; do not substitute a raw mask clear or a delobj setter hook.",
+    "Bounded correction: replace only obsolete hero removal gap with await canonical remove_worn_item(obj,true,state,env) in source order; update its stale translation comments, source-pinned fail-first message-suspension/removal/deletion assertions, and add independent C-first worn cloak/suit destruction routes. Do not claim whole erode_obj/steal/armor-off completion or expand into B140 Gloves_off/petrification behavior.",
+    "Existing erode_obj monster extraction and anomalously worn floor-object branches remain unchanged. Existing owner limitations and every discarded gap outside this caller restoration remain explicit. Incomplete source unit still needs its existing concrete blocked recipe in delivery evidence.",
+    "Related globby and candle mismatches select A138 dropx/merged contracts and are unrelated. B140 cockatrice loss-of-protection task reserves Gloves_off/wielding_corpse/dragon_armor_handling/nh_timeout/instapetrify; this fix edits only trap_erode_obj.js and reuses the canonical removal owner read-only.",
+    "Proposed validation: direct source-pinned EF_DESTROY at MAX_ERODE with a real worn cloak, hold destruction message to prove pointer/mask/ownership stay until acknowledgement then await removal and delete; representative MAX_ERODE-1 damage path stays worn. Fresh independent role/object/armor-slot variations plus admitted steps41–42 must strictly match RNG/screens/cursors.",
+    "Manifest identity uses the admitted v27 corpus digest 24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277, as retained by the accepted evaluation. Raw file digest e5f5c4dcc5261d48ced9ddf0ff76f670dc37cdb92d6dfac01cc46a0384432e87 includes provenance fields and is not the corpusDigest selection key."
+  ]
+}
