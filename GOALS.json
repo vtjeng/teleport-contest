@@ -184235,7 +184235,7 @@
           "line": 1642,
           "endLine": 1776,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -184249,7 +184249,7 @@
           "endLine": 1940,
           "declared": true,
           "sourceFile": "polyself.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -184735,7 +184735,121 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dogaze",
+            "implementation": "js/polyself.js",
+            "symbol": "dogaze",
+            "sourceReview": "Read complete polyself.c1642-1774, attack scan, invalid damage type diagnostics/ECMD_OK, Blind then Hallucination gates, 15 energy/status update, exact unsnapshotted nmon loop, dead/visibility/couldsee gates, invisibility/disguise/safe_dog/confirm branches, setmangry before inability to meet the gaze, AD_CONF repeated-confusion state/messages, AD_FIRE d(2,6) before message and resistance, rn2(20) before destroy_items/ignite_items, original damage passed to inventory destruction, HP/death handling before passive gaze, floating-eye extrinsic-only Free_action and short-circuit ulevel>6 || rn2(4), dice/-200 paralysis/reason/nomovemsg, urgent Medusa output/killer/done, looked count and ECMD_TIME. Replace stale fmon head with the sole canonical level.monlist; do not add an alias/fallback or snapshot the next pointer in this function. Use existing source-named Monnam/mon_nam wrappers (same x_monnam contract as previous helper aliases). Replaced the unexpected-attack throw with note_unported(pline.c impossible) then C ECMD_OK: impossible is an unported discarded void diagnostic; no diagnostic output is invented. Read pline.c584ff impossible, do_name.c mon_nam/Monnam, display.h _canseemon, vision.h couldsee, mondata.h perceives/haseyes, youprop.h Blind/Hallucination/Invis/Confusion/See_invisible/Free_action, monst.h helpless/DEADMONSTER, mon.c setmangry/killed/xkilled and existing owners, zap.c destroy_items5964-6097 and existing zap_destroy_items.js owner, trap.c ignite_items7161-7172, apply.c catch_lit1577-1625 and existing JS ignition owners, hack.c nomul and canonical state.multi_reason/nomovemsg owners, end.c done and urgent tty owner. Existing AD_FIRE inventory/death owners remain in use, including inherited helper gaps (apply.c floor message coordinate/check_unpaid; special species/death/finish owners); this task claims no new completion for those owners.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c:domonability908-909 uses attacktype(uptr,AT_GAZE) and returns dogaze(); js/cmd.js existing AT_GAZE branch passes the live state and returns the awaited command result. The #monster extcmd registry/rhack dispatch remains the production route."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself-gaze-mindblast.test.mjs",
+              "scripts/uhitm-ad-conf.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/zap-destroy-items.test.mjs",
+              "scripts/apply-light-cocktail.test.mjs"
+            ],
+            "recordings": [
+              "recordings/polyself.c/gaze-confusion-newt.session.json",
+              "recordings/polyself.c/monster-gaze-umber-hulk.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-pyrolisk-gazes-hostile",
+                "segment": 0,
+                "fromStep": 78,
+                "throughStep": 81,
+                "source": "cmd.c rhack / #monster -> domonability AT_GAZE arm908-909 -> polyself.c dogaze1642-1774, live newt fire damage and killed tail"
+              }
+            ],
+            "checkedAt": "74f3790f291206491173e7e97b021bcc537c247d"
+          },
+          {
+            "name": "domindblast",
+            "implementation": "js/polyself.js",
+            "symbol": "domindblast",
+            "sourceReview": "Read complete polyself.c1894-1938: lack-energy ECMD_OK, 10 energy/status update before two awaited opening messages, canonical level.monlist with next pointer saved before every filter/side effect, dead/distance>BOLT_LIM squared/peaceful/mindless filters, telepathic&& !mcansee u_sen, exact short-circuit u_sen || (telepathic && rn2(2)) || !rn2(10), rnd(15) before wakeup(mtmp,dmg>mhp), wakeup before possessive mon_nam lock-on output before HP subtraction and killed, ECMD_TIME. Read you.h mdistu squared distance, mondata.h mindless/telepathic, rnd.c ordered wrapper owners and ISAAC contexts, mon.c wakeup/finish_meating/setmangry/killed/xkilled and existing JS owners. Canonical nmon iteration and saved-next semantics now preserve traversal if a death owner removes the current monster; no extra RNG, monster list alias, state mutation or message is added. Existing source-named mon_nam replaces its equivalent alias. Inherited wakeup/death helper gaps remain owned there, not claimed complete here.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c:domonability916-917 selects is_mind_flayer(uptr) after breath/spit/nymph/gaze/were/hide/web arms and returns domindblast(); existing js/cmd.js dispatcher preserves that order and passes live state. #monster extcmd/rhack route is replay verified."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself-gaze-mindblast.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/polyself.c/mindblast-ordinary-newt.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-mind-flayer-blast",
+                "segment": 0,
+                "fromStep": 88,
+                "throughStep": 108,
+                "source": "cmd.c rhack / #monster -> domonability is_mind_flayer arm916-917 -> polyself.c domindblast1894-1938, ordered telepathic and ordinary candidate draws; second blast98-99 locks on latent telepathy"
+              }
+            ],
+            "checkedAt": "74f3790f291206491173e7e97b021bcc537c247d"
+          }
+        ],
+        "entryPointReview": "A source-wide rg across src/*.c finds exactly one production caller per function, cmd.c domonability dogaze909 and domindblast917; both are active #monster arms in the recorder build. No excluded caller. Every unit is impure; no new pure helper is introduced. Admitted v24 fire gaze fully matches through final step81. Admitted v24 mind-flayer blast matches through108, including source candidate draws88 and98-99 and the positive latent-telepathy hit. At later step109 the first remaining RNG difference is the separate spell.c:losespells1777 helper, C rn2(3) versus JS rn2(5); no later spell completion is claimed. Independent fixed-seed gnome/orc Wizard recipes reach AD_CONF against a newt and ordinary nontelepathic rn2(10) selection. Matrix verifies actual form/target/energy/time and source output; initial too-short pager setup matched C but did not execute the command, was retained in .cache/C124-*-initial-setup.json and corrected before recording. No seed scan. Twelve source-pinned constructed tests cover invalid/Blind/Hallucination/energy gates, canonical live list, repeated confusion, dead/disguised/tame/helpless/stunned/blind/eyeless gates, hero invisibility, Confusion overriding safe_dog, fire resistance/damage/threshold draw order, raw extrinsic free action/high-level dice short circuit, psychic filters and exact BOLT_LIM boundary, blind telepathy, latent/ordinary selection short circuits, confirmation decline and multiple live actors. Rare Medusa/low-level paralysis branches are source compared and reuse existing done/nomul owners; full entry evidence does not claim new completion of those owners or the discarded impossible diagnostic.",
+        "entryPoints": [
+          {
+            "name": "Use #monster while polymorphed with an AT_GAZE attack",
+            "functions": [
+              "dogaze"
+            ],
+            "recordings": [
+              "recordings/polyself.c/gaze-confusion-newt.session.json",
+              "recordings/polyself.c/monster-gaze-umber-hulk.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-pyrolisk-gazes-hostile",
+                "segment": 0,
+                "fromStep": 78,
+                "throughStep": 81,
+                "source": "cmd.c rhack / #monster -> domonability AT_GAZE arm908-909 -> polyself.c dogaze1642-1774, live newt fire damage and killed tail"
+              }
+            ]
+          },
+          {
+            "name": "Use #monster while polymorphed into a mind flayer",
+            "functions": [
+              "domindblast"
+            ],
+            "recordings": [
+              "recordings/polyself.c/mindblast-ordinary-newt.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-mind-flayer-blast",
+                "segment": 0,
+                "fromStep": 88,
+                "throughStep": 108,
+                "source": "cmd.c rhack / #monster -> domonability is_mind_flayer arm916-917 -> polyself.c domindblast1894-1938, ordered telepathic and ordinary candidate draws; second blast98-99 locks on latent telepathy"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-apply-use-grease-drop-env-v24-20261006",
