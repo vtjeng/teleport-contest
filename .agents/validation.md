@@ -27,12 +27,12 @@ competition holdout is outside this workspace.
 - Keep the printed run ID. Use the runner's `status`, `wait`, or `stop`
   command to recover or stop that run; `--help` gives the syntax.
   Do not start another copy to check whether the first has finished.
-- After committing a combined integration candidate, the orchestrator runs
-  `npm run checkpoint`. Workers submit immutable deliveries after focused
+- After committing a combined integration candidate, the orchestrator obtains
+  a passing local or hosted checkpoint for that exact commit. Workers submit immutable deliveries after focused
   tests, lint and required fresh differentials; they do not run a redundant
   branch-only full checkpoint before each handoff. A standalone game change
   outside the multi-worker loop still requires a post-commit checkpoint.
-  It tests HEAD in a fresh
+  The local `npm run checkpoint` command tests HEAD in a fresh
   worktree, initializes C from the local repository, and excludes uncommitted
   changes. Use `npm run checkpoint -- --commit <revision>` to select another
   commit. Run outside the Codex sandbox because setup writes Git metadata.
@@ -56,6 +56,19 @@ competition holdout is outside this workspace.
   `sessions/holdout/`, and the
   recordings corpus over `recordings/`, which fails when any recording stops
   matching.
+- To validate on GitHub, push the committed candidate to an
+  `integration-checkpoint/*` branch. Wait for the Checkpoint workflow to finish,
+  then run `node scripts/fetch-hosted-checkpoint.mjs <run-id>` outside the
+  sandbox. It requires a successful run from this repository's checkpoint
+  workflow whose commit equals local HEAD, verifies the downloaded summary's
+  commit and run identity, and installs its evidence in the shared checkpoint
+  archive. Trust the CI combine steps; do not rerun their checks locally.
+  Keep HEAD at the candidate until import and closure finish. The hosted
+  summary retains its actual GitHub run and per-stage attempts. Hosted runners
+  use job timeouts and isolation rather than the local systemd wrapper.
+  Reuse the imported scan cache and synthetic evaluation artifacts for closure;
+  compare synthetic results with accepted evidence under `.agents/scoring.md`.
+  Do not replay them merely because they were measured remotely.
 - The agent that starts checkpoint owns the command through completion and
   retains its process handle. Do not interrupt that agent merely to take over
   validation. An explicit handoff identifies the tested commit, whether the

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T06:55:53.121Z",
+  "capturedAt": "2026-10-07T08:00:51.389Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -23469,12 +23469,113 @@
         "type": "accepted",
         "at": "2026-10-07T06:54:13.231Z",
         "task": "A117"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A117-999834a6-20261007-v2",
+        "type": "published",
+        "at": "2026-10-07T06:57:05.030Z",
+        "task": "A117",
+        "commit": "999834a671e73e7b4d3fda702020174a83384070"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B129-35258dc3-20261007",
+        "type": "integrating",
+        "at": "2026-10-07T06:58:21.986Z",
+        "task": "B129",
+        "integration": "35258dc3c42ac835c660f50fc134d237ed304868"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B129-35258dc3-20261007",
+        "type": "validated",
+        "at": "2026-10-07T07:20:35.230Z",
+        "task": "B129",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B129-35258dc3-20261007",
+        "type": "accepted",
+        "at": "2026-10-07T07:28:15.140Z",
+        "task": "B129"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A118-20261007",
+        "type": "assign",
+        "at": "2026-10-07T07:33:06.581Z",
+        "task": "A118",
+        "worker": "A2",
+        "goal": "port-dokick-kick-object-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B130-cprefx-20261007",
+        "type": "assign",
+        "at": "2026-10-07T07:34:13.677Z",
+        "task": "B130",
+        "worker": "B",
+        "goal": "port-eat-cprefx-whole-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C128-20261007",
+        "type": "assign",
+        "at": "2026-10-07T07:36:09.419Z",
+        "task": "C128",
+        "worker": "C",
+        "goal": "fix-uhitm-brain-drain-owned-forgetting-v24-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B129-2de46c56-20261007",
+        "type": "published",
+        "at": "2026-10-07T07:37:44.410Z",
+        "task": "B129",
+        "commit": "2de46c564b50e425ec84b3a6166efc9bc89f63ef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4b80e83fa68e7a7494a266efa99e688a5b8875ea",
+        "type": "ready",
+        "at": "2026-10-07T07:49:34.149Z",
+        "task": "B130",
+        "delivery": "4b80e83fa68e7a7494a266efa99e688a5b8875ea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B130-4b80e83f-20261007",
+        "type": "received",
+        "at": "2026-10-07T07:50:18.052Z",
+        "task": "B130",
+        "delivery": "4b80e83fa68e7a7494a266efa99e688a5b8875ea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0b52e97b796ac27b6238b637e82efe4d27faf0c1",
+        "type": "ready",
+        "at": "2026-10-07T07:53:16.410Z",
+        "task": "C128",
+        "delivery": "0b52e97b796ac27b6238b637e82efe4d27faf0c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C128-0b52e97b-20261007",
+        "type": "received",
+        "at": "2026-10-07T07:54:17.429Z",
+        "task": "C128",
+        "delivery": "0b52e97b796ac27b6238b637e82efe4d27faf0c1"
       }
     ]
   },
   "development": {
-    "executionCommit": "c8d3fb2782a75f3ff724f7f338767d4a4793804f",
-    "measuredAt": "2026-10-07T06:45:31.274Z",
+    "executionCommit": "5c091ea749a42f04a06799fd9a5dcff618c4c0be",
+    "measuredAt": "2026-10-07T07:56:47.386Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

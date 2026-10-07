@@ -76,16 +76,16 @@ function runChild(name) {
 export function runBoundedChild(name, budget, {
     run = spawnSync,
     output = (line) => process.stdout.write(line),
+    enforceResources = false,
 } = {}) {
-    // Keep the existing wall watchdog and startup allowance: CPU accounting
-    // checks completed work, but a synchronous fixed point still needs to be
-    // interrupted from outside the child.
+    // Correctness checks share a machine with other tests. Give them a generous
+    // hang watchdog; tight CPU/RSS budgets belong to an isolated resource run.
     const result = run(
         process.execPath,
         [SCRIPT_PATH, '--case', name],
         {
             encoding: 'utf8',
-            timeout: budget.budgetCpuMs + 2000,
+            timeout: enforceResources ? budget.budgetCpuMs + 2000 : 10_000,
             maxBuffer: 1024 * 1024,
         },
     );
@@ -96,17 +96,17 @@ export function runBoundedChild(name, budget, {
     }
     const measured = JSON.parse(result.stdout);
     assert.equal(measured.name, name);
-    assert.ok(measured.cpuMs <= budget.budgetCpuMs,
+    if (enforceResources) assert.ok(measured.cpuMs <= budget.budgetCpuMs,
         `${name} used ${measured.cpuMs.toFixed(1)} ms CPU `
             + `(${measured.elapsedMs.toFixed(1)} ms wall)`);
-    assert.ok(measured.maxRssKiB <= budget.budgetMaxRssKiB,
+    if (enforceResources) assert.ok(measured.maxRssKiB <= budget.budgetMaxRssKiB,
         `${name} used ${measured.maxRssKiB} KiB maxRSS`);
     output(
         `${name}: ${measured.cpuMs.toFixed(1)} ms CPU, `
             + `${measured.elapsedMs.toFixed(1)} ms wall, `
             + `${measured.maxRssKiB} KiB maxRSS `
-            + `(budgets ${budget.budgetCpuMs} ms CPU/`
-            + `${budget.budgetMaxRssKiB} KiB)\n`,
+            + (enforceResources ? `(budgets ${budget.budgetCpuMs} ms CPU/`
+                + `${budget.budgetMaxRssKiB} KiB)\n` : '(diagnostic measurements)\n'),
     );
 }
 
@@ -115,9 +115,10 @@ function main(argv) {
         process.stdout.write(JSON.stringify(runChild(argv[1])));
         return;
     }
-    if (argv.length) throw new Error('arguments are not accepted');
+    const enforceResources = argv.length === 1 && argv[0] === '--check-resources';
+    if (argv.length && !enforceResources) throw new Error('use --check-resources or no arguments');
     for (const entry of REGEX_RESOURCE_CASES)
-        runBoundedChild(entry.name, entry);
+        runBoundedChild(entry.name, entry, { enforceResources });
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {

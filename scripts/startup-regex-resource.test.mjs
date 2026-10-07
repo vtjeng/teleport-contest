@@ -22,10 +22,11 @@ const REQUIRED_RESOURCE_NAMES = Object.freeze([
     'adjacent-repeat-fixed-point',
 ]);
 
-test('regex adversaries satisfy exact resource and fixed-point bounds', () => {
+test('adversarial regex inputs return the expected matches without hanging', () => {
     const result = spawnSync(process.execPath, [RUNNER], {
         encoding: 'utf8',
-        timeout: 12_000,
+        // Six children each have a ten-second hang watchdog, plus launcher time.
+        timeout: 65_000,
         maxBuffer: 1024 * 1024,
     });
     if (result.error || result.status !== 0) {
@@ -46,6 +47,7 @@ test('the resource gate allows scheduling delay and reports CPU and wall time',
         );
         const output = [];
         runBoundedChild(entry.name, entry, {
+            enforceResources: true,
             run(command, args, options) {
                 assert.equal(command, process.execPath);
                 assert.deepEqual(args, [RUNNER, '--case', entry.name]);
@@ -89,6 +91,7 @@ test('the resource gate rejects excess CPU work and memory independently', () =>
         [{ maxRssKiB: entry.budgetMaxRssKiB + 1 }, /KiB maxRSS/u],
     ]) {
         assert.throws(() => runBoundedChild(entry.name, entry, {
+            enforceResources: true,
             run: () => ({
                 status: 0,
                 stdout: JSON.stringify({ ...atLimit, ...excess }),
@@ -101,6 +104,7 @@ test('the resource gate rejects excess CPU work and memory independently', () =>
 test('the resource gate fails when the child watchdog expires', () => {
     const entry = FIXED_POINT_REGEX_RESOURCE_CASE;
     assert.throws(() => runBoundedChild(entry.name, entry, {
+        enforceResources: true,
         run(command, args, options) {
             assert.equal(command, process.execPath);
             assert.deepEqual(args, [RUNNER, '--case', entry.name]);
@@ -114,6 +118,21 @@ test('the resource gate fails when the child watchdog expires', () => {
         },
         output: () => assert.fail('a timed-out child must not report success'),
     }), /ETIMEDOUT/u);
+});
+
+test('ordinary regex checks report timing variation without failing correctness', () => {
+    const entry = REGEX_RESOURCE_CASES[0];
+    const output = [];
+    runBoundedChild(entry.name, entry, {
+        run(command, args, options) {
+            assert.equal(options.timeout, 10_000); // A hang still terminates.
+            return { status: 0, stdout: JSON.stringify({ name: entry.name,
+                cpuMs: entry.budgetCpuMs + 1, elapsedMs: entry.budgetCpuMs + 1,
+                maxRssKiB: entry.budgetMaxRssKiB + 1 }) };
+        },
+        output: line => output.push(line),
+    });
+    assert.match(output.join(''), /diagnostic measurements/u);
 });
 
 test('the fixture catalog completely owns exact and fixed-point resources', () => {

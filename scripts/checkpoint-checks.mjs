@@ -41,12 +41,14 @@ export function checkpointCommands() {
     const commands = [];
     commands.push({
         label: 'full test suite',
+        group: 'tests',
         command: 'npm',
         args: ['test'],
     });
     for (const check of GENERATED_CHECKS) {
         commands.push({
             label: `generated data (${check})`,
+            group: 'sources',
             command: 'npm',
             args: ['run', check],
         });
@@ -56,6 +58,7 @@ export function checkpointCommands() {
     // exports. See scripts/check-namespace-members.mjs.
     commands.push({
         label: 'static sources (check:namespace-members)',
+        group: 'sources',
         command: 'npm',
         args: ['run', 'check:namespace-members'],
     });
@@ -65,6 +68,7 @@ export function checkpointCommands() {
     // scripts/check-relative-imports.mjs.
     commands.push({
         label: 'static sources (check:relative-imports)',
+        group: 'sources',
         command: 'npm',
         args: ['run', 'check:relative-imports'],
     });
@@ -75,6 +79,7 @@ export function checkpointCommands() {
     // See scripts/check-fixed-datetime.mjs.
     commands.push({
         label: 'static sources (check:fixed-datetime)',
+        group: 'sources',
         command: 'npm',
         args: ['run', 'check:fixed-datetime'],
     });
@@ -84,6 +89,7 @@ export function checkpointCommands() {
     // stays in the check's own output; only its count rides the summary.
     commands.push({
         label: 'duplicate symbols (check:duplicate-symbols)',
+        group: 'sources',
         command: 'npm',
         args: ['run', 'check:duplicate-symbols'],
         capture: true,
@@ -95,6 +101,7 @@ export function checkpointCommands() {
     // values produce false positives, so the check is informational.
     commands.push({
         label: 'constants vs C headers (check:constants)',
+        group: 'sources',
         command: 'npm',
         args: ['run', 'check:constants'],
         capture: true,
@@ -110,6 +117,7 @@ export function checkpointCommands() {
     // reads, so the reader can decide whether a pass is warranted.
     commands.push({
         label: 'review gate',
+        group: 'sources',
         command: process.execPath,
         args: ['scripts/quality-status.mjs', '--check'],
         capture: true,
@@ -118,6 +126,7 @@ export function checkpointCommands() {
     });
     commands.push({
         label: 'development score',
+        group: 'score',
         command: process.execPath,
         args: ['scripts/score-development.mjs'],
         capture: true,
@@ -130,6 +139,7 @@ export function checkpointCommands() {
     // committed under recordings/. Every one must keep matching.
     commands.push({
         label: 'recordings corpus',
+        group: 'recordings',
         command: process.execPath,
         args: ['scripts/score-recordings.mjs'],
         capture: true,
@@ -142,12 +152,14 @@ export function checkpointCommands() {
     // writes, and a fresh checkpoint worktree has none until this runs.
     commands.push({
         label: 'session scan',
+        group: 'scan',
         command: process.execPath,
         args: ['scripts/scan-sessions.mjs', '--json'],
         capture: true,
     });
     commands.push({
         label: 'end-of-input over-read',
+        group: 'scan',
         command: process.execPath,
         args: ['scripts/check-overread.mjs'],
         capture: true,
@@ -158,6 +170,15 @@ export function checkpointCommands() {
         },
     });
     return commands;
+}
+
+// The serial checkpoint and hosted jobs use the same checks and verdicts.
+// Preserve each group's order, notably scan before the over-read check.
+export function checkpointGroups() {
+    const groups = {};
+    for (const command of checkpointCommands())
+        (groups[command.group] ??= []).push(command);
+    return groups;
 }
 
 export function parseCheckpointArgs(args) {
@@ -371,12 +392,12 @@ export function summarizeDevelopmentScore(stdout) {
 const SUMMARY_PATH = new URL('../.cache/checkpoint-summary.json',
     import.meta.url);
 
-export function writeCheckpointSummary(results, commit, reused = null) {
+export function checkpointSummary(results, commit, reused = null) {
     const testEntry = results.find(({ label }) => label === 'full test suite');
     const scoreEntry = results.find(
         ({ label }) => label === 'development score');
     const recordingsEntry = results.find(({ label }) => label === 'recordings corpus');
-    const summary = {
+    return {
         commit,
         reuseVersion: REUSE_VERSION,
         executionCommit: reused?.executionCommit ?? commit,
@@ -392,6 +413,10 @@ export function writeCheckpointSummary(results, commit, reused = null) {
             : null,
         results: results.map(({ stdout: _stdout, ...result }) => result),
     };
+}
+
+export function writeCheckpointSummary(results, commit, reused = null) {
+    const summary = checkpointSummary(results, commit, reused);
     const dest = fileURLToPath(SUMMARY_PATH);
     mkdirSync(dirname(dest), { recursive: true });
     writeFileSync(dest, JSON.stringify(summary, null, 2) + '\n');
@@ -407,7 +432,7 @@ function checkpointGit(args) {
     return result.stdout.trim();
 }
 
-function requireCleanCheckpointTree() {
+export function requireCleanCheckpointTree() {
     // Override user settings that can otherwise hide untracked inputs or
     // modifications inside the C submodule. Ignored run artifacts stay allowed.
     const status = checkpointGit(['status', '--porcelain',

@@ -5,22 +5,23 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
-import { copiedRecipe } from './worker-delivery.mjs';
+import { copiedRecipe, verifyEvent } from './worker-delivery.mjs';
 import { corpusDigest, digest } from './challenge-results.mjs';
 import { preparedFromDelivery } from './admit-challenge-batch.mjs';
 import { executionTree } from './checkpoint-reuse.mjs';
 
 const SCRIPT = fileURLToPath(new URL('./worker-state.mjs', import.meta.url));
 
+function git(cwd, ...args) {
+    const result = spawnSync('git', ['-c', 'core.hooksPath=/dev/null', ...args], { cwd, encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr); // Only disposable fixture repositories are written.
+    return result.stdout.trim();
+}
+
 function fixture(t) {
     const parent = mkdtempSync(join(tmpdir(), 'worker-delivery-test-'));
     t.after(() => rmSync(parent, { recursive: true, force: true }));
     const root = join(parent, 'main'); const cRoot = join(parent, 'source');
-    const git = (cwd, ...args) => {
-        const result = spawnSync('git', ['-c', 'core.hooksPath=/dev/null', ...args], { cwd, encoding: 'utf8' });
-        assert.equal(result.status, 0, result.stderr); // Only disposable fixture repositories are written.
-        return result.stdout.trim();
-    };
     for (const path of [root, cRoot]) {
         mkdirSync(path); git(path, 'init', '-qb', 'main');
         git(path, 'config', 'user.name', 'Delivery fixture');
@@ -547,11 +548,7 @@ test('recipe comparison ignores renamed metadata but not independently chosen mo
     assert.equal(copiedRecipe({ ...fixed, moves: 'jj' }, fixed), false);
 });
 
-function reportPublication(t, withSavedReports = false, batch = 'v1') {
-    const f = fixture(t); f.assign(); f.artifacts(); const delivered = f.commit();
-    f.success(f.submitArgs, f.workers.A);
-    f.event({ type: 'received', task: 'A-1', delivery: delivered });
-    f.git(f.root, 'merge', '--ff-only', delivered);
+function publicationReports(f, withSavedReports = false, batch = 'v1') {
     // One immutable synthetic case makes membership checks independent of totals.
     const cases = [{ id: 'sample', recordingSha256: 'a'.repeat(64) }];
     mkdirSync(join(f.root, 'challenges'));
@@ -587,6 +584,16 @@ function reportPublication(t, withSavedReports = false, batch = 'v1') {
         investigation.commit = tested;
         evaluation.sha = tested;
     }
+    return { tested, investigation, evaluation, save };
+}
+
+function reportPublication(t, withSavedReports = false, batch = 'v1') {
+    const f = fixture(t); f.assign(); f.artifacts(); const delivered = f.commit();
+    f.success(f.submitArgs, f.workers.A);
+    f.event({ type: 'received', task: 'A-1', delivery: delivered });
+    f.git(f.root, 'merge', '--ff-only', delivered);
+    const reports = publicationReports(f, withSavedReports, batch);
+    const { tested } = reports;
     f.event({ type: 'integrating', task: 'A-1', integration: tested });
     const summary = join(f.parent, 'report-pass.json');
     const receipt = JSON.stringify({ commit: tested, allPassed: true });
@@ -601,7 +608,40 @@ function reportPublication(t, withSavedReports = false, batch = 'v1') {
         f.git(f.root, 'push', '-q', 'origin', 'main'); // Local disposable remote only.
         return f.event({ type: 'published', task: 'A-1', commit });
     };
-    return { ...f, tested, delivered, summary, receipt, investigation, evaluation, save, publish };
+    return { ...f, ...reports, delivered, summary, receipt, publish };
+}
+
+// Report rejection depends on committed trees, not worker setup. The matrix
+// below keeps CLI cases for malformed reports and changed game inputs; its
+// other cases reach the same guard directly without a delivery lifecycle.
+function rejectedPublication(t) {
+    const root = mkdtempSync(join(tmpdir(), 'publication-policy-test-'));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    git(root, 'init', '-qb', 'main');
+    git(root, 'config', 'user.name', 'Publication fixture');
+    git(root, 'config', 'user.email', 'fixture@example.invalid');
+    git(root, 'config', 'commit.gpgsign', 'false');
+    mkdirSync(join(root, 'js'));
+    mkdirSync(join(root, 'scripts'));
+    // Distinct game inputs at base and tested make an earlier evaluation stale.
+    writeFileSync(join(root, 'js/sample.js'), 'export function sample() { return 0; }\n');
+    writeFileSync(join(root, 'scripts/sample.test.mjs'), "import { sample } from '../js/sample.js';\nvoid sample;\n");
+    writeFileSync(join(root, 'QUALITY.json'), '{}\n'); // Existing target for the symlink-report case.
+    git(root, 'add', 'js/sample.js', 'scripts/sample.test.mjs', 'QUALITY.json');
+    git(root, 'commit', '-qm', 'base fixture');
+    const base = git(root, 'rev-parse', 'HEAD');
+    writeFileSync(join(root, 'js/sample.js'), 'export function sample() { return 1; }\n');
+    git(root, 'add', 'js/sample.js');
+    const reports = publicationReports({ root, git });
+    const { tested } = reports;
+    const state = { tasks: { 'A-1': { deliveries: [tested] } },
+        deliveries: { [tested]: { integration: tested } } };
+    const publish = () => {
+        git(root, 'commit', '-qm', 'rejected report fixture');
+        const commit = git(root, 'rev-parse', 'HEAD');
+        return verifyEvent(root, state, { type: 'published', task: 'A-1', commit });
+    };
+    return { root, git, base, ...reports, publish };
 }
 
 test('publication accepts checked reports without changing the tested receipt or checkpoint inputs', (t) => {
@@ -717,8 +757,8 @@ test('publication cannot overwrite or delete a saved challenge evaluation', asyn
 });
 
 test('publication rejects unsafe report changes and every other post-checkpoint input', async (t) => {
-    // Each mutation must fail before a published event is appended. Fixtures
-    // deliberately isolate format, provenance, mode, and non-report path guards.
+    // Isolate format, provenance, mode, and non-report path guards. Two CLI
+    // cases also check that rejection leaves the ledger and receipt untouched.
     const cases = [
         ['malformed JSON', f => f.save('investigations/fixed.json', '{'), /JSON|investigation/i],
         ['wrong investigation ID', f => f.save('investigations/fixed.json', { ...f.investigation, session: 'other' }), /investigation/i],
@@ -752,11 +792,15 @@ test('publication rejects unsafe report changes and every other post-checkpoint 
             [path, f => f.save(path, 'changed input\n'), /unvalidated changes/i]),
     ];
     for (const [name, change, error] of cases) await t.test(name, t => {
-        const f = reportPublication(t); const before = readFileSync(f.file, 'utf8');
+        const lifecycle = name === 'malformed JSON' || name === 'js/sample.js';
+        const f = lifecycle ? reportPublication(t) : rejectedPublication(t);
+        const before = lifecycle ? readFileSync(f.file, 'utf8') : null;
         change(f);
         assert.throws(f.publish, error);
-        assert.equal(readFileSync(f.file, 'utf8'), before);
-        assert.equal(readFileSync(f.summary, 'utf8'), f.receipt);
+        if (lifecycle) {
+            assert.equal(readFileSync(f.file, 'utf8'), before);
+            assert.equal(readFileSync(f.summary, 'utf8'), f.receipt);
+        }
     });
 });
 
