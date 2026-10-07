@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:o_unleash via eating an attached leather leash. Seed/date fixed before recording without scanning. First inspect C inventory and starting dog placement, then freeze the attach/polyself/eat continuation from C observations. C setup observed leash l and starting little dog north of hero; attach with a-l-k, polymorph into an organic-eating gelatinous cube, then eat attached leash l. Extra spaces acknowledge source messages before the next command. C-first correction: dropped leather gloves add a floor-food yes/no prompt. Decline with n before selecting leash l; remove the final unrelated wait that reached a pet distfleeck boundary. Final recipe ends on completed leash consumption; free unknown-space commands were removed.",
+  "segments": [
+    {
+      "seed": 92671003,
+      "datetime": "20780113140500",
+      "nethackrc": "OPTIONS=name:LeashUnlink,role:Healer,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed leash\nalk#polyself\ngelatinous cube\n enl"
+    }
+  ]
+}

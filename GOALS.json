@@ -188001,7 +188001,7 @@
     {
       "id": "port-dig-bury-objs-whole-v24-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port whole object burial and wire pit-covering, boulder and freezing callers",
       "cFile": "dig.c",
       "sessions": [
@@ -188009,8 +188009,12 @@
       ],
       "selectionReason": "The complete valid investigation investigations/synthetic/v24/v24-spider-web-over-pit.json retains remainingScreens 0 and identifies an outstanding RNG-only omission at segment 0 step 53; whole bury_objs and required-return bury_an_obj are coherent, unreserved source owners. Caller functions are disjoint from B128 dropx and C127 display memory; preserve their reserved contracts.",
       "detail": "#monster spider pit branch -> polyself.c:dospinweb -> dig.c:bury_objs -> bury_an_obj omits C obj_resists and rnd draws, shifting monster RNG. Preserve floor-list traversal, shop debt, timers, ownership, engraving, redraw, and concealment; wire bounded do.c and zap.c callers. Include or explicitly gap the active DEBUG wiz_debug_cmd_bury caller; keep hack.c moverock_core trap handling, timeout expiry, Lua burial, and other unported caller entries explicit without claiming unrelated owners.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "39fcb18e40e89d9d4b9511f0a3b047419b95befc",
+      "openStanding": {
+        "sha": "759bab7f5ef46a344fb9b966e1f76bc7d388c391",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -188045,6 +188049,237 @@
           "recordingSha256": "17d00ca69b326937d155b3c6ddb6a5b819cd0014903c06c9ceec2a3c15b27b59",
           "evaluationPath": "challenges/evaluations/20261007053641-v24.json",
           "evaluationCommit": "7a862a458435036f4a2a008efa1fe9916761b912"
+        }
+      },
+      "activeStanding": {
+        "sha": "759bab7f5ef46a344fb9b966e1f76bc7d388c391",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-spider-web-over-pit",
+          "session": "synthetic/v24/v24-spider-web-over-pit",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-spider-web-over-pit.session.json",
+          "recordingPath": "challenges/cases/v24/v24-spider-web-over-pit.session.json",
+          "recordingSha256": "17d00ca69b326937d155b3c6ddb6a5b819cd0014903c06c9ceec2a3c15b27b59",
+          "recipe": "challenges/cases/v24/v24-spider-web-over-pit.recipe.session.json",
+          "recipeSha256": "7c58ba21540896b80f2abfde52f7721b80979ccbae3a929566df54d613c41774",
+          "replayInputSha256": "21b45b6a0c4786d2c21f8b8ac0f7d182d67d0d25c6c52589d1387bebd2f7f7e9",
+          "evaluationPath": "challenges/evaluations/20261007055545-v24.json",
+          "evaluationCommit": "532068f894fa97f4ace2680f195baf3aae875050",
+          "evaluationArtifact": "challenges/evaluations/20261007055545-v24.json",
+          "evaluationUtc": "2026-10-07T05:57:40.994Z",
+          "remainingScreens": 0,
+          "recordedSteps": 57,
+          "previousScreensMatched": 57,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 57,
+              "total": 57
+            },
+            "rng": {
+              "matched": 2719,
+              "total": 2728
+            },
+            "cursors": {
+              "matched": 57,
+              "total": 57
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2719,
+              "cEntry": "rn2(100)=95",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(12)=11",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 53,
+                "key": "\n"
+              },
+              "stepIndex": 53
+            },
+            "cursor": null
+          },
+          "step": 53,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-spider-web-over-pit.json",
+            "result": {
+              "session": "synthetic/v24/v24-spider-web-over-pit",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-spider-web-over-pit",
+              "remainingScreens": 0,
+              "recordedSteps": 57,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "17d00ca69b326937d155b3c6ddb6a5b819cd0014903c06c9ceec2a3c15b27b59",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-spider-web-over-pit",
+                "session": "synthetic/v24/v24-spider-web-over-pit",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-spider-web-over-pit.session.json",
+                "recordingPath": "challenges/cases/v24/v24-spider-web-over-pit.session.json",
+                "recordingSha256": "17d00ca69b326937d155b3c6ddb6a5b819cd0014903c06c9ceec2a3c15b27b59",
+                "recipe": "challenges/cases/v24/v24-spider-web-over-pit.recipe.session.json",
+                "recipeSha256": "7c58ba21540896b80f2abfde52f7721b80979ccbae3a929566df54d613c41774",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 0,
+                "recordedSteps": 57,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 57,
+                    "total": 57
+                  },
+                  "rng": {
+                    "matched": 2719,
+                    "total": 2728
+                  },
+                  "cursors": {
+                    "matched": 57,
+                    "total": 57
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2719,
+                    "cEntry": "rn2(100)=95",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(12)=11",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 53,
+                      "key": "\n"
+                    },
+                    "stepIndex": 53
+                  },
+                  "cursor": null
+                },
+                "step": 53,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "Zero screens remain, but this is an RNG-only mismatch: the giant spider covers a pit and JS skips dig.c:bury_objs, leaving the dropped organic scroll unburied. C calls obj_resists twice and rnd(250) while burying it; JS then starts monster-turn RNG three calls too early. Port whole bury_objs and wire its active callers; this case covers only the spider-over-pit branch, while shop accounting and other callers still need coverage.",
+              "source": {
+                "file": "dig.c",
+                "branch": "A hero polymorphed into a web spinner uses #monster while standing on a PIT or SPIKED_PIT with a floor object at the same coordinates. dospinweb emits the web message, deletes the trap, buries objects at that square, redraws it, and spends a turn.",
+                "functions": [
+                  "bury_objs"
+                ],
+                "callers": [
+                  "polyself.c:dospinweb 1553-1560 calls bury_objs after deleting a PIT or SPIKED_PIT; js/polyself.js:2364-2370 currently records note_unported(\"dig.c bury_objs\"). This case executes that branch.",
+                  "do.c:boulder_hits_pool 90-98 calls bury_objs after a boulder fills liquid terrain; js/do.js:716-724 currently records the skipped call.",
+                  "do.c:flooreffects 883-889 calls bury_objs when a boulder plugs a hole or trapdoor; js/do.js:883-889 currently records the skipped call.",
+                  "hack.c:moverock_core 544-566 calls bury_objs when a pushed boulder plugs a hole or trapdoor; js/hack.js currently stops at its broader boulder-trap boundary before this source branch.",
+                  "zap.c:bhitm 5277 calls bury_objs when a cold effect freezes liquid terrain; js/zap.js:5100-5104 currently records the skipped call.",
+                  "dig.c:wiz_debug_cmd_bury calls bury_objs under #ifdef DEBUG; verify whether the recorder build includes this command before counting it as an active entry point."
+                ],
+                "dependencies": [
+                  "Reuse and source-check dig.c:bury_an_obj as implemented in js/bury.js; it returns the saved next floor-object pointer consumed by bury_objs while object extraction mutates the chain. This path invokes zap.c:obj_resists for the initial zero-chance protection check and, for organic objects, the rot check before rnd(250).",
+                  "Port the whole dig.c:bury_objs behavior: costly/shop-keeper check, stolen_value return accumulation and no_charge mutation, per-square object iteration, del_engr_at, newsym, maybe_unhide_at, and the debt message. This case uses an ordinary non-shop square and does not establish the costly-shop branch.",
+                  "The admitted case exercises only polyself.c:dospinweb. The boulder-pool, boulder-hole/trapdoor, and cold-freezing callers need independent runtime evidence for source-task closure. dig.c:bury_obj is inside #if 0 and is not an active caller."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The examined queue entry at challenges/evaluations/20261006225046-v24.json, evaluated at 84d84e111155ac834c43327b7c696055df294349, has 57 recorded steps, 57/57 matched screens and cursors, and 2719/2728 matched RNG calls. Its first mismatch is segment 0 step 53 on Enter: C rn2(100)=95 from zap.c:obj_resists; JS rn2(12)=11 from the next monster movement turn.",
+                "A targeted replay of only this case (`node scripts/scan-sessions.mjs --json --synthetic v24/v24-spider-web-over-pit`, bounded run-7d0PeL) reproduced the same step and source attribution at replay commit 3470fce7b2ee7ab949c421ea2abd70fac3854b4e: 57 screens, no screen/cursor divergence, C RNG length 2728 and JS RNG length 2725. The inspected dig.c, polyself.c, do.c, hack.c, zap.c and corresponding JS caller files are unchanged between that replay commit and examined commit 84d84e111155ac834c43327b7c696055df294349.",
+                "The session drops a scroll of gold detection before #monster. C polyself.c:dospinweb PIT branch 1553-1560 calls dig.c:bury_objs after the message and deltrap; dig.c:bury_objs 2050-2086 iterates the floor-object list and calls dig.c:bury_an_obj. For this organic paper scroll, bury_an_obj calls obj_resists(0,0), then obj_resists(5,95), then rnd(250) to start its organic timer. Those three C draws are absent because js/polyself.js:2369 skips the entire bury_objs call; subsequent monster-turn RNG is shifted, explaining the remaining positional mismatches. No screen, cursor, or input-stop defect was found.",
+                "The targeted scanner diagnostic is cached at .cache/synthetic-scans/v24/v24-spider-web-over-pit.json. That local artifact confirms dig.c:bury_objs is listed among the segment unported paths and that the game consumed the full recorded input."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "c8d3fb2782a75f3ff724f7f338767d4a4793804f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Partial source delivery accepted: target v24 spider pit RNG mismatch fixed and wiz_debug_cmd_bury/o_unleash caller coverage verified; bury_an_obj and bury_objs remain incomplete pending hack.c moverock_core, trap ice, Lua object burial, rot_organic dispatch, and bounded caller witnesses recorded in A117 evidence."
+    },
+    {
+      "id": "port-cmd-domonability-gremlin-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the whole monster-ability dispatcher and wire gremlin and intrinsic unicorn abilities",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v25/v25-gremlin-splits"
+      ],
+      "selectionReason": "B128 same seed now complete; v25 gremlin case remains 50/55 screens at step 50. investigations/synthetic/v25/v25-gremlin-splits.json establishes whole cmd.c:domonability and existing split_mon/cloneu/dryup return closure, plus minimal canonical unicorn-horn export. A117 doextcmd/dospinweb and burial reservations are excluded.",
+      "detail": "Preserve cmd.c:domonability source ability predicate order and ECMD returns. The gremlin fountain arm consumes potion.c:split_mon clone return before fountain.c:dryup; the pool arm discards it; dry terrain prints no-fountain. Unicorn calls existing apply.c:use_unicorn_horn(NULL). Forced steed breath remains the explicit discarded dogmove.c:pet_ranged_attk(TRUE) gap. The MCMD.MONABILITY producer is excluded by #if 0 in the reference build.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "domonability",
+          "line": 890,
+          "endLine": 951,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 890,
+        "to": 951
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-gremlin-splits": {
+          "session": "synthetic/v25/v25-gremlin-splits",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-gremlin-splits",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-gremlin-splits.session.json",
+          "recordingSha256": "aad1e275233a76b9d39a6b2c4171d20497fe4a4ad95b754882d079545a6f2887",
+          "evaluationPath": "challenges/evaluations/20261007055545-v25.json",
+          "evaluationCommit": "532068f894fa97f4ace2680f195baf3aae875050"
         }
       }
     }

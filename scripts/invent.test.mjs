@@ -194,3 +194,14 @@ test('consume_obj_charge keeps its C billing-before-decrement order', () => {
     );
     assert.equal(unpaid.spe, 2);
 });
+
+// C ref: shk.c:1193-1194 calls the source helper before obfree's other
+// object effects. The default path must not require an injected substitute.
+test('obfree wires the apply.c o_unleash source owner', () => {
+    const source = readFileSync('nethack-c/upstream/src/shk.c', 'utf8');
+    assert.match(source, /if \(obj->otyp == LEASH && obj->leashmon\)[\s\S]*?o_unleash\(obj\);/u);
+    const start = INVENT_JS.indexOf('export function obfree(');
+    const body = INVENT_JS.slice(start, INVENT_JS.indexOf('\n}', start));
+    assert.match(body, /if \(obj\.otyp === LEASH && obj\.leashmon\)\s*o_unleash\(obj, env\);/u);
+    assert.doesNotMatch(body, /unleashObject/u);
+});

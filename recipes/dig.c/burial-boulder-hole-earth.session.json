@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do.c:flooreffects -> dig.c:bury_objs entry. Drop the Knight starting apples on ordinary room floor, polymorph to a stone golem, wish a hole, and read cursed earth to plug it. Seed/date fixed before recording without a scan. C inventory observed apples g and cursed earth scroll i. C-first correction: wishing a hole on starting stairs fails, and cursed earth bypasses helmet_protects (read.c:1969); stone-golem HP allows the boulder hit. The original failed setup is preserved under .cache/A117.",
+  "segments": [
+    {
+      "seed": 92671005,
+      "datetime": "20780113140500",
+      "nethackrc": "OPTIONS=name:BoulderBurial,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017cursed scroll of earth\nhdg#polyself\nstone golem\n    \u0017hole\nri   "
+    }
+  ]
+}

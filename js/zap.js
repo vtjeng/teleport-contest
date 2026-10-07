@@ -32,6 +32,7 @@ import {
     defends,
     defends_when_carried,
     } from './artifacts.js';
+import { o_unleash } from './apply.js';
 import {
     is_moat,
     is_pool,
@@ -53,7 +54,7 @@ import { get_mtraits } from './corpstat.js';
 import { eaten_stat, fix_petrification, vegetarian } from './eat.js';
 import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
 import {
-    adj_pit_checks, dighole, fillholetyp, pit_flow, watch_dig,
+    adj_pit_checks, bury_objs, dighole, fillholetyp, pit_flow, watch_dig,
 } from './dig.js';
 import { dropx, dropy } from './do.js';
 import {
@@ -2342,7 +2343,7 @@ export async function poly_obj(obj, id, state = game,
             replacement.leashmon = obj.leashmon;
             obj.leashmon = 0;
         } else {
-            note_unported('steed.c o_unleash');
+            o_unleash(obj, env);
         }
     }
     if (hasContents(replacement))
@@ -5102,8 +5103,7 @@ export async function zap_over_floor(
                         lev.typ = lava ? ROOM : ICE;
                     }
                 }
-                // bury_objs() discards its result and remains unported.
-                note_unported('dig.c bury_objs');
+                await bury_objs(x, y, state, env);
                 if (seeIt) {
                     await norepMessage(
                         lava ? `The ${liquid('lava')} cools and solidifies.`

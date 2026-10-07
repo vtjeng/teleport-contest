@@ -1653,7 +1653,7 @@ async function leppie_stash(mtmp, env = {}) {
             await mdrop_obj(mtmp, gold, false, env);
             const floor = g_at(mtmp.mx, mtmp.my, state);
             if (floor)
-                bury_an_obj(floor, env);
+                await bury_an_obj(floor, env);
         }
     }
 }

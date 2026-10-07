@@ -630,12 +630,13 @@ function finalizeTopLevelObject(obj, specification, context, env) {
     if (specification.lit) begin_burn(obj, false, env);
     if (!specification.buried) return obj;
 
-    const { deallocated } = bury_an_obj(obj, env);
-    if (!deallocated) return obj;
-    if (context.containers.length) {
-        context.containers[context.containers.length - 1] = null;
-    }
-    return null;
+    return bury_an_obj(obj, env).then(({ deallocated }) => {
+        if (!deallocated) return obj;
+        if (context.containers.length) {
+            context.containers[context.containers.length - 1] = null;
+        }
+        return null;
+    });
 }
 
 function createOneObject(specification, croom, env) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED independent C-first burial witness: C wishes a boulder onto the floor and #wizbury buries it. JS stops earlier in zap.c:makewish -> invent.c:hold_another_object overflow/drop path, before makewish second obj_resists draw. Keep this original recipe; no matching runtime evidence is claimed.",
+  "segments": [
+    {
+      "seed": 92671001,
+      "datetime": "20780113140500",
+      "nethackrc": "OPTIONS=name:BurialProof,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " dd\u0017boulder\n #wizbury\n #wizbury\n"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T05:43:07.080Z",
+  "capturedAt": "2026-10-07T06:55:53.121Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -23286,12 +23286,195 @@
         "type": "accepted",
         "at": "2026-10-07T05:42:54.660Z",
         "task": "C127"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C127-37f1de8d",
+        "type": "published",
+        "at": "2026-10-07T05:43:44.583Z",
+        "task": "C127",
+        "commit": "37f1de8df9b63da8f71a050023a4875e63a49ab5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A117-20261007",
+        "type": "assign",
+        "at": "2026-10-07T05:44:00.774Z",
+        "task": "A117",
+        "worker": "A2",
+        "goal": "port-dig-bury-objs-whole-v24-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B128-532068f8",
+        "type": "integrating",
+        "at": "2026-10-07T05:45:55.975Z",
+        "task": "B128",
+        "integration": "532068f894fa97f4ace2680f195baf3aae875050"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-B128-532068f8",
+        "type": "validated",
+        "at": "2026-10-07T05:55:38.085Z",
+        "task": "B128",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B128-0c85bef9",
+        "type": "accepted",
+        "at": "2026-10-07T06:01:37.483Z",
+        "task": "B128"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B129-domonability-20261007",
+        "type": "assign",
+        "at": "2026-10-07T06:07:23.101Z",
+        "task": "B129",
+        "worker": "B",
+        "goal": "port-cmd-domonability-gremlin-v25-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B128-759bab7f",
+        "type": "published",
+        "at": "2026-10-07T06:12:43.246Z",
+        "task": "B128",
+        "commit": "759bab7f5ef46a344fb9b966e1f76bc7d388c391"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7bf457ea94279b904eecdd66a6f65fc7af32dc1d",
+        "type": "ready",
+        "at": "2026-10-07T06:17:28.199Z",
+        "task": "A117",
+        "delivery": "7bf457ea94279b904eecdd66a6f65fc7af32dc1d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A117-7bf457ea",
+        "type": "received",
+        "at": "2026-10-07T06:18:04.971Z",
+        "task": "A117",
+        "delivery": "7bf457ea94279b904eecdd66a6f65fc7af32dc1d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A117-9dbfb8db",
+        "type": "integrating",
+        "at": "2026-10-07T06:18:50.730Z",
+        "task": "A117",
+        "integration": "9dbfb8db741c7ad80eeafdd93ff206ef8a7d9f76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A117-test-await-20261007",
+        "type": "feedback",
+        "at": "2026-10-07T06:32:59.546Z",
+        "task": "A117",
+        "delivery": "7bf457ea94279b904eecdd66a6f65fc7af32dc1d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A117-test-await-20261007",
+        "type": "resume",
+        "at": "2026-10-07T06:33:25.783Z",
+        "task": "A117"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-84be80ab5db96b03f1fc77ea629a1b6ed48e2129",
+        "type": "ready",
+        "at": "2026-10-07T06:34:29.458Z",
+        "task": "B129",
+        "delivery": "84be80ab5db96b03f1fc77ea629a1b6ed48e2129"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B129-84be80ab-20261007",
+        "type": "received",
+        "at": "2026-10-07T06:34:54.615Z",
+        "task": "B129",
+        "delivery": "84be80ab5db96b03f1fc77ea629a1b6ed48e2129"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-37ee84b908bbea030ecfd22faae5aff3cc6d7cf8",
+        "type": "ready",
+        "at": "2026-10-07T06:35:31.132Z",
+        "task": "A117",
+        "delivery": "37ee84b908bbea030ecfd22faae5aff3cc6d7cf8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A117-correction-37ee84b9-20261007",
+        "type": "received",
+        "at": "2026-10-07T06:35:54.735Z",
+        "task": "A117",
+        "delivery": "37ee84b908bbea030ecfd22faae5aff3cc6d7cf8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A117-correction-c8d3fb27-20261007-v2",
+        "type": "integrating",
+        "at": "2026-10-07T06:36:37.777Z",
+        "task": "A117",
+        "integration": "c8d3fb2782a75f3ff724f7f338767d4a4793804f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A117-c8d3fb27-20261007",
+        "type": "validated",
+        "at": "2026-10-07T06:45:46.018Z",
+        "task": "A117",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A117-partial-20261007",
+        "type": "park",
+        "at": "2026-10-07T06:53:04.163Z",
+        "task": "A117"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A117-for-acceptance-20261007",
+        "type": "resume",
+        "at": "2026-10-07T06:53:26.306Z",
+        "task": "A117"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A117-after-park-c8d3fb27-20261007",
+        "type": "integrating",
+        "at": "2026-10-07T06:54:00.424Z",
+        "task": "A117",
+        "integration": "c8d3fb2782a75f3ff724f7f338767d4a4793804f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A117-after-park-c8d3fb27-20261007",
+        "type": "validated",
+        "at": "2026-10-07T06:54:05.485Z",
+        "task": "A117",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-A117-c8d3fb27-20261007-v3",
+        "type": "accepted",
+        "at": "2026-10-07T06:54:13.231Z",
+        "task": "A117"
       }
     ]
   },
   "development": {
-    "executionCommit": "7a862a458435036f4a2a008efa1fe9916761b912",
-    "measuredAt": "2026-10-07T05:36:16.591Z",
+    "executionCommit": "c8d3fb2782a75f3ff724f7f338767d4a4793804f",
+    "measuredAt": "2026-10-07T06:45:31.274Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

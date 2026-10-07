@@ -4,6 +4,7 @@
 //         src/mkobj.c add_to_container() and add_to_buried().
 
 import { inv_cnt, near_capacity } from './hack.js';
+import { o_unleash } from './apply.js';
 import {
     ACH_AMUL,
     ACH_BELL,
@@ -3690,7 +3691,7 @@ function oidPriceAdjustment(obj, oid, state) {
 
 function preflightObfree(obj, merge, env) {
     if (obj.otyp === LEASH && obj.leashmon)
-        requiredHook(env, 'unleashObject', obj);
+        preflight_update_inventory(env);
     // useupall() runs freeinv_core() first, which stops a carried figurine's
     // transform timer before obfree() reaches deallocation.
     const timerStopsDuringFreeinv = obj.where === OBJ_INVENT
@@ -3733,7 +3734,7 @@ export function obfree(obj, merge = null, rawEnv = {}) {
     const env = inventoryEnv(rawEnv);
     preflightObfree(obj, merge, env);
     if (obj.otyp === LEASH && obj.leashmon)
-        requiredHook(env, 'unleashObject', obj)(obj, env);
+        o_unleash(obj, env);
 
     if (obj.oclass === FOOD_CLASS) {
         // C ref: eat.c food_disappears(), obfree()'s only caller. Its victual

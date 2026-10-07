@@ -30,6 +30,7 @@ import {
     W_WEAPONS,
 } from './const.js';
 import { newsym } from './display.js';
+import { o_unleash } from './apply.js';
 import { flooreffects } from './do.js';
 import {
     Amulet_off,
@@ -696,8 +697,7 @@ export async function steal(
         if (monkey_business && otmp.cursed) {
             return await cantTake(otmp);
         }
-        // apply.c o_unleash() is void; leave its source gap explicit.
-        note_unported('apply.c o_unleash');
+        o_unleash(otmp, { ...env, state });
     }
 
     const was_doffing = doffing(otmp, state);

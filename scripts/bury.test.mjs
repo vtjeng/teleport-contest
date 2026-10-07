@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
+import * as digging from '../js/dig.js';
 
 import {
     BURN_OBJECT,
+    A_CHA,
+    ECMD_OK,
     ICE,
+    LAST_PROP,
     OBJ_BURIED,
     OBJ_DELETED,
     OBJ_FLOOR,
@@ -11,8 +16,10 @@ import {
     REVIVE_MON,
     ROT_CORPSE,
     ROT_ORGANIC,
+    ROOM,
+    ROOMOFFSET,
+    SHOPBASE,
     TIMER_OBJECT,
-    TELEPAT,
     TT_BURIEDBALL,
     W_BALL,
     W_CHAIN,
@@ -24,6 +31,8 @@ import {
     unearth_objs,
 } from '../js/bury.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import { add_to_buried, add_to_minv } from '../js/invent.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
@@ -33,7 +42,9 @@ import {
     BOULDER,
     CHEST,
     CORPSE,
+    DART,
     FOOD_RATION,
+    GOLD_PIECE,
     HEAVY_IRON_BALL,
     IRON_CHAIN,
     LEASH,
@@ -46,6 +57,7 @@ import {
 import {
     PM_DEATH,
     PM_HUMAN,
+    PM_SHOPKEEPER,
     PM_TROLL,
     monst_globals_init,
 } from '../js/monsters.js';
@@ -115,7 +127,7 @@ function scriptedRandom(expectedCalls) {
     };
 }
 
-test('obj_resists accepts the rn2-only dependency it actually consumes', () => {
+test('obj_resists accepts the rn2-only dependency it actually consumes', async () => {
     const state = burialState();
     const apple = objectInstance(APPLE, state);
     const calls = [];
@@ -144,7 +156,105 @@ function floorList(state) {
     return list;
 }
 
-test('bury_an_obj schedules ordinary organic rot in source RNG order', () => {
+test('dig.c bury_objs preserves the saved floor pointer while burying a pile', async () => {
+    // dig.c:2062-2075 walks nexthere, calls bury_an_obj, then erases the
+    // engraving, redraws, and rechecks concealment even when no object remains.
+    const source = readFileSync(new URL('../nethack-c/upstream/src/dig.c', import.meta.url), 'utf8');
+    assert.match(source, /otmp2 = bury_an_obj\(otmp, \(boolean \*\) 0\)/u);
+    assert.equal(typeof digging.bury_objs, 'function');
+    const state = burialState();
+    state.u = { ux: 1, uy: 1 };
+    state.context = { mon_moving: false };
+    const x = 24; // Interior non-shop square; no terrain-dependent caller.
+    const y = 15;
+    const bow = objectInstance(BOW, state); // Organic wood reaches both resistance checks.
+    const apple = objectInstance(APPLE, state); // A second organic object checks traversal order.
+    place_object(bow, x, y, { state });
+    place_object(apple, x, y, { state });
+    const random = scriptedRandom([
+        ['rn2', 100, 50], ['rn2', 100, 5], ['rnd', 250, 19],
+        ['rn2', 100, 50], ['rn2', 100, 5], ['rnd', 250, 23],
+    ]); // Source zero-percent check, five-percent rot check, then rot duration for each object.
+    const redraw = [];
+    await digging.bury_objs(x, y, state, {
+        random: random.random,
+        newsym(px, py) { redraw.push([px, py]); },
+    });
+    assert.deepEqual(pileAt(state, x, y), []);
+    assert.deepEqual(floorList(state), []);
+    assert.equal(state.level.buriedobjlist, bow);
+    assert.equal(bow.nobj, apple);
+    assert.equal(peek_timer(ROT_ORGANIC, apple, state), state.moves + 269);
+    assert.equal(peek_timer(ROT_ORGANIC, bow, state), state.moves + 273);
+    assert.deepEqual(redraw, [[x, y]]);
+    random.done();
+});
+
+test('dig.c wiz_debug_cmd_bury is active and returns the source free-command result', async () => {
+    // patchlevel.h defines DEBUG, so this caller must run in the reference build.
+    const source = readFileSync(new URL('../nethack-c/upstream/include/patchlevel.h', import.meta.url), 'utf8');
+    assert.match(source, /#ifndef DEBUG[\s\S]*?#define DEBUG/u);
+    assert.equal(typeof digging.wiz_debug_cmd_bury, 'function');
+    const state = burialState();
+    state.u = { ux: 24, uy: 15 }; // Nine valid interior squares exercise the full scan.
+    const messages = [];
+    const redraw = [];
+    const result = await digging.wiz_debug_cmd_bury(state, {
+        message(text) { messages.push(text); },
+        newsym(x, y) { redraw.push([x, y]); },
+    });
+    assert.equal(result, ECMD_OK); // global.h: wizard burial never spends a turn.
+    assert.deepEqual(messages, ['No objects here or adjacent to bury.']);
+    assert.equal(redraw.length, 9); // C nested loops each span u coordinate minus one through plus one.
+});
+
+test('dig.c bury_objs accumulates shop loss, preserves coin flags, and skips monster billing', async () => {
+    for (const mon_moving of [false, true]) {
+        // A fresh independent startup supplies canonical attributes/catalogs;
+        // the constructed tended shop pins dig.c:2063-2067 without searching.
+        await runSegment({ seed: 92671010, datetime: '20780113140500',
+            nethackrc: 'OPTIONS=name:BurialBill,role:Valkyrie,race:human,gender:female,'
+                + 'align:neutral,!legacy,!tutorial,!splash_screen,pettype:none', moves: '' });
+        const state = game;
+        const { ux: x, uy: y } = state.u;
+        const keeper = { isshk: true, mpeaceful: true, mhp: 10, mcanmove: true,
+            data: state.mons[PM_SHOPKEEPER], mx: x - 1, my: y, m_id: 3,
+            mextra: { eshk: { shoproom: ROOMOFFSET, shoptype: SHOPBASE,
+                shoplevel: { ...state.u.uz }, shk: { x: x - 1, y },
+                bill: [], bill_p: null, billct: 0, credit: 0, debit: 0,
+                loan: 0, surcharge: false, shknam: 'Testkeeper' } }, nmon: null };
+        // ROOMOFFSET is the first room; a distinct keeper post leaves x,y costly.
+        Object.assign(state.level.rooms[0], { rtype: SHOPBASE, resident: keeper });
+        state.level.flags.has_shop = true;
+        for (const px of [x - 1, x])
+            Object.assign(state.level.at(px, y), { typ: ROOM, roomno: ROOMOFFSET, edge: false });
+        state.level.monlist = keeper;
+        state.u.ushops = state.u.urooms = [ROOMOFFSET, 0, 0, 0, 0];
+        state.u.acurr.a[A_CHA] = 11; // shk.c ordinary charisma partition: no price multiplier.
+        state.u.abon[A_CHA] = state.u.atemp[A_CHA] = 0;
+        state.context.mon_moving = mon_moving;
+        const darts = objectInstance(DART, state, { quan: 3, dknown: true });
+        const coins = objectInstance(GOLD_PIECE, state, { quan: 5 });
+        // Three two-zorkmid darts and five coins establish the consumed loss 11.
+        place_object(darts, x, y, { state });
+        place_object(coins, x, y, { state });
+        const script = scriptedRandom([['rn2', 100, 50], ['rn2', 100, 50]]);
+        const messages = [];
+        await digging.bury_objs(x, y, state, {
+            random: script.random, newsym() {}, message: text => messages.push(text),
+        });
+        assert.equal(keeper.mextra.eshk.debit, mon_moving ? 0 : 11);
+        assert.equal(Boolean(darts.no_charge), !mon_moving);
+        assert.equal(Boolean(coins.no_charge), false);
+        assert.deepEqual(messages, mon_moving ? []
+            : ['You owe Testkeeper 11 zorkmids for burying merchandise.']);
+        assert.equal(darts.where, OBJ_BURIED);
+        assert.equal(coins.where, OBJ_BURIED);
+        script.done();
+    }
+});
+
+test('bury_an_obj schedules ordinary organic rot in source RNG order', async () => {
     const state = burialState(40);
     const chest = objectInstance(CHEST, state);
     // An arbitrary interior room square keeps both floor indexes observable.
@@ -160,7 +270,7 @@ test('bury_an_obj schedules ordinary organic rot in source RNG order', () => {
         ['rnd', 250, 250],
     ]);
 
-    const result = bury_an_obj(chest, { state, random: script.random });
+    const result = await bury_an_obj(chest, { state, random: script.random });
 
     assert.deepEqual(result, { next: null, deallocated: false });
     assert.equal(chest.where, OBJ_BURIED);
@@ -175,7 +285,7 @@ test('bury_an_obj schedules ordinary organic rot in source RNG order', () => {
     script.done();
 });
 
-test('bury_an_obj leaves a corpse timer in place and unlinks both floor indexes', () => {
+test('bury_an_obj leaves a corpse timer in place and unlinks both floor indexes', async () => {
     const state = burialState(20);
     const lower = objectInstance(APPLE, state);
     const corpse = objectInstance(CORPSE, state);
@@ -193,7 +303,7 @@ test('bury_an_obj leaves a corpse timer in place and unlinks both floor indexes'
         ['rn2', 100, 99],
     ]);
 
-    const result = bury_an_obj(corpse, { state, random: script.random });
+    const result = await bury_an_obj(corpse, { state, random: script.random });
 
     assert.deepEqual(result, { next: lower, deallocated: false });
     assert.deepEqual(pileAt(state, x, y), [upper, lower]);
@@ -206,7 +316,7 @@ test('bury_an_obj leaves a corpse timer in place and unlinks both floor indexes'
     script.done();
 });
 
-test('unearth_objs restores every target object and stops organic rot', () => {
+test('unearth_objs restores every target object and stops organic rot', async () => {
     // Move 40 and the 300-turn rot delay leave a live organic timer for the
     // target chest; the distinct coordinates prove that unearthing is local.
     const state = burialState(40);
@@ -246,7 +356,7 @@ test('unearth_objs restores every target object and stops organic rot', () => {
     assert.deepEqual(events, [[x, y]]);
 });
 
-test('unearth_objs preserves non-organic object timers', () => {
+test('unearth_objs preserves non-organic object timers', async () => {
     const state = burialState(40);
     const x = 15;
     const y = 8;
@@ -271,7 +381,7 @@ test('unearth_objs preserves non-organic object timers', () => {
     assert.equal(peek_timer(REVIVE_MON, corpse, state), 115);
 });
 
-test('bury_an_obj applies the source off-ice corpse timer adjustment', () => {
+test('bury_an_obj applies the source off-ice corpse timer adjustment', async () => {
     const state = burialState(100);
     const corpse = objectInstance(CORPSE, state, {
         // An age of 80 represents 20 turns spent under the two-times ice rate.
@@ -288,7 +398,7 @@ test('bury_an_obj applies the source off-ice corpse timer adjustment', () => {
         ['rn2', 100, 37],
     ]);
 
-    bury_an_obj(corpse, { state, random: script.random });
+    await bury_an_obj(corpse, { state, random: script.random });
 
     assert.equal(corpse.on_ice, false);
     assert.equal(corpse.age, 90);
@@ -297,7 +407,7 @@ test('bury_an_obj applies the source off-ice corpse timer adjustment', () => {
     script.done();
 });
 
-test('bury_an_obj uses the under-ice potion timer delay without the 250 base', () => {
+test('bury_an_obj uses the under-ice potion timer delay without the 250 base', async () => {
     const state = burialState(30);
     const potion = objectInstance(POT_HEALING, state);
     const x = 17;
@@ -313,14 +423,14 @@ test('bury_an_obj uses the under-ice potion timer delay without the 250 base', (
         ['rnd', 250, 1],
     ]);
 
-    bury_an_obj(potion, { state, random: script.random });
+    await bury_an_obj(potion, { state, random: script.random });
 
     assert.equal(potion.where, OBJ_BURIED);
     assert.equal(peek_timer(ROT_ORGANIC, potion, state), 31);
     script.done();
 });
 
-test('protected objects resist burial without consuming RNG', () => {
+test('protected objects resist burial without consuming RNG', async () => {
     const state = burialState();
     const amulet = objectInstance(AMULET_OF_YENDOR, state);
     const x = 19;
@@ -328,7 +438,7 @@ test('protected objects resist burial without consuming RNG', () => {
     place_object(amulet, x, y, { state });
     const script = scriptedRandom([]);
 
-    const result = bury_an_obj(amulet, {
+    const result = await bury_an_obj(amulet, {
         state,
         random: script.random,
     });
@@ -341,7 +451,7 @@ test('protected objects resist burial without consuming RNG', () => {
     script.done();
 });
 
-test('an organic invocation object returns before rot-timer dependencies', () => {
+test('an organic invocation object returns before rot-timer dependencies', async () => {
     const state = burialState();
     delete state.gt;
     delete state.svt;
@@ -352,7 +462,7 @@ test('an organic invocation object returns before rot-timer dependencies', () =>
     const script = scriptedRandom([]);
 
     assert.deepEqual(
-        bury_an_obj(book, { state, random: script.random }),
+        await bury_an_obj(book, { state, random: script.random }),
         { next: null, deallocated: false },
     );
     assert.equal(book.where, OBJ_FLOOR);
@@ -361,7 +471,7 @@ test('an organic invocation object returns before rot-timer dependencies', () =>
     script.done();
 });
 
-test('a Rider corpse resists before RNG or floor ownership changes', () => {
+test('a Rider corpse resists before RNG or floor ownership changes', async () => {
     const state = burialState();
     const lower = objectInstance(APPLE, state);
     const rider = objectInstance(CORPSE, state, { corpsenm: PM_DEATH });
@@ -376,7 +486,7 @@ test('a Rider corpse resists before RNG or floor ownership changes', () => {
     place_object(upper, x, y, { state });
     const script = scriptedRandom([]);
 
-    const result = bury_an_obj(rider, { state, random: script.random });
+    const result = await bury_an_obj(rider, { state, random: script.random });
 
     assert.deepEqual(result, { next: lower, deallocated: false });
     assert.equal(state.level.objects[x][y], upper);
@@ -395,7 +505,7 @@ test('a Rider corpse resists before RNG or floor ownership changes', () => {
     script.done();
 });
 
-test('an organic artifact uses 95-percent burial-rot resistance', () => {
+test('an organic artifact uses 95-percent burial-rot resistance', async () => {
     const state = burialState(30);
     const bow = objectInstance(BOW, state, {
         // The base type and artifact index form the source Longbow of Diana.
@@ -412,7 +522,7 @@ test('an organic artifact uses 95-percent burial-rot resistance', () => {
         ['rn2', 100, 94],
     ]);
 
-    const result = bury_an_obj(bow, { state, random: script.random });
+    const result = await bury_an_obj(bow, { state, random: script.random });
 
     assert.deepEqual(result, { next: null, deallocated: false });
     assert.equal(bow.where, OBJ_BURIED);
@@ -425,7 +535,7 @@ test('an organic artifact uses 95-percent burial-rot resistance', () => {
     script.done();
 });
 
-test('off-ice corpse adjustment falls back to a revival timer', () => {
+test('off-ice corpse adjustment falls back to a revival timer', async () => {
     const state = burialState(100);
     const corpse = objectInstance(CORPSE, state, {
         // Troll corpses can validly carry REVIVE_MON; age 80 represents 20
@@ -443,7 +553,7 @@ test('off-ice corpse adjustment falls back to a revival timer', () => {
         ['rn2', 100, 73],
     ]);
 
-    bury_an_obj(corpse, { state, random: script.random });
+    await bury_an_obj(corpse, { state, random: script.random });
 
     assert.equal(corpse.where, OBJ_BURIED);
     assert.equal(corpse.on_ice, false);
@@ -454,7 +564,7 @@ test('off-ice corpse adjustment falls back to a revival timer', () => {
     script.done();
 });
 
-test('a punishment chain resists burial without RNG or ownership changes', () => {
+test('a punishment chain resists burial without RNG or ownership changes', async () => {
     const state = burialState();
     const lower = objectInstance(APPLE, state);
     const chain = objectInstance(IRON_CHAIN, state, { owornmask: W_CHAIN });
@@ -468,7 +578,7 @@ test('a punishment chain resists burial without RNG or ownership changes', () =>
     const script = scriptedRandom([]);
 
     assert.deepEqual(
-        bury_an_obj(chain, { state, random: script.random }),
+        await bury_an_obj(chain, { state, random: script.random }),
         { next: lower, deallocated: false },
     );
     assert.deepEqual(pileAt(state, x, y), [upper, chain, lower]);
@@ -478,12 +588,12 @@ test('a punishment chain resists burial without RNG or ownership changes', () =>
     script.done();
 });
 
-test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', () => {
+test('burying a punishment ball waits after unpunish and trap setup before extraction', async () => {
     const state = burialState();
     state.u = { utrap: 0, utraptype: 0 };
     // unpunish() uses canonical setworn(), which updates the hero's property
     // table even for these zero-property punishment objects.
-    state.u.uprops = Array.from({ length: TELEPAT + 1 }, () => ({
+    state.u.uprops = Array.from({ length: LAST_PROP + 1 }, () => ({
         intrinsic: 0,
         extrinsic: 0,
         blocked: 0,
@@ -511,18 +621,30 @@ test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', ()
         ['rn2', 100, 50],
     ]);
 
-    const result = bury_an_obj(ball, {
+    let acknowledge;
+    const pending = bury_an_obj(ball, {
         state,
         random: script.random,
+        message(text) {
+            events.push(text);
+            return new Promise(resolve => { acknowledge = resolve; });
+        },
         hooks: {
-            plineThe(message) { events.push(message); },
             cancelDoff() {},
             maybeUnhideAt() {},
             monsterUnseesProperty() {},
             newsym(px, py) { events.push(`newsym:${px},${py}`); },
-            floatVsFlight() { events.push('float_vs_flight'); },
         },
     });
+
+    // dig.c:1993-1998 completes unpunish/set_utrap before pline_The, but
+    // doesn't read nexthere or extract the ball until the message is dismissed.
+    assert.equal(chain.where, OBJ_DELETED);
+    assert.equal(state.u.utrap, 27);
+    assert.equal(ball.where, OBJ_FLOOR);
+    assert.equal(state.level.buriedobjlist, null);
+    acknowledge();
+    const result = await pending;
 
     assert.deepEqual(result, { next: lower, deallocated: false });
     assert.equal(chain.where, OBJ_DELETED);
@@ -536,53 +658,14 @@ test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', ()
     assert.equal(state.disp.botl, true);
     assert.deepEqual(events, [
         `newsym:${x},${y}`,
-        'float_vs_flight',
-        'iron ball gets buried!',
+        'The iron ball gets buried!',
     ]);
     assert.deepEqual(pileAt(state, x, y), [lower]);
     assert.equal(state.level.buriedobjlist, ball);
     script.done();
 });
 
-test('buried-ball lifecycle hooks preflight before RNG or mutation', () => {
-    const state = burialState();
-    state.u = { utrap: 0, utraptype: 0 };
-    const ball = objectInstance(HEAVY_IRON_BALL, state, {
-        owornmask: W_BALL,
-    });
-    const chain = objectInstance(IRON_CHAIN, state, {
-        owornmask: W_CHAIN,
-    });
-    place_object(ball, 24, 15, { state });
-    place_object(chain, 24, 15, { state });
-    state.uball = ball;
-    state.uchain = chain;
-    let draws = 0;
-
-    assert.throws(
-        () => bury_an_obj(ball, {
-            state,
-            random: {
-                rn1() { ++draws; return 20; },
-                rn2() { ++draws; return 50; },
-            },
-            hooks: {
-                plineThe() {},
-                newsym() {},
-                floatVsFlight() {},
-            },
-        }),
-        /maybeUnhideAt/,
-    );
-    assert.equal(draws, 0);
-    assert.equal(state.uball, ball);
-    assert.equal(state.uchain, chain);
-    assert.equal(ball.where, OBJ_FLOOR);
-    assert.equal(chain.where, OBJ_FLOOR);
-    assert.equal(state.u.utrap, 0);
-});
-
-test('bury_an_obj unlinks an attached leash before burying it', () => {
+test('bury_an_obj unlinks an attached leash before burying it', async () => {
     const state = burialState();
     const monster = { m_id: 41, mleashed: true, nmon: null };
     state.level.monlist = monster;
@@ -595,16 +678,16 @@ test('bury_an_obj unlinks an attached leash before burying it', () => {
         ['rn2', 100, 0],
     ]);
 
-    const result = bury_an_obj(leash, { state, random: script.random });
+    const result = await bury_an_obj(leash, { state, random: script.random });
 
     assert.deepEqual(result, { next: null, deallocated: false });
     assert.equal(leash.leashmon, 0);
-    assert.equal(monster.mleashed, false);
+    assert.equal(monster.mleashed, 0);
     assert.equal(leash.where, OBJ_BURIED);
     script.done();
 });
 
-test('bury_an_obj stops a burning lamp before changing floor ownership', () => {
+test('bury_an_obj stops a burning lamp before changing floor ownership', async () => {
     const state = burialState(20);
     const lamp = objectInstance(OIL_LAMP, state, { age: 40, lamplit: true });
     place_object(lamp, 22, 12, { state });
@@ -614,7 +697,7 @@ test('bury_an_obj stops a burning lamp before changing floor ownership', () => {
         ['rn2', 100, 50],
     ]);
 
-    const result = bury_an_obj(lamp, {
+    const result = await bury_an_obj(lamp, {
         state,
         random: script.random,
         hooks: {
@@ -634,7 +717,7 @@ test('bury_an_obj stops a burning lamp before changing floor ownership', () => {
     script.done();
 });
 
-test('rock and boulder burial deallocates after source visibility effects', () => {
+test('rock and boulder burial deallocates after source visibility effects', async () => {
     for (const [index, otyp] of [ROCK, BOULDER].entries()) {
         const state = burialState();
         const obj = objectInstance(otyp, state);
@@ -653,7 +736,7 @@ test('rock and boulder burial deallocates after source visibility effects', () =
             ['rn2', 100, 50],
         ]);
 
-        const result = bury_an_obj(obj, {
+        const result = await bury_an_obj(obj, {
             state,
             random: script.random,
             hooks,
@@ -669,7 +752,7 @@ test('rock and boulder burial deallocates after source visibility effects', () =
     }
 });
 
-test('a carried boulder deallocates without floor visibility integration', () => {
+test('a carried boulder deallocates without floor visibility integration', async () => {
     const state = burialState();
     const monster = { minvent: null };
     const boulder = objectInstance(BOULDER, state, { ox: 23, oy: 12 });
@@ -679,7 +762,7 @@ test('a carried boulder deallocates without floor visibility integration', () =>
         ['rn2', 100, 50],
     ]);
 
-    const result = bury_an_obj(boulder, {
+    const result = await bury_an_obj(boulder, {
         state,
         random: script.random,
     });
