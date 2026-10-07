@@ -191565,7 +191565,7 @@
     {
       "id": "port-insight-youhiding-v26-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port hidden-form descriptions and caller messages",
       "cFile": "insight.c",
       "sessions": [
@@ -191579,15 +191579,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2af337a66d5d573287b1290488b0cc2ee8e1dc66",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "youhiding",
           "line": 2022,
           "endLine": 2080,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -191804,7 +191807,111 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "youhiding",
+            "implementation": "js/insight.js",
+            "symbol": "youhiding",
+            "sourceReview": "Read whole insight.c:2022-2077. Preserve mimic-over-undetected precedence and all object/furniture/monster/default appearance arms; S_EEL pool naming precedes concealment, concealment with no cover has no fallthrough, clinging or Flying precedes floor pit/surface, pit requires u.utrap and TT_PIT and uses t_at SPIKED_PIT, and defensive unhidden state keeps generic hiding. Read consumed return owners simple_typename/an/ansimpleoname (objnam.c), is_pool (dbridge.c), hides_under/is_clinger (mondata.h), waterbody_name (pager.c), ceiling/surface (dungeon.c), t_at (trap.c), Flying and M_AP_TYPE macros plus existing output you_are/ttyPline. Existing canonical owners supply all results; none is replaced, invented or skipped. youhiding makes no direct core RNG call, preserves delegated liquid display RNG and gameover suppression, produces the enlightenment line synchronously through you_are, and returns the live ttyPline promise for each awaited dohide caller. Remove all three obsolete youhiding placeholders and only the polymorphed enlightenment admission refusal. Replace its stale refusal test with a production-owner line assertion; retain the endgame guard. The source-required display.h:251-260 macro dependency now gives a visible steed precedence, then normal hero, furniture, plain object, or Ugender monster glyph with source hero-coordinate mapping, with no added self-disguise RNG or object-memory writes; this macro earns no display.c function credit. Source-pinned tests cover default/missing branches, masked appearance flags, gender, visible/invisible steed, terrain/pit/cover precedence, exact liquid owner draw count and ordinary awaited messaging.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "dohide",
+                "source": "polyself.c:1861 youhiding(FALSE,1) after detecting existing undetected state or mimic appearance; return ECMD_OK without using a turn."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dohide",
+                "source": "polyself.c:1872 youhiding(FALSE,0) after setting undetected/disguise and newsym; await output then return ECMD_TIME."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "status_enlightenment",
+                "source": "insight.c:1002-1003 Upolyd && (u.uundetected || U_AP_TYPE != M_AP_NOTHING) calls youhiding(TRUE,final). The handoff annotation attributes_enlightenment was corrected against C; MAGICENLIGHTENMENT potion production route reaches this exact call."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c domonability hider branch dispatches #monster to polyself.c dohide; no dispatcher change required."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/youhiding.test.mjs",
+              "scripts/insight.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/hiding-mimic.session.json",
+              "recordings/insight.c/hiding-trapper.session.json",
+              "recordings/insight.c/hiding-potion-enlightenment.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-mimic-hide",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "Production #monster -> cmd.c domonability -> polyself.c dohide:1865-1872 assigns M_AP_OBJECT/STRANGE_OBJECT, newsym invokes display.h display_self direct object glyph, then insight.c youhiding(FALSE,0) outputs the now-mimicking message. The full prefix and remaining recorded boundaries match."
+              }
+            ],
+            "checkedAt": "2af337a66d5d573287b1290488b0cc2ee8e1dc66"
+          }
+        ],
+        "entryPointReview": "Three direct source call sites were read and wired: polyself.c dohide already and newly hiding, and insight.c status_enlightenment. Independent C-first first/repeated #monster recipes cover both top-line sites with original Wizard/small-mimic and Monk/trapper variation. The independently recorded Wizard/trapper blessed-hallucination potion enters potion.c peffect_hallucination -> enlightenment(MAGICENLIGHTENMENT) -> status_enlightenment -> youhiding(TRUE,final), with a live menu, hiding line, and caller continuation. It bypasses BASIC background_enlightenment. Root confirmed this covers every direct youhiding call site; independently recorded ^X reaches an earlier background_enlightenment omission before youhiding, so its blocked recipes belong to the separately queued family and do not invalidate this owner completion. Do not claim enlightenment/background/attributes or display.c completion. No active youhiding call is compiled out. No challenge case was copied into the regression corpus. Seeds were chosen directly without scanning; C independently established polymorph message dismissals and potion slot m. Original role, form and potion route vary behavior. The failed original mimic recipe had #monster bytes swallowed by More; corrected C-observed startup dismissals before qualifying evidence. Preserve failed logs and the unsuccessful Monk potion/stack probes; Wizard-role variation reaches the source probabilistic enlightenment branch. Failed display scope CLI used a file path where --json requires literal JSON; the expanded event was successfully recorded before the display implementation. A test-only comment delimiter was corrected and all final source-pin tests rerun. No aggregate scan, scorer, full checkpoint or central record mutation was run.",
+        "entryPoints": [
+          {
+            "name": "#monster entering hiding or mimicry",
+            "functions": [
+              "youhiding"
+            ],
+            "recordings": [
+              "recordings/insight.c/hiding-mimic.session.json",
+              "recordings/insight.c/hiding-trapper.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-mimic-hide",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 47,
+                "source": "Production #monster -> cmd.c domonability -> polyself.c dohide:1865-1872 assigns M_AP_OBJECT/STRANGE_OBJECT, newsym invokes display.h display_self direct object glyph, then insight.c youhiding(FALSE,0) outputs the now-mimicking message. The full prefix and remaining recorded boundaries match."
+              }
+            ]
+          },
+          {
+            "name": "#monster already hiding or mimicking",
+            "functions": [
+              "youhiding"
+            ],
+            "recordings": [
+              "recordings/insight.c/hiding-mimic.session.json",
+              "recordings/insight.c/hiding-trapper.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "MAGIC-only potion enlightenment hidden-state line",
+            "functions": [
+              "youhiding"
+            ],
+            "recordings": [
+              "recordings/insight.c/hiding-potion-enlightenment.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2af337a66d5d573287b1290488b0cc2ee8e1dc66",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-insight-enlightenment-polymorph-v26-20261007",
