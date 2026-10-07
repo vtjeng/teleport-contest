@@ -188790,16 +188790,20 @@
     {
       "id": "port-do-doddrop-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the multiple-drop command family and canonical inventory traversal",
       "cFile": "do.c",
       "sessions": [
         "synthetic/v26/v26-eat-levitation-ring"
       ],
-      "selectionReason": "Top admitted synthetic mismatch: 80 remaining screens at step 31 when D should enter the source drop-type menu.",
+      "selectionReason": "Oldest dependency-ready v26 synthetic mismatch: multiple-drop command reaches the missing do.c doddrop family before the levitation-ring continuation.",
       "detail": "Port whole doddrop through menu_drop, the consumed drop and category-selection returns, and canonical bypass traversal. Wire droptype command admission and dispatch. Preserve source limits for partial downstream placement and traditional inventory helpers; validate the admitted D/A/a sequence plus independent variations.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c674e3f2faf4389d4a6dab74764ac9e3fbc29f5c",
+      "openStanding": {
+        "sha": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -188883,7 +188887,168 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-eat-levitation-ring",
+          "session": "synthetic/v26/v26-eat-levitation-ring",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-eat-levitation-ring.session.json",
+          "recordingPath": "challenges/cases/v26/v26-eat-levitation-ring.session.json",
+          "recordingSha256": "6c1c590921c9f6a8a3d1e955f5ce3978afd37e90227ef8a8ea1d2282a90ce00d",
+          "recipe": "challenges/cases/v26/v26-eat-levitation-ring.recipe.session.json",
+          "recipeSha256": "5a9286c5035d2215b2f7a5a8ba7fab993e69e8a3cba5a358e237e0c5d5b052f6",
+          "replayInputSha256": "cadf4866ef1cac9f30faf8978074d22a20969b4e777b3e17313ef88fbbf4e650",
+          "evaluationPath": "challenges/evaluations/20261007111518-v26.json",
+          "evaluationCommit": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75",
+          "evaluationArtifact": "challenges/evaluations/20261007111518-v26.json",
+          "evaluationUtc": "2026-10-07T11:17:25.412Z",
+          "remainingScreens": 80,
+          "recordedSteps": 111,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 111
+            },
+            "rng": {
+              "matched": 2398,
+              "total": 2602
+            },
+            "cursors": {
+              "matched": 31,
+              "total": 111
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+            "step": 31
+          },
+          "step": 31,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-eat-levitation-ring.json",
+            "result": {
+              "session": "synthetic/v26/v26-eat-levitation-ring",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-eat-levitation-ring",
+              "remainingScreens": 80,
+              "recordedSteps": 111,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "6c1c590921c9f6a8a3d1e955f5ce3978afd37e90227ef8a8ea1d2282a90ce00d",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "status": "complete",
+              "commit": "8cee72826870e64545745d565d551730e09ca5ab",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-eat-levitation-ring",
+                "session": "synthetic/v26/v26-eat-levitation-ring",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-eat-levitation-ring.session.json",
+                "recordingPath": "challenges/cases/v26/v26-eat-levitation-ring.session.json",
+                "recordingSha256": "6c1c590921c9f6a8a3d1e955f5ce3978afd37e90227ef8a8ea1d2282a90ce00d",
+                "recipe": "challenges/cases/v26/v26-eat-levitation-ring.recipe.session.json",
+                "recipeSha256": "5a9286c5035d2215b2f7a5a8ba7fab993e69e8a3cba5a358e237e0c5d5b052f6",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 80,
+                "recordedSteps": 111,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 31,
+                    "total": 111
+                  },
+                  "rng": {
+                    "matched": 2398,
+                    "total": 2602
+                  },
+                  "cursors": {
+                    "matched": 31,
+                    "total": 111
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                  "step": 31
+                },
+                "step": 31,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first stop is D/#droptype at segment 0 step 31, before ring eating. C do.c:doddrop opens menu_drop's class selector; JavaScript resolves D to droptype but rejects it in cmd.js:admitParsedCommand because admission and handler dispatch are missing. Port the whole multiple-drop family and its required category-selection and bypass traversal dependencies; adding the command name alone is insufficient.",
+              "source": {
+                "file": "do.c",
+                "branch": "A rock-mole hero with carried inventory presses D under the default full-menu style. No numeric count or repeat request precedes this command; the repeated-command wording is a generic admission refusal. C proceeds to the Drop what type of items? category menu, then the independently recorded A+a selection drops all eligible inventory stacks.",
+                "functions": [
+                  "doddrop",
+                  "better_not_try_to_drop_that",
+                  "menudrop_split",
+                  "menu_drop"
+                ],
+                "callers": [
+                  "cmd.c:1710-1711 extcmdlist binds D and #droptype to doddrop; cmd.c:rhack invokes (*func) at 3747. JS extcmdlist_data.js:61 contains the correct row, but cmd.js ADMITTED_COMMANDS1852 / admitParsedCommand1910-1926 omits droptype and both dispatchExtcmdEntry and rhack have no doddrop handler.",
+                  "do.c:doddrop924-943 clears category state, enters menu_drop for MENU_FULL/MENU_COMBINATION or ggetobj for MENU_TRADITIONAL, restores shop sale mode, and resets occupations after a successful drop.",
+                  "do.c:drop714-780 uses better_not_try_to_drop_that for unsafe corpses; menu_drop981-1107 invokes menudrop_split964-977 and drop, consuming their ECMD_TIME results."
+                ],
+                "dependencies": [
+                  "Consume and source-audit do.c:drop714-780 as a required return-valued callee. Its current js/do.js implementation still refuses better_not_try_to_drop_that; implement the whole confirmation helper and reuse canonical paranoid_ynq/u_safe_from_fatal_corpse. Reuse canletgo, welded, splitobj, floor placement and dropx/dropz ownership; preserve explicit source limits rather than certifying their partial branches.",
+                  "pickup.c:query_category1225-1508 returns selected categories and counts; current js/pickup.js:791-936 is an out-only menu_loot slice. Audit/complete whole query_category and count_categories1510-1541, including worn/unpaid/paranoid/just-picked branches, rather than assuming its declaration establishes completion. Reuse/source-check query_objlist1025-1215, allow_all517-520, allow_category523-592, count_justpicked635-645 and find_justpicked648-657; several helpers are private and need caller exports. Keep one canonical valid_menu_classes/filter owner shared with invent.c:ggetobj.",
+                  "worn.c:bypass_objlist1127-1137 and nxt_unbypassed_obj1142-1151 are absent in current js/worn.js; menu_drop consumes the latter return and must restart from the current inventory head after each destructive drop. Reuse existing bypass_obj1119-1123. Reserve contract:object-bypass-traversal and wire active source callers in do.c:menu_drop, invent.c:askchain2432, zap.c:destroy_items6038-6095 and artifact.c:retouch_equipment2695 at bounded source seams. Whole askchain/retouch_equipment are separate completion claims; traditional ggetobj may additionally require return-valued nxt_unbypassed_loot1159-1173 after its partial sorted-chain implementation is audited.",
+                  "invent.c:ggetobj2202-2376 and askchain2377-2541 supply MENU_TRADITIONAL/MENU_COMBINATION returns and need source/caller verification. Existing functions are partial. Shop sale-state and reset_occupations calls have discarded results; any missing side-effect callee remains an explicit note_unported gap, not fabricated state/output."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20261007095608-v26.json at 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44 reports 31/111 screens and cursors, 2398/2602 RNG calls, and 80 remaining screens. Queue identity and manifest/recording hashes are preserved above; the first stop is segment 0 zero-based step31.",
+                "Bounded run-329eqb replayed only this assigned session at examined worktree commit8cee72826870e64545745d565d551730e09ca5ab, whose game code equals published16bad87c. .cache/v26-levitation/replay.json records key D, command droptype,31 emitted boundaries,111 recorded boundaries, commandRefusal true and no earlier screen/RNG divergence. .cache/v26-levitation/replay.log holds the completed run. No C game was recorded.",
+                "Recording step30 is an ordinary Unknown command space boundary. Step31 key D opens C Drop what type of items?;32 A enables Auto-select every relevant item,33 a enables All types,34 Enter begins the first You drop a wand of light More message. Subsequent source inventory traversal drops the two rings, potions, scrolls, spellbooks and magic marker before encumbrance clears. JS stops before opening that menu, so the cause is neither eataccessory nor a count/repeat implementation.",
+                "Complete do.c:doddrop924-943, better_not_try_to_drop_that947-960, menudrop_split964-977 and menu_drop981-1107 were read. menu_drop branches cover retry -2/-3, full/combination styles, autopick A, category filters, just-picked counts, explicit item selection and stack splits; bypass bits protect inventory traversal against destruction and stale menu pointers. Return success only after at least one ECMD_TIME drop; C resets occupations and shop-sale state in doddrop at their exact source order.",
+                "JS boundary is cmd.js:admitParsedCommand1910-1926 called from rhack5383 after parse. extcmdlist_data.js:61 already resolves0x44 to droptype/doddrop; ADMITTED_COMMANDS1852 onward lacks droptype, dispatchExtcmdEntry around5165 handles dodrop only, and rhack5896 handles drop only. rg over js confirms no doddrop, menu_drop or menudrop_split implementation; JS do.js:drop1613 onward separately refuses unsafe corpse confirmation.",
+                "The immutable mission name/comment is historical: actual recorded setup is rock mole and wish uncursed +3 ring of increase accuracy, not levitation. Ring wish ends at98;99 eat offers a dropped floor ring,100 n declines it,101 n selects the wished wire ring and prints This wire ring is delicious. This later eat.c:eataccessory path cannot identify the first stop and is not certified by the current replay.",
+                "Actionable reservations: source:do.c:doddrop/better_not_try_to_drop_that/menudrop_split/menu_drop, required source:do.c:drop, source:pickup.c:query_category and its audited dependencies, source:worn.c:bypass_objlist/nxt_unbypassed_obj, bounded source:cmd.c:rhack/doextcmd dispatch, and contract:object-bypass-traversal plus category-filter state. Initial paths js/do.js/js/cmd.js/js/pickup.js/js/worn.js/js/invent.js and focused drop/category/worn/command tests; add js/zap_destroy_items.js/js/artifacts.js only for source-required bypass caller scope events. A112 remains parked; its uncommitted recovery must not be applied or changed without a separate authorized resumption.",
+                "Validation plan: verify this admitted range through the D/A/a menu and ensuing drop sequence; independent C-first multiple-drop recipes need full-menu auto-all and filtered selection, manual counted stack split, just-picked selection, cancellation/no inventory, and traditional/combination paths. Test source-pinned callback returns, bypass/context-bit coupling, current-head restart after inventory destruction, stale selected pointers, strict ECMD_TIME accounting and cursed-loadstone/welded split prevention. Independently exercise unsafe-corpse confirmation and cheap role/options/object-class variations. Shop/swallow/levitation branches and returned helper gaps need matching source evidence or named blocked recipes; this case supplies none of that whole-function coverage."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-uhitm-mhitm-ad-cold-v26-20261007",
