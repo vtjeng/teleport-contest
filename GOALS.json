@@ -193999,7 +193999,7 @@
     {
       "id": "port-do-wear-helmet-on-telepathy-v27-20261007",
       "kind": "file-port",
-      "status": "parked",
+      "status": "closed",
       "summary": "Complete helmet donning effects and telepathy admission",
       "cFile": "do_wear.c",
       "sessions": [
@@ -194013,15 +194013,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "cbb68414c54b980b99303a10bba3fdf302af37c7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Helmet_on",
           "line": 434,
           "endLine": 517,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -194035,7 +194038,7 @@
           "endLine": 3341,
           "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -194053,7 +194056,7 @@
         }
       },
       "activeStanding": {
-        "sha": "66b552d0bb2c158b1501eb551a9fc97b3fa47afc",
+        "sha": "675359a009b1ad4b53d24207a93cc9901209df00",
         "screens": 11405,
         "rng": 792838
       },
@@ -194238,7 +194241,209 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "Older ready A136 delivery is at its exact passing integration boundary; B137 worker implementation continues from the accepted base and will resume as the integration goal after A136 closes."
+      "parkedReason": "Older ready A136 delivery is at its exact passing integration boundary; B137 worker implementation continues from the accepted base and will resume as the integration goal after A136 closes.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "Helmet_on",
+            "implementation": "js/do_wear.js",
+            "symbol": "Helmet_on",
+            "sourceReview": "Read whole do_wear.c:434-515 in definition order. Preserved Fedora role luck, all six plain types (including TELEPATHY), CAUTION see_monsters before common tail, BRILLIANCE adj_abon, CORNUTHAUM role-dependent +1/-1 CHA independent of spe followed by status dirtiness and makeknown, early known/uchangealign and fallthrough curse path, blind/Cleric/bknown inventory handling, hallucination and dunce INT feedback, and null-uarmh guard before common known/update_inventory. Replaced the selected helper refusal and production helmet allowlist with the complete source switch; no extra telepathy redraw. Canonical change_luck, see_monsters, adj_abon, uchangealign, curse, discovery, attribute queries and inventory helpers are reused. C discards impossible diagnostic return; retained note_unported(pline.c impossible) in invalid-type default. No consumed-return dependency is omitted. attrib.h:39-41 and config.h:500 establish signed-byte ABON storage; the new CORNUTHAUM store narrows its sum exactly, including 127/-128 crossings reached by independent source-valid ring inputs. Consumed hcolor is now wired to its established whole do_name.js owner; removed the old local duplicate, table alias and display-RNG import. Source-pinned do-name tests and the hallucinated dunce recording establish its result/RNG branch.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "accessory_or_armor_on",
+                "source": "do_wear.c:2377-2400 callback selection after setworn; W/#wear -> dowear -> accessory_or_armor_on -> delayed hack.c:unmul"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "unmul",
+                "source": "hack.c unmul invokes ga.afternmv; callback int return discarded"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "set_wear",
+                "source": "do_wear.c:1566-1567; allmain.c:73 moveloop_preamble set_wear(NULL) for starting gear. Existing zap.c:1948 non-ring caller remains outside assigned caller admission frontier, explicitly documented below."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wear-armor.test.mjs",
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/helmet-brilliance-positive.session.json",
+              "recordings/do_wear.c/helmet-brilliance-negative.session.json",
+              "recordings/do_wear.c/helmet-brilliance-zero.session.json",
+              "recordings/do_wear.c/helmet-cornuthaum-knight.session.json",
+              "recordings/do_wear.c/helmet-cornuthaum-wizard.session.json",
+              "recordings/do_wear.c/helmet-dunce-shared-curse.session.json",
+              "recordings/do_wear.c/helmet-opposite-shared-curse.session.json",
+              "recordings/do_wear.c/helmet-fedora-startup.session.json",
+              "recordings/artifact.c/intrinsic-caution-helmet-refresh.session.json",
+              "recordings/do_wear.c/helmet-cornuthaum-byte-knight.session.json",
+              "recordings/do_wear.c/helmet-cornuthaum-byte-wizard.session.json",
+              "recordings/do_wear.c/helmet-dunce-hallucinated.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-helm-telepathy",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 38,
+                "source": "W/#wear -> do_wear.c:accessory_or_armor_on -> worn.c:setworn -> hack.c:unmul delayed callback -> do_wear.c:Helmet_on plain telepathy arm -> common known/inventory tail; allmain.c perception updates retain canonical TELEPAT behavior"
+              }
+            ],
+            "checkedAt": "cbb68414c54b980b99303a10bba3fdf302af37c7"
+          },
+          {
+            "name": "adj_abon",
+            "implementation": "js/do_wear.js",
+            "symbol": "adj_abon",
+            "sourceReview": "Read whole do_wear.c:3319-3337. Current implementation already contains both independent source arms, contrary to stale investigation text: exact slot/object/type identity, nonzero-only discovery and DEX or INT/WIS increments, unconditional botl for a matching zero delta. Verified both existing source arms, corrected the incomplete header, and added the C schar parameter and ABON store narrowing that JS previously omitted. Source callers use bounded armor-enchantment deltas; each discards the void result. Both glove and helm runtime paths, positive/negative/zero changes and two scroll caller families are established by source-pinned tests and independent recordings. Discovery is impure; function is not pure. Source-pinned tests cover both signed-byte limits, parameter narrowing, and independent DEX/INT/WIS stores.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Helmet_on",
+                "source": "do_wear.c:452 calls adj_abon(uarmh,uarmh->spe)"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Helmet_off",
+                "source": "do_wear.c:550 calls adj_abon(uarmh,-uarmh->spe) unless cancelled don"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Gloves_on",
+                "source": "do_wear.c:593 calls adj_abon(uarmg,uarmg->spe)"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Gloves_off",
+                "source": "do_wear.c:668 calls adj_abon(uarmg,-uarmg->spe) unless cancelled don"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_enchant_armor",
+                "source": "read.c:1279 calls adj_abon(otmp,s) after applying/capping spe and computing actual delta"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_destroy_armor",
+                "source": "read.c:1359 cursed-scroll/cursed-armor arm decrements spe then calls adj_abon(otmp,-1) before stun"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wear-armor.test.mjs",
+              "scripts/read-enchant-armor.test.mjs",
+              "scripts/read-destroy-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/helmet-brilliance-positive.session.json",
+              "recordings/do_wear.c/helmet-brilliance-negative.session.json",
+              "recordings/do_wear.c/helmet-brilliance-zero.session.json",
+              "recordings/do_wear.c/helmet-dexterity-gloves.session.json",
+              "recordings/do_wear.c/helmet-brilliance-enchant.session.json",
+              "recordings/do_wear.c/helmet-brilliance-destroy-cursed.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [],
+            "checkedAt": "cbb68414c54b980b99303a10bba3fdf302af37c7"
+          }
+        ],
+        "entryPointReview": "Source audit enumerated command donning via accessory_or_armor_on/unmul, startup via set_wear(NULL), glove donning/removal, and the enchant/destroy scroll adj_abon callers. These active families are established below. zap.c:1948 poly_obj has a separate existing non-ring caller gap: its void set_wear result is discarded, so it is neither an in-scope consumed-return callee nor an admitted B137 entry. Coordinator explicitly preserved that frontier outside this task; this is an active unported caller limitation, not an inactive/build-excluded branch. No zap.js edit or transformed-equipment wiring credit. Existing common source callees are ported and verified from their implementations; no injected operation added.",
+        "entryPoints": [
+          {
+            "name": "helmet donning command and delayed callback",
+            "functions": [
+              "Helmet_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/helmet-brilliance-positive.session.json",
+              "recordings/do_wear.c/helmet-brilliance-negative.session.json",
+              "recordings/do_wear.c/helmet-brilliance-zero.session.json",
+              "recordings/do_wear.c/helmet-cornuthaum-knight.session.json",
+              "recordings/do_wear.c/helmet-cornuthaum-wizard.session.json",
+              "recordings/do_wear.c/helmet-dunce-shared-curse.session.json",
+              "recordings/do_wear.c/helmet-opposite-shared-curse.session.json",
+              "recordings/do_wear.c/helmet-cornuthaum-byte-knight.session.json",
+              "recordings/do_wear.c/helmet-cornuthaum-byte-wizard.session.json",
+              "recordings/do_wear.c/helmet-dunce-hallucinated.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-helm-telepathy",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 38,
+                "source": "W/#wear -> do_wear.c:accessory_or_armor_on -> worn.c:setworn -> hack.c:unmul delayed callback -> do_wear.c:Helmet_on plain telepathy arm -> common known/inventory tail; allmain.c perception updates retain canonical TELEPAT behavior"
+              }
+            ]
+          },
+          {
+            "name": "starting helmet callback",
+            "functions": [
+              "Helmet_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/helmet-fedora-startup.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "brilliance helm on/off attribute adjustment",
+            "functions": [
+              "adj_abon"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/helmet-brilliance-positive.session.json",
+              "recordings/do_wear.c/helmet-brilliance-negative.session.json",
+              "recordings/do_wear.c/helmet-brilliance-zero.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "dexterity gloves on/off",
+            "functions": [
+              "adj_abon"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/helmet-dexterity-gloves.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "armor enchantment scroll adjusts worn bonuses",
+            "functions": [
+              "adj_abon"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/helmet-brilliance-enchant.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "cursed destroy armor scroll adjusts worn bonuses",
+            "functions": [
+              "adj_abon"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/helmet-brilliance-destroy-cursed.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "cbb68414c54b980b99303a10bba3fdf302af37c7",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-dogmove-dog-move-leash-v27-20261007",
@@ -194314,6 +194519,39 @@
           "recordingSha256": "37d4924ca751615d45cd7f3e3fd85c52f32e7ea5d6d757bbf9e2bbc11c2c8591",
           "evaluationPath": "challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json",
           "evaluationCommit": "675359a009b1ad4b53d24207a93cc9901209df00"
+        }
+      }
+    },
+    {
+      "id": "fix-zap-weffects-spell-ray-dispatch-v27-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Repair spell ray dispatch through zap.c weffects",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v27/v27-cast-magic-missile"
+      ],
+      "selectionReason": "Select the current v27-cast-magic-missile mismatch from the saved 675359a0 evaluation and investigations/synthetic/v27/v27-cast-magic-missile.json. Source tracing isolates the implemented spell.js caller and existing ubuzz owner from zap.c:weffects lines 3461-3462, where JS retains a stale spell-casting refusal. This bounded repair is independent of C134 poly_obj/setuwep work.",
+      "detail": "At segment 0 step 86, spell.js reaches zap.c:weffects for SPE_MAGIC_MISSILE. C computes 10 + abs(otyp - SPE_MAGIC_MISSILE) % 10 and u.ulevel / 2 + 1 with C integer division, then calls ubuzz after Wisdom exercise; JS refuses before dispatch. Preserve the disclose tail and existing ubuzz implementation. No whole weffects, ubuzz, or dobuzz completion credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "weffects",
+      "session": "synthetic/v27/v27-cast-magic-missile",
+      "step": 86,
+      "syntheticProvenance": {
+        "synthetic/v27/v27-cast-magic-missile": {
+          "session": "synthetic/v27/v27-cast-magic-missile",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-cast-magic-missile",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-cast-magic-missile.session.json",
+          "recordingSha256": "f64f5907051f2ff4e1cce9d552cbdd6cd2387eb87a1f292146a538f524ffa2f3",
+          "evaluationPath": "challenges/evaluations/accepted-cbb68414c54b980b99303a10bba3fdf302af37c7-v27.json",
+          "evaluationCommit": "cbb68414c54b980b99303a10bba3fdf302af37c7"
         }
       }
     }

@@ -1,0 +1,95 @@
+{
+  "session": "synthetic/v27/v27-cast-magic-missile",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-cast-magic-missile",
+  "remainingScreens": 6,
+  "recordedSteps": 92,
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingSha256": "f64f5907051f2ff4e1cce9d552cbdd6cd2387eb87a1f292146a538f524ffa2f3",
+  "evaluationPath": "challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json",
+  "evaluationCommit": "675359a009b1ad4b53d24207a93cc9901209df00",
+  "status": "complete",
+  "commit": "f045491dcb95c7dc795ad05ba3590a365de5dd7f",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-cast-magic-missile",
+    "session": "synthetic/v27/v27-cast-magic-missile",
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recording": "challenges/cases/v27/v27-cast-magic-missile.session.json",
+    "recordingPath": "challenges/cases/v27/v27-cast-magic-missile.session.json",
+    "recordingSha256": "f64f5907051f2ff4e1cce9d552cbdd6cd2387eb87a1f292146a538f524ffa2f3",
+    "recipe": "challenges/cases/v27/v27-cast-magic-missile.recipe.session.json",
+    "recipeSha256": "e1599df4e1d6f8f60b98e5af5b55276cd453869b24a5ad71442c844ee21a1d6a",
+    "replayInputSha256": "7e7cfc2b6feaaef9a4b1e927858c9e7994286cf8a3e1e8fe7e69f0274c30ef98",
+    "evaluationPath": "challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json",
+    "evaluationCommit": "675359a009b1ad4b53d24207a93cc9901209df00",
+    "evaluationArtifact": "challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json",
+    "evaluationUtc": "2026-10-07T20:25:09.397Z",
+    "remainingScreens": 6,
+    "recordedSteps": 92,
+    "previousScreensMatched": 86,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 86,
+        "total": 92
+      },
+      "rng": {
+        "matched": 3104,
+        "total": 3122
+      },
+      "cursors": {
+        "matched": 86,
+        "total": 92
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires ubuzz() for a spell the hero cast",
+      "step": 86
+    },
+    "step": 86,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "ubuzz",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires ubuzz() for a spell the hero cast",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Casting a learned magic-missile spell reaches the existing spell.c production caller, then JavaScript weffects refuses its spell-ray band using a stale casting-is-unported premise. C dispatches this band through the already implemented ubuzz/dobuzz owners with BZ_U_SPELL(BZ_OFS_SPE(otyp)) and integer u.ulevel/2+1 dice. Repair that bounded dispatch and its stale test expectations; retain the parked whole-weffects goal and unrelated ray/dependency limits.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "zap.c",
+    "functions": [
+      "weffects"
+    ],
+    "branch": "A directed spell pseudo-object has oc_dir neither IMMEDIATE nor NODIR and otyp in inclusive SPE_MAGIC_MISSILE..SPE_FINGER_OF_DEATH. After source exercise(A_WIS,TRUE), C takes the spell-ray arm before the wand-ray arm; the selected source call completes before disclose/learnwand/experience tail.",
+    "callers": [
+      "spell.c:spelleffects1510/1512 -> zap.c:weffects; JS spell.js1457/1460 already await weffects(pseudo,state), reached by cmd.c Z command -> docast -> spelleffects.",
+      "zap.c:weffects3461-3462 -> ubuzz(BZ_U_SPELL(BZ_OFS_SPE(otyp)),u.ulevel/2+1); canonical JS zap.js:ubuzz5865 delegates type,nd and current hero origin/direction plus TRUE,FALSE,FALSE to dobuzz.",
+      "zap.c:weffects3467-3474 shared disclose tail -> learnwand and more_experienced; canonical JS retains that order, and learnwand799 ignores SPBOOK_CLASS just as C does."
+    ],
+    "dependencies": [
+      "Canonical existing ubuzz4759-4762/dobuzz4780 onward, including spell type10..19 and spell-specific fireball/type-derived spellType behavior; no new helper is required for this source arm.",
+      "hack.h1478 defines BZ_OFS_SPE as abs(otyp-SPE_MAGIC_MISSILE)%10 and1482 defines BZ_U_SPELL as10+offset. C integer division for u.ulevel/2 must be preserved, including odd levels.",
+      "Existing zhitm/zhitu and spell_damage_bonus consumed damage results are present; retain their named source gaps without claiming full ray-family completion. Unexpected weffects object/default, shop and broader worn/swallowed/dependency frontiers remain outside the dispatch fix.",
+      "C134 pending zap.js poly_obj/setuwep and do.js primary-drop scopes are distinct from weffects spell dispatch; A137 pet/monability contracts are also disjoint. Do not alter shared do.js or light merge while C134 remains unaccepted."
+    ]
+  },
+  "evidence": [
+    "Saved coordinator .cache/a136-current-work-queue.json uses challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json; selected case has6remaining screens out of92. Original queue entry is retained in mismatch without embedding its cached investigation.",
+    "Focused frozen-overlay replay at exact worker commit f045491dcb95c7dc795ad05ba3590a365de5dd7f reproduces86/92screens andcursors,3104/3122RNG. First absent screen and draw occur at segment0step86 key l; C nextdraw rn2(7)=1 at dobuzz(zap.c:4823). Boundary is UnsupportedHeroCommandBoundaryError: zapping a wand requires ubuzz() for a spell the hero cast. Diagnostic .cache/B139-candidate/replay.json and replay.log; bounded run-78R6U5. No C recording or aggregate scan was run.",
+    "Read whole C zap.c:weffects3430-3476 and ubuzz4759-4762; C3461-3462 spell-band dispatch is followed by wand-band3463-3465 and common disclose. JS zap.js6433-6436 replaces this exact arm with UnsupportedZapError and stale comment that spell.c casting is unported, while spell.js spelleffects1457/1460 already calls it.",
+    "The admitted recipe learns a independently prepared magic-missile book, waits for study, then casts using Z. It does not bypass spell.c energy, success or direction acquisition. The first source loss is the direction-completion l input, after every earlier study/casting screen matches; the rn2(7) annotation is missing beam range, not a spell-success defect.",
+    "Existing JS zap.js:dobuzz5594-5602 already accepts hero spell10..19, constructs spellType, and handles type11 fireball; ubuzz has no source-specific spell refusal. Header comments that still describe spell fire outside supported range must be reconciled only to current source behavior.",
+    "Recommended task: fix-zap-weffects-spell-ray-dispatch-v27-20261007, kind divergence-fix. Change only the source spell-ray caller arm plus stale refusal/comment expectations; reserve source:zap.c:weffects and contract:hero-cast-ray-dispatch. Allowed game path js/zap.js; focused zap-ray/zap-command/spell tests, independent recipes/zap.c and recordings/zap.c. No whole weffects, ubuzz, dobuzz or spell.c completion credit.",
+    "Validate admitted segment0step86-91; add independently chosen magic-missile and cheap sleep or different-level C cases. Source-pinned tests must cover every spell-band offset and odd/even integer damage dice, assert RNG calls as well as result, preserve WIS exercise/shared tail and raw environment forwarding, and keep a representative unported boundary recipe if a later owner blocks it. The historical parked goal port-zap-weffects-force-bolt-synthetic-v2-20260926 already records spell-ray evidence as unfinished; this fix closes only that selected caller divergence."
+  ]
+}

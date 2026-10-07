@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T20:37:33.316Z",
+  "capturedAt": "2026-10-07T21:18:08.336Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -24821,12 +24821,85 @@
         "worker": "A2",
         "goal": "port-dogmove-dog-move-leash-v27-20261007",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A136-c366d65d89f0",
+        "type": "published",
+        "at": "2026-10-07T20:40:08.149Z",
+        "task": "A136",
+        "commit": "c366d65d89f0f700f46ce635060e380b417249ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bc4030bd36aa26043be591bb30eec2ba287ea351",
+        "type": "ready",
+        "at": "2026-10-07T20:55:38.066Z",
+        "task": "B137",
+        "delivery": "bc4030bd36aa26043be591bb30eec2ba287ea351"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-69b64d2256ae64f7c877907c0adb8a089246edce",
+        "type": "ready",
+        "at": "2026-10-07T20:55:48.048Z",
+        "task": "C134",
+        "delivery": "69b64d2256ae64f7c877907c0adb8a089246edce"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B137-bc4030bd-20261007",
+        "type": "received",
+        "at": "2026-10-07T20:56:03.144Z",
+        "task": "B137",
+        "delivery": "bc4030bd36aa26043be591bb30eec2ba287ea351"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C134-69b64d22-20261007",
+        "type": "received",
+        "at": "2026-10-07T20:56:27.575Z",
+        "task": "C134",
+        "delivery": "69b64d2256ae64f7c877907c0adb8a089246edce"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B137-cbb68414",
+        "type": "integrating",
+        "at": "2026-10-07T20:57:12.597Z",
+        "task": "B137",
+        "integration": "cbb68414c54b980b99303a10bba3fdf302af37c7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B137-cbb68414-hosted-37686998075",
+        "type": "validated",
+        "at": "2026-10-07T21:11:03.800Z",
+        "task": "B137",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B137-cbb68414c54b980b99303a10bba3fdf302af37c7-accepted",
+        "type": "accepted",
+        "at": "2026-10-07T21:12:48.517Z",
+        "task": "B137"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B139-spell-ray-20261007",
+        "type": "assign",
+        "at": "2026-10-07T21:17:53.067Z",
+        "task": "B139",
+        "worker": "B",
+        "goal": "fix-zap-weffects-spell-ray-dispatch-v27-20261007",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "675359a009b1ad4b53d24207a93cc9901209df00",
-    "measuredAt": "2026-10-07T20:26:42.208Z",
+    "executionCommit": "cbb68414c54b980b99303a10bba3fdf302af37c7",
+    "measuredAt": "2026-10-07T21:09:17.238Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
