@@ -826,23 +826,18 @@ test('a locked door can be kicked open the same way a closed one can',
     assert.equal(loc.doormask, D_BROKEN);
 });
 
-test('a trapped door in the success branch refuses before b_trapped()',
+test('a trapped door clears its mask and reaches b_trapped before redraw',
     async () => {
-    // dokick.c:934-939. D_TRAPPED is checked first in the if-chain.
-    // b_trapped() is translated, but this kick_door() caller branch remains
-    // unported, so the arm throws before any trap message or draw.
+    // dokick.c:934-952 clears the mask before the explosion and map update.
     await replay(VALKYRIE(), '');
-    // D_CLOSED | D_TRAPPED is the common trapped-closed combination.
     setDoorWest(D_CLOSED | D_TRAPPED);
     equipKickingBoots();
-
+    const hp = game.u.uhp;
     for (const key of `${KICK}h   `)
         game.nhDisplay.pushKey(commandKeyCode(key));
-    try {
-        await rhack(0, game);
-        assert.fail('the trapped-door arm should have thrown');
-    } catch (error) {
-        assert.match(error.message, /D_TRAPPED/u,
-            'the error names the trapped-door arm');
-    }
+    await rhack(0, game);
+    const loc = game.level.at(game.u.ux - 1, game.u.uy);
+    assert.equal(loc.doormask, D_NODOOR);
+    assert.equal(loc.flags, D_NODOOR);
+    assert.ok(game.u.uhp < hp); // b_trapped's source explosion inflicts damage.
 });

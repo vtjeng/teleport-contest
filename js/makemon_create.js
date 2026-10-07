@@ -1323,13 +1323,14 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && isok(x, y)
         && mmflags === (NO_MINVENT | MM_NOMSG);
     // C makemon() has no species admission rule for explicit runtime
-    // coordinates. dig.c:dig uses this ordinary pointer/coordinate/flag
-    // contract for its Earth-level elemental or xorn, but any non-genocided
-    // species follows the same source path and must not need a JS allowlist.
+    // coordinates. dig.c uses MM_NOMSG; dokick.c adds MM_ANGRY for tree bees
+    // or one gender bit for a sink demon. These source flags share the same
+    // placement and async runtime tail.
     const explicitCoordinateRuntimeCall = !state.in_mklev
         && Boolean(ptr)
         && !randomCoordinates
-        && mmflags === MM_NOMSG;
+        && Boolean(mmflags & MM_NOMSG)
+        && !(mmflags & ~(MM_NOMSG | MM_ANGRY | MM_MALE | MM_FEMALE));
     if (tutorialLevel && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !wereSummonCall && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall

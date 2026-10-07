@@ -831,7 +831,7 @@ export async function disturb_grave(x, y, state = game, env = {}) {
         note_unported('pline.c impossible');
         return;
     }
-    if (maploc.disturbed) {
+    if (maploc.horizontal) {
         note_unported('pline.c impossible');
         return;
     }
@@ -842,7 +842,7 @@ export async function disturb_grave(x, y, state = game, env = {}) {
         ?? (message === ttyMessage.ttyPline
             ? ttyMessage.ttyNorep : message);
     await message('You disturb the undead!', state);
-    maploc.disturbed = true;
+    maploc.horizontal = true;
 
     const { makemon_runtime } = await import('./makemon_create.js');
     // The command caller exposes only engraving's rn2/rnd pair. C's
@@ -921,7 +921,7 @@ export async function doengrave(state = game, env = {}) {
             await say(`You would only make a small smudge on the ${surface(state.u.ux, state.u.uy, state)}.`);
             return de.ret;
         }
-        if (!tileAt(state.u.ux, state.u.uy, state).disturbed) {
+        if (!tileAt(state.u.ux, state.u.uy, state).horizontal) {
             await disturb_grave(state.u.ux, state.u.uy, state, env);
             return de.ret;
         }

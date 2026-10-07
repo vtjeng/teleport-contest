@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dokick.c:grave variation. Step east off the initial stairs onto room floor, wish a disturbed grave, step east again, and kick west. Newly chosen male Wizard seed/clock; source requires ROOM and no trap for make_grave.",
+  "segments": [
+    {
+      "seed": 12510733,
+      "datetime": "20951007144500",
+      "nethackrc": "OPTIONS=name:TerrainKick,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "l\u0017disturbed grave\nl\u0004h   "
+    }
+  ]
+}

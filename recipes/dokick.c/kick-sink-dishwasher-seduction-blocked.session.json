@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dokick.c:kick_nondoor sink variation. A newly chosen male Wizard wishes sink, steps north and kicks south. C terrain, draw order and pending message inputs define the witness; no challenge recipe is copied. Blocked outside the terrain source at mhitu.c:mayberem during the summoned amorous demon's seduction, after matching the actual kick creation. No recording completion claim.",
+  "segments": [
+    {
+      "seed": 12510735,
+      "datetime": "20951007144500",
+      "nethackrc": "OPTIONS=name:TerrainKick,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0017sink\nk\u0004j\u0004j\u0004j\u0004j   "
+    }
+  ]
+}
