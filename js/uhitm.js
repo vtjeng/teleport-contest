@@ -597,11 +597,13 @@ import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import { night } from './calendar.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
+import { losespells } from './spell.js';
 import {
     abon,
     dbon,
     dmgval,
     dry_a_towel,
+    drain_weapon_skill,
     hitval,
     martial_bonus,
     special_dmgval,
@@ -5431,7 +5433,7 @@ export async function mhitm_ad_drin(
     state = game,
     env = {},
 ) {
-    const random = env.random ?? { rn1, rn2, rnd };
+    const random = env.random ?? { rn1, rn2, rnd, rnl };
     const message = env.message ?? (env.planning ? async () => {}
         : ttyPline);
     const effectEnv = {
@@ -5531,16 +5533,13 @@ export async function mhitm_ad_drin(
                 return;
             }
         }
-        await adjattrib(A_INT, -random.rnd(2), false, state, effectEnv);
+        await adjattrib(A_INT, -random.rnd(2), 0, state, effectEnv);
         if (!random.rn2(5)) {
-            // C discards both void results; retain the gap after its gate.
-            note_unported('spell.c losespells');
+            await losespells(state, { random });
             state.gs.skipdrin = true;
         }
         if (!random.rn2(5)) {
-            const skill = random.rnd(2);
-            void skill;
-            note_unported('weapon.c drain_weapon_skill');
+            await drain_weapon_skill(random.rnd(2), state, { random, message });
             state.gs.skipdrin = true;
         }
         return;
