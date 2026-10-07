@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first production wand-break setup, canonical Caveman role with stone giant form; seed chosen directly without a scan. C apply menu independently establishes wished slot f; apply and confirm break, then dismiss explosion messages. Caveman covers default hero damage; do_break_wand generic is the active caller.",
+  "segments": [
+    {
+      "seed": 93171014,
+      "datetime": "20781112120703",
+      "nethackrc": "OPTIONS=name:WandStrike,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h#polyself\nstone giant\n  \u0017uncursed wand of create monster (0:1)\nafy          "
+    }
+  ]
+}

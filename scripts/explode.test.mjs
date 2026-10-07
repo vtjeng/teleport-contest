@@ -55,6 +55,13 @@ import {
     NON_PM,
     PM_GAS_SPORE,
     PM_NEWT,
+    PM_CLERIC,
+    PM_MONK,
+    PM_WIZARD,
+    PM_HEALER,
+    PM_KNIGHT,
+    PM_CAVE_DWELLER,
+    PM_HILL_GIANT,
 } from '../js/monsters.js';
 import {
     BOULDER,
@@ -66,6 +73,7 @@ import {
     SCROLL_CLASS,
     STATUE,
     WAND_CLASS,
+    WAN_CREATE_MONSTER,
 } from '../js/objects.js';
 import { zap_over_floor } from '../js/zap.js';
 import { getRngLog } from '../js/rng.js';
@@ -966,4 +974,115 @@ test('an intervening item-loss message replaces the fatal antecedent', async () 
     assert.equal(game.invent, null);
     assert.equal(game.iflags.last_msg, PLNMSG_UNKNOWN);
     assert.deepEqual(draws, []);
+});
+
+// explode.c:224-255 switches on you.h's gu.urole.mnum, not the current form.
+// Damage 13 exposes integer truncation for both divisors; 4 and 1 cover
+// positive damage below the /5 and /2 thresholds, respectively.
+test('retributive wand damage uses the canonical original role', async () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/explode.c', import.meta.url), 'utf8');
+    const header = readFileSync(new URL('../nethack-c/upstream/include/you.h', import.meta.url), 'utf8');
+    assert.match(header, /#define Role_switch \(gu\.urole\.mnum\)/u);
+    assert.match(c, /case PM_CLERIC:\s*case PM_MONK:\s*case PM_WIZARD:\s*damu \/= 5;/u);
+    assert.match(c, /case PM_HEALER:\s*case PM_KNIGHT:\s*damu \/= 2;/u);
+    const cases = [
+        { role: PM_CLERIC, damage: 13, expected: 2 },
+        { role: PM_MONK, damage: 13, expected: 2 },
+        { role: PM_WIZARD, damage: 13, expected: 2 },
+        { role: PM_HEALER, damage: 13, expected: 6 },
+        { role: PM_KNIGHT, damage: 13, expected: 6 },
+        { role: PM_CAVE_DWELLER, damage: 13, expected: 13 },
+        { role: PM_WIZARD, damage: 4, expected: 0 },
+        { role: PM_HEALER, damage: 1, expected: 0 },
+        // WAND_CLASS reduces hero damage with positive zap types too.
+        { role: PM_WIZARD, damage: 13, expected: 2, type: 0 },
+        // A giant's HP uses the original Wizard role, not the polymorph species.
+        { role: PM_WIZARD, damage: 13, expected: 2, polymorph: true },
+        // A Wizard form does not confer the reduction on an original Caveman.
+        { role: PM_CAVE_DWELLER, damage: 13, expected: 13, form: PM_WIZARD },
+    ];
+    for (const fixture of cases) {
+        await prepareWandDamageState();
+        game.urole.mnum = fixture.role;
+        // Misleading legacy data cannot override gu.urole.mnum in either direction.
+        game.flags.role = fixture.role === PM_CAVE_DWELLER ? 'wizard' : 'caveman';
+        if (fixture.polymorph || fixture.form !== undefined) {
+            game.u.umonnum = fixture.form ?? PM_HILL_GIANT;
+            // The startup Wizard index would otherwise equal the Wizard form.
+            game.u.umonster = fixture.role;
+            game.youmonst.data = game.mons[game.u.umonnum];
+        }
+        const polymorphed = game.u.umonnum !== game.u.umonster;
+        const draws = [];
+        const rngBefore = getRngLog().length;
+        const lines = [];
+        await explode(game.u.ux, game.u.uy, fixture.type ?? -WAN_CREATE_MONSTER,
+            fixture.damage, WAND_CLASS, EXPL_MAGICAL, game, {
+                message: async (line) => lines.push(line),
+                random: { rn2: (bound) => { draws.push(bound); return 1; } },
+            });
+        assert.equal(polymorphed ? game.u.mh : game.u.uhp, 100 - fixture.expected,
+            `role ${fixture.role}, damage ${fixture.damage}, form ${game.u.umonnum}`);
+        assert.equal(polymorphed ? game.u.uhp : game.u.mh, 100,
+            'only the active HP pool is reduced');
+        // zap.c destroy_items draws its scale (5) once even with no inventory;
+        // attrib.c exercise draws rn2(2) only outside a polymorphed form.
+        assert.deepEqual(draws, polymorphed ? [5] : [5, 2]);
+        assert.equal(getRngLog().length, rngBefore, 'role dispatch adds no RNG');
+        assert.deepEqual(lines, ['Boom!', 'You are caught in the magical blast!']);
+    }
+});
+
+// The fixed seed/date only initialize valid owners and a visible map. The
+// constructed fixture supplies every value relevant to the damage branch.
+async function prepareWandDamageState() {
+    await runSegment({ seed: 93171020, datetime: '20781112121000',
+        nethackrc: 'OPTIONS=name:RoleDamage,role:Wizard,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
+        moves: '' });
+    game.invent = null;
+    // Removing the starting cloak also removes its carried magic resistance.
+    game.u.uprops[ANTIMAGIC].extrinsic = 0;
+    for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarmg', 'uarms', 'uarmf', 'uarmu'])
+        game[slot] = null;
+    for (const monster of game.level.monsters.flat().filter(Boolean))
+        game.level.monsters[monster.mx][monster.my] = null;
+    game.level.monlist = null;
+    // Both pools survive the largest (13-point) fixture, keeping death owners
+    // outside this bounded role-dispatch test.
+    game.u.uhp = game.u.uhpmax = game.u.mh = game.u.mhmax = 100;
+}
+
+test('role reduction leaves non-wand and monster damage unchanged', async () => {
+    await prepareWandDamageState();
+    const draws = [];
+    const random = { rn2: (bound) => { draws.push(bound); return 1; } };
+    // SCROLL_CLASS with magic type 0 bypasses the retributive WAND_CLASS arm.
+    await explode(game.u.ux, game.u.uy, 0, 13, SCROLL_CLASS, EXPL_MAGICAL,
+        game, { message: async () => {}, random });
+    assert.equal(game.u.uhp, 87); // Source leaves 13 hero damage unreduced.
+    assert.deepEqual(draws, [5, 2]);
+
+    await prepareWandDamageState();
+    const target = newMonster({ data: game.mons[PM_NEWT], cham: NON_PM,
+        // Adjacent newt survives the original 13-point dose without death effects.
+        m_lev: 0, m_id: 9317, mx: game.u.ux + 1, my: game.u.uy,
+        mhp: 100, mhpmax: 100, mcanmove: 1, mcansee: 1 });
+    place_monster(target, target.mx, target.my, game);
+    target.nmon = null;
+    game.level.monlist = target;
+    draws.length = 0;
+    await explode(game.u.ux, game.u.uy, -WAN_CREATE_MONSTER, 13,
+        WAND_CLASS, EXPL_MAGICAL, game, { message: async () => {}, random });
+    assert.equal(game.u.uhp, 98); // Original Wizard role divides 13/5 to 2.
+    assert.equal(target.mhp, 87); // explode.c:522 uses dam, not reduced damu.
+    // Source item/monster checks precede hero inventory and Strength exercise.
+    // resist uses wand attack level 12 and newt defense clamped to 1: 111.
+    assert.deepEqual(draws, [5, 111, 5, 2]);
+    const c = readFileSync(new URL('../nethack-c/upstream/src/explode.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/explode.js', import.meta.url), 'utf8');
+    assert.match(c, /destroy_items\(&gy\.youmonst, \(int\) adtyp, dam\)/u);
+    assert.match(js, /destroy_items\(state\.youmonst, adtyp, dam,/u);
+    assert.match(c, /i = dam \* dam;/u);
+    assert.match(js, /let noise = dam \* dam;/u);
 });
