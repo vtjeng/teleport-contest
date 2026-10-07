@@ -181,9 +181,11 @@ separately from other goals.
    review is needed. For a retry, pass the failed summary with
    `--previous-checkpoint` and address every failure. If corrections change
    the candidate, commit them and rerun preflight before testing it.
-   Run `npm run checkpoint`
-   under `.agents/validation.md`. Keep one full-validation owner and retain
-   its process handle until completion. Do not change main's HEAD during the
+   Obtain a passing checkpoint for the committed candidate, either locally
+   with `npm run checkpoint` or from the complete hosted checkpoint workflow
+   under `.agents/validation.md`. Import the hosted run's saved evidence; do
+   not repeat its checks locally. Keep one full-validation owner for local
+   runs and retain its process handle until completion. Do not change main's HEAD during the
    run. Use its running time for the read-only next-delivery preview above
    when a delivery is queued. If it fails, preserve the results and wait for
    the run to finish before integrating a correction and testing the new
