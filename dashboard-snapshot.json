@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T19:09:17.408Z",
+  "capturedAt": "2026-10-07T20:37:33.316Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -24629,12 +24629,204 @@
         "worker": "A2",
         "goal": "port-pray-prayer-done-v27-20261007",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A135-81b06ec3-20261007",
+        "type": "published",
+        "at": "2026-10-07T19:11:31.443Z",
+        "task": "A135",
+        "commit": "81b06ec37e02e84db7740cdc12b9d9127ea0ff93"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2583973cc35983b04fff83efffaffb5997d98c90",
+        "type": "ready",
+        "at": "2026-10-07T19:35:14.824Z",
+        "task": "B136",
+        "delivery": "2583973cc35983b04fff83efffaffb5997d98c90"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B136-2583973c-20261007",
+        "type": "received",
+        "at": "2026-10-07T19:36:09.392Z",
+        "task": "B136",
+        "delivery": "2583973cc35983b04fff83efffaffb5997d98c90"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B136-39f3d657-20261007",
+        "type": "integrating",
+        "at": "2026-10-07T19:38:27.395Z",
+        "task": "B136",
+        "integration": "39f3d6574cd2b746da80179f0e4608abc2ef5f1d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3c3530cd3c0f9d1c73f4400e78342864b4a5fe10",
+        "type": "ready",
+        "at": "2026-10-07T19:39:34.273Z",
+        "task": "C134",
+        "delivery": "3c3530cd3c0f9d1c73f4400e78342864b4a5fe10"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-c134-3c3530cd-20261007",
+        "type": "received",
+        "at": "2026-10-07T19:41:56.030Z",
+        "task": "C134",
+        "delivery": "3c3530cd3c0f9d1c73f4400e78342864b4a5fe10"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-52ed57749b7cbf6c97e4f7364b85737cfead6910",
+        "type": "ready",
+        "at": "2026-10-07T19:42:43.903Z",
+        "task": "A136",
+        "delivery": "52ed57749b7cbf6c97e4f7364b85737cfead6910"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-a136-52ed5774-20261007",
+        "type": "received",
+        "at": "2026-10-07T19:43:23.439Z",
+        "task": "A136",
+        "delivery": "52ed57749b7cbf6c97e4f7364b85737cfead6910"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-b136-checkpoint-37676393436",
+        "type": "feedback",
+        "at": "2026-10-07T19:47:02.433Z",
+        "task": "B136",
+        "delivery": "2583973cc35983b04fff83efffaffb5997d98c90"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B136-checkpoint-correction-20261007",
+        "type": "resume",
+        "at": "2026-10-07T19:47:36.515Z",
+        "task": "B136"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-010690bec0c1ffb5d832dcb141120287b2af6520",
+        "type": "ready",
+        "at": "2026-10-07T19:57:10.698Z",
+        "task": "B136",
+        "delivery": "010690bec0c1ffb5d832dcb141120287b2af6520"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-b136-correction-010690be-20261007",
+        "type": "received",
+        "at": "2026-10-07T19:57:34.657Z",
+        "task": "B136",
+        "delivery": "010690bec0c1ffb5d832dcb141120287b2af6520"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-b136-correction-f9932445",
+        "type": "integrating",
+        "at": "2026-10-07T19:58:19.471Z",
+        "task": "B136",
+        "integration": "f9932445178a37fcbe5df051c1b9bb88a8b8e0c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-b136-test-correction-66b552d0",
+        "type": "integrating",
+        "at": "2026-10-07T20:11:25.285Z",
+        "task": "B136",
+        "integration": "66b552d0bb2c158b1501eb551a9fc97b3fa47afc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B136-66b552d0bb2c158b1501eb551a9fc97b3fa47afc-validated",
+        "type": "validated",
+        "at": "2026-10-07T20:15:34.329Z",
+        "task": "B136",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B136-66b552d0bb2c158b1501eb551a9fc97b3fa47afc-accepted",
+        "type": "accepted",
+        "at": "2026-10-07T20:17:12.680Z",
+        "task": "B136"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B137-helmet-on-20261007",
+        "type": "assign",
+        "at": "2026-10-07T20:19:10.352Z",
+        "task": "B137",
+        "worker": "B",
+        "goal": "port-do-wear-helmet-on-telepathy-v27-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C134-restore-setuwep-20261007",
+        "type": "feedback",
+        "at": "2026-10-07T20:20:08.033Z",
+        "task": "C134",
+        "delivery": "3c3530cd3c0f9d1c73f4400e78342864b4a5fe10"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C134-restore-caller-20261007",
+        "type": "resume",
+        "at": "2026-10-07T20:21:03.327Z",
+        "task": "C134"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B136-ea95cf8538fe",
+        "type": "published",
+        "at": "2026-10-07T20:21:43.307Z",
+        "task": "B136",
+        "commit": "ea95cf8538fefc7bf235fb2a0b67b6f6b7f56705"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A136-675359a0",
+        "type": "integrating",
+        "at": "2026-10-07T20:22:59.186Z",
+        "task": "A136",
+        "integration": "675359a009b1ad4b53d24207a93cc9901209df00"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A136-675359a009b1ad4b53d24207a93cc9901209df00-validated",
+        "type": "validated",
+        "at": "2026-10-07T20:32:13.549Z",
+        "task": "A136",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A136-675359a009b1ad4b53d24207a93cc9901209df00-accepted",
+        "type": "accepted",
+        "at": "2026-10-07T20:32:24.956Z",
+        "task": "A136"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A137-20261007",
+        "type": "assign",
+        "at": "2026-10-07T20:37:20.199Z",
+        "task": "A137",
+        "worker": "A2",
+        "goal": "port-dogmove-dog-move-leash-v27-20261007",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "e08393de56cde7fc1ef8c8d297a533bd7522cfa2",
-    "measuredAt": "2026-10-07T18:59:03.544Z",
+    "executionCommit": "675359a009b1ad4b53d24207a93cc9901209df00",
+    "measuredAt": "2026-10-07T20:26:42.208Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

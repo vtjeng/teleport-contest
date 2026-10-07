@@ -1,0 +1,100 @@
+{
+  "session": "synthetic/v27/v27-leash-tame-dog",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-leash-tame-dog",
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingSha256": "37d4924ca751615d45cd7f3e3fd85c52f32e7ea5d6d757bbf9e2bbc11c2c8591",
+  "evaluationPath": "challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json",
+  "evaluationCommit": "675359a009b1ad4b53d24207a93cc9901209df00",
+  "remainingScreens": 8,
+  "recordedSteps": 56,
+  "status": "complete",
+  "commit": "675359a009b1ad4b53d24207a93cc9901209df00",
+  "mismatch": {
+    "session": "synthetic/v27/v27-leash-tame-dog",
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-leash-tame-dog",
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recordingPath": "challenges/cases/v27/v27-leash-tame-dog.session.json",
+    "recordingSha256": "37d4924ca751615d45cd7f3e3fd85c52f32e7ea5d6d757bbf9e2bbc11c2c8591",
+    "evaluationPath": "challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json",
+    "evaluationCommit": "675359a009b1ad4b53d24207a93cc9901209df00",
+    "remainingScreens": 8,
+    "recordedSteps": 56,
+    "passed": false,
+    "metrics": {
+      "screens": {
+        "matched": 48,
+        "total": 56
+      },
+      "rng": {
+        "matched": 2682,
+        "total": 2758
+      },
+      "cursors": {
+        "matched": 48,
+        "total": 56
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 48,
+      "message": "special starting-pet state",
+      "rng": {
+        "index": 2682,
+        "cEntry": "rn2(5)=4",
+        "cCaller": "distfleeck(monmove.c:538)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 48,
+          "key": "h"
+        }
+      },
+      "screen": {
+        "index": 48,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 48,
+          "key": "h"
+        },
+        "kind": "js-missing"
+      }
+    }
+  },
+  "summary": "At step 48, the monster planner rejects the newly leashed, unmounted little dog before its normal C turn. dogmove.c:dog_move already has a partial JavaScript port, but its complete leashed movement and repositioning path must be reconciled and wired before removing that guard.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "dogmove.c",
+    "functions": [
+      "dog_move"
+    ],
+    "branch": "A tame non-minion with EDOG and mleashed set is not the current steed; after the hero moves west, its normal monster action reaches dog_move. Whole function lines 977–1360 include leashed candidate restrictions, trap handling, hero-attack release and the newdogpos repositioning arm.",
+    "callers": [
+      "monmove.c:m_move at 1772–1774 consumes dog_move through postmov; dochug/dochugw and mon.c:movemon_singlemon reach it during the elapsed monster turn",
+      "JavaScript js/unported_monster_actions.js:assertSimpleActionState (313–316) currently refuses this state in both planning and live action; moveSimplePet (1164 onward) is the production adapter into js/dogmove.js:dog_move",
+      "js/monmove.js:m_move (3764–3769) consumes movePet result and passes it to postmov"
+    ],
+    "dependencies": [
+      "Consumed-return audit: dog_hunger, dog_invent, dog_goal, resist_conflict, mon_allowflags, mfndpos, should_displace, max_passive_dmg, mon_reflects, resists_ston, best_target, mattackm, undesirable_disp, mdisplacem, m_avoid_kicked_loc, m_avoid_soko_push_loc, could_reach_item, dogfood, pet_ranged_attk, m_in_out_region, m_digweapon_check, dog_eat and goodpos must retain canonical source results for the whole dog_move task",
+      "Existing canonical mhitm.c:mdisplacem is implemented at js/mhitm.js:546, while moveSimplePet still replaces the consumed result with an Unsupported pet displacement callback; bind and validate that caller rather than reimplement mdisplacem",
+      "The newdogpos tail calls goodpos and cmd.c:xytodir/dirtocoord in source order; js/teleport.js:goodpos and js/cmd.js:xytodir/dirtocoord already exist, but repositionLeashedPet has no runtime binding in moveSimplePet",
+      "Source-discarded m_unleash, dismount_steed, lose_guardian_angel and mattacku must be audited/wired if implemented; otherwise retain named gaps and bound source-completion evidence. Porting m_unleash requires its own apply.c ownership and all active callers",
+      "Shared contract: leashed pet movement and clone-only monster planning; messages, map cells, RNG, EDOG and both leash attachment values must stay isolated during the planning pass"
+    ]
+  },
+  "evidence": [
+    "Accepted 675359a009b1ad4b53d24207a93cc9901209df00 v27 evaluation reports 48/56 screens and cursors, 2682/2758 RNG: exactly 8 remaining screens. Focused replay at the byte-identical A136 worker delivery 52ed57749b7cbf6c97e4f7364b85737cfead6910 reproduced identical totals and stop; .cache/v27-leash-tame-dog/replay.json and replay.log retain diagnostics. A136 changes prayer_done only and do not alter this mismatch.",
+    "The first boundary is segment 0, zero-based step 48, input h: UnsupportedTurnBoundaryError reason special starting-pet state. First unavailable C draw is rn2(5)=4 in monmove.c:distfleeck:538, global RNG index 2682. That draw is the next caller handoff, not the missing source owner: js/unported_monster_actions.js:assertSimpleActionState rejects the pet solely for mleashed && pet !== usteed before its normal action.",
+    "C input history: wish an uncursed leash, create a tame little dog, apply it at step 41. The C message is You slip the leash around your little dog. At step 47 hero is (36,5), pet (37,6). First h at 48 moves hero to (35,5) and pet to (36,5). Subsequent h inputs reach hero/pet coordinates (34,5)/(34,6), (33,5)/(34,5), (32,5)/(32,6). .cache/v27-leash-tame-dog/c-frames.json stores decoded C screen evidence.",
+    "C dog_goal:504–508 sets APPORT and hero coordinates for leashed pets; dog_move:1092–1094 rejects candidates with distu > 4, 1199–1202 whimpers at traps regardless of usual avoidance, 1237 and 1246 skip the normal curse/backtrack draws, and 1254–1257 owns the remaining candidate RNG. Recording step 49 first reaches rn2(1)=0 at dog_move:1255; step 51 reaches its rn2(12) arm. Existing JS contains these branches, so removing the planner guard alone is not evidence that the whole owner is complete.",
+    "Whole dog_move:1276–1356 also releases the leash before an ALLOW_U attack and handles stationary/eating pets farther than squared distance 4. Its newdogpos arm preserves the unusual raw dirtocoord/goodpos sequence, tests m_in_out_region using nix/niy, then removes/places the pet, newsym and set_apparxy in C order. js/dogmove.js delegates this to repositionLeashedPet (1345 and 1698), but the production adapter has no such operation. The selected short case establishes normal leashed following; it does not prove this forced repositioning arm.",
+    "Additional source gap: apply.c:check_leash:931–994 is called before final map restoration in hack.c:domove_core:2962, but JS domove_core currently omits that call. The allmain teleport and trap teleport callers retain mislabeled dog.c check_leash notes. This is a separate source-owned void dependency; retain an explicit named gap or reserve/port whole check_leash and its required return dependencies. Do not invent pull/choke/snapping effects as part of the dog_move candidate loop.",
+    "Actionable scope: reserve whole source:dogmove.c:dog_move and contract:leashed-pet-movement, plus the bounded source:monmove.c:m_move/planner adapter caller if required. Primary paths js/dogmove.js, js/unported_monster_actions.js, affected scripts/dogmove*.test.mjs and scripts/unported-monster-actions.test.mjs, recipes/dogmove.c and recordings/dogmove.c. Add apply.c:m_unleash/check_leash and exact caller owners only after the consumed-return/source-call audit and scope event. Do not claim whole monmove/planner, apply.c or hack.c.",
+    "Independent validation needs source-pinned tests for source distance thresholds and direction fallback order; clone preflight versus live state/RNG/output tests; an independently chosen leash-following recipe and cheap pet/role variation; a blocked-layout or eating/trapped-pet variation that actually reaches newdogpos repositioning. If m_unleash/check_leash are added, separate active caller evidence is required for death/untaming, snapping/cursed-choking and teleport. The admitted step 48–55 range covers only ordinary following, not sleeping pets, hunger, displacement, Conflict/minions, forced drag, death or teleport.",
+    "Ownership limit: B136 owns artifact intrinsic and see_monsters plus restore display contracts; C134 owns setuwep/forced primary drop. Neither currently reserves dog_move or leashed movement, but their pending broad adapter/caller deliveries must be merged at a clean boundary before source wiring is finalized. Existing tests deliberately require the ordinary leashed-pet refusal and must change only when the owner/caller behavior is implemented."
+  ]
+}

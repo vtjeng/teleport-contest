@@ -1,0 +1,1115 @@
+{
+  "version": 1,
+  "batch": "v16",
+  "manifestPath": "challenges/manifests/v16.json",
+  "sha": "675359a009b1ad4b53d24207a93cc9901209df00",
+  "utc": "2026-10-07T20:24:51.069Z",
+  "status": "complete",
+  "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "e8e50a841511dd564982f496955917250170b953ee27b3e590589dbd221d44ac",
+  "inputFiles": [
+    "challenges/cases/v16/archeologist-tins-wished-newt-corpse.recipe.session.json",
+    "challenges/cases/v16/archeologist-tins-wished-newt-corpse.session.json",
+    "challenges/cases/v16/rogue-flashes-hostile-orc-with-camera.recipe.session.json",
+    "challenges/cases/v16/rogue-flashes-hostile-orc-with-camera.session.json",
+    "challenges/cases/v16/rogue-throws-boomerang-over-floor.recipe.session.json",
+    "challenges/cases/v16/rogue-throws-boomerang-over-floor.session.json",
+    "challenges/cases/v16/rogue-throws-grimtooth-at-hostile-orc.recipe.session.json",
+    "challenges/cases/v16/rogue-throws-grimtooth-at-hostile-orc.session.json",
+    "challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.recipe.session.json",
+    "challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.session.json",
+    "challenges/cases/v16/rogue-throws-wielded-aklys.recipe.session.json",
+    "challenges/cases/v16/rogue-throws-wielded-aklys.session.json",
+    "challenges/cases/v16/valkyrie-zaps-cursed-wand-after-missed-backfire-roll.recipe.session.json",
+    "challenges/cases/v16/valkyrie-zaps-cursed-wand-after-missed-backfire-roll.session.json",
+    "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.recipe.session.json",
+    "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.session.json",
+    "challenges/cases/v16/wizard-applies-cursed-dry-towel-smears-face.recipe.session.json",
+    "challenges/cases/v16/wizard-applies-cursed-dry-towel-smears-face.session.json",
+    "challenges/cases/v16/wizard-applies-loadstone-to-diamond.recipe.session.json",
+    "challenges/cases/v16/wizard-applies-loadstone-to-diamond.session.json",
+    "challenges/cases/v16/wizard-applies-luckstone-to-diamond.recipe.session.json",
+    "challenges/cases/v16/wizard-applies-luckstone-to-diamond.session.json",
+    "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.recipe.session.json",
+    "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+    "challenges/cases/v16/wizard-engraves-dust-by-fingertip.recipe.session.json",
+    "challenges/cases/v16/wizard-engraves-dust-by-fingertip.session.json",
+    "challenges/cases/v16/wizard-opens-closed-door-with-striking-wand.recipe.session.json",
+    "challenges/cases/v16/wizard-opens-closed-door-with-striking-wand.session.json",
+    "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.recipe.session.json",
+    "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+    "challenges/cases/v16/wizard-polyselfs-into-xorn.recipe.session.json",
+    "challenges/cases/v16/wizard-polyselfs-into-xorn.session.json",
+    "challenges/cases/v16/wizard-quaffs-blessed-gain-ability-potion.recipe.session.json",
+    "challenges/cases/v16/wizard-quaffs-blessed-gain-ability-potion.session.json",
+    "challenges/cases/v16/wizard-quaffs-blessed-water-to-cure-sickness.recipe.session.json",
+    "challenges/cases/v16/wizard-quaffs-blessed-water-to-cure-sickness.session.json",
+    "challenges/cases/v16/wizard-quaffs-full-healing-after-acid-damage.recipe.session.json",
+    "challenges/cases/v16/wizard-quaffs-full-healing-after-acid-damage.session.json",
+    "challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.recipe.session.json",
+    "challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.session.json",
+    "challenges/cases/v16/wizard-quaffs-uncursed-enlightenment-potion.recipe.session.json",
+    "challenges/cases/v16/wizard-quaffs-uncursed-enlightenment-potion.session.json",
+    "challenges/cases/v16/wizard-quaffs-uncursed-potion-of-gain-level.recipe.session.json",
+    "challenges/cases/v16/wizard-quaffs-uncursed-potion-of-gain-level.session.json",
+    "challenges/cases/v16/wizard-reads-cursed-scroll-to-level-2.recipe.session.json",
+    "challenges/cases/v16/wizard-reads-cursed-scroll-to-level-2.session.json",
+    "challenges/cases/v16/wizard-reads-destroy-armor-scroll-on-cloak.recipe.session.json",
+    "challenges/cases/v16/wizard-reads-destroy-armor-scroll-on-cloak.session.json",
+    "challenges/cases/v16/wizard-reads-gold-detection-with-inventory-coins.recipe.session.json",
+    "challenges/cases/v16/wizard-reads-gold-detection-with-inventory-coins.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-enchant-weapon.recipe.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-enchant-weapon.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scare-scroll-at-hostile.recipe.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scare-scroll-at-hostile.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scroll-of-amnesia.recipe.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scroll-of-amnesia.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.recipe.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scroll-of-genocide.recipe.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scroll-of-genocide.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scroll-of-light.recipe.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scroll-of-light.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scroll-of-punishment.recipe.session.json",
+    "challenges/cases/v16/wizard-reads-uncursed-scroll-of-punishment.session.json",
+    "challenges/cases/v16/wizard-rings-blessed-bell-of-opening.recipe.session.json",
+    "challenges/cases/v16/wizard-rings-blessed-bell-of-opening.session.json",
+    "challenges/cases/v16/wizard-rubs-blessed-touchstone-on-diamond.recipe.session.json",
+    "challenges/cases/v16/wizard-rubs-blessed-touchstone-on-diamond.session.json",
+    "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.recipe.session.json",
+    "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+    "challenges/cases/v16/wizard-studies-drain-life-with-insufficient-energy.recipe.session.json",
+    "challenges/cases/v16/wizard-studies-drain-life-with-insufficient-energy.session.json",
+    "challenges/cases/v16/wizard-throws-sickness-potion-at-self.recipe.session.json",
+    "challenges/cases/v16/wizard-throws-sickness-potion-at-self.session.json",
+    "challenges/cases/v16/wizard-zaps-hostile-orc-with-sleep-wand.recipe.session.json",
+    "challenges/cases/v16/wizard-zaps-hostile-orc-with-sleep-wand.session.json",
+    "challenges/manifests/v16.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "archeologist-tins-wished-newt-corpse",
+      "recordingSha256": "25d3571d9488f006588abafd5260cf1b2b3536b35c385c2ac2725162a64a29a9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 28,
+          "total": 28
+        },
+        "rng": {
+          "matched": 3577,
+          "total": 3577
+        },
+        "cursors": {
+          "matched": 28,
+          "total": 28
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-flashes-hostile-orc-with-camera",
+      "recordingSha256": "3fd2d3d10c39922f0832ff8383dfa392f72d86db4c91e9d945a5baa2f118a704",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 57,
+          "total": 57
+        },
+        "rng": {
+          "matched": 2919,
+          "total": 2919
+        },
+        "cursors": {
+          "matched": 57,
+          "total": 57
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-throws-boomerang-over-floor",
+      "recordingSha256": "c6348df14f64e0c9d944aa995ac302765ee3d5d8f51a6e00c6aa6a597becfbcb",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 33
+        },
+        "rng": {
+          "matched": 2299,
+          "total": 2299
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-throws-grimtooth-at-hostile-orc",
+      "recordingSha256": "cb6c926e1d756f64aedf2ef5714a05d09697a6657a5d71c9344cfdbcdbe827cb",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2833,
+          "total": 2833
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-throws-polymorph-potion-at-orc",
+      "recordingSha256": "f38a1ce188a6555bdd6a52c04a6713da4cb89b83b1c53daafb736047dc3439bb",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 68,
+          "total": 68
+        },
+        "rng": {
+          "matched": 2993,
+          "total": 2993
+        },
+        "cursors": {
+          "matched": 68,
+          "total": 68
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-throws-wielded-aklys",
+      "recordingSha256": "10995334024af1d28a1c9c522cee774cece26ecb24411cbfe5aaf4b67b58e0ed",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2402,
+          "total": 2402
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-zaps-cursed-wand-after-missed-backfire-roll",
+      "recordingSha256": "9805c886e306efc6e41fb35f0e4a0dc98a7e6f9454a36dfdbfeb38fd4a66888b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2192,
+          "total": 2192
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-applies-cream-pie-stack-to-self",
+      "recordingSha256": "13ce79c03579cad5b3f3026df8f6d632c0279769dd454410d6e666d0aabf84a1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2658,
+          "total": 2658
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-applies-cursed-dry-towel-smears-face",
+      "recordingSha256": "34178a8add7e6c3abdcea35eb14fb3594c2b12a2ae1fc3dd2d02c330e8665053",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 2736,
+          "total": 2736
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-applies-loadstone-to-diamond",
+      "recordingSha256": "bc12b33daa61c8a29e08d19bc0531ed9e838af33c35e3dd9d3df9ef3444d79dc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2521,
+          "total": 2521
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-applies-luckstone-to-diamond",
+      "recordingSha256": "0642acf7acc28eeede56534656fbe7d8c7b0acca3119daf66541d40f01a8b13a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2731,
+          "total": 2731
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-applies-tin-opener-to-spinach-tin",
+      "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 33
+        },
+        "rng": {
+          "matched": 3440,
+          "total": 3440
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-engraves-dust-by-fingertip",
+      "recordingSha256": "94655f47b49b54ca27e47f68491364f5eeabef24bf757a2fb6fa8dfe16001461",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 12,
+          "total": 12
+        },
+        "rng": {
+          "matched": 2515,
+          "total": 2515
+        },
+        "cursors": {
+          "matched": 12,
+          "total": 12
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-opens-closed-door-with-striking-wand",
+      "recordingSha256": "4ebe211319e84acea2c100fdbf089d995b29d8eb9af823e2351ed0d850828435",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 1885,
+          "total": 1885
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-picks-up-five-dropped-daggers",
+      "recordingSha256": "ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 2267,
+          "total": 2267
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-polyselfs-into-xorn",
+      "recordingSha256": "40804cdc75a286d14c8bd624ca5896eddfc1dea2b58e57b6770884a48c7d4c75",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 17
+        },
+        "rng": {
+          "matched": 2404,
+          "total": 2404
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-quaffs-blessed-gain-ability-potion",
+      "recordingSha256": "21b655103ae355c870708357c2057926deb5e2524c6f5808abcdfdd6946316f9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2201,
+          "total": 2201
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-quaffs-blessed-water-to-cure-sickness",
+      "recordingSha256": "4ea815cd8eaa8ff268df7b34bac5d4d9803055b9c25ac3f8954918e4d715879e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 77,
+          "total": 77
+        },
+        "rng": {
+          "matched": 2840,
+          "total": 2840
+        },
+        "cursors": {
+          "matched": 77,
+          "total": 77
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-quaffs-full-healing-after-acid-damage",
+      "recordingSha256": "4a58c40608b512f057e627e73d982167fdaa4c008ebbf5649612480fa06ad09c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 83,
+          "total": 83
+        },
+        "rng": {
+          "matched": 2809,
+          "total": 2809
+        },
+        "cursors": {
+          "matched": 83,
+          "total": 83
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-quaffs-object-detection-near-dagger",
+      "recordingSha256": "e8de6eb33efd232646f7760dbf7c2a453aaae9170d90889266097632db1052d6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 70,
+          "total": 70
+        },
+        "rng": {
+          "matched": 2329,
+          "total": 2329
+        },
+        "cursors": {
+          "matched": 70,
+          "total": 70
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-quaffs-uncursed-enlightenment-potion",
+      "recordingSha256": "4341769fa8f4a90aa3b5e2432b2a028971190313891f9289c2c5a829fb65be9c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 46,
+          "total": 46
+        },
+        "rng": {
+          "matched": 8692,
+          "total": 8692
+        },
+        "cursors": {
+          "matched": 46,
+          "total": 46
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-quaffs-uncursed-potion-of-gain-level",
+      "recordingSha256": "cc9788639837e0fe25207cf99b10ba457645e2a8d4a327ab2e43340cb2bc4c32",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 43,
+          "total": 43
+        },
+        "rng": {
+          "matched": 5637,
+          "total": 5637
+        },
+        "cursors": {
+          "matched": 43,
+          "total": 43
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-cursed-scroll-to-level-2",
+      "recordingSha256": "c2c8671beaf37d680198ca1e460a171712d63dba3ba6b3f9c4736f4855d20e84",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 5791,
+          "total": 5791
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-destroy-armor-scroll-on-cloak",
+      "recordingSha256": "1eb604ef50523eaefc8e95f1a6202128c20bbdb0214c191334c6845deefc50e5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 48,
+          "total": 48
+        },
+        "rng": {
+          "matched": 2815,
+          "total": 2815
+        },
+        "cursors": {
+          "matched": 48,
+          "total": 48
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-gold-detection-with-inventory-coins",
+      "recordingSha256": "430b37d1f9fabc49dcf349d52c055e4e3e2bbad1f9510952ccfad96139d4e34a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 77,
+          "total": 77
+        },
+        "rng": {
+          "matched": 2821,
+          "total": 2821
+        },
+        "cursors": {
+          "matched": 77,
+          "total": 77
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-uncursed-enchant-weapon",
+      "recordingSha256": "cca0e4d49b41ad8c92e878638b6a00e424c20f3e86e40f35978d09524efb4216",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2746,
+          "total": 2746
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-uncursed-scare-scroll-at-hostile",
+      "recordingSha256": "4549265c99758463d9b20d0885248403ca57b198a7ceb86108109f8631162d89",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 73,
+          "total": 73
+        },
+        "rng": {
+          "matched": 2388,
+          "total": 2388
+        },
+        "cursors": {
+          "matched": 73,
+          "total": 73
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-uncursed-scroll-of-amnesia",
+      "recordingSha256": "c6c1fc533710401515474ae3ed8ce5da07193ee6057e28080384c310379709fe",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 42,
+          "total": 42
+        },
+        "rng": {
+          "matched": 2909,
+          "total": 2909
+        },
+        "cursors": {
+          "matched": 42,
+          "total": 42
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-uncursed-scroll-of-fire",
+      "recordingSha256": "4a54e7ee791124df4448163607595df745c4f484771a8684084dc67dcf57b329",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 38,
+          "total": 38
+        },
+        "rng": {
+          "matched": 2877,
+          "total": 2877
+        },
+        "cursors": {
+          "matched": 38,
+          "total": 38
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-uncursed-scroll-of-genocide",
+      "recordingSha256": "0528c3c1b11be705ab0427afb1abf9c3f67d5d1e0068c01c33bf724ea92aa03d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 54
+        },
+        "rng": {
+          "matched": 2666,
+          "total": 2666
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 54
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-uncursed-scroll-of-light",
+      "recordingSha256": "59c1d7e23e0b2ef4c4748de3f0d13110b7eb5ebd8414c8fbc8ca3988631c8c02",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 1893,
+          "total": 1893
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-reads-uncursed-scroll-of-punishment",
+      "recordingSha256": "764dd9890710e44b085300b02a94877a0a87ea773c17298a37e4e9d645053596",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2231,
+          "total": 2231
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-rings-blessed-bell-of-opening",
+      "recordingSha256": "490e0114e278ba83e47a28471b10bdd3fa7e9bd331a7a4494f15907a1682c3bc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 40
+        },
+        "rng": {
+          "matched": 2715,
+          "total": 2715
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-rubs-blessed-touchstone-on-diamond",
+      "recordingSha256": "71da0ad49779c46e828b76abaab0d6666cd5472158d3be395295c52bd0e862f6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2297,
+          "total": 2297
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+      "recordingSha256": "a33baf838a8cea95c513611544b49d62dda2f891eabcb4e14742b163161388e8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 66,
+          "total": 66
+        },
+        "rng": {
+          "matched": 4804,
+          "total": 4804
+        },
+        "cursors": {
+          "matched": 66,
+          "total": 66
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-studies-drain-life-with-insufficient-energy",
+      "recordingSha256": "c9eaa886c5ff732849453545404f75a5daee075d2ec53e43e2e103bab8f841ee",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 67,
+          "total": 67
+        },
+        "rng": {
+          "matched": 2866,
+          "total": 2866
+        },
+        "cursors": {
+          "matched": 67,
+          "total": 67
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-throws-sickness-potion-at-self",
+      "recordingSha256": "f330a353cada4d8284ec843d12c3549fad11e9cb10debe928f848d2794758212",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 2642,
+          "total": 2642
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-zaps-hostile-orc-with-sleep-wand",
+      "recordingSha256": "ad9f116bb86567f50fa5950465ec924978490ab33d04f80f31431b6343e7d16b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 55,
+          "total": 55
+        },
+        "rng": {
+          "matched": 2816,
+          "total": 2816
+        },
+        "cursors": {
+          "matched": 55,
+          "total": 55
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 38,
+      "total": 38
+    },
+    "screens": {
+      "matched": 1783,
+      "total": 1783
+    },
+    "rng": {
+      "matched": 114157,
+      "total": 114157
+    },
+    "cursors": {
+      "matched": 1783,
+      "total": 1783
+    }
+  }
+}

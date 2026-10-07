@@ -348,6 +348,18 @@ alone does not require an investigation edit or publication commit.
 After each push, verify the dashboard deployment and its displayed mismatch
 queue against the published records.
 
+## Workflow friction
+
+Log special-purpose workflow scripts, suspected flaky tests, manual
+bookkeeping, avoidable waits, apparently redundant checks, or any other
+source of inefficiency in `.agents/friction.md`, including first occurrences
+and required steps. Follow current instructions even when flagging them as
+unnecessary.
+
+Capture enough context for later triage without delaying dispatch or
+validation; commit entries at the next safe record boundary. Logging does
+not require investigation or a fix. Triage waits for the user's request.
+
 ## Reports
 
 Report once per worker iteration under `/loop`: the completed task, synthetic
