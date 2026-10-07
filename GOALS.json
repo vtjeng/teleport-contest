@@ -190722,16 +190722,20 @@
     {
       "id": "fix-explode-retributive-role-v26-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Use the canonical original role for retributive wand damage",
       "cFile": "explode.c",
       "sessions": [
         "synthetic/v26/v26-break-create-monster-wand"
       ],
-      "selectionReason": "Next admitted v26 mismatch after the boulder case: 10 remaining screens from an incorrect role lookup in a broken-wand explosion.",
+      "selectionReason": "Dependency-aware worker queue selected ready delivery C131 after A133 publication; admitted v26-break-create-monster-wand first diverges at explode.c retributive hero damage.",
       "detail": "Use urole.mnum as C Role_switch for the wand-class hero dose reductions while preserving original damage for monsters, items, floor effects, and wake radius. Cover /5, /2, default, truncation, polymorph independence, and non-wand behavior.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "8fc440953afa865003f8aba3f3fa863e31542da3",
+      "openStanding": {
+        "sha": "61a42a4416fcd0880db53ff03bb49684374ecb88",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "explode",
@@ -190750,7 +190754,203 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "61a42a4416fcd0880db53ff03bb49684374ecb88",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-break-create-monster-wand",
+          "session": "synthetic/v26/v26-break-create-monster-wand",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-break-create-monster-wand.session.json",
+          "recordingPath": "challenges/cases/v26/v26-break-create-monster-wand.session.json",
+          "recordingSha256": "10e4342414ffd9693ec89f6f1fd8097a59ae50307a246ab4cdeaf3c589cc4dbb",
+          "recipe": "challenges/cases/v26/v26-break-create-monster-wand.recipe.session.json",
+          "recipeSha256": "94f1b9b65da3a306aab152bf869cf78420a56e53014532c5dbf229b5fd996eb1",
+          "replayInputSha256": "bc5a42a4b286e2c9a0178a477a6976bd60d09079a17cd3e81234bbea78bd6d50",
+          "evaluationPath": "challenges/evaluations/accepted-61a42a4416fcd0880db53ff03bb49684374ecb88-v26.json",
+          "evaluationCommit": "61a42a4416fcd0880db53ff03bb49684374ecb88",
+          "evaluationArtifact": "challenges/evaluations/accepted-61a42a4416fcd0880db53ff03bb49684374ecb88-v26.json",
+          "evaluationUtc": "2026-10-07T16:28:11.474Z",
+          "remainingScreens": 10,
+          "recordedSteps": 85,
+          "previousScreensMatched": 75,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 75,
+              "total": 85
+            },
+            "rng": {
+              "matched": 2868,
+              "total": 2868
+            },
+            "cursors": {
+              "matched": 85,
+              "total": 85
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 75,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 75,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 14,
+              "cCell": {
+                "ch": "4",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "3",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 75,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-break-create-monster-wand.json",
+            "result": {
+              "session": "synthetic/v26/v26-break-create-monster-wand",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-break-create-monster-wand",
+              "remainingScreens": 10,
+              "recordedSteps": 85,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "10e4342414ffd9693ec89f6f1fd8097a59ae50307a246ab4cdeaf3c589cc4dbb",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "status": "complete",
+              "commit": "a4c8df6c00f13928410e287093105dba6fd8664a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-break-create-monster-wand",
+                "session": "synthetic/v26/v26-break-create-monster-wand",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-break-create-monster-wand.session.json",
+                "recordingPath": "challenges/cases/v26/v26-break-create-monster-wand.session.json",
+                "recordingSha256": "10e4342414ffd9693ec89f6f1fd8097a59ae50307a246ab4cdeaf3c589cc4dbb",
+                "recipe": "challenges/cases/v26/v26-break-create-monster-wand.recipe.session.json",
+                "recipeSha256": "94f1b9b65da3a306aab152bf869cf78420a56e53014532c5dbf229b5fd996eb1",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 10,
+                "recordedSteps": 85,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 75,
+                    "total": 85
+                  },
+                  "rng": {
+                    "matched": 2868,
+                    "total": 2868
+                  },
+                  "cursors": {
+                    "matched": 85,
+                    "total": 85
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 75,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 75,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 23,
+                    "column": 14,
+                    "cCell": {
+                      "ch": "4",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "3",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 75,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Breaking a charged create-monster wand while a Wizard is polymorphed into a hill giant subtracts eight hero HP in JavaScript instead of one. The retributive-strike branch in explode reads absent state.flags.role; C uses the canonical original role, gu.urole.mnum, and divides the Wizard hero dose by five. The first screen difference is segment 0 step 75 (C HP 41/42, JavaScript HP 34/42); RNG and cursors match throughout the recording.",
+              "source": {
+                "file": "explode.c",
+                "branch": "explode with olet == WAND_CLASS, including a negative create-monster wand type; Role_switch is PM_WIZARD even when the hero has a different polymorph form",
+                "functions": [
+                  "explode"
+                ],
+                "callers": [
+                  "apply.c:do_break_wand -> explode(obj->ox, obj->oy, -obj->otyp, rnd(dmg), WAND_CLASS, EXPL_MAGICAL)",
+                  "apply.c:broken_wand_explode -> explode(u.ux, u.uy, -obj->otyp, dmg, WAND_CLASS, expltype)"
+                ],
+                "dependencies": []
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Admitted provenance: challenges/manifests/v26.json canonical corpus digest 3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7 and recording challenges/cases/v26/v26-break-create-monster-wand.session.json SHA-256 10e4342414ffd9693ec89f6f1fd8097a59ae50307a246ab4cdeaf3c589cc4dbb were verified against the exact queue entry and challenges/evaluations/20261007095608-v26.json at game commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44. The evaluation has 75/85 matching screens, 2868/2868 RNG calls, 85/85 cursors and 10 remaining screens.",
+                "Current assigned-case frozen JavaScript replay at a4c8df6c00f13928410e287093105dba6fd8664a reproduces the same first difference at segment 0 step 75, row 23 column 14, with no RNG, cursor or animation mismatch. Artifacts: .cache/C129-v26-break-wand-replay.mjs, .cache/C129-v26-break-wand-replay.json and .cache/C129-v26-break-wand-replay.log. At steps 73 and 74 both show HP 42/42; step 74 records rnd(12)=8; at step 75 C shows HP 41/42 and JavaScript HP 34/42. The following step has the same goblin appearance and retained HP difference.",
+                "nethack-c/upstream/src/apply.c:3971 derives dmg = obj->spe * 4; its do_break_wand call at 4038 runs the generic magical explosion before the create-monster-specific effects at 4081. The existing JavaScript call is js/apply.js:4709. apply.c:broken_wand_explode:3888-3893 supplies the other existing WAND_CLASS entry (js/apply.js:4540). No caller or wand lifecycle change is required for this defect.",
+                "nethack-c/upstream/src/explode.c:224-255 converts the negative wand type and then switches on Role_switch: PM_CLERIC, PM_MONK and PM_WIZARD divide damu by 5; PM_HEALER and PM_KNIGHT divide it by 2; other roles leave it unchanged. include/you.h:248 defines Role_switch as gu.urole.mnum. Integer truncation makes this recorded Wizard dose 8/5 = 1, irrespective of the current hill-giant polymorph form.",
+                "js/explode.js:443 instead reads state.flags?.role and compares lowercase role strings. Canonical numeric state.urole.mnum is initialized by js/role_init.js:486 and restored by js/restore.js:147; the current monster form is a different C value. Searching current js for flags.role finds only this erroneous read. Reuse the canonical original-role value and PM_* constants without adding a second role cache, lookup, RNG call or owner edit.",
+                "Only damu, the hero dose, is reduced at this early branch. Preserve original dam for monsters, item destruction, floor effects and wake radius. explode.c:608-630 applies invulnerability or physical/acid half damage later, destroys hero items with original dam, then subtracts damu from polymorph mh or ordinary uhp. Preserve that ordering and all existing messages/input boundaries.",
+                "Independently assignable narrow repair: source:explode.c:explode plus contract:retributive-wand-hero-damage; change js/explode.js and focused explode tests/fresh runner and recipes/recordings under explode.c only. Existing apply, role-init and restore owners remain read-only; no dependencies are required. This divergence fix does not establish whole explode completion or change retained specialized death/shop gaps.",
+                "Implementation evidence should pin all three /5 roles, both /2 roles, a default role, truncation below the divisor, polymorph independence, misleading flags.role and non-wand behavior; verify original monster/item damage and RNG order remain unchanged. Cite the admitted production wand-break range and independently design C-first role variations for runtime evidence. Saved preparation .cache/C129-source-preparation-explode.json supplies the earlier source trace; its former admission blocker is resolved by this admitted evaluation."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-lock-pick-lock-v26-20261007",
