@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T22:16:10.031Z",
+  "capturedAt": "2026-10-07T22:25:38.909Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25013,12 +25013,59 @@
         "worker": "C",
         "goal": "fix-do-dropx-engraving-admission-v27-20261007",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C134-6bec7ab5",
+        "type": "published",
+        "at": "2026-10-07T22:16:46.762Z",
+        "task": "C134",
+        "commit": "6bec7ab5ae0c9569373b14121b5cd6b47c17b55b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A137-1b1b54fb",
+        "type": "received",
+        "at": "2026-10-07T22:17:02.236Z",
+        "task": "A137",
+        "delivery": "1b1b54fb42df552a3e3cd582e2a3f171753f4164"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A137-0f7336b2",
+        "type": "integrating",
+        "at": "2026-10-07T22:17:34.117Z",
+        "task": "A137",
+        "integration": "0f7336b21c62ccc33ad261c2305185b8f15ff942"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A137-0f7336b2-hosted",
+        "type": "validated",
+        "at": "2026-10-07T22:22:45.639Z",
+        "task": "A137",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cd3b924a672ca6dfd8de6a2f87a51e9efc27ac3b",
+        "type": "ready",
+        "at": "2026-10-07T22:24:02.049Z",
+        "task": "C135",
+        "delivery": "cd3b924a672ca6dfd8de6a2f87a51e9efc27ac3b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A137-0f7336b21c62ccc33ad261c2305185b8f15ff942-accepted",
+        "type": "accepted",
+        "at": "2026-10-07T22:25:27.564Z",
+        "task": "A137"
       }
     ]
   },
   "development": {
-    "executionCommit": "71073889a5655481919c8074ac24d001175fb641",
-    "measuredAt": "2026-10-07T22:06:26.462Z",
+    "executionCommit": "0f7336b21c62ccc33ad261c2305185b8f15ff942",
+    "measuredAt": "2026-10-07T22:22:08.801Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -195224,7 +195224,7 @@
     {
       "id": "port-dogmove-dog-move-leash-v27-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete tame dog movement and consumed pet-action dependencies",
       "cFile": "dogmove.c",
       "sessions": [
@@ -195232,17 +195232,24 @@
       ],
       "selectionReason": "v27-leash-tame-dog stops before a leashed tame dog action; whole dog_move owns the mismatch, and source/runtime audits require complete dog_starve, dog_hunger, best_target, and pet_ranged_attk behavior.",
       "detail": "Port whole dog_move and its dog_starve, dog_hunger, best_target, and pet_ranged_attk dependencies. Wire canonical mondied, mdisplacem, leashed repositioning, ranged result mapping, and source state. Reconcile the existing sounds.c beg/domonoise planning adapter only as needed. Keep source-discarded quickmimic, apply.c:m_unleash/check_leash, and minion.c:lose_guardian_angel as named gaps unless separately expanded.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "0f7336b21c62ccc33ad261c2305185b8f15ff942",
+      "openStanding": {
+        "sha": "0f7336b21c62ccc33ad261c2305185b8f15ff942",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "0f7336b21c62ccc33ad261c2305185b8f15ff942",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dog_move",
           "line": 977,
           "endLine": 1361,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -195254,9 +195261,9 @@
           "name": "dog_starve",
           "line": 348,
           "endLine": 361,
-          "declared": false,
+          "declared": true,
           "sourceFile": "dogmove.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "dog_hunger",
@@ -195264,7 +195271,7 @@
           "endLine": 399,
           "declared": true,
           "sourceFile": "dogmove.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "best_target",
@@ -195272,7 +195279,7 @@
           "endLine": 888,
           "declared": true,
           "sourceFile": "dogmove.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "pet_ranged_attk",
@@ -195280,7 +195287,7 @@
           "endLine": 976,
           "declared": true,
           "sourceFile": "dogmove.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -195296,6 +195303,233 @@
           "evaluationPath": "challenges/evaluations/accepted-675359a009b1ad4b53d24207a93cc9901209df00-v27.json",
           "evaluationCommit": "675359a009b1ad4b53d24207a93cc9901209df00"
         }
+      },
+      "activeStanding": {
+        "sha": "0f7336b21c62ccc33ad261c2305185b8f15ff942",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dog_starve",
+            "implementation": "js/dogmove.js",
+            "symbol": "dog_starve",
+            "sourceReview": "Whole upstream dogmove.c:348–361. Preserve leash-slack, visible Monnam starves, and unseen Hallucination-dependent sad/bummed feedback, then canonical mondied. Two independent ordinary starting-kitten recipes reach death through dog_move -> dog_hunger: unseen You feel sad for a moment at step326, visible The kitten starves at step1074. Full C/JS RNG/screens/cursors/animations match through subsequent input; no direct helper injection or state mutation is used.",
+            "callers": [
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_hunger",
+                "source": "dogmove.c:376–378 calls dog_starve after maximum-HP penalty makes the pet dead; 387–391 calls it after hungrytime+DOG_STARVE or existing death. The return is discarded before dog_hunger returns TRUE."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dogmove-hunger.test.mjs",
+              "scripts/dogmove.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/starting-kitten-hunger-unseen.session.json",
+              "recordings/dogmove.c/starting-kitten-hunger-visible.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "0f7336b21c62ccc33ad261c2305185b8f15ff942"
+          },
+          {
+            "name": "dog_hunger",
+            "implementation": "js/dogmove.js",
+            "symbol": "dog_hunger",
+            "sourceReview": "Whole upstream dogmove.c:362–399. Preserve strict hungrytime+DOG_WEAK threshold, dietless postponement, integer mhpmax/3 penalty and mconf, HP clamp, immediate zero-HP death, source visibility/beg/worry feedback before stop_occupation, then strict hungrytime+DOG_STARVE or existing death. Production ordinary starting-kitten counted wait reaches the weak penalty at segment0 step310 in both new recordings; blind couldsee branch calls canonical beg and interrupts waiting. Death follows at step326 unseen or1074 visible. The starting pet has no leash and is unmounted, so this evidence bypasses the separate doset/leashed-detach frontiers.",
+            "callers": [
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c:1011–1012 consumes dog_hunger(mtmp,edog) before dog_invent and candidate movement, returning MMOVE_DIED on starvation."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "moveSimplePet",
+                "source": "Canonical cloned/live monster action routes supply this required result through dog_move; new production wait recordings cover weakness and pending-detach death."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dogmove-hunger.test.mjs",
+              "scripts/dogmove.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/starting-kitten-hunger-unseen.session.json",
+              "recordings/dogmove.c/starting-kitten-hunger-visible.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "0f7336b21c62ccc33ad261c2305185b8f15ff942"
+          },
+          {
+            "name": "best_target",
+            "implementation": "js/dogmove.js",
+            "symbol": "best_target",
+            "sourceReview": "Read whole dogmove.c:838–888. Preserved blindness/null short circuit, dy-major/dx-minor eight-ray scan, distance7, strict best-score comparison and forced negative-score retention. Removed JS-only minion/priest/vampshifter/confusion refusals. find_targ/find_friends/score_targ owners are reused; score_targ random fuzz makes this function impure.",
+            "callers": [
+              {
+                "path": "js/dogmove.js",
+                "symbol": "pet_ranged_attk",
+                "source": "dogmove.c:901 assigns best_target(mtmp,forced), consumed by the target/hunger gate."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c:1140 consumes best_target(mtmp,FALSE) for hazardous target viability before ranged_only handling."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dogmove.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/pet-ranged-score-probe.session.json",
+              "recordings/dogmove.c/pet-floating-eye-reflection-c88-cfirst.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "0f7336b21c62ccc33ad261c2305185b8f15ff942"
+          },
+          {
+            "name": "pet_ranged_attk",
+            "implementation": "js/dogmove.js",
+            "symbol": "pet_ranged_attk",
+            "sourceReview": "Read whole dogmove.c:889–976. Preserved non-minion hunger, forced target scan, short-circuit rn2(5), hero mattacku death return and HIT treatment, bhitpos/notonhead resets, mattackm AGR_DIED result, rn2(4) before defender sight/eyes, retaliatory DEF_DIED return, non-MISS DONE, and forced no-target domonnoise. Removed forced/ordinary-only/distant-MISS refusals. Shared adapter supplies canonical hero attack/missile/spell operations and complete cloned RNG, suppressing planner messages/maps. Bounded cmd steed caller now awaits this owner while C discards its result and returns ECMD_TIME.",
+            "callers": [
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c:1273 consumes pet_ranged_attk(mtmp,FALSE), returning any non-MMOVE_NOTHING result."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runPetRangedAttack",
+                "source": "Shared adapter reconciles both pet_ranged_attk callers with existing canonical attack operations and planner state/RNG/message contracts."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c:domonability940–942 calls pet_ranged_attk(u.usteed,TRUE) with discarded result, then returns ECMD_TIME."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dogmove.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/pet-ranged-score-probe.session.json",
+              "recordings/dogmove.c/pet-floating-eye-reflection-c88-cfirst.session.json",
+              "recordings/cmd.c/monster-ability-steed-no-target-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "0f7336b21c62ccc33ad261c2305185b8f15ff942"
+          },
+          {
+            "name": "dog_move",
+            "implementation": "js/dogmove.js",
+            "symbol": "dog_move",
+            "sourceReview": "Read whole upstream dogmove.c:977–1361 in definition order, including the disabled #if0 unstuck block. Reconciled hunger return, steed Conflict, inventory/off-map returns, goal/Conflict, uncursed prepass, MFNDPOS order, leash radius, minion radius, fractional-HP audacity, passive damage, floating-eye/cube/petrification hazards, melee/retaliation masks, canonical displacement return, kicked/Sokoban rejection, trap whimper, food/curses, tracks, choice RNG, ranged return and newdogpos. Removed the leashed action guard, injected reposition refusal, displacement refusal, stone predicate refusal and hunger placeholders. Reposition preserves first hero-relative candidate, subsequent raw dirtocoord offsets, source non-wrapping loops, original nix/niy region test, remove/place/newsym/set_apparxy order and no track addition. Canonical consumed owners are reused. C discards m_unleash, lose_guardian_angel and dismount_steed results; their unported branches remain named gaps and add no invented effects. No check_leash ownership.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:m_move1773 consumes dog_move(mtmp, after). JS m_move awaits the movePet adapter and passes the result to canonical postmov."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "moveSimplePet",
+                "source": "Production and cloned simple monster turns bind dog_move to canonical mattackm/mdisplacem/mattacku, region, weapon, vision and sound owners. Leashed pets now enter; sleeping pet dochug remains a separate boundary."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dogmove.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/leashed-kitten-follow.session.json",
+              "recordings/dogmove.c/leashed-dog-follow.session.json",
+              "recordings/dogmove.c/pet-ranged-score-probe.session.json",
+              "recordings/dogmove.c/pet-floating-eye-reflection-c88-cfirst.session.json",
+              "recordings/dogmove.c/starting-kitten-hunger-unseen.session.json",
+              "recordings/dogmove.c/starting-kitten-hunger-visible.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-leash-tame-dog",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 55,
+                "source": "hero movement -> monmove.c:dochug/m_move1773 -> dogmove.c:dog_move leashed candidate filtering and movement -> pet_ranged_attk(FALSE)/best_target -> monmove.c:postmov; canonical clone preflight and live adapter share state/RNG operations"
+              }
+            ],
+            "checkedAt": "0f7336b21c62ccc33ad261c2305185b8f15ff942"
+          }
+        ],
+        "entryPointReview": "Whole source search finds dog_move called only from monmove.c:m_move; dog_hunger only from dog_move; dog_starve only from dog_hunger; best_target from pet_ranged_attk and dog_move; pet_ranged_attk from dog_move(FALSE) and cmd.c:domonability steed(TRUE). Ordinary after=FALSE/TRUE monster movement shares the canonical dispatcher. Mounted #monster is active and freshly compared using its existing independent C recipe. The #if0 unstuck block is excluded by C compilation. Ordinary starting-pet weak/death entry now has matching independent unseen and visible starvation recordings; both reach dog_hunger through dog_move, without leash/options menu. No whole dog_eat, quickmimic, cmd, sounds, monmove, apply, steed or attack-owner completion credit is claimed.",
+        "entryPoints": [
+          {
+            "name": "Pet monster turn, including leashed following",
+            "functions": [
+              "dog_move",
+              "best_target",
+              "pet_ranged_attk"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/leashed-kitten-follow.session.json",
+              "recordings/dogmove.c/leashed-dog-follow.session.json",
+              "recordings/dogmove.c/pet-ranged-score-probe.session.json",
+              "recordings/dogmove.c/pet-floating-eye-reflection-c88-cfirst.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-leash-tame-dog",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 55,
+                "source": "hero movement -> monmove.c:dochug/m_move1773 -> dogmove.c:dog_move leashed candidate filtering and movement -> pet_ranged_attk(FALSE)/best_target -> monmove.c:postmov; canonical clone preflight and live adapter share state/RNG operations"
+              }
+            ]
+          },
+          {
+            "name": "Mounted normal-form #monster",
+            "functions": [
+              "best_target",
+              "pet_ranged_attk"
+            ],
+            "recordings": [
+              "recordings/cmd.c/monster-ability-steed-no-target-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Pet weak/starvation monster turn",
+            "functions": [
+              "dog_hunger",
+              "dog_starve"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/starting-kitten-hunger-unseen.session.json",
+              "recordings/dogmove.c/starting-kitten-hunger-visible.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0f7336b21c62ccc33ad261c2305185b8f15ff942",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
