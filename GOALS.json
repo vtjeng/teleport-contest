@@ -183507,7 +183507,7 @@
     {
       "id": "port-mkroom-mkundead-v24-20261006",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port undead swarm creation and wire Bell and Book callers",
       "cFile": "mkroom.c",
       "sessions": [
@@ -183521,15 +183521,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "26fb28fad3c58acafab9d64a2a5d4c4a0c8a80e2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mkundead",
           "line": 456,
           "endLine": 477,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -183767,7 +183770,100 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mkundead",
+            "implementation": "js/mkroom.js",
+            "symbol": "mkundead",
+            "sourceReview": "Read complete mkroom.c456-474 (task planner range456-477) and existing morguemon475-502. Match C integer quotient before single rnd(5), each morguemon selection before enexto, null-species/failed-placement short circuits, first sobj_at(CORPSE) only in true mode, awaited revive(corpse,FALSE) pointer consumed to skip makemon on success and fall through on null, unchanged mm_flags, awaited creation tails before the next attempt, and unconditional graveyard assignment after every attempt. Read direct owners dungeon.c:level_difficulty2027ff, teleport.c:enexto196-203 and NEW_ENEXTO core219-277, invent.c:sobj_at1465-1475, complete zap.c:revive884-1140 and existing JS owner, plus zap.c:unturn_dead1156-1222 before wiring its existing Book call. Reuse morguemon/mkclass/ndemon, source placement, canonical corpse lifecycle, and makemon_runtime; no substitute selector, creation, revival operation or extra RNG was added. Supporting makemon.c1147-1203 admission preserves explicit-coordinate NO_MINVENT on runtime branches without a species/terrain allowlist and follows existing occupied-square and hero-relocation owners. Whole makemon, revive, unturn_dead and deadbook completion are not claimed; inherited other creation flags, saved-trait, shapechanging and object/death-path refusals remain owned there. Removed both minion.c mkundead and mkroom.c mkundead gap placeholders. Book unturn_dead gap was obsolete and now awaits its existing owner before swarm creation. Bell charge/message/swallow gates precede the new call and common wake remains after it; Book master-lich/nalfeshnee, carried revival and swarm order remains source aligned. Book creation receives live ttyNorep for C Norep appearance output while custom planning sinks stay silent.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_bell",
+                "source": "apply.c1263-1268 uses hero coord, FALSE and NO_MINVENT on the charged cursed non-swallowed Bell of Opening arm. Existing doapply BELL/BELL_OF_OPENING dispatcher4919 and cmd.c apply binding provide production entry; source common wake follows mkundead."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "raise_dead",
+                "source": "spell.c309-323 deadbook raise_dead label: message, optional dangerous adversary with consumed makemon result, unturn_dead(&youmonst), hero coord, mkundead(TRUE,NO_MINVENT). JS raise_dead is a helper extracted from this label, not a separate source unit; read.c doread -> spell.c study_book -> set_occupation(learn) -> learn Book arm385-387 -> deadbook covers production reading and invalid-invocation fallback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkundead.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/apply-bell.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/mkundead-cursed-bell.session.json",
+              "recordings/mkroom.c/mkundead-cursed-book.session.json",
+              "recordings/mkroom.c/mkundead-cursed-bell-no-generation.session.json",
+              "recordings/mkroom.c/mkundead-cursed-book-no-generation.session.json",
+              "recordings/mkroom.c/mkundead-book-floor-revive.session.json",
+              "recordings/mkroom.c/mkundead-book-floor-failed-revive.session.json",
+              "recordings/mkroom.c/mkundead-book-carried-revive.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-cursed-bell-opening-undead",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 34,
+                "source": "cmd.c rhack -> apply.c doapply/BELL_OF_OPENING -> use_bell cursed charged non-swallowed branch at1263-1268 -> mkroom.c mkundead(FALSE,NO_MINVENT), all source attempts through graveyard and deferred wake tail"
+              }
+            ],
+            "checkedAt": "26fb28fad3c58acafab9d64a2a5d4c4a0c8a80e2"
+          }
+        ],
+        "entryPointReview": "The reference build has exactly two mkundead callers (rg mkundead across src/*.c): apply.c use_bell1267 with revive_corpses=FALSE and spell.c deadbook323 with TRUE, both active and NO_MINVENT. Bell branch is charged/cursed/not swallowed; Book branch comes from normal cursed reading or source invalid-invocation fallback and shares the same raise_dead label. No excluded compile-time caller. No source unit is pure. Entry evidence includes admitted v24 Bell steps30-34 and independently chosen Samurai Bell/Book recipes, true-mode floor success and S_EEL-on-land failure, carried unturn_dead before the swarm, and both source debug_mongen no-creation variants. Constructed tests pin null selector, total placement failure, depth integer boundary8/9, async message completion before graveyard, false mode skipping corpses, norevive fallback and narrow runtime flags/coordinate admission. The generic creation owner retains explicit out-of-scope MM_ASLEEP combination refusal; the supporting admission fix earns no whole makemon source credit. Both runtime entry points match completely; no incomplete function or blocked entry remains.",
+        "entryPoints": [
+          {
+            "name": "Apply a charged cursed Bell of Opening outside swallowing",
+            "functions": [
+              "mkundead"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/mkundead-cursed-bell.session.json",
+              "recordings/mkroom.c/mkundead-cursed-bell-no-generation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v24",
+                "caseId": "v24-cursed-bell-opening-undead",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 34,
+                "source": "cmd.c rhack -> apply.c doapply/BELL_OF_OPENING -> use_bell cursed charged non-swallowed branch at1263-1268 -> mkroom.c mkundead(FALSE,NO_MINVENT), all source attempts through graveyard and deferred wake tail"
+              }
+            ]
+          },
+          {
+            "name": "Read cursed Book of the Dead through study occupation and deadbook raise_dead",
+            "functions": [
+              "mkundead"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/mkundead-cursed-book.session.json",
+              "recordings/mkroom.c/mkundead-cursed-book-no-generation.session.json",
+              "recordings/mkroom.c/mkundead-book-floor-revive.session.json",
+              "recordings/mkroom.c/mkundead-book-floor-failed-revive.session.json",
+              "recordings/mkroom.c/mkundead-book-carried-revive.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "26fb28fad3c58acafab9d64a2a5d4c4a0c8a80e2",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
