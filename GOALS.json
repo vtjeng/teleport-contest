@@ -189408,16 +189408,20 @@
     {
       "id": "port-uhitm-mhitm-ad-cold-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the complete cold attack handler in all combat directions",
       "cFile": "uhitm.c",
       "sessions": [
         "synthetic/v26/v26-ice-troll-cold-claw"
       ],
-      "selectionReason": "Next admitted synthetic mismatch: 21 remaining screens at step 70 in the hero-attacker cold arm.",
+      "selectionReason": "Highest-ranked remaining synthetic v26 mismatch: ice-troll cold claw has 21 screens remaining at step 70; whole mhitm_ad_cold covers all three combat directions.",
       "detail": "Port whole mhitm_ad_cold for hero-to-monster, monster-to-hero, and monster-to-monster directions. Keep the existing hmonas to damageum to mhitm_adtyping caller chain and source-order negation, resistance, messaging, golem, item-destruction, and knowledge effects.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "f51ffaff67b5c538d063ee6321609886ca676cf4",
+      "openStanding": {
+        "sha": "f51ffaff67b5c538d063ee6321609886ca676cf4",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -189446,7 +189450,168 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f51ffaff67b5c538d063ee6321609886ca676cf4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-ice-troll-cold-claw",
+          "session": "synthetic/v26/v26-ice-troll-cold-claw",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-ice-troll-cold-claw.session.json",
+          "recordingPath": "challenges/cases/v26/v26-ice-troll-cold-claw.session.json",
+          "recordingSha256": "a83a5bb776910f2c2df1ccc60395c35702d30c23250f9f98b73ab14fe75c02b9",
+          "recipe": "challenges/cases/v26/v26-ice-troll-cold-claw.recipe.session.json",
+          "recipeSha256": "31b0ee67cd245846e7c84e31450ddd0617a2ea1898bafc38406f48dcb3ead0cf",
+          "replayInputSha256": "e670baa3682bd19c4c315fb2b7c5ce28d7492bb2bc0f83740acbba84469cd4ca",
+          "evaluationPath": "challenges/evaluations/20261007151305-v26.json",
+          "evaluationCommit": "bb1c5041e2f8f19e30258ef956dd0be5c366c6c5",
+          "evaluationArtifact": "challenges/evaluations/20261007151305-v26.json",
+          "evaluationUtc": "2026-10-07T15:14:57.619Z",
+          "remainingScreens": 21,
+          "recordedSteps": 91,
+          "previousScreensMatched": 70,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 70,
+              "total": 91
+            },
+            "rng": {
+              "matched": 2918,
+              "total": 2974
+            },
+            "cursors": {
+              "matched": 70,
+              "total": 91
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: the hero's own cold attack",
+            "step": 70
+          },
+          "step": 70,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: the hero's own cold attack",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-ice-troll-cold-claw.json",
+            "result": {
+              "session": "synthetic/v26/v26-ice-troll-cold-claw",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-ice-troll-cold-claw",
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "a83a5bb776910f2c2df1ccc60395c35702d30c23250f9f98b73ab14fe75c02b9",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "remainingScreens": 21,
+              "recordedSteps": 91,
+              "status": "complete",
+              "commit": "b3158961f5508f84d8e426b0e786ad35ac6eb95b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-ice-troll-cold-claw",
+                "session": "synthetic/v26/v26-ice-troll-cold-claw",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-ice-troll-cold-claw.session.json",
+                "recordingPath": "challenges/cases/v26/v26-ice-troll-cold-claw.session.json",
+                "recordingSha256": "a83a5bb776910f2c2df1ccc60395c35702d30c23250f9f98b73ab14fe75c02b9",
+                "recipe": "challenges/cases/v26/v26-ice-troll-cold-claw.recipe.session.json",
+                "recipeSha256": "31b0ee67cd245846e7c84e31450ddd0617a2ea1898bafc38406f48dcb3ead0cf",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 21,
+                "recordedSteps": 91,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 70,
+                    "total": 91
+                  },
+                  "rng": {
+                    "matched": 2918,
+                    "total": 2974
+                  },
+                  "cursors": {
+                    "matched": 70,
+                    "total": 91
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: the hero's own cold attack",
+                  "step": 70
+                },
+                "step": 70,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: the hero's own cold attack",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 70, a landed ice-troll cold claw reaches the hero-attacker arm of uhitm.c:mhitm_ad_cold(). The JS function currently throws at that arm. Port the whole C function, including its existing monster-attacks-hero branch and monster-attacks-monster branch, and retain the existing damageum() -> mhitm_adtyping() dispatch.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "magr == &gy.youmonst in mhitm_ad_cold(), for a landed AD_COLD attack against a non-hero defender; magic cancellation is checked before frost messaging, cold resistance/defense, golem effects, and item destruction.",
+                "functions": [
+                  "mhitm_ad_cold"
+                ],
+                "callers": [
+                  "uhitm.c:do_attack() calls hmonas() when Upolyd is true.",
+                  "uhitm.c:hmonas() selects the ice-troll AT_CLAW/AD_COLD attack and calls damageum() after a landed non-physical attack.",
+                  "uhitm.c:damageum() calls mhitm_adtyping(&gy.youmonst, mattk, mdef, &mhm); uhitm.c:mhitm_adtyping() dispatches AD_COLD to mhitm_ad_cold()."
+                ],
+                "dependencies": [
+                  "uhitm.c:mhitm_mgc_atk_negated",
+                  "uhitm.c:hitmsg",
+                  "monst.h:resists_cold / Resists_Elem",
+                  "mondata.c:defended",
+                  "display.c:shieldeff",
+                  "mon.c:golemeffects",
+                  "zap.c:destroy_items",
+                  "mondata.c:monstseesu and monstunseesu",
+                  "rn2",
+                  "Monnam, mon_nam, canseemon, pline, pline_The, pline_mon"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The v26 baseline evaluation challenges/evaluations/20261007095608-v26.json records synthetic/v26/v26-ice-troll-cold-claw stopping at zero-based step 70 with “unsupported hero move: the hero's own cold attack”; 70 of 91 screens match and 21 remain. The exact queue entry carries the same count and evaluation provenance.",
+                "The recipe challenges/cases/v26/v26-ice-troll-cold-claw.recipe.session.json polymorphs the hero into an ice troll and creates a peaceful stone giant. include/monsters.h:2233-2240 defines the ice troll with AT_CLAW/AD_COLD damage of 2d6 as its second attack.",
+                "upstream/src/uhitm.c:2626-2681 defines all three mhitm_ad_cold() directions. For magr == &gy.youmonst, C checks magic cancellation first; otherwise it prints the frost message unless Blind, handles cold resistance or artifact defense with shield/golem effects and zeroed damage, then adds destroy_items() damage based on the entry damage. The hero-defender and monster-versus-monster arms are also part of this whole function.",
+                "The C route is upstream/src/uhitm.c:do_attack() -> hmonas() -> damageum() -> mhitm_adtyping() -> mhitm_ad_cold(). hmonas() calls damageum() after the landed non-physical polyform blow; damageum() supplies the hero as attacker and the type dispatcher routes AD_COLD.",
+                "js/uhitm.js:4225-4264 currently implements only the mhitu arm of mhitm_ad_cold(); its magr === state.youmonst branch calls unsupported(\"the hero's own cold attack\"). js/uhitm.js:6972-7004 already dispatches AD_COLD, and hmonas()/damageum() are already wired, so the missing source unit is the whole mhitm_ad_cold() function rather than an unconnected caller."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-dig-digactualhole-v26-20261007",
