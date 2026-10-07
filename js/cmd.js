@@ -110,6 +110,7 @@ import {
     dojump,
     dorub,
     reset_trapset,
+    use_unicorn_horn,
     UnsupportedApplyError,
 } from './apply.js';
 import { UnsupportedArtifactDisplayError, doinvoke } from './artifacts.js';
@@ -183,9 +184,11 @@ import {
     dodrink,
     dodip,
     dip_into,
+    split_mon,
     UnsupportedQuaffError,
 } from './potion.js';
-import { UnsupportedFountainError } from './fountain.js';
+import { dryup, UnsupportedFountainError } from './fountain.js';
+import { is_pool } from './dbridge.js';
 import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import {
     BOULDER,
@@ -3524,12 +3527,11 @@ async function runPolyselfCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_polyself(state));
 }
 
-// C ref: cmd.c domonability() (888-949). #monster command: use a special
-// monster ability while polymorphed. The polyself.c abilities are wired;
-// the gremlin split, unicorn horn, shriek and steed breath arms still
-// refuse. For a gnome form every test is false and the Upolyd catch-all
-// prints "Any special ability you may have is purely reflexive."
-async function domonability(state) {
+// C ref: cmd.c domonability() (890-950). Preserve the source predicate
+// order and each handler's command result. The gremlin split's clone pointer
+// controls fountain cleanup; its pool return is discarded. Forced steed ranged
+// attacks remain a named discarded-return gap in their own source owner.
+export async function domonability(state = game) {
     const uptr = state.youmonst?.data;
     const might_hide = is_hider(uptr) || hides_under(uptr);
 
@@ -3567,13 +3569,18 @@ async function domonability(state) {
     } else if (is_mind_flayer(uptr)) {
         return domindblast(state);
     } else if (state.u.umonnum === PM_GREMLIN) {
-        throw new UnsupportedHeroCommandBranchBoundaryError(
-            'domonability gremlin-split for gremlin form',
-        );
+        const { ux, uy } = state.u;
+        if (IS_FOUNTAIN(state.level.at(ux, uy).typ)) {
+            if (await split_mon(state.youmonst, null, { state }))
+                await dryup(ux, uy, true, state);
+        } else if (is_pool(ux, uy, state)) {
+            await split_mon(state.youmonst, null, { state });
+        } else {
+            await ttyPline('There is no fountain here.', state);
+        }
     } else if (is_unicorn(uptr)) {
-        throw new UnsupportedHeroCommandBranchBoundaryError(
-            'domonability unicorn-horn for unicorn form',
-        );
+        await use_unicorn_horn(null, state);
+        return ECMD_TIME;
     } else if (uptr?.msound === MS_SHRIEK) {
         await ttyPline('You shriek.', state);
         if (state.u.uburied)
@@ -3585,9 +3592,10 @@ async function domonability(state) {
     } else if (is_vampire(uptr) || is_vampshifter(state.youmonst)) {
         return dopoly(state);
     } else if (state.u.usteed && can_breathe(state.u.usteed?.data)) {
-        throw new UnsupportedHeroCommandBranchBoundaryError(
-            'domonability steed-breathe for a breath-weapon steed',
-        );
+        // cmd.c:939 discards pet_ranged_attk's result. Its forced-target
+        // path is still unported; preserve the source command-time result.
+        note_unported('dogmove.c pet_ranged_attk');
+        return ECMD_TIME;
     } else if (Upolyd(state.u)) {
         // cmd.c:943-944: polymorphed but no special ability.
         await ttyPline(
