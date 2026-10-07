@@ -56,3 +56,13 @@ test('a citation cannot name an absent case or step', async (t) => {
     evidence.functions[0].synthetic[0].caseId = 'unknown';
     await assert.rejects(verifySyntheticRanges(evidence, { root, replaySegment }), /admitted case/u);
 });
+
+test('a full delivery packet verifies function and entry-point citations without extraction', async t => {
+    const { root, range, replaySegment } = fixture(t);
+    const packet = { task: 'example-task', checks: [], git: { head: 'a'.repeat(40) },
+        functions: [{ synthetic: [{ ...range, throughStep: 1 }] }],
+        entryPoints: [{ synthetic: [range] }] };
+    // Both citations share the recording; the entry point extends through step 2.
+    assert.deepEqual(await verifySyntheticRanges(packet, { root, replaySegment }),
+        [{ case: 'v1/scout', segment: 0, throughStep: 2 }]);
+});

@@ -40,7 +40,8 @@ import {
     monst_globals_init,
     PM_KOBOLD_SHAMAN,
 } from '../js/monsters.js';
-import { STRANGE_OBJECT } from '../js/objects.js';
+import { DAGGER, STRANGE_OBJECT, WEAPON_CLASS } from '../js/objects.js';
+import { newObject } from '../js/obj.js';
 import { has_aggravatables } from '../js/wizard.js';
 
 // -- helpers -----------------------------------------------------------
@@ -434,6 +435,19 @@ test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing slee
         assert.equal(result, M_ATTK_MISS);
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(100)']);
     });
+
+test('castmu curses clone inventory through the planning environment', async () => {
+    // mcastu.c:831-835. Spell level10 selects curse items; the level11
+    // caster passes its fumble gate99, then the curse selects the sole item.
+    const random = scriptedRandom([10, 99], 6, 1);
+    const item = newObject({ otyp: DAGGER, oclass: WEAPON_CLASS, quan: 1 });
+    const state = makeState({ invent: item });
+    const result = await castmu(makeCaster({ m_lev: 11 }), AD_SPEL_ATTACK,
+        true, true, { state, random, planning: true, unsupported: refuse });
+    assert.equal(result, M_ATTK_HIT);
+    assert.equal(item.cursed, true, 'planned curse changes the supplied clone');
+    assert.deepEqual(random.draws, ['rn2(11)', 'rn2(110)', 'd(6,6)', 'rnd(6)', 'rnd(1)']);
+});
 
 test('mcast_spell dispatches the summon branch and its production message',
     async () => {

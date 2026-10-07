@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Wizard role variation of the C-first MAGIC-only potion enlightenment route; C inventory establishes wished slot m. Direct seed chosen before comparing, no scan.",
+  "segments": [
+    {
+      "seed": 93271026,
+      "datetime": "20781113130709",
+      "nethackrc": "OPTIONS=name:Hiding,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h#polyself\ntrapper\n      \u0017blessed potion of hallucination\n#monster\nqm            "
+    }
+  ]
+}

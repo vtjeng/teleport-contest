@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B135 C-first source-selected active rndcurse caller probe. Seed/time/character chosen before JavaScript comparison; C observations may correct paging or setup only.",
+  "segments": [
+    {
+      "seed": 7135101,
+      "datetime": "20381104142000",
+      "nethackrc": "OPTIONS=name:CurseSource,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen,time\n",
+      "moves": " #wizintrinsic\ni\n #wizgenesis\nmaster lich\nm. m. m. m. m."
+    }
+  ]
+}

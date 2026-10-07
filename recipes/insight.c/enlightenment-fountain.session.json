@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Natural fountain self-knowledge entry. Predefined seed range 93371100..93371163; first match after40 replays, seed93371139. Wish an ordinary fountain, drink from it, then dismiss the live MAGIC-only menu. Independent of challenge input.",
+  "segments": [
+    {
+      "seed": 93371139,
+      "datetime": "20790317130911",
+      "nethackrc": "OPTIONS=name:Knowledge,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017fountain\nqy        "
+    }
+  ]
+}

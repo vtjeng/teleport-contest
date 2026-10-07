@@ -71,7 +71,7 @@ import {
     DB_FLOOR, DB_ICE, DB_LAVA, DB_MOAT, DB_UNDER,
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
     BC_BALL, BC_CHAIN,
-    IS_DOOR, IS_OBSTRUCTED, IS_POOL, IS_ROOM, IS_STWALL, u_at, Ugender, Upolyd,
+    IS_DOOR, IS_OBSTRUCTED, IS_POOL, IS_ROOM, IS_STWALL, u_at, Ugender, Upolyd, M_AP_TYPE,
     BEAR_TRAP, NO_TRAP, WEB, is_pit, Is_waterlevel,
     TT_LAVA,
     In_endgame, In_mines, In_quest, In_sokoban, Is_knox_level,
@@ -977,9 +977,25 @@ export function display_self(state = game) {
     if (state !== game)
         throw new TypeError('display_self() draws the global game state');
     const steed = game.u?.usteed;
-    const hero = (steed && mon_visible(steed, game))
-        ? riddenMonsterGlyphInfo(steed, game)
-        : hero_glyph_info(game);
+    let hero;
+    if (steed && mon_visible(steed, game)) {
+        hero = riddenMonsterGlyphInfo(steed, game);
+    } else {
+        // display.h display_self(): self-disguises use direct glyphs, without
+        // monster-mimic hallucination or object-memory mapping draws.
+        const appearance = M_AP_TYPE(game.youmonst);
+        if (appearance === M_AP_NOTHING) {
+            hero = hero_glyph_info(game);
+        } else {
+            const glyph = appearance === M_AP_FURNITURE
+                ? cmap_to_glyph(game.youmonst.mappearance, game)
+                : appearance === M_AP_OBJECT
+                    ? objnum_to_glyph(game.youmonst.mappearance)
+                    : genderedMonsterGlyph(game.youmonst.mappearance, Ugender(game),
+                        GLYPH_MON_MALE_OFF, GLYPH_MON_FEM_OFF);
+            hero = map_glyphinfo(glyph, game, {x: game.u.ux, y: game.u.uy});
+        }
+    }
     show_glyph_cell(game.u.ux, game.u.uy, hero);
 }
 

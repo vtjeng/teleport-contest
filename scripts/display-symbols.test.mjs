@@ -154,6 +154,7 @@ import {
     glyph_to_cmap,
     hallucinated_statue_glyph_info,
     hero_glyph_info,
+    display_self,
     map_glyphinfo,
     MG_FLAG_NOOVERRIDE,
     map_invisible,
@@ -207,6 +208,7 @@ import {
     GLYPH_OBJ_OFF,
     GLYPH_OBJ_PILETOP_OFF,
     GLYPH_PET_MALE_OFF,
+    GLYPH_RIDDEN_FEM_OFF,
     GLYPH_STATUE_FEM_OFF,
     GLYPH_STATUE_FEM_PILETOP_OFF,
     GLYPH_STATUE_MALE_OFF,
@@ -1798,9 +1800,8 @@ test('each object glyph macro picks the base display.h gives it', () => {
         );
     }
 
-    // display.h objnum_to_glyph() (638) has no consumer in the running game:
-    // botl.c's encglyph(objnum_to_glyph(GOLD_PIECE)) is unported, so this is
-    // the only proof of its value. It adds the plain object base and asks
+    // display.h objnum_to_glyph() (638), also used by self-disguises, adds
+    // the plain object base and asks
     // obj_is_piletop() nothing, which is why C's own comment says it draws
     // the generic body and the generic statue rather than the species the
     // corpse and statue ranges carry.
@@ -10215,3 +10216,54 @@ for (const heroMemory of [true, false])
                 'both source redraws consume the display stream exactly once');
             assert.equal(object.dknown, true);
         });
+
+// display.h:251-260 display_self: the visible steed precedes all appearance
+// arms; unlike monster mimics, these direct glyphs draw no display RNG.
+test('display_self maps the hero appearance before the normal hero species', async () => {
+    await runSegment({seed:93271024,datetime:'20781113130709',
+        nethackrc:'OPTIONS=name:Hiding,role:Wizard,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none\n',moves:''});
+    const c = readFileSync(new URL('../nethack-c/upstream/include/display.h', import.meta.url), 'utf8');
+    const macro = c.slice(c.indexOf('#define display_self()'), c.indexOf('/*\n * NetHack glyphs'));
+    assert.match(macro, /maybe_display_usteed/u);
+    assert.match(macro, /cmap_to_glyph/u);
+    assert.match(macro, /objnum_to_glyph/u);
+    assert.match(macro, /monnum_to_glyph.*Ugender/u);
+    const {ux,uy} = game.u;
+    const displayBefore = structuredClone(game.displayCtx);
+    game.u.uprops[HALLUC].intrinsic = 1; // Self-disguises bypass what_mon()/what_obj().
+    for (const [type,appearance,expected] of [
+        [M_AP_FURNITURE,S_fountain,cmap_to_glyph(S_fountain,game)],
+        [M_AP_OBJECT | M_AP_F_DKNOWN,STRANGE_OBJECT,objnum_to_glyph(STRANGE_OBJECT)],
+        // Species zero is the giant ant; Ugender supplies the hero's gender.
+        [M_AP_MONSTER,0,GLYPH_MON_MALE_OFF],
+    ]) {
+        game.youmonst.m_ap_type = type;
+        game.youmonst.mappearance = appearance;
+        display_self();
+        assert.equal(game.level.at(ux,uy).disp_glyph.glyph,expected);
+    }
+    game.flags.female = true; // Unpolymorphed Ugender uses flags.female.
+    game.youmonst.m_ap_type = M_AP_MONSTER;
+    game.youmonst.mappearance = 0; // Giant ant, female ordinary monster glyph.
+    display_self();
+    assert.equal(game.level.at(ux,uy).disp_glyph.glyph,GLYPH_MON_FEM_OFF);
+    game.youmonst.m_ap_type = 0; // M_AP_NOTHING restores the normal hero.
+    display_self();
+    assert.equal(game.level.at(ux,uy).disp_glyph.glyph,hero_glyph_info(game).glyph);
+    assert.deepEqual(game.displayCtx,displayBefore,'no self-disguise or ordinary-hero display draw');
+    // show_glyph() maps with the hero's coordinates, including the accessibility override.
+    game.sysopt = {accessibility:1};
+    initialize_symbols_from_options(parseNethackrc('SYMBOLS=S_hero_override:?'),game);
+    game.youmonst.m_ap_type = M_AP_MONSTER;
+    display_self();
+    assert.equal(game.level.at(ux,uy).disp_glyph.ch,'?');
+    game.u.uprops[HALLUC].intrinsic = 0;
+    game.youmonst.m_ap_type = M_AP_OBJECT;
+    const steed = {data:game.mons[0],female:1}; // Visible female giant ant takes precedence.
+    game.u.usteed = steed;
+    display_self();
+    assert.equal(game.level.at(ux,uy).disp_glyph.glyph,GLYPH_RIDDEN_FEM_OFF);
+    steed.minvis = 1; // An unseen steed gives way to the hero's own disguise.
+    display_self();
+    assert.equal(game.level.at(ux,uy).disp_glyph.glyph,objnum_to_glyph(STRANGE_OBJECT));
+});

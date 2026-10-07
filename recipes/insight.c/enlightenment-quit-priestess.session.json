@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first end.c disclose alive mode: saved female Priestess in source-forced succubus form quits, declines Dump core and inventory, accepts attributes, then dismisses the final text window. Source how=QUIT >= PANICKED selects ENL_GAMEOVERALIVE; no challenge inputs copied. C exited after the 42nd boundary; remove surplus trailing keys without changing the quit or disclosure answers.",
+  "segments": [
+    {
+      "seed": 93371007,
+      "datetime": "20790317130911",
+      "nethackrc": "OPTIONS=name:Background,role:Priest,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nincubus\n      #quit\nynny      "
+    }
+  ]
+}
