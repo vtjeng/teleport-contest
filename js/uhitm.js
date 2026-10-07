@@ -4216,12 +4216,9 @@ export async function mhitm_ad_fire(
     await ignite_items(mdef.minvent, effectEnv);
 }
 
-// C ref: uhitm.c mhitm_ad_cold() (2625-2681). A cold-damage attack across
-// all three combat directions. The mhitu arm (monster attacks hero) is fully
-// ported: it prints hitmsg, checks magic cancellation, reports frost,
-// applies Cold_resistance, and may call destroy_items(AD_COLD) on the hero's
-// inventory when the attacker's level beats rn2(20). The uhitm (hero attacks
-// monster) and mhitm (monster attacks monster) arms use unsupported().
+// C ref: uhitm.c mhitm_ad_cold() (2626-2681), all three combat directions.
+// Inventory destruction uses the damage on entry even when resistance has
+// zeroed the attack damage. Its returned damage only applies to monsters.
 export async function mhitm_ad_cold(
     magr,
     mattk,
@@ -4230,14 +4227,30 @@ export async function mhitm_ad_cold(
     state = game,
     env = {},
 ) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? { rn2, rnd };
     const message = requireAttackOperation(env, 'message');
-    const unsupported = requireAttackOperation(env, 'unsupported');
+    const effectEnv = { ...env, state, random };
     const orig_dmg = mhm.damage;
 
     if (magr === state.youmonst) {
         /* uhitm */
-        unsupported("the hero's own cold attack");
+        if (await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
+            mhm.damage = 0;
+            return;
+        }
+        if (!heroIsBlind(state))
+            await message(`${Monnam(mdef, state, env)} is covered in frost!`,
+                state, env);
+        if (Resists_Elem(mdef, COLD_RES, state)
+            || defended(mdef, AD_COLD, state)) {
+            await shieldeff(mdef.mx, mdef.my, state);
+            if (!heroIsBlind(state))
+                await message(`The frost doesn't chill ${mon_nam(mdef, state, env)}!`,
+                    state, env);
+            await golemeffects(mdef, AD_COLD, mhm.damage, effectEnv);
+            mhm.damage = 0;
+        }
+        mhm.damage += await destroy_items(mdef, AD_COLD, orig_dmg, effectEnv);
     } else if (mdef === state.youmonst) {
         /* mhitu */
         await hitmsg(magr, mattk, state, env);
@@ -4251,14 +4264,31 @@ export async function mhitm_ad_cold(
                 monstunseesu(M_SEEN_COLD, state);
             }
             if (magr.m_lev > random.rn2(20)) {
-                await destroy_items(state.youmonst, AD_COLD, orig_dmg, env);
+                await destroy_items(state.youmonst, AD_COLD, orig_dmg, effectEnv);
             }
         } else {
             mhm.damage = 0;
         }
     } else {
         /* mhitm */
-        unsupported('one monster freezing another');
+        if (await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
+            mhm.damage = 0;
+            return;
+        }
+        if (state.gv?.vis && canseemon(mdef, state))
+            await message(messageAt(
+                `${Monnam(mdef, state, env)} is covered in frost!`,
+                mdef.mx, mdef.my, state), state, env);
+        if (Resists_Elem(mdef, COLD_RES, state)
+            || defended(mdef, AD_COLD, state)) {
+            if (state.gv?.vis && canseemon(mdef, state))
+                await message(`The frost doesn't seem to chill ${mon_nam(mdef, state, env)}!`,
+                    state, env);
+            await shieldeff(mdef.mx, mdef.my, state);
+            await golemeffects(mdef, AD_COLD, mhm.damage, effectEnv);
+            mhm.damage = 0;
+        }
+        mhm.damage += await destroy_items(mdef, AD_COLD, orig_dmg, effectEnv);
     }
 }
 

@@ -57,7 +57,7 @@ test('small getobj predicates follow invent.c', () => {
     assert.equal(wearing_armor({ uarm: carried }), true);
     assert.equal(ckunpaid({ unpaid: false, cobj: null }), false);
     assert.equal(ckunpaid({ unpaid: true, cobj: null }), true);
-    assert.equal(ckvalidcat(carried, state), true);
+    assert.equal(ckvalidcat(carried, state), 1);
     assert.equal(splittable({ otyp: 1, cursed: false }, state), true);
     const welded = {
         otyp: 1, oclass: WEAPON_CLASS, cursed: true, bknown: false,

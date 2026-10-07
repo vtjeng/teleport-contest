@@ -1,0 +1,148 @@
+{
+  "session": "synthetic/v26/v26-sit-throne",
+  "corpus": "synthetic",
+  "batch": "v26",
+  "caseId": "v26-sit-throne",
+  "manifestPath": "challenges/manifests/v26.json",
+  "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+  "recordingPath": "challenges/cases/v26/v26-sit-throne.session.json",
+  "recordingSha256": "f9e854c524cd067a9d39816d783a2f229ca55a2e5e2167afc5dd2d40fb8a621d",
+  "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+  "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+  "remainingScreens": 2,
+  "recordedSteps": 59,
+  "status": "complete",
+  "commit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v26",
+    "caseId": "v26-sit-throne",
+    "session": "synthetic/v26/v26-sit-throne",
+    "manifestPath": "challenges/manifests/v26.json",
+    "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+    "recording": "challenges/cases/v26/v26-sit-throne.session.json",
+    "recordingPath": "challenges/cases/v26/v26-sit-throne.session.json",
+    "recordingSha256": "f9e854c524cd067a9d39816d783a2f229ca55a2e5e2167afc5dd2d40fb8a621d",
+    "recipe": "challenges/cases/v26/v26-sit-throne.recipe.session.json",
+    "recipeSha256": "9922aa359102b5550c4b15f3f8062a595182b84b34a39eba949f23a7bb109d4f",
+    "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+    "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+    "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+    "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+    "evaluationUtc": "2026-10-07T09:56:27.654Z",
+    "remainingScreens": 2,
+    "recordedSteps": 59,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 57,
+        "total": 59
+      },
+      "rng": {
+        "matched": 2913,
+        "total": 2926
+      },
+      "cursors": {
+        "matched": 58,
+        "total": 59
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 52,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 52,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 59,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2913,
+        "cEntry": "rnd(3)=2",
+        "cCaller": "rndcurse(sit.c:593)",
+        "jsEntry": "rn2(3)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 53,
+          "key": " "
+        },
+        "stepIndex": 53
+      },
+      "cursor": {
+        "index": 52,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 52,
+          "key": " "
+        },
+        "cCursor": [
+          67,
+          0,
+          1
+        ],
+        "jsCursor": [
+          29,
+          6,
+          1
+        ]
+      }
+    },
+    "step": 52,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The step-52 screen and cursor mismatch follows the missing sit.c:rndcurse() call in the effect-9 throne path. The prior verbalize() input boundary is aligned: after it is dismissed, C enters rndcurse(), whose first aura message creates another --More--; JavaScript records note_unported() and ends the move without that message. At step 53, C begins rndcurse RNG while JavaScript has reached throne_sit_effect()’s removal draw.",
+  "source": {
+    "file": "sit.c",
+    "branch": "For an ordinary throne, throne_sit_effect() selects effect 9, and Luck is zero or below, so it calls rndcurse() after verbalize() announces the curse. rndcurse() first checks the wielded Magicbane branch, then Antimagic, prints the malignant-aura message, counts non-gold inventory, draws a curse count from 6 divided by the Antimagic and Half_spell_damage modifiers, and repeatedly selects inventory items. It skips already-cursed objects, applies the artifact resistance draw when relevant, unblesses blessed items or curses other items, refreshes inventory, then checks a steed saddle.",
+    "functions": [
+      "rndcurse"
+    ],
+    "callers": [
+      "C sit.c:throne_sit_effect() case 9 (around line 143) calls rndcurse() when Luck <= 0. The assigned recording reaches this call. JavaScript js/sit.js:403-426 calls note_unported(\"sit.c rndcurse\") at the corresponding branch.",
+      "C mcastu.c:castmu() MCAST_CURSE_ITEMS arm (lines 831-835) calls rndcurse(). JavaScript js/mcastu.js:812-816 records recordMcastGap(\"sit.c rndcurse\", env).",
+      "C pray.c:angrygods() cases 4-5 (lines 752-759) call rndcurse() when rn2(2) is nonzero or attrcurse() returns zero. JavaScript js/pray.js:2350-2355 preserves the rn2/attrcurse structure but records note_unported() at both rndcurse call sites.",
+      "C spell.c:confused_book() default arm (lines 180-183) calls rndcurse(). JavaScript js/spell.js:380-382 records note_unported(\"sit.c rndcurse\").",
+      "C wizard.c:intervene() case 2 (lines 784-799) calls rndcurse(). No JavaScript intervene() caller was found at the examined commit; js/allmain.js:1148 identifies intervene() as unported. Keep that higher-level gap explicit if this port does not include it."
+    ],
+    "dependencies": [
+      "rndcurse() is void; its callers discard its return. Preserve its message and random-call order because the first source-visible effect is the aura message, before the first inventory draw.",
+      "Preserve the Magicbane short circuit: u_wield_art(ART_MAGICBANE) gates rn2(20); a nonzero result prints the artifact aura and returns. The existing JavaScript u_wield_art helper in js/trap.js is private, so js/sit.js must use an equivalent source-backed check or expose a shared helper.",
+      "Read Antimagic and Half_spell_damage before computing rnd(6 / ((!!Antimagic) + (!!Half_spell_damage) + 1)); call shieldeff() before the aura message when Antimagic is active.",
+      "Traverse inventory in nobj order while excluding COIN_CLASS. Preserve rnd(nobj) selection, already-cursed skips, the SPFX_INTEL artifact resistance rn2(10) < 8 branch, and unbless()/curse() mutations. Existing JavaScript counterparts are in js/obj.js; unbless() is asynchronous and its side effects must be awaited.",
+      "Call update_inventory() after the inventory loop when nobj is nonzero. For a steed, preserve the short-circuit !rn2(4), which_armor(usteed, W_SADDLE), cursed check, BUC mutation, visibility-dependent glow message, and bknown update. Existing counterparts are in js/invent.js and js/worn.js.",
+      "The current JS spec_ability() and shieldeff() implementations are in js/artifacts.js and js/display.js. Preserve source conditions and message formatting for the artifact and saddle branches."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved evaluation challenges/evaluations/20261007095608-v26.json measures this case at evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44: 57/59 screens, 2913/2926 RNG entries, and 58/59 cursors. Its first screen and cursor mismatch is step 52: C row 0 column 59 contains \"-\" and cursor [67,0,1], while JavaScript has a blank cell and cursor [29,6,1]. The first RNG mismatch is step 53, C rnd(3)=2 @ rndcurse(sit.c:593) versus JavaScript rn2(3)=1 @ throne_sit_effect(sit.c:225).",
+    "The immutable recording challenges/cases/v26/v26-sit-throne.session.json has 59 steps. At steps 45-51 the Wizard answers the throne-effect getlin prompt with \"9\"; step 51 ends on \"A voice echoes:--More--\". Step 52 is a space and C shows the quoted curse followed by --More--; step 53 is another space and C records rnd(3)=2 at rndcurse():593, then rnd(14)=3 and rnd(14)=8 at rndcurse():596. These saved steps show that the first prompt was dismissed before the second boundary appeared.",
+    "C nethack-c/upstream/src/sit.c:39-145 runs effect 9, emits \"A voice echoes:\", calls verbalize(), then calls rndcurse() when Luck is not positive. In the recording, the step-51 More belongs to verbalize() replacing a line that cannot be appended to \"A voice echoes:\". After step 52 dismisses that boundary, rndcurse() prints \"You feel a malignant aura surround you.\" before its first draw; that next line cannot share the quoted curse line, so C reaches a second More on the quote at the step-52 snapshot. This explains the cursor and screen difference without attributing it to a misordered input read.",
+    "At the evaluated JavaScript source, js/sit.js:403-426 emits the voice message and calls pline.js:verbalize(), then substitutes note_unported(\"sit.c rndcurse\") for the C call when Luck <= 0. The TTY path in js/tty_message.js:454-601 consumes the first More while verbalize() replaces the prior line. Once that call returns, the skipped rndcurse() emits no aura message and makes no inventory draws, so the JavaScript action proceeds to the throne removal draw. The relevant JS files are unchanged between evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44 and examined commit 977b52fc55dfcecf490d4102dac0dbead3fbfc3b; the C submodule gitlink is 16ff59115315917b93185d026aeefea06db9b0f4 at both commits.",
+    "The missing source unit is the whole void function C nethack-c/upstream/src/sit.c:569-638. Its first RNG draw in the recorded branch is rnd(3) at line 593; its two subsequent rnd(14) item selections at line 596 precede throne_sit_effect() line 225. JavaScript currently reaches the line-225 rn2(3) first because it skipped the function. Port rndcurse() as a whole and wire its existing C-mirroring JavaScript call sites; keep the unrelated unported wizard.c:intervene() caller visible."
+  ]
+}

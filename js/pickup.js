@@ -25,6 +25,9 @@ import {
     BUCX_TYPES,
     BLINDED,
     BY_NEXTHERE,
+    BILLED_TYPES,
+    WORN_TYPES,
+    W_WEAPONS,
     CHOOSE_ALL,
     CONFUSION,
     CXN_ARTICLE,
@@ -74,9 +77,11 @@ import {
     P_BASIC,
     P_RIDING,
     PICK_ANY,
+    PICK_NONE,
     PICK_ONE,
     JUSTPICKED,
     PARANOID_AUTOALL,
+    PARANOID_CONFIRM,
     PLNMSG_BACK_ON_GROUND,
     PLNMSG_OBJNAM_ONLY,
     nothing_happens,
@@ -122,7 +127,7 @@ import {
     is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
-import { get_adjacent_loc, yn_function } from './cmd.js';
+import { get_adjacent_loc, paranoid_ynq, yn_function } from './cmd.js';
 import { def_char_to_objclass } from './drawing.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
 import { container_contents } from './end.js';
@@ -179,7 +184,8 @@ import {
     preflight_look_here,
     prinv,
     sortloot,
-    ckvalidcat,
+    count_buc,
+    is_worn,
     askchain,
     update_inventory,
     useupf,
@@ -217,7 +223,7 @@ import {
     STATUE, TALLOW_CANDLE, VENOM_CLASS, WAX_CANDLE,
     WAN_CANCELLATION,
 } from './objects.js';
-import { PM_HOUSECAT, PM_ICE_TROLL, PM_STONE_GOLEM } from './monsters.js';
+import { PM_CLERIC, PM_HOUSECAT, PM_ICE_TROLL, PM_STONE_GOLEM } from './monsters.js';
 import {
     an, ansimpleoname, corpse_xname, Doname2, killer_xname, Tobjnam, Yname2,
     Ysimple_name2, donameFresh, doname_with_price,
@@ -345,7 +351,7 @@ export function reset_justpicked(head) {
 
 // C ref: pickup.c count_justpicked() (635-645). Counts objects in a list
 // whose pickup_prev flag is set, indicating they were just picked up.
-function count_justpicked(olist) {
+export function count_justpicked(olist) {
     let cnt = 0;
     for (let obj = olist; obj; obj = obj.nobj)
         if (obj.pickup_prev) cnt++;
@@ -354,7 +360,7 @@ function count_justpicked(olist) {
 
 // C ref: pickup.c find_justpicked() (647-657). Returns the first object in
 // a list whose pickup_prev flag is set, or null.
-function find_justpicked(olist) {
+export function find_justpicked(olist) {
     for (let obj = olist; obj; obj = obj.nobj)
         if (obj.pickup_prev) return obj;
     return null;
@@ -767,165 +773,139 @@ export async function query_objlist(
     return { n: pick_list.length, pick_list };
 }
 
-// C ref: pickup.c:1510-1541. count_categories().  The menu-loot category
-// query only supplies a container list, so FOLLOW() traverses nobj here just
-// as it does in the source.
-function count_categories(olist, qflags, state = game) {
+// C ref: pickup.c count_categories() (1510-1541). Venom is outside
+// inv_order; WORN_TYPES counts only armor, accessories and weapon slots.
+export function count_categories(olist, qflags, state = game) {
     let count = 0;
     for (const objectClass of state.flags?.inv_order ?? []) {
         for (let obj = olist; obj; obj = FOLLOW(obj, qflags)) {
-            if (obj.oclass === objectClass) {
-                count++;
-                break;
-            }
+            if (obj.oclass !== objectClass) continue;
+            if ((qflags & WORN_TYPES)
+                && !(obj.owornmask & (W_ARMOR | W_ACCESSORY | W_WEAPONS)))
+                continue;
+            count++;
+            break;
         }
     }
     return count;
 }
 
-// C ref: pickup.c:1225-1508. This is the PICK_ANY category menu used by
-// menu_loot() for an unlocked, untrapped container. Worn, billed, and
-// paranoid-confirmation variants are outside this out-only slice; ordinary
-// class and BUC filters are source-shaped because the next item menu reads
-// the filter state through allow_category().
+// C ref: pickup.c query_category() (1226-1508), translated whole.
+// Keep how explicit for dotypeinv's PICK_ONE; drop and loot use PICK_ANY.
 export async function query_category(
-    title, olist, qflags, state = game,
+    title, olist, qflags, state = game, how = PICK_ANY,
 ) {
     if (!olist) return { n: 0, pick_list: [] };
-
-    const do_unpaid = Boolean((qflags & UNPAID_TYPES)
-        && count_unpaid(olist));
-    const bucx = tally_BUCX(olist, Boolean(qflags & BY_NEXTHERE), state);
-    const do_blessed = Boolean((qflags & BUC_BLESSED) && bucx.bcnt);
-    const do_cursed = Boolean((qflags & BUC_CURSED) && bucx.ccnt);
-    const do_uncursed = Boolean((qflags & BUC_UNCURSED) && bucx.ucnt);
-    const do_buc_unknown = Boolean((qflags & BUC_UNKNOWN) && bucx.xcnt);
-    const num_buc_types = [
-        do_blessed, do_cursed, do_uncursed, do_buc_unknown,
-    ].filter(Boolean).length;
-    const num_justpicked = (qflags & JUSTPICKED) ? bucx.jcnt : 0;
+    const doUnpaid = Boolean((qflags & UNPAID_TYPES) && count_unpaid(olist));
+    const doUsedup = Boolean(qflags & BILLED_TYPES);
+    const doWorn = Boolean(qflags & WORN_TYPES);
+    const filter = doWorn ? is_worn : null;
+    const doBlessed = Boolean((qflags & BUC_BLESSED)
+        && count_buc(olist, BUC_BLESSED, filter, state));
+    const doCursed = Boolean((qflags & BUC_CURSED)
+        && count_buc(olist, BUC_CURSED, filter, state));
+    const doUncursed = Boolean((qflags & BUC_UNCURSED)
+        && count_buc(olist, BUC_UNCURSED, filter, state));
+    const doUnknown = Boolean((qflags & BUC_UNKNOWN)
+        && count_buc(olist, BUC_UNKNOWN, filter, state));
+    const bucCount = [doBlessed, doCursed, doUncursed, doUnknown].filter(Boolean).length;
+    const justpicked = (qflags & JUSTPICKED) ? count_justpicked(olist) : 0;
     const categoryCount = count_categories(olist, qflags, state);
-
-    // C's single-category early return is observable when a caller requests
-    // one class and at most one BUC category; no menu is drawn in that case.
-    if (categoryCount === 1 && !do_unpaid && num_buc_types <= 1) {
-        for (let obj = olist; obj; obj = FOLLOW(obj, qflags))
+    if (categoryCount === 1 && !doUnpaid && !doUsedup && bucCount <= 1) {
+        for (let obj = olist; obj; obj = FOLLOW(obj, qflags)) {
+            if (filter && !filter(obj)) continue;
             return { n: 1, pick_list: [{ value: obj.oclass, count: -1 }] };
+        }
         return { n: 0, pick_list: [] };
     }
-
     const items = [];
+    const showAll = Boolean((qflags & ALL_TYPES) && categoryCount > 1);
+    let verifyAll = false;
     if (qflags & CHOOSE_ALL) {
-        items.push({
-            selector: 'A',
-            value: 'A',
-            label: 'Auto-select every relevant item',
-            skipinvert: true,
-        });
-        if (!(state.flags?.paranoia_bits & PARANOID_AUTOALL)) {
-            items.push({
-                text: '    (ignored unless some other choices are also picked)',
-            });
+        items.push({ selector: 'A', value: 'A',
+            label: doWorn ? 'Auto-select every item being worn or wielded'
+                : 'Auto-select every relevant item', skipinvert: true });
+        verifyAll = how === PICK_ANY
+            && Boolean(state.flags?.paranoia_bits & PARANOID_AUTOALL);
+        // C's two hint counters persist across category queries.
+        state.ga ??= {};
+        if (!verifyAll) {
+            const old = state.ga.A_first_hint ?? 0;
+            state.ga.A_first_hint = old + 1;
+            if (!old || state.iflags?.cmdassist)
+                items.push({ text: '    (ignored unless some other choices are also picked)' });
+        } else if (showAll) {
+            const old = state.ga.A_second_hint ?? 0;
+            state.ga.A_second_hint = old + 1;
+            if (!old || state.iflags?.cmdassist)
+                items.push({ text: "    (if no other choices are picked, 'a' is implied)" });
         }
         items.push({ text: '' });
     }
-
-    const showAll = Boolean((qflags & ALL_TYPES) && categoryCount > 1);
-    let selectorCode = 'a'.charCodeAt(0);
+    let invlet = 'a'.charCodeAt(0);
     if (showAll) {
-        items.push({
-            selector: 'a',
-            value: ALL_TYPES_SELECTED,
-            label: 'All types',
-            skipinvert: true,
-        });
-        selectorCode++;
+        items.push({ selector: 'a', value: ALL_TYPES_SELECTED,
+            label: doWorn ? 'All worn and wielded types' : 'All types', skipinvert: true });
+        invlet++;
     }
-
-    const invOrder = [...(state.flags?.inv_order ?? [])];
-    if (qflags & INCLUDE_VENOM) invOrder.push(VENOM_CLASS);
-    for (const objectClass of invOrder) {
-        let hasClass = false;
+    const order = [...(state.flags?.inv_order ?? [])];
+    if (qflags & INCLUDE_VENOM) order.push(VENOM_CLASS);
+    for (const objectClass of order) {
         for (let obj = olist; obj; obj = FOLLOW(obj, qflags)) {
-            if (obj.oclass !== objectClass) continue;
-            hasClass = true;
+            if (obj.oclass !== objectClass || (filter && !filter(obj))) continue;
+            items.push({ selector: String.fromCharCode(invlet++), value: objectClass,
+                groupSelector: String.fromCharCode(DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + objectClass]),
+                label: let_to_name(objectClass, false,
+                    how !== PICK_NONE && Boolean(state.iflags?.menu_head_objsym)) });
             break;
         }
-        if (!hasClass) continue;
-        const selector = String.fromCharCode(selectorCode++);
-        items.push({
-            selector,
-            value: objectClass,
-            groupSelector: String.fromCharCode(
-                DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + objectClass],
-            ),
-            label: let_to_name(
-                objectClass,
-                false,
-                Boolean(state.iflags?.menu_head_objsym),
-            ),
-        });
-    }
-
-    if (do_unpaid || do_blessed || do_cursed || do_uncursed
-        || do_buc_unknown || num_justpicked) {
-        items.push({ text: '' });
-    }
-    if (do_unpaid) {
-        items.push({ selector: 'u', value: 'u',
-            label: 'Unpaid items', skipinvert: true });
-    }
-    if (do_blessed) {
-        items.push({ selector: 'B', value: 'B',
-            label: 'Items known to be Blessed', skipinvert: true });
-    }
-    if (do_cursed) {
-        items.push({ selector: 'C', value: 'C',
-            label: 'Items known to be Cursed', skipinvert: true });
-    }
-    if (do_uncursed) {
-        items.push({ selector: 'U', value: 'U',
-            label: 'Items known to be Uncursed', skipinvert: true });
-    }
-    if (do_buc_unknown) {
-        items.push({ selector: 'X', value: 'X',
-            label: 'Items of unknown Bless/Curse status', skipinvert: true });
-    }
-    if (num_justpicked) {
-        let label = 'Items you just picked up';
-        if (num_justpicked === 1) {
-            for (let obj = olist; obj; obj = FOLLOW(obj, qflags)) {
-                if (obj.pickup_prev) {
-                    label = `Just picked up: ${donameFresh(obj, state)}`;
-                    break;
-                }
-            }
+        if (invlet >= 'u'.charCodeAt(0)) {
+            note_unported('pline.c impossible');
+            return { n: 0, pick_list: [] };
         }
-        items.push({ selector: 'P', value: 'P',
-            label, skipinvert: true });
     }
-
+    if (doUnpaid || doUsedup || doBlessed || doCursed || doUncursed || doUnknown || justpicked)
+        items.push({ text: '' });
+    for (const [enabled, selector, label] of [
+        [doUnpaid, 'u', 'Unpaid items'],
+        [doUsedup, 'x', 'Unpaid items already used up'],
+        [doBlessed, 'B', 'Items known to be Blessed'],
+        [doCursed, 'C', 'Items known to be Cursed'],
+        [doUncursed, 'U', 'Items known to be Uncursed'],
+        [doUnknown, 'X', 'Items of unknown Bless/Curse status'],
+    ]) {
+        if (enabled) items.push({ selector, value: selector, label, skipinvert: true });
+    }
+    if (justpicked) {
+        items.push({ selector: 'P', value: 'P', skipinvert: true,
+            label: justpicked === 1
+                ? `Just picked up: ${donameFresh(find_justpicked(olist), state)}`
+                : 'Items you just picked up' });
+    }
     const selected = await select_menu(state, {
-        title,
-        ...menuTitleStyle(state),
-        items,
-        how: PICK_ANY,
-        cancelValue: null,
+        title, ...menuTitleStyle(state), items, how, returnCount: true, cancelValue: null,
         overlay: state.iflags?.menu_overlay !== false,
     });
-    if (selected === null) return { n: 0, pick_list: [] };
-    if (selected.length === 1 && selected[0].value === 'A'
-        && !(state.flags?.paranoia_bits & PARANOID_AUTOALL)) {
+    let picks = selected === null ? [] : how === PICK_ANY ? selected
+        : [selected];
+    if (picks.length && verifyAll) {
+        const i = picks.findIndex(choice => choice.value === 'A');
+        if (i >= 0) {
+            const answer = await paranoid_ynq(
+                Boolean(state.flags?.paranoia_bits & PARANOID_CONFIRM),
+                'Really autoselect All?', true, state,
+            );
+            if (answer === 'n'.charCodeAt(0)) {
+                if (picks.length > 1) picks.splice(i, 1);
+                else if (qflags & ALL_TYPES) picks[0].value = ALL_TYPES_SELECTED;
+                else picks = [];
+            } else if (answer !== 'y'.charCodeAt(0)) picks = [];
+        }
+    } else if (picks.length === 1 && picks[0].value === 'A') {
+        picks = [];
         await ttyPline('No relevant items selected.', state);
-        return { n: 0, pick_list: [] };
     }
-    return {
-        n: selected.length,
-        pick_list: selected.map((choice) => ({
-            value: choice.value,
-            count: choice.count,
-        })),
-    };
+    return { n: picks.length, pick_list: picks.map(({ value, count }) => ({ value, count })) };
 }
 
 // Existing pickup/addinv admission before discovery and floor extraction.
@@ -2477,7 +2457,7 @@ function menu_class_present(c, state) {
 }
 
 // C ref: pickup.c:475-504. add_valid_menu_class().
-function add_valid_menu_class(c, state) {
+export function add_valid_menu_class(c, state) {
     state.gv ??= {};
     state.gc ??= {};
     state.gb ??= {};
@@ -2509,11 +2489,33 @@ function add_valid_menu_class(c, state) {
 
 // C ref: pickup.c:522-592. Kept as a named callback because query_objlist()
 // accepts the same source-shaped predicate as menu_loot().
-function allow_category(otmp, state) {
-    return ckvalidcat(otmp, state);
+export function allow_category(otmp, state = game) {
+    if (!state.gc?.class_filter && !state.gs?.shop_filter
+        && !state.gb?.bucx_filter && !state.gp?.picked_filter
+        && !(state.flags?.paranoia_bits & PARANOID_AUTOALL))
+        return false;
+    const classes = state.gv?.valid_menu_classes ?? '';
+    // C explicitly accepts or rejects coins on the class filter and returns
+    // before applying unpaid or BUC filters.
+    if (otmp.oclass === COIN_CLASS && state.gc?.class_filter)
+        return classes.includes(String.fromCharCode(COIN_CLASS));
+    if (state.urole?.mnum === PM_CLERIC && !otmp.bknown)
+        set_bknown(otmp, 1, { state });
+    if (state.gc?.class_filter
+        && !classes.includes(String.fromCharCode(otmp.oclass))) return false;
+    if (state.gs?.shop_filter && !otmp.unpaid
+        && !(hasContents(otmp) && count_unpaid(otmp.cobj) > 0)) return false;
+    if (state.gb?.bucx_filter) {
+        const bucx = otmp.oclass === COIN_CLASS
+            ? (state.flags?.goldX ? 'X' : 'U')
+            : (!otmp.bknown ? 'X'
+                : otmp.blessed ? 'B' : otmp.cursed ? 'C' : 'U');
+        if (!classes.includes(bucx)) return false;
+    }
+    return !state.gp?.picked_filter || Boolean(otmp.pickup_prev);
 }
 
-function allow_all() {
+export function allow_all() {
     return true;
 }
 

@@ -7,6 +7,22 @@
 // questpgr.c deliver_splev_message().
 
 import {
+    ALL_FINISHED,
+    ALL_TYPES,
+    ALL_TYPES_SELECTED,
+    BUCX_TYPES,
+    CHOOSE_ALL,
+    INCLUDE_VENOM,
+    INVORDER_SORT,
+    JUSTPICKED,
+    MENU_TRADITIONAL,
+    MENU_COMBINATION,
+    MENU_FULL,
+    PICK_ANY,
+    SELL_DELIBERATE,
+    SELL_NORMAL,
+    UNPAID_TYPES,
+    USE_INVLET,
     ACH_ASTR,
     ACH_BGRM,
     ACH_ENDG,
@@ -138,7 +154,7 @@ import { bury_objs, use_pick_axe2 } from './dig.js';
 import { ballrelease, drag_down, placebc, unplacebc } from './ball.js';
 import { next_to_u } from './apply_next_to_u.js';
 import {
-    reset_occupations, set_move_cmd, set_occupation, y_n,
+    paranoid_ynq, reset_occupations, set_move_cmd, set_occupation, y_n,
 } from './cmd.js';
 import {
     check_gold_symbol,
@@ -152,7 +168,7 @@ import {
 } from './display.js';
 import {
     Adjmonnam, Amonnam, Monnam, docall, hcolor, hliquid, mon_nam, rndmonnam,
-    y_monnam,
+    y_monnam, obj_pmname,
 } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
 import { keepdogs, losedogs, update_mlstmv } from './dog.js';
@@ -211,6 +227,7 @@ import {
     delobj,
     freeinv,
     getobj,
+    ggetobj,
     mergable,
     obfree,
     preflight_update_inventory,
@@ -250,7 +267,7 @@ import {
 } from './monsters.js';
 import {
     is_pick, obj_meld, obj_nexto_xy, objectType, place_object,
-    pudding_merge_message, remove_object, set_bknown, weight,
+    pudding_merge_message, remove_object, set_bknown, splitobj, weight,
 } from './obj.js';
 import { oinit } from './o_init.js';
 import {
@@ -305,6 +322,8 @@ import {
 import { body_part, mbodypart } from './polyself.js';
 import { incr_itimeout, make_blinded, set_itimeout } from './potion.js';
 import {
+    add_valid_menu_class, allow_all, allow_category, count_justpicked,
+    find_justpicked, query_category, query_objlist,
     encumber_msg,
     pickup,
     preflight_projected_random_arrival_pickup,
@@ -318,7 +337,7 @@ import { delete_levelfile } from './files.js';
 import { cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
-import { costly_spot } from './shk.js';
+import { costly_spot, sellobj_state } from './shk.js';
 import { container_impact_dmg, ship_object } from './dokick.js';
 import { set_levltyp } from './terrain.js';
 import {
@@ -349,7 +368,7 @@ import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
 import { welded, weldmsg } from './wield.js';
-import { bimanual, setnotworn, setuqwep, setuswapwep, setuwep } from './worn.js';
+import { bimanual, bypass_objlist, nxt_unbypassed_obj, setnotworn, setuqwep, setuswapwep, setuwep } from './worn.js';
 import { resurrect } from './wizard.js';
 import {
     assign_graphics, S_altar, S_fountain, S_grave, S_room, S_sink, S_throne,
@@ -1612,16 +1631,8 @@ async function drop(obj, state = game) {
         return ECMD_FAIL;
     if (!await canletgo(obj, 'drop', state))
         return ECMD_FAIL;
-    if (obj.otyp === CORPSE
-        && !u_safe_from_fatal_corpse(obj, st_all, state)) {
-        // do.c:720-721 better_not_try_to_drop_that() (946-962), which asks
-        // paranoid_ynq() to confirm before a bare-handed hero drops a corpse
-        // that could petrify her.  u_safe_from_fatal_corpse() owns the source
-        // predicate; harmless or safely handled corpses return true and follow
-        // the ordinary drop path, while an unsafe corpse reaches the unported
-        // prompt and still stops here.
-        throw new UnsupportedDropError('better_not_try_to_drop_that()');
-    }
+    if (obj.otyp === CORPSE && await better_not_try_to_drop_that(obj, state))
+        return ECMD_FAIL;
     if (obj === state.uwep) {
         if (welded(state.uwep, state)) {
             // do.c:724 weldmsg() (wield.c:1061-1074), which names the weapon
@@ -1633,6 +1644,7 @@ async function drop(obj, state = game) {
             // Norep at do.c:677. The dead test is written out because the port
             // keeps C's structure; deleting it changes nothing.
             await weldmsg(obj, state);
+            return ECMD_FAIL;
         }
         setuwep(null, setwornEnv(state));
     }
@@ -1698,6 +1710,117 @@ async function drop(obj, state = game) {
     obj.how_lost = LOST_DROPPED;
     await dropx(obj, dropCommandEnv(state));
     return ECMD_TIME;
+}
+
+// C ref: do.c doddrop() (924-943), the D/#droptype dispatcher.
+export async function doddrop(state = game) {
+    if (!state.invent) {
+        await ttyPline('You have nothing to drop.', state);
+        return ECMD_OK;
+    }
+    add_valid_menu_class(0, state);
+    if (state.u.ushops) sellobj_state(SELL_DELIBERATE, state);
+    let result = ECMD_OK;
+    if (state.flags.menu_style !== MENU_TRADITIONAL
+        || (result = await ggetobj('drop', drop, 0, false, null, state)) < -1) {
+        result = await menu_drop(result, state);
+    }
+    if (state.u.ushops) sellobj_state(SELL_NORMAL, state);
+    if (result) reset_occupations(state);
+    return result;
+}
+
+// C ref: do.c better_not_try_to_drop_that() (947-960). The safety predicate
+// checks gloves and resistance before a dangerous corpse gets its prompt.
+export async function better_not_try_to_drop_that(obj, state = game) {
+    if (obj.otyp === CORPSE && !u_safe_from_fatal_corpse(obj, st_all, state)) {
+        const prompt = `Drop the ${obj_pmname(obj, state)} corpse without ${body_part(HAND, state.youmonst)} protection on?`;
+        return await paranoid_ynq(true, prompt, false, state) !== 'y'.charCodeAt(0);
+    }
+    return false;
+}
+
+// C ref: do.c menudrop_split() (964-977). C leaves cursed loadstones whole
+// and stores the requested count in corpsenm for canletgo's refusal message.
+export async function menudrop_split(obj, count, state = game) {
+    if (count && count < obj.quan) {
+        if (welded(obj, state)) {
+            // The welded stack must remain intact.
+        } else if (obj.otyp === LOADSTONE && obj.cursed) {
+            obj.corpsenm = count;
+        } else {
+            obj = splitobj(obj, count, { state });
+        }
+    }
+    return drop(obj, state);
+}
+
+// C ref: do.c menu_drop() (981-1107). All traversals read the current
+// inventory head after each drop; object effects can destroy other entries.
+export async function menu_drop(retry, state = game) {
+    let dropped = 0;
+    let allCategories = true;
+    let dropEverything = false;
+    let autopick = false;
+    let justpicked = false;
+    let count = 0;
+    if (retry) {
+        allCategories = retry === ALL_TYPES_SELECTED;
+    } else if (state.flags.menu_style === MENU_FULL) {
+        allCategories = false;
+        const result = await query_category('Drop what type of items?', state.invent,
+            UNPAID_TYPES | ALL_TYPES | CHOOSE_ALL | BUCX_TYPES | JUSTPICKED | INCLUDE_VENOM,
+            state, PICK_ANY);
+        if (!result.n) return ECMD_OK;
+        for (const choice of result.pick_list) {
+            if (choice.value === ALL_TYPES_SELECTED) allCategories = true;
+            else if (choice.value === 'A') dropEverything = autopick = true;
+            else if (choice.value === 'P') {
+                count = Math.max(0, choice.count);
+                justpicked = true;
+                dropEverything = false;
+                add_valid_menu_class(choice.value, state);
+            } else {
+                add_valid_menu_class(choice.value, state);
+                dropEverything = false;
+            }
+        }
+    } else if (state.flags.menu_style === MENU_COMBINATION) {
+        allCategories = false;
+        const flags = { value: 0 };
+        const result = await ggetobj('drop', drop, 0, true, flags, state);
+        if (result === -2) allCategories = true;
+        if (flags.value & ALL_FINISHED) return result ? ECMD_TIME : ECMD_OK;
+    }
+    if (autopick) {
+        bypass_objlist(state.invent, false, state);
+        let obj;
+        while ((obj = nxt_unbypassed_obj(state.invent, state))) {
+            if (dropEverything || allCategories || allow_category(obj, state))
+                dropped += ((await drop(obj, state)) & ECMD_TIME) ? 1 : 0;
+        }
+        bypass_objlist(state.invent, false, state);
+    } else if (justpicked && count_justpicked(state.invent) === 1) {
+        const obj = find_justpicked(state.invent);
+        if (obj) dropped += ((await menudrop_split(obj, count, state)) & ECMD_TIME) ? 1 : 0;
+    } else {
+        const result = await query_objlist(state.invent,
+            USE_INVLET | INVORDER_SORT | INCLUDE_VENOM,
+            allCategories ? allow_all : allow_category, state,
+            'What would you like to drop?', PICK_ANY);
+        if (result.n > 0) {
+            bypass_objlist(state.invent, true, state);
+            for (const choice of result.pick_list) {
+                const obj = choice.obj;
+                let current = state.invent;
+                while (current && current !== obj) current = current.nobj;
+                if (!current || !current.bypass) continue;
+                dropped += ((await menudrop_split(obj, choice.count, state)) & ECMD_TIME) ? 1 : 0;
+            }
+            bypass_objlist(state.invent, false, state);
+        }
+    }
+    return dropped ? ECMD_TIME : ECMD_OK;
 }
 
 // The object exposes its selected arms for source-pinned tests without

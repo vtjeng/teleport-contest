@@ -106,6 +106,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { getdir } from './cmd.js';
+import { doconsult } from './rumors.js';
 import {
     glyph_at,
     glyph_is_invisible,
@@ -1029,7 +1030,7 @@ export async function domonnoise(mtmp, state = game) {
 
     switch (msound) {
     case MS_ORACLE:
-        throw new UnsupportedChatError('oracle consultation (doconsult())');
+        return doconsult(mtmp, state);
     case MS_PRIEST:
         await priest_talk(mtmp, state);
         break;

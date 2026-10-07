@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap C-first variation of the flesh-golem hero cold claw witness. An iron golem resists cold without slowing (mon.c:golemeffects). C completes the first cold claw at steps 78-79 and the ordinary bite at 79. The input prefix follows that C-observed completion, without consulting JS.",
+  "segments": [
+    {
+      "seed": 7132105,
+      "datetime": "20381020114000",
+      "nethackrc": "OPTIONS=name:ColdB132,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!debug_mongen\n",
+      "moves": "#polyself\nice troll\n        w-    #wizgenesis\npeaceful iron golem\n        Fy   "
+    }
+  ]
+}

@@ -229,7 +229,7 @@ import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
 import { ice_descr } from './pager.js';
 import { can_reach_floor } from './engrave.js';
-import { force_decor, query_objlist, u_safe_from_fatal_corpse } from './pickup.js';
+import { add_valid_menu_class, allow_category, force_decor, query_objlist, u_safe_from_fatal_corpse } from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -313,7 +313,6 @@ import {
     objectType,
     place_object,
     preflightWeight,
-    set_bknown,
     splitobj,
     unsplitobj,
     carried,
@@ -346,7 +345,7 @@ import { artitouch } from './quest.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { record_achievement } from './insight.js';
-import { setuqwep } from './worn.js';
+import { bypass_objlist, nxt_unbypassed_loot, setuqwep } from './worn.js';
 import {
     inhishop,
     inside_shop,
@@ -1366,32 +1365,10 @@ async function silly_thing(word, otmp, state = game) {
     }
 }
 
-// C ref: invent.c ckvalidcat() (2136-2142). This callback is also used by
-// pickup.c's category filters; the state fields are the JS equivalents of
-// pickup.c's valid_menu_classes and filter flags.
+// C ref: invent.c ckvalidcat() (2136-2140), the integer callback wrapper
+// around pickup.c's canonical category predicate.
 export function ckvalidcat(otmp, state = game) {
-    if (!state.gc?.class_filter && !state.gs?.shop_filter
-        && !state.gb?.bucx_filter && !state.gp?.picked_filter)
-        return false;
-    const classes = state.gv?.valid_menu_classes ?? '';
-    // C explicitly accepts or rejects coins on the class filter and returns
-    // before applying unpaid or BUC filters.
-    if (otmp.oclass === COIN_CLASS && state.gc?.class_filter)
-        return classes.includes(String.fromCharCode(COIN_CLASS));
-    if (state.urole?.mnum === PM_CLERIC && !otmp.bknown)
-        set_bknown(otmp, 1, { state });
-    if (state.gc?.class_filter
-        && !classes.includes(String.fromCharCode(otmp.oclass))) return false;
-    if (state.gs?.shop_filter && !otmp.unpaid
-        && !(hasContents(otmp) && count_unpaid(otmp.cobj) > 0)) return false;
-    if (state.gb?.bucx_filter) {
-        const bucx = otmp.oclass === COIN_CLASS
-            ? (state.flags?.goldX ? 'X' : 'U')
-            : (!otmp.bknown ? 'X'
-                : otmp.blessed ? 'B' : otmp.cursed ? 'C' : 'U');
-        if (!classes.includes(bucx)) return false;
-    }
-    return !state.gp?.picked_filter || Boolean(otmp.pickup_prev);
+    return Number(allow_category(otmp, state));
 }
 
 // C ref: invent.c ckunpaid() (2143-2148).
@@ -1553,21 +1530,9 @@ export async function askchain(
         // C clears every object's bypass bit at the start of each class pass;
         // a class filter therefore gets a fresh traversal over the sorted
         // snapshot rather than inheriting skips from the previous class.
-        const processed = new Set();
-
-        for (const entry of sorted) {
-            const candidate = entry.obj;
-            if (processed.has(candidate)) continue;
-            let stillPresent = false;
-            for (let current = listHead(); current; current = current.nobj) {
-                if (current === candidate) {
-                    stillPresent = true;
-                    break;
-                }
-            }
-            if (!stillPresent) continue;
-            processed.add(candidate);
-
+        bypass_objlist(listHead(), false, state);
+        let candidate;
+        while ((candidate = nxt_unbypassed_loot(sorted, listHead(), state))) {
             if (ilet === 'z'.charCodeAt(0)) ilet = 'A'.charCodeAt(0);
             else if (ilet === 'Z'.charCodeAt(0)) ilet = NOINVSYM.charCodeAt(0);
             else ++ilet;
@@ -1688,16 +1653,7 @@ export async function ggetobj(
     }
 
     setResultFlags(0);
-    state.gv ??= {};
-    state.gc ??= {};
-    state.gb ??= {};
-    state.gs ??= {};
-    state.gp ??= {};
-    state.gv.valid_menu_classes = '';
-    state.gc.class_filter = false;
-    state.gb.bucx_filter = false;
-    state.gs.shop_filter = false;
-    state.gp.picked_filter = false;
+    add_valid_menu_class(0, state);
     let ckfn = null;
     let ofilter = null;
     const takeoff = taking_off(word);
@@ -1799,27 +1755,10 @@ export async function ggetobj(
         if (sym === 'a') allflag = true;
         else if (sym === 'A') continue;
         else if (sym === 'u') {
-            state.gv ??= {};
-            state.gv.valid_menu_classes ??= '';
-            if (!state.gv.valid_menu_classes.includes('u'))
-                state.gv.valid_menu_classes += 'u';
-            state.gs ??= {};
-            state.gs.shop_filter = true;
+            add_valid_menu_class('u', state);
             ckfn = ckunpaid;
         } else if ('BUCXP'.includes(sym)) {
-            state.gv ??= {};
-            state.gv.valid_menu_classes ??= '';
-            if (!state.gv.valid_menu_classes.includes(sym))
-                state.gv.valid_menu_classes += sym;
-            state.gb ??= {};
-            state.gb.bucx_filter = true;
-            if (sym === 'P') {
-                state.gp ??= {};
-                state.gp.picked_filter = true;
-            } else {
-                state.gc ??= {};
-                state.gc.class_filter = true;
-            }
+            add_valid_menu_class(sym, state);
             ckfn = ckvalidcat;
         } else if (sym === 'm') {
             m_seen = true;
@@ -1828,10 +1767,7 @@ export async function ggetobj(
         } else {
             const classChar = String.fromCharCode(oc);
             if (!olets.includes(classChar)) {
-                state.gv ??= {};
-                state.gv.valid_menu_classes ??= '';
-                if (!state.gv.valid_menu_classes.includes(classChar))
-                    state.gv.valid_menu_classes += classChar;
+                add_valid_menu_class(oc, state);
                 olets += classChar;
             }
         }
@@ -5255,7 +5191,7 @@ export async function dotypeinv(state = game, hooks = {}) {
         && (state.flags?.menu_style === MENU_FULL
             || state.flags?.menu_style === MENU_PARTIAL)) {
         traditional = false;
-        let qflags = UNPAID_TYPES | BILLED_TYPES | INCLUDE_VENOM;
+        let qflags = UNPAID_TYPES | INCLUDE_VENOM;
         if (billx) qflags |= BILLED_TYPES;
         if (bcnt) qflags |= BUC_BLESSED;
         if (ucnt) qflags |= BUC_UNCURSED;
@@ -5263,7 +5199,7 @@ export async function dotypeinv(state = game, hooks = {}) {
         if (xcnt) qflags |= BUC_UNKNOWN;
         if (jcnt) qflags |= JUSTPICKED;
         const { query_category } = await import('./pickup.js');
-        const result = await query_category(prompt, inventory, qflags, state);
+        const result = await query_category(prompt, inventory, qflags, state, PICK_ONE);
         if (!result.n) return resetDotypeContext(state);
         selectedType = result.pick_list[0]?.value ?? null;
         state.gt.this_type = selectedType;
