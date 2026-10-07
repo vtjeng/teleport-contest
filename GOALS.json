@@ -189234,6 +189234,109 @@
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
       }
+    },
+    {
+      "id": "port-insight-enlightenment-polymorph-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete enlightenment menus for polymorphed heroes",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v26/v26-giant-enlightenment"
+      ],
+      "selectionReason": "Next admitted v26 mismatch: 2 remaining screens where the full polymorphed enlightenment menu is skipped.",
+      "detail": "Port the contiguous enlightenment/background_enlightenment family and wire zap.c do_enlightenment_effect for Upolyd heroes. Use saved u.mfemale for title and role/rank, retain all current form sections, menu ordering, and PICK_NONE dismissal. Depend on the separately queued whole youhiding port used by attributes_enlightenment.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "enlightenment",
+          "line": 383,
+          "endLine": 467,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "background_enlightenment",
+          "line": 468,
+          "endLine": 727,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 383,
+        "to": 727
+      },
+      "requiredFunctions": [
+        {
+          "name": "youhiding",
+          "line": 2022,
+          "endLine": 2080,
+          "declared": false,
+          "sourceFile": "insight.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v26/v26-giant-enlightenment": {
+          "session": "synthetic/v26/v26-giant-enlightenment",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-giant-enlightenment",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-giant-enlightenment.session.json",
+          "recordingSha256": "7218ae54bee6b3d00e490d934afa2416e51ac51f9e7478e148a38c6dc6b0deda",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-sit-rndcurse-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port random inventory cursing and its active callers",
+      "cFile": "sit.c",
+      "sessions": [
+        "synthetic/v26/v26-sit-throne"
+      ],
+      "selectionReason": "Final admitted v26 mismatch: 2 remaining screens and 13 RNG calls because the throne curse path skips rndcurse.",
+      "detail": "Port whole rndcurse in source message and RNG order, including Magicbane, Antimagic, Half spell damage, inventory selection, artifact resistance, BUC changes, update_inventory, and saddle cursing. Wire active throne, monster-cast, prayer, and confused-book callers; keep the higher unported intervene caller explicit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rndcurse",
+          "line": 569,
+          "endLine": 643,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 569,
+        "to": 643
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-sit-throne": {
+          "session": "synthetic/v26/v26-sit-throne",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-sit-throne",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-sit-throne.session.json",
+          "recordingSha256": "f9e854c524cd067a9d39816d783a2f229ca55a2e5e2167afc5dd2d40fb8a621d",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
     }
   ]
 }
