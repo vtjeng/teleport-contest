@@ -1694,11 +1694,15 @@ test('weffects sends digging and a cast ray to their own arms', async () => {
             game.u.ux = 10;
             game.u.uy = 10;
             game.stairs = null;
+            // The hole and fall messages now reach their source pagers.
+            for (let page = 0; page < 10; ++page)
+                game.nhDisplay.pushKey(' '.charCodeAt(0));
             await weffects(wand, game, straightThrough());
             assert.equal(game.unported.has('dig.c dighole'), false, `${otyp}`);
-            assert.ok(game.unported.has(
+            assert.equal(game.unported.has(
                 'dig.c digactualhole non-hero and hole aftermath',
-            ), `${otyp}`);
+            ), false, `${otyp}`);
+            assert.equal(game.u.uz.dlevel, 2, 'downward ray falls one level');
         } else {
             await assert.rejects(
                 () => weffects(wand, game, straightThrough()),

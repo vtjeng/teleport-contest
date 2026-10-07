@@ -188790,16 +188790,20 @@
     {
       "id": "port-do-doddrop-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port the multiple-drop command family and canonical inventory traversal",
       "cFile": "do.c",
       "sessions": [
         "synthetic/v26/v26-eat-levitation-ring"
       ],
-      "selectionReason": "Top admitted synthetic mismatch: 80 remaining screens at step 31 when D should enter the source drop-type menu.",
+      "selectionReason": "Oldest dependency-ready v26 synthetic mismatch: multiple-drop command reaches the missing do.c doddrop family before the levitation-ring continuation.",
       "detail": "Port whole doddrop through menu_drop, the consumed drop and category-selection returns, and canonical bypass traversal. Wire droptype command admission and dispatch. Preserve source limits for partial downstream placement and traditional inventory helpers; validate the admitted D/A/a sequence plus independent variations.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c674e3f2faf4389d4a6dab74764ac9e3fbc29f5c",
+      "openStanding": {
+        "sha": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -188807,29 +188811,29 @@
           "name": "doddrop",
           "line": 924,
           "endLine": 946,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "better_not_try_to_drop_that",
           "line": 947,
           "endLine": 963,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "menudrop_split",
           "line": 964,
           "endLine": 980,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "menu_drop",
           "line": 981,
           "endLine": 1109,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -188843,7 +188847,7 @@
           "endLine": 785,
           "declared": true,
           "sourceFile": "do.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "query_category",
@@ -188857,15 +188861,15 @@
           "name": "bypass_objlist",
           "line": 1127,
           "endLine": 1141,
-          "declared": false,
+          "declared": true,
           "sourceFile": "worn.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "nxt_unbypassed_obj",
           "line": 1142,
           "endLine": 1158,
-          "declared": false,
+          "declared": true,
           "sourceFile": "worn.c",
           "complete": false
         }
@@ -188883,30 +188887,553 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-eat-levitation-ring",
+          "session": "synthetic/v26/v26-eat-levitation-ring",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-eat-levitation-ring.session.json",
+          "recordingPath": "challenges/cases/v26/v26-eat-levitation-ring.session.json",
+          "recordingSha256": "6c1c590921c9f6a8a3d1e955f5ce3978afd37e90227ef8a8ea1d2282a90ce00d",
+          "recipe": "challenges/cases/v26/v26-eat-levitation-ring.recipe.session.json",
+          "recipeSha256": "5a9286c5035d2215b2f7a5a8ba7fab993e69e8a3cba5a358e237e0c5d5b052f6",
+          "replayInputSha256": "cadf4866ef1cac9f30faf8978074d22a20969b4e777b3e17313ef88fbbf4e650",
+          "evaluationPath": "challenges/evaluations/20261007111518-v26.json",
+          "evaluationCommit": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75",
+          "evaluationArtifact": "challenges/evaluations/20261007111518-v26.json",
+          "evaluationUtc": "2026-10-07T11:17:25.412Z",
+          "remainingScreens": 80,
+          "recordedSteps": 111,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 111
+            },
+            "rng": {
+              "matched": 2398,
+              "total": 2602
+            },
+            "cursors": {
+              "matched": 31,
+              "total": 111
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+            "step": 31
+          },
+          "step": 31,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-eat-levitation-ring.json",
+            "result": {
+              "session": "synthetic/v26/v26-eat-levitation-ring",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-eat-levitation-ring",
+              "remainingScreens": 80,
+              "recordedSteps": 111,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "6c1c590921c9f6a8a3d1e955f5ce3978afd37e90227ef8a8ea1d2282a90ce00d",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "status": "complete",
+              "commit": "8cee72826870e64545745d565d551730e09ca5ab",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-eat-levitation-ring",
+                "session": "synthetic/v26/v26-eat-levitation-ring",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-eat-levitation-ring.session.json",
+                "recordingPath": "challenges/cases/v26/v26-eat-levitation-ring.session.json",
+                "recordingSha256": "6c1c590921c9f6a8a3d1e955f5ce3978afd37e90227ef8a8ea1d2282a90ce00d",
+                "recipe": "challenges/cases/v26/v26-eat-levitation-ring.recipe.session.json",
+                "recipeSha256": "5a9286c5035d2215b2f7a5a8ba7fab993e69e8a3cba5a358e237e0c5d5b052f6",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 80,
+                "recordedSteps": 111,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 31,
+                    "total": 111
+                  },
+                  "rng": {
+                    "matched": 2398,
+                    "total": 2602
+                  },
+                  "cursors": {
+                    "matched": 31,
+                    "total": 111
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                  "step": 31
+                },
+                "step": 31,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, call, name, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first stop is D/#droptype at segment 0 step 31, before ring eating. C do.c:doddrop opens menu_drop's class selector; JavaScript resolves D to droptype but rejects it in cmd.js:admitParsedCommand because admission and handler dispatch are missing. Port the whole multiple-drop family and its required category-selection and bypass traversal dependencies; adding the command name alone is insufficient.",
+              "source": {
+                "file": "do.c",
+                "branch": "A rock-mole hero with carried inventory presses D under the default full-menu style. No numeric count or repeat request precedes this command; the repeated-command wording is a generic admission refusal. C proceeds to the Drop what type of items? category menu, then the independently recorded A+a selection drops all eligible inventory stacks.",
+                "functions": [
+                  "doddrop",
+                  "better_not_try_to_drop_that",
+                  "menudrop_split",
+                  "menu_drop"
+                ],
+                "callers": [
+                  "cmd.c:1710-1711 extcmdlist binds D and #droptype to doddrop; cmd.c:rhack invokes (*func) at 3747. JS extcmdlist_data.js:61 contains the correct row, but cmd.js ADMITTED_COMMANDS1852 / admitParsedCommand1910-1926 omits droptype and both dispatchExtcmdEntry and rhack have no doddrop handler.",
+                  "do.c:doddrop924-943 clears category state, enters menu_drop for MENU_FULL/MENU_COMBINATION or ggetobj for MENU_TRADITIONAL, restores shop sale mode, and resets occupations after a successful drop.",
+                  "do.c:drop714-780 uses better_not_try_to_drop_that for unsafe corpses; menu_drop981-1107 invokes menudrop_split964-977 and drop, consuming their ECMD_TIME results."
+                ],
+                "dependencies": [
+                  "Consume and source-audit do.c:drop714-780 as a required return-valued callee. Its current js/do.js implementation still refuses better_not_try_to_drop_that; implement the whole confirmation helper and reuse canonical paranoid_ynq/u_safe_from_fatal_corpse. Reuse canletgo, welded, splitobj, floor placement and dropx/dropz ownership; preserve explicit source limits rather than certifying their partial branches.",
+                  "pickup.c:query_category1225-1508 returns selected categories and counts; current js/pickup.js:791-936 is an out-only menu_loot slice. Audit/complete whole query_category and count_categories1510-1541, including worn/unpaid/paranoid/just-picked branches, rather than assuming its declaration establishes completion. Reuse/source-check query_objlist1025-1215, allow_all517-520, allow_category523-592, count_justpicked635-645 and find_justpicked648-657; several helpers are private and need caller exports. Keep one canonical valid_menu_classes/filter owner shared with invent.c:ggetobj.",
+                  "worn.c:bypass_objlist1127-1137 and nxt_unbypassed_obj1142-1151 are absent in current js/worn.js; menu_drop consumes the latter return and must restart from the current inventory head after each destructive drop. Reuse existing bypass_obj1119-1123. Reserve contract:object-bypass-traversal and wire active source callers in do.c:menu_drop, invent.c:askchain2432, zap.c:destroy_items6038-6095 and artifact.c:retouch_equipment2695 at bounded source seams. Whole askchain/retouch_equipment are separate completion claims; traditional ggetobj may additionally require return-valued nxt_unbypassed_loot1159-1173 after its partial sorted-chain implementation is audited.",
+                  "invent.c:ggetobj2202-2376 and askchain2377-2541 supply MENU_TRADITIONAL/MENU_COMBINATION returns and need source/caller verification. Existing functions are partial. Shop sale-state and reset_occupations calls have discarded results; any missing side-effect callee remains an explicit note_unported gap, not fabricated state/output."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20261007095608-v26.json at 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44 reports 31/111 screens and cursors, 2398/2602 RNG calls, and 80 remaining screens. Queue identity and manifest/recording hashes are preserved above; the first stop is segment 0 zero-based step31.",
+                "Bounded run-329eqb replayed only this assigned session at examined worktree commit8cee72826870e64545745d565d551730e09ca5ab, whose game code equals published16bad87c. .cache/v26-levitation/replay.json records key D, command droptype,31 emitted boundaries,111 recorded boundaries, commandRefusal true and no earlier screen/RNG divergence. .cache/v26-levitation/replay.log holds the completed run. No C game was recorded.",
+                "Recording step30 is an ordinary Unknown command space boundary. Step31 key D opens C Drop what type of items?;32 A enables Auto-select every relevant item,33 a enables All types,34 Enter begins the first You drop a wand of light More message. Subsequent source inventory traversal drops the two rings, potions, scrolls, spellbooks and magic marker before encumbrance clears. JS stops before opening that menu, so the cause is neither eataccessory nor a count/repeat implementation.",
+                "Complete do.c:doddrop924-943, better_not_try_to_drop_that947-960, menudrop_split964-977 and menu_drop981-1107 were read. menu_drop branches cover retry -2/-3, full/combination styles, autopick A, category filters, just-picked counts, explicit item selection and stack splits; bypass bits protect inventory traversal against destruction and stale menu pointers. Return success only after at least one ECMD_TIME drop; C resets occupations and shop-sale state in doddrop at their exact source order.",
+                "JS boundary is cmd.js:admitParsedCommand1910-1926 called from rhack5383 after parse. extcmdlist_data.js:61 already resolves0x44 to droptype/doddrop; ADMITTED_COMMANDS1852 onward lacks droptype, dispatchExtcmdEntry around5165 handles dodrop only, and rhack5896 handles drop only. rg over js confirms no doddrop, menu_drop or menudrop_split implementation; JS do.js:drop1613 onward separately refuses unsafe corpse confirmation.",
+                "The immutable mission name/comment is historical: actual recorded setup is rock mole and wish uncursed +3 ring of increase accuracy, not levitation. Ring wish ends at98;99 eat offers a dropped floor ring,100 n declines it,101 n selects the wished wire ring and prints This wire ring is delicious. This later eat.c:eataccessory path cannot identify the first stop and is not certified by the current replay.",
+                "Actionable reservations: source:do.c:doddrop/better_not_try_to_drop_that/menudrop_split/menu_drop, required source:do.c:drop, source:pickup.c:query_category and its audited dependencies, source:worn.c:bypass_objlist/nxt_unbypassed_obj, bounded source:cmd.c:rhack/doextcmd dispatch, and contract:object-bypass-traversal plus category-filter state. Initial paths js/do.js/js/cmd.js/js/pickup.js/js/worn.js/js/invent.js and focused drop/category/worn/command tests; add js/zap_destroy_items.js/js/artifacts.js only for source-required bypass caller scope events. A112 remains parked; its uncommitted recovery must not be applied or changed without a separate authorized resumption.",
+                "Validation plan: verify this admitted range through the D/A/a menu and ensuing drop sequence; independent C-first multiple-drop recipes need full-menu auto-all and filtered selection, manual counted stack split, just-picked selection, cancellation/no inventory, and traditional/combination paths. Test source-pinned callback returns, bypass/context-bit coupling, current-head restart after inventory destruction, stale selected pointers, strict ECMD_TIME accounting and cursed-loadstone/welded split prevention. Independently exercise unsafe-corpse confirmation and cheap role/options/object-class variations. Shop/swallow/levitation branches and returned helper gaps need matching source evidence or named blocked recipes; this case supplies none of that whole-function coverage."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doddrop",
+            "implementation": "js/do.js",
+            "symbol": "doddrop",
+            "sourceReview": "Read whole do.c:924-943: no inventory early return, clear category state, deliberate/normal shop sell state around selection, short circuit traditional ggetobj/retry, reset occupations only on nonzero source result. Remove command refusal for D/#droptype; both real dispatchers await the result before time bookkeeping.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:1710-1711 D/droptype registry and rhack:3747 call, result handling3810-3818"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd registry function dispatch for #droptype"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-combination.session.json",
+              "recordings/do.c/multiple-drop-extcmd-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-A-alone.session.json",
+              "recordings/do.c/multiple-drop-full-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-cancel.session.json",
+              "recordings/do.c/multiple-drop-full-empty-inventory.session.json",
+              "recordings/do.c/multiple-drop-full-filtered.session.json",
+              "recordings/do.c/multiple-drop-full-hint-repeat.session.json",
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-justpicked-count.session.json",
+              "recordings/do.c/multiple-drop-paranoid-accept.session.json",
+              "recordings/do.c/multiple-drop-paranoid-decline.session.json",
+              "recordings/do.c/multiple-drop-paranoid-quit.session.json",
+              "recordings/do.c/multiple-drop-partial-manual.session.json",
+              "recordings/do.c/multiple-drop-traditional-filtered.session.json",
+              "recordings/do.c/multiple-drop-traditional.session.json",
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-eat-levitation-ring",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 44,
+                "source": "cmd.c:1710-1711 D/droptype -> rhack:3747 -> do.c:doddrop924-943 -> menu_drop981-1107 -> pickup.c:query_category1226-1510; Aa selects every item, bypass traversal repeatedly reads live inventory, drop rejects worn armor and settles the drop messages/encumbrance."
+              }
+            ],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          },
+          {
+            "name": "better_not_try_to_drop_that",
+            "implementation": "js/do.js",
+            "symbol": "better_not_try_to_drop_that",
+            "sourceReview": "Read whole do.c:947-960. Safety checks use u_safe_from_fatal_corpse(st_all) before obj_pmname/body_part message, force spelled paranoid yes, and return != y. The discarded safe branch reads no input; the old unsafe-corpse refusal is removed.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "drop",
+                "source": "do.c:719 better_not_try_to_drop_that before equipment mutation"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          },
+          {
+            "name": "menudrop_split",
+            "implementation": "js/do.js",
+            "symbol": "menudrop_split",
+            "sourceReview": "Read whole do.c:964-977: truthy count below quantity; welded stack stays whole; cursed loadstone records count in corpsenm without splitting; other stacks split with original C quantity; consume drop result. No RNG/output substitute.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "menu_drop",
+                "source": "do.c:1067-1069 justpicked and1098 manual selected pointer/count"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-justpicked-count.session.json",
+              "recordings/do.c/multiple-drop-partial-manual.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          },
+          {
+            "name": "menu_drop",
+            "implementation": "js/do.js",
+            "symbol": "menu_drop",
+            "sourceReview": "Read whole do.c:981-1107. Preserve retry=-2/all-category sentinel, Full category order and A/P overrides, combination ggetobj/ALL_FINISHED result, live-chain autopick marking before callbacks, one-stack justpicked split, manual selected-pointer live membership/bypass validation, cleanup and ECMD_TIME only when an item drops. No obsolete injected traversal or refusal remains.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "doddrop",
+                "source": "do.c:937 result = menu_drop(result)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-combination.session.json",
+              "recordings/do.c/multiple-drop-extcmd-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-A-alone.session.json",
+              "recordings/do.c/multiple-drop-full-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-cancel.session.json",
+              "recordings/do.c/multiple-drop-full-empty-inventory.session.json",
+              "recordings/do.c/multiple-drop-full-filtered.session.json",
+              "recordings/do.c/multiple-drop-full-hint-repeat.session.json",
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-justpicked-count.session.json",
+              "recordings/do.c/multiple-drop-paranoid-accept.session.json",
+              "recordings/do.c/multiple-drop-paranoid-decline.session.json",
+              "recordings/do.c/multiple-drop-paranoid-quit.session.json",
+              "recordings/do.c/multiple-drop-partial-manual.session.json",
+              "recordings/do.c/multiple-drop-traditional-filtered.session.json",
+              "recordings/do.c/multiple-drop-traditional.session.json",
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-eat-levitation-ring",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 44,
+                "source": "cmd.c:1710-1711 D/droptype -> rhack:3747 -> do.c:doddrop924-943 -> menu_drop981-1107 -> pickup.c:query_category1226-1510; Aa selects every item, bypass traversal repeatedly reads live inventory, drop rejects worn armor and settles the drop messages/encumbrance."
+              }
+            ],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          },
+          {
+            "name": "drop",
+            "implementation": "js/do.js",
+            "symbol": "drop",
+            "sourceReview": "Read whole do.c:714-780. Retain canletgo before fatal-corpse confirmation; clear source equipment slots; source swallowed naming and sink dispatch; unreachable-floor finesse_ahriman/freeinv/hitfloor/float_down order; altar message suppression and LOST_DROPPED/dropx. Remove unsafe corpse refusal and return ECMD_FAIL after weldmsg as C does (dead after identical canletgo check). Existing downstream partial dropx/dropz/hitfloor gaps remain those owners; no completion credit for them.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dodrop",
+                "source": "do.c:dodrop drop(getobj result)"
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "doddrop",
+                "source": "do.c:936 ggetobj drop callback"
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "menu_drop",
+                "source": "do.c:1033 ggetobj callback,1058 autopick and menudrop_split call"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-combination.session.json",
+              "recordings/do.c/multiple-drop-extcmd-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-A-alone.session.json",
+              "recordings/do.c/multiple-drop-full-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-cancel.session.json",
+              "recordings/do.c/multiple-drop-full-empty-inventory.session.json",
+              "recordings/do.c/multiple-drop-full-filtered.session.json",
+              "recordings/do.c/multiple-drop-full-hint-repeat.session.json",
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-justpicked-count.session.json",
+              "recordings/do.c/multiple-drop-paranoid-accept.session.json",
+              "recordings/do.c/multiple-drop-paranoid-decline.session.json",
+              "recordings/do.c/multiple-drop-paranoid-quit.session.json",
+              "recordings/do.c/multiple-drop-partial-manual.session.json",
+              "recordings/do.c/multiple-drop-traditional-filtered.session.json",
+              "recordings/do.c/multiple-drop-traditional.session.json",
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "sourceFile": "do.c",
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-eat-levitation-ring",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 44,
+                "source": "cmd.c:1710-1711 D/droptype -> rhack:3747 -> do.c:doddrop924-943 -> menu_drop981-1107 -> pickup.c:query_category1226-1510; Aa selects every item, bypass traversal repeatedly reads live inventory, drop rejects worn armor and settles the drop messages/encumbrance."
+              }
+            ],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          },
+          {
+            "name": "bypass_objlist",
+            "implementation": "js/worn.js",
+            "symbol": "bypass_objlist",
+            "sourceReview": "Read whole worn.c:1127-1137. Top-level nobj bits only, nonempty on sets svc.context.bypasses; clearing does not clear the global cleanup-needed flag. Wire every existing source caller with its real current chain and replace Set stand-in in askchain.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "menu_drop",
+                "source": "do.c:1055,1062,1088,1100"
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "askchain",
+                "source": "invent.c:2432"
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "destroy_items",
+                "source": "zap.c:6038,6095"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/multiple-drop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-full-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-traditional.session.json",
+              "recordings/zap.c/b116-fire-ray.session.json",
+              "recordings/zap.c/b116-cold-ray.session.json"
+            ],
+            "sourceFile": "worn.c",
+            "synthetic": [],
+            "checkedAt": "49dfe207973f01fde9a8500b9b4d84eff3828c0f"
+          }
+        ],
+        "entryPointReview": "D and #droptype share do.c:doddrop; Full, Partial, Traditional and Combination independently recorded with sequential source-independent seeds13226001..13226019/date20800406121500. Counted Tourist stack, justpicked, filtered selection, no inventory, cancellation, repeated A hints and paranoid n/y/q prove active menu branches. Single d corpse prompt shares drop and better_not_try_to_drop_that. Existing zap fire/cold and traditional container askchain recordings are explicitly replayed for bounded traversal caller seams. query_category inventory I and takeoffall A callers remain active blocked entries; artifact retouch caller has an absent-body gap despite matching output for the cheapest probe. No whole askchain, dotypeinv, destroy_items, maybe_destroy_item, rhack/doextcmd, retouch_equipment or menu_remarm claim. maybe_destroy_item bounded monster-removal correction reuses canonical mthrowu.c:m_useup/m_useupall without reimplementing them and preserves the consumed damage return/RNG order; fail-first last worn potion test stops at generic obfree setNotWorn, now canonical equipment/weapon removal passes. Parked A112 recovery untouched. Traditional BUC variation additionally exposed invent.c:ggetobj manual flags setting class_filter for U. Its exact reset and category-registration call sites now use canonical add_valid_menu_class, with a fail-first state assertion and strict matching filtered C recording. No whole ggetobj credit. Cleric variation hit an earlier startup display difference; the passing cheap role variation uses Archeologist and source-pinned filter tests cover the predicate independently.",
+        "entryPoints": [
+          {
+            "name": "D/#droptype multiple drop, all implemented menu styles",
+            "functions": [
+              "doddrop",
+              "menu_drop",
+              "menudrop_split",
+              "drop",
+              {
+                "sourceFile": "pickup.c",
+                "name": "query_category"
+              },
+              {
+                "sourceFile": "worn.c",
+                "name": "bypass_objlist"
+              },
+              {
+                "sourceFile": "worn.c",
+                "name": "nxt_unbypassed_obj"
+              }
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-combination.session.json",
+              "recordings/do.c/multiple-drop-extcmd-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-A-alone.session.json",
+              "recordings/do.c/multiple-drop-full-autoall.session.json",
+              "recordings/do.c/multiple-drop-full-cancel.session.json",
+              "recordings/do.c/multiple-drop-full-empty-inventory.session.json",
+              "recordings/do.c/multiple-drop-full-filtered.session.json",
+              "recordings/do.c/multiple-drop-full-hint-repeat.session.json",
+              "recordings/do.c/multiple-drop-full-manual-count.session.json",
+              "recordings/do.c/multiple-drop-justpicked-count.session.json",
+              "recordings/do.c/multiple-drop-paranoid-accept.session.json",
+              "recordings/do.c/multiple-drop-paranoid-decline.session.json",
+              "recordings/do.c/multiple-drop-paranoid-quit.session.json",
+              "recordings/do.c/multiple-drop-partial-manual.session.json",
+              "recordings/do.c/multiple-drop-traditional-filtered.session.json",
+              "recordings/do.c/multiple-drop-traditional.session.json",
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-eat-levitation-ring",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 44,
+                "source": "cmd.c:1710-1711 D/droptype -> rhack:3747 -> do.c:doddrop924-943 -> menu_drop981-1107 -> pickup.c:query_category1226-1510; Aa selects every item, bypass traversal repeatedly reads live inventory, drop rejects worn armor and settles the drop messages/encumbrance."
+              }
+            ]
+          },
+          {
+            "name": "Single d unsafe corpse protection prompt",
+            "functions": [
+              "drop",
+              "better_not_try_to_drop_that"
+            ],
+            "recordings": [
+              "recordings/do.c/multiple-drop-unsafe-corpse-decline.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Existing category inventory I/#inventtype (blocked admission)",
+            "functions": [
+              {
+                "sourceFile": "pickup.c",
+                "name": "query_category"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Existing A/#takeoffall worn category menu (blocked menu_remarm)",
+            "functions": [
+              {
+                "sourceFile": "pickup.c",
+                "name": "query_category"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Alignment-change artifact equipment retouch (absent caller)",
+            "functions": [
+              {
+                "sourceFile": "worn.c",
+                "name": "nxt_unbypassed_obj"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "49dfe207973f01fde9a8500b9b4d84eff3828c0f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Six of eight planned source units are verified. pickup.c:query_category remains blocked by the active I/#inventtype admission and A/#takeoffall menu_remarm path; worn.c:nxt_unbypassed_obj remains blocked by the absent alignment-change artifact retouch caller. The D/#droptype and unsafe single-drop entry points match recorded C play."
     },
     {
       "id": "port-uhitm-mhitm-ad-cold-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete cold attack handler in all combat directions",
       "cFile": "uhitm.c",
       "sessions": [
         "synthetic/v26/v26-ice-troll-cold-claw"
       ],
-      "selectionReason": "Next admitted synthetic mismatch: 21 remaining screens at step 70 in the hero-attacker cold arm.",
+      "selectionReason": "Highest-ranked remaining synthetic v26 mismatch: ice-troll cold claw has 21 screens remaining at step 70; whole mhitm_ad_cold covers all three combat directions.",
       "detail": "Port whole mhitm_ad_cold for hero-to-monster, monster-to-hero, and monster-to-monster directions. Keep the existing hmonas to damageum to mhitm_adtyping caller chain and source-order negation, resistance, messaging, golem, item-destruction, and knowledge effects.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "f51ffaff67b5c538d063ee6321609886ca676cf4",
+      "openStanding": {
+        "sha": "f51ffaff67b5c538d063ee6321609886ca676cf4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9c713afc4bf47c40ef07201b56da0513b4e09ceb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_cold",
           "line": 2626,
           "endLine": 2683,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -188926,12 +189453,281 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
+      },
+      "activeStanding": {
+        "sha": "f51ffaff67b5c538d063ee6321609886ca676cf4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-ice-troll-cold-claw",
+          "session": "synthetic/v26/v26-ice-troll-cold-claw",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-ice-troll-cold-claw.session.json",
+          "recordingPath": "challenges/cases/v26/v26-ice-troll-cold-claw.session.json",
+          "recordingSha256": "a83a5bb776910f2c2df1ccc60395c35702d30c23250f9f98b73ab14fe75c02b9",
+          "recipe": "challenges/cases/v26/v26-ice-troll-cold-claw.recipe.session.json",
+          "recipeSha256": "31b0ee67cd245846e7c84e31450ddd0617a2ea1898bafc38406f48dcb3ead0cf",
+          "replayInputSha256": "e670baa3682bd19c4c315fb2b7c5ce28d7492bb2bc0f83740acbba84469cd4ca",
+          "evaluationPath": "challenges/evaluations/20261007151305-v26.json",
+          "evaluationCommit": "bb1c5041e2f8f19e30258ef956dd0be5c366c6c5",
+          "evaluationArtifact": "challenges/evaluations/20261007151305-v26.json",
+          "evaluationUtc": "2026-10-07T15:14:57.619Z",
+          "remainingScreens": 21,
+          "recordedSteps": 91,
+          "previousScreensMatched": 70,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 70,
+              "total": 91
+            },
+            "rng": {
+              "matched": 2918,
+              "total": 2974
+            },
+            "cursors": {
+              "matched": 70,
+              "total": 91
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: the hero's own cold attack",
+            "step": 70
+          },
+          "step": 70,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: the hero's own cold attack",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-ice-troll-cold-claw.json",
+            "result": {
+              "session": "synthetic/v26/v26-ice-troll-cold-claw",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-ice-troll-cold-claw",
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "a83a5bb776910f2c2df1ccc60395c35702d30c23250f9f98b73ab14fe75c02b9",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "remainingScreens": 21,
+              "recordedSteps": 91,
+              "status": "complete",
+              "commit": "b3158961f5508f84d8e426b0e786ad35ac6eb95b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-ice-troll-cold-claw",
+                "session": "synthetic/v26/v26-ice-troll-cold-claw",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-ice-troll-cold-claw.session.json",
+                "recordingPath": "challenges/cases/v26/v26-ice-troll-cold-claw.session.json",
+                "recordingSha256": "a83a5bb776910f2c2df1ccc60395c35702d30c23250f9f98b73ab14fe75c02b9",
+                "recipe": "challenges/cases/v26/v26-ice-troll-cold-claw.recipe.session.json",
+                "recipeSha256": "31b0ee67cd245846e7c84e31450ddd0617a2ea1898bafc38406f48dcb3ead0cf",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 21,
+                "recordedSteps": 91,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 70,
+                    "total": 91
+                  },
+                  "rng": {
+                    "matched": 2918,
+                    "total": 2974
+                  },
+                  "cursors": {
+                    "matched": 70,
+                    "total": 91
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: the hero's own cold attack",
+                  "step": 70
+                },
+                "step": 70,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: the hero's own cold attack",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 70, a landed ice-troll cold claw reaches the hero-attacker arm of uhitm.c:mhitm_ad_cold(). The JS function currently throws at that arm. Port the whole C function, including its existing monster-attacks-hero branch and monster-attacks-monster branch, and retain the existing damageum() -> mhitm_adtyping() dispatch.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "magr == &gy.youmonst in mhitm_ad_cold(), for a landed AD_COLD attack against a non-hero defender; magic cancellation is checked before frost messaging, cold resistance/defense, golem effects, and item destruction.",
+                "functions": [
+                  "mhitm_ad_cold"
+                ],
+                "callers": [
+                  "uhitm.c:do_attack() calls hmonas() when Upolyd is true.",
+                  "uhitm.c:hmonas() selects the ice-troll AT_CLAW/AD_COLD attack and calls damageum() after a landed non-physical attack.",
+                  "uhitm.c:damageum() calls mhitm_adtyping(&gy.youmonst, mattk, mdef, &mhm); uhitm.c:mhitm_adtyping() dispatches AD_COLD to mhitm_ad_cold()."
+                ],
+                "dependencies": [
+                  "uhitm.c:mhitm_mgc_atk_negated",
+                  "uhitm.c:hitmsg",
+                  "monst.h:resists_cold / Resists_Elem",
+                  "mondata.c:defended",
+                  "display.c:shieldeff",
+                  "mon.c:golemeffects",
+                  "zap.c:destroy_items",
+                  "mondata.c:monstseesu and monstunseesu",
+                  "rn2",
+                  "Monnam, mon_nam, canseemon, pline, pline_The, pline_mon"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The v26 baseline evaluation challenges/evaluations/20261007095608-v26.json records synthetic/v26/v26-ice-troll-cold-claw stopping at zero-based step 70 with “unsupported hero move: the hero's own cold attack”; 70 of 91 screens match and 21 remain. The exact queue entry carries the same count and evaluation provenance.",
+                "The recipe challenges/cases/v26/v26-ice-troll-cold-claw.recipe.session.json polymorphs the hero into an ice troll and creates a peaceful stone giant. include/monsters.h:2233-2240 defines the ice troll with AT_CLAW/AD_COLD damage of 2d6 as its second attack.",
+                "upstream/src/uhitm.c:2626-2681 defines all three mhitm_ad_cold() directions. For magr == &gy.youmonst, C checks magic cancellation first; otherwise it prints the frost message unless Blind, handles cold resistance or artifact defense with shield/golem effects and zeroed damage, then adds destroy_items() damage based on the entry damage. The hero-defender and monster-versus-monster arms are also part of this whole function.",
+                "The C route is upstream/src/uhitm.c:do_attack() -> hmonas() -> damageum() -> mhitm_adtyping() -> mhitm_ad_cold(). hmonas() calls damageum() after the landed non-physical polyform blow; damageum() supplies the hero as attacker and the type dispatcher routes AD_COLD.",
+                "js/uhitm.js:4225-4264 currently implements only the mhitu arm of mhitm_ad_cold(); its magr === state.youmonst branch calls unsupported(\"the hero's own cold attack\"). js/uhitm.js:6972-7004 already dispatches AD_COLD, and hmonas()/damageum() are already wired, so the missing source unit is the whole mhitm_ad_cold() function rather than an unconnected caller."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_cold",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_cold",
+            "sourceReview": "Compared whole uhitm.c:2626-2681 in definition order. Snapshot orig_dmg before all branches. Hero attacker: negate first with damage=0/return; Blind gates only messages; evaluate cold resistance before defended; shield before resistance message; golem effects before zeroing; add returned destroy_items damage using orig_dmg. Hero defender: hitmsg before cancellation; frost text; Cold_resistance selects seen-resistance set/clear and zeroes only attack damage; consume the unconditional rn2(20) gate after resistance; discard destroy_items return and forward canonical state/random/planning env. Monster pair: cancellation return; gv.vis&&canseemon gates location-bearing first message and plain resistance message; resistance text before shield/golem effects/zeroing; add returned inventory damage based on orig_dmg. Removed both old unsupported cold-arm placeholders and the cold helper unsupported operation requirement. Direct callees read: mhitm_mgc_atk_negated/magic_negation, hitmsg, Resists_Elem/defended, Monnam/mon_nam, heroIsBlind/Cold_resistance, monstseesu/monstunseesu, display.c:shieldeff, mon.c:golemeffects/worn.c:mon_adjust_speed, and zap.c:destroy_items/maybe_destroy_item. The consumed inventory return uses separately owned A132 dependency 90143b2dc53e8081f705b6368de90fa6bdf84b1a. Read its complete source diff: destroy_items clears bits before traversal, rescans the current head through nxt_unbypassed_obj, clears the surviving live chain on exit, and maybe_destroy_item consumes canonical m_useup removal for each item; no inventory-owner completion credit is claimed in B132. No new discarded-return gaps.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:4781-4832 AD_COLD dispatches mhitm_ad_cold(magr,mattk,mdef,mhm). JS retains the awaited matching arm. Hero combat reaches it through do_attack/hmonas/damageum, C uhitm.c:566,5546/5587 and4854. Monster-to-hero hitmu calls it at mhitu.c:1191; monster-pair mdamagem calls it at mhitm.c:1059."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:4854 supplies &gy.youmonst as attacker before damage is deducted from the defender."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:1191 supplies &gy.youmonst as defender after base damage rolls."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:1059 supplies both monster pointers after base damage and contact checks."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-cold.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/uhitm-ad-fire.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/cold-hero-flesh-golem-frost-b132.session.json",
+              "recordings/uhitm.c/cold-hero-iron-golem-frost-b132.session.json",
+              "recordings/uhitm.c/cold-monster-hero-tourist-b132.session.json",
+              "recordings/uhitm.c/cold-monster-hero-wizard-b132.session.json",
+              "recordings/uhitm.c/cold-monster-pair-flesh-golem-no-sparkle-b132.session.json",
+              "recordings/uhitm.c/cold-monster-pair-ice-devil-flesh-golem-b132.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-ice-troll-cold-claw",
+                "segment": 0,
+                "fromStep": 70,
+                "throughStep": 90,
+                "source": "uhitm.c:do_attack -> hmonas ice-troll AT_CLAW/AD_COLD -> damageum -> mhitm_adtyping -> mhitm_ad_cold hero-attacker arm; ordinary target frost, cancellation/inventory draw and returned damage."
+              }
+            ],
+            "checkedAt": "9c713afc4bf47c40ef07201b56da0513b4e09ceb"
+          }
+        ],
+        "entryPointReview": "Active entries are the three combat directions routed by mhitm_adtyping: polymorphed hero melee, monster melee against the hero, and monster-versus-monster melee (including Conflict/pet routes). None is compile-time inactive. The admitted v26 ice-troll claw covers hero melee; independent flesh/iron golem recordings cover cold resistance, shield animation and flesh-golem slowing. Wizard/Tourist recordings cover hitmu including the inventory level gate and potion-shattering return being discarded. Unarmed ice-devil/flesh-golem Conflict recordings establish fightm/mattackm/mdamagem wiring, with sparkle enabled and disabled. Other attack types and the armed mattackm branch are outside this selected source function; C-confirmed blocked recipes retain the named weapon caller limit.",
+        "entryPoints": [
+          {
+            "name": "Polymorphed hero cold melee",
+            "functions": [
+              "mhitm_ad_cold"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/cold-hero-flesh-golem-frost-b132.session.json",
+              "recordings/uhitm.c/cold-hero-iron-golem-frost-b132.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-ice-troll-cold-claw",
+                "segment": 0,
+                "fromStep": 70,
+                "throughStep": 90,
+                "source": "uhitm.c:do_attack -> hmonas ice-troll AT_CLAW/AD_COLD -> damageum -> mhitm_adtyping -> mhitm_ad_cold hero-attacker arm; ordinary target frost, cancellation/inventory draw and returned damage."
+              }
+            ]
+          },
+          {
+            "name": "Monster cold melee against hero",
+            "functions": [
+              "mhitm_ad_cold"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/cold-monster-hero-tourist-b132.session.json",
+              "recordings/uhitm.c/cold-monster-hero-wizard-b132.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster-pair cold melee through Conflict",
+            "functions": [
+              "mhitm_ad_cold"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/cold-monster-pair-flesh-golem-no-sparkle-b132.session.json",
+              "recordings/uhitm.c/cold-monster-pair-ice-devil-flesh-golem-b132.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9c713afc4bf47c40ef07201b56da0513b4e09ceb",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-dig-digactualhole-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete hole creation and hero fall behavior",
       "cFile": "dig.c",
       "sessions": [
@@ -188939,17 +189735,24 @@
       ],
       "selectionReason": "Next admitted synthetic mismatch after the active larger cases: 10 remaining screens at step 31 because the non-PIT digactualhole path returns before maketrap.",
       "detail": "Port whole digactualhole, preserving PIT and HOLE branches, source-consumed helpers, hero descent, and existing zap_dig, occupation, and broken-wand callers. The existing hole_destination loop is already aligned; reach it through canonical maketrap.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "23a6fd4bea5c64f841cd2dd335aa62dc9f6d8f42",
+      "openStanding": {
+        "sha": "a882a9784160f83d2b3317ed977c51c754490472",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "digactualhole",
           "line": 640,
           "endLine": 837,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -188963,7 +189766,7 @@
           "endLine": 592,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "goto_level",
@@ -188995,12 +189798,450 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
+      },
+      "activeStanding": {
+        "sha": "a882a9784160f83d2b3317ed977c51c754490472",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-digging-down",
+          "session": "synthetic/v26/v26-digging-down",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-digging-down.session.json",
+          "recordingPath": "challenges/cases/v26/v26-digging-down.session.json",
+          "recordingSha256": "6c12565454d5a8be390a4533465a33277591cfb72b7c8ef8f1b9d2706267b231",
+          "recipe": "challenges/cases/v26/v26-digging-down.recipe.session.json",
+          "recipeSha256": "326ec162616a705cfdc60aa9b75a7b9c5561d9aefe77eedb9c69721bb512eb76",
+          "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+          "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationUtc": "2026-10-07T09:56:27.654Z",
+          "remainingScreens": 10,
+          "recordedSteps": 41,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 41
+            },
+            "rng": {
+              "matched": 4316,
+              "total": 6337
+            },
+            "cursors": {
+              "matched": 31,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 31,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 4315,
+              "cEntry": "rn2(4)=1",
+              "cCaller": "hole_destination(trap.c:450)",
+              "jsEntry": "rn2(19)=13",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": ">"
+              },
+              "stepIndex": 31
+            },
+            "cursor": {
+              "index": 31,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": ">"
+              },
+              "cCursor": [
+                62,
+                0,
+                1
+              ],
+              "jsCursor": [
+                49,
+                12,
+                1
+              ]
+            }
+          },
+          "step": 31,
+          "kind": "rng",
+          "sourceFile": "trap.c",
+          "function": "hole_destination",
+          "message": null,
+          "cFile": "trap.c",
+          "luaFile": null,
+          "line": 450,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-digging-down.json",
+            "result": {
+              "session": "synthetic/v26/v26-digging-down",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-digging-down",
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "6c12565454d5a8be390a4533465a33277591cfb72b7c8ef8f1b9d2706267b231",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "remainingScreens": 10,
+              "recordedSteps": 41,
+              "status": "complete",
+              "commit": "b3158961f5508f84d8e426b0e786ad35ac6eb95b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-digging-down",
+                "session": "synthetic/v26/v26-digging-down",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-digging-down.session.json",
+                "recordingPath": "challenges/cases/v26/v26-digging-down.session.json",
+                "recordingSha256": "6c12565454d5a8be390a4533465a33277591cfb72b7c8ef8f1b9d2706267b231",
+                "recipe": "challenges/cases/v26/v26-digging-down.recipe.session.json",
+                "recipeSha256": "326ec162616a705cfdc60aa9b75a7b9c5561d9aefe77eedb9c69721bb512eb76",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 10,
+                "recordedSteps": 41,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 31,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 4316,
+                    "total": 6337
+                  },
+                  "cursors": {
+                    "matched": 31,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 31,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 4315,
+                    "cEntry": "rn2(4)=1",
+                    "cCaller": "hole_destination(trap.c:450)",
+                    "jsEntry": "rn2(19)=13",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": ">"
+                    },
+                    "stepIndex": 31
+                  },
+                  "cursor": {
+                    "index": 31,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": ">"
+                    },
+                    "cCursor": [
+                      62,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      49,
+                      12,
+                      1
+                    ]
+                  }
+                },
+                "step": 31,
+                "kind": "rng",
+                "sourceFile": "trap.c",
+                "function": "hole_destination",
+                "message": null,
+                "cFile": "trap.c",
+                "luaFile": null,
+                "line": 450
+              },
+              "summary": "The first source-owned omission is dig.c:digactualhole() when downward digging selects HOLE. The C path calls maketrap(), whose HOLE branch calls hole_destination() and consumes rn2(4), then continues through the hero fall and level-arrival effects. JavaScript digactualhole() records an unported gap and returns for every trap type other than PIT before calling maketrap(). Port the whole digactualhole() function and preserve its existing callers; hole_destination() itself already matches the C loop.",
+              "source": {
+                "file": "dig.c",
+                "branch": "The v26 recipe gives a Wizard a wand of digging and aims it down from a diggable floor square. C zap_dig() takes its downward, non-stairway branch and calls dighole(FALSE, TRUE, NULL); on this ordinary floor, dighole() selects HOLE and calls digactualhole(..., BY_YOU, HOLE). In the recorded run the hero falls through, so the hero HOLE branch reaches goto_level() and spoteffects().",
+                "functions": [
+                  "digactualhole"
+                ],
+                "callers": [
+                  "C: dig.c:zap_dig() (1604-1607) calls dighole(FALSE, TRUE, NULL); dighole() (885-1023), after its ordinary-room path selects HOLE, calls digactualhole(..., BY_YOU, HOLE) at 1016-1019. JavaScript follows js/zap.js:zap_dig() (6087-6088) -> js/dig.js:dighole() (1618-1626) -> js/dig.js:digactualhole(); the last function currently returns at its non-PIT guard.",
+                  "C: apply.c:do_break_wand() (4071-4072) also calls digactualhole(..., BY_OBJECT, PIT-or-HOLE). JavaScript js/apply.js:do_break_wand() currently records this non-hero branch as unported around 4760; a whole-function port must preserve this production caller.",
+                  "C: dig.c:dig() (374) calls dighole(FALSE, FALSE, NULL) from the downward digging occupation, which can reach the same HOLE arm. JavaScript js/dig.js already calls dighole() from the occupation path."
+                ],
+                "dependencies": [
+                  "trap.c:maketrap() returns the trap consumed by digactualhole(); its HOLE arm calls hole_destination(), which uses dng_bottom(). The existing JavaScript path is js/trap.js:hole_destination() and maketrap().",
+                  "do.c:goto_level() and hack.c:spoteffects() perform the hero-fall transition and arrival effects from digactualhole(); existing JavaScript implementations are js/do.js:goto_level() and js/hack.js:spoteffects().",
+                  "The remaining whole-function branches also consult shk.c:shopdig()/pay_for_damage(), dokick.c:impact_drop(), pickup.c:pickup(), trap.c:mintrap(), teleport.c:teleport_pet(), dungeon.c:get_level(), and dog.c:migrate_to_level(). Preserve result-used calls and record only permitted discarded-result gaps."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry .cache/v26-digging-down-queue-entry.json and evaluation challenges/evaluations/20261007095608-v26.json identify the first mismatch at segment 0, step 31, key >: C logs rn2(4)=1 at hole_destination(trap.c:450), while JavaScript has rn2(19)=13 at that aligned RNG position; the screen and cursor diverge at the same step. The C recording then displays “You dig a hole through the floor. You fall through...”.",
+                "The independent recipe challenges/cases/v26/v26-digging-down.recipe.session.json sets a Wizard with a wand of digging and sends z, o, > after wishing for the wand. The recorded case has 41 steps; this is the down-wand route, not a pit-occupation input.",
+                "C source nethack-c/upstream/src/dig.c:1548-1607 routes a downward, non-stairway zap through dighole(FALSE, TRUE, NULL). In dig.c:1000-1019, an ordinary diggable room whose fillholetyp() is ROOM and whose checks do not require a pit reaches digactualhole(..., BY_YOU, HOLE).",
+                "C source nethack-c/upstream/src/dig.c:640-829 shows the whole digactualhole() contract. It calls maketrap() at 690, then the HOLE branch at 753-794 switches terrain, checks levitation/flying and the pet leash, and on a fall prints the message, advances one level with goto_level(), and runs spoteffects().",
+                "C source nethack-c/upstream/src/trap.c:519-523 calls hole_destination() when maketrap() receives a hole; hole_destination() increments the destination and calls rn2(4) at 448-451. JavaScript js/trap.js has this same loop at 568-581 and calls it from maketrap() at 962, so the missing RNG call comes from the caller never reaching maketrap().",
+                "JavaScript js/dig.js:1313-1323 explicitly records note_unported for every non-PIT trap type or non-hero call and returns. Its dighole() calls digactualhole() for the HOLE result at 1618-1626, then proceeds to spot_checks(); this skips C trap creation and the hero descent. The source owner is therefore the partial digactualhole() implementation, not a divergence in hole_destination().",
+                "The goal kind is file-port because the C behavior is missing behind an explicit JavaScript gap. Scope the whole dig.c:digactualhole() function (640-829), including its existing PIT branch and other callers, then verify the down-zap route through zap_dig() and the BY_OBJECT route from apply.c:do_break_wand()."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "digactualhole",
+            "implementation": "js/dig.js",
+            "symbol": "digactualhole",
+            "sourceReview": "Read complete dig.c:640-829, BY_YOU/BY_OBJECT definitions203-204, all three dighole calls960/1016/1018, and apply.c:do_break_wand4071-4072. Compared pre-trap buried-ball/INFLOOR release, consumed furniture_handled and Can_dig_down fallback, old terrain/alignment/object-head capture, consumed awaited maketrap, fault attribution and visible/felt trap state, source actor/verbose/furniture messages, then staged PIT/HOLE aftermath in source order. PIT billing/wake/switch_terrain precede rn1(4,2), vision flag and pickup; adjacent monsters fly/float or use existing mintrap. HOLE checks flight/levitation and returned next_to_u before floor impact/pickup or falling via existing goto_level and spoteffects. Adjacent monster exclusion uses grounded, count_wsegs>5, MZ_HUGE and ustuck; existing teleport_pet, get_level/depth/ledger_no and migrate_to_level owners retain source ordering. Removed non-PIT/non-hero guard and impossible-fallback gap. BY_OBJECT is null and remains heros_fault without the BY_YOU wake/dig message. Named permitted discarded-result gaps remain: dig.c buried_ball_to_punishment, pray.c desecrate_altar(FALSE,oldAlignment), shk.c add_damage/pay_for_damage/shopdig/make_angry_shk, dokick.c impact_drop and pline.c impossible. Returned owners are reused, not newly credited: next_to_u retains leashed-companion/steed refusals; teleport_pet retains its m_unleash gap; migrate_to_level retains its shopkeeper/worm/leash/disguise limitations; unearth_objs retains buried-ball restoration refusal. The task does not claim those owner branches implemented.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "dighole",
+                "source": "dig.c:960,1016,1018 hero-created PIT/HOLE selected after source dig_check/fillholetyp; js/dig.js1650/1697 now reaches whole digactualhole"
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "dig",
+                "source": "dig.c:374 downward pick occupation -> dighole -> digactualhole; existing occupation dispatcher remains source-owned"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_dig",
+                "source": "dig.c:1604-1607 vertical digging zap -> dighole(FALSE,TRUE,NULL) -> digactualhole"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "do_break_wand",
+                "source": "apply.c:4071-4072 now awaits digactualhole(x,y,BY_OBJECT,rn2(obj->spe)<3||!Can_dig_down&&!candig?PIT:HOLE) at the existing nine-square wand loop; argument draw remains before entry"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/hole-down-wand-wizard.session.json",
+              "recordings/dig.c/hole-down-wand-vampire.session.json",
+              "recordings/dig.c/hole-broken-wand-caveman.session.json",
+              "recordings/dig.c/hole-broken-wand-three-charges.session.json",
+              "recordings/dig.c/hole-pick-pit-archeologist.session.json",
+              "recordings/dig.c/hole-pick-pit-female.session.json"
+            ],
+            "sourceFile": "dig.c",
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-digging-down",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 40,
+                "source": "zap command -> zap.c:weffects -> dig.c:zap_dig1548-1607 -> dighole1000-1019 -> digactualhole690 -> trap.c:maketrap519-523/hole_destination. Step31 creates HOLE and starts the hero fall, followed by do.c:goto_level and hack.c:spoteffects arrival; all recorded input/RNG/screens/cursors match through40."
+              }
+            ],
+            "checkedAt": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75"
+          },
+          {
+            "name": "maketrap",
+            "implementation": "js/trap.js",
+            "symbol": "maketrap",
+            "sourceReview": "Read complete trap.c:454-588 and trap.h struct/union aliases, plus returned choose_trapnote and hole_destination/dng_bottom, existing mk_trap_statue and the BOULDER/1L mkroll_launch arm. Compared existing-trap rejection and compatible utrap reset, terrain rejection, record allocation/reuse, all field reset and type dispatch, hole-destination draws before terrain work, drawbridge-under ice/flags, floor conversion, unearth_objs/recalc_block_point, fixed teleport destination, head-first new linkage and old-place Sokoban callback. Production reset now defaults to the existing synchronous reset_utrap(FALSE) owner. Every existing vlaunchinfo view is reset on replacement, and teledest aliases launch with the source -1 sentinel. PIT/SPIKED_PIT shop-wall/door billing now records the source discarded add_damage branch; fixed teleporter self-target diagnostic records pline.c impossible. Existing returned choose_trapnote/hole_destination and discarded statue/rolling-launch/terrain owners remain in place; no unrelated callee source credit. Retain discarded shk.c:add_damage and trap.c:maybe_finish_sokoban gaps, existing buried-ball owner refusal and explicit injected-capability preflights. Existing rolling-launch redraw hook availability is unchanged; no whole mkroll_launch completion is claimed.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "digactualhole",
+                "source": "dig.c:690 consumes maketrap before trap visibility/messages/aftermath"
+              },
+              {
+                "path": "js/mktrap.js",
+                "symbol": "mktrap",
+                "source": "mklev.c:2099 common generation owner consumes maketrap; six fresh recordings also include ordinary generated trap startup"
+              },
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "readobjnam",
+                "source": "objnam.c:3573 trap wishing consumes maketrap; existing dispatcher continues to await runtime creation"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_trap",
+                "source": "apply.c:2932 existing trap-setting caller consumes maketrap"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-generation.test.mjs",
+              "scripts/hero-teleport-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/hole-down-wand-wizard.session.json",
+              "recordings/dig.c/hole-down-wand-vampire.session.json",
+              "recordings/dig.c/hole-broken-wand-caveman.session.json",
+              "recordings/dig.c/hole-broken-wand-three-charges.session.json",
+              "recordings/dig.c/hole-pick-pit-archeologist.session.json",
+              "recordings/dig.c/hole-pick-pit-female.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-digging-down",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 40,
+                "source": "zap command -> zap.c:weffects -> dig.c:zap_dig1548-1607 -> dighole1000-1019 -> digactualhole690 -> trap.c:maketrap519-523/hole_destination. Step31 creates HOLE and starts the hero fall, followed by do.c:goto_level and hack.c:spoteffects arrival; all recorded input/RNG/screens/cursors match through40."
+              }
+            ],
+            "checkedAt": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75"
+          }
+        ],
+        "entryPointReview": "digactualhole has three active command routes: pick-axe/mattock downward occupation -> dighole; vertical digging wand/spell -> zap_dig -> dighole; applied/broken digging wand -> BY_OBJECT neighbor/hero creation. The admitted case and fresh Wizard/vampire recordings cover down-zap falling/nonfalling, both Archeologist recordings cover occupation PIT creation, and four/three-charge Caveman recordings cover wand-break neighbor HOLE/PIT and final hero PIT duration through step41. Whole maketrap is the required helper; its other existing callers (do.c zombie pit; mkmaze portal/vibrating square; mklev/sp_lev generation; monmove spider/web; polyself dospinweb; muse digging; apply use_trap; trap float_down web; music earthquake; objnam wish; zap boulder_fracture) keep their direct common-owner wiring. Full C/JS caller inventories are .cache/C130-maketrap-C-callers.txt and .cache/C130-maketrap-callers.txt; helper-only creation dispatch does not add new command wiring. Focused importer tests refresh these existing owners. No new gap is used as a consumed return. Source-pinned checks cover fallback/candig, flight, unseen BY_OBJECT attribution, old furniture label, floor entrapment release, existing trap reset and union/teleport alias. Bat setup never reaches the target because zap.c:dozap2632 rejects no hands; blocked recipe retained. Westward Wizard setup stays on stairs and dig.c:zap_dig bounces instead of creating a hole; blocked recipe retained and eastward movement was established from C map. The extended pick occupation stopped near a generated monster; minimal pit recipe retains the reached entry. No challenge recipe was copied to regression inputs. All six independent final recordings match every boundary. Retained shop/altar/floor-impact/buried-ball and existing callee refusal limitations are not claimed as separate source completion.",
+        "entryPoints": [
+          {
+            "name": "Downward digging wand or spell from diggable floor",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "digactualhole"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "maketrap"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/hole-down-wand-wizard.session.json",
+              "recordings/dig.c/hole-down-wand-vampire.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-digging-down",
+                "segment": 0,
+                "fromStep": 31,
+                "throughStep": 40,
+                "source": "zap command -> zap.c:weffects -> dig.c:zap_dig1548-1607 -> dighole1000-1019 -> digactualhole690 -> trap.c:maketrap519-523/hole_destination. Step31 creates HOLE and starts the hero fall, followed by do.c:goto_level and hack.c:spoteffects arrival; all recorded input/RNG/screens/cursors match through40."
+              }
+            ]
+          },
+          {
+            "name": "Downward pick-axe digging occupation",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "digactualhole"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "maketrap"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/hole-pick-pit-archeologist.session.json",
+              "recordings/dig.c/hole-pick-pit-female.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Applied/broken digging wand BY_OBJECT sweep",
+            "functions": [
+              {
+                "sourceFile": "dig.c",
+                "name": "digactualhole"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "maketrap"
+              }
+            ],
+            "recordings": [
+              "recordings/dig.c/hole-broken-wand-caveman.session.json",
+              "recordings/dig.c/hole-broken-wand-three-charges.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "37ad69ee70ebfc021dd5deb9212d7f74c001ac75",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-rumors-doconsult-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port Oracle consultation and wire the chat caller",
       "cFile": "rumors.c",
       "sessions": [
@@ -189008,8 +190249,12 @@
       ],
       "selectionReason": "Next complete admitted synthetic investigation: 10 remaining screens at step 33 where Oracle chat should return the no-gold message.",
       "detail": "Port whole doconsult and wire sounds.c domonnoise MS_ORACLE. Preserve no-gold, peacefulness, payment, minor and major consultation state in source order; retain outoracle as an explicit discarded-result gap until its separate implementation.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "ebd90eeb960a7ae31b4a357c3d23fd5ada20d674",
+      "openStanding": {
+        "sha": "9c713afc4bf47c40ef07201b56da0513b4e09ceb",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -189035,6 +190280,462 @@
           "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
           "recordingPath": "challenges/cases/v26/v26-oracle-chat.session.json",
           "recordingSha256": "88edad154596161f9e8139b22754d77351b638100bfefaa21764578d973714d4",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      },
+      "activeStanding": {
+        "sha": "9c713afc4bf47c40ef07201b56da0513b4e09ceb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-oracle-chat",
+          "session": "synthetic/v26/v26-oracle-chat",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-oracle-chat.session.json",
+          "recordingPath": "challenges/cases/v26/v26-oracle-chat.session.json",
+          "recordingSha256": "88edad154596161f9e8139b22754d77351b638100bfefaa21764578d973714d4",
+          "recipe": "challenges/cases/v26/v26-oracle-chat.recipe.session.json",
+          "recipeSha256": "f0b62a3db6d80805e93f39118b6bfec1e1e5e58e18aecb4639e24b28529772fe",
+          "replayInputSha256": "7c02d5c8e3e0e02391e38103900f17733be91b670cf56548d3a1aa72bde0a8f9",
+          "evaluationPath": "challenges/evaluations/20261007154602-v26.json",
+          "evaluationCommit": "9c713afc4bf47c40ef07201b56da0513b4e09ceb",
+          "evaluationArtifact": "challenges/evaluations/20261007154602-v26.json",
+          "evaluationUtc": "2026-10-07T15:48:07.738Z",
+          "remainingScreens": 10,
+          "recordedSteps": 43,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 43
+            },
+            "rng": {
+              "matched": 2208,
+              "total": 2208
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 43
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: #chat needs oracle consultation (doconsult())",
+            "step": 33
+          },
+          "step": 33,
+          "kind": "stop",
+          "sourceFile": "rumors.c",
+          "function": "doconsult",
+          "message": "unsupported hero command: an unported branch of this command: #chat needs oracle consultation (doconsult())",
+          "cFile": "rumors.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-oracle-chat.json",
+            "result": {
+              "session": "synthetic/v26/v26-oracle-chat",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-oracle-chat",
+              "remainingScreens": 10,
+              "recordedSteps": 43,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "88edad154596161f9e8139b22754d77351b638100bfefaa21764578d973714d4",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "status": "complete",
+              "commit": "b3158961f5508f84d8e426b0e786ad35ac6eb95b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-oracle-chat",
+                "session": "synthetic/v26/v26-oracle-chat",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-oracle-chat.session.json",
+                "recordingPath": "challenges/cases/v26/v26-oracle-chat.session.json",
+                "recordingSha256": "88edad154596161f9e8139b22754d77351b638100bfefaa21764578d973714d4",
+                "recipe": "challenges/cases/v26/v26-oracle-chat.recipe.session.json",
+                "recipeSha256": "f0b62a3db6d80805e93f39118b6bfec1e1e5e58e18aecb4639e24b28529772fe",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 10,
+                "recordedSteps": 43,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 43
+                  },
+                  "rng": {
+                    "matched": 2208,
+                    "total": 2208
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 43
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: #chat needs oracle consultation (doconsult())",
+                  "step": 33
+                },
+                "step": 33,
+                "kind": "stop",
+                "sourceFile": "rumors.c",
+                "function": "doconsult",
+                "message": "unsupported hero command: an unported branch of this command: #chat needs oracle consultation (doconsult())",
+                "cFile": "rumors.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "#chat reaches rumors.c:doconsult() for the peaceful Oracle. At zero-based step 33, the hero has no gold, so C prints “You have no gold.” and returns ECMD_OK before prompting or charging. JavaScript currently throws at the MS_ORACLE arm before these guards. Port the whole doconsult() function and wire that arm; major consultations still depend on the unported outoracle() path and its oracle-list state.",
+              "source": {
+                "file": "rumors.c",
+                "branch": "sounds.c:domonnoise() selects MS_ORACLE and calls doconsult(mtmp). The recorded branch has a nonnull peaceful Oracle and money_cnt(gi.invent) == 0, so doconsult() takes its no-gold guard after setting gm.multi = 0 and returns ECMD_OK. The whole function also owns minor and major consultation prompts, payment, event flags, experience, and wisdom exercise.",
+                "functions": [
+                  "doconsult"
+                ],
+                "callers": [
+                  "sounds.c:domonnoise() MS_ORACLE switch arm directly returns doconsult(mtmp).",
+                  "sounds.c:dochat() returns domonnoise(mtmp) for the selected adjacent monster; sounds.c:dotalk() calls dochat(), and cmd.c maps #chat to dotalk().",
+                  "JavaScript path: js/cmd.js command dispatch -> js/sounds.js dochat() -> domonnoise() MS_ORACLE arm, currently an UnsupportedChatError."
+                ],
+                "dependencies": [
+                  "hack.c:money_cnt(gi.invent) reads carried gold; already implemented as js/invent.js:money_cnt().",
+                  "cmd.c:yn_function() via hack.h ynq() and y_n() macros prompts and records answers in repeat-command state; js/cmd.js provides yn_function() and y_n(), while js/lock.js:ynq() deliberately disables repeat recording for its lock-specific callers.",
+                  "invent.c:currency() formats consultation prices; already implemented as js/invent.js:currency().",
+                  "shk.c:money2mon() transfers the paid gold to the Oracle; already implemented as js/shk.js:money2mon().",
+                  "rumors.c:outrumor(1, BY_ORACLE) supplies minor-consultation text; implemented as js/random_text.js:outrumor().",
+                  "rumors.c:outoracle() supplies major-consultation text and consumes the saved oracle list; no JavaScript implementation or oracle_flg/oracle_cnt state is present, so the doconsult() port must record note_unported('rumors.c outoracle') until that callee is ported.",
+                  "insight.c:record_achievement(ACH_ORCL), attrib.c:exercise(A_WIS, ...), and exper.c:more_experienced()/newexplevel() are already represented by js/insight.js, js/attrib.js, and js/exper.js."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry .cache/v26-oracle-chat-queue-entry.json identifies synthetic/v26/v26-oracle-chat, 10 remaining screens, 43 recorded steps, and first stop at step 33; the immutable evaluation is challenges/evaluations/20261007095608-v26.json at evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44.",
+                "The C recording challenges/cases/v26/v26-oracle-chat.session.json has step 33 key j and screen message “You have no gold.”; the recipe creates a peaceful Oracle and invokes #chat, confirming the first C branch is doconsult()’s no-money guard rather than a later consultation prompt.",
+                "nethack-c/upstream/src/sounds.c:679-725 dispatches MS_ORACLE to doconsult(mtmp); sounds.c:1248-1420 shows dotalk()->dochat()->domonnoise(), and cmd.c:1692 registers dotalk for #chat.",
+                "nethack-c/upstream/src/rumors.c:696-770 sets gm.multi to zero, checks null/unpeaceful/no-money in order, and returns ECMD_OK with “You have no gold.” when the recorded hero carries no coins. The later whole-function branches charge the Oracle, emit minor or major consultation output, set uevent flags, award experience, and exercise Wisdom.",
+                "js/sounds.js:1031-1032 throws UnsupportedChatError from MS_ORACLE before any doconsult() guard. The implementation task is a file-port of the whole C doconsult() function plus production wiring in domonnoise(); use C-equivalent yn_function repeat recording for ynq, and retain outoracle() as a named unported gap until its own source work."
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "fix-do-flooreffects-boulder-floor-v26-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Allow an ordinary floor boulder drop through canonical floor effects",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v26/v26-drop-boulder"
+      ],
+      "selectionReason": "Next admitted v26 mismatch after Oracle chat: 10 remaining screens where lowercase d rejects an ordinary boulder before flooreffects and dropz.",
+      "detail": "The recorded dry ROOM square enters neither boulder pool nor pit/hole behavior. Remove or narrow the JavaScript preflight refusal so existing flooreffects and dropz place, stack, and redraw the boulder. Keep uppercase D doddrop work separate.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "flooreffects",
+      "session": "synthetic/v26/v26-drop-boulder",
+      "step": 42,
+      "syntheticProvenance": {
+        "synthetic/v26/v26-drop-boulder": {
+          "session": "synthetic/v26/v26-drop-boulder",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-drop-boulder",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-drop-boulder.session.json",
+          "recordingSha256": "84f7cd33bc2eaf2b0f2b8c115cf5554f10b0508f066ba88bfc524631b21ed170",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "fix-explode-retributive-role-v26-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Use the canonical original role for retributive wand damage",
+      "cFile": "explode.c",
+      "sessions": [
+        "synthetic/v26/v26-break-create-monster-wand"
+      ],
+      "selectionReason": "Next admitted v26 mismatch after the boulder case: 10 remaining screens from an incorrect role lookup in a broken-wand explosion.",
+      "detail": "Use urole.mnum as C Role_switch for the wand-class hero dose reductions while preserving original damage for monsters, items, floor effects, and wake radius. Cover /5, /2, default, truncation, polymorph independence, and non-wand behavior.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "explode",
+      "session": "synthetic/v26/v26-break-create-monster-wand",
+      "step": 75,
+      "syntheticProvenance": {
+        "synthetic/v26/v26-break-create-monster-wand": {
+          "session": "synthetic/v26/v26-break-create-monster-wand",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-break-create-monster-wand",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-break-create-monster-wand.session.json",
+          "recordingSha256": "10e4342414ffd9693ec89f6f1fd8097a59ae50307a246ab4cdeaf3c589cc4dbb",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-lock-pick-lock-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete lock selection behavior for monsters, doors, and boxes",
+      "cFile": "lock.c",
+      "sessions": [
+        "synthetic/v26/v26-lock-key-visible-monster"
+      ],
+      "selectionReason": "Next admitted v26 mismatch: 8 remaining screens at step 55 where a visible monster should produce the source message and spend a turn.",
+      "detail": "Port whole partially implemented pick_lock and preserve its existing doapply, do_loot_cont, and doopen_indir callers. Implement visible-monster, shopkeeper/Oracle, door-mimic, door, box, autounlock, and artifact-touch behavior in source order; retain discarded unported side effects as named gaps.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pick_lock",
+          "line": 358,
+          "endLine": 659,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 358,
+        "to": 659
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-lock-key-visible-monster": {
+          "session": "synthetic/v26/v26-lock-key-visible-monster",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-lock-key-visible-monster",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+          "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-steed-mount-steed-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete mount checks and wounded-leg feedback",
+      "cFile": "steed.c",
+      "sessions": [
+        "synthetic/v26/v26-wounded-rider-mount"
+      ],
+      "selectionReason": "Next admitted v26 mismatch after lock selection: 7 remaining screens where C refuses mounting with wounded-leg feedback and JavaScript throws.",
+      "detail": "Port whole mount_steed and retain doride wiring. Preserve wounded-leg feedback, debug force-heal, mount eligibility, saddle, pet, trap, levitation, encumbrance, and state transitions in source order using canonical legs_in_no_shape and heal_legs helpers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mount_steed",
+          "line": 197,
+          "endLine": 386,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 197,
+        "to": 386
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-wounded-rider-mount": {
+          "session": "synthetic/v26/v26-wounded-rider-mount",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-wounded-rider-mount",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+          "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-insight-youhiding-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port hidden-form descriptions and caller messages",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v26/v26-mimic-hide"
+      ],
+      "selectionReason": "Next admitted v26 mismatch: 7 remaining screens at step 41 because mimic state is updated but the youhiding message call is skipped.",
+      "detail": "Port whole youhiding and wire both polyself.c dohide sites plus attributes_enlightenment. Preserve mimic, hiding, clinger, underwater, trap, object, furniture, and enlightenment wording in source order; remove only the caller refusal needed to reach the polymorphed enlightenment path.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "youhiding",
+          "line": 2022,
+          "endLine": 2080,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2022,
+        "to": 2080
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-mimic-hide": {
+          "session": "synthetic/v26/v26-mimic-hide",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-mimic-hide",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-mimic-hide.session.json",
+          "recordingSha256": "7641c02e287e48af960c67c4d65d3be7057942daf0b7e5bddc9f268d946e340f",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-insight-enlightenment-polymorph-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete enlightenment menus for polymorphed heroes",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v26/v26-giant-enlightenment"
+      ],
+      "selectionReason": "Next admitted v26 mismatch: 2 remaining screens where the full polymorphed enlightenment menu is skipped.",
+      "detail": "Port the contiguous enlightenment/background_enlightenment family and wire zap.c do_enlightenment_effect for Upolyd heroes. Use saved u.mfemale for title and role/rank, retain all current form sections, menu ordering, and PICK_NONE dismissal. Depend on the separately queued whole youhiding port used by attributes_enlightenment.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "enlightenment",
+          "line": 383,
+          "endLine": 467,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "background_enlightenment",
+          "line": 468,
+          "endLine": 727,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 383,
+        "to": 727
+      },
+      "requiredFunctions": [
+        {
+          "name": "youhiding",
+          "line": 2022,
+          "endLine": 2080,
+          "declared": false,
+          "sourceFile": "insight.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v26/v26-giant-enlightenment": {
+          "session": "synthetic/v26/v26-giant-enlightenment",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-giant-enlightenment",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-giant-enlightenment.session.json",
+          "recordingSha256": "7218ae54bee6b3d00e490d934afa2416e51ac51f9e7478e148a38c6dc6b0deda",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-sit-rndcurse-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port random inventory cursing and its active callers",
+      "cFile": "sit.c",
+      "sessions": [
+        "synthetic/v26/v26-sit-throne"
+      ],
+      "selectionReason": "Final admitted v26 mismatch: 2 remaining screens and 13 RNG calls because the throne curse path skips rndcurse.",
+      "detail": "Port whole rndcurse in source message and RNG order, including Magicbane, Antimagic, Half spell damage, inventory selection, artifact resistance, BUC changes, update_inventory, and saddle cursing. Wire active throne, monster-cast, prayer, and confused-book callers; keep the higher unported intervene caller explicit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rndcurse",
+          "line": 569,
+          "endLine": 643,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 569,
+        "to": 643
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-sit-throne": {
+          "session": "synthetic/v26/v26-sit-throne",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-sit-throne",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-sit-throne.session.json",
+          "recordingSha256": "f9e854c524cd067a9d39816d783a2f229ca55a2e5e2167afc5dd2d40fb8a621d",
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }

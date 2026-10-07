@@ -19,6 +19,41 @@ const INVENT_C = readFileSync(
 );
 const INVENT_JS = readFileSync('js/invent.js', 'utf8');
 
+test('dotypeinv includes billed categories only when a shopping bill exists', () => {
+    const cStart = INVENT_C.indexOf('dotypeinv(void)');
+    const cMenu = INVENT_C.slice(cStart, INVENT_C.indexOf('if (traditional)', cStart));
+    const jsStart = INVENT_JS.indexOf('export async function dotypeinv(');
+    const jsMenu = INVENT_JS.slice(jsStart, INVENT_JS.indexOf('} else {', jsStart));
+    // invent.c starts with unpaid categories, conditionally adds billed types,
+    // and always includes venom before calling query_category.
+    assert.match(cMenu, /i = UNPAID_TYPES;\s*if \(billx\)\s*i \|= BILLED_TYPES;/u);
+    assert.match(cMenu, /i \|= INCLUDE_VENOM;\s*n = query_category/u);
+    assert.match(jsMenu, /let qflags = UNPAID_TYPES \| INCLUDE_VENOM;\s*if \(billx\) qflags \|= BILLED_TYPES;/u);
+});
+
+test('dotypeinv matches the recorded inventory category menu', async () => {
+    // This independent inventory-by-type recording reaches the menu without
+    // a shopping bill; a billed category would add an incorrect menu row.
+    const recording = JSON.parse(readFileSync(
+        'recordings/invent.c/inventory-by-type.session.json', 'utf8',
+    ));
+    const segment = recording.segments[0];
+    const result = await runSegment(segment);
+    const comparison = compareSessionOutputs(recording, {
+        rng: result.getRngLog(),
+        screens: result.getScreens(),
+        cursors: result.getCursors(),
+        animFrames: result.getAnimationFramesByStep(),
+        segments: [{
+            rng: result.getRngLog(),
+            screens: result.getScreens(),
+            cursors: result.getCursors(),
+            animFrames: result.getAnimationFramesByStep(),
+        }],
+    });
+    assert.equal(comparison.passed, true, JSON.stringify(comparison, null, 2));
+});
+
 test('fully_identify_obj learns a known egg species after object flags', () => {
     const cStart = INVENT_C.indexOf('fully_identify_obj(struct obj *otmp)');
     const cEnd = INVENT_C.indexOf('\n}', cStart) + 2;

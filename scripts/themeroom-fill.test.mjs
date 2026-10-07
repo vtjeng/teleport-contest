@@ -2590,7 +2590,9 @@ test('Teleportation hub retains an invalid column-zero destination', () => {
     }), 1);
     random.assertExhausted();
     assert.equal(level.traps.length, 1);
-    assert.deepEqual(level.traps[0].teledest, { x: 0, y: 0 });
+    // trap.c:493 resets launch/teledest to -1; isok(0,0) rejects this
+    // relative destination, so maketrap does not overwrite the reset value.
+    assert.deepEqual(level.traps[0].teledest, { x: -1, y: -1 });
 });
 
 test('Teleportation hub abandons a queued source that becomes stairs', () => {

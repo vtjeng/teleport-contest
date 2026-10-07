@@ -83,6 +83,7 @@ import {
     IS_THRONE,
     IS_TREE,
     IS_WALL,
+    IS_STWALL,
     LAVAPOOL,
     LAVAWALL,
     MOAT,
@@ -103,6 +104,10 @@ import {
     SHOPBASE,
     STONE,
     TT_BURIEDBALL,
+    TT_INFLOOR,
+    A_NONE,
+    NO_TRAP_FLAGS,
+    MIGR_RANDOM,
     u_at,
     W_NONDIGGABLE,
     Is_earthlevel,
@@ -127,7 +132,7 @@ import { objectGenerationEnv } from './object_generation.js';
 // js/hack.js imports dig_typ(); both crossings occur only inside function
 // bodies, so the source-owned in_town() remains safe across the cycle.
 import {
-    in_town, losehp, may_dig, nomul, pooleffects, spot_checks, switch_terrain,
+    in_town, losehp, may_dig, nomul, pooleffects, spot_checks, spoteffects, switch_terrain,
 } from './hack.js';
 import {
     can_reach_floor,
@@ -151,7 +156,7 @@ import { currency, delobj, obfree, obj_extract_self, sobj_at } from './invent.js
 import { bury_an_obj } from './bury.js';
 import { costly_spot, shop_keeper, stolen_value } from './shk.js';
 import { shkname } from './shknam.js';
-import { hides_under, is_watch } from './mondata.js';
+import { grounded, hides_under, is_flyer, is_floater, is_watch } from './mondata.js';
 import { angry_guards, get_iter_mons, maybe_unhide_at, minliquid, wake_nearby } from './mon.js';
 import { closed_door, youHear } from './monmove.js';
 import { m_at } from './monst.js';
@@ -209,7 +214,7 @@ import { dist2, s_suffix } from './hacklib.js';
 import { unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { wield_tool, welded } from './wield.js';
-import { Can_dig_down, ceiling, on_level, surface } from './dungeon.js';
+import { Can_dig_down, ceiling, depth, dunlevs_in_dungeon, get_level, ledger_no, on_level, surface } from './dungeon.js';
 import { abon, dbon, dmgval } from './weapon.js';
 import {
     otense, simpleonames, the, xnameFresh, yname, yobjnam, Yobjnam2,
@@ -242,6 +247,15 @@ import {
 
 import { hliquid, mon_nam } from './do_name.js';
 import { align_str } from './insight.js';
+import { an, An } from './objnam.js';
+import { Monnam } from './do_name.js';
+import { goto_level } from './do.js';
+import { next_to_u } from './apply_next_to_u.js';
+import { mintrap } from './trap_effects.js';
+import { teleport_pet } from './teleport.js';
+import { migrate_to_level } from './dog.js';
+import { count_wsegs } from './worm.js';
+import { MZ_HUGE } from './monsters.js';
 import { canseemon } from './display.js';
 
 // C ref: youprop.h Unaware. The draft-message random roll is skipped while a
@@ -1304,83 +1318,145 @@ export async function furniture_handled(
     return true;
 }
 
-// C ref: dig.c digactualhole() (640-832). The hero-created pit arm is ported
-// through trap creation, messages, terrain switching and the hero's pit
-// state. The visible furniture label is captured before maketrap, as in C.
-// Non-hero and hole aftermath, the impossible-trap fallback,
-// pray.c:desecrate_altar, and shk.c:add_damage remain source gaps; this void
-// function never fabricates a return value.
+// C ref: dig.c digactualhole() (640-829). BY_YOU is youmonst and
+// BY_OBJECT is null: the broken wand is still the hero's responsibility.
+// Discarded shop, altar, buried-ball and floor-impact calls retain named gaps.
 export async function digactualhole(
     x, y, madeby, trapType, state = game, rawEnv = {},
 ) {
     const message = rawEnv.message ?? ttyPline;
     const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
+    const env = { ...rawEnv, state, random };
+    const location = state.level.at(x, y);
+    const monster = m_at(x, y, state);
     const madebyU = madeby === state.youmonst;
+    const madebyObject = madeby === null;
+    const herosFault = madebyU || madebyObject;
+    const atHero = u_at(x, y, state);
+    let wontFall = Levitation(state) || Flying(state);
+    let oldAlignment = A_NONE;
+
+    if (atHero && state.u.utrap) {
+        if (state.u.utraptype === TT_BURIEDBALL)
+            note_unported('dig.c buried_ball_to_punishment');
+        else if (state.u.utraptype === TT_INFLOOR)
+            reset_utrap(false, state);
+    }
     if (await furniture_handled(x, y, madebyU, state, rawEnv)) return;
-    if (trapType !== PIT || !madebyU || !u_at(x, y, state)) {
-        note_unported('dig.c digactualhole non-hero and hole aftermath');
-        return;
+    if (trapType !== PIT && !Can_dig_down(state.u.uz, state)
+        && !location.candig) {
+        note_unported('pline.c impossible');
+        trapType = PIT;
     }
 
-    const location = state.level.at(x, y);
-    if (!Can_dig_down(state.u.uz, state) && !location.candig) {
-        note_unported('dig.c digactualhole impossible fallback');
-    }
     const oldType = location.typ;
     const surfaceType = IS_FURNITURE(oldType)
         ? (IS_ROOM(oldType) && !Is_earthlevel(state.u.uz) ? 'floor' : 'ground')
         : surface(x, y, state);
-    // C captures this label before maketrap changes the square. Its
-    // altarmask/flags alias is stored in JS location.flags; surface() supplies
-    // the same furniture word used by the source's later fall message.
     let furniture = '';
     if (IS_FURNITURE(oldType)) {
         if (IS_ALTAR(oldType)) {
-            const oldMask = location.flags ?? 0;
-            const alignment = Amask2align(oldMask & AM_MASK);
-            furniture = `${align_str(alignment)} `;
+            oldAlignment = Amask2align((location.flags ?? 0) & AM_MASK);
+            furniture = `${align_str(oldAlignment)} `;
         }
         furniture += surface(x, y, state);
     }
+    const shopdoor = IS_DOOR(oldType)
+        && in_rooms(x, y, SHOPBASE, state).length > 0;
     const oldObjects = state.level.objects?.[x]?.[y] ?? null;
-    const trap = maketrap(x, y, trapType, { ...rawEnv, state, random });
+    const trap = await maketrap(x, y, trapType, env);
     if (!trap) return;
-
-    trap.madeby_u = true;
+    const newObjects = state.level.objects?.[x]?.[y] ?? null;
+    trap.madeby_u = herosFault;
     trap.tseen = false;
-    if (cansee(x, y, state))
-        seetrap(trap, { state, redraw: (tx, ty) => newsym(tx, ty, state) });
-    else
-        feeltrap(trap, { state, redraw: (tx, ty) => newsym(tx, ty, state) });
+    const trapEnv = { state, redraw: (tx, ty) => newsym(tx, ty, state) };
+    if (cansee(x, y, state)) seetrap(trap, trapEnv);
+    else if (madebyU) feeltrap(trap, trapEnv);
 
     const name = trapname(trapType, true, state, random);
-    await message(x !== state.u.ux || y !== state.u.uy
-        ? `You dig an adjacent ${name}.`
-        : `You dig a ${name} in the ${surfaceType}.`, state, rawEnv);
-    if (IS_FURNITURE(oldType) && cansee(x, y, state)) {
+    const inThrough = trapType === HOLE ? 'through' : 'in';
+    if (madebyU) {
+        await message(x !== state.u.ux || y !== state.u.uy
+            ? `You dig an adjacent ${name}.`
+            : `You dig ${an(name)} ${inThrough} the ${surfaceType}.`, state, rawEnv);
+    } else if (!madebyObject && canseemon(madeby, state)) {
+        await message(`${Monnam(madeby, state, rawEnv)} digs ${an(name)} ${inThrough} the ${surfaceType}.`, state, rawEnv);
+    } else if (cansee(x, y, state) && state.flags?.verbose) {
+        await message(IS_STWALL(oldType)
+            ? `The ${surfaceType} crumbles into ${an(name)}.`
+            : `${An(name)} appears in the ${surfaceType}.`, state, rawEnv);
+    }
+    if (IS_FURNITURE(oldType) && cansee(x, y, state))
         await message(`The ${furniture} falls into the ${name}!`, state, rawEnv);
-    }
-
-    if (oldType === ALTAR) {
+    if (herosFault && oldType === ALTAR)
         note_unported('pray.c desecrate_altar');
-    }
-    if (in_rooms(x, y, SHOPBASE, state).length)
-        note_unported('shk.c add_damage');
-    await wake_nearby(false, { ...rawEnv, state });
-    await switch_terrain(state, rawEnv);
-    if (Levitation(state) || Flying(state)) {
-        await reset_utrap(true, state);
-    } else {
-        set_utrap(random.rn1(4, 2), TT_PIT, state);
-        // C's gv.vision_full_recalc is kept as state.vision_full_recalc in the
-        // flattened JS state consumed by allmain.js:moveloop_core().
-        state.vision_full_recalc = 1;
-    }
 
-    const newObjects = state.level.objects?.[x]?.[y] ?? null;
-    if (oldObjects !== newObjects) {
-        const { pickup } = await import('./pickup.js');
-        await pickup(1, state);
+    if (trapType === PIT) {
+        if (shopdoor && herosFault) note_unported('shk.c pay_for_damage');
+        else note_unported('shk.c add_damage');
+        if (madebyU) await wake_nearby(false, env);
+        await switch_terrain(state, rawEnv);
+        if (Levitation(state) || Flying(state)) wontFall = true;
+        if (atHero) {
+            if (!wontFall) {
+                set_utrap(random.rn1(4, 2), TT_PIT, state);
+                state.vision_full_recalc = 1;
+            } else await reset_utrap(true, state);
+            if (oldObjects !== newObjects) {
+                const { pickup } = await import('./pickup.js');
+                await pickup(1, state);
+            }
+        } else if (monster) {
+            if (is_flyer(monster.data) || is_floater(monster.data)) {
+                if (canseemon(monster, state))
+                    await message(`${Monnam(monster, state, rawEnv)} ${is_flyer(monster.data) ? 'flies' : 'floats'} over the pit.`, state, rawEnv);
+            } else if (monster !== madeby) {
+                await mintrap(monster, NO_TRAP_FLAGS, env);
+            }
+        }
+    } else if (atHero) {
+        await switch_terrain(state, rawEnv);
+        if (Levitation(state) || Flying(state)) wontFall = true;
+        if (!state.u.ustuck && !wontFall && !next_to_u(state)) {
+            await message('You are jerked back by your pet!', state, rawEnv);
+            wontFall = true;
+        }
+        if (state.u.ustuck || wontFall) {
+            if (newObjects) note_unported('dokick.c impact_drop');
+            if (oldObjects !== newObjects) {
+                const { pickup } = await import('./pickup.js');
+                await pickup(1, state);
+            }
+            if (shopdoor && herosFault) note_unported('shk.c pay_for_damage');
+        } else {
+            if (state.u.ushops && herosFault) note_unported('shk.c shopdig');
+            else note_unported('shk.c pay_for_damage');
+            await message('You fall through...', state, rawEnv);
+            const newLevel = { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel + 1 };
+            await goto_level(newLevel, false, true, false, state);
+            await spoteffects(false, state, rawEnv);
+        }
+    } else {
+        if (shopdoor && herosFault) note_unported('shk.c pay_for_damage');
+        if (newObjects) note_unported('dokick.c impact_drop');
+        if (monster) {
+            if (!grounded(monster.data, state)
+                || (monster.wormno && count_wsegs(monster, state) > 5)
+                || monster.data.msize >= MZ_HUGE) return;
+            if (monster === state.u.ustuck) return;
+            if (await teleport_pet(monster, false, env)) {
+                const toLevel = {};
+                if (on_level(state.u.uz, state.stronghold_level)) {
+                    Object.assign(toLevel, state.valley_level);
+                } else if (state.u.uz.dlevel === dunlevs_in_dungeon(state.u.uz, state)) {
+                    if (canseemon(monster, state))
+                        await message(`${Monnam(monster, state, rawEnv)} avoids the trap.`, state, rawEnv);
+                    return;
+                } else get_level(toLevel, depth(state.u.uz, state) + 1, state);
+                if (monster.isshk) note_unported('shk.c make_angry_shk');
+                migrate_to_level(monster, ledger_no(toLevel, state), MIGR_RANDOM, null, env);
+            }
+        }
     }
 }
 
