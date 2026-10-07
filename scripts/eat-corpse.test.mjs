@@ -36,12 +36,14 @@ import {
     STONED,
     STONE_RES,
     TIMEOUT,
+    W_RINGL,
 } from '../js/const.js';
 import { acurr } from '../js/attrib.js';
 import { find_delayed_killer } from '../js/end.js';
 import {
     corpse_intrinsic, doeat, fix_petrification, vegetarian,
 } from '../js/eat.js';
+import * as eat from '../js/eat.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -74,6 +76,7 @@ import { weight } from '../js/obj.js';
 import { CORPSE } from '../js/objects.js';
 import { make_stoned } from '../js/potion.js';
 import { CORPSE_CASES, loadEatCorpseRecipe } from './run-eat-corpse.mjs';
+import { loadCorpsePrefxRecipe, verifyCorpsePrefxSegment } from './run-corpse-prefx.mjs';
 
 const EAT_C = readFileSync(
     new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
@@ -521,3 +524,56 @@ test('corpse_intrinsic draws once per candidate and once more for strength',
         assert.ok(is_giant(game.mons[PM_FIRE_GIANT]));
         assert.equal(measure(PM_FIRE_GIANT).draws, 1);
     });
+
+// Whole eat.c:cprefx source contracts: neither successful golem petrification
+// nor resistance may execute the fatal tail or consume an opened tin.
+test('cprefx consumes the source golem transformation return before stoning', () => {
+    const cStart = EAT_C.indexOf('cprefx(int pm)');
+    const cEnd = EAT_C.indexOf('fix_petrification(void)', cStart);
+    const c = EAT_C.slice(cStart, cEnd);
+    const jsStart = EAT_JS.indexOf('function cprefx(');
+    const jsEnd = EAT_JS.indexOf('// C ref: eat.c fix_petrification()', jsStart);
+    const js = EAT_JS.slice(jsStart, jsEnd);
+    assert.match(c, /!Stone_resistance[\s\S]*?!\(poly_when_stoned\(gy\.youmonst\.data\)[\s\S]*?&& polymon\(PM_STONE_GOLEM\)\)/u);
+    assert.match(js, /!propertyActive\(state, STONE_RES\)[\s\S]*?!\(poly_when_stoned\(state\.youmonst\.data, state\)[\s\S]*?&& await polymon\(PM_STONE_GOLEM, state, env\)\)/u);
+    const fatalTails = [
+        [c, ['use_up_tin(', 'killer.name', 'killer.format', 'turn to stone.',
+            'done(STONING)', 'victual.eating = 0', 'return;']],
+        [js, ['use_up_tin(', 'killer.name', 'killer.format', 'turn to stone.',
+            'done(STONING,', 'victual(state).eating = 0', 'return;']],
+    ];
+    for (const [body, markers] of fatalTails) {
+        let previous = -1;
+        for (const marker of markers) {
+            const index = body.indexOf(marker, previous + 1);
+            assert.ok(index > previous, `${marker} retains source order`);
+            previous = index;
+        }
+    }
+});
+
+test('intrinsic and extrinsic stone resistance skip cprefx transformation and death', async () => {
+    for (const kind of ['intrinsic', 'extrinsic']) {
+        const replay = await runSegment(segmentUpToPickup(BARBARIAN));
+        assert.equal(typeof eat.cprefx, 'function');
+        // youprop.h Stone_resistance is either intrinsic or extrinsic. Both
+        // ordinary state sources bypass the entire golem/death conjunction.
+        game.u.uprops[STONE_RES] = { intrinsic: 0, extrinsic: 0 };
+        game.u.uprops[STONE_RES][kind] = kind === 'intrinsic'
+            ? FROMOUTSIDE : W_RINGL; // eaten intrinsic or a worn left ring
+        const form = game.u.umonnum;
+        const draws = replay.getRngLog().length;
+        const messages = [];
+        await eat.cprefx(PM_COCKATRICE, game, {
+            message: async (line) => messages.push(line),
+        });
+        assert.equal(game.u.umonnum, form);
+        assert.equal(replay.getRngLog().length, draws);
+        assert.deepEqual(messages, []);
+        assert.equal(Boolean(game.program_state.gameover), false);
+    }
+});
+
+test('an independent C-first corpse entry reaches the consumed stone-golem return', async () => {
+    await verifyCorpsePrefxSegment(loadCorpsePrefxRecipe('golem-corpse').segments[0]);
+});

@@ -207,7 +207,6 @@ import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import {
     doeat,
     morehungry,
-    UnsupportedEatError,
     UnsupportedHungerTransitionError,
 } from './eat.js';
 import {
@@ -2844,7 +2843,6 @@ export function failClosedCommandRefusals() {
         UnsupportedGetlinBoundaryError,
         UnsupportedSearchError,
         UnsupportedDirectionBoundaryError,
-        UnsupportedEatError,
         UnsupportedApplyError,
         UnsupportedHelpError,
         UnsupportedWhatisError,
