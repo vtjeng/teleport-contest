@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Representative boulder boundary outside matching evidence. BLOCKED at do.c:dropy before the object kick: JS refuses \"a boulder landing on the floor\" while C makewish places it. C independently reaches kick_object returning false and dokick calls kick_ouch. Preserve for the missing heavy placement caller.",
+  "segments": [
+    {
+      "seed": 92681001,
+      "datetime": "20800304121000",
+      "nethackrc": "OPTIONS=name:KickProof,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".\u0017boulder\n h\u0004l  "
+    }
+  ]
+}

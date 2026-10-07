@@ -113,9 +113,8 @@ const VALKYRIE = () => segmentFor('lowDex');
 // The Valkyrie of seed 6600007 has a doorway to the south-east.
 const DOOR_VALKYRIE = () => segmentFor('highDex');
 // Seed 6600002 leaves an object on the plain floor north-west of its Valkyrie,
-// which is the only one of these four refusals no matrix seed offers. It is a
-// refusal, so it stays out of the recorded matrix; the deferral
-// kick-targets-beyond-empty-floor records its inputs alongside the other three.
+// used here to exercise dokick's floor-object caller. The independent A118
+// recordings cover the new helper paths with a separately chosen seed.
 const OBJECT_PILE = () => kickSegment({
     seed: 6600002, character: VALKYRIE_CHARACTER, moves: `${KICK}y`,
 });
@@ -262,26 +261,14 @@ test('the strain arm wounds a leg and the ordinary arm does not', async () => {
     assert.equal(game.u.atemp[3], 0);
 });
 
-test('an unported target stops the command before it draws or prints',
-    async () => {
-    // Each refusal must leave the turn, the PRNG and the top line exactly as
-    // the direction prompt left them, because the segment keeps every frame
-    // matched so far and the next replay resumes from the same keystroke.
-    // The monster case that was here is now ported (kick_monster arm).
-    const cases = [
-        [OBJECT_PILE(), `${KICK}y`, /object-pile arm/u],
-    ];
-    for (const [segment, moves, reason] of cases) {
-        const base = await replay(segment, '');
-        const kick = await replay(segment, moves);
-        assert.ok(kick.boundary, `${moves} refused`);
-        assert.match(kick.boundary.message, reason);
-        assert.equal(kick.draws, base.draws, `${moves} drew nothing`);
-        assert.equal(kick.turns, base.turns, `${moves} spent no turn`);
-        // getdir()'s prompt is the last thing written; no kick message
-        // followed it.
-        assert.match(kick.toplines, /^In what direction\?/u);
-    }
+test('a floor-object kick reaches kick_object and spends the turn', async () => {
+    // dokick.c:1452-1463 dispatches this floor pile to kick_object; its true
+    // result owns the action instead of falling through to kick_ouch.
+    const base = await replay(OBJECT_PILE(), '');
+    const kicked = await replay(OBJECT_PILE(), `${KICK}y`);
+    assert.equal(kicked.boundary, null);
+    assert.equal(kicked.turns, base.turns + 1);
+    assert.match(kicked.toplines, /kick|Thump|THUD|lid|lock/u);
 });
 
 test('kicking a monster spends the turn and reports the kick', async () => {

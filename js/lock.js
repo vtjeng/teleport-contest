@@ -9,7 +9,6 @@ import {
     AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
     CONFUSION,
-    COST_BRKLCK,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
@@ -83,7 +82,6 @@ import { breathless, haseyes, nohands, verysmall } from './mondata.js';
 import { PM_ROGUE, PM_WIZARD } from './monsters.js';
 import { obj_resists } from './bury.js';
 import {
-    costly_alteration,
     greatest_erosion,
     is_blade,
     is_pick,
@@ -294,8 +292,9 @@ async function chest_shatter_msg(otmp, state = game) {
 }
 
 // C ref: lock.c breakchestlock() (162-212). Called after the hero forces a
-// chest lock open. When destroyit is false, the box is billed via
-// costly_alteration() and its lock flags are toggled. When destroyit is true,
+// chest lock open, and by really_kick_object(false). The false arm records
+// the missing costly_alteration billing and toggles the source lock flags.
+// When destroyit is true,
 // this slice destroys an ordinary non-shop chest, scatters its contents, and
 // cleans up the lock-picking context.
 //
@@ -304,7 +303,7 @@ async function chest_shatter_msg(otmp, state = game) {
 // quantity-one obfree(), the survivor placement/stacking path, chest deletion,
 // and lock cleanup. Deferred: shop billing, other material messages, ICE_BOX
 // corpse timers, and the multi-quantity useup branch.
-async function breakchestlock(box, destroyit, state = game) {
+export async function breakchestlock(box, destroyit, state = game) {
     if (destroyit) {
         // The shopkeeper lookup and stolen_value() accounting in C are outside
         // this ordinary-chest slice. Reject that branch before mutating the
@@ -356,23 +355,9 @@ async function breakchestlock(box, destroyit, state = game) {
     /* bill for the box but not for its contents */
     const hideContents = box.cobj;
     box.cobj = null;
-    // C ref: mkobj.c costly_alteration() checks costly_spot() and returns
-    // early when the object is not on a shop tile.  The JS port's
-    // costly_alteration() delegates to a hook; provide one that mirrors the
-    // C early-return for non-shop tiles and flags shop tiles as unported.
-    costly_alteration(box, COST_BRKLCK, {
-        state,
-        hooks: {
-            costlyAlteration(obj, alterType, env) {
-                const ox = obj.ox ?? state.u.ux;
-                const oy = obj.oy ?? state.u.uy;
-                if (!costly_spot(ox, oy, state)) return;
-                throw new UnsupportedLockError(
-                    'breakchestlock() shop billing (costly_alteration in shop)',
-                );
-            },
-        },
-    });
+    // C discards this unported billing result. Continue the source lock
+    // updates after recording the gap; no hook stands in for shop behavior.
+    note_unported('mkobj.c costly_alteration');
     box.cobj = hideContents;
     box.olocked = 0;
     box.obroken = 1;

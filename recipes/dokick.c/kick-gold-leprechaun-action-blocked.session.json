@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first kicked gold ghitm caller variation. One coin avoids the stack-scatter arm; step east before kicking west toward the C-observed sleeping leprechaun. BLOCKED: after the source catch, awake leprechaun movement requires monmove.c:leppie_avoidance and the special-monster-action planner entry; retained outside passing matrix.",
+  "segments": [
+    {
+      "seed": 92681001,
+      "datetime": "20800304121000",
+      "nethackrc": "OPTIONS=name:KickProof,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".\u0007leprechaun\n\u00171 gold piece\nd$l\u0004h   "
+    }
+  ]
+}
