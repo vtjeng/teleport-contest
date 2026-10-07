@@ -191916,7 +191916,7 @@
     {
       "id": "port-insight-enlightenment-polymorph-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete enlightenment menus for polymorphed heroes",
       "cFile": "insight.c",
       "sessions": [
@@ -191924,8 +191924,12 @@
       ],
       "selectionReason": "Next admitted v26 mismatch: 2 remaining screens where the full polymorphed enlightenment menu is skipped.",
       "detail": "Port the contiguous enlightenment/background_enlightenment family and wire zap.c do_enlightenment_effect for Upolyd heroes. Use saved u.mfemale for title and role/rank, retain all current form sections, menu ordering, and PICK_NONE dismissal. Depend on the separately queued whole youhiding port used by attributes_enlightenment.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "ecc9b936e732f7dd0e594b56e7bc0a834f90bf2c",
+      "openStanding": {
+        "sha": "2af337a66d5d573287b1290488b0cc2ee8e1dc66",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -191971,7 +191975,241 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "2af337a66d5d573287b1290488b0cc2ee8e1dc66",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-giant-enlightenment",
+          "session": "synthetic/v26/v26-giant-enlightenment",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-giant-enlightenment.session.json",
+          "recordingPath": "challenges/cases/v26/v26-giant-enlightenment.session.json",
+          "recordingSha256": "7218ae54bee6b3d00e490d934afa2416e51ac51f9e7478e148a38c6dc6b0deda",
+          "recipe": "challenges/cases/v26/v26-giant-enlightenment.recipe.session.json",
+          "recipeSha256": "39d5e9e49832565bc7cca72e598e7192a1a3580ab49ec2f7a097f15bf33c5578",
+          "replayInputSha256": "421065ced754b50fd5f55377332184fd5dc9d2728747ae2acf7a05c4f8cecc95",
+          "evaluationPath": "challenges/evaluations/accepted-2af337a66d5d573287b1290488b0cc2ee8e1dc66-v26.json",
+          "evaluationCommit": "2af337a66d5d573287b1290488b0cc2ee8e1dc66",
+          "evaluationArtifact": "challenges/evaluations/accepted-2af337a66d5d573287b1290488b0cc2ee8e1dc66-v26.json",
+          "evaluationUtc": "2026-10-07T17:40:19.604Z",
+          "remainingScreens": 2,
+          "recordedSteps": 78,
+          "previousScreensMatched": 76,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 76,
+              "total": 78
+            },
+            "rng": {
+              "matched": 2759,
+              "total": 2759
+            },
+            "cursors": {
+              "matched": 77,
+              "total": 78
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 68,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 68,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 68,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 68,
+                "key": " "
+              },
+              "cCursor": [
+                38,
+                20,
+                1
+              ],
+              "jsCursor": [
+                67,
+                15,
+                1
+              ]
+            }
+          },
+          "step": 68,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-giant-enlightenment.json",
+            "result": {
+              "session": "synthetic/v26/v26-giant-enlightenment",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-giant-enlightenment",
+              "remainingScreens": 2,
+              "recordedSteps": 78,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "7218ae54bee6b3d00e490d934afa2416e51ac51f9e7478e148a38c6dc6b0deda",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "status": "complete",
+              "commit": "977b52fc55dfcecf490d4102dac0dbead3fbfc3b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-giant-enlightenment",
+                "session": "synthetic/v26/v26-giant-enlightenment",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-giant-enlightenment.session.json",
+                "recordingPath": "challenges/cases/v26/v26-giant-enlightenment.session.json",
+                "recordingSha256": "7218ae54bee6b3d00e490d934afa2416e51ac51f9e7478e148a38c6dc6b0deda",
+                "recipe": "challenges/cases/v26/v26-giant-enlightenment.recipe.session.json",
+                "recipeSha256": "39d5e9e49832565bc7cca72e598e7192a1a3580ab49ec2f7a097f15bf33c5578",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 2,
+                "recordedSteps": 78,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 76,
+                    "total": 78
+                  },
+                  "rng": {
+                    "matched": 2759,
+                    "total": 2759
+                  },
+                  "cursors": {
+                    "matched": 77,
+                    "total": 78
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 68,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 68,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 68,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 68,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      38,
+                      20,
+                      1
+                    ],
+                    "jsCursor": [
+                      67,
+                      15,
+                      1
+                    ]
+                  }
+                },
+                "step": 68,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At zero-based step 68, the polymorphed hero drinks an uncursed potion of enlightenment. C opens the full MAGICENLIGHTENMENT menu; JavaScript skips it because do_enlightenment_effect() records insight.c enlightenment as unported when Upolyd. The source owner is insight.c:enlightenment(), with a second polymorph-specific gender mismatch in background_enlightenment() (C uses u.mfemale for the saved hero gender). The C menu is a single page ending in (end); menu paging is not the first cause.",
+              "source": {
+                "file": "insight.c",
+                "branch": "MAGICENLIGHTENMENT with ENL_GAMEINPROGRESS while Upolyd is true. The uncursed potion calls do_enlightenment_effect(), which pauses the self-knowledge message, calls enlightenment(), waits on its PICK_NONE menu, then prints the trailing line and exercises Wisdom. The selected source scope is the contiguous enlightenment() and background_enlightenment() family; the existing downstream sections already contain explicit Upolyd branches and must be verified with the full recorded menu.",
+                "functions": [
+                  "enlightenment",
+                  "background_enlightenment"
+                ],
+                "callers": [
+                  "potion.c:peffect_enlightenment() takes its uncursed branch and calls zap.c:do_enlightenment_effect(); do_enlightenment_effect() pauses the message, calls enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS), then prints the trailing message and exercises Wisdom.",
+                  "JavaScript route: js/potion.js:peffect_enlightenment() calls js/zap.js:do_enlightenment_effect(); its Upolyd branch calls note_unported('insight.c enlightenment') and bypasses enlightenment() and select_menu().",
+                  "Other direct C callers are insight.c:doattributes(), potion.c:peffect_hallucination(), fountain.c:drinkfountain(), artifact.c:arti_invoke(), and end.c:disclose(); their existing calls already reach enlightenment()."
+                ],
+                "dependencies": [
+                  "zap.c:do_enlightenment_effect() owns the game-in-progress MAGICENLIGHTENMENT menu call and its message/exercise order; js/zap.js already implements that order but must invoke the callee for Upolyd heroes.",
+                  "polyself.c initializes the saved hero gender u.mfemale separately from current form state. insight.c:enlightenment() uses it for the title and background_enlightenment() uses it for role/rank; js/polyself.js stores the corresponding state.u.mfemale, while js/insight.js currently uses flags.female in both places.",
+                  "win/tty/wintty.c:end_menu()/select_menu(PICK_NONE) provide the menu frame and dismissal. The JavaScript windows.select_menu()/tty_menu.js path already renders and accepts this single-page menu; step 68 ends with (end), not a page prompt, so paging is not blocking this case."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry .cache/v26-giant-enlightenment-queue-entry.json and challenges/evaluations/20261007095608-v26.json identify synthetic/v26/v26-giant-enlightenment, 2 remaining screens in 78 steps, with the first screen mismatch at zero-based step 68: C cell (row 0, column 0) is a space and JavaScript is T; cursor is [38,20,1] in C versus [67,15,1] in JavaScript. RNG matches through the recording, so this is not an RNG-order failure.",
+                "The recipe challenges/cases/v26/v26-giant-enlightenment.recipe.session.json uses #polyself to become a hill giant, then quaffs an uncursed potion of enlightenment. In the recording, step 67 shows “You feel self-knowledgeable...--More--”; step 68 is the C menu headed “Wizard the Wizard's attributes:” with the transformed status and hill-giant attributes. Its cursor is at row 20 and the footer is “(end)”, confirming a single page.",
+                "nethack-c/upstream/src/insight.c:383-464 implements enlightenment(): it creates a menu for an in-progress game, emits the title and selected sections, then calls end_menu()/select_menu(PICK_NONE). Its title selects u.mfemale when Upolyd (:397-400); there is no C refusal for a polymorphed hero.",
+                "nethack-c/upstream/src/insight.c:468-526 likewise uses u.mfemale for the saved role/rank gender and explicitly emits the current polymorphed form. The adjacent existing menu sections contain source-specific Upolyd behavior at :732-763 (monster-form HP and hit dice), :854-892 (hide innate characteristics), :940-968 (transformed status), and :1487 onward (magic attributes).",
+                "js/insight.js:1961-1971 throws UnsupportedEnlightenmentError for Upolyd before building any lines, then uses flags.female for the title. js/zap.js:5896-5928 independently detects Upolyd, records note_unported('insight.c enlightenment'), and skips the menu call. js/insight.js:670-680 also uses flags.female for background role/rank, unlike C’s saved-gender branch.",
+                "The exact first cause is therefore the intentional JavaScript refusal/skip on the polymorphed branch, before menu rendering. Fix the insight.c enlightenment/background source family and wire js/zap.js to call it; preserve the already implemented downstream menu sections and windows.select_menu(). No paging change is indicated by this case."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-sit-rndcurse-v26-20261007",
