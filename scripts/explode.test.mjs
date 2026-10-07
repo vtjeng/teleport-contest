@@ -39,6 +39,9 @@ import {
     EXPL_FIERY,
     HI_ZAP,
     COLD_RES,
+    DEAF,
+    PLNMSG_TOWER_OF_FLAME,
+    PLNMSG_UNKNOWN,
     FIRE_RES,
     OBJ_INVENT,
     PHYS_EXPL_TYPE,
@@ -66,6 +69,7 @@ import {
 import { zap_over_floor } from '../js/zap.js';
 import { getRngLog } from '../js/rng.js';
 import { decodeScreen } from '../frozen/screen-decode.mjs';
+import { ttyPline } from '../js/tty_message.js';
 
 test('magical shield frames map C cmap indices through cmap_to_glyph', async () => {
     await runSegment({
@@ -858,4 +862,57 @@ test('scatter uses the production object lifecycle on an ordinary floor', async 
     assert.equal(object.oy, y - 1);
     assert.equal(game.level.objects[x]?.[y], null);
     assert.equal(game.level.objects[x + 1]?.[y - 1], object);
+});
+
+// explode.c:668-673 uses the two specific antecedent markers, not merely a
+// nonzero last_msg. Abort at the fatal line to isolate wording from done().
+test('fatal explosion wording follows the source last-message markers', async () => {
+    const cases = [
+        { verbose: true, marker: PLNMSG_UNKNOWN, deaf: false, expected: 'It is fatal.' },
+        { verbose: false, marker: PLNMSG_UNKNOWN, deaf: false, expected: 'The tower of flame is fatal.' },
+        { verbose: false, marker: PLNMSG_TOWER_OF_FLAME, deaf: true, expected: 'It is fatal.' },
+    ];
+    for (const fixture of cases) {
+        // This independent seed/date only initialize a valid production state;
+        // the fixture supplies lethal damage and inventory-free fire effects.
+        await runSegment({ seed: 7710144, datetime: '20360214031500',
+            nethackrc: [
+                'OPTIONS=name:FatalWords,role:Wizard,race:human,gender:female,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup',
+                '',
+            ].join('\n'), moves: '' });
+        game.flags.verbose = fixture.verbose;
+        game.iflags.last_msg = fixture.marker;
+        game.u.uprops[DEAF].intrinsic = fixture.deaf ? 1 : 0; // Active/absent intrinsic.
+        game.invent = null; // No items can emit an intervening fire message.
+        for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarmg', 'uarms', 'uarmf', 'uarmu'])
+            game[slot] = null;
+        game.u.uhp = 1; // A two-point fire blast must reach the fatal branch.
+        for (const monster of game.level.monsters.flat().filter(Boolean))
+            game.level.monsters[monster.mx][monster.my] = null;
+        game.nhDisplay.pushKey(32); // Allow the existing startup line's More.
+        const lines = [];
+        const fatalBoundary = new Error('fatal message reached');
+        const rngBefore = getRngLog().length;
+        const draws = [];
+        await assert.rejects(explode(game.u.ux, game.u.uy, -11, 2,
+            // Scroll class leaves the no-caught tower-of-flame marker intact;
+            // SCROLL_CLASS selects C's tower-of-flame description.
+            SCROLL_CLASS, EXPL_FIERY, game, {
+                random: { rn2: (bound) => { draws.push(bound); return 1; } },
+                // burnarmor case 1 terminates at the empty torso slots;
+                // selecting an empty helmet would repeat the source loop.
+                message: async (line) => {
+                    lines.push(line);
+                    if (line.endsWith('is fatal.')) throw fatalBoundary;
+                    await ttyPline(line, game);
+                },
+            }), (error) => error === fatalBoundary);
+        assert.equal(lines.at(-1), fixture.expected);
+        assert.equal(game.u.uhp, -1); // 1 HP minus source damage 2.
+        // C burnarmor draws its five-slot choice, then destroy_items draws
+        // DMG_DESTROY_SCALE (5) even with an empty inventory.
+        assert.deepEqual(draws, [5, 5]);
+        assert.equal(getRngLog().length, rngBefore, 'wording consumes no RNG');
+    }
 });

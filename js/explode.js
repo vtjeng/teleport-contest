@@ -34,6 +34,8 @@ import {
     BURNING_OIL,
     TRAP_EXPLODE,
     PHYS_EXPL_TYPE,
+    PLNMSG_CAUGHT_IN_EXPLOSION,
+    PLNMSG_TOWER_OF_FLAME,
     POISON_RES,
     SHOCK_RES,
     N_DIRS,
@@ -656,6 +658,8 @@ export async function explode(
         if (state.flags?.verbose && (type < 0 || olet !== SCROLL_CLASS)) {
             if (doHallu) str = hallucinatoryExplosion(state, env);
             await messageLine(`You are caught in the ${str}!`, state, env);
+            state.iflags ??= {};
+            state.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
         }
         if (adtyp === AD_FIRE) await burn_away_slime(state, env);
         if (propertyActive(state, INVULNERABLE)) {
@@ -688,7 +692,12 @@ export async function explode(
                 state.killer ??= { name: '', format: KILLED_BY };
                 state.killer.name = generic ? 'explosion' : str;
                 state.killer.format = olet === MON_EXPLODE ? KILLED_BY_AN : KILLED_BY;
-                await messageLine('It is fatal.', state, env);
+                // explode.c:668-673 checks the last pline after item effects:
+                // an intervening message replaces the blast's antecedent.
+                const lastMessage = state.iflags?.last_msg;
+                await messageLine(lastMessage === PLNMSG_CAUGHT_IN_EXPLOSION
+                    || lastMessage === PLNMSG_TOWER_OF_FLAME
+                    ? 'It is fatal.' : `The ${str} is fatal.`, state, env);
                 await done(adtyp === AD_FIRE ? 3 : 0, state, env);
             }
         }
