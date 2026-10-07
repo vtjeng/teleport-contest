@@ -188390,16 +188390,23 @@
     {
       "id": "fix-uhitm-brain-drain-owned-forgetting-v24-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore spell and weapon-skill forgetting after mind-flayer brain drain",
       "cFile": "uhitm.c",
       "sessions": [],
-      "selectionReason": "Continue the current v24 mind-flayer seed after accepted C124. The complete investigation retains zero remaining screens and locates the RNG-only omission at hero-defender AD_DRIN forgetting gates. Canonical losespells and drain_weapon_skill owners are already implemented and verified; restore their calls without overlapping A117 burial, B129 ability dispatch, or the v25 kick-object scope.",
+      "selectionReason": "Hosted v24 evaluation isolated the remaining mind-flayer brain-drain mismatch at step 109; C128 restores the source-ordered spell and weapon-skill forgetting path.",
       "detail": "At segment 0 step 109, C calls losespells after its first !rn2(5), then drain_weapon_skill(rnd(2)) after the second; JS skips both. Await existing owners in source order. The planning clone already isolates spell retention, study context, and Wisdom exercise, but aliases u.weapon_skills and u.skill_record with live state; isolate exactly those two arrays before restoring skill drain so planning cannot mutate the live hero.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "1b156891b44f4663baeadf268243bd610044054e",
+      "openStanding": {
+        "sha": "1b156891b44f4663baeadf268243bd610044054e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "1b156891b44f4663baeadf268243bd610044054e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "mhitm_ad_drin",
       "session": "synthetic/v24/v24-mind-flayer-blast",
       "step": 109,
@@ -188416,21 +188423,37 @@
           "evaluationPath": "challenges/evaluations/20261007072048-v24.json",
           "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
         }
+      },
+      "activeStanding": {
+        "sha": "1b156891b44f4663baeadf268243bd610044054e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1b156891b44f4663baeadf268243bd610044054e",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-dokick-kick-object-v25-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port floor-object kicking and its consumed gold and flight helpers",
       "cFile": "dokick.c",
       "sessions": [
         "synthetic/v25/v25-kick-potion"
       ],
-      "selectionReason": "Independent saved v25 case v25-kick-potion has 5 remaining screens at step 42. The complete investigation traces the absent dokick object-pile caller to whole kick_object and really_kick_object, with consumed ghitm and the currently refused KICKED_WEAPON path of bhit. This scope is disjoint from C128 brain drain and B129 ability dispatch.",
+      "selectionReason": "Admitted v25 kick-potion mismatch selects dokick.c floor-object kicking; the delivery adds ordinary kick, gold, and flight behavior while retaining source-traced coverage blockers.",
       "detail": "Port whole dokick.c ghitm, kick_object, and really_kick_object plus required zap.c bhit completion for kicked weapons; wire bounded dokick object-pile, dothrow throw_gold, and lock breakchestlock callers. Preserve gk.kickedobj as the single ownership slot. The admitted fragile potion case breaks before split and flight, so independent evidence must cover nonfragile flight, heavy/box/trap/gold/shop branches before closure.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9",
+      "openStanding": {
+        "sha": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -188438,8 +188461,8 @@
           "name": "ghitm",
           "line": 295,
           "endLine": 411,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "container_impact_dmg",
@@ -188452,14 +188475,14 @@
           "name": "kick_object",
           "line": 489,
           "endLine": 507,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "really_kick_object",
           "line": 508,
           "endLine": 793,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -188490,7 +188513,130 @@
           "evaluationPath": "challenges/evaluations/20261007072048-v25.json",
           "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "ghitm",
+            "implementation": "js/dokick.js",
+            "symbol": "ghitm",
+            "sourceReview": "Read whole dokick.c:295-407. Preserve nongreedy wakeup then miss; immobile seen feedback; sleep and meal cleanup; isgd short-circuit around rn2(4); capture coin value before mpickobj may merge/free the object; TRUE means caller must not place caught gold again. Preserve shop robbed message then field store, peaceful credit, priest/guard dialogue and hidden_gold/money_cnt consumed returns. Preserve all four mercenary thresholds, rn2(3) and rn2(5) gates, C integer truncation and strict greater-than bribe condition. SetVoice is empty in the reference sound build. The discarded unported shk.c:make_happy_shk remains an explicit note; no substitute state/RNG/output or ghitm refusal remains. Runtime records verify both source callers for ordinary greedy catches; source-pinned tests additionally verify transfer/merge and bribe gates. Shop-specific entry branches have no new runtime certification.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "really_kick_object",
+                "source": "dokick.c:747 ghitm on a kicked coin after bhit returns the monster"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_gold",
+                "source": "dothrow.c:2712 caught result returns; FALSE continues the source floor-placement tail"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dokick.test.mjs",
+              "scripts/throw-gold.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/gold-throw-greedy.session.json",
+              "recordings/dokick.c/kick-gold-greedy.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9"
+          }
+        ],
+        "entryPointReview": "Primary source entries are Ctrl-D/#kick -> cmd.c dispatch -> dokick.c:1452-1463 -> kick_object -> really_kick_object, and t on gold -> dothrow.c:throw_obj -> throw_gold:2712 -> ghitm. bhit callers remain dokick.c:really_kick_object736, dothrow.c:throwit1674 and throw_gold2706, zap.c:weffects3448, apply.c:do_blinding_ray63 and use_mirror1096; all JS calls are present and source-mapped. New kicked traversal supplies the missing caller. Bounded caller credit covers the dokick object-pile/recoil/ouch branch, throw_gold caught-result handoff, breakchestlock(false) export plus discarded billing cleanup, and bhitpile callback pointer; no whole dokick/throw_gold/lock/bhitpile claim. Five C-first records are independently chosen seed92681001/date20800304121000/Archeologist inputs; cheap variations cover confusion potion, nonfragile ration split/flight, thrown leprechaun catch, kicked orc catch, and heavy locked-container impact. Actual C message/RNG and runtime object identities establish reachability; admitted v25 prefix covers the entire healing-potion stack break. Blocked probes retain leprechaun awake special action, heavy wish floor placement, web find_trap restoration, and unverified drawbridge setup. Failed C recordings are kept only in .cache, never passing corpus. No unsafe corpse/shop/water/ice/air caller completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Hero floor-object kick through Ctrl-D/#kick (matching ordinary entries)",
+            "functions": [
+              "kick_object",
+              "really_kick_object",
+              {
+                "sourceFile": "zap.c",
+                "name": "bhit"
+              },
+              "ghitm"
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-fragile-confusion.session.json",
+              "recordings/dokick.c/kick-nonfragile-stack.session.json",
+              "recordings/dokick.c/kick-gold-greedy.session.json",
+              "recordings/dokick.c/kick-locked-container.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-kick-potion",
+                "segment": 0,
+                "fromStep": 42,
+                "throughStep": 46,
+                "source": "cmd.c Ctrl-D -> dokick.c:1452-1463 object-pile arm -> kick_object:489-503 -> really_kick_object:508-790 -> hero_breaks before splitobj; whole two-potion stack breaks, potion vapor and object lifecycle settle before the turn."
+              }
+            ]
+          },
+          {
+            "name": "Hero gold throw to a greedy monster",
+            "functions": [
+              "ghitm",
+              {
+                "sourceFile": "zap.c",
+                "name": "bhit"
+              }
+            ],
+            "recordings": [
+              "recordings/dokick.c/gold-throw-greedy.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Heavy-boulder no-move and kick_ouch caller (blocked placement)",
+            "functions": [
+              "kick_object",
+              "really_kick_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Web-trapped object kick (blocked earlier trap display)",
+            "functions": [
+              "kick_object",
+              "really_kick_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Remaining non-kicked bhit entries, including drawbridge zap_map (uncertified)",
+            "functions": [
+              {
+                "sourceFile": "zap.c",
+                "name": "bhit"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "ghitm now has complete source and runtime evidence; kick_object, really_kick_object, and zap.c:bhit remain unverified. Resume after do.c:dropy can place the heavy boulder, detect.c:find_trap restores the web path, and zap_map supports the drawbridge caller; add awake-leprechaun and remaining active bhit entry evidence before closure."
     },
     {
       "id": "port-eat-cprefx-whole-v25-20261007",
@@ -188639,6 +188785,259 @@
         "sha": "2e4526d1e651eb7be79baba260c1ac3e6c78e308",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "port-do-doddrop-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the multiple-drop command family and canonical inventory traversal",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v26/v26-eat-levitation-ring"
+      ],
+      "selectionReason": "Top admitted synthetic mismatch: 80 remaining screens at step 31 when D should enter the source drop-type menu.",
+      "detail": "Port whole doddrop through menu_drop, the consumed drop and category-selection returns, and canonical bypass traversal. Wire droptype command admission and dispatch. Preserve source limits for partial downstream placement and traditional inventory helpers; validate the admitted D/A/a sequence plus independent variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doddrop",
+          "line": 924,
+          "endLine": 946,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "better_not_try_to_drop_that",
+          "line": 947,
+          "endLine": 963,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "menudrop_split",
+          "line": 964,
+          "endLine": 980,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "menu_drop",
+          "line": 981,
+          "endLine": 1109,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 924,
+        "to": 1109
+      },
+      "requiredFunctions": [
+        {
+          "name": "drop",
+          "line": 714,
+          "endLine": 785,
+          "declared": true,
+          "sourceFile": "do.c",
+          "complete": false
+        },
+        {
+          "name": "query_category",
+          "line": 1226,
+          "endLine": 1510,
+          "declared": true,
+          "sourceFile": "pickup.c",
+          "complete": false
+        },
+        {
+          "name": "bypass_objlist",
+          "line": 1127,
+          "endLine": 1141,
+          "declared": false,
+          "sourceFile": "worn.c",
+          "complete": false
+        },
+        {
+          "name": "nxt_unbypassed_obj",
+          "line": 1142,
+          "endLine": 1158,
+          "declared": false,
+          "sourceFile": "worn.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v26/v26-eat-levitation-ring": {
+          "session": "synthetic/v26/v26-eat-levitation-ring",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-eat-levitation-ring",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-eat-levitation-ring.session.json",
+          "recordingSha256": "6c1c590921c9f6a8a3d1e955f5ce3978afd37e90227ef8a8ea1d2282a90ce00d",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-cold-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete cold attack handler in all combat directions",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v26/v26-ice-troll-cold-claw"
+      ],
+      "selectionReason": "Next admitted synthetic mismatch: 21 remaining screens at step 70 in the hero-attacker cold arm.",
+      "detail": "Port whole mhitm_ad_cold for hero-to-monster, monster-to-hero, and monster-to-monster directions. Keep the existing hmonas to damageum to mhitm_adtyping caller chain and source-order negation, resistance, messaging, golem, item-destruction, and knowledge effects.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_cold",
+          "line": 2626,
+          "endLine": 2683,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2626,
+        "to": 2683
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-ice-troll-cold-claw": {
+          "session": "synthetic/v26/v26-ice-troll-cold-claw",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-ice-troll-cold-claw",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-ice-troll-cold-claw.session.json",
+          "recordingSha256": "a83a5bb776910f2c2df1ccc60395c35702d30c23250f9f98b73ab14fe75c02b9",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-dig-digactualhole-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete hole creation and hero fall behavior",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v26/v26-digging-down"
+      ],
+      "selectionReason": "Next admitted synthetic mismatch after the active larger cases: 10 remaining screens at step 31 because the non-PIT digactualhole path returns before maketrap.",
+      "detail": "Port whole digactualhole, preserving PIT and HOLE branches, source-consumed helpers, hero descent, and existing zap_dig, occupation, and broken-wand callers. The existing hole_destination loop is already aligned; reach it through canonical maketrap.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "digactualhole",
+          "line": 640,
+          "endLine": 837,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 640,
+        "to": 837
+      },
+      "requiredFunctions": [
+        {
+          "name": "maketrap",
+          "line": 456,
+          "endLine": 592,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "goto_level",
+          "line": 1479,
+          "endLine": 2002,
+          "declared": true,
+          "sourceFile": "do.c",
+          "complete": true
+        },
+        {
+          "name": "spoteffects",
+          "line": 3312,
+          "endLine": 3465,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v26/v26-digging-down": {
+          "session": "synthetic/v26/v26-digging-down",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-digging-down",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-digging-down.session.json",
+          "recordingSha256": "6c12565454d5a8be390a4533465a33277591cfb72b7c8ef8f1b9d2706267b231",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-rumors-doconsult-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port Oracle consultation and wire the chat caller",
+      "cFile": "rumors.c",
+      "sessions": [
+        "synthetic/v26/v26-oracle-chat"
+      ],
+      "selectionReason": "Next complete admitted synthetic investigation: 10 remaining screens at step 33 where Oracle chat should return the no-gold message.",
+      "detail": "Port whole doconsult and wire sounds.c domonnoise MS_ORACLE. Preserve no-gold, peacefulness, payment, minor and major consultation state in source order; retain outoracle as an explicit discarded-result gap until its separate implementation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doconsult",
+          "line": 696,
+          "endLine": 769,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 696,
+        "to": 769
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-oracle-chat": {
+          "session": "synthetic/v26/v26-oracle-chat",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-oracle-chat",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-oracle-chat.session.json",
+          "recordingSha256": "88edad154596161f9e8139b22754d77351b638100bfefaa21764578d973714d4",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
       }
     }
   ]

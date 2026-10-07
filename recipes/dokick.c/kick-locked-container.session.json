@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first kick container variation: empty locked large box, heavy enough to remain in place; tests container impact before lock chance and kick return.",
+  "segments": [
+    {
+      "seed": 92681001,
+      "datetime": "20800304121000",
+      "nethackrc": "OPTIONS=name:KickProof,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".\u0017locked empty large box\n djh\u0004l"
+    }
+  ]
+}

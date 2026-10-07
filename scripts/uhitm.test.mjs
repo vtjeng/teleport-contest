@@ -6,6 +6,11 @@ import test from 'node:test';
 import { moveloop_core } from '../js/allmain.js';
 import {
     A_DEX,
+    NO_SPELL,
+    P_DAGGER,
+    P_QUARTERSTAFF,
+    P_SKILLED,
+    P_BASIC,
     ALTAR,
     BLINDED,
     DEAF,
@@ -102,6 +107,7 @@ import {
     SCR_SCARE_MONSTER,
     SILVER_DAGGER,
     HELMET,
+    DUNCE_CAP,
     LEATHER_ARMOR,
 } from '../js/objects.js';
 import { dmgval } from '../js/weapon.js';
@@ -1096,6 +1102,103 @@ test('mhitm_ad_drin preserves source order in all three attack directions', asyn
     assert.equal(monsterDamage.damage, 5);
     assert.equal(monsterDamage.hitflags, M_ATTK_HIT);
     assert.deepEqual(events, ['rnd(10)']);
+});
+
+test('incoming AD_DRIN awaits spell and skill forgetting in source order', async () => {
+    assert.match(UHITM_C,
+        /adjattrib\(A_INT, -rnd\(2\), FALSE\);\s*if \(!rn2\(5\)\) \{\s*losespells\(\);\s*gs\.skipdrin = TRUE;\s*\}\s*if \(!rn2\(5\)\) \{\s*drain_weapon_skill\(rnd\(2\)\);\s*gs\.skipdrin = TRUE;/u);
+    await runSegment({
+        // Independent startup: construct both source forgetting owners after initialization.
+        seed: 128070403, datetime: DATETIME,
+        nethackrc: 'OPTIONS=name:BrainTail,role:Wizard,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '',
+    });
+    const liveBefore = structuredClone(game.u.weapon_skills);
+    const state = planningState(game);
+    // A dunce cap bypasses eat_brains but still reaches the Int/forgetting tail.
+    state.uarmh = mksobj(DUNCE_CAP, false, false, { state });
+    state.svs.spl_book[2].sp_id = NO_SPELL; // Two starting Wizard spells make rn2(3) the loss-count draw.
+    state.context.spbook = { book: { o_id: 128 }, o_id: 128 }; // Interrupted study must be cleared without mutating live context.
+    state.u.skills_advanced = 2; // Two advances exercise history shifting as well as grade loss.
+    state.u.skill_record = [P_DAGGER, P_QUARTERSTAFF];
+    state.u.weapon_skills[P_DAGGER].skill = P_SKILLED;
+    state.u.weapon_skills[P_DAGGER].advance = 100; // Above C's basic training threshold.
+    state.gs.skipdrin = false;
+    const flayer = {
+        data: state.mons[PM_MIND_FLAYER], m_id: 128403, // Distinct adjacent attacker identity.
+        mx: state.u.ux + 1, my: state.u.uy, mhp: 20, mhpmax: 20,
+        minvent: null, mextra: {}, mcan: false,
+    };
+    const events = [];
+    const random = {
+        rn2(bound) {
+            events.push(`rn2(${bound})`);
+            return bound === 3 ? 2 : 0; // Forget both spells; pass helmet and both one-in-five gates.
+        },
+        rnd(bound) { events.push(`rnd(${bound})`); return 1; }, // Drain one grade and one Int point.
+        rnl(bound) { events.push(`rnl(${bound})`); return 1; }, // Luck does not reduce the two-spell loss.
+    };
+    const messages = [];
+    await mhitm_adtyping(flayer, { aatyp: AT_TENT, adtyp: AD_DRIN },
+        state.youmonst, { damage: 1, specialdmg: 0, done: false, hitflags: 0 },
+        state, { planning: true, random, unsupported: reason => assert.fail(reason), message: async line => {
+            await Promise.resolve(); // Exercise the ordinary awaited feedback callback.
+            messages.push(line);
+            if (line.includes('training')) events.push('skill message');
+        } });
+    assert.deepEqual(events, [
+        'rn2(8)', 'rnd(2)', 'rn2(5)', 'rn2(3)', 'rnl(7)',
+        'rn2(2)', 'rn2(2)', 'rn2(1)', 'rn2(2)',
+        'rn2(5)', 'rnd(2)', 'rn2(2)', 'rn2(60)', 'skill message',
+    ]);
+    assert.equal(state.context.spbook.book, null);
+    assert.equal(state.context.spbook.o_id, 0);
+    assert.equal(state.svs.spl_book[0].sp_know, 0);
+    assert.equal(state.svs.spl_book[1].sp_know, 0);
+    assert.equal(state.u.skills_advanced, 1);
+    assert.equal(state.u.weapon_skills[P_DAGGER].skill, P_BASIC);
+    assert.equal(state.u.weapon_skills[P_DAGGER].advance, 20); // Zero practice draw uses the lower bound.
+    assert.ok(messages.includes('You forget some of your training in dagger.'));
+    assert.ok(messages.includes('Your cap constricts briefly, then relaxes again.'),
+        'C adjattrib(A_INT, -rnd(2), FALSE) reports the worn dunce cap');
+    assert.equal(state.gs.skipdrin, true);
+    assert.deepEqual(game.u.weapon_skills, liveBefore, 'the dispatch mutates only planned skill records');
+
+    // A failed spell gate must leave the study owner alone; a successful
+    // skill gate sets skipdrin only after its awaited training feedback.
+    state.context.spbook = { book: { o_id: 129 }, o_id: 129 }; // Separate interrupted-study witness.
+    state.u.skills_advanced = 1; // One recorded dagger advance remains to drain.
+    state.u.skill_record = [P_DAGGER];
+    state.u.weapon_skills[P_DAGGER].skill = P_SKILLED;
+    state.u.weapon_skills[P_DAGGER].advance = 20; // Below the basic threshold: no practice-clamp draw.
+    state.gs.skipdrin = false;
+    events.length = 0;
+    let forgettingGates = 0;
+    await mhitm_adtyping(flayer, { aatyp: AT_TENT, adtyp: AD_DRIN },
+        state.youmonst, { damage: 1, specialdmg: 0, done: false, hitflags: 0 },
+        state, {
+            planning: true,
+            unsupported: reason => assert.fail(reason),
+            random: { ...random, rn2(bound) {
+                events.push(`rn2(${bound})`);
+                // First one-in-five gate fails; the second succeeds.
+                return bound === 5 && ++forgettingGates === 1 ? 1 : 0;
+            } },
+            message: async line => {
+                if (line.includes('training')) {
+                    assert.equal(state.gs.skipdrin, false);
+                    await Promise.resolve();
+                    events.push('skill message');
+                }
+            },
+        });
+    assert.deepEqual(events, [
+        'rn2(8)', 'rnd(2)', 'rn2(5)', 'rn2(5)', 'rnd(2)', 'rn2(1)', 'skill message',
+    ]);
+    assert.equal(state.context.spbook.o_id, 129, 'the failed spell gate does not discard study');
+    assert.equal(state.gs.skipdrin, true);
+    assert.deepEqual(game.u.weapon_skills, liveBefore);
 });
 
 test('mhitm_ad_wrap dispatches slippery and planned drowning source arms', async () => {

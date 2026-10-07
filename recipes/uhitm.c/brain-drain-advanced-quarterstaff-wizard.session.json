@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 128070413,
+      "datetime": "20560203040506",
+      "comment": "brain-drain-advanced-quarterstaff-wizard: independent C-first incoming brain-drain route; source uhitm.c:3168-3303.",
+      "nethackrc": "OPTIONS=name:BrainForget,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #levelchange\n10\n        #enhance\nyi \u001b\u0007hostile mind flayer\nm.m.  m.   "
+    }
+  ]
+}

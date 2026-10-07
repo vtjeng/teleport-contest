@@ -1,0 +1,144 @@
+{
+  "session": "synthetic/v26/v26-digging-down",
+  "corpus": "synthetic",
+  "batch": "v26",
+  "caseId": "v26-digging-down",
+  "manifestPath": "challenges/manifests/v26.json",
+  "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+  "recordingSha256": "6c12565454d5a8be390a4533465a33277591cfb72b7c8ef8f1b9d2706267b231",
+  "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+  "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+  "remainingScreens": 10,
+  "recordedSteps": 41,
+  "status": "complete",
+  "commit": "b3158961f5508f84d8e426b0e786ad35ac6eb95b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v26",
+    "caseId": "v26-digging-down",
+    "session": "synthetic/v26/v26-digging-down",
+    "manifestPath": "challenges/manifests/v26.json",
+    "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+    "recording": "challenges/cases/v26/v26-digging-down.session.json",
+    "recordingPath": "challenges/cases/v26/v26-digging-down.session.json",
+    "recordingSha256": "6c12565454d5a8be390a4533465a33277591cfb72b7c8ef8f1b9d2706267b231",
+    "recipe": "challenges/cases/v26/v26-digging-down.recipe.session.json",
+    "recipeSha256": "326ec162616a705cfdc60aa9b75a7b9c5561d9aefe77eedb9c69721bb512eb76",
+    "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+    "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+    "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+    "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+    "evaluationUtc": "2026-10-07T09:56:27.654Z",
+    "remainingScreens": 10,
+    "recordedSteps": 41,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 31,
+        "total": 41
+      },
+      "rng": {
+        "matched": 4316,
+        "total": 6337
+      },
+      "cursors": {
+        "matched": 31,
+        "total": 41
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 31,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 31,
+          "key": ">"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 4315,
+        "cEntry": "rn2(4)=1",
+        "cCaller": "hole_destination(trap.c:450)",
+        "jsEntry": "rn2(19)=13",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 31,
+          "key": ">"
+        },
+        "stepIndex": 31
+      },
+      "cursor": {
+        "index": 31,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 31,
+          "key": ">"
+        },
+        "cCursor": [
+          62,
+          0,
+          1
+        ],
+        "jsCursor": [
+          49,
+          12,
+          1
+        ]
+      }
+    },
+    "step": 31,
+    "kind": "rng",
+    "sourceFile": "trap.c",
+    "function": "hole_destination",
+    "message": null,
+    "cFile": "trap.c",
+    "luaFile": null,
+    "line": 450
+  },
+  "summary": "The first source-owned omission is dig.c:digactualhole() when downward digging selects HOLE. The C path calls maketrap(), whose HOLE branch calls hole_destination() and consumes rn2(4), then continues through the hero fall and level-arrival effects. JavaScript digactualhole() records an unported gap and returns for every trap type other than PIT before calling maketrap(). Port the whole digactualhole() function and preserve its existing callers; hole_destination() itself already matches the C loop.",
+  "source": {
+    "file": "dig.c",
+    "branch": "The v26 recipe gives a Wizard a wand of digging and aims it down from a diggable floor square. C zap_dig() takes its downward, non-stairway branch and calls dighole(FALSE, TRUE, NULL); on this ordinary floor, dighole() selects HOLE and calls digactualhole(..., BY_YOU, HOLE). In the recorded run the hero falls through, so the hero HOLE branch reaches goto_level() and spoteffects().",
+    "functions": [
+      "digactualhole"
+    ],
+    "callers": [
+      "C: dig.c:zap_dig() (1604-1607) calls dighole(FALSE, TRUE, NULL); dighole() (885-1023), after its ordinary-room path selects HOLE, calls digactualhole(..., BY_YOU, HOLE) at 1016-1019. JavaScript follows js/zap.js:zap_dig() (6087-6088) -> js/dig.js:dighole() (1618-1626) -> js/dig.js:digactualhole(); the last function currently returns at its non-PIT guard.",
+      "C: apply.c:do_break_wand() (4071-4072) also calls digactualhole(..., BY_OBJECT, PIT-or-HOLE). JavaScript js/apply.js:do_break_wand() currently records this non-hero branch as unported around 4760; a whole-function port must preserve this production caller.",
+      "C: dig.c:dig() (374) calls dighole(FALSE, FALSE, NULL) from the downward digging occupation, which can reach the same HOLE arm. JavaScript js/dig.js already calls dighole() from the occupation path."
+    ],
+    "dependencies": [
+      "trap.c:maketrap() returns the trap consumed by digactualhole(); its HOLE arm calls hole_destination(), which uses dng_bottom(). The existing JavaScript path is js/trap.js:hole_destination() and maketrap().",
+      "do.c:goto_level() and hack.c:spoteffects() perform the hero-fall transition and arrival effects from digactualhole(); existing JavaScript implementations are js/do.js:goto_level() and js/hack.js:spoteffects().",
+      "The remaining whole-function branches also consult shk.c:shopdig()/pay_for_damage(), dokick.c:impact_drop(), pickup.c:pickup(), trap.c:mintrap(), teleport.c:teleport_pet(), dungeon.c:get_level(), and dog.c:migrate_to_level(). Preserve result-used calls and record only permitted discarded-result gaps."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved queue entry .cache/v26-digging-down-queue-entry.json and evaluation challenges/evaluations/20261007095608-v26.json identify the first mismatch at segment 0, step 31, key >: C logs rn2(4)=1 at hole_destination(trap.c:450), while JavaScript has rn2(19)=13 at that aligned RNG position; the screen and cursor diverge at the same step. The C recording then displays “You dig a hole through the floor. You fall through...”.",
+    "The independent recipe challenges/cases/v26/v26-digging-down.recipe.session.json sets a Wizard with a wand of digging and sends z, o, > after wishing for the wand. The recorded case has 41 steps; this is the down-wand route, not a pit-occupation input.",
+    "C source nethack-c/upstream/src/dig.c:1548-1607 routes a downward, non-stairway zap through dighole(FALSE, TRUE, NULL). In dig.c:1000-1019, an ordinary diggable room whose fillholetyp() is ROOM and whose checks do not require a pit reaches digactualhole(..., BY_YOU, HOLE).",
+    "C source nethack-c/upstream/src/dig.c:640-829 shows the whole digactualhole() contract. It calls maketrap() at 690, then the HOLE branch at 753-794 switches terrain, checks levitation/flying and the pet leash, and on a fall prints the message, advances one level with goto_level(), and runs spoteffects().",
+    "C source nethack-c/upstream/src/trap.c:519-523 calls hole_destination() when maketrap() receives a hole; hole_destination() increments the destination and calls rn2(4) at 448-451. JavaScript js/trap.js has this same loop at 568-581 and calls it from maketrap() at 962, so the missing RNG call comes from the caller never reaching maketrap().",
+    "JavaScript js/dig.js:1313-1323 explicitly records note_unported for every non-PIT trap type or non-hero call and returns. Its dighole() calls digactualhole() for the HOLE result at 1618-1626, then proceeds to spot_checks(); this skips C trap creation and the hero descent. The source owner is therefore the partial digactualhole() implementation, not a divergence in hole_destination().",
+    "The goal kind is file-port because the C behavior is missing behind an explicit JavaScript gap. Scope the whole dig.c:digactualhole() function (640-829), including its existing PIT branch and other callers, then verify the down-zap route through zap_dig() and the BY_OBJECT route from apply.c:do_break_wand()."
+  ]
+}

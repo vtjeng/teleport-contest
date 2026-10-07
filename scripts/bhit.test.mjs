@@ -35,7 +35,6 @@ import {
 } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import {
-    UnsupportedBhitError,
     bhit,
     bhitm,
     bhito,
@@ -144,32 +143,47 @@ test('bhit() stops at a wall of water or lava without backing up', async () => {
     assert.deepEqual(sink.gb.bhitpos, { x: 3, y: 4 });
 });
 
-test('bhit() admits an immediate wand and refuses an unsupported call type', async () => {
-    // zap.c's immediate-wand walk reaches zap_map() and bhitpile(); the
-    // thrown-weapon caller remains the other supported traversal. Kicked
-    // weapons still have no caller-owned flight implementation here.
+test('bhit() admits kicked-object flight and keeps its shifted origin', async () => {
+    // zap.c:3848-3852 begins a kick one square ahead and consumes one range
+    // unit there; from hero x=1 the remaining three steps end at x=5.
     const state = corridor();
     const wand = missile(state, WAN_POLYMORPH);
-    assert.equal(
-        await bhit(1, 0, 4, ZAPPED_WAND, null, null,
-            { obj: wand }, state),
-        null,
-    );
-    await assert.rejects(
-        () => bhit(1, 0, 4, KICKED_WEAPON, null, null,
-            { obj: missile(state) }, state),
-        UnsupportedBhitError,
-    );
-    await assert.rejects(
-        () => bhit(1, 0, 4, THROWN_WEAPON, () => 0, null,
-            { obj: missile(state) }, state),
-        /an object or monster callback/u,
-    );
-    await assert.rejects(
-        () => bhit(1, 0, 4, THROWN_WEAPON, null, () => 0,
-            { obj: missile(state) }, state),
-        /an object or monster callback/u,
-    );
+    assert.equal(await bhit(1, 0, 4, ZAPPED_WAND, null, null,
+        { obj: wand }, state), null);
+    const kicked = corridor(8);
+    assert.equal(await bhit(1, 0, 4, KICKED_WEAPON, null, null,
+        { obj: missile(kicked) }, kicked), null);
+    assert.deepEqual(kicked.gb.bhitpos, { x: 5, y: 4 });
+
+    // The launch square at x=2 is already behind C's kicked-object walk.
+    // A callback-visible pile there must be skipped while the next pile at
+    // x=3 is visited normally.
+    const piles = corridor(8);
+    const launchPile = missile(piles);
+    const walkedPile = missile(piles);
+    place_object(launchPile, 2, 4, { state: piles });
+    place_object(walkedPile, 3, 4, { state: piles });
+    const seen = [];
+    await bhit(1, 0, 4, KICKED_WEAPON, null,
+        (floor) => { seen.push(floor); return 0; },
+        { obj: missile(piles) }, piles);
+    assert.deepEqual(seen, [walkedPile]);
+});
+
+test('bhit forwards its source object callback to bhitpile', async () => {
+    // zap.c:bhitpile receives bhit's fhito pointer, even on a physical walk.
+    // Returning one consumes an additional range unit at that floor pile.
+    const state = corridor(8);
+    const floor = missile(state);
+    place_object(floor, 3, 4, { state });
+    const seen = [];
+    await bhit(1, 0, 4, THROWN_WEAPON,
+        () => { throw new Error('C ignores fhitm for a physical walk'); },
+        (obj, wand) => { seen.push([obj, wand]); return 1; },
+        { obj: missile(state) }, state);
+    assert.equal(seen.length, 1);
+    assert.equal(seen[0][0], floor);
+    assert.deepEqual(state.gb.bhitpos, { x: 4, y: 4 });
 });
 
 test('zap_map changes only a downward non-headstone engraving', async () => {

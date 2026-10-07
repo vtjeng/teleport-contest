@@ -32,6 +32,7 @@ import {
     defends,
     defends_when_carried,
     } from './artifacts.js';
+import { ship_object } from './dokick.js';
 import { o_unleash } from './apply.js';
 import {
     is_moat,
@@ -141,7 +142,7 @@ import {
     weight,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import {
+import { COIN_CLASS,
     CORPSE, ROCK_CLASS, MEATBALL, MEAT_STICK, ENORMOUS_MEATBALL, MEAT_RING, ARMOR_CLASS, GEM_CLASS, AMULET_OF_LIFE_SAVING, AMULET_OF_UNCHANGING, BOULDER, DWARVISH_CLOAK, HEAVY_IRON_BALL, IMMEDIATE, NODIR, POTION_CLASS, POT_POLYMORPH, POT_WATER, RING_CLASS, ROCK, SCROLL_CLASS, SPBOOK_CLASS, SPE_DIG, SPE_FORCE_BOLT, SPE_FIREBALL, SPE_CONE_OF_COLD, SPE_EXTRA_HEALING, SPE_FINGER_OF_DEATH, SPE_CURE_SICKNESS, SPE_HEALING, SPE_KNOCK, SPE_MAGIC_MISSILE, SPE_LIGHT, SPE_DRAIN_LIFE, SPE_CANCELLATION, SPE_SLOW_MONSTER, SPE_WIZARD_LOCK, SPE_DETECT_UNSEEN, SPE_TURN_UNDEAD, SPE_BLANK_PAPER, SPE_NOVEL, SPE_POLYMORPH, SPE_SLEEP, SPE_STONE_TO_FLESH, TOOL_CLASS, WAND_CLASS, STATUE, FIGURINE, WEAPON_CLASS, HELM_OF_BRILLIANCE, GAUNTLETS_OF_DEXTERITY, RIN_GAIN_STRENGTH, RIN_GAIN_CONSTITUTION, RIN_ADORNMENT, RIN_INCREASE_ACCURACY, RIN_INCREASE_DAMAGE, RIN_PROTECTION, CRYSTAL_BALL, CANDELABRUM_OF_INVOCATION, POT_ACID, POT_SICKNESS, POT_SEE_INVISIBLE, POT_FRUIT_JUICE, SCR_BLANK_PAPER, SPE_BOOK_OF_THE_DEAD, WAN_DEATH, WAN_DIGGING, WAN_LIGHTNING, WAN_LIGHT, WAN_STASIS, WAN_ENLIGHTENMENT, WAN_MAKE_INVISIBLE, WAN_SLOW_MONSTER, WAN_SPEED_MONSTER, WAN_UNDEAD_TURNING, WAN_OPENING, WAN_POLYMORPH, WAN_WISHING, WAN_STRIKING, WAN_MAGIC_MISSILE, WAN_CANCELLATION, WAN_NOTHING, WAN_PROBING, WAN_COLD, WAN_FIRE, WAN_LOCKING, EXPENSIVE_CAMERA, FROST_HORN, FIRE_HORN, MUMMY_WRAPPING, LARGE_BOX, CHEST, BAG_OF_HOLDING, TIN, WAN_SECRET_DOOR_DETECTION, WAN_CREATE_MONSTER, WAN_SLEEP, WAN_TELEPORTATION, POT_OIL, POT_GAIN_ABILITY, SCR_MAIL, SCR_FIRE, SPE_TELEPORT_AWAY, MAGIC_LAMP, MAGIC_MARKER, OIL_LAMP, LOW_BOOTS, EGG, LEASH, UNICORN_HORN, FLESH, PAPER, CLOTH, LEATHER, WOOD, BONE, IRON, METAL, COPPER, SILVER, GOLD, PLATINUM, MITHRIL, GEMSTONE, MINERAL, GLASS, STRANGE_OBJECT, } from './objects.js';
 import {
     An, The, Tobjnam, Yname2, an, aobjnam, ansimpleoname, bare_artifactname, boots_simple_name, cloak_simple_name, donameFresh, corpse_xname, cxname_singular, distant_name, otense, gloves_simple_name, helm_simple_name, killer_xname, shield_simple_name, shirt_simple_name, simpleonames, isPoisonable, suit_simple_name, the, vtense, yname, xnameFresh, erosion_matters, } from './objnam.js';
@@ -1986,9 +1987,9 @@ export async function makewish(state = game) {
 // and mon.c's writers use the same name. Every caller reads it after the call
 // rather than the return value, which is the monster hit.
 //
-// The THROWN_WEAPON and ZAPPED_WAND walks are ported here.  The immediate arm
-// deliberately has no transient glyph: C's bhit() calls zap_map() and the two
-// callbacks on each square before testing whether the ray may continue.
+// Thrown, kicked, tethered, flashed-light, mirror and immediate-wand walks
+// share this owner. Immediate effects have no transient glyph; the remaining
+// zap_map effects are named gaps before the source callbacks and door test.
 //
 // The thrown-weapon walk has several early-stop branches: a shopkeeper
 // catching a pick-axe, a lit object lighting the squares it passes, iron bars,
@@ -2003,7 +2004,7 @@ export async function makewish(state = game) {
 // ends the flight, maps an unseen monster and returns it, leaving the caller
 // to decide what hits it: dothrow.c throwit() reaches the ported thitmonst()
 // through throwit_mon_hit():1492, while dothrow.c throw_gold():2712 reaches
-// dokick.c ghitm(), which remains outside this call type.
+// dokick.c ghitm(). Kicked objects use the same gold and weapon hit owners.
 export class UnsupportedBhitError extends Error {
     constructor(branch) {
         super(`zap.c bhit() reached ${branch}`);
@@ -3733,7 +3734,7 @@ export async function bhitm(monster, wand, state = game,
 // C ref: zap.c bhitpile() (2428-2537).  Every floor callback receives the
 // object successor captured before the callback can replace or delete it.
 export async function bhitpile(wand, tx, ty, state = game,
-    random = { rn2, rnd }, rawEnv = {}, zz = 0) {
+    random = { rn2, rnd }, rawEnv = {}, zz = 0, fhito = bhito) {
     let object = state.level?.objects?.[tx]?.[ty] ?? null;
     if (!object) return 0;
     const hidingunder = zz !== 0
@@ -3758,7 +3759,7 @@ export async function bhitpile(wand, tx, ty, state = game,
             }
         }
         if (object.where === OBJ_FLOOR && object.ox === tx && object.oy === ty)
-            hitanything += await bhito(object, wand, state, random, rawEnv);
+            hitanything += await fhito(object, wand, state, random, rawEnv);
         object = next;
     }
     if (state.gp.poly_zapped >= 0) {
@@ -3918,7 +3919,8 @@ export async function bhit(
     const zapped = weapon === ZAPPED_WAND;
     const flashed = weapon === FLASHED_LIGHT;
     const invisBeam = weapon === INVIS_BEAM;
-    const physical = weapon === THROWN_WEAPON || tetheredWeapon;
+    const kicked = weapon === KICKED_WEAPON;
+    const physical = weapon === THROWN_WEAPON || tetheredWeapon || kicked;
     // zap.c remembers whether this flight entered with an auto-returning
     // missile so a web or another early stop can cancel that return before
     // throwit() handles the landing tail.
@@ -3926,15 +3928,13 @@ export async function bhit(
     if (!physical && !zapped && !flashed && !invisBeam) {
         throw new UnsupportedBhitError(`call type ${weapon}`);
     }
-    if (physical && (fhitm || fhito)) {
-        // Only ZAPPED_WAND supplies either callback; C passes null for a
-        // thrown weapon at dothrow.c:1665-1666.
-        throw new UnsupportedBhitError('an object or monster callback');
-    }
     state.gb ??= {};
-    state.gb.bhitpos = { x: state.u.ux, y: state.u.uy };
+    state.gb.bhitpos = kicked
+        ? { x: state.u.ux + ddx, y: state.u.uy + ddy }
+        : { x: state.u.ux, y: state.u.uy };
+    if (kicked) range--;
 
-    if (physical && obj && obj.otyp === ROCK) {
+    if (weapon === THROWN_WEAPON && obj && obj.otyp === ROCK) {
         ({ skipstart: skiprange_start, skipend: skiprange_end } =
             skiprange(range, random));
         allow_skip = random.rn2(3) === 0;
@@ -3967,7 +3967,7 @@ export async function bhit(
             break;
         }
 
-        if (physical && is_pick(obj, state) && inside_shop(x, y, state)) {
+        if (is_pick(obj, state) && inside_shop(x, y, state)) {
             const caught = await shkcatch(obj, x, y, state, rawEnv);
             if (caught) {
                 await tmp_at(DISP_END, 0, state);
@@ -4103,6 +4103,8 @@ export async function bhit(
             mtmp = null;
 
         if (mtmp) {
+            state.gn ??= {};
+            state.gn.notonhead = x !== mtmp.mx || y !== mtmp.my;
             /* THROWN_WEAPON, KICKED_WEAPON */
             // zap.c:3994-3995 and 4021-4029. Tethered weapons retain their
             // tether animation until throwit() owns the final cleanup.
@@ -4140,10 +4142,24 @@ export async function bhit(
                 );
                 return mtmp;
             }
+        } else if (zapped && obj.otyp === WAN_PROBING
+            && glyph_is_invisible(glyph_at(x, y, state))) {
+            // C zap.c:4039-4043 clears a remembered invisible marker when
+            // probing confirms that the square no longer contains a monster.
+            unmap_object(x, y, state);
+            newsym(x, y, state);
         }
 
-        if (fhito && await bhitpile(obj, x, y, state, random, rawEnv))
-            range--;
+        if (fhito) {
+            if (await bhitpile(obj, x, y, state, random, rawEnv, 0, fhito)) range--;
+        } else if (kicked && ((obj.oclass === COIN_CLASS
+            && state.level.objects[x][y])
+            || await ship_object(obj, x, y, costly_spot(x, y, state),
+                { ...rawEnv, state, random }))) {
+            await tmp_at(DISP_END, 0, state);
+            await bhitTransientLightCleanup(weapon, tetheredWeapon, state, random, rawEnv);
+            return null;
+        }
 
         // zap.c:4125-4146. The lock effect's Boolean controls wand discovery,
         // shop billing, and whether the ray is stopped by the updated door.
@@ -4189,11 +4205,13 @@ export async function bhit(
             await tmp_at(x, y, state);
             await nh_delay_output(state);
         }
+        if (kicked && is_pool_or_lava(x, y, state)) break;
         if (physical && IS_SINK(typ))
             break; /* physical objects fall onto sink */
 
         /* limit range of ball so hero won't make an invalid move */
-        if (physical && range > 0 && obj.otyp === HEAVY_IRON_BALL) {
+        if ((weapon === THROWN_WEAPON || tetheredWeapon)
+            && range > 0 && obj.otyp === HEAVY_IRON_BALL) {
             const boulder = sobj_at(BOULDER, x, y, state);
             if (boulder) {
                 if (cansee(x, y, state)) {
@@ -4234,10 +4252,10 @@ export async function bhit(
         || (wasReturning
             && wasReturning !== state.iflags?.returning_missile))
         await tmp_at(DISP_END, 0, state);
+    if (shopdoor) note_unported('shk.c pay_for_damage');
     await bhitTransientLightCleanup(
         weapon, tetheredWeapon, state, random, rawEnv,
     );
-    if (shopdoor) note_unported('shk.c pay_for_damage');
     //
     // The return value is the monster the missile hit. Reaching the tail means
     // the flight ended on terrain or on its own range instead, so it is null.
