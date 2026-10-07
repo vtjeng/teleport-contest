@@ -162,9 +162,8 @@ function setErosion(obj, primary, amount) {
 //
 // EF_PAY (costly_alteration()) is live for do_wear.c destroy_arm(). The
 // EF_DESTROY arm delegates final lifetime cleanup to invent.c delobj(),
-// including its resistance and extraction behavior; the discarded
-// steal.c remove_worn_item() call remains an explicit gap for unsupported
-// hero equipment slots.
+// including its resistance and extraction behavior. Hero equipment first
+// passes through steal.c remove_worn_item() and its canonical slot owners.
 export async function erode_obj(obj, description, type, flags, env) {
     if (!obj) return ER_NOTHING;
     // C's victim selection is strictly carried() / mcarried(); every other
@@ -325,12 +324,8 @@ export async function erode_obj(obj, description, type, flags, env) {
             costly_alteration(obj, details.costType, env);
         if (obj.owornmask) {
             if (uvictim) {
-                // C delegates all hero equipment transitions to
-                // steal.c remove_worn_item(), whose armor/amulet/tool and
-                // punishment arms remain unported in this span. It is a
-                // discarded void call, so record the exact gap and continue
-                // to the source delobj() boundary without a fake setter.
-                note_unported('steal.c remove_worn_item');
+                const { remove_worn_item } = await import('./steal.js');
+                await remove_worn_item(obj, true, state, env);
             } else if (monsterVictim) {
                 const { extract_from_minvent } = await import('./worn.js');
                 const { mwepgone } = await import('./weapon.js');
