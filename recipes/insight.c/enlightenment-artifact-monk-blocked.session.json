@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked before enlightenment: questpgr.c quest artifact pickup text differs in the Monk Eyes-of-the-Overworld route at zero-based step28/29. Preserve the original-role C-first variation; the Wizard variation bypasses this separate quest-pager dependency. The invocation letter j was independently established by C.",
+  "segments": [
+    {
+      "seed": 93371006,
+      "datetime": "20790317130911",
+      "nethackrc": "OPTIONS=name:Knowledge,role:Monk,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017The Eyes of the Overworld\n      #polyself\nhill giant\n      #invoke\nj        "
+    }
+  ]
+}

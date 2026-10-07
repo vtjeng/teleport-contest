@@ -14,18 +14,15 @@
 // BASICENLIGHTENMENT | MAGICENLIGHTENMENT under playmode:explore and
 // playmode:debug, and `final` is ENL_GAMEINPROGRESS. The ordinary dead
 // disclosure caller also uses BASICENLIGHTENMENT | MAGICENLIGHTENMENT with
-// ENL_GAMEOVERDEAD. `enlightenment()` refuses other final modes. `mode` is
+// ENL_GAMEOVERDEAD; surviving disclosure uses ENL_GAMEOVERALIVE. `mode` is
 // unchecked, because its two bits pick the same sections as insight.c:405-423.
 // The MAGIC-only hallucination-potion route has recorded hidden-state evidence.
 // Other callers choose the same sections: the potion of enlightenment
-// (potion.c:710), the wand and spell (zap.c do_enlightenment_effect()), a
+// (potion.c:795), the wand (zap.c do_enlightenment_effect()), a
 // quaffed fountain's self-knowledge (fountain.c:290) and an invoked artifact
 // (artifact.c:2163) all pass MAGICENLIGHTENMENT alone; each owns validating
-// its own call. The `final` parameter is
-// still threaded through the sections, so the signatures and call shapes match
-// the C; the remaining final modes are not validated. A site that collapses C's
-// three-way choice on `final` says so in a comment, so end-of-game disclosure
-// can find the supported dead mode.
+// its own call. `final` is threaded through the sections for C's present,
+// survived and dead disclosure modes.
 //
 // attributes_enlightenment() follows the complete source function, including
 // ordinary and wizard-only lines. Unported callees whose return values are
@@ -102,6 +99,7 @@ import {
     EDOG,
     ECMD_OK,
     ENL_GAMEINPROGRESS,
+    ENL_GAMEOVERALIVE,
     ENL_GAMEOVERDEAD,
     EXT_ENCUMBER,
     FEMALE,
@@ -263,7 +261,7 @@ import {
 import { carrying, currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
 import {
-    an, ansimpleoname, simple_typename, simpleonames, suit_simple_name, the,
+    an, ansimpleoname, just_an, simple_typename, simpleonames, suit_simple_name, the,
 } from './objnam.js';
 import { oc_to_str } from './options.js';
 import {
@@ -289,6 +287,9 @@ import {
     hates_silver,
     hides_under,
     is_clinger,
+    is_male,
+    is_female,
+    is_neuter,
     is_flyer,
     is_swimmer,
     dmgtype,
@@ -349,7 +350,6 @@ import {
 import { select_menu } from './windows.js';
 import {
     genders,
-    rankOf,
     ROLE_FEMALE,
     ROLE_GENDMASK,
     ROLE_MALE,
@@ -362,6 +362,8 @@ import { livelog_printf } from './pline.js';
 import { note_unported } from './unported.js';
 import { ATR_INVERSE, ATR_NONE } from './terminal.js';
 import { hidden_gold } from './vault.js';
+import { observable_depth } from './topten.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { find_mac, which_armor } from './worn.js';
 import {
     can_advance,
@@ -676,13 +678,30 @@ export function N_times(n) {
 // deities, dungeon level, elapsed turns, and experience.
 function background_enlightenment(final, state, lines) {
     const { u, flags } = state;
-    const innategend = flags.female ? 1 : 0;
+    const innategend = (Upolyd(u) ? u.mfemale : flags.female) ? 1 : 0;
     const role_titl = (innategend && state.urole.name.f)
         ? state.urole.name.f : state.urole.name.m;
-    const rank_titl = rankOf(state.urole, u.ulevel, innategend === 1);
+    const rank_titl = rank_of(u.ulevel, state.urole.mnum, innategend, state);
 
     enlght_out(lines, ''); /* separator after title */
     enlght_out(lines, 'Background:');
+
+    /* Current shape precedes the underlying role; its gender is current,
+       while the role and rank below use the saved gender-as-human. */
+    if (Upolyd(u)) {
+        const species = state.youmonst.data;
+        // monst.h vampshifted(): the vampire base survives a changed shape.
+        const altphrasing = is_vampshifter(state.youmonst) && !is_vampire(species);
+        let form = '';
+        if (!is_male(species) && !is_female(species) && !is_neuter(species))
+            form = `${genders[flags.female ? 1 : 0].adj} `;
+        if (altphrasing)
+            form += `${pmname(state.mons[state.youmonst.cham], flags.female ? FEMALE : MALE)} in `;
+        const description = `${!final ? 'currently ' : ''}`
+            + `${altphrasing ? just_an(form) : 'in '}${form}`
+            + `${pmname(species, flags.female ? FEMALE : MALE)} form`;
+        you_are(lines, final, truncateByteString(description, BUFSZ - 1), '');
+    }
 
     /* report role; omit gender if it's redundant (eg, "female priestess") */
     let tmpbuf = '';
@@ -690,7 +709,7 @@ function background_enlightenment(final, state, lines) {
         && ((state.urole.allow & ROLE_GENDMASK) === (ROLE_MALE | ROLE_FEMALE)
             || innategend !== flags.initgend))
         tmpbuf = `${genders[innategend].adj} `;
-    let buf = '';
+    let buf = Upolyd(u) ? 'actually ' : '';
     if (rank_titl.toLowerCase() === role_titl.toLowerCase()) {
         /* omit role when rank title matches it */
         buf += `${an(rank_titl)}, level ${u.ulevel} ${tmpbuf}`
@@ -750,11 +769,11 @@ function background_enlightenment(final, state, lines) {
 
     /* dungeon level; ^X reveals more than the status line does */
     if (In_endgame(u.uz)) {
-        const egdepth = depth(u.uz, state);
+        const egdepth = observable_depth(u.uz, state);
         const levelName = endgamelevelname(egdepth);
-        buf = `in the endgame, on the `
+        buf = truncateByteString(`in the endgame, on the `
             + `${levelName.startsWith('Plane') ? 'Elemental ' : ''}`
-            + levelName;
+            + levelName, BUFSZ - 1);
     } else if (Is_knox_level(u.uz)) {
         /* this gives away the fact that the knox branch is only 1 level */
         buf = `on the ${state.dungeons[u.uz.dnum].dname} level`;
@@ -764,9 +783,9 @@ function background_enlightenment(final, state, lines) {
             dgnbuf = lowc(dgnbuf[0]) + dgnbuf.slice(1);
         tmpbuf = `level ${In_quest(u.uz) ? dunlev(u.uz) : depth(u.uz, state)}`;
         if (Is_rogue_level(u.uz)) tmpbuf += ', a primitive area';
-        else if (Is_bigroom(u.uz) && !hasProperty(state, BLINDED))
+        else if (Is_bigroom(u.uz) && !heroIsBlind(state))
             tmpbuf += ', a very big room';
-        buf = `in ${dgnbuf}, on ${tmpbuf}`;
+        buf = truncateByteString(`in ${dgnbuf}, on ${tmpbuf}`, BUFSZ - 1);
     }
     you_are(lines, final, buf, '');
 
@@ -779,9 +798,9 @@ function background_enlightenment(final, state, lines) {
             `the dungeon ${state.moves} turn${plur(state.moves)} ago`, '');
     }
 
-    if (midnight(state)) {
+    if (final ? state.iflags.at_midnight : midnight(state)) {
         enl_msg(lines, final, 'It ', 'is ', 'was ', 'the midnight hour', '');
-    } else if (night(state)) {
+    } else if (final ? state.iflags.at_night : night(state)) {
         enl_msg(lines, final, 'It ', 'is ', 'was ', 'nighttime', '');
     }
     /* other environmental factors */
@@ -793,25 +812,24 @@ function background_enlightenment(final, state, lines) {
             '');
     }
     if (state.flags.friday13) {
-        // insight.c:678 chooses among three: "can happen" when !final,
-        // "could have happened" for ENL_GAMEOVERALIVE, and "happened"
-        // otherwise. Only the first is reachable here, so the middle arm is
-        // not reproduced; restore it with end-of-game disclosure.
         enlght_out(lines, ` Bad things ${!final ? 'can happen'
-            : 'happened'} on Friday the 13th.`);
+            : final === ENL_GAMEOVERALIVE ? 'could have happened'
+                : 'happened'} on Friday the 13th.`);
     }
 
-    /* [flags.showexp currently does not matter; should it?] */
-    let experience = `${u.uexp} experience point${plur(u.uexp)}`;
-    if (u.ulevel < 30 && (final || state.wizard)) {
-        const nxtlvl = newuexp(u.ulevel);
-        const delta = nxtlvl - u.uexp;
-        experience += `, ${delta} ${u.uexp > 0 ? 'more ' : ''}`
-            + `${!final ? '' : delta === 1 ? 'was ' : 'were '}`
-            + `needed ${u.ulevel < 18 ? 'to attain' : 'for'} level `
-            + `${u.ulevel + 1}`;
+    if (!Upolyd(u)) {
+        /* [flags.showexp currently does not matter; should it?] */
+        let experience = `${u.uexp} experience point${plur(u.uexp)}`;
+        if (u.ulevel < 30 && (final || state.wizard)) {
+            const nxtlvl = newuexp(u.ulevel);
+            const delta = nxtlvl - u.uexp;
+            experience += `, ${delta} ${u.uexp > 0 ? 'more ' : ''}`
+                + `${!final ? '' : delta === 1 ? 'was ' : 'were '}`
+                + `needed ${u.ulevel < 18 ? 'to attain' : 'for'} level `
+                + `${u.ulevel + 1}`;
+        }
+        you_have(lines, final, experience, '');
     }
-    you_have(lines, final, experience, '');
     /* SCORE_ON_BOTL is not defined in the reference build, so botl_score()
        and the 'showscore' line it feeds do not exist */
 }
@@ -822,9 +840,9 @@ function basics_enlightenment(final, state, lines) {
     const Power = 'energy points (spell power)';
     const { u } = state;
     const pw = u.uen;
-    let hp = u.uhp;
+    let hp = Upolyd(u) ? u.mh : u.uhp;
     const pwmax = u.uenmax;
-    const hpmax = u.uhpmax;
+    const hpmax = Upolyd(u) ? u.mhmax : u.uhpmax;
 
     enlght_out(lines, ''); /* separator after background */
     enlght_out(lines, 'Basics:');
@@ -842,6 +860,13 @@ function basics_enlightenment(final, state, lines) {
             : (pw === pwmax && pwmax > 2)
                 ? `all ${pwmax} ${Power}`
                 : `${pw} out of ${pwmax} ${Power}`, '');
+
+    if (Upolyd(u)) {
+        const hitDice = state.mons[u.umonnum].mlevel;
+        const description = hitDice === 0 ? '0 hit dice (actually 1/2)'
+            : hitDice === 1 ? '1 hit die' : `${hitDice} hit dice`;
+        you_have(lines, final, description, '');
+    }
 
     find_ac(state); /* enforces AC_MAX cap */
     let buf = `${u.uac}`;
@@ -2000,15 +2025,13 @@ export function youhiding(via_enlghtmt, msgflag, state = game, lines = [], env =
 // window until the list is complete, so an unported branch leaves the screen
 // untouched.
 export async function enlightenment(mode, final, state = game) {
-    if (final !== ENL_GAMEINPROGRESS && final !== ENL_GAMEOVERDEAD)
-        throw new UnsupportedEnlightenmentError('end-of-game disclosure');
-
     const lines = [];
     const tmpbuf = highc(state.plname[0]) + state.plname.slice(1);
     /* title: "Conan the Archeologist's attributes:" */
-    enlght_out(lines, `${tmpbuf} the ${(state.flags.female
+    const savedFemale = Upolyd(state.u) ? state.u.mfemale : state.flags.female;
+    enlght_out(lines, truncateByteString(`${tmpbuf} the ${(savedFemale
         && state.urole.name.f) ? state.urole.name.f
-        : state.urole.name.m}'s attributes:`);
+        : state.urole.name.m}'s attributes:`, BUFSZ - 1));
 
     /* background and characteristics; ^X or end-of-game disclosure */
     if (mode & BASICENLIGHTENMENT) {
