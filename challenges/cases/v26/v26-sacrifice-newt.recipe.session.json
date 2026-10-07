@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: pray.c:dosacrifice corpse value at aligned altar. wish neutral altar; wish newt corpse; offer. Expected C observation: altar sacrifice feedback and corpse consumption. Planned before JavaScript comparison. C-only correction from observed inventory letter, prompt or source terrain/strength precondition; no v26 JS comparison has run.",
+  "segments": [
+    {
+      "seed": 92630016,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017neutral altar\n\u0017newt corpse\n#offer\nn        "
+    }
+  ]
+}

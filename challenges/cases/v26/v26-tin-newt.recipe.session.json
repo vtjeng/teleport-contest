@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: apply.c:use_tinning_kit homemade tin. wish tinning kit and fresh newt corpse; tin corpse. Expected C observation: new homemade tin and consumed corpse/kit charge. Planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92630003,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed tinning kit\n\u0017newt corpse\naop     i  "
+    }
+  ]
+}

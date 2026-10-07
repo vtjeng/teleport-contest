@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 extension mission: eat.c:eataccessory ring. metallivore rust monster form; eat levitation ring. Expected C observation: ring magic assimilated or no effect. Selected from source before this candidate's JS comparison; not selected from an altered recipe to exploit JS output. C-only inventory/direction/energy/floor/setup correction; no JS comparison for this candidate yet. Source-proven cheap route: drop all carried items through observed class menu before wishing edible metal ring, eliminating overload. This candidate has not been compared to JS.",
+  "segments": [
+    {
+      "seed": 92630116,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nrock mole\n         DAa\n                         \u0017uncursed +3 ring of increase accuracy\nenn         "
+    }
+  ]
+}

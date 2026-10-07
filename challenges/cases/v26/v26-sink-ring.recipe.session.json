@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 extension mission: do.c:dosinkring. wish ring of searching and sink; drop ring. Expected C observation: sink drain ring-identification message. Selected from source before this candidate's JS comparison; not selected from an altered recipe to exploit JS output.",
+  "segments": [
+    {
+      "seed": 92630105,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed ring of searching\n\u0017sink\ndo         "
+    }
+  ]
+}

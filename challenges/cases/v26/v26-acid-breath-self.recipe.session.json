@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 extension mission: trap.c:acid_damage through zap.c:zhitu. black dragon form; wield corrodible weapon; breathe at self. Expected C observation: acid self-resistance and possible weapon corrosion. Selected from source before this candidate's JS comparison; not selected from an altered recipe to exploit JS output. C-only inventory/direction/energy/floor/setup correction; no JS comparison for this candidate yet. C-only inventory/pager/map correction.",
+  "segments": [
+    {
+      "seed": 92630108,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed long swprd\nwo    \u00173 blessed potions of gain energy\nqf qf qf  #polyself\nblack dragon\n         #monster\n.        #monster\n.        "
+    }
+  ]
+}

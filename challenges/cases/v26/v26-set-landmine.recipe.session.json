@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: apply.c:use_trap landmine occupation. wish land mine; apply and wait for setting. Expected C observation: trap-setting occupation and completed landmine. Planned before JavaScript comparison. C-only correction from observed inventory letter, prompt or source terrain/strength precondition; no v26 JS comparison has run. Further C-only prompt/terrain correction; no JS comparison yet.",
+  "segments": [
+    {
+      "seed": 92630004,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017uncursed land mine\nap..............    "
+    }
+  ]
+}

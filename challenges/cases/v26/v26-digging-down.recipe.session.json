@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: dig.c:dighole from downward digging wand. wish digging wand; zap downward. Expected C observation: pit/hole and possible level transition. Planned before JavaScript comparison. C-only correction from observed inventory letter, prompt or source terrain/strength precondition; no v26 JS comparison has run.",
+  "segments": [
+    {
+      "seed": 92630014,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017uncursed wand of digging\nzo>         "
+    }
+  ]
+}

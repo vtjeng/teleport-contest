@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 extension mission: lock.c:doforce occupation. wish locked chest; force its lock using quarterstaff. Expected C observation: forced-lock attempt and chest destruction. Selected from source before this candidate's JS comparison; not selected from an altered recipe to exploit JS output. C-only inventory/direction/energy/floor/setup correction; no JS comparison for this candidate yet.",
+  "segments": [
+    {
+      "seed": 92630113,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017locked chest\ndp       #force\ny........................       "
+    }
+  ]
+}
