@@ -185784,6 +185784,56 @@
           "evaluationCommit": "f224a115f09ed49085e7e66baab3edbf155515aa"
         }
       }
+    },
+    {
+      "id": "port-apply-rub-ok-dorub-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete lamp and object rubbing behavior",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v25/v25-rub-empty-lamp"
+      ],
+      "selectionReason": "Select synthetic/v25/v25-rub-empty-lamp from challenges/evaluations/20261007031630-v25.json and investigations/synthetic/v25/v25-rub-empty-lamp.json. Its five unmatched screens begin at step 34 where the already-wielded empty magic lamp reaches apply.c:dorub. Complete consecutive rub_ok/dorub, preserve the canned wield retry, charged and empty lamp RNG, blind smoke, lantern/default feedback, and reuse existing return-valued stone, jelly, wield, burn, and djinni owners.",
+      "detail": "Port apply.c:rub_ok and dorub lines 1770-1843 in source order. The current JavaScript wrongly nests the whole magic-lamp arm under spe > 0 and refuses empty magic lamps, blind smoke, brass lanterns, and ordinary default rubbing. Use the admitted v25 case and independent empty, oil, lantern, blind, cancellation, wield/requeue, and charged-lamp variations. Keep artifact-light shutdown and any source-discarded gaps precisely named.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rub_ok",
+          "line": 1770,
+          "endLine": 1784,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dorub",
+          "line": 1785,
+          "endLine": 1846,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1770,
+        "to": 1846
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-rub-empty-lamp": {
+          "session": "synthetic/v25/v25-rub-empty-lamp",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-rub-empty-lamp",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-rub-empty-lamp.session.json",
+          "recordingSha256": "96984ba3ef6982e8ad57293ed80c8c91192091fb3810cfef0f0ce4b54db2e470",
+          "evaluationPath": "challenges/evaluations/20261007031630-v25.json",
+          "evaluationCommit": "7d6bc5cd13f316dcf104e2b5fad0e5cd08a1ecc0"
+        }
+      }
     }
   ]
 }
