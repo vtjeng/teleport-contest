@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: read.c:seffect_enchant_weapon confused proofing. wish confusion potion; quaff; wish enchant weapon scroll; read while confused. Expected C observation: wielded quarterstaff protected from erosion. Planned before JavaScript comparison. C-only correction from observed inventory letter, prompt or source terrain/strength precondition; no v26 JS comparison has run. Further C-only prompt/terrain correction; no JS comparison yet.",
+  "segments": [
+    {
+      "seed": 92630009,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed potion of confusion\nqo    \u0017uncursed scroll of enchant weapon\nrp        \n   "
+    }
+  ]
+}

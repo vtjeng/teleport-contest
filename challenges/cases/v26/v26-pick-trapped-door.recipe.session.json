@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 extension mission: lock.c:pick_lock -> trap.c:untrap door. wish key and trapped locked door; step away; apply key at door. Expected C observation: trap question and disarm/lock attempt. Selected from source before this candidate's JS comparison; not selected from an altered recipe to exploit JS output. C-only inventory/direction/energy/floor/setup correction; no JS comparison for this candidate yet. C-only direction/prompt correction.",
+  "segments": [
+    {
+      "seed": 92630114,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed skeleton key\n\u0017wall\n\u0017trapped locked door\nl aphy............       "
+    }
+  ]
+}

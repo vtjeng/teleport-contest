@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v26 extension: lock.c:pick_lock visible monster chosen square. wish skeleton key; create peaceful giant ant; apply key toward ant on room floor. Expected: monster-in-way refusal or altered map information before any lock attempt. Planned before this candidate JS comparison. C-only target direction chosen from the reached map; this candidate has not been compared to JS.",
+  "segments": [
+    {
+      "seed": 92630301,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed skeleton key\n\u0007peaceful giant ant\n        aoh       "
+    }
+  ]
+}
