@@ -188786,6 +188786,259 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-doddrop-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the multiple-drop command family and canonical inventory traversal",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v26/v26-eat-levitation-ring"
+      ],
+      "selectionReason": "Top admitted synthetic mismatch: 80 remaining screens at step 31 when D should enter the source drop-type menu.",
+      "detail": "Port whole doddrop through menu_drop, the consumed drop and category-selection returns, and canonical bypass traversal. Wire droptype command admission and dispatch. Preserve source limits for partial downstream placement and traditional inventory helpers; validate the admitted D/A/a sequence plus independent variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doddrop",
+          "line": 924,
+          "endLine": 946,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "better_not_try_to_drop_that",
+          "line": 947,
+          "endLine": 963,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "menudrop_split",
+          "line": 964,
+          "endLine": 980,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "menu_drop",
+          "line": 981,
+          "endLine": 1109,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 924,
+        "to": 1109
+      },
+      "requiredFunctions": [
+        {
+          "name": "drop",
+          "line": 714,
+          "endLine": 785,
+          "declared": true,
+          "sourceFile": "do.c",
+          "complete": false
+        },
+        {
+          "name": "query_category",
+          "line": 1226,
+          "endLine": 1510,
+          "declared": true,
+          "sourceFile": "pickup.c",
+          "complete": false
+        },
+        {
+          "name": "bypass_objlist",
+          "line": 1127,
+          "endLine": 1141,
+          "declared": false,
+          "sourceFile": "worn.c",
+          "complete": false
+        },
+        {
+          "name": "nxt_unbypassed_obj",
+          "line": 1142,
+          "endLine": 1158,
+          "declared": false,
+          "sourceFile": "worn.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v26/v26-eat-levitation-ring": {
+          "session": "synthetic/v26/v26-eat-levitation-ring",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-eat-levitation-ring",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-eat-levitation-ring.session.json",
+          "recordingSha256": "6c1c590921c9f6a8a3d1e955f5ce3978afd37e90227ef8a8ea1d2282a90ce00d",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-cold-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete cold attack handler in all combat directions",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v26/v26-ice-troll-cold-claw"
+      ],
+      "selectionReason": "Next admitted synthetic mismatch: 21 remaining screens at step 70 in the hero-attacker cold arm.",
+      "detail": "Port whole mhitm_ad_cold for hero-to-monster, monster-to-hero, and monster-to-monster directions. Keep the existing hmonas to damageum to mhitm_adtyping caller chain and source-order negation, resistance, messaging, golem, item-destruction, and knowledge effects.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_cold",
+          "line": 2626,
+          "endLine": 2683,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2626,
+        "to": 2683
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-ice-troll-cold-claw": {
+          "session": "synthetic/v26/v26-ice-troll-cold-claw",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-ice-troll-cold-claw",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-ice-troll-cold-claw.session.json",
+          "recordingSha256": "a83a5bb776910f2c2df1ccc60395c35702d30c23250f9f98b73ab14fe75c02b9",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-dig-digactualhole-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete hole creation and hero fall behavior",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v26/v26-digging-down"
+      ],
+      "selectionReason": "Next admitted synthetic mismatch after the active larger cases: 10 remaining screens at step 31 because the non-PIT digactualhole path returns before maketrap.",
+      "detail": "Port whole digactualhole, preserving PIT and HOLE branches, source-consumed helpers, hero descent, and existing zap_dig, occupation, and broken-wand callers. The existing hole_destination loop is already aligned; reach it through canonical maketrap.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "digactualhole",
+          "line": 640,
+          "endLine": 837,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 640,
+        "to": 837
+      },
+      "requiredFunctions": [
+        {
+          "name": "maketrap",
+          "line": 456,
+          "endLine": 592,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "goto_level",
+          "line": 1479,
+          "endLine": 2002,
+          "declared": true,
+          "sourceFile": "do.c",
+          "complete": true
+        },
+        {
+          "name": "spoteffects",
+          "line": 3312,
+          "endLine": 3465,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v26/v26-digging-down": {
+          "session": "synthetic/v26/v26-digging-down",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-digging-down",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-digging-down.session.json",
+          "recordingSha256": "6c12565454d5a8be390a4533465a33277591cfb72b7c8ef8f1b9d2706267b231",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
+    },
+    {
+      "id": "port-rumors-doconsult-v26-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port Oracle consultation and wire the chat caller",
+      "cFile": "rumors.c",
+      "sessions": [
+        "synthetic/v26/v26-oracle-chat"
+      ],
+      "selectionReason": "Next complete admitted synthetic investigation: 10 remaining screens at step 33 where Oracle chat should return the no-gold message.",
+      "detail": "Port whole doconsult and wire sounds.c domonnoise MS_ORACLE. Preserve no-gold, peacefulness, payment, minor and major consultation state in source order; retain outoracle as an explicit discarded-result gap until its separate implementation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doconsult",
+          "line": 696,
+          "endLine": 769,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 696,
+        "to": 769
+      },
+      "syntheticProvenance": {
+        "synthetic/v26/v26-oracle-chat": {
+          "session": "synthetic/v26/v26-oracle-chat",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-oracle-chat",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-oracle-chat.session.json",
+          "recordingSha256": "88edad154596161f9e8139b22754d77351b638100bfefaa21764578d973714d4",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
     }
   ]
 }
