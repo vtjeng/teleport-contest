@@ -48,11 +48,13 @@ test('dokick.c floor-object kick and gold-catch source owners are exported', () 
 import { runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { newMonster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
-import { GOLD_PIECE, COIN_CLASS } from '../js/objects.js';
+import { newObject, place_object } from '../js/obj.js';
+import { CORPSE, GOLD_PIECE, COIN_CLASS } from '../js/objects.js';
 import { PM_LEPRECHAUN, PM_SOLDIER, PM_SERGEANT, PM_LIEUTENANT,
-    PM_CAPTAIN, PM_WATCHMAN } from '../js/monsters.js';
-import { OBJ_MINVENT, A_CHA } from '../js/const.js';
+    PM_CAPTAIN, PM_WATCHMAN, PM_COCKATRICE, PM_NEWT } from '../js/monsters.js';
+import {
+    OBJ_MINVENT, A_CHA, HALLUC, HALLUC_RES, STONE_RES, WEB,
+} from '../js/const.js';
 
 async function goldState() {
     // An independently chosen ordinary startup initializes canonical object
@@ -88,6 +90,72 @@ test('ghitm wakes a greedy sleeper and transfers the caller object', async () =>
     assert.equal(gold.ocarry, mon);
     assert.equal(mon.minvent, gold);
     assert.ok(messages.some(text => /awakens and catches the gold/u.test(text)));
+});
+
+test('ghitm wakes an uninterested sleeper without taking the gold', async () => {
+    const state = await goldState();
+    const mon = goldTarget(state, PM_NEWT);
+    const gold = goldFor(state, 1);
+    const originalWhere = gold.where;
+    state.gb = { bhitpos: { x: mon.mx, y: mon.my } };
+    assert.equal(await kicks.ghitm(mon, gold, state, {
+        message: async () => {},
+    }), false);
+    assert.equal(mon.msleeping, 0);
+    assert.equal(gold.where, originalWhere);
+    assert.notEqual(gold.ocarry, mon);
+});
+
+test('really_kick_object uses both hallucination resistance sources',
+    async () => {
+    for (const source of ['intrinsic', 'extrinsic']) {
+        const state = await goldState();
+        const x = state.u.ux;
+        const y = state.u.uy;
+        state.gk = { kickedobj: goldFor(state, 1) };
+        state.level.traps.push({ tx: x, ty: y, ttyp: WEB, tseen: 1 });
+        state.u.uprops[HALLUC].intrinsic = 1;
+        state.u.uprops[HALLUC_RES].intrinsic = 0;
+        state.u.uprops[HALLUC_RES].extrinsic = 0;
+        state.u.uprops[HALLUC_RES][source] = 1;
+        const messages = [];
+        assert.equal(await kicks.really_kick_object(x, y, state, {
+            message: async text => messages.push(text),
+        }), 1);
+        assert.deepEqual(
+            messages,
+            ["You can't kick something that's in a web!"],
+            source,
+        );
+    }
+});
+
+test('really_kick_object initializes the barefoot petrification killer',
+    async () => {
+    const state = await goldState();
+    const x = state.u.ux + 1;
+    const y = state.u.uy;
+    const corpse = newObject({
+        otyp: CORPSE,
+        oclass: state.objects[CORPSE].oc_class,
+        corpsenm: PM_COCKATRICE,
+        quan: 1,
+        owt: 10,
+    });
+    place_object(corpse, x, y, { state });
+    state.gk = { kickedobj: corpse };
+    state.u.dx = 1;
+    state.u.dy = 0;
+    state.uarmf = null;
+    state.u.uprops[STONE_RES].intrinsic = 0;
+    state.u.uprops[STONE_RES].extrinsic = 0;
+    delete state.killer;
+    await kicks.really_kick_object(x, y, state, {
+        message: async () => {},
+    });
+    assert.match(state.killer.name, /^kicking .* barefoot$/u);
+    assert.equal(state.svk, undefined);
+    assert.ok(state.unported.has('trap.c instapetrify'));
 });
 
 test('ghitm applies each source mercenary threshold with a strict comparison', async () => {

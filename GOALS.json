@@ -188390,16 +188390,23 @@
     {
       "id": "fix-uhitm-brain-drain-owned-forgetting-v24-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore spell and weapon-skill forgetting after mind-flayer brain drain",
       "cFile": "uhitm.c",
       "sessions": [],
-      "selectionReason": "Continue the current v24 mind-flayer seed after accepted C124. The complete investigation retains zero remaining screens and locates the RNG-only omission at hero-defender AD_DRIN forgetting gates. Canonical losespells and drain_weapon_skill owners are already implemented and verified; restore their calls without overlapping A117 burial, B129 ability dispatch, or the v25 kick-object scope.",
+      "selectionReason": "Hosted v24 evaluation isolated the remaining mind-flayer brain-drain mismatch at step 109; C128 restores the source-ordered spell and weapon-skill forgetting path.",
       "detail": "At segment 0 step 109, C calls losespells after its first !rn2(5), then drain_weapon_skill(rnd(2)) after the second; JS skips both. Await existing owners in source order. The planning clone already isolates spell retention, study context, and Wisdom exercise, but aliases u.weapon_skills and u.skill_record with live state; isolate exactly those two arrays before restoring skill drain so planning cannot mutate the live hero.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "1b156891b44f4663baeadf268243bd610044054e",
+      "openStanding": {
+        "sha": "1b156891b44f4663baeadf268243bd610044054e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "1b156891b44f4663baeadf268243bd610044054e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "mhitm_ad_drin",
       "session": "synthetic/v24/v24-mind-flayer-blast",
       "step": 109,
@@ -188416,21 +188423,37 @@
           "evaluationPath": "challenges/evaluations/20261007072048-v24.json",
           "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
         }
+      },
+      "activeStanding": {
+        "sha": "1b156891b44f4663baeadf268243bd610044054e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1b156891b44f4663baeadf268243bd610044054e",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-dokick-kick-object-v25-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port floor-object kicking and its consumed gold and flight helpers",
       "cFile": "dokick.c",
       "sessions": [
         "synthetic/v25/v25-kick-potion"
       ],
-      "selectionReason": "Independent saved v25 case v25-kick-potion has 5 remaining screens at step 42. The complete investigation traces the absent dokick object-pile caller to whole kick_object and really_kick_object, with consumed ghitm and the currently refused KICKED_WEAPON path of bhit. This scope is disjoint from C128 brain drain and B129 ability dispatch.",
+      "selectionReason": "Admitted v25 kick-potion mismatch selects dokick.c floor-object kicking; the delivery adds ordinary kick, gold, and flight behavior while retaining source-traced coverage blockers.",
       "detail": "Port whole dokick.c ghitm, kick_object, and really_kick_object plus required zap.c bhit completion for kicked weapons; wire bounded dokick object-pile, dothrow throw_gold, and lock breakchestlock callers. Preserve gk.kickedobj as the single ownership slot. The admitted fragile potion case breaks before split and flight, so independent evidence must cover nonfragile flight, heavy/box/trap/gold/shop branches before closure.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9",
+      "openStanding": {
+        "sha": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -188438,8 +188461,8 @@
           "name": "ghitm",
           "line": 295,
           "endLine": 411,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "container_impact_dmg",
@@ -188452,14 +188475,14 @@
           "name": "kick_object",
           "line": 489,
           "endLine": 507,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "really_kick_object",
           "line": 508,
           "endLine": 793,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -188490,6 +188513,278 @@
           "evaluationPath": "challenges/evaluations/20261007072048-v25.json",
           "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
         }
+      },
+      "activeStanding": {
+        "sha": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "ghitm",
+            "implementation": "js/dokick.js",
+            "symbol": "ghitm",
+            "sourceReview": "Read whole dokick.c:295-407. Preserve nongreedy wakeup then miss; immobile seen feedback; sleep and meal cleanup; isgd short-circuit around rn2(4); capture coin value before mpickobj may merge/free the object; TRUE means caller must not place caught gold again. Preserve shop robbed message then field store, peaceful credit, priest/guard dialogue and hidden_gold/money_cnt consumed returns. Preserve all four mercenary thresholds, rn2(3) and rn2(5) gates, C integer truncation and strict greater-than bribe condition. SetVoice is empty in the reference sound build. The discarded unported shk.c:make_happy_shk remains an explicit note; no substitute state/RNG/output or ghitm refusal remains. Runtime records verify both source callers for ordinary greedy catches; source-pinned tests additionally verify transfer/merge and bribe gates. Shop-specific entry branches have no new runtime certification.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "really_kick_object",
+                "source": "dokick.c:747 ghitm on a kicked coin after bhit returns the monster"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_gold",
+                "source": "dothrow.c:2712 caught result returns; FALSE continues the source floor-placement tail"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dokick.test.mjs",
+              "scripts/throw-gold.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/gold-throw-greedy.session.json",
+              "recordings/dokick.c/kick-gold-greedy.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9"
+          }
+        ],
+        "entryPointReview": "Primary source entries are Ctrl-D/#kick -> cmd.c dispatch -> dokick.c:1452-1463 -> kick_object -> really_kick_object, and t on gold -> dothrow.c:throw_obj -> throw_gold:2712 -> ghitm. bhit callers remain dokick.c:really_kick_object736, dothrow.c:throwit1674 and throw_gold2706, zap.c:weffects3448, apply.c:do_blinding_ray63 and use_mirror1096; all JS calls are present and source-mapped. New kicked traversal supplies the missing caller. Bounded caller credit covers the dokick object-pile/recoil/ouch branch, throw_gold caught-result handoff, breakchestlock(false) export plus discarded billing cleanup, and bhitpile callback pointer; no whole dokick/throw_gold/lock/bhitpile claim. Five C-first records are independently chosen seed92681001/date20800304121000/Archeologist inputs; cheap variations cover confusion potion, nonfragile ration split/flight, thrown leprechaun catch, kicked orc catch, and heavy locked-container impact. Actual C message/RNG and runtime object identities establish reachability; admitted v25 prefix covers the entire healing-potion stack break. Blocked probes retain leprechaun awake special action, heavy wish floor placement, web find_trap restoration, and unverified drawbridge setup. Failed C recordings are kept only in .cache, never passing corpus. No unsafe corpse/shop/water/ice/air caller completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Hero floor-object kick through Ctrl-D/#kick (matching ordinary entries)",
+            "functions": [
+              "kick_object",
+              "really_kick_object",
+              {
+                "sourceFile": "zap.c",
+                "name": "bhit"
+              },
+              "ghitm"
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-fragile-confusion.session.json",
+              "recordings/dokick.c/kick-nonfragile-stack.session.json",
+              "recordings/dokick.c/kick-gold-greedy.session.json",
+              "recordings/dokick.c/kick-locked-container.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-kick-potion",
+                "segment": 0,
+                "fromStep": 42,
+                "throughStep": 46,
+                "source": "cmd.c Ctrl-D -> dokick.c:1452-1463 object-pile arm -> kick_object:489-503 -> really_kick_object:508-790 -> hero_breaks before splitobj; whole two-potion stack breaks, potion vapor and object lifecycle settle before the turn."
+              }
+            ]
+          },
+          {
+            "name": "Hero gold throw to a greedy monster",
+            "functions": [
+              "ghitm",
+              {
+                "sourceFile": "zap.c",
+                "name": "bhit"
+              }
+            ],
+            "recordings": [
+              "recordings/dokick.c/gold-throw-greedy.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Heavy-boulder no-move and kick_ouch caller (blocked placement)",
+            "functions": [
+              "kick_object",
+              "really_kick_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Web-trapped object kick (blocked earlier trap display)",
+            "functions": [
+              "kick_object",
+              "really_kick_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Remaining non-kicked bhit entries, including drawbridge zap_map (uncertified)",
+            "functions": [
+              {
+                "sourceFile": "zap.c",
+                "name": "bhit"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "172ff9f0f0100e3dac936913419ba7aefaa3d5c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "ghitm now has complete source and runtime evidence; kick_object, really_kick_object, and zap.c:bhit remain unverified. Resume after do.c:dropy can place the heavy boulder, detect.c:find_trap restores the web path, and zap_map supports the drawbridge caller; add awake-leprechaun and remaining active bhit entry evidence before closure."
+    },
+    {
+      "id": "port-eat-cprefx-whole-v25-20261007",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port corpse pre-effects through golem petrification and source fatal continuation",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v25/v25-flesh-golem-eats-cockatrice"
+      ],
+      "selectionReason": "B130 integrated from the queued v25 flesh-golem corpse mismatch after B129; whole eat.c cprefx and both production callers now have complete recorded evidence.",
+      "detail": "Corpse first-bite start_eating and tin consume_tin both call cprefx. Port the whole cprefx unit, including the source condition !Stone_resistance && !(poly_when_stoned && polymon(PM_STONE_GOLEM)), consuming the existing verified polymon return before the stoning, tin useup, killer, done, and meal.eating tail. Preserve domestic, lizard, Rider, slime, and acid branches in source order and cover both corpse and tin runtime entries.",
+      "openedAt": "2e4526d1e651eb7be79baba260c1ac3e6c78e308",
+      "openStanding": {
+        "sha": "2e4526d1e651eb7be79baba260c1ac3e6c78e308",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2e4526d1e651eb7be79baba260c1ac3e6c78e308",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "cprefx",
+          "line": 791,
+          "endLine": 866,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 791,
+        "to": 866
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-flesh-golem-eats-cockatrice": {
+          "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-flesh-golem-eats-cockatrice",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+          "evaluationPath": "challenges/evaluations/20261007072048-v25.json",
+          "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
+        }
+      },
+      "activeStanding": {
+        "sha": "2e4526d1e651eb7be79baba260c1ac3e6c78e308",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cprefx",
+            "implementation": "js/eat.js",
+            "symbol": "cprefx",
+            "sourceReview": "Read complete eat.c:cprefx body791-864 (planner range791-866). Preserve discarded maybe_cannibal result first; flesh_petrifies and Stone_resistance intrinsic/extrinsic short circuit; consumed poly_when_stoned && polymon(PM_STONE_GOLEM) result before fatal tail. Early use_up_tin precedes killer name/format, turn-to-stone message and done(STONING); on life-saving, clear victual.eating only when a piece exists and return, while gameover represents C non-returning death. Preserve source switch order: six domestic species/CANNIBAL_ALLOWED aggravation; lizard cure; three Riders/message/killer/done(DIED), Wisdom exercise, actual-corpse revive return and whole zero_victual reset; green slime guards/make_slimed/delayed_killer then fallthrough to acidic cure. Read both complete source caller definitions and canonical JS callers. Existing polymon735-1071 is verified in port-uhitm-passive-obj-v18-20261005; reused returned0/1 owner with canonical env, no new polymon credit. Read mondata.c:poly_when_stoned80-85 and tested golem/non-stone/G_GENOD predicate, allowing G_EXTINCT. Existing use_up_tin1516-1526 owns held/floor extraction and tin pointer/id reset; maybe_cannibal758-790 and existing fix_petrification/make_slimed/exercise/done/revive_corpse owners are reused. No RNG, replacement actor, simulated death or duplicated form state added. Last UnsupportedEatError refusal/class removed in same task; bounded cmd.js registry and stale test cleanup approved and atomically recorded, without whole cmd.c credit. No new unported gap is added. Nested polymon discarded-operation gaps retain their existing source names and ownership.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "start_eating",
+                "source": "eat.c2041 invokes cprefx on the victual corpse/glob before bite. Existing JS start_eating awaits cprefx and rereads the canonical victual after revival or fatal/life-saved continuation."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "consume_tin",
+                "source": "eat.c1611 invokes cprefx after costly_tin and before conditional cpostfx/use_up_tin. JS consume_tin awaits cprefx, stops after non-returning death, and consumes the canonical tin pointer before post-effects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-tin.test.mjs",
+              "scripts/mondata-pure.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/end-lifesaved.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/prefx-golem-corpse-independent.session.json",
+              "recordings/eat.c/prefx-golem-tin-independent.session.json",
+              "recordings/eat.c/prefx-fatal-tin-lifesaved-independent.session.json",
+              "recordings/do.c/b123-rider-eating-protected.session.json",
+              "recordings/eat.c/fix-petrification-lizard-wizard-c21.session.json",
+              "recordings/eat.c/fix-petrification-acid-blob-wizard-c21.session.json",
+              "recordings/eat.c/consume-tin-lizard-cpostfx-independent-a18.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-flesh-golem-eats-cockatrice",
+                "segment": 0,
+                "fromStep": 56,
+                "throughStep": 61,
+                "source": "cmd.c #eat -> eat.c doeat/eatcorpse/start_eating -> cprefx consumes mondata.c poly_when_stoned && polyself.c polymon(PM_STONE_GOLEM), then first-bite continuation"
+              }
+            ],
+            "checkedAt": "2e4526d1e651eb7be79baba260c1ac3e6c78e308"
+          }
+        ],
+        "entryPointReview": "The whole selected helper has two active source caller entries: first-bite corpse/glob start_eating and opened-tin consume_tin. #eat enters the first through doeat/eatcorpse; the admitted v25 corpse prefix and independently designed orc Wizard chickatrice corpse show successful golem conversion through the consumed polymon return. Tin consumption is reached both by #eat/occupation and by applying a blessed tin opener: independent gnome Wizard cockatrice tin shows golem conversion, and normal-form human Wizard chickatrice tin shows early tin consumption before source stoning and successful death decline. Existing #eat tin/lizard recording refreshes the ordinary tin command route; existing Rider, lizard and acidic-corpse recordings refresh retained source branches. Both whole source caller entries have completely matching evidence. No caller is compile-time inactive. Constructed source tests pin short-circuit return use, early tin/killer/message/death/meal ordering and intrinsic/extrinsic resistance; no pure function is introduced. The passing fatal-tin case is a representative outside successful-golem path. Whole parent doeat/consume_tin/polymon/end.c completion is not claimed anew.",
+        "entryPoints": [
+          {
+            "name": "Corpse/glob first-bite cprefx through #eat",
+            "functions": [
+              "cprefx"
+            ],
+            "recordings": [
+              "recordings/eat.c/prefx-golem-corpse-independent.session.json",
+              "recordings/do.c/b123-rider-eating-protected.session.json",
+              "recordings/eat.c/fix-petrification-lizard-wizard-c21.session.json",
+              "recordings/eat.c/fix-petrification-acid-blob-wizard-c21.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-flesh-golem-eats-cockatrice",
+                "segment": 0,
+                "fromStep": 56,
+                "throughStep": 61,
+                "source": "cmd.c #eat -> eat.c doeat/eatcorpse/start_eating -> cprefx consumes mondata.c poly_when_stoned && polyself.c polymon(PM_STONE_GOLEM), then first-bite continuation"
+              }
+            ]
+          },
+          {
+            "name": "Opened-tin cprefx through #eat or applied tin opener",
+            "functions": [
+              "cprefx"
+            ],
+            "recordings": [
+              "recordings/eat.c/prefx-golem-tin-independent.session.json",
+              "recordings/eat.c/prefx-fatal-tin-lifesaved-independent.session.json",
+              "recordings/eat.c/consume-tin-lizard-cpostfx-independent-a18.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2e4526d1e651eb7be79baba260c1ac3e6c78e308",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

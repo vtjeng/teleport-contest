@@ -3,15 +3,15 @@
   "corpus": "synthetic",
   "batch": "v25",
   "caseId": "v25-flesh-golem-eats-cockatrice",
-  "remainingScreens": 8,
+  "remainingScreens": 6,
   "recordedSteps": 62,
   "manifestPath": "challenges/manifests/v25.json",
   "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
   "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
-  "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
-  "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+  "evaluationPath": "challenges/evaluations/20261007064611-v25.json",
+  "evaluationCommit": "c8d3fb2782a75f3ff724f7f338767d4a4793804f",
   "status": "complete",
-  "commit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+  "commit": "c8d3fb2782a75f3ff724f7f338767d4a4793804f",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v25",
@@ -24,113 +24,69 @@
     "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
     "recipe": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.recipe.session.json",
     "recipeSha256": "66965e475525bff876123a761ae326035c35e0b97be571fd2378af060a4f2db6",
-    "replayInputSha256": "6bc0286d388cbaacf2ee80ef4a23bbc56c713f2afd3880fc002fd1889560e766",
-    "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
-    "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
-    "evaluationArtifact": "challenges/evaluations/20261007010702-v25.json",
-    "evaluationUtc": "2026-10-07T01:07:09.780Z",
-    "remainingScreens": 8,
+    "replayInputSha256": "367beee2b68d7ec98cb5fd5714d5003572310ce9a1c8e2e9c503368c51c3f020",
+    "evaluationPath": "challenges/evaluations/20261007064611-v25.json",
+    "evaluationCommit": "c8d3fb2782a75f3ff724f7f338767d4a4793804f",
+    "evaluationArtifact": "challenges/evaluations/20261007064611-v25.json",
+    "evaluationUtc": "2026-10-07T06:48:09.270Z",
+    "remainingScreens": 6,
     "recordedSteps": 62,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 56,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 54,
+        "matched": 56,
         "total": 62
       },
       "rng": {
-        "matched": 2908,
+        "matched": 2911,
         "total": 3044
       },
       "cursors": {
-        "matched": 58,
+        "matched": 56,
         "total": 62
       }
     },
     "firstMismatch": {
-      "screen": {
-        "index": 54,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 54,
-          "key": "\n"
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 0,
-        "cCell": {
-          "ch": "C",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "o",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": {
-        "index": 2908,
-        "cEntry": "rn2(20)=18",
-        "cCaller": "eatcorpse(eat.c:1887)",
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 56,
-          "key": "y"
-        },
-        "stepIndex": 56
-      },
-      "cursor": {
-        "index": 55,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 55,
-          "key": "e"
-        },
-        "cCursor": [
-          53,
-          0,
-          1
-        ],
-        "jsCursor": [
-          35,
-          0,
-          1
-        ]
-      }
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: eating requires polymon() for a petrifying corpse",
+      "step": 56
     },
-    "step": 54,
-    "kind": "screen",
-    "sourceFile": null,
-    "function": null,
-    "message": null,
-    "cFile": null,
+    "step": 56,
+    "kind": "stop",
+    "sourceFile": "polyself.c",
+    "function": "polymon",
+    "message": "unsupported hero command: an unported branch of this command: eating requires polymon() for a petrifying corpse",
+    "cFile": "polyself.c",
     "luaFile": null,
     "line": null
   },
-  "summary": "zap.c:makewish omits the unsafe-corpse wish branch for a cockatrice corpse while the hero is a flesh golem. C marks the corpse wishedfor, materializes it on the floor, and prints the careful warning; JavaScript follows the ordinary wish drop path, producing the first mismatch at step 54. The later eatcorpse RNG mismatch follows this placement divergence.",
+  "goalKind": "file-port",
+  "summary": "The current first stop is the eat.c:cprefx petrifying-corpse caller, which refuses before invoking an existing complete polymon owner. The earlier makewish placement defect is resolved: C and JS now match through55. Port whole cprefx with the consumed poly_when_stoned/polymon return and source tin-useup, killer, stoning finalizer and meal continuation, preserving its other corpse effects.",
   "source": {
-    "file": "zap.c",
+    "file": "eat.c",
     "functions": [
-      "makewish"
+      "cprefx"
     ],
-    "branch": "At zap.c:6401-6420, if the wished object is a CORPSE and u_safe_from_fatal_corpse(otmp, st_all) is false, C sets otmp->wishedfor. On the ordinary floor this selects the verb \"materialize\" and the \"Careful! %s on the floor!\" message before hold_another_object. The assigned recording reaches this branch by using Ctrl-W to wish for a cockatrice corpse after #polyself has changed the hero to a flesh golem.",
+    "branch": "After an accepted petrifying corpse first bite, if the hero lacks STONE_RES, C short-circuits poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM). Success continues to the corpse switch; failure consumes an open tin if present, sets killer name/format, prints the stoning message, calls done(STONING), clears victual.eating after life-saving and returns. Flesh golem eating cockatrice at step56 reaches the successful transformation.",
     "callers": [
-      "wizcmds.c:wiz_wish() calls makewish() at line 38; the assigned recording reaches #wizwish through Ctrl-W."
+      "eat.c:start_eating2041 -> cprefx for a corpse/glob first bite; JS start_eating3460 invokes cprefx and already rereads canonical victual after revival/fatal continuation. Production #eat/d dispatch -> doeat -> eatcorpse -> start_eating.",
+      "eat.c:consume_tin1611 invokes cprefx after costly_tin and before conditional cpostfx/use_up_tin; JS consume_tin1134 has the awaited call, gameover check and canonical tin pointer check. Both active entries need matching evidence."
     ],
     "dependencies": [
-      "pickup.c:u_safe_from_fatal_corpse() (existing JavaScript implementation: js/pickup.js)",
-      "invent.c:hold_another_object() (existing JavaScript implementation: js/invent.js)"
+      "polyself.c:polymon735-1071 already has whole source completion in port-uhitm-passive-obj-v18-20261005 and matching recordings/uhitm.c/passive-polymorph-spotted-jelly-quiet-b107.session.json; audited current js/polyself.js979-1340 returned1/0 contract, form/HP/RNG/source tail. No new whole polymon claim or edit required.",
+      "mondata.c:poly_when_stoned and JS mondata.js1623 predicate cover non-stone golems and stone golem G_GENOD while permitting extinction. Source Stone_resistance macro is precisely intrinsic||extrinsic, matching existing propertyActive helper.",
+      "eat.c:maybe_cannibal758-790 is verified in port-uhitm-mhitm-ad-drin-eat-brains-v18-20261005; cprefx discards its result. eat.c:use_up_tin1516-1526 exists at js/eat.js1038, removes held/floor tin and resets only tin pointer/id.",
+      "Existing eat.c:fix_petrification, potion.c:make_slimed, end.c:done(STONING/DIED), attrib.c:exercise and do.c:revive_corpse remain canonical owners. The Rider done/returned revival/victual-reset arm already has B123 evidence and must be preserved. No whole end/death/helper credit."
     ]
   },
-  "goalKind": "file-port",
   "evidence": [
-    "The saved evaluation challenges/evaluations/20261007010702-v25.json at 9aea0fdd726850fad5342bc3eabb32f89a78a0c0 reports the first screen mismatch at segment 0, step 54, row 0 column 0 (C cell \"C\", JavaScript cell \"o\"); its first RNG mismatch is later, at step 56 in eatcorpse(). The v25 manifest records the C observation as \"Careful! The cockatrice corpse materializes on the floor!\".",
-    "The checked-out C source is the evaluation commit’s nethack-c/upstream gitlink 16ff59115315917b93185d026aeefea06db9b0f4. In src/zap.c:6401-6420, makewish() sets wishedfor for a corpse that u_safe_from_fatal_corpse(otmp, st_all) considers unsafe, then chooses materialize and the careful floor message before calling hold_another_object(). The recipe’s Ctrl-W wish after #polyself reaches this caller path through wizcmds.c:wiz_wish().",
-    "In js/zap.js:1954-1970 at the evaluated commit, makewish() selects only slip/drop and ordinary Oops messages; it omits the unsafe-corpse predicate and wishedfor update. The existing JavaScript helpers are js/pickup.js:u_safe_from_fatal_corpse() and js/invent.js:hold_another_object(), so no missing helper blocks the source correction. The single-session diagnostic replay (node scripts/scan-sessions.mjs --json --synthetic v25/v25-flesh-golem-eats-cockatrice; bounded run-KBNHkb) reproduced the step-54 mismatch. It also noted artifact.c:retouch_equipment and trap.c:selftouch during the earlier polymorph setup; those precede the mismatch and do not block attribution to makewish()."
+    "Latest saved evaluation20261007064611-v25 atc8d3fb2782a75f3ff724f7f338767d4a4793804f shows56/62screens/cursors,2911/3044RNG. Recording e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a and manifest09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f are unchanged.",
+    "Targeted single-session replay run-CDPtit at87ce12cd7787852c895d4cf73d6c86050236f7b1 confirms stop56 on y and exact UnsupportedEatError from js/eat.js2203. .cache/B-next-flesh-scan.json retains full stop/input identity. Annotation polyself.c:polymon is a callee name parsed from refusal text; the missing C owner is eat.c:cprefx791-868.",
+    "Read complete cprefx and both source callers. Existing JS discards the entire stone branch behind a refusal; whole source function additionally includes domestic animal aggravation, lizard cure, Rider death/life-save/revival, green-slime onset and acidic corpse cure. Their current code is reused/audited within the source unit.",
+    "Required production evidence plan: admitted v25 segment0 through61 establishes corpse first-bite form transformation if matching; independently choose a golem petrifying corpse variation and petrifying tin setup, plus a representative outside-golem fatal/life-saved tin case. Reuse refreshed B123 Rider evidence and existing lizard/acid/domestic/green-slime recordings for current source branches. No recipe recorded during investigation.",
+    "This scope is independent of C128 brain-drain/planning isolation and A kick-object investigation. No game edits or reservation claim made during this refreshed investigation."
   ]
 }

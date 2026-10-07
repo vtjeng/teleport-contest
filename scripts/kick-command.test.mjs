@@ -265,10 +265,16 @@ test('a floor-object kick reaches kick_object and spends the turn', async () => 
     // dokick.c:1452-1463 dispatches this floor pile to kick_object; its true
     // result owns the action instead of falling through to kick_ouch.
     const base = await replay(OBJECT_PILE(), '');
+    const target = { x: game.u.ux - 1, y: game.u.uy - 1 };
+    assert.equal(game.level.objects[target.x]?.[target.y]?.quan, 4);
     const kicked = await replay(OBJECT_PILE(), `${KICK}y`);
     assert.equal(kicked.boundary, null);
     assert.equal(kicked.turns, base.turns + 1);
-    assert.match(kicked.toplines, /kick|Thump|THUD|lid|lock/u);
+    assert.equal(
+        kicked.toplines,
+        'You kick 4 gold pieces.  Thump!  Ouch!  That hurts!',
+    );
+    assert.equal(game.level.objects[target.x]?.[target.y]?.quan, 4);
 });
 
 test('kicking a monster spends the turn and reports the kick', async () => {

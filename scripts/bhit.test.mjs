@@ -154,6 +154,20 @@ test('bhit() admits kicked-object flight and keeps its shifted origin', async ()
     assert.equal(await bhit(1, 0, 4, KICKED_WEAPON, null, null,
         { obj: missile(kicked) }, kicked), null);
     assert.deepEqual(kicked.gb.bhitpos, { x: 5, y: 4 });
+
+    // The launch square at x=2 is already behind C's kicked-object walk.
+    // A callback-visible pile there must be skipped while the next pile at
+    // x=3 is visited normally.
+    const piles = corridor(8);
+    const launchPile = missile(piles);
+    const walkedPile = missile(piles);
+    place_object(launchPile, 2, 4, { state: piles });
+    place_object(walkedPile, 3, 4, { state: piles });
+    const seen = [];
+    await bhit(1, 0, 4, KICKED_WEAPON, null,
+        (floor) => { seen.push(floor); return 0; },
+        { obj: missile(piles) }, piles);
+    assert.deepEqual(seen, [walkedPile]);
 });
 
 test('bhit forwards its source object callback to bhitpile', async () => {

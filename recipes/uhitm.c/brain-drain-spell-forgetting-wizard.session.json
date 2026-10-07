@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 128070411,
+      "datetime": "20560102030405",
+      "comment": "brain-drain-spell-forgetting-wizard: independent C-first incoming brain-drain route; source uhitm.c:3168-3303.",
+      "nethackrc": "OPTIONS=name:BrainForget,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #levelchange\n10\n        \u0007hostile mind flayer\nm.m.   m. "
+    }
+  ]
+}

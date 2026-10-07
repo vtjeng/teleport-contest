@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { COLUMNS } from './score-log.mjs';
+import { COLUMNS, readRows } from './score-log.mjs';
 import { challengeDashboard, challengeInputSnapshot, challengePath, challengeState,
     compareEvaluations, corpusDigest, digest, evaluationFields, readChallengeBatches,
     readChallenges, saveEvaluation, totalsFor } from './challenge-results.mjs';
@@ -58,6 +58,25 @@ function fresh(root, evaluation, batch = 'v1') {
     return { ...evaluation, inputsSha256: snapshot.sha256,
         inputFiles: snapshot.files.map(file => file.path) };
 }
+
+test('reviewed hosted evidence becomes current queue evidence through explicit score import', t => {
+    const root = fixture(t);
+    const a = entry(root, 'mismatches');
+    manifest(root, [a]);
+    const hosted = fresh(root, evaluation([measured(a, 1)], NEXT_SHA, NEXT_TIME));
+    const archive = join(root, 'hosted-artifact.json');
+    writeFileSync(archive, JSON.stringify(hosted));
+    // Match the fetcher's instructions: copy unchanged bytes, then explicitly record.
+    const destination = 'challenges/evaluations/hosted-123-1-v1.json';
+    copyFileSync(archive, join(root, destination));
+    recordEvaluation(root, destination);
+    const state = challengeState(root, readRows(join(root, 'SCORE.tsv')), NEXT_SHA);
+    assert.equal(state.status, 'measured'); // Current evidence need not be screen parity.
+    assert.equal(state.batches[0].evaluationPath, destination);
+    assert.equal(state.aggregate.totals.screens.matched, 1); // Preserve the measured partial match.
+    assert.equal(state.aggregate.totals.screens.total, 2);
+    assert.equal(state.generationReady, false); // The unresolved case must still prevent parity.
+});
 
 test('growth separates added screens from improvements and regressions on existing cases', t => {
     const root = fixture(t);

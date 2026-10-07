@@ -340,16 +340,21 @@ test('Nurse relocation finishes before its flee-time draw', async () => {
         env,
     );
 
-    await Promise.race([
-        relocationStarted,
-        new Promise((_, reject) => setTimeout(
-            () => reject(new Error(
-                'rloc did not emit its awaited message: '
-                    + JSON.stringify({ events, draws, x: nurse.mx, y: nurse.my }),
-            )),
-            1000,
-        )),
-    ]);
+    let watchdog;
+    try {
+        await Promise.race([
+            relocationStarted,
+            new Promise((_, reject) => {
+                // This detects a missing event, not a performance regression.
+                watchdog = setTimeout(() => reject(new Error(
+                    'rloc did not emit its awaited message: '
+                        + JSON.stringify({ events, draws, x: nurse.mx, y: nurse.my }),
+                )), 10_000);
+            }),
+        ]);
+    } finally {
+        clearTimeout(watchdog);
+    }
     assert.equal(draws.includes('flee-time'), false);
     assert.equal(order.includes('flee-time'), false);
     finishRelocation();

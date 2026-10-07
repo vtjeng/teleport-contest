@@ -19,7 +19,7 @@ import { acurrstr, exercise, acurr, adjalign } from './attrib.js';
 import { isok } from './cmd_isok.js';
 import { getdir } from './cmd.js';
 import {
-    A_CHA, HALLUC, LEG, OBJ_MINVENT, OBJ_MIGRATING, STATUE_TRAP, STONE_RES, WEB, ZAP_POS, KICKED_WEAPON, is_pit,
+    A_CHA, HALLUC, HALLUC_RES, LEG, OBJ_MINVENT, OBJ_MIGRATING, STATUE_TRAP, STONE_RES, WEB, ZAP_POS, KICKED_WEAPON, is_pit,
     A_LAWFUL,
     A_WIS,
     CORR,
@@ -649,7 +649,9 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
         if ((is_pit(trap.ttyp) && !Passes_walls(state)) || trap.ttyp === WEB) {
             if (!trap.tseen) note_unported('detect.c find_trap');
             const hallu = u.uprops[HALLUC];
-            const hallucination = Boolean((hallu.intrinsic || hallu.extrinsic) && !hallu.blocked);
+            const halluRes = u.uprops[HALLUC_RES];
+            const hallucination = Boolean(hallu.intrinsic)
+                && !(halluRes.intrinsic || halluRes.extrinsic);
             await message(`You can't kick something that's in a ${hallucination ? 'tizzy' : trap.ttyp === WEB ? 'web' : 'pit'}!`, state, env);
             return 1;
         }
@@ -669,7 +671,8 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
         await message(`You kick ${corpse_xname(object(), null, CXN_PFX_THE, state)} with your bare ${makeplural(body_part(FOOT, state.youmonst))}.`, state, env);
         if (!(poly_when_stoned(state.youmonst.data, state)
             && await polymon(PM_STONE_GOLEM, state, env))) {
-            state.svk.killer.name = `kicking ${killer_xname(object(), state)} barefoot`;
+            state.killer ??= {};
+            state.killer.name = `kicking ${killer_xname(object(), state)} barefoot`;
             note_unported('trap.c instapetrify');
         }
     }
@@ -775,7 +778,6 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     redraw(x, y);
     const ref = { obj: object() };
     const monster = await bhit(u.dx, u.dy, range, KICKED_WEAPON, null, null, ref, state, random, env);
-    state.gk.kickedobj = ref.obj;
     if (!object()) return 1;
     if (monster) {
         if (monster.isshk && object().where === OBJ_MINVENT && object().ocarry === monster) return 1;

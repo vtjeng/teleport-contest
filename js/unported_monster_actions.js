@@ -621,6 +621,13 @@ export function planningState(state) {
         ...state.u,
         // shkgone removes the dead resident's room from this array in place.
         ushops: state.u?.ushops ? [...state.u.ushops] : state.u?.ushops,
+        // weapon.c drain_weapon_skill shifts u.skill_record and mutates
+        // u.weapon_skills grades/practice while a hero attack is planned.
+        skill_record: state.u?.skill_record ? [...state.u.skill_record]
+            : state.u?.skill_record,
+        weapon_skills: state.u?.weapon_skills?.map(
+            (skill) => skill ? { ...skill } : skill,
+        ),
         abon: [...(state.u?.abon ?? [])],
         acurr: state.u?.acurr
             ? { ...state.u.acurr, a: [...state.u.acurr.a] }

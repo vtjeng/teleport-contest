@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 128070412,
+      "datetime": "20560102030405",
+      "comment": "brain-drain-dunce-cap-knight: independent C-first incoming brain-drain route; source uhitm.c:3168-3303.",
+      "nethackrc": "OPTIONS=name:BrainForget,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #levelchange\n10\n         #enhance\nyr \u001b\u0017dunce cap\nTd    Wi     \u0007hostile master mind flayer\nm.m.m.          "
+    }
+  ]
+}
