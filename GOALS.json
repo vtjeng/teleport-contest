@@ -196063,16 +196063,23 @@
     {
       "id": "fix-do-dropx-glob-consumption-v27-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Repair glob drop consumption through dropx and flooreffects",
       "cFile": "do.c",
       "sessions": [],
       "selectionReason": "The next unmatched v27 case stops at do.c dropx's globby-floor branch; source shows flooreffects consumes the incoming free glob through obj_meld and returns before placement.",
       "detail": "Preserve do.c flooreffects lines 302-315: test the original incoming pointer after obj_meld mutates it, keep the floor neighbor as survivor, and retain generic timed/light merge boundaries.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "openStanding": {
+        "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dropx",
       "session": "synthetic/v27/v27-drop-glob",
       "step": 35,
@@ -196089,6 +196096,18 @@
           "evaluationPath": "challenges/evaluations/accepted-069345a0d0092c5ba5149bb5be2ba5d2676b9093-v27.json",
           "evaluationCommit": "069345a0d0092c5ba5149bb5be2ba5d2676b9093"
         }
+      },
+      "activeStanding": {
+        "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
