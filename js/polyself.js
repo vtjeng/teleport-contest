@@ -2474,8 +2474,9 @@ export async function dogaze(state = game) {
         }
     }
     if (adtyp !== M.AD_CONF && adtyp !== M.AD_FIRE) {
-        // C: impossible("gaze attack %d?", adtyp);
-        throw new Error(`impossible: gaze attack ${adtyp}?`);
+        // C diagnoses the unexpected attack and returns without using time.
+        note_unported('pline.c impossible');
+        return ECMD_OK;
     }
 
     if (Blind(state)) {
@@ -2493,21 +2494,21 @@ export async function dogaze(state = game) {
     state.disp ??= {};
     state.disp.botl = true;
 
-    for (let mtmp = state.fmon; mtmp; mtmp = mtmp.nmon) {
+    for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
         if (DEADMONSTER(mtmp))
             continue;
         if (canseemon(mtmp, state) && couldsee(mtmp.mx, mtmp.my, state)) {
             looked++;
             if (Invis(state) && !perceives(mtmp.data)) {
                 await ttyPline(
-                    `${capitalizedMonsterName(mtmp, state)} seems not to `
+                    `${Monnam(mtmp, state)} seems not to `
                     + 'notice your gaze.',
                     state,
                 );
             } else if (mtmp.minvis && !See_invisible(state)) {
                 await ttyPline(
                     "You can't see where to gaze at "
-                    + `${capitalizedMonsterName(mtmp, state)}.`,
+                    + `${Monnam(mtmp, state)}.`,
                     state,
                 );
             } else if (M_AP_TYPE(mtmp) === M_AP_FURNITURE
@@ -2524,7 +2525,7 @@ export async function dogaze(state = game) {
                     && !Confusion(state)) {
                     const qbuf = `Really ${(adtyp === M.AD_CONF)
                         ? 'confuse' : 'attack'} `
-                        + `${monsterCommonName(mtmp, state)}?`;
+                        + `${mon_nam(mtmp, state)}?`;
                     // y_n() answers a key code.
                     if (await y_n(qbuf, state) !== 'y'.charCodeAt(0))
                         continue;
@@ -2541,12 +2542,12 @@ export async function dogaze(state = game) {
                 if (adtyp === M.AD_CONF) {
                     if (!mtmp.mconf)
                         await ttyPline(
-                            `Your gaze confuses ${monsterCommonName(mtmp, state)}!`,
+                            `Your gaze confuses ${mon_nam(mtmp, state)}!`,
                             state,
                         );
                     else
                         await ttyPline(
-                            `${capitalizedMonsterName(mtmp, state)} is getting `
+                            `${Monnam(mtmp, state)} is getting `
                             + 'more and more confused.',
                             state,
                         );
@@ -2557,13 +2558,13 @@ export async function dogaze(state = game) {
                     const lev = u.ulevel;
 
                     await ttyPline(
-                        `You attack ${monsterCommonName(mtmp, state)} with a `
+                        `You attack ${mon_nam(mtmp, state)} with a `
                         + 'fiery gaze!',
                         state,
                     );
                     if (resists_fire(mtmp, state)) {
                         await ttyPline(
-                            `The fire doesn't burn ${monsterCommonName(mtmp, state)}!`,
+                            `The fire doesn't burn ${mon_nam(mtmp, state)}!`,
                             state,
                         );
                         dmg = 0;
@@ -2589,7 +2590,7 @@ export async function dogaze(state = game) {
                     if (!Free_action(state)) {
                         await ttyPline(
                             'You are frozen by '
-                            + `${s_suffix(monsterCommonName(mtmp, state))} gaze!`,
+                            + `${s_suffix(mon_nam(mtmp, state))} gaze!`,
                             state,
                         );
                         nomul((u.ulevel > 6 || rn2(4))
@@ -2601,7 +2602,7 @@ export async function dogaze(state = game) {
                     } else {
                         await ttyPline(
                             'You stiffen momentarily under '
-                            + `${s_suffix(monsterCommonName(mtmp, state))} gaze.`,
+                            + `${s_suffix(mon_nam(mtmp, state))} gaze.`,
                             state,
                         );
                     }
@@ -2791,7 +2792,7 @@ export async function domindblast(state = game) {
 
     await ttyPline('You concentrate.', state);
     await ttyPline('A wave of psychic energy pours out.', state);
-    for (let mtmp = state.fmon, nmon; mtmp; mtmp = nmon) {
+    for (let mtmp = state.level.monlist, nmon; mtmp; mtmp = nmon) {
         nmon = mtmp.nmon;
         if (DEADMONSTER(mtmp))
             continue;
@@ -2810,7 +2811,7 @@ export async function domindblast(state = game) {
                would avoid the penalty for killing it while peaceful */
             await wakeup(mtmp, dmg > mtmp.mhp, { state });
             await ttyPline(
-                `You lock in on ${s_suffix(monsterCommonName(mtmp, state))} `
+                `You lock in on ${s_suffix(mon_nam(mtmp, state))} `
                 + `${u_sen ? 'telepathy'
                     : telepathic(mtmp.data) ? 'latent telepathy'
                       : 'mind'}.`,

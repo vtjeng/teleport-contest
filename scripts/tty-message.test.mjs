@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { PLNMSG_CAUGHT_IN_EXPLOSION, PLNMSG_UNKNOWN } from '../js/const.js';
+import { msgtype_parse_add } from '../js/options.js';
+
 import { GameDisplay } from '../js/game_display.js';
 import { NO_COLOR } from '../js/terminal.js';
 import {
@@ -9,6 +12,8 @@ import {
     TOPLINE_NEED_MORE,
     TOPLINE_NON_EMPTY,
     ttyPline,
+    ttyNorep,
+    ttyPutmixed,
     ttyUrgentPline,
 } from '../js/tty_message.js';
 
@@ -152,3 +157,69 @@ test('urgent output clears Escape suppression before updating history',
         assert.equal(state._pending_message, 'You return to human form!');
         assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
     });
+
+// pline.c:vpline clears iflags.last_msg after putmesg, before MSGTYP_STOP,
+// but its empty-line and MSGTYPE early returns preserve the caller's marker.
+test('vpline clears last_msg after replacement, append and WIN_STOP output', async () => {
+    for (const mode of ['replacement', 'append', 'stopped']) {
+        const state = messageState(mode === 'append' ? 'old' : '', TOPLINE_NEED_MORE);
+        state.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
+        state._ttyMessageStopped = mode === 'stopped';
+        await ttyPline('Your cloak smoulders!', state);
+        assert.equal(state.iflags.last_msg, PLNMSG_UNKNOWN, mode);
+    }
+});
+
+test('vpline preserves last_msg for empty, hidden and repeated messages', async () => {
+    const state = messageState('', TOPLINE_EMPTY);
+    state.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
+    await ttyPline('', state); // C returns before output for an empty format.
+    assert.equal(state.iflags.last_msg, PLNMSG_CAUGHT_IN_EXPLOSION);
+    state.gp = { plinemsg_types: null };
+    assert.equal(msgtype_parse_add(state, 'hide "Your cloak smoulders!"'), true);
+    await ttyPline('Your cloak smoulders!', state);
+    assert.equal(state.iflags.last_msg, PLNMSG_CAUGHT_IN_EXPLOSION);
+    state._ttyPreviousMessage = 'You are caught in the fireball!';
+    await ttyNorep(state._ttyPreviousMessage, state);
+    assert.equal(state.iflags.last_msg, PLNMSG_CAUGHT_IN_EXPLOSION);
+});
+
+test('raw mixed window output bypasses vpline last_msg reset', async () => {
+    // pager.c:do_look uses putmixed rather than pline; its leading symbol is
+    // window output and does not change iflags.last_msg.
+    const state = messageState('', TOPLINE_EMPTY);
+    state.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
+    await ttyPutmixed('@  a human', '@', state);
+    assert.equal(state.iflags.last_msg, PLNMSG_CAUGHT_IN_EXPLOSION);
+});
+
+test('vpline updates only the supplied state last_msg', async () => {
+    const live = messageState('', TOPLINE_EMPTY);
+    live.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
+    const clone = { ...live, iflags: structuredClone(live.iflags), nhDisplay: new GameDisplay(null) };
+    await ttyPline('Your cloak smoulders!', clone);
+    assert.equal(clone.iflags.last_msg, PLNMSG_UNKNOWN);
+    assert.equal(live.iflags.last_msg, PLNMSG_CAUGHT_IN_EXPLOSION);
+});
+
+// vpline resets after putmesg's wrapped-line input, but before its own
+// MSGTYP_STOP display. Pin both awaited boundaries to the same source order.
+test('last_msg reset brackets wrapped output and explicit MSGTYPE stop input', async () => {
+    for (const stopRule of [false, true]) {
+        const state = messageState('', TOPLINE_EMPTY);
+        const message = stopRule ? 'Stop here.' : 'x'.repeat(90);
+        // Ninety bytes exceed the eighty-column TTY row and force putmesg's
+        // wrapped More; the short stop rule instead blocks after vpline reset.
+        state.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
+        if (stopRule) {
+            state.gp = { plinemsg_types: null };
+            assert.equal(msgtype_parse_add(state, 'stop "Stop here."'), true);
+        }
+        const observed = [];
+        state._preNhgetchHook = () => observed.push(state.iflags.last_msg);
+        state.nhDisplay.pushKey(32); // Space dismisses the source More prompt.
+        await ttyPline(message, state);
+        assert.deepEqual(observed, [stopRule ? PLNMSG_UNKNOWN : PLNMSG_CAUGHT_IN_EXPLOSION]);
+        assert.equal(state.iflags.last_msg, PLNMSG_UNKNOWN);
+    }
+});

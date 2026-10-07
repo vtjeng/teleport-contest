@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v25/v25-kick-tree",
+  "corpus": "synthetic",
+  "batch": "v25",
+  "caseId": "v25-kick-tree",
+  "manifestPath": "challenges/manifests/v25.json",
+  "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+  "recordingSha256": "ee6ff06aee466e3ac3ce60f6b9ee58c2cc68ea5b99a3bb293fefa954e8819268",
+  "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+  "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+  "status": "complete",
+  "remainingScreens": 15,
+  "recordedSteps": 25,
+  "commit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v25",
+    "caseId": "v25-kick-tree",
+    "session": "synthetic/v25/v25-kick-tree",
+    "manifestPath": "challenges/manifests/v25.json",
+    "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+    "recording": "challenges/cases/v25/v25-kick-tree.session.json",
+    "recordingPath": "challenges/cases/v25/v25-kick-tree.session.json",
+    "recordingSha256": "ee6ff06aee466e3ac3ce60f6b9ee58c2cc68ea5b99a3bb293fefa954e8819268",
+    "recipe": "challenges/cases/v25/v25-kick-tree.recipe.session.json",
+    "recipeSha256": "7331b49c6a6c77b966cd0024f0e2a9408d5f536b5b46c713660fb88219abf028",
+    "replayInputSha256": "6bc0286d388cbaacf2ee80ef4a23bbc56c713f2afd3880fc002fd1889560e766",
+    "evaluationPath": "challenges/evaluations/20261007010702-v25.json",
+    "evaluationCommit": "9aea0fdd726850fad5342bc3eabb32f89a78a0c0",
+    "evaluationArtifact": "challenges/evaluations/20261007010702-v25.json",
+    "evaluationUtc": "2026-10-07T01:07:09.780Z",
+    "remainingScreens": 15,
+    "recordedSteps": 25,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 10,
+        "total": 25
+      },
+      "rng": {
+        "matched": 2486,
+        "total": 2523
+      },
+      "cursors": {
+        "matched": 10,
+        "total": 25
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: kick_nondoor()'s tree arm, which needs rnd_treefruit_at() and scatter()",
+      "step": 10
+    },
+    "step": 10,
+    "kind": "stop",
+    "sourceFile": "dokick.c",
+    "function": "kick_nondoor",
+    "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: kick_nondoor()'s tree arm, which needs rnd_treefruit_at() and scatter()",
+    "cFile": "dokick.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first kick of the wished tree enters dokick.c:kick_nondoor’s IS_TREE arm. This recording takes the fruit branch: C creates two pears, scatters them with MAY_HIT, and one hits the hero. js/dokick.js immediately refuses the tree arm before its first tree RNG call, so all later screens and 37 RNG calls are unmatched. rnd_treefruit_at() and scatter() already exist in JavaScript; the missing behavior is their source-ordered wiring and effects in kick_nondoor(). A whole-function port must also replace the other live refusals in this function.",
+  "source": {
+    "file": "dokick.c",
+    "functions": [
+      "kick_nondoor"
+    ],
+    "branch": "When the kicked map square satisfies IS_TREE (on this recorded arboreal level), C first draws rn2(3). For this case that is zero; it then draws rn2(15), finds TREE_LOOTED clear, and creates fruit. rnd_treefruit_at selects PEAR; rnl(7)=6 makes a stack of two; scatter(x,y,2,MAY_HIT,treefruit) scatters the stack and may hit the hero. The source then exercises Dexterity and Wisdom, redraws the tree, sets TREE_LOOTED, and returns ECMD_TIME. The other C branches include a painful kick with optional buzzing and a killer-bee swarm.",
+    "callers": [
+      "dokick.c::dokick() at 1465-1468 calls kick_nondoor() for a non-door target after monster, pool, and object handling. The production JavaScript route is js/cmd.js::runKickCommand() -> js/dokick.js::dokick() -> kick_nondoor() at 1071."
+    ],
+    "dependencies": [
+      "mkobj.c::rnd_treefruit_at() at 1978-1987 chooses from the fixed treefruits array and calls mksobj_at(). It is already implemented as js/obj.js::rnd_treefruit_at() at 1824-1836, but js/dokick.js does not import or call it.",
+      "explode.c::scatter() at 721-947 receives MAY_HIT and the fruit stack; its effects include the recorded pear hit on the hero. It is already exported as js/explode.js::scatter() at 768, but js/dokick.js does not import or call it.",
+      "dokick.c::kick_ouch() at 881-906 is the existing helper for the painful tree outcome; it is implemented in the same JavaScript file.",
+      "The alternate tree-swarm arm also calls enexto() and makemon() with MM_ANGRY|MM_NOMSG, and uses makemon() success to select its message. This case does not reach that arm; full kick_nondoor() scope still needs the source behavior and the actual runtime call contract.",
+      "Other currently refused kick_nondoor() branches remain in whole-function scope, including secret doors/corridors, fountains (water_damage), grave headstone destruction, sinks (sink_backs_up), and throne/altar branches with their source effects. The selected fruit replay does not validate those branches."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved queue and evaluation: .cache/mismatch-queue-after-v25-admission.json; challenges/evaluations/20261007010702-v25.json records 10/25 screens and cursors matched, 2486/2523 RNG calls matched, and the first stop at step 10 in dokick.c:kick_nondoor. The evaluation is for 9aea0fdd726850fad5342bc3eabb32f89a78a0c0.",
+    "A replay restricted to this assigned case at the examined HEAD emitted 10 screens and stopped at step 10 on js/dokick.js::kick_nondoor’s UnsupportedKickError. The runner output is bounded run-YiOtin; the matching source input is challenges/cases/v25/v25-kick-tree.session.json (seed 92520031; one tree wish, move east, then kick west).",
+    "The C recording’s step for key h at step 10 logs rn2(3)=0 and rn2(15)=1 in dokick.c:kick_nondoor, rn2(5)=2 in mkobj.c:rnd_treefruit_at (PEAR), then rnl(7)=6 for two fruit. It next logs scatter(explode.c:764/821/827), followed by thitu(mthrowu.c:106); its screen reads “Some pears fall from the tree! You are hit by a pear.” This places the actual owner in dokick.c:kick_nondoor and identifies the missing branch before downstream effects.",
+    "At the pinned source, dokick.c:1135-1223 contains the tree arms and lines 1140-1169 show the fruit branch’s draw and state-change order. mkobj.c:1978-1987 defines rnd_treefruit_at(); explode.c:721-947 defines scatter(). The JavaScript stop at js/dokick.js:859-864 is a branch-level refusal before any tree RNG or helper call. Port the whole kick_nondoor() definition under the file-port rule; do not credit rnd_treefruit_at() or scatter() as new source units."
+  ]
+}
