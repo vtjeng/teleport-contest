@@ -94,3 +94,16 @@ test('one failed recordings batch keeps the complete corpus check red', () => {
     const corpus = combineStages(parts, COMMIT, RUN).find(result => result.label === 'recordings corpus');
     assert.equal(corpus.passed, false);
 });
+
+test('a failed-job retry reuses earlier successful jobs only from the same workflow run', () => {
+    const parts = stages();
+    const retry = { ...RUN, attempt: '2' }; // Retry one failed job, preserving earlier successes.
+    parts[0].run = retry;
+    assert.ok(combineStages(parts, COMMIT, retry).every(result => result.passed));
+    const differentRun = structuredClone(parts);
+    differentRun[1].run.id = '456'; // Same commit in another run is not this retry.
+    assert.throws(() => combineStages(differentRun, COMMIT, retry), /different/u);
+    const invalidAttempt = structuredClone(parts);
+    invalidAttempt[1].run.attempt = '0';
+    assert.throws(() => combineStages(invalidAttempt, COMMIT, retry), /different/u);
+});
