@@ -39,6 +39,10 @@ import {
     LEATHER_GLOVES,
 } from '../js/objects.js';
 import { erode_obj } from '../js/trap_erode_obj.js';
+import { addinv } from '../js/invent.js';
+import { mksobj } from '../js/obj.js';
+import { setworn } from '../js/worn.js';
+import { setwornEnv } from '../js/do_wear.js';
 import { erode_armor } from '../js/uhitm.js';
 import { water_damage } from '../js/trap_water_damage.js';
 
@@ -530,6 +534,77 @@ test('floor erosion returns destruction after the maximum source wear', async ()
     assert.equal(result, ER_DESTROYED);
     assert.equal(floorShoes.where, OBJ_DELETED);
     assert.deepEqual(messages, ['The shoes rust away!']);
+});
+
+test('hero erosion awaits the destruction message before unwearing and deleting',
+    async () => {
+        // This seed initializes a live hero; the ordinary leather cloak fixes
+        // the Cloak_off arm without involving magical property side effects.
+        await initializedMonster(982480, 'WornErosion');
+        const cloak = addinv(mksobj(LEATHER_CLOAK, false, false, { state: game }),
+            { state: game });
+        await setworn(cloak, W_ARMC, setwornEnv(game));
+        // trap.c:317 destroys only an object already at MAX_ERODE.
+        cloak.oeroded = MAX_ERODE;
+        let releaseMessage;
+        let messageStarted;
+        const started = new Promise(resolve => { messageStarted = resolve; });
+        const acknowledged = new Promise(resolve => { releaseMessage = resolve; });
+        const messages = [];
+        const pending = erode_obj(cloak, null, ERODE_BURN, EF_DESTROY, {
+            state: game,
+            message: async text => {
+                messages.push(text);
+                messageStarted();
+                await acknowledged;
+            },
+            random: {
+                // invent.c delobj -> obj_resists(0,0) draws rn2(100).
+                rn2: bound => { assert.equal(bound, 100); return 99; },
+                rnl: () => assert.fail('unblessed armor needs no luck draw'),
+            },
+        });
+        await started;
+        assert.equal(Boolean(cloak.in_use), true);
+        assert.strictEqual(game.uarmc, cloak);
+        assert.equal(cloak.owornmask, W_ARMC);
+        assert.equal(cloak.where, OBJ_INVENT);
+        releaseMessage();
+        assert.equal(await pending, ER_DESTROYED);
+        assert.deepEqual(messages, ['Your leather cloak smoulders away!']);
+        assert.equal(game.uarmc, null);
+        assert.equal(cloak.owornmask, 0);
+        assert.equal(cloak.where, OBJ_DELETED);
+        for (let obj = game.invent; obj; obj = obj.nobj)
+            assert.notStrictEqual(obj, cloak);
+        assert.ok(!game.unported.has('steal.c remove_worn_item'));
+        assert.match(TRAP_C_SOURCE,
+            /remove_worn_item\(otmp, TRUE\);[\s\S]*?delobj\(otmp\);/u);
+    });
+
+test('the hit reaching MAX_ERODE damages armor without unwearing it', async () => {
+    await initializedMonster(982481, 'LastWear');
+    const cloak = addinv(mksobj(LEATHER_CLOAK, false, false, { state: game }),
+        { state: game });
+    await setworn(cloak, W_ARMC, setwornEnv(game));
+    // Source increments below MAX_ERODE; deletion requires a later hit.
+    cloak.oeroded = MAX_ERODE - 1;
+    const messages = [];
+    const result = await erode_obj(cloak, null, ERODE_BURN, EF_DESTROY, {
+        state: game,
+        message: async text => messages.push(text),
+        random: {
+            rn2: () => assert.fail('damaging an unprotected cloak needs no RNG'),
+            rnl: () => assert.fail('unblessed armor needs no luck draw'),
+        },
+    });
+    assert.equal(result, ER_DAMAGED);
+    assert.equal(cloak.oeroded, MAX_ERODE);
+    assert.strictEqual(game.uarmc, cloak);
+    assert.equal(cloak.owornmask, W_ARMC);
+    assert.equal(cloak.where, OBJ_INVENT);
+    assert.equal(Boolean(cloak.in_use), false);
+    assert.deepEqual(messages, ['Your leather cloak smoulders completely!']);
 });
 
 test('destroying unseen monster equipment still extracts the item', async () => {
