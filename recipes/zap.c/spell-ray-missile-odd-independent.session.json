@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent zap.c:weffects spell-ray caller evidence: debug Wizard at level7 invokes spell.c:dowizcast/spelleffects then SPE_MAGIC_MISSILE -> ubuzz -> dobuzz. Menu b follows source object order starting SPE_DIG at a. The newly chosen seed/clock, role, spell and odd/even level vary type and integer ulevel/2+1 arithmetic; ordinary horizontal ray and no pets/mongen keep caller isolation. Level change has5 source More dismissals before the final requested level; corrected from C-observed prompts before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 91391017,
+      "datetime": "21210315101700",
+      "nethackrc": "OPTIONS=name:SpellRayProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #levelchange\n7\n     #wizcast\nbl     "
+    }
+  ]
+}

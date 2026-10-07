@@ -5642,8 +5642,8 @@ export async function dobuzz(
     // it back false on every reachable path.
     const shopdamage = { value: false };
 
-    // C ref: zap.c:4793. fireball is true only for hero spell fire (type 11),
-    // which is outside the supported range. gas_hit is set per iteration.
+    // C ref: zap.c:4793. fireball is true only for hero spell fire (type 11).
+    // gas_hit is set per iteration.
     const fireball = (type === 10 + ZT_FIRE);
     let gas_hit = false;
 
@@ -6431,9 +6431,12 @@ export async function weffects(
         if (otyp === WAN_DIGGING || otyp === SPE_DIG) {
             await zap_dig(state, random);
         } else if (otyp >= SPE_MAGIC_MISSILE && otyp <= SPE_FINGER_OF_DEATH) {
-            // A cast ray takes the same dobuzz(), at BZ_U_SPELL() types 10..19
-            // and u.ulevel / 2 + 1 dice. spell.c casting is unported.
-            throw new UnsupportedZapError('ubuzz() for a spell the hero cast');
+            // C BZ_U_SPELL(BZ_OFS_SPE(otyp)); level division is integer.
+            await ubuzz(
+                10 + Math.abs(otyp - SPE_MAGIC_MISSILE) % 10,
+                Math.trunc(state.u.ulevel / 2) + 1,
+                state, random, rawEnv,
+            );
         } else if (otyp >= WAN_MAGIC_MISSILE && otyp <= WAN_LIGHTNING) {
             await ubuzz(
                 Math.abs(otyp - WAN_MAGIC_MISSILE) % 10,
