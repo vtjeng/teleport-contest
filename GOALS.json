@@ -195733,16 +195733,23 @@
     {
       "id": "fix-trap-erode-owned-worn-removal-v27-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Await owned hero worn-item removal before erosion deletion",
       "cFile": "trap.c",
       "sessions": [],
       "selectionReason": "Validated investigations/synthetic/v27/v27-destroy-worn-armor.json at accepted C135 commit 4770d645; 2 remaining screens; independent of A138 candle/dropx and B140 glove-petrification ownership.",
       "detail": "Segment 0 step 41 stops after the MAX_ERODE destruction message: js/trap_erode_obj records the obsolete remove_worn_item gap, then delobj refuses the still-worn cloak. C trap.c erode_obj awaits source removal before delobj. Restore only this caller through canonical js/steal.js and preserve message, payment, unwear, and deletion order.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+      "openStanding": {
+        "sha": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "erode_obj",
       "session": "synthetic/v27/v27-destroy-worn-armor",
       "step": 41,
@@ -195759,6 +195766,18 @@
           "evaluationPath": "challenges/evaluations/accepted-4770d6451a496f23894b62228420ad4c8268047f-v27.json",
           "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f"
         }
+      },
+      "activeStanding": {
+        "sha": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "147617858bcb5f025d4110eedea0746a3fda2ac5",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
