@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Knight #ride forced wounded-leg healing followed by successful mounting. C-only startup probe observed the saddled pony east of the hero; choose l, accept force and healing. Fresh seed/date/male hero differ from the admitted refusal. C shows a More after wounded-leg feedback, before the heal question; acknowledge it with space.",
+  "segments": [
+    {
+      "seed": 13426001,
+      "datetime": "20800408121500",
+      "nethackrc": "OPTIONS=name:MountCheck,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n17m\n #ride\nly y          ."
+    }
+  ]
+}

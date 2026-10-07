@@ -381,21 +381,16 @@ test('a polearm clears unweapon on mounting and sets it on dismounting',
 test('mount_steed refuses a hero a bear trap has already wounded',
     async () => {
         // steed.c:229-232 answers a wounded hero with legs_in_no_shape(
-        // "riding", FALSE) and returns FALSE. That helper is unported, so the
-        // port stops here instead -- and the state it stops on is live rather
-        // than hypothetical: do.c set_wounded_legs() is the writer, and trap.c
-        // trapeffect_bear_trap()'s hero arm is the ported caller that reaches
+        // "riding", FALSE) and returns FALSE. do.c set_wounded_legs() writes
+        // the live wound, and trap.c trapeffect_bear_trap()'s hero arm is the ported caller that reaches
         // it. Twelve turns is an arbitrary count; only nonzero matters.
         const state = await rideTo(`.${RIDE_COMMAND}`);
         const pony = m_at(state.u.ux, state.u.uy + 1, state);
         await set_wounded_legs(RIGHT_SIDE, 12, state);
         quiet(state);
 
-        await assert.rejects(
-            mount_steed(pony, false, state),
-            (error) => error instanceof UnsupportedSteedError
-                && error.reason === 'mount_steed() with wounded legs',
-        );
+        assert.equal(await mount_steed(pony, false, state), false);
+        assert.equal(state._ttyToplines, 'Your right leg is in no shape for riding.');
         assert.equal(state.u.usteed, null);
     });
 

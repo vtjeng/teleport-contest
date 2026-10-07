@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent ordinary #ride caller variation, using the C-observed adjacent east pony from this new Knight setup. Skip the wound setup, decline debug forcing and let the source impairment roll decide mounting versus slipping. Covers normal false-force entry independently of the admitted wounded case.",
+  "segments": [
+    {
+      "seed": 13426001,
+      "datetime": "20800408121500",
+      "nethackrc": "OPTIONS=name:MountCheck,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #ride\nln          ."
+    }
+  ]
+}
