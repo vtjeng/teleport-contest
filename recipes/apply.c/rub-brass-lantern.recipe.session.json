@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C126 input plan, fixed seed and clock; no seed search. BRASS_LANTERN prints both Adventure messages in order after the wield/canned handoff. Setup corrected from saved independent C inventory/prompt observations in .cache/C126-rub-brass-lantern-initial.json: select the recorded lamp letter; the blindfold is q for this seed. Remove surplus idle spaces after feedback. Two More acknowledgements preserve the separately awaited source messages after wielding.",
+  "segments": [
+    {
+      "seed": 126070103,
+      "datetime": "20510314092653",
+      "nethackrc": "OPTIONS=name:RubBranches,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed brass lantern\n #rub\np  "
+    }
+  ]
+}

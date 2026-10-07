@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C126 input plan, fixed seed and clock; no seed search. Empty MAGIC_LAMP skips rn2(3), then selects smoke/nothing with rn2(2); first invocation wields and queues rub. Setup corrected from saved independent C inventory/prompt observations in .cache/C126-rub-empty-magic-lamp-initial.json: select the recorded lamp letter; the blindfold is q for this seed. Remove surplus idle spaces after feedback.",
+  "segments": [
+    {
+      "seed": 126070101,
+      "datetime": "20510314092653",
+      "nethackrc": "OPTIONS=name:RubBranches,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed magic lamp (0)\n #rub\np"
+    }
+  ]
+}

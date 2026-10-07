@@ -3282,9 +3282,8 @@ async function runApplyCommand(key, state) {
     return failClosedCommand(key, state, () => doapply(state));
 }
 
-// C ref: apply.c dorub(). Cancellation and the nohands refusal return the
-// function's own result; selecting an object reaches apply.js's explicit
-// boundary before the unported wielding and rubbing effects.
+// C ref: apply.c dorub(). Preserve its command result, including the wield
+// turn which queues a second rub through the canned command dispatcher.
 async function runRubCommand(key, state) {
     return failClosedCommand(key, state, () => dorub(state));
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 108,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:wizard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug\n",
+      "moves": "  n.\u0017magic lamp\n#rub\n\u001b"
+    }
+  ],
+  "comment": "Independent existing rub matrix inputs; seed/clock/branch selection are documented in scripts/run-rub-command.mjs. Retained as a production regression recording for whole apply.c rub_ok/dorub completion."
+}
