@@ -3,15 +3,15 @@
   "corpus": "synthetic",
   "batch": "v24",
   "caseId": "v24-mind-flayer-blast",
-  "remainingScreens": 13,
+  "remainingScreens": 0,
   "recordedSteps": 112,
   "manifestPath": "challenges/manifests/v24.json",
   "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
   "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
-  "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
-  "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+  "evaluationPath": "challenges/evaluations/20261007055545-v24.json",
+  "evaluationCommit": "532068f894fa97f4ace2680f195baf3aae875050",
   "status": "complete",
-  "commit": "84d84e111155ac834c43327b7c696055df294349",
+  "commit": "e7ed0b2656ee2ebe6646fa2fb04e88293b0ec089",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v24",
@@ -25,11 +25,11 @@
     "recipe": "challenges/cases/v24/v24-mind-flayer-blast.recipe.session.json",
     "recipeSha256": "90976ddb59429b9cd8940a801bc8b076cd2c292117286f4df127951400620d79",
     "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
-    "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
-    "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
-    "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
-    "evaluationUtc": "2026-10-06T22:50:52.015Z",
-    "remainingScreens": 13,
+    "evaluationPath": "challenges/evaluations/20261007055545-v24.json",
+    "evaluationCommit": "532068f894fa97f4ace2680f195baf3aae875050",
+    "evaluationArtifact": "challenges/evaluations/20261007055545-v24.json",
+    "evaluationUtc": "2026-10-07T05:57:40.994Z",
+    "remainingScreens": 0,
     "recordedSteps": 112,
     "previousScreensMatched": null,
     "regression": false,
@@ -37,102 +37,66 @@
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 99,
+        "matched": 112,
         "total": 112
       },
       "rng": {
-        "matched": 2921,
+        "matched": 2945,
         "total": 2962
       },
       "cursors": {
-        "matched": 99,
+        "matched": 112,
         "total": 112
       }
     },
     "firstMismatch": {
-      "screen": {
-        "index": 99,
+      "rng": {
+        "index": 2945,
+        "cEntry": "rn2(3)=2",
+        "cCaller": "losespells(spell.c:1777)",
+        "jsEntry": "rn2(5)=2",
         "location": {
           "segmentIndex": 0,
-          "stepIndex": 99,
+          "stepIndex": 109,
           "key": " "
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 0,
-        "cCell": {
-          "ch": "Y",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "T",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
         }
       },
-      "rng": {
-        "index": 2920,
-        "cEntry": "rn2(2)=0",
-        "cCaller": "domindblast(polyself.c:1921)",
-        "jsEntry": "rn2(12)=0",
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 88,
-          "key": "\n"
-        },
-        "stepIndex": 88
-      },
-      "cursor": {
-        "index": 99,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 99,
-          "key": " "
-        },
-        "cCursor": [
-          58,
-          0,
-          1
-        ],
-        "jsCursor": [
-          37,
-          0,
-          1
-        ]
-      }
+      "screen": null,
+      "cursor": null
     },
-    "step": 88,
+    "step": 109,
     "kind": "rng",
-    "sourceFile": "polyself.c",
-    "function": "domindblast",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_drin",
     "message": null,
-    "cFile": "polyself.c",
+    "cFile": "uhitm.c",
     "luaFile": null,
-    "line": 1921
+    "line": 3265
   },
-  "summary": "At the #monster action, C enters domindblast’s candidate loop and its first divergent RNG call is polyself.c:1921, while JavaScript emits the same opening blast text without the corresponding target-selection draws. By step 99 C displays “You lock in on the mind flayer’s latent telepathy” and JavaScript displays the mind flayer concentrating. The source owner is the existing whole-function polyself.c:domindblast implementation; compare its live candidate gates and inputs, including distance, peacefulness, mindlessness, telepathy, and vision. The current trace does not distinguish which gate or input differs.",
+  "summary": "The remaining v24 mind-flayer case has no unmatched screens or cursors but omits source spell-forgetting RNG at step109. uhitm.c:mhitm_ad_drin calls losespells after its first rn2(5) gate, then drain_weapon_skill(rnd(2)) after its second gate. JavaScript still records both calls as discarded gaps even though their canonical owners already exist. Restore those two awaited calls in source order, with the same state, RNG and message/planning environment; retain the rest of the combat function.",
   "source": {
-    "file": "polyself.c",
-    "branch": "When u.uen is at least 10, domindblast spends 10 energy and walks fmon in list order. It skips dead monsters, monsters beyond BOLT_LIM squared, peaceful monsters, and mindless monsters. It targets a remaining monster when the hero senses it telepathically, when its species is telepathic and rn2(2) succeeds, or when rn2(10) is zero; a target takes rnd(15) damage after wakeup, and killed() runs if that damage is lethal.",
+    "file": "uhitm.c",
     "functions": [
-      "domindblast"
+      "mhitm_ad_drin"
     ],
+    "branch": "Monster-to-hero AD_DRIN that survives head/immunity, grease, helmet, physical damage and eat_brains checks runs adjattrib(A_INT,-rnd(2),FALSE), then two separate !rn2(5) gates. The first gate calls spell.c:losespells before setting gs.skipdrin; the second calls weapon.c:drain_weapon_skill(rnd(2)) before setting gs.skipdrin. Both are void calls but their canonical JS owners already implement the required state changes and RNG.",
     "callers": [
-      "cmd.c:domonability (cmd.c:916) calls domindblast when is_mind_flayer(uptr); js/cmd.js:domonability (js/cmd.js:3567) routes the #monster command to the existing js/polyself.js:domindblast implementation."
+      "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping AD_DRIN -> mhitm_ad_drin(magr,mattk,&youmonst,mhm); corresponding js/mhitu.js -> js/uhitm.js dispatch awaits the current handler. Existing hero-to-monster damageum and monster-to-monster mdamagem entry routes remain outside the modified hero-defender tail."
     ],
     "dependencies": [
-      "hack.h:mdistu supplies the squared-distance check; mondata.h:mindless and telepathic supply species predicates.",
-      "rnd.c:rn2 and rnd provide the ordered target-selection and damage draws.",
-      "mon.c:wakeup and killed perform the target wakeup, damage-death cleanup, and removal side effects."
+      "spell.c losespells1763-1826 / js/spell.js241-277 clears interrupted study context, counts known spells, preserves Confusion/Luck draw order and zeros selected retention with Wisdom exercise; previously implemented and verified by read.c amnesia goal C32. Pass rnl/rnd/rn2 without reimplementing this owner.",
+      "weapon.c drain_weapon_skill1476-1520 / js/weapon.js1518-1570 removes random advancement-history entries, downgrades/refunds/practices skills, then emits skill-ordered feedback; previously implemented and verified by C32. Pass existing message seam so planning stays silent.",
+      "A117 object-burial and B129 monster-ability dispatch reservations do not include uhitm.c:mhitm_ad_drin or hero-brain-drain-forgetting. No owner changes in eat.c, apply.c, cmd.c, spell.c or weapon.c are proposed.",
+      "Supporting planning ownership: js/unported_monster_actions.js planningState deep-copies spell records and context but currently shares u.weapon_skills and u.skill_record. A source-supported skill drain during the preview would mutate those live arrays. Isolate the two canonical arrays before admitting that restored call; do not change the spell/weapon owners."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "The saved evaluation challenges/evaluations/20261006225046-v24.json, evaluated at 84d84e111155ac834c43327b7c696055df294349, records 99/112 matching screens and cursors and 2921/2962 matching RNG calls. Its first mismatch is segment 0 step 88 on Enter: C rn2(2)=0 from domindblast(polyself.c:1921), against JavaScript rn2(12)=0; the first screen difference is step 99, C glyph Y versus JavaScript T.",
-    "A targeted replay of only this session with `node scripts/scan-sessions.mjs --json --synthetic v24/v24-mind-flayer-blast` completed as bounded run-yFlguM at replay commit 3470fce7b2ee7ab949c421ea2abd70fac3854b4e and reproduced the same RNG and screen locations. The step-88 recording has domindblast target-selection draws; the JavaScript step-88 slice has no domindblast draws. At step 99 C reports locking onto the mind flayer’s latent telepathy while JavaScript reports the mind flayer concentrating. The examined C and JavaScript source paths for polyself.c, cmd.c, mondata.h, js/polyself.js, js/cmd.js, and js/mondata.js are unchanged between the evaluated commit and this replay commit.",
-    "The source trace is polyself.c:1894-1938, including the full candidate-loop guards and the ordered `u_sen || (telepathic && rn2(2)) || !rn2(10)` condition. The production entry point is cmd.c:domonability at 916; the #monster command reaches js/cmd.js:domonability at 3567 and js/polyself.js:domindblast at 2778. The remaining implementation probe is to compare each candidate’s dead state, distance, peacefulness, mindless predicate, species telepathy, and mcansee value at this call; the available replay does not identify which eligibility input first differs."
+    "Latest committed evaluation challenges/evaluations/20261007055545-v24.json at 532068f894fa97f4ace2680f195baf3aae875050 reports112/112screens and cursors,2945/2962 matching core RNG for immutable v24/mind-flayer case. Recording SHA256 5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3; manifest SHA256 0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee.",
+    "Targeted frozen replay run-XaersF at exact worker base e7ed0b2656ee2ebe6646fa2fb04e88293b0ec089 reproduces first RNG omission2945 at zero-based segment0 step109: C rn2(3)=2 from losespells(spell.c1777), JavaScript rn2(5)=2 from the subsequent caller gate; all112 screens and cursors match. Saved .cache/C128-mindblast-replay.json/log.",
+    "Read whole C uhitm.c:mhitm_ad_drin3168-3303 and JS handler5426-5589. Source3264-3271 runs losespells then skill drain after separate gated draws; JS5537/5543 still note_unported their owner names and skips both. The spell-count discrepancy in the diagnostic therefore reflects an omitted losespells call, not evidence of a spell-book initialization defect.",
+    "Read complete C spell.c:losespells1763-1826 and weapon.c:drain_weapon_skill1476-1520, current corresponding JS owners and closed read.c amnesia completion evidence; both owners are present and implement these results. Existing closed v18 AD_DRIN goal explicitly retained these two void-call gaps. Restore awaited calls with source RNG/state/message order only; no whole source rewrite or new callee credit. Preserve no-edit counter-evidence that the former domindblast mismatch was repaired by C124; the old13-screen investigation is stale at count0.",
+    "Isolated read-only probe run-8sqcOk initializes a fresh Wizard, gives the fixture two advanced skills, clones it with planningState, then calls existing drain_weapon_skill(1) on the clone. Both arrays are identical to live; live history changes from[1,15] to[15,15], live dagger skill3 ->2 and practice100 ->20, draws[2,60]. Artifacts .cache/C128-planning-skill-probe.json/log establish the supporting clone contract. No implementation edits are included in this investigation.",
+    "Counter-evidence from isolated run-mHwgIN: existing losespells on planningState clears both planned known spell retentions and study context while leaving all live spell records, study context and Wisdom exercise unchanged. .cache/C128-planning-spell-probe.json/log proves spell/context isolation already works; supporting clone repair is limited to weapon_skills records and skill_record array."
   ]
 }

@@ -188243,7 +188243,7 @@
     {
       "id": "port-cmd-domonability-gremlin-v25-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the whole monster-ability dispatcher and wire gremlin and intrinsic unicorn abilities",
       "cFile": "cmd.c",
       "sessions": [
@@ -188251,17 +188251,24 @@
       ],
       "selectionReason": "B128 same seed now complete; v25 gremlin case remains 50/55 screens at step 50. investigations/synthetic/v25/v25-gremlin-splits.json establishes whole cmd.c:domonability and existing split_mon/cloneu/dryup return closure, plus minimal canonical unicorn-horn export. A117 doextcmd/dospinweb and burial reservations are excluded.",
       "detail": "Preserve cmd.c:domonability source ability predicate order and ECMD returns. The gremlin fountain arm consumes potion.c:split_mon clone return before fountain.c:dryup; the pool arm discards it; dry terrain prints no-fountain. Unicorn calls existing apply.c:use_unicorn_horn(NULL). Forced steed breath remains the explicit discarded dogmove.c:pet_ranged_attk(TRUE) gap. The MCMD.MONABILITY producer is excluded by #if 0 in the reference build.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "35258dc3c42ac835c660f50fc134d237ed304868",
+      "openStanding": {
+        "sha": "35258dc3c42ac835c660f50fc134d237ed304868",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "35258dc3c42ac835c660f50fc134d237ed304868",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "domonability",
           "line": 890,
           "endLine": 951,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -188280,6 +188287,251 @@
           "recordingSha256": "aad1e275233a76b9d39a6b2c4171d20497fe4a4ad95b754882d079545a6f2887",
           "evaluationPath": "challenges/evaluations/20261007055545-v25.json",
           "evaluationCommit": "532068f894fa97f4ace2680f195baf3aae875050"
+        }
+      },
+      "activeStanding": {
+        "sha": "35258dc3c42ac835c660f50fc134d237ed304868",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "domonability",
+            "implementation": "js/cmd.js",
+            "symbol": "domonability",
+            "sourceReview": "Read whole cmd.c:domonability890-950, all predicate/return ordering, combined hide/web prompt and q/ESC early return, breath/spit/nymph/gaze/were/hide/web/mind-flayer arms, gremlin fountain/pool/dry-ground, intrinsic unicorn, buried/unburied shriek, vampire/vampshifter, forced steed, reflexive/normal forms and shared ECMD_OK tail. Preserve returned handler command results. The consumed fountain split_mon pointer gates dryup; pool pointer is discarded. Read potion.c:split_mon2873-2935, mhitu.c:cloneu2616-2640, fountain.c:dryup201-239 and canonical JS owners: source current/max HP clamps and integer division, returned clone, runtime christening/taming, dryup rn2 and wizard confirmation remain in those owners. Read apply.c:use_unicorn_horn2258-2392 and existing implementation; minimally export it for the null-object intrinsic caller, preserving existing named discarded-helper gaps. Existing polyself ability owners and wizard.c:aggravate are reused without new source credit. Read dogmove.c:pet_ranged_attk889-967; C discards its result here, so replace the obsolete forced-branch refusal with note_unported(\"dogmove.c pet_ranged_attk\") and ECMD_TIME without invented attack effects. Removed gremlin/unicorn/steed dispatcher substitute refusals, searched all scripts/*.test.mjs for stale markers and retained all other owners. No pure helper is introduced.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runMonsterCommand",
+                "source": "cmd.c extcmdlist monster1772 -> doextcmd/rhack invokes domonability890; JS extcmd registry selects domonability handler5255 -> runMonsterCommand3615 -> awaited domonability. Both #monster and bound monster keys use this dispatch."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "act_on_act",
+                "source": "cmd.c act_on_act4791 queues domonability from MCMD_MONABILITY. The sole menu producer4476-4480 is within #if0, so this consumer is preserved but cannot be selected by a valid reference-build menu input; source-pinned exclusion test covers this fact."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monability.test.mjs",
+              "scripts/apply-unicorn-horn.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/dobreathe.test.mjs"
+            ],
+            "recordings": [
+              "recordings/cmd.c/monster-ability-gremlin-fountain-independent.session.json",
+              "recordings/cmd.c/monster-ability-gremlin-dry-floor-independent.session.json",
+              "recordings/cmd.c/monster-ability-unicorn-intrinsic-independent.session.json",
+              "recordings/cmd.c/monster-ability-steed-no-target-independent.session.json",
+              "recordings/polyself.c/gaze-confusion-newt.session.json",
+              "recordings/polyself.c/mindblast-ordinary-newt.session.json",
+              "recordings/polyself.c/monster-gaze-umber-hulk.session.json",
+              "recordings/polyself.c/monster-hide-pit-viper.session.json",
+              "recordings/polyself.c/monster-remove-nymph.session.json",
+              "recordings/polyself.c/monster-web-cave-spider-stairs.session.json",
+              "recordings/polyself.c/monster-web-cave-spider.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-gremlin-splits",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 54,
+                "source": "cmd.c #monster -> domonability gremlin/fountain -> potion.c split_mon -> mhitu.c cloneu -> fountain.c dryup conditional return"
+              }
+            ],
+            "checkedAt": "35258dc3c42ac835c660f50fc134d237ed304868"
+          }
+        ],
+        "entryPointReview": "The selected whole source unit has one active player command entry: extcmd monster, reached by #monster and its bound key. All form predicates remain branches within that command; the new independent witnesses establish newly admitted gremlin fountain and dry floor, null-object unicorn, and normal-form mounted steed dispatch. Seven existing ability-owner recordings replay through the unchanged nymph/hider/web/gaze/mind-flayer arms. Source-pinned tests cover ordered predicates, pool/failed clone, return-time semantics, normal/reflexive feedback, buried shriek and the named forced-steed gap. The MCMD_MONABILITY producer is excluded by #if0 atcmd.c4476-4480, while its compiled consumer4791 remains intact; no runtime menu witness is invented. The mounted no-target witness matches completely but does not establish active dogmove.c pet_ranged_attk targeting/attack behavior; that discarded callee remains named. This task claims whole dispatcher completion under the project discarded-callee rule, no new completion of its existing helper owners.",
+        "entryPoints": [
+          {
+            "name": "#monster / bound monster command dispatch",
+            "functions": [
+              "domonability"
+            ],
+            "recordings": [
+              "recordings/cmd.c/monster-ability-gremlin-fountain-independent.session.json",
+              "recordings/cmd.c/monster-ability-gremlin-dry-floor-independent.session.json",
+              "recordings/cmd.c/monster-ability-unicorn-intrinsic-independent.session.json",
+              "recordings/cmd.c/monster-ability-steed-no-target-independent.session.json",
+              "recordings/polyself.c/gaze-confusion-newt.session.json",
+              "recordings/polyself.c/mindblast-ordinary-newt.session.json",
+              "recordings/polyself.c/monster-gaze-umber-hulk.session.json",
+              "recordings/polyself.c/monster-hide-pit-viper.session.json",
+              "recordings/polyself.c/monster-remove-nymph.session.json",
+              "recordings/polyself.c/monster-web-cave-spider-stairs.session.json",
+              "recordings/polyself.c/monster-web-cave-spider.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v25",
+                "caseId": "v25-gremlin-splits",
+                "segment": 0,
+                "fromStep": 50,
+                "throughStep": 54,
+                "source": "cmd.c #monster -> domonability gremlin/fountain -> potion.c split_mon -> mhitu.c cloneu -> fountain.c dryup conditional return"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "35258dc3c42ac835c660f50fc134d237ed304868",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-uhitm-brain-drain-owned-forgetting-v24-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore spell and weapon-skill forgetting after mind-flayer brain drain",
+      "cFile": "uhitm.c",
+      "sessions": [],
+      "selectionReason": "Continue the current v24 mind-flayer seed after accepted C124. The complete investigation retains zero remaining screens and locates the RNG-only omission at hero-defender AD_DRIN forgetting gates. Canonical losespells and drain_weapon_skill owners are already implemented and verified; restore their calls without overlapping A117 burial, B129 ability dispatch, or the v25 kick-object scope.",
+      "detail": "At segment 0 step 109, C calls losespells after its first !rn2(5), then drain_weapon_skill(rnd(2)) after the second; JS skips both. Await existing owners in source order. The planning clone already isolates spell retention, study context, and Wisdom exercise, but aliases u.weapon_skills and u.skill_record with live state; isolate exactly those two arrays before restoring skill drain so planning cannot mutate the live hero.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "mhitm_ad_drin",
+      "session": "synthetic/v24/v24-mind-flayer-blast",
+      "step": 109,
+      "syntheticProvenance": {
+        "synthetic/v24/v24-mind-flayer-blast": {
+          "session": "synthetic/v24/v24-mind-flayer-blast",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-mind-flayer-blast",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+          "evaluationPath": "challenges/evaluations/20261007072048-v24.json",
+          "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
+        }
+      }
+    },
+    {
+      "id": "port-dokick-kick-object-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port floor-object kicking and its consumed gold and flight helpers",
+      "cFile": "dokick.c",
+      "sessions": [
+        "synthetic/v25/v25-kick-potion"
+      ],
+      "selectionReason": "Independent saved v25 case v25-kick-potion has 5 remaining screens at step 42. The complete investigation traces the absent dokick object-pile caller to whole kick_object and really_kick_object, with consumed ghitm and the currently refused KICKED_WEAPON path of bhit. This scope is disjoint from C128 brain drain and B129 ability dispatch.",
+      "detail": "Port whole dokick.c ghitm, kick_object, and really_kick_object plus required zap.c bhit completion for kicked weapons; wire bounded dokick object-pile, dothrow throw_gold, and lock breakchestlock callers. Preserve gk.kickedobj as the single ownership slot. The admitted fragile potion case breaks before split and flight, so independent evidence must cover nonfragile flight, heavy/box/trap/gold/shop branches before closure.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "ghitm",
+          "line": 295,
+          "endLine": 411,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "container_impact_dmg",
+          "line": 412,
+          "endLine": 488,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "kick_object",
+          "line": 489,
+          "endLine": 507,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "really_kick_object",
+          "line": 508,
+          "endLine": 793,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 295,
+        "to": 793
+      },
+      "requiredFunctions": [
+        {
+          "name": "bhit",
+          "line": 3827,
+          "endLine": 4147,
+          "declared": true,
+          "sourceFile": "zap.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v25/v25-kick-potion": {
+          "session": "synthetic/v25/v25-kick-potion",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-kick-potion",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-kick-potion.session.json",
+          "recordingSha256": "3abf4bc86aee81cdabceeead9919b886c8b83b3776687418dda4fae1f9d7a2cf",
+          "evaluationPath": "challenges/evaluations/20261007072048-v25.json",
+          "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
+        }
+      }
+    },
+    {
+      "id": "port-eat-cprefx-whole-v25-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port corpse pre-effects through golem petrification and source fatal continuation",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v25/v25-flesh-golem-eats-cockatrice"
+      ],
+      "selectionReason": "B129 seed is complete; the independent v25 flesh-golem case has 6 of 62 screens remaining, and its stale makewish finding is replaced by the current step 56 cprefx refusal. This scope does not overlap C128 brain-drain planning or A118 kick-object work.",
+      "detail": "Corpse first-bite start_eating and tin consume_tin both call cprefx. Port the whole cprefx unit, including the source condition !Stone_resistance && !(poly_when_stoned && polymon(PM_STONE_GOLEM)), consuming the existing verified polymon return before the stoning, tin useup, killer, done, and meal.eating tail. Preserve domestic, lizard, Rider, slime, and acid branches in source order and cover both corpse and tin runtime entries.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cprefx",
+          "line": 791,
+          "endLine": 866,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 791,
+        "to": 866
+      },
+      "syntheticProvenance": {
+        "synthetic/v25/v25-flesh-golem-eats-cockatrice": {
+          "session": "synthetic/v25/v25-flesh-golem-eats-cockatrice",
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-flesh-golem-eats-cockatrice",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recordingPath": "challenges/cases/v25/v25-flesh-golem-eats-cockatrice.session.json",
+          "recordingSha256": "e982fb0c95a929539ab30835b134007ab8155c476f66a56101797487c47b634a",
+          "evaluationPath": "challenges/evaluations/20261007072048-v25.json",
+          "evaluationCommit": "35258dc3c42ac835c660f50fc134d237ed304868"
         }
       }
     }
