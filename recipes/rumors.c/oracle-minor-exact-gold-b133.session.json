@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent rumors.c:doconsult C-first witness. Source-selected minor payment/reward, no-gold guard, or outside-limit outoracle major text. Seeds/time/input chosen before JavaScript comparison. C map shows the created Oracle directly north; direction corrected from the C screen before any JS comparison. C unique-monster prompt requires explicit y to create the actual Oracle rather than a doppelganger. Ends after the C-observed consultation payment/rumor/reward and first following command boundary. Cheap source variation: exact 50-gold stack is transferred rather than split; same consultation RNG and reward.",
+  "segments": [
+    {
+      "seed": 7133101,
+      "datetime": "20381024121000",
+      "nethackrc": "OPTIONS=name:Consultant,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u001750 gold pieces\n\u0007peaceful Oracle\ny        #chat\nky  "
+    }
+  ]
+}
