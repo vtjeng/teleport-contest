@@ -1784,7 +1784,8 @@ function mon_beside(x, y, state) {
 // Covered: the ordinary AUTOUNLOCK_APPLY_KEY lock-pick arm, which delegates
 // the box to lock.c pick_lock().
 //
-// Not covered: AUTOUNLOCK_UNTRAP, AUTOUNLOCK_FORCE, and BAG_OF_TRICKS bite.
+// AUTOUNLOCK_UNTRAP delegates to the same complete pick_lock() selection
+// owner. AUTOUNLOCK_FORCE and BAG_OF_TRICKS bite remain outside this caller.
 async function do_loot_cont(cobj, cindex, ccount, state) {
     if (!cobj) return ECMD_OK;
 

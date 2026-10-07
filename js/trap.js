@@ -2795,7 +2795,7 @@ async function untrap_box(box, force, confused, state = game) {
 }
 
 // C ref: trap.c untrap() (5848-6096). Hero is able to attempt untrap, so do so.
-async function untrap(force, rx, ry, container, state = game) {
+export async function untrap(force, rx, ry, container, state = game) {
     const u = state.u;
     let x, y;
     let ttmp;
