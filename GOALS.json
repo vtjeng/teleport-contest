@@ -187795,14 +187795,18 @@
     {
       "id": "fix-do-dropx-nonmerging-lit-object-v25-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Allow ordinary nonmerging lit objects to remain lit when dropped",
       "cFile": "do.c",
       "sessions": [],
       "selectionReason": "Select the five-screen v25 lit-candle stop from investigations/synthetic/v25/v25-drop-lit-candle.json. Source tracing limits the repair to dropx preflight admission when no compatible special floor object can merge.",
       "detail": "At segment 0 step 29, JavaScript preflight_dropx rejects every lamplit object before freeinv. C dropx/dropy/dropz place this lit candle on an empty dry floor without extinguishing it, replacing its burn timer, or replacing its mobile light source. Admit nonglobby lit survivors under the existing compatible-pile guard; retain compatible lit or timed merges until canonical light-source and timer merge hooks are wired.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "37f1de8df9b63da8f71a050023a4875e63a49ab5",
+      "openStanding": {
+        "sha": "7a862a458435036f4a2a008efa1fe9916761b912",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "dropx",
@@ -187821,7 +187825,169 @@
           "evaluationPath": "challenges/evaluations/20261007050439-v25.json",
           "evaluationCommit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "7a862a458435036f4a2a008efa1fe9916761b912",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v25",
+          "caseId": "v25-drop-lit-candle",
+          "session": "synthetic/v25/v25-drop-lit-candle",
+          "manifestPath": "challenges/manifests/v25.json",
+          "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+          "recording": "challenges/cases/v25/v25-drop-lit-candle.session.json",
+          "recordingPath": "challenges/cases/v25/v25-drop-lit-candle.session.json",
+          "recordingSha256": "3cfbc4023915bdcd4306e0f50c3de267addc8352bf23eb10705460841e233811",
+          "recipe": "challenges/cases/v25/v25-drop-lit-candle.recipe.session.json",
+          "recipeSha256": "77b148828885fabd9ff88756d77be31ebec701849211db866675cbeb979749ce",
+          "replayInputSha256": "73be821218f48c931af145867a1a6798259c218ad2782fa3749b6af236a640b0",
+          "evaluationPath": "challenges/evaluations/20261007053641-v25.json",
+          "evaluationCommit": "7a862a458435036f4a2a008efa1fe9916761b912",
+          "evaluationArtifact": "challenges/evaluations/20261007053641-v25.json",
+          "evaluationUtc": "2026-10-07T05:38:38.543Z",
+          "remainingScreens": 5,
+          "recordedSteps": 34,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 34
+            },
+            "rng": {
+              "matched": 2232,
+              "total": 2241
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: a lit or globby object",
+            "step": 29
+          },
+          "step": 29,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: a lit or globby object",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v25/v25-drop-lit-candle.json",
+            "result": {
+              "session": "synthetic/v25/v25-drop-lit-candle",
+              "corpus": "synthetic",
+              "batch": "v25",
+              "caseId": "v25-drop-lit-candle",
+              "remainingScreens": 5,
+              "recordedSteps": 34,
+              "manifestPath": "challenges/manifests/v25.json",
+              "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+              "recordingSha256": "3cfbc4023915bdcd4306e0f50c3de267addc8352bf23eb10705460841e233811",
+              "evaluationPath": "challenges/evaluations/20261007050439-v25.json",
+              "evaluationCommit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
+              "commit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v25",
+                "caseId": "v25-drop-lit-candle",
+                "session": "synthetic/v25/v25-drop-lit-candle",
+                "manifestPath": "challenges/manifests/v25.json",
+                "manifestSha256": "09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f",
+                "recording": "challenges/cases/v25/v25-drop-lit-candle.session.json",
+                "recordingPath": "challenges/cases/v25/v25-drop-lit-candle.session.json",
+                "recordingSha256": "3cfbc4023915bdcd4306e0f50c3de267addc8352bf23eb10705460841e233811",
+                "recipe": "challenges/cases/v25/v25-drop-lit-candle.recipe.session.json",
+                "recipeSha256": "77b148828885fabd9ff88756d77be31ebec701849211db866675cbeb979749ce",
+                "replayInputSha256": "367beee2b68d7ec98cb5fd5714d5003572310ce9a1c8e2e9c503368c51c3f020",
+                "evaluationPath": "challenges/evaluations/20261007050439-v25.json",
+                "evaluationCommit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c",
+                "evaluationArtifact": "challenges/evaluations/20261007050439-v25.json",
+                "evaluationUtc": "2026-10-07T05:07:01.756Z",
+                "remainingScreens": 5,
+                "recordedSteps": 34,
+                "previousScreensMatched": 29,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 2232,
+                    "total": 2241
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported drop: a lit or globby object",
+                  "step": 29
+                },
+                "step": 29,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: a lit or globby object",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "status": "complete",
+              "goalKind": "divergence-fix",
+              "summary": "The lit candle reaches do.c:dropx through the normal drop command, but preflight_dropx rejects every lamplit object before freeinv. This replay has an empty floor pile, so stackobj cannot absorb another object and cannot call the unsupported light-merge operations. C dropx/dropy/dropz leave a non-merging candle lit and preserve its burn timer while placing the same object on the floor. The existing JavaScript extraction, placement, timer and mobile-light owners already support that path. The smallest repair is bounded admission of non-globby lit drops when no compatible lit/timed/globby floor member would be absorbed; retain the merge and other current limits, without claiming whole drop-family completion.",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "dropx",
+                  "dropy",
+                  "dropz"
+                ],
+                "branch": "A hero on reachable dry ordinary terrain drops an inventory candle already lit, not unpaid/worn/attached, with no compatible special floor object to absorb. No swallowing, shipping consumption, liquid floor effects, shop billing or container impact occurs. The lamplit survivor remains the same object; only an absorbed compatible pile member needs light merging and timer deletion.",
+                "callers": [
+                  "cmd.c extcmdlist d/dodrop -> js/cmd.js runDropCommand at3414-3415 -> js/do.js dodrop -> drop.",
+                  "do.c:drop at714-780 prints the verbose drop message, sets how_lost=LOST_DROPPED, then calls dropx; js/do.js1611-1701 composes canonical dropCommandEnv for this call.",
+                  "do.c:dropx786-797 -> dropy800-803 -> dropz807-842; js/do.js1915-2005 uses the existing admitted dropzAdmitted tail with equivalent ordinary-floor ordering."
+                ],
+                "dependencies": [
+                  "invent.c:freeinv1356-1410 and JS invent.js3265-3273 detach the same inventory object and update inventory. The candle arm does not extinguish light or stop its timer; figurine/artifact/luck side effects remain independently gated.",
+                  "do.c:flooreffects162-358 and JS do.js937 onward return FALSE on this dry, non-boulder, nonglobby, non-potion ordinary floor; no special candle cleanup occurs.",
+                  "mkobj.c:place_object2305-2367 -> do.c:obj_no_longer_held893-921 and mkobj.c:obj_timer_checks2440-2513; JS obj.js2873-2931 links both floor indexes and sets coordinates/where. obj_no_longer_held changes crysknives only; force==0 obj_timer_checks changes corpse ice timers only, so a candle burn timer survives.",
+                  "invent.c:stackobj4366-4375 -> merged814-948 uses the landing object as survivor and absorbs another compatible pile member. JS invent.js3951-3975 implements that pointer order. With an empty or incompatible pile no merge mutation or obfree occurs.",
+                  "Compatible lit merges remain blocked: C invent.c:merged851-854 calls light.c:obj_merge_light_sources808-825 then obj_stop_timers; JS invent.js preflightMerged3930-3931 requires mergeLightSources/stopObjectTimers, and dropCommandEnv does not provide those hooks. obj_merge_light_sources is absent from js/light.js. Retain the existing mergable-based floor-pile guard; a whole lit-merge task would need the canonical light owner and timer-hook wiring.",
+                  "light.c:do_light_sources169 onward refreshes positions from object identity; JS light.js324-349 get_obj_location supports OBJ_INVENT and OBJ_FLOOR, and405 onward resolves source.id each vision pass. No replacement light or new burn timer should be created for a non-merging drop.",
+                  "display.c:newsym then pickup.c:encumber_msg remain in the existing canonical drop tail; dropCommandEnv supplies them and remove_object before the source call. Timeout callback uses the same object identity after placement."
+                ]
+              },
+              "evidence": [
+                "Current evaluation challenges/evaluations/20261007043256-v25.json at e61af74e9cd0087d730c364dcc8488bf0702ad32 reports 29/34 screens,2232/2241 RNG and29/34 cursors:5 remaining screens. Canonical v25 corpus digest09da22a65a375e01b1435006978d1d28b8569258068c275bae74df677b8b458f; recording SHA2563cfbc4023915bdcd4306e0f50c3de267addc8352bf23eb10705460841e233811; recipe SHA25677b148828885fabd9ff88756d77be31ebec701849211db866675cbeb979749ce. manifestSha256 is the canonical case/recording corpus digest, not the raw manifest file hash.",
+                "Read admitted input-only recipe and C recording. The hero wishes one uncursed tallow candle, applies it at step27 (flame burns brightly), presses d at28, selects the candle at29. C step29 prints You drop a partly used candle (lit) and contains only nine ordinary turn-tail RNG draws; steps30-33 matchable command feedback needs no further turn. This exercises a drop, not a candle extinguishing or merging action.",
+                "Bounded targeted replay run-oJnPOO at216727c926f89591de2fcfbe9e9819b2c0b8af8a reproduces the step29 UnsupportedDropError and29 emitted screens with no earlier divergence; artifact /tmp/teleport-loop-worker-b-20260925/.cache/B-drop-lit-candle-replay.json. JS do.js1725-1733 blanket-checks obj.lamplit||obj.globby before extraction, while1819-1835 separately checks actual compatible lit/timed/globby pile members via mergable.",
+                "Read-only production-state probe run-zJ346Z (script .cache/B-drop-candle-state.mjs, output .cache/B-drop-candle-state.json) establishes an empty floor pile, hero on STAIRS (type26) at59,15, candle object72 still OBJ_INVENT, lamplit=true,timed=1, one candle burn timer(func4,timeout126,arg===candle), and existing LS_OBJECT radius2 source with id===candle. No compatible merge member exists. No source or state mutation was introduced by the probe beyond normal replay.",
+                "Read complete C drop714-780, dropx786-797, dropy800-803, dropz807-842, obj_no_longer_held893-921, flooreffects162-358, freeinv_core1356-1400/freeinv1403-1410, place_object2305-2367, obj_timer_checks2440-2513, merged814-948 and stackobj4366-4375. None introduces a non-merging dry-floor lit-object refusal or stops a candle timer on drop. The guard conflates a lit survivor with an absorbed lit pile member.",
+                "Actionable bounded scope: js/do.js preflight_dropx admission/comment reconciliation, with source tests in scripts/drop-command.test.mjs and scripts/inventory-substrate.test.mjs. The latter3505 currently expects all lit lamps to refuse and must become a non-merging success/compatible-merge refusal contract. Keep globby, compatible special-pile, shop, liquid, trap, engraving, region, equipment and other existing guards explicit. Do not claim new whole dropx/dropy/dropz completion.",
+                "Implementation validation plan: verify admitted range segment0 steps27-33; record independently chosen candle and oil-lamp dry-floor variations that assert unchanged light/timer object identity and continued floor illumination after the hero moves. Add constructed tests for compatible lit-merge refusal before extraction and an incompatible lit/timed member permitting the drop. Preserve an independently recorded blocked lit-merge recipe if that source entry remains outside the chosen scope. No new C game, implementation edit, source reservation or aggregate scan was performed for this investigation."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-dig-bury-objs-whole-v24-20261007",
