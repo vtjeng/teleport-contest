@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked outside C131: complete explode.c fatal killer metadata at 650-657 is still partial. C sets NO_KILLER_PREFIX and \"caught himself in his own magical blast\" for a non-scroll hero blast; existing js/explode.js keeps KILLED_BY and generic blast text. Independent C-first normal Caveman ten-charge magic-missile break is fatal; accepting debug death and declining disclosures exposes the tombstone. C/JS first differ at segment 0 step 51; all 3105 RNG calls and 52 cursors match. The bounded original-role dispatch repair does not change this fatal arm.",
+  "segments": [
+    {
+      "seed": 93171015,
+      "datetime": "20781113120703",
+      "nethackrc": "OPTIONS=name:FatalWand,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "h\u0017uncursed wand of magic missile (0:10)\nafy  y     "
+    }
+  ]
+}

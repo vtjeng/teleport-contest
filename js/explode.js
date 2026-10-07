@@ -88,6 +88,11 @@ import {
     AD_PHYS,
     AD_SPEL,
     AT_ENGL,
+    PM_CLERIC,
+    PM_MONK,
+    PM_WIZARD,
+    PM_HEALER,
+    PM_KNIGHT,
 } from './monsters.js';
 import {
     completelyburns,
@@ -440,11 +445,20 @@ export async function explode(
                 if (type < 0 || type > 9) type = 0;
             } else type = 0;
         }
-        const role = state.flags?.role;
-        if (role === 'cleric' || role === 'monk' || role === 'wizard')
+        // you.h Role_switch reads the original role even while polymorphed.
+        switch (state.urole.mnum) {
+        case PM_CLERIC:
+        case PM_MONK:
+        case PM_WIZARD:
             damu = Math.trunc(damu / 5);
-        else if (role === 'healer' || role === 'knight')
+            break;
+        case PM_HEALER:
+        case PM_KNIGHT:
             damu = Math.trunc(damu / 2);
+            break;
+        default:
+            break;
+        }
     } else if (olet === BURNING_OIL) {
         explodingWandTyp = POT_OIL;
     } else if (olet === SCROLL_CLASS) {

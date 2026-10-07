@@ -190722,18 +190722,25 @@
     {
       "id": "fix-explode-retributive-role-v26-20261007",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Use the canonical original role for retributive wand damage",
       "cFile": "explode.c",
       "sessions": [
         "synthetic/v26/v26-break-create-monster-wand"
       ],
-      "selectionReason": "Next admitted v26 mismatch after the boulder case: 10 remaining screens from an incorrect role lookup in a broken-wand explosion.",
+      "selectionReason": "Dependency-aware worker queue selected ready delivery C131 after A133 publication; admitted v26-break-create-monster-wand first diverges at explode.c retributive hero damage.",
       "detail": "Use urole.mnum as C Role_switch for the wand-class hero dose reductions while preserving original damage for monsters, items, floor effects, and wake radius. Cover /5, /2, default, truncation, polymorph independence, and non-wand behavior.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "8fc440953afa865003f8aba3f3fa863e31542da3",
+      "openStanding": {
+        "sha": "61a42a4416fcd0880db53ff03bb49684374ecb88",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "explode",
       "session": "synthetic/v26/v26-break-create-monster-wand",
       "step": 75,
@@ -190750,30 +190757,239 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
+      },
+      "activeStanding": {
+        "sha": "61a42a4416fcd0880db53ff03bb49684374ecb88",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-break-create-monster-wand",
+          "session": "synthetic/v26/v26-break-create-monster-wand",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-break-create-monster-wand.session.json",
+          "recordingPath": "challenges/cases/v26/v26-break-create-monster-wand.session.json",
+          "recordingSha256": "10e4342414ffd9693ec89f6f1fd8097a59ae50307a246ab4cdeaf3c589cc4dbb",
+          "recipe": "challenges/cases/v26/v26-break-create-monster-wand.recipe.session.json",
+          "recipeSha256": "94f1b9b65da3a306aab152bf869cf78420a56e53014532c5dbf229b5fd996eb1",
+          "replayInputSha256": "bc5a42a4b286e2c9a0178a477a6976bd60d09079a17cd3e81234bbea78bd6d50",
+          "evaluationPath": "challenges/evaluations/accepted-61a42a4416fcd0880db53ff03bb49684374ecb88-v26.json",
+          "evaluationCommit": "61a42a4416fcd0880db53ff03bb49684374ecb88",
+          "evaluationArtifact": "challenges/evaluations/accepted-61a42a4416fcd0880db53ff03bb49684374ecb88-v26.json",
+          "evaluationUtc": "2026-10-07T16:28:11.474Z",
+          "remainingScreens": 10,
+          "recordedSteps": 85,
+          "previousScreensMatched": 75,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 75,
+              "total": 85
+            },
+            "rng": {
+              "matched": 2868,
+              "total": 2868
+            },
+            "cursors": {
+              "matched": 85,
+              "total": 85
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 75,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 75,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 23,
+              "column": 14,
+              "cCell": {
+                "ch": "4",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "3",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 75,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-break-create-monster-wand.json",
+            "result": {
+              "session": "synthetic/v26/v26-break-create-monster-wand",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-break-create-monster-wand",
+              "remainingScreens": 10,
+              "recordedSteps": 85,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "10e4342414ffd9693ec89f6f1fd8097a59ae50307a246ab4cdeaf3c589cc4dbb",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "status": "complete",
+              "commit": "a4c8df6c00f13928410e287093105dba6fd8664a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-break-create-monster-wand",
+                "session": "synthetic/v26/v26-break-create-monster-wand",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-break-create-monster-wand.session.json",
+                "recordingPath": "challenges/cases/v26/v26-break-create-monster-wand.session.json",
+                "recordingSha256": "10e4342414ffd9693ec89f6f1fd8097a59ae50307a246ab4cdeaf3c589cc4dbb",
+                "recipe": "challenges/cases/v26/v26-break-create-monster-wand.recipe.session.json",
+                "recipeSha256": "94f1b9b65da3a306aab152bf869cf78420a56e53014532c5dbf229b5fd996eb1",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 10,
+                "recordedSteps": 85,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 75,
+                    "total": 85
+                  },
+                  "rng": {
+                    "matched": 2868,
+                    "total": 2868
+                  },
+                  "cursors": {
+                    "matched": 85,
+                    "total": 85
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 75,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 75,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 23,
+                    "column": 14,
+                    "cCell": {
+                      "ch": "4",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "3",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 75,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Breaking a charged create-monster wand while a Wizard is polymorphed into a hill giant subtracts eight hero HP in JavaScript instead of one. The retributive-strike branch in explode reads absent state.flags.role; C uses the canonical original role, gu.urole.mnum, and divides the Wizard hero dose by five. The first screen difference is segment 0 step 75 (C HP 41/42, JavaScript HP 34/42); RNG and cursors match throughout the recording.",
+              "source": {
+                "file": "explode.c",
+                "branch": "explode with olet == WAND_CLASS, including a negative create-monster wand type; Role_switch is PM_WIZARD even when the hero has a different polymorph form",
+                "functions": [
+                  "explode"
+                ],
+                "callers": [
+                  "apply.c:do_break_wand -> explode(obj->ox, obj->oy, -obj->otyp, rnd(dmg), WAND_CLASS, EXPL_MAGICAL)",
+                  "apply.c:broken_wand_explode -> explode(u.ux, u.uy, -obj->otyp, dmg, WAND_CLASS, expltype)"
+                ],
+                "dependencies": []
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Admitted provenance: challenges/manifests/v26.json canonical corpus digest 3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7 and recording challenges/cases/v26/v26-break-create-monster-wand.session.json SHA-256 10e4342414ffd9693ec89f6f1fd8097a59ae50307a246ab4cdeaf3c589cc4dbb were verified against the exact queue entry and challenges/evaluations/20261007095608-v26.json at game commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44. The evaluation has 75/85 matching screens, 2868/2868 RNG calls, 85/85 cursors and 10 remaining screens.",
+                "Current assigned-case frozen JavaScript replay at a4c8df6c00f13928410e287093105dba6fd8664a reproduces the same first difference at segment 0 step 75, row 23 column 14, with no RNG, cursor or animation mismatch. Artifacts: .cache/C129-v26-break-wand-replay.mjs, .cache/C129-v26-break-wand-replay.json and .cache/C129-v26-break-wand-replay.log. At steps 73 and 74 both show HP 42/42; step 74 records rnd(12)=8; at step 75 C shows HP 41/42 and JavaScript HP 34/42. The following step has the same goblin appearance and retained HP difference.",
+                "nethack-c/upstream/src/apply.c:3971 derives dmg = obj->spe * 4; its do_break_wand call at 4038 runs the generic magical explosion before the create-monster-specific effects at 4081. The existing JavaScript call is js/apply.js:4709. apply.c:broken_wand_explode:3888-3893 supplies the other existing WAND_CLASS entry (js/apply.js:4540). No caller or wand lifecycle change is required for this defect.",
+                "nethack-c/upstream/src/explode.c:224-255 converts the negative wand type and then switches on Role_switch: PM_CLERIC, PM_MONK and PM_WIZARD divide damu by 5; PM_HEALER and PM_KNIGHT divide it by 2; other roles leave it unchanged. include/you.h:248 defines Role_switch as gu.urole.mnum. Integer truncation makes this recorded Wizard dose 8/5 = 1, irrespective of the current hill-giant polymorph form.",
+                "js/explode.js:443 instead reads state.flags?.role and compares lowercase role strings. Canonical numeric state.urole.mnum is initialized by js/role_init.js:486 and restored by js/restore.js:147; the current monster form is a different C value. Searching current js for flags.role finds only this erroneous read. Reuse the canonical original-role value and PM_* constants without adding a second role cache, lookup, RNG call or owner edit.",
+                "Only damu, the hero dose, is reduced at this early branch. Preserve original dam for monsters, item destruction, floor effects and wake radius. explode.c:608-630 applies invulnerability or physical/acid half damage later, destroys hero items with original dam, then subtracts damu from polymorph mh or ordinary uhp. Preserve that ordering and all existing messages/input boundaries.",
+                "Independently assignable narrow repair: source:explode.c:explode plus contract:retributive-wand-hero-damage; change js/explode.js and focused explode tests/fresh runner and recipes/recordings under explode.c only. Existing apply, role-init and restore owners remain read-only; no dependencies are required. This divergence fix does not establish whole explode completion or change retained specialized death/shop gaps.",
+                "Implementation evidence should pin all three /5 roles, both /2 roles, a default role, truncation below the divisor, polymorph independence, misleading flags.role and non-wand behavior; verify original monster/item damage and RNG order remain unchanged. Cite the admitted production wand-break range and independently design C-first role variations for runtime evidence. Saved preparation .cache/C129-source-preparation-explode.json supplies the earlier source trace; its former admission blocker is resolved by this admitted evaluation."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-lock-pick-lock-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete lock selection behavior for monsters, doors, and boxes",
       "cFile": "lock.c",
       "sessions": [
         "synthetic/v26/v26-lock-key-visible-monster"
       ],
-      "selectionReason": "Next admitted v26 mismatch: 8 remaining screens at step 55 where a visible monster should produce the source message and spend a turn.",
+      "selectionReason": "Dependency-aware worker queue selected ready delivery B134 after C131 publication; admitted v26-lock-key-visible-monster first stops in lock.c pick_lock.",
       "detail": "Port whole partially implemented pick_lock and preserve its existing doapply, do_loot_cont, and doopen_indir callers. Implement visible-monster, shopkeeper/Oracle, door-mimic, door, box, autounlock, and artifact-touch behavior in source order; retain discarded unported side effects as named gaps.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "f85f3914bae20f4953002d1283b646d42f2a8256",
+      "openStanding": {
+        "sha": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "pick_lock",
           "line": 358,
           "endLine": 659,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -190793,12 +191009,272 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
+      },
+      "activeStanding": {
+        "sha": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-lock-key-visible-monster",
+          "session": "synthetic/v26/v26-lock-key-visible-monster",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+          "recordingPath": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+          "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+          "recipe": "challenges/cases/v26/v26-lock-key-visible-monster.recipe.session.json",
+          "recipeSha256": "bd2284aca6fa81ddb0d57ed6b9e36a030ccd91b3dd650e978bb6ede0a130a9cb",
+          "replayInputSha256": "bf302173e9c1efc3f7ccf733747c1ccf258246092d53f7c4cf73dce04d1412a9",
+          "evaluationPath": "challenges/evaluations/accepted-2487002c122fbc56a7fccfd3378c1eae307b2d4a-v26.json",
+          "evaluationCommit": "2487002c122fbc56a7fccfd3378c1eae307b2d4a",
+          "evaluationArtifact": "challenges/evaluations/accepted-2487002c122fbc56a7fccfd3378c1eae307b2d4a-v26.json",
+          "evaluationUtc": "2026-10-07T16:36:56.045Z",
+          "remainingScreens": 8,
+          "recordedSteps": 63,
+          "previousScreensMatched": 55,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 55,
+              "total": 63
+            },
+            "rng": {
+              "matched": 2711,
+              "total": 2719
+            },
+            "cursors": {
+              "matched": 55,
+              "total": 63
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+            "step": 55
+          },
+          "step": 55,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-lock-key-visible-monster.json",
+            "result": {
+              "session": "synthetic/v26/v26-lock-key-visible-monster",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-lock-key-visible-monster",
+              "remainingScreens": 8,
+              "recordedSteps": 63,
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "commit": "a882a9784160f83d2b3317ed977c51c754490472",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-lock-key-visible-monster",
+                "session": "synthetic/v26/v26-lock-key-visible-monster",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+                "recordingPath": "challenges/cases/v26/v26-lock-key-visible-monster.session.json",
+                "recordingSha256": "98d7a73a658d311fb89be11b5dc696bb3dae411638c6a7515a9f26dbcab26bce",
+                "recipe": "challenges/cases/v26/v26-lock-key-visible-monster.recipe.session.json",
+                "recipeSha256": "bd2284aca6fa81ddb0d57ed6b9e36a030ccd91b3dd650e978bb6ede0a130a9cb",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 8,
+                "recordedSteps": 63,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 55,
+                    "total": 63
+                  },
+                  "rng": {
+                    "matched": 2711,
+                    "total": 2719
+                  },
+                  "cursors": {
+                    "matched": 55,
+                    "total": 63
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+                  "step": 55
+                },
+                "step": 55,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: picking a lock requires a monster on the chosen square",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "status": "complete",
+              "summary": "The refusal at segment 0 step 55 is an unsupported JavaScript placeholder, not a C precondition. C accepts the adjacent square containing a visible ordinary monster far enough to report that the monster would not appreciate lock picking, then returns PICKLOCK_LEARNED_SOMETHING so the apply command spends a turn. JavaScript currently throws for any monster at the chosen square before checking visibility or map disguise, so it both rejects valid C behavior and skips the recorded message and turn. Port the whole partially implemented lock.c:pick_lock function, including its other fail-closed branches, while preserving its existing doapply, do_loot_cont, and doopen_indir callers.",
+              "source": {
+                "file": "lock.c",
+                "branch": "In the adjacent-door arm, C first gets mtmp with m_at(cc.x, cc.y). A visible monster whose M_AP_TYPE is neither M_AP_FURNITURE nor M_AP_OBJECT enters the monster response arm. For this skeleton-key case C prints \"I don't think the giant ant would appreciate that.\" with mon_nam() and returns PICKLOCK_LEARNED_SOMETHING. A credit card used on a shopkeeper or the Oracle has its own verbalize branch. A door-mimicking monster is handled next; otherwise even a monster can fall through to ordinary door/map checks. The mere presence of a monster is not a precondition.",
+                "functions": [
+                  "pick_lock"
+                ],
+                "callers": [
+                  "apply.c:doapply() calls pick_lock(obj, 0, 0, NULL) for LOCK_PICK, CREDIT_CARD, and SKELETON_KEY (4285-4289); the recorded direct apply path reaches this caller. JavaScript is already wired through apply.js:doapply().",
+                  "pickup.c:do_loot_cont() calls pick_lock(unlocktool, ox, oy, cobj) for container autounlock (2125-2135); JavaScript is already wired through pickup.js:do_loot_cont().",
+                  "lock.c:doopen_indir() calls pick_lock(unlocktool, cc.x, cc.y, NULL) for door autounlock (876-883); JavaScript is already wired through lock.js:doopen_indir()."
+                ],
+                "dependencies": [
+                  "For the reproduced ordinary visible-monster arm, reuse the existing source-backed m_at (monst.js), canseemon (display.js), M_AP_TYPE (const.js), mon_nam (do_name.js), and ttyPline (tty_message.js). Apply.c converts every nonzero PICKLOCK result, including PICKLOCK_LEARNED_SOMETHING, to ECMD_TIME.",
+                  "The whole pick_lock function also has a distinct CREDIT_CARD shopkeeper/Oracle arm requiring SetVoice and verbalize, and a door-mimic arm requiring is_door_mappear and stumble_onto_mimic. C then calls maybe_absorb_item(mtmp, pick, 50, 10), whose result it discards; if still unported, preserve the gap with note_unported('lock.c maybe_absorb_item') rather than inventing effects.",
+                  "Audit the existing AUTOUNLOCK_UNTRAP and autounlock artifact-touch branches against lock.c:472-480, 605-612, and 628-630. could_untrap and touch_artifact return values control C behavior; untrap results are discarded. The corresponding JavaScript paths currently include fail-closed throws in pick_lock."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved baseline challenges/evaluations/20261007095608-v26.json at evaluation commit 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44 records 55/63 matching screens and cursors, 2711/2719 matching RNG calls, and 8 remaining screens. The exact queue first stop is segment 0, zero-based step 55: UnsupportedLockError from the monster-on-square placeholder.",
+                "The independently recorded C input challenges/cases/v26/v26-lock-key-visible-monster.session.json has key h at segment 0 step 55 and shows the message \"I don't think the giant ant would appreciate that.\" The step advances the turn; its RNG trace includes mcalcmove, maybe_generate_rnd_mon, gethungry, and moveloop_core.",
+                "Upstream nethack-c/upstream/src/lock.c:559-570 checks m_at, canseemon, and disguise type before emitting the ordinary-monster response and returning PICKLOCK_LEARNED_SOMETHING. Lines 571-576 separately handle a door mimic. This directly contradicts treating m_at() != NULL as a lock-picking precondition.",
+                "The JavaScript placeholder is js/lock.js:867-870: it throws UnsupportedLockError whenever m_at returns a monster. Its message template at js/lock.js:148 says \"picking a lock requires ...\"; this is internal fail-closed diagnostic wording, not a C game message or behavior.",
+                "Because pick_lock is an existing partial implementation and the unported arm is inside that whole C function, selection.md requires a file-port of lock.c:pick_lock, not a narrow divergence-fix. The source already has production callers in apply.c, pickup.c, and lock.c, with corresponding JavaScript calls in apply.js, pickup.js, and lock.js; validate their wiring while implementing the whole function."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pick_lock",
+            "implementation": "js/lock.js",
+            "symbol": "pick_lock",
+            "sourceReview": "Read complete lock.c:358-659 in definition order. Preserve dummy zero object, resumed-attempt guards and reset, no-hands/swallow/tool guards, supplied/manual coordinates, floor up/lava/pool/reach guards, container chain and discovered-container filtering, broken/card/artifact conditions, all three chance tables and cursed integer division, pit guard, visible ordinary/shop/Oracle monsters, door mimic reveal, nondoor glyph/lastseen comparison, exact doormask switch, unconditional AUTOUNLOCK_UNTRAP door check, declined prompt, touch_artifact consumed Boolean and shared context/occupation tail. Read direct dependencies nohands, get_adjacent_loc/yn_function, can_reach_floor, safe_qbuf/name helpers, could_untrap/untrap, is_magic_key/touch_artifact, lock_action/reset_pick/picklock/set_occupation, m_at/canseemon, stumble_onto_mimic/that_is_a_mimic/wakeup, feel_location/update_mapseen_for. Corrected consumed monst.h is_door_mappear predicate to canonical generated S_hcdoor/S_vcdoor symbols; focused regression failed before and passed after correction. Exported existing trap.c untrap owner for awaited production use, without changing its body. Removed obsolete pick_lock UnsupportedLockError refusals; unrelated lock owner refusals remain. Source steal.c:772-811 maybe_absorb_item is void; C discards its result, so skip only that callee with note_unported, preserving reveal before gap and learned-something return after it. SetVoice has no state/output effect in reference tty build. Invalid-tool impossible diagnostic is a named pline gap for invalid input; no RNG/output/state is invented.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c lock-pick/credit-card/skeleton-key switch arm calls pick_lock(obj,0,0,NULL), maps nonzero to ECMD_TIME, then common arti_speak tail; existing awaited caller remains."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "do_loot_cont",
+                "source": "pickup.c:2112-2145 floor locked-container autounlock calls pick_lock(unlocktool,cobj->ox,cobj->oy,cobj), including NULL tool for untrap-only option; result controls ECMD_TIME."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen_indir",
+                "source": "lock.c doopen_indir locked-door AUTOUNLOCK_APPLY_KEY arm calls pick_lock(otmp,x,y,NULL) after door message; existing production autoopen path remains."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock-pick-lock.test.mjs",
+              "scripts/apply-lock-pick.test.mjs",
+              "scripts/closed-door-autoopen.test.mjs",
+              "scripts/lock.test.mjs",
+              "scripts/loot-command.test.mjs",
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-manual-visible-b134.session.json",
+              "recordings/lock.c/pick-lock-container-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-container-cursed-b134.session.json",
+              "recordings/lock.c/pick-lock-door-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-door-untrap-b134.session.json",
+              "recordings/lock.c/pick-lock-container-untrap-b134.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-lock-key-visible-monster",
+                "segment": 0,
+                "fromStep": 55,
+                "throughStep": 62,
+                "source": "cmd.c apply dispatcher -> apply.c doapply lock-tool arm -> lock.c pick_lock visible-monster guard returns PICKLOCK_LEARNED_SOMETHING, caller spends a turn."
+              }
+            ],
+            "checkedAt": "6230bfd1a69cb9aec23c350e4e7b45b747a48594"
+          }
+        ],
+        "entryPointReview": "All three active source entries are manual apply of lock tools, floor-container #loot autounlock, and door #open/autoopen autounlock. C recorder includes all three; none is build-inactive. Manual visible-monster evidence is admitted plus independent, container recordings cover ordinary/cursed occupation, door recordings cover ordinary occupation plus canonical no-trap untrap. Pure consumed door-mimic predicate and rarely reachable resumed/dummy/chance branches are source-pinned; discarded mimic absorption remains outside this unit. Independent untrap-only container recording also exercises the active NULL-tool/dummy path.",
+        "entryPoints": [
+          {
+            "name": "Manual lock-tool apply",
+            "functions": [
+              "pick_lock"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-manual-visible-b134.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-lock-key-visible-monster",
+                "segment": 0,
+                "fromStep": 55,
+                "throughStep": 62,
+                "source": "cmd.c apply dispatcher -> apply.c doapply lock-tool arm -> lock.c pick_lock visible-monster guard returns PICKLOCK_LEARNED_SOMETHING, caller spends a turn."
+              }
+            ]
+          },
+          {
+            "name": "Floor-container autounlock through #loot",
+            "functions": [
+              "pick_lock"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-container-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-container-cursed-b134.session.json",
+              "recordings/lock.c/pick-lock-container-untrap-b134.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Door autounlock through autoopen",
+            "functions": [
+              "pick_lock"
+            ],
+            "recordings": [
+              "recordings/lock.c/pick-lock-door-auto-b134.session.json",
+              "recordings/lock.c/pick-lock-door-untrap-b134.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-steed-mount-steed-v26-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete mount checks and wounded-leg feedback",
       "cFile": "steed.c",
       "sessions": [
@@ -190806,8 +191282,12 @@
       ],
       "selectionReason": "Next admitted v26 mismatch after lock selection: 7 remaining screens where C refuses mounting with wounded-leg feedback and JavaScript throws.",
       "detail": "Port whole mount_steed and retain doride wiring. Preserve wounded-leg feedback, debug force-heal, mount eligibility, saddle, pet, trap, levitation, encumbrance, and state transitions in source order using canonical legs_in_no_shape and heal_legs helpers.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "b4755e128d543965758843fd6eac7886fdb86779",
+      "openStanding": {
+        "sha": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -190836,7 +191316,160 @@
           "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-wounded-rider-mount",
+          "session": "synthetic/v26/v26-wounded-rider-mount",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recording": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+          "recordingPath": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+          "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+          "recipe": "challenges/cases/v26/v26-wounded-rider-mount.recipe.session.json",
+          "recipeSha256": "5c5f4d281c57d875bc7d6eabbf2b6f86fde968b6e43527b93e713ca7673cf0be",
+          "replayInputSha256": "48983f695077e962873d6d208f3b2a80645bfb868ce3faa3878ba444405a61ff",
+          "evaluationPath": "challenges/evaluations/accepted-6230bfd1a69cb9aec23c350e4e7b45b747a48594-v26.json",
+          "evaluationCommit": "6230bfd1a69cb9aec23c350e4e7b45b747a48594",
+          "evaluationArtifact": "challenges/evaluations/accepted-6230bfd1a69cb9aec23c350e4e7b45b747a48594-v26.json",
+          "evaluationUtc": "2026-10-07T16:49:10.545Z",
+          "remainingScreens": 7,
+          "recordedSteps": 35,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2733,
+              "total": 2733
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "steed.c",
+          "function": "mount_steed",
+          "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+          "cFile": "steed.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v26/v26-wounded-rider-mount.json",
+            "result": {
+              "session": "synthetic/v26/v26-wounded-rider-mount",
+              "corpus": "synthetic",
+              "batch": "v26",
+              "caseId": "v26-wounded-rider-mount",
+              "manifestPath": "challenges/manifests/v26.json",
+              "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+              "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+              "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+              "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+              "remainingScreens": 7,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "feb68ba893d0499cd0aaa04e32e2e7ff11f850b8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v26",
+                "caseId": "v26-wounded-rider-mount",
+                "session": "synthetic/v26/v26-wounded-rider-mount",
+                "manifestPath": "challenges/manifests/v26.json",
+                "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+                "recording": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+                "recordingPath": "challenges/cases/v26/v26-wounded-rider-mount.session.json",
+                "recordingSha256": "2339ef0bb2e4e0c2b3fb948262cd9e292c660e5fc14e272c917c4a0cd1c1a195",
+                "recipe": "challenges/cases/v26/v26-wounded-rider-mount.recipe.session.json",
+                "recipeSha256": "5c5f4d281c57d875bc7d6eabbf2b6f86fde968b6e43527b93e713ca7673cf0be",
+                "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+                "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+                "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+                "evaluationUtc": "2026-10-07T09:56:27.654Z",
+                "remainingScreens": 7,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2733,
+                    "total": 2733
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "steed.c",
+                "function": "mount_steed",
+                "message": "unsupported hero command: an unported branch of this command: unsupported steed action: mount_steed() with wounded legs",
+                "cFile": "steed.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "With timed wounded legs, the recorded #ride answer declines the optional debug force prompt. C intentionally refuses the mount after printing “Your leg is in no shape for riding.” JavaScript currently throws UnsupportedSteedError at this guard, stopping before the expected screen and cursor. This is a missing branch in the partially ported steed.c:mount_steed function; the shared wounded-leg feedback and healing helpers already exist in js/do.js.",
+              "source": {
+                "file": "steed.c",
+                "branch": "When Wounded_legs is true at mount_steed entry, the function calls legs_in_no_shape(\"riding\", FALSE). It then asks “Heal your legs?” only when force && wizard; otherwise, including the recorded declined force prompt, it returns FALSE without mounting. An accepted force-heal answer clears the wound and continues through the remaining mount checks.",
+                "functions": [
+                  "mount_steed"
+                ],
+                "callers": [
+                  "steed.c:doride() (177-192), which obtains the force answer and returns mount_steed() as ECMD_TIME or ECMD_OK",
+                  "cmd.c:extcmdlist doride entry (around 1834), which exposes the production #ride command"
+                ],
+                "dependencies": [
+                  "do.c:legs_in_no_shape() (2408-2423), already implemented in js/do.js",
+                  "do.c:heal_legs() (2448-2486), already implemented in js/do.js and used by the force && wizard affirmative branch",
+                  "youprop.h:Wounded_legs/HWounded_legs/EWounded_legs; JavaScript stores the timeout and wounded-side bits in WOUNDED_LEGS intrinsic/extrinsic state"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/manifests/v26.json records the case route: steed.c:doride asks the debug force question; the response at step 27 is n; C emits “Your leg is in no shape for riding.” at step 28.",
+                "nethack-c/upstream/src/steed.c:178-192 shows doride passing the force flag to mount_steed and mapping FALSE to ECMD_OK. nethack-c/upstream/src/steed.c:225-238 shows the wounded-leg guard, feedback call, optional force-heal question, and intentional FALSE return.",
+                "nethack-c/upstream/src/do.c:2408-2423 defines legs_in_no_shape, which derives side and singular/plural wording from EWounded_legs. js/do.js:3053-3077 already implements this feedback helper; js/do.js:3128-3159 implements heal_legs for the force affirmative branch.",
+                "js/steed.js:456-482 currently throws UnsupportedSteedError when WOUNDED_LEGS is active instead of calling legs_in_no_shape and following C’s conditional heal-or-return path. The saved evaluation reports the first mismatch at step 28 with matched RNG (2733/2733), and missing screen/cursor output from the JavaScript stop.",
+                "Selection scope is the whole steed.c:mount_steed function, as required for a C file-port. Its existing doride caller is already wired in js/steed.js; the implementation task must retain that production path and remove the unsupported placeholder when the complete function is ported."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-insight-youhiding-v26-20261007",
