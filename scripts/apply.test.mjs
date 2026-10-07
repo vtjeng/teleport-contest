@@ -35,6 +35,7 @@ import {
     grapple_target_menu_items,
     leashable,
     number_leashed,
+    o_unleash,
     touchstone_ok,
     use_towel,
 } from '../js/apply.js';
@@ -164,6 +165,26 @@ test('number_leashed counts only active inventory leash objects', () => {
     const second = { otyp: LEASH, leashmon: 27, nobj: active };
     assert.equal(number_leashed({ invent: second }), 2);
     assert.equal(number_leashed({ invent: inactive }), 0);
+});
+
+test('apply.c o_unleash clears the matching monster before refreshing inventory', () => {
+    // apply.c:715-723 searches fmon by the object's id and always clears
+    // leashmon, even when the matching monster has left the current level.
+    const source = readFileSync(new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8');
+    assert.match(source, /mtmp->m_id == \(unsigned\) otmp->leashmon/u);
+    const other = { m_id: 14, mleashed: 1, nmon: null };
+    const attached = { m_id: 27, mleashed: 1, nmon: other };
+    const leash = { leashmon: 27 };
+    const state = { level: { monlist: attached },
+        program_state: { in_moveloop: true }, iflags: { perm_invent: true } };
+    const refresh = [];
+    o_unleash(leash, { state, hooks: { updateInventory() {
+        refresh.push([leash.leashmon, attached.mleashed, other.mleashed]);
+    } } });
+    assert.deepEqual(refresh, [[0, 0, 1]]); // Both attachment owners clear before update_inventory.
+    leash.leashmon = 41; // No monster has this id: object-side attachment still clears.
+    o_unleash(leash, { state, hooks: { updateInventory() {} } });
+    assert.equal(leash.leashmon, 0);
 });
 
 test('leashable follows apply.c species and anatomy checks', () => {

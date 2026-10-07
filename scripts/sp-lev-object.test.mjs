@@ -1213,12 +1213,12 @@ test('ordinary live pickup without visibility stays linked on the floor', () => 
     assert.equal(ogre.minvent, null);
 });
 
-test('direct carried burial and figurine timers retain their source boundaries', () => {
+test('direct carried burial and figurine timers retain their source boundaries', async () => {
     const buriedSetup = roomState();
     const monster = carrier(buriedSetup.state, PM_OGRE);
     const context = new_sp_lev_object_context();
     context.inventCarryingMonster = monster;
-    const buried = lspo_object({
+    const buried = await lspo_object({
         id: CHEST,
         buried: true,
         coordinate: { x: 0, y: 0 },
@@ -1255,14 +1255,14 @@ test('direct carried burial and figurine timers retain their source boundaries',
     );
 });
 
-test('buried container is finalized before its contents callback', () => {
+test('buried container is finalized before its contents callback', async () => {
     const { level, room, state } = roomState();
     const context = new_sp_lev_object_context();
     const random = quietGenerationRandom();
     let callbackChest = null;
     let child = null;
 
-    const chest = lspo_object({
+    const chest = await lspo_object({
         id: CHEST,
         coordinate: { x: 0, y: 0 },
         buried: true,
@@ -1356,7 +1356,7 @@ test('generated chest contents are destroyed before the descriptor callback', ()
     assert.equal(generatedChild.where, OBJ_DELETED);
 });
 
-test('burial deallocation leaves a live tombstone for nested contents', () => {
+test('burial deallocation leaves a live tombstone for nested contents', async () => {
     const { level, room, state } = roomState();
     state.mineend_level = { ...state.u.uz };
     const context = new_sp_lev_object_context();
@@ -1364,7 +1364,7 @@ test('burial deallocation leaves a live tombstone for nested contents', () => {
     let callbackObject = 'not called';
     let nestedObject = 'not called';
 
-    const result = lspo_object({
+    const result = await lspo_object({
         id: ROCK,
         name: 'marker',
         coordinate: { x: 0, y: 0 },
@@ -1603,9 +1603,9 @@ test('a null parent skips later creation branches and pops on success', () => {
     assert.equal(level.objlist, null);
 });
 
-test('exact troll corpses replace the generated timer, sex, and weight', () => {
+test('exact troll corpses replace the generated timer, sex, and weight', async () => {
     const { room, state } = roomState();
-    const corpse = lspo_object({
+    const corpse = await lspo_object({
         id: CORPSE,
         corpsenm: PM_TROLL,
         coordinate: { x: 0, y: 0 },

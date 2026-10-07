@@ -1,0 +1,5 @@
+{
+  "version": 5,
+  "comment": "BLOCKED source caller coverage: nhlobj.c:l_obj_bury has no JS Lua-object method/dispatcher; this active primitive caller and its deallocation boolean remain outside A117 and supply no completion evidence.",
+  "segments": []
+}

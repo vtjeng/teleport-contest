@@ -144,7 +144,7 @@ import {
     y_n,
     yn_function,
     } from './cmd.js';
-import { tinnable } from './apply.js';
+import { o_unleash, tinnable } from './apply.js';
 import { on_level,
     surface } from './dungeon.js';
 import { pluslvl, more_experienced, newexplevel } from './exper.js';
@@ -4017,7 +4017,7 @@ async function eatspecial(state, env) {
     } else if (otmp.oclass === RING_CLASS || otmp.oclass === AMULET_CLASS) {
         await eataccessory(otmp, state, env);
     } else if (otmp.otyp === LEASH && otmp.leashmon) {
-        note_unported('dog.c o_unleash');
+        o_unleash(otmp, { ...env, state });
     }
 
     // These two object jokes are fully local to eat.c and their C calls to

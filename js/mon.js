@@ -5565,7 +5565,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
             objectEnv,
         );
         if (burythem) {
-            const { deallocated } = bury_an_obj(obj, objectEnv);
+            const { deallocated } = await bury_an_obj(obj, objectEnv);
             killRedraw(x, y, { ...env, state });
             return deallocated ? null : obj;
         }
