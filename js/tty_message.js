@@ -15,6 +15,7 @@ import {
     PLINE_NOREPEAT,
     PLINE_SPEECH,
     PLINE_VERBALIZE,
+    PLNMSG_UNKNOWN,
     URGENT_MESSAGE,
 } from './const.js';
 import { flush_screen } from './display.js';
@@ -450,7 +451,11 @@ function rememberSuppressedMessage(state, message, columns) {
 // share the top line only when both fit with two separating spaces and room
 // for a future --More--. PLINE_NOREPEAT compares the new individual message
 // against gp.prevmsg before the window port sees it.
-async function ttyPlineCore(message, state, pflags, mixedFirstCell = null) {
+async function ttyPlineCore(
+    message, state, pflags, mixedFirstCell = null, resetLastMessage = true,
+) {
+    // pline.c:vpline returns before putmesg for an empty format.
+    if (!message) return;
     // display.c show_glyph() calls pline_xy() synchronously. JS defers the
     // awaitable TTY work, so a later ordinary message must first drain every
     // source-earlier glyph notice. emitGlyphUpdateNotices marks its recursive
@@ -522,6 +527,12 @@ async function ttyPlineCore(message, state, pflags, mixedFirstCell = null) {
     if (stoppedAtEntry && !deathComparisonReached) {
         rememberSuppressedMessage(state, next, columns);
         state._ttyPreviousMessage = normalizedMessage;
+        // WIN_STOP suppresses drawing inside putmesg, so vpline still resets
+        // last_msg. MSGTYPE suppression above returns before putmesg.
+        if (resetLastMessage) {
+            state.iflags ??= {};
+            state.iflags.last_msg = PLNMSG_UNKNOWN;
+        }
         return;
     }
     if (stoppedAtEntry) state._ttyMessageStopped = false;
@@ -548,6 +559,10 @@ async function ttyPlineCore(message, state, pflags, mixedFirstCell = null) {
             );
         }
         state._ttyPreviousMessage = normalizedMessage;
+        if (resetLastMessage) {
+            state.iflags ??= {};
+            state.iflags.last_msg = PLNMSG_UNKNOWN;
+        }
         if (msgtype === MSGTYP_STOP)
             await displayPendingTtyMessageWindow(state);
         return;
@@ -577,6 +592,12 @@ async function ttyPlineCore(message, state, pflags, mixedFirstCell = null) {
         await dismissPendingTtyMessage(state, {
             preventEscapeStop: urgentMessage,
         });
+    // pline.c:vpline resets after putmesg returns, before the explicit STOP
+    // display. Keep this after any wrapped-line More input above.
+    if (resetLastMessage) {
+        state.iflags ??= {};
+        state.iflags.last_msg = PLNMSG_UNKNOWN;
+    }
     if (msgtype === MSGTYP_STOP)
         await displayPendingTtyMessageWindow(state);
 }
@@ -597,7 +618,8 @@ export async function ttyPline(message, state = game) {
 export async function ttyPutmixed(
     message, renderedFirstCell, state = game,
 ) {
-    return ttyPlineCore(message, state, 0, renderedFirstCell);
+    // pager.c's putmixed bypasses pline.c:vpline and its last_msg reset.
+    return ttyPlineCore(message, state, 0, renderedFirstCell, false);
 }
 
 export async function ttyNorep(message, state = game) {
