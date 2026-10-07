@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: zap.c:backfire cursed wand. wish cursed charged light wand; repeated zap; retain valid early end. Expected C observation: wand explosion, damage and object deletion. Planned before JavaScript comparison. C-only correction from observed inventory letter, prompt or source terrain/strength precondition; no v26 JS comparison has run. Valid distinct target-miss retained: C did not backfire; light wand empties and a final wrested charge turns it to dust. Actual source is zap.c:zappable/dozap cleanup.",
+  "segments": [
+    {
+      "seed": 92630013,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017cursed wand of light (0:3)\nzp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp zp y    "
+    }
+  ]
+}

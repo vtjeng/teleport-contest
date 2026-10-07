@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v26 extension: uhitm.c:mhitm_ad_cold hero attacker through damageum. ice troll form; empty hands; create durable peaceful stone giant; force attack. Expected: monster covered in frost at second claw attack. Planned before this candidate JS comparison. C-only target direction chosen from the reached map; this candidate has not been compared to JS.",
+  "segments": [
+    {
+      "seed": 92630302,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #polyself\nice troll\n         w-    \u0007peaceful stone giant\n        Fb          Fb          "
+    }
+  ]
+}

@@ -184208,6 +184208,105 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-polyself-gaze-mindblast-v24-20261006",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port polymorph gaze and mind blast over the canonical live monster list",
+      "cFile": "polyself.c",
+      "sessions": [
+        "synthetic/v24/v24-pyrolisk-gazes-hostile",
+        "synthetic/v24/v24-mind-flayer-blast"
+      ],
+      "selectionReason": "Current complete v24 investigations trace two independent mismatches to dogaze and domindblast scanning stale state.fmon instead of the canonical state.level.monlist; the functions share the same live-monster-list contract and have no active reservation.",
+      "detail": "Review and preserve every branch, draw, message, state change, and production caller in whole polyself.c:dogaze and polyself.c:domindblast. Replace both stale list walks with the canonical live level monster chain and supply runtime evidence from the admitted pyrolisk gaze and mind flayer blast cases plus any independent entry variation needed for closure.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dogaze",
+          "line": 1642,
+          "endLine": 1776,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1642,
+        "to": 1776
+      },
+      "requiredFunctions": [
+        {
+          "name": "domindblast",
+          "line": 1894,
+          "endLine": 1940,
+          "declared": true,
+          "sourceFile": "polyself.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v24/v24-pyrolisk-gazes-hostile": {
+          "session": "synthetic/v24/v24-pyrolisk-gazes-hostile",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-pyrolisk-gazes-hostile",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+          "recordingSha256": "61b18e7a3552a6db8d9b5be6a1d89012ffcec299d7dabe050ec59c4cea72587b",
+          "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
+          "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
+        },
+        "synthetic/v24/v24-mind-flayer-blast": {
+          "session": "synthetic/v24/v24-mind-flayer-blast",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-mind-flayer-blast",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+          "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+          "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
+          "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
+        }
+      }
+    },
+    {
+      "id": "fix-apply-use-grease-drop-env-v24-20261006",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire cursed grease slips through the canonical drop environment",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v24/v24-cursed-grease-slip"
+      ],
+      "selectionReason": "The current complete v24 investigation reproduces the four-screen stop and traces it to use_grease calling the existing dropx family without the canonical newsym and encumber operations; the caller and shared drop environment have no active reservation.",
+      "detail": "Repair the bounded apply.c:use_grease cursed-slip caller by composing the canonical dropCommandEnv before calling the existing do.c:dropx implementation. Preserve the C cursed/Fumbling draw and drop ordering. Verify the admitted v24 case and focused caller behavior; do not claim new whole-function completion for the already separate do.c drop family.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_grease",
+      "session": "synthetic/v24/v24-cursed-grease-slip",
+      "step": 30,
+      "syntheticProvenance": {
+        "synthetic/v24/v24-cursed-grease-slip": {
+          "session": "synthetic/v24/v24-cursed-grease-slip",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-cursed-grease-slip",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-cursed-grease-slip.session.json",
+          "recordingSha256": "4cc4d5faa4218f7eb3632e5186b9d6c6c80722dd3773e8aa0d11d781cf821efa",
+          "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
+          "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
+        }
+      }
     }
   ]
 }

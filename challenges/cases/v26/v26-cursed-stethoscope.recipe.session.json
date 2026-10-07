@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent v26 mission: apply.c:use_stethoscope cursed/self repeat. wish cursed stethoscope; apply to self repeatedly. Expected C observation: heartbeat or self status, with repeated-use time gate. Planned before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 92630001,
+      "datetime": "20761019153000",
+      "nethackrc": "OPTIONS=name:V26AProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017cursed stethoscope\nao.ao.ao.ao.    "
+    }
+  ]
+}
