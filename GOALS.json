@@ -187553,7 +187553,7 @@
     {
       "id": "fix-display-hallucinated-object-memory-v24-20261007",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve the C object-memory glyph through hallucination redraws",
       "cFile": "display.c",
       "sessions": [],
@@ -187565,8 +187565,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7a862a458435036f4a2a008efa1fe9916761b912",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "map_object",
       "session": "synthetic/v24/v24-hallucinating-pear",
       "step": 33,
@@ -187781,7 +187784,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7a862a458435036f4a2a008efa1fe9916761b912",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-do-dropx-nonmerging-lit-object-v25-20261007",
@@ -187811,6 +187820,56 @@
           "recordingSha256": "3cfbc4023915bdcd4306e0f50c3de267addc8352bf23eb10705460841e233811",
           "evaluationPath": "challenges/evaluations/20261007050439-v25.json",
           "evaluationCommit": "2d3dea2f90e34c1f7a49052fcab51e231d4cf02c"
+        }
+      }
+    },
+    {
+      "id": "port-dig-bury-objs-whole-v24-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole object burial and wire pit-covering, boulder and freezing callers",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v24/v24-spider-web-over-pit"
+      ],
+      "selectionReason": "The complete valid investigation investigations/synthetic/v24/v24-spider-web-over-pit.json retains remainingScreens 0 and identifies an outstanding RNG-only omission at segment 0 step 53; whole bury_objs and required-return bury_an_obj are coherent, unreserved source owners. Caller functions are disjoint from B128 dropx and C127 display memory; preserve their reserved contracts.",
+      "detail": "#monster spider pit branch -> polyself.c:dospinweb -> dig.c:bury_objs -> bury_an_obj omits C obj_resists and rnd draws, shifting monster RNG. Preserve floor-list traversal, shop debt, timers, ownership, engraving, redraw, and concealment; wire bounded do.c and zap.c callers. Include or explicitly gap the active DEBUG wiz_debug_cmd_bury caller; keep hack.c moverock_core trap handling, timeout expiry, Lua burial, and other unported caller entries explicit without claiming unrelated owners.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "bury_an_obj",
+          "line": 1984,
+          "endLine": 2049,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "bury_objs",
+          "line": 2050,
+          "endLine": 2085,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1984,
+        "to": 2085
+      },
+      "syntheticProvenance": {
+        "synthetic/v24/v24-spider-web-over-pit": {
+          "session": "synthetic/v24/v24-spider-web-over-pit",
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-spider-web-over-pit",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recordingPath": "challenges/cases/v24/v24-spider-web-over-pit.session.json",
+          "recordingSha256": "17d00ca69b326937d155b3c6ddb6a5b819cd0014903c06c9ceec2a3c15b27b59",
+          "evaluationPath": "challenges/evaluations/20261007053641-v24.json",
+          "evaluationCommit": "7a862a458435036f4a2a008efa1fe9916761b912"
         }
       }
     }
