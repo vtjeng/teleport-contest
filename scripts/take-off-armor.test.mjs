@@ -1383,16 +1383,14 @@ test('cloak removal stays immediate and glove removal runs its delayed callback'
     assert.equal(takeoffContext(game).what, 0);
     assert.equal(topLine(), 'You finish taking off your gloves.');
 
-    // Nothing in the port puts boots on a hero, so the boot frame is only
-    // reachable directly.
+    // Source select_off accepts ordinary untrapped boots and commits the slot.
     await runSegment({ ...segment, moves: WAIT });
     const boots = {
         oclass: ARMOR_CLASS, otyp: LOW_BOOTS, owornmask: W_ARMF, cursed: 0,
     };
     game.uarmf = boots;
-    await assert.rejects(
-        () => select_off(boots, game), /select_off\(\) boot checks/,
-    );
+    assert.equal(await select_off(boots, game), 0);
+    assert.ok(takeoffContext(game).mask & W_ARMF, 'source WORN_BOOTS selection bit');
     game.uarmf = null;
 });
 

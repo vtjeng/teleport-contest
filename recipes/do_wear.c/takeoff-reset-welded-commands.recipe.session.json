@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 134383,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017cursed battle-axe\nwo w- Qo   ."
+    }
+  ],
+  "comment": "Independent wield.c:dowield and doquiver_core welded refusal -> reset_remarm witness. Both commands preserve the welded primary weapon."
+}

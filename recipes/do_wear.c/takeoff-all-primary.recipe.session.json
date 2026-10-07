@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first A/partial-menu Sunsword removal through do_wear.c menu_remarm/select_off/doddoremarm/take_off/do_takeoff, then a movement command exercising reset_remarm. No copied challenge inputs.",
+  "segments": [
+    {
+      "seed": 134371,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:TakeoffWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,menustyle:partial\n",
+      "moves": " \u0017blessed Sunsword\nwi Ai\n   .h"
+    }
+  ]
+}

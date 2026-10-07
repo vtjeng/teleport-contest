@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 134382,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:ReadyProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed battle-axe\nwo \u0017potion of unholy water\n#dip\nop   ."
+    }
+  ],
+  "comment": "Independent source mkobj.c:curse -> reset_remarm witness: dip a wielded two-handed axe into unholy water. No mkobj/potion owner completion claim."
+}

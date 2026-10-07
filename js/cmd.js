@@ -145,7 +145,7 @@ import {
 } from './do.js';
 import {
     doremring, doputon, dotakeoff, dowear, ia_dotakeoff, remarm_swapwep,
-    reset_remarm,
+    reset_remarm, doddoremarm,
     UnsupportedAccessoryOnError,
     UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
@@ -1851,7 +1851,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'call', 'name',
     'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'droptype', 'pickup', 'pay',
-    'takeoff', 'remove', 'wear',
+    'takeoff', 'takeoffall', 'remove', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
     'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'fire', 'throw',
@@ -5174,6 +5174,8 @@ async function doextcmd(key, state) {
     case 'dotogglepickup':
         await dotogglepickup(state);
         return ECMD_OK;
+    case 'doddoremarm':
+        return doddoremarm(state);
     case 'dotakeoff':
         return await runTakeOffCommand(key, state);
     case 'dowear':
@@ -5945,6 +5947,14 @@ export async function rhack(key, state = game) {
             // cmd.c rhack:3810-3818 applies dopay's ECMD result equally to
             // its p binding, #pay and the source's m-prefix inversion.
             const res = await failClosedCommand(key, state, () => dopay(state));
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'takeoffall') {
+            const res = await failClosedCommand(key, state, () => doddoremarm(state));
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
