@@ -184278,7 +184278,7 @@
     {
       "id": "fix-apply-use-grease-drop-env-v24-20261006",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Wire cursed grease slips through the canonical drop environment",
       "cFile": "apply.c",
       "sessions": [
@@ -184286,8 +184286,12 @@
       ],
       "selectionReason": "The current complete v24 investigation reproduces the four-screen stop and traces it to use_grease calling the existing dropx family without the canonical newsym and encumber operations; the caller and shared drop environment have no active reservation.",
       "detail": "Repair the bounded apply.c:use_grease cursed-slip caller by composing the canonical dropCommandEnv before calling the existing do.c:dropx implementation. Preserve the C cursed/Fumbling draw and drop ordering. Verify the admitted v24 case and focused caller behavior; do not claim new whole-function completion for the already separate do.c drop family.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "13386fd80adf07aae4979ed52b9fca49e246bca3",
+      "openStanding": {
+        "sha": "03bd947b68a4cd1a4a15c52d17f77a7530d71f0b",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "use_grease",
@@ -184306,7 +184310,163 @@
           "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
           "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "03bd947b68a4cd1a4a15c52d17f77a7530d71f0b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v24",
+          "caseId": "v24-cursed-grease-slip",
+          "session": "synthetic/v24/v24-cursed-grease-slip",
+          "manifestPath": "challenges/manifests/v24.json",
+          "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+          "recording": "challenges/cases/v24/v24-cursed-grease-slip.session.json",
+          "recordingPath": "challenges/cases/v24/v24-cursed-grease-slip.session.json",
+          "recordingSha256": "4cc4d5faa4218f7eb3632e5186b9d6c6c80722dd3773e8aa0d11d781cf821efa",
+          "recipe": "challenges/cases/v24/v24-cursed-grease-slip.recipe.session.json",
+          "recipeSha256": "3b5b7d86519d36e628b7c05e60a144dafce18a453f7236092f98a054a1817672",
+          "replayInputSha256": "818fba80915e482d537aa1304fd808bbb07a3ea9ddba1f5173f7f695bb22a77d",
+          "evaluationPath": "challenges/evaluations/20261007003626-v24.json",
+          "evaluationCommit": "81a2baa5587e1af6b16bca3f6aa22f6907caa079",
+          "evaluationArtifact": "challenges/evaluations/20261007003626-v24.json",
+          "evaluationUtc": "2026-10-07T00:38:02.167Z",
+          "remainingScreens": 4,
+          "recordedSteps": 34,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 34
+            },
+            "rng": {
+              "matched": 2276,
+              "total": 2282
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v24/v24-cursed-grease-slip.json",
+            "result": {
+              "session": "synthetic/v24/v24-cursed-grease-slip",
+              "corpus": "synthetic",
+              "batch": "v24",
+              "caseId": "v24-cursed-grease-slip",
+              "remainingScreens": 4,
+              "recordedSteps": 34,
+              "manifestPath": "challenges/manifests/v24.json",
+              "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+              "recordingSha256": "4cc4d5faa4218f7eb3632e5186b9d6c6c80722dd3773e8aa0d11d781cf821efa",
+              "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+              "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+              "status": "complete",
+              "commit": "84d84e111155ac834c43327b7c696055df294349",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v24",
+                "caseId": "v24-cursed-grease-slip",
+                "session": "synthetic/v24/v24-cursed-grease-slip",
+                "manifestPath": "challenges/manifests/v24.json",
+                "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+                "recording": "challenges/cases/v24/v24-cursed-grease-slip.session.json",
+                "recordingPath": "challenges/cases/v24/v24-cursed-grease-slip.session.json",
+                "recordingSha256": "4cc4d5faa4218f7eb3632e5186b9d6c6c80722dd3773e8aa0d11d781cf821efa",
+                "recipe": "challenges/cases/v24/v24-cursed-grease-slip.recipe.session.json",
+                "recipeSha256": "3b5b7d86519d36e628b7c05e60a144dafce18a453f7236092f98a054a1817672",
+                "replayInputSha256": "d43ab0f8d98c31524213e6740783a2f7378f147d7b0f8466d2837e3675833ba8",
+                "evaluationPath": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationCommit": "84d84e111155ac834c43327b7c696055df294349",
+                "evaluationArtifact": "challenges/evaluations/20261006225046-v24.json",
+                "evaluationUtc": "2026-10-06T22:50:52.015Z",
+                "remainingScreens": 4,
+                "recordedSteps": 34,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 2276,
+                    "total": 2282
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: missing newsym operation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The cursed can slips on segment 0 step 30, then the JavaScript drop path stops because do.c:dropx reaches the ordinary floor tail without the newsym hook. C applies the same cursed-charge branch, drops the can through dropx -> dropy -> dropz, redraws the hero square, and updates encumbrance. The actionable source scope is the partially ported do.c drop family and its production callers.",
+              "source": {
+                "file": "do.c",
+                "branch": "A charged cursed can of grease slips when apply.c:use_grease evaluates (obj->cursed || Fumbling) && !rn2(2). In this recipe the hero is not swallowed, stands on reachable ordinary floor outside a shop or altar, and dropx proceeds through dropy to dropz; the dropz floor branch must complete placement, stacking, newsym, and encumber_msg.",
+                "functions": [
+                  "dropx",
+                  "dropy",
+                  "dropz"
+                ],
+                "callers": [
+                  "apply.c:use_grease (2604-2654), including the charged cursed-slip branch at 2618-2623; production path js/apply.js:use_grease -> js/do.js:dropx. This is the caller exercised by the assigned session.",
+                  "do.c:drop (714-780) calls dropx after the command checks; production path js/do.js:drop -> js/do.js:dropx, with dropCommandEnv supplying the drop-tail operations.",
+                  "do.c:dosinkring (at 514 and 652) calls dropx for ring giveback and a backed-up sink; production path js/do.js:dosinkring -> js/do.js:dropx, also with dropCommandEnv.",
+                  "invent.c:hold_another_object (1208-1311) calls dropx on its drop_it path; production path js/invent.js:gotoDrop uses the caller-provided dropObject hook."
+                ],
+                "dependencies": [
+                  "display.c:newsym redraws the floor square after dropz places and stacks the object; js/do.js:dropCommandEnv already supplies the operation, but js/apply.js:use_grease calls dropx with only its state/environment and js/do.js:dropx reaches dropzAdmitted without installing that default.",
+                  "pickup.c:encumber_msg is called after dropz completes and is supplied by js/do.js:dropCommandEnv; preserve it after the redraw.",
+                  "Preserve do.c:dropx ordering through freeinv, ship_object, altar handling, and dropy, then do.c:dropz floor effects, placement, impact/shop branches, stackobj, newsym, and encumber_msg. The assigned ordinary-floor branch does not enter shop, altar, liquid, swallowed, or impact conditions."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry and challenges/evaluations/20261006225046-v24.json at 84d84e111155ac834c43327b7c696055df294349 report 30/34 screens, 2276/2282 RNG calls, and 30/34 cursors; the first failure is stop at segment 0, step 30 with “unsupported drop: missing newsym operation”. The recorded C step for key p shows “The can of grease slips from your fingers”; its RNG log includes rn2(2)=0 at apply.c:2618.",
+                "nethack-c/upstream/src/apply.c:2604-2640 defines use_grease: for a charged cursed object and rn2(2)==0 it consumes a charge, prints the slip message, calls dropx(obj), then returns ECMD_TIME. The recorded recipe satisfies this branch, so apply.c is the caller and not the missing behavior.",
+                "nethack-c/upstream/src/do.c:786-842 defines dropx, dropy, and dropz. dropx removes the object from inventory, handles shipping and altar effects, then calls dropy; dropy calls dropz; the ordinary floor branch of dropz applies floor effects, places and stacks the object, calls newsym(u.ux,u.uy), then encumber_msg().",
+                "At the examined commit, js/apply.js:5241-5259 calls dropx with {...env,state}. js/do.js:1777-1797 normalizes that environment but reaches dropzAdmitted directly without the operation defaults; js/do.js:1861 requires the absent newsym hook. js/do.js:1355-1367 shows dropCommandEnv already supplies newsym and encumberMessage to the command and sink callers. This identifies the missing source-to-caller wiring in the partially ported do.c drop family."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "fix-explode-fatal-last-msg-v24-20261007",
