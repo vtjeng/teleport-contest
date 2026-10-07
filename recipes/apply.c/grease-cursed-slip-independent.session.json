@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent apply.c:use_grease slip witness. Newly chosen Wizard seed and clock apply a charged cursed can on ordinary reachable floor, then wait. The charged slip must consume one charge before dropping; no whole do.c drop-family completion claim.",
+  "segments": [
+    {
+      "seed": 12417033,
+      "datetime": "20940719120500",
+      "nethackrc": "OPTIONS=name:GreaseSlip,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0017cursed can of grease (7)\nan.."
+    }
+  ]
+}
