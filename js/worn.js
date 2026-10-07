@@ -3,7 +3,7 @@
 // C refs: src/worn.c setworn(), setnotworn(), recalc_telepat_range(),
 //         find_mac(), which_armor(), m_lose_armor(), mon_break_armor(),
 //         extract_from_minvent();
-//         src/wield.c setuwep(), setuswapwep(), and setuqwep().
+//         src/wield.c setuswapwep() and setuqwep().
 
 import {
     AC_MAX,
@@ -61,7 +61,6 @@ import {
 } from './const.js';
 import {
     ART_EYES_OF_THE_OVERWORLD,
-    ART_OGRESMASHER,
     ART_SNICKERSNEE,
     artifact_light,
     Stone_resistance,
@@ -95,9 +94,6 @@ import {
     WrappingAllowed,
     curse,
     is_flimsy,
-    is_ammo,
-    is_launcher,
-    is_missile,
     is_weptool,
     obj_no_longer_held,
     objectType,
@@ -1537,61 +1533,6 @@ export function is_pole(obj, state = game) {
     return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
         && (skill === P_POLEARMS || skill === P_LANCE
             || obj.oartifact === ART_SNICKERSNEE);
-}
-
-function markBottomLine(state) {
-    state.disp ??= {};
-    state.disp.botl = true;
-}
-
-export function setuwep(obj, env = {}) {
-    return finishWornSteps(setuwep_steps(obj, env));
-}
-
-function* setuwep_steps(obj, env) {
-    const normalized = wornEnv(env);
-    const { state } = normalized;
-    if ((state.uwep ?? null) === (obj ?? null)) return obj ?? null;
-    const olduwep = state.uwep ?? null;
-    const endArtifactLightHook = olduwep
-        && artifact_light(olduwep) && olduwep.lamplit
-        ? requiredHook(normalized, 'endArtifactLight', olduwep)
-        : null;
-    yield setworn(obj, W_WEP, normalized);
-    if ((state.uwep ?? null) === (obj ?? null)
-        && ((state.uwep?.oartifact === ART_OGRESMASHER)
-            || olduwep?.oartifact === ART_OGRESMASHER)) {
-        markBottomLine(state);
-    }
-    if ((state.uwep ?? null) === (obj ?? null)
-        && endArtifactLightHook && olduwep.lamplit) {
-        yield endArtifactLightHook(
-            olduwep,
-            normalized,
-        );
-        if (olduwep.lamplit) {
-            throw new Error(
-                'endArtifactLight must extinguish the old wielded artifact',
-            );
-        }
-    }
-    if ((state.uwep ?? null) === (obj ?? null)
-        && ((state.uwep?.oartifact === ART_OGRESMASHER)
-            || olduwep?.oartifact === ART_OGRESMASHER)) {
-        markBottomLine(state);
-    }
-    if (obj) {
-        state.unweapon = obj.oclass === WEAPON_CLASS
-            ? is_launcher(obj, state) || is_ammo(obj, state)
-                || is_missile(obj, state)
-                || (is_pole(obj, state) && !state.u.usteed
-                    && obj.oartifact !== ART_SNICKERSNEE)
-            : !is_weptool(obj, state)
-                && !(obj.otyp === TOWEL && Math.trunc(obj.spe ?? 0) > 0);
-    } else {
-        state.unweapon = true;
-    }
-    return obj ?? null;
 }
 
 export function setuswapwep(obj, env = {}) {

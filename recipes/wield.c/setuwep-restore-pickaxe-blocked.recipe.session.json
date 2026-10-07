@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Blocked C134 closure witness: restore.c:restgamestate (694-697) clears uwep then calls wield.c:setuwep to restore worn/property and unweapon state, forcing unweapon for pick-axe afterward. JS restore.js currently restores snapshot.unweapon directly without that call. B136 owns restore display deferral; C134 must not edit this caller. This independent explicit pick-axe save/restore recipe is retained for the bounded combined-main correction, not cited as matching evidence.",
+  "segments": [
+    {
+      "seed": 134356,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017pick-axe\n wi Sy"
+    },
+    {
+      "seed": 134356,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  "
+    }
+  ]
+}

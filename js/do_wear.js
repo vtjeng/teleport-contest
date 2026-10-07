@@ -374,14 +374,13 @@ import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
-import { Glib, welded } from './wield.js';
+import { setuwep, Glib, welded } from './wield.js';
 import { weapon_descr } from './weapon.js';
 import {
     bimanual,
     setnotworn,
     setuqwep,
     setuswapwep,
-    setuwep,
     setworn,
     which_armor,
 } from './worn.js';

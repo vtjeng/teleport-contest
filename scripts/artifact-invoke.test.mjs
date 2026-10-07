@@ -277,9 +277,9 @@ test('independent Sunsword inputs reach every invocation direction and self effe
 
 test('Sunsword self invocation consumes the flashburn artifact-resistance result',async()=>{
     const entry=loadBlindingRayCases().find(({name})=>name==='self');
-    // Stop after the independent wish. Wielding Sunsword in production remains
-    // blocked at wield.c setuwep's begins-to-shine refusal, so construct only
-    // that equipment state while invoking the actual source function.
+    // Stop after the independent wish and construct the equipment state for
+    // this isolated invocation check. Production wielding and unwielding are
+    // covered by wield.c recordings, including the artifact light messages.
     const prefix=entry.recipe.segments[0].moves.split('#invoke')[0];
     const replay=await runSegment({...entry.recipe.segments[0],moves:prefix});
     let sword;for(let obj=game.invent;obj;obj=obj.nobj)if(obj.oartifact===ART_SUNSWORD)sword=obj;

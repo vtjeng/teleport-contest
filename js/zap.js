@@ -198,7 +198,6 @@ import {
     set_twoweap,
     setuqwep,
     setuswapwep,
-    setuwep,
     setworn,
     wearslot,
     wearmask_to_obj,
@@ -229,6 +228,7 @@ import { fix_wall_spines } from './mklev.js';
 import { boxlock, doorlock, picking_at, reset_pick } from './lock.js';
 import { breaks, breakobj, hero_breaks, mhurtle } from './dothrow.js';
 import { canseemon, canspotmon } from './display.js';
+import { setuwep } from './wield.js';
 
 // Thrown where zap.c reaches a wand effect this port has not ported.
 export class UnsupportedZapError extends Error {

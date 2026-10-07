@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first C134 ballrelease caller witness: punish a Knight, pick up and wield the attached ball, wizard-teleport to the downstairs and descend. do.c:goto_level -> ball.c:drag_down/ballrelease -> wield.c:setuwep clears the carried primary ball before its floor placement. Setup correction: C labels the carried ball j and raises pickup/teleport tip More prompts; dismiss those before wielding the ball and selecting the downstairs. Mapping reveals the downstairs before getpos feature selection; the unmapped probe stopped at its same-location teleport.",
+  "segments": [
+    {
+      "seed": 134353,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017uncursed scroll of punishment\nri , wj   #wizmap\n\u0014  >.>   "
+    }
+  ]
+}

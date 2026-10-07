@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first C134 source caller witness: dothrow.c throwit -> return_throw_to_inv: an aklys returns to the primary slot after a westward throw.",
+  "segments": [
+    {
+      "seed": 134350,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017aklys\nwi tih "
+    }
+  ]
+}

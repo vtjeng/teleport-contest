@@ -438,10 +438,10 @@ import {
 } from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { cansee, vision_recalc } from './vision.js';
-import { doquiver_core, welded, weldmsg } from './wield.js';
+import { setuwep, doquiver_core, welded, weldmsg } from './wield.js';
 import { could_pole_mon, use_pole, use_whip } from './apply.js';
 import {
-    find_mac, is_pole, set_twoweap, setuqwep, setuswapwep, setuwep,
+    find_mac, is_pole, set_twoweap, setuqwep, setuswapwep,
     which_armor,
 } from './worn.js';
 import { bhit, boomhit, hit, miss } from './zap.js';

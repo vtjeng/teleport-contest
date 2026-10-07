@@ -615,6 +615,7 @@ import {
     possibly_unwield,
 } from './weapon.js';
 import {
+    setuwep,
     can_twoweapon,
     cantwield,
     drop_uswapwep,
@@ -628,7 +629,6 @@ import {
     is_pole,
     mon_adjust_speed,
     set_twoweap,
-    setuwep,
     which_armor,
 } from './worn.js';
 import { steal } from './steal.js';
@@ -3149,7 +3149,7 @@ async function hmon_hitmon_potion(hmd, mon, obj, state, env) {
     else {
         // C uhitm.c:1100 calls setuwep(NULL), whose worn.c setworn() path
         // needs do_wear.c cancel_doff() and the other canonical worn hooks.
-        // Preserve caller-specific hooks such as artifact-light cleanup.
+        // Preserve caller-specific lifecycle hooks for the canonical setter.
         const worn = setwornEnv(state);
         await setuwep(null, {
             ...env,

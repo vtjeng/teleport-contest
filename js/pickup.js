@@ -260,8 +260,8 @@ import {
 import { livelog_printf } from './pline.js';
 import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
-import { welded, weldmsg } from './wield.js';
-import { extract_from_minvent, which_armor, setuqwep, setuswapwep, setuwep } from './worn.js';
+import { setuwep, welded, weldmsg } from './wield.js';
+import { extract_from_minvent, which_armor, setuqwep, setuswapwep } from './worn.js';
 import { note_unported } from './unported.js';
 import { d } from './rng.js';
 import { canspotmon } from './display.js';

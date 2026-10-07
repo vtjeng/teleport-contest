@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first C134 source caller witness: allmain.c moveloop_core -> do_wear.c glibr: timeout-controlled slippery fingers drop the primary artifact after shutdown. Explicit pager dismissals complete the slip message, stopped-light message, and drop before the final capture.",
+  "segments": [
+    {
+      "seed": 134349,
+      "datetime": "20811115130500",
+      "nethackrc": "OPTIONS=name:SetterWitness,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017blessed Sunsword\nwi #wizintrinsic\n2l\n  .   "
+    }
+  ]
+}

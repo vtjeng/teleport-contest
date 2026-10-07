@@ -1,7 +1,7 @@
 // wield.js -- what the hero's hands are doing, plus the one question wield.c
 // asks about a monster's hands.
 // C refs: src/wield.c erodeable_wep(), will_weld(), TWOWEAPOK(), welded(),
-// empty_handed(), mwelded(), wield_tool(), can_twoweapon(), dotwoweapon(),
+// empty_handed(), mwelded(), setuwep(), wield_tool(), can_twoweapon(), dotwoweapon(),
 // uwepgone(), uswapwepgone(), and uqwepgone().
 //
 // wield.c set_twoweap() lives in js/worn.js beside setworn() and setnotworn(),
@@ -40,6 +40,8 @@ import {
 } from './const.js';
 import {
     ART_MAGICBANE,
+    ART_OGRESMASHER,
+    ART_SNICKERSNEE,
     artifact_light,
     arti_speak,
     is_art,
@@ -132,7 +134,7 @@ import { discover_object } from './o_init.js';
 import { alter_cost, inside_shop, shop_keeper } from './shk.js';
 import { shkname } from './shknam.js';
 import { arti_light_description } from './light.js';
-import { begin_burn } from './timeout.js';
+import { begin_burn, end_burn } from './timeout.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { body_part } from './polyself.js';
@@ -145,8 +147,61 @@ import {
     set_twoweap,
     setuqwep,
     setuswapwep,
-    setuwep,
+    is_pole,
+    setworn,
 } from './worn.js';
+
+// C ref: wield.c setuwep() (100-137). Slot changes and status invalidation
+// precede artifact-light shutdown; finish unweapon only after the live message.
+export async function setuwep(obj, env = {}) {
+    const state = env.state ?? game;
+    obj ??= null;
+    const olduwep = state.uwep ?? null;
+    if (obj === olduwep) return;
+    // C setworn owns its doffing/property operations for every caller,
+    // including callers that only provide the hero state.
+    const worn = setwornEnv(state);
+    const normalized = {
+        ...env, state,
+        hooks: { ...worn.hooks, ...env.hooks },
+    };
+    await setworn(obj, W_WEP, normalized);
+    if ((state.uwep ?? null) === obj
+        && (is_art(state.uwep, ART_OGRESMASHER)
+            || is_art(olduwep, ART_OGRESMASHER))) {
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+    if ((state.uwep ?? null) === obj
+        && artifact_light(olduwep) && olduwep.lamplit) {
+        end_burn(olduwep, false, objectGenerationEnv({
+            ...normalized,
+            hooks: {
+                updateInventory: () => update_inventory({ state }),
+                ...normalized.hooks,
+            },
+        }));
+        if (!heroIsBlind(state)) {
+            await (env.message ?? ttyPline)(
+                `${Tobjnam(olduwep, 'stop', state)} shining.`, state,
+            );
+        }
+    }
+    if ((state.uwep ?? null) === obj
+        && (is_art(state.uwep, ART_OGRESMASHER)
+            || is_art(olduwep, ART_OGRESMASHER))) {
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+    state.unweapon = obj
+        ? obj.oclass === WEAPON_CLASS
+            ? is_launcher(obj, state) || is_ammo(obj, state)
+                || is_missile(obj, state)
+                || (is_pole(obj, state) && !state.u.usteed
+                    && !is_art(obj, ART_SNICKERSNEE))
+            : !is_weptool(obj, state) && !is_wet_towel(obj)
+        : true;
+}
 
 // C ref: wield.c erodeable_wep() (61-64), the macro will_weld() reads. Despite
 // the name, it selects what a curse can weld to the hand rather than what
@@ -1130,7 +1185,7 @@ export async function wield_tool(obj, verb, state = game) {
 
 // C ref: wield.c uwepgone() (873-885). Clear the primary weapon slot. Called
 // when the item is eaten, stolen, burned, rotted, or force-dropped (polymorph).
-// Handles artifact-light extinguishing, clears the slot via setuwep(null), and
+// Handles artifact-light extinguishing, clears the slot via setworn(), and
 // refreshes inventory.
 export function uwepgone(env = {}) {
     const state = env.state ?? game;
@@ -1146,10 +1201,13 @@ export function uwepgone(env = {}) {
                 + '(needs end_burn + Tobjnam message)',
             );
         }
-        // setuwep(null) calls setworn(null, W_WEP) and sets unweapon = true,
-        // matching C's setworn(NULL, W_WEP) + gu.unweapon = TRUE.
-        const effects = setuwep(null, setwornEnv(state, env));
-        const finish = () => { update_inventory({ state }); };
+        // C uwepgone calls setworn directly, then updates unweapon/inventory.
+        // Preserve the accepted artifact owner's asynchronous handoff.
+        const effects = setworn(null, W_WEP, setwornEnv(state, env));
+        const finish = () => {
+            state.unweapon = true;
+            update_inventory({ state });
+        };
         return effects && typeof effects.then === 'function'
             ? Promise.resolve(effects).then(finish) : finish();
     }

@@ -126,7 +126,7 @@ import {
 } from '../js/objects.js';
 import { mksobj } from '../js/obj.js';
 import { addinv } from '../js/invent.js';
-import { setuwep } from '../js/worn.js';
+import { setuwep } from '../js/wield.js';
 import { setwornEnv } from '../js/do_wear.js';
 import { attacktype, monsndx, sticks } from '../js/mondata.js';
 import { P_ADVANCE, skillSlot } from '../js/startup_skills.js';
@@ -301,7 +301,7 @@ test('a singleton wielded potion uses the canonical unwield hooks', async () => 
     const potion = mksobj(POT_BLINDNESS, true, false, { state: game });
     potion.dknown = false;
     await addinv(potion, { state: game });
-    setuwep(potion, setwornEnv(game));
+    await setuwep(potion, setwornEnv(game));
     game.context ??= {};
     game.context.takeoff = {
         mask: W_WEP,
@@ -347,7 +347,7 @@ test('mounted lance hit consumes joust result and runs the full hurtle helper',
         await hero({ role: 'Knight' });
         const lance = mksobj(LANCE, false, false, { state: game });
         addinv(lance, { state: game });
-        setuwep(lance, setwornEnv(game));
+        await setuwep(lance, setwornEnv(game));
         game.u.usteed ??= newMonster({
             data: game.mons[PM_LITTLE_DOG],
             m_id: 500,

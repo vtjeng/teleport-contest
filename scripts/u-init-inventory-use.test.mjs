@@ -39,7 +39,6 @@ import {
     _wornInternals,
     set_twoweap,
     setnotworn,
-    setuwep,
     setworn,
 } from '../js/worn.js';
 
@@ -98,7 +97,7 @@ function removalHooks(overrides = {}) {
 test('Healer inventory is used in final inventory-chain order', async () => {
     const env = await startup('Healer');
     const spells = spellRecorder();
-    use_initial_inventory({ ...env, initialSpell: spells.initialSpell });
+    await use_initial_inventory({ ...env, initialSpell: spells.initialSpell });
 
     assert.equal(game.uwep?.otyp, O.SCALPEL);
     assert.equal(game.uwep.owornmask, W_WEP);
@@ -113,7 +112,7 @@ test('Healer inventory is used in final inventory-chain order', async () => {
 
 test('Ranger selects primary, alternate, quiver, and displacement cloak', async () => {
     const env = await startup('Ranger');
-    use_initial_inventory({ ...env, initialSpell: () => {} });
+    await use_initial_inventory({ ...env, initialSpell: () => {} });
 
     assert.equal(game.uwep?.otyp, O.DAGGER);
     assert.equal(game.uwep.owornmask, W_WEP);
@@ -130,7 +129,7 @@ test('Ranger selects primary, alternate, quiver, and displacement cloak', async 
 
 test('Wizard cloak confers and removes its worn extrinsic', async () => {
     const env = await startup('Wizard');
-    use_initial_inventory({ ...env, initialSpell: () => {} });
+    await use_initial_inventory({ ...env, initialSpell: () => {} });
 
     const cloak = game.uarmc;
     assert.equal(cloak?.otyp, O.CLOAK_OF_MAGIC_RESISTANCE);
@@ -162,7 +161,7 @@ test('known described objects and oil lamps update discovery state', async () =>
         spe: 1,
     };
     assert.equal(Boolean(game.objects[O.POT_OIL].oc_name_known), false);
-    ini_inv_use_obj(lamp, { ...env, initialSpell: () => {} });
+    await ini_inv_use_obj(lamp, { ...env, initialSpell: () => {} });
     assert.equal(Boolean(game.objects[O.OIL_LAMP].oc_name_known), true);
     assert.equal(Boolean(game.objects[O.POT_OIL].oc_name_known), true);
     assert.equal(Boolean(game.objects[O.POT_OIL].oc_encountered), true);
@@ -376,7 +375,7 @@ test('setuwep handles Ogresmasher, Sunsword, and Snickersnee source branches', a
         spe: 0,
         lamplit: false,
     };
-    setuwep(ogresmasher, {
+    await setuwep(ogresmasher, {
         ...env,
         hooks: { ...env.hooks, setArtifactIntrinsic: () => {} },
     });
@@ -391,7 +390,7 @@ test('setuwep handles Ogresmasher, Sunsword, and Snickersnee source branches', a
         spe: 0,
         lamplit: false,
     };
-    setuwep(snickersnee, {
+    await setuwep(snickersnee, {
         ...env,
         hooks: { ...env.hooks, setArtifactIntrinsic: () => {} },
     });
@@ -399,7 +398,12 @@ test('setuwep handles Ogresmasher, Sunsword, and Snickersnee source branches', a
     assert.equal(game.unweapon, false);
 
     env = await startup('Knight');
+    // Source xname discovers a visible artifact; establish the wished-artifact
+    // existence/found state before this isolated naming call.
+    game.artiexist[ART_SUNSWORD].exists = 1;
+    game.artiexist[ART_SUNSWORD].found = 1;
     const sunsword = {
+        quan: 1, // A single artifact gives the source Tobjnam singular verb.
         otyp: O.LONG_SWORD,
         oclass: O.WEAPON_CLASS,
         oartifact: ART_SUNSWORD,
@@ -419,21 +423,11 @@ test('setuwep handles Ogresmasher, Sunsword, and Snickersnee source branches', a
     const artifactHook = (obj, on) => {
         events.push(on ? 'artifact-on' : 'artifact-off');
     };
-    setuwep(sunsword, {
+    await setuwep(sunsword, {
         ...env,
         hooks: { ...env.hooks, setArtifactIntrinsic: artifactHook },
     });
     events.length = 0;
-    assert.throws(
-        () => setuwep(dagger, {
-            ...env,
-            hooks: { ...env.hooks, setArtifactIntrinsic: artifactHook },
-        }),
-        /worn requires endArtifactLight/,
-    );
-    assert.equal(game.uwep, sunsword);
-    assert.equal(sunsword.owornmask & W_WEP, W_WEP);
-
     const hooks = {
         ...env.hooks,
         ...removalHooks({
@@ -441,20 +435,25 @@ test('setuwep handles Ogresmasher, Sunsword, and Snickersnee source branches', a
             monsterUnseesProperty: () => events.push('monster'),
         }),
         setArtifactIntrinsic: artifactHook,
-        endArtifactLight: (obj) => {
+        deleteObjectLightSource: (obj) => {
             events.push('end-light');
             assert.equal(game.uwep, dagger);
             assert.equal(obj.owornmask & W_WEP, 0);
-            obj.lamplit = false;
         },
     };
-    setuwep(dagger, { ...env, hooks });
+    await setuwep(dagger, { ...env, hooks, message: text => {
+        assert.equal(text, 'The long sword stops shining.');
+        events.push('message');
+    } });
     assert.deepEqual(events, [
         'monster',
         'artifact-off',
         'cancel',
         'end-light',
+        'message',
     ]);
     assert.equal(sunsword.lamplit, false);
     assert.equal(game.uwep, dagger);
 });
+
+import { setuwep } from '../js/wield.js';

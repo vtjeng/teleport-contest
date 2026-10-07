@@ -29,9 +29,9 @@ import {
     set_twoweap,
     setuqwep,
     setuswapwep,
-    setuwep,
     setworn,
 } from './worn.js';
+import { setuwep } from './wield.js';
 
 function useEnv(env = {}) {
     return {
@@ -65,18 +65,18 @@ function initialArmor(obj, env) {
     setworn(obj, slot.mask, env);
 }
 
-function initialWeapon(obj, env) {
+async function initialWeapon(obj, env) {
     const { state } = env;
     if (is_ammo(obj, state) || is_missile(obj, state)) {
         if (!state.uquiver) setuqwep(obj, env);
     } else if (!state.uwep && (!state.uarms || !bimanual(obj, state))) {
-        setuwep(obj, env);
+        await setuwep(obj, env);
     } else if (!state.uswapwep) {
         setuswapwep(obj, env);
     }
 }
 
-export function ini_inv_use_obj(obj, env = {}) {
+export async function ini_inv_use_obj(obj, env = {}) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('ini_inv_use_obj requires an inventory object');
     const normalized = useEnv(env);
@@ -93,7 +93,7 @@ export function ini_inv_use_obj(obj, env = {}) {
     if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
         || obj.otyp === TIN_OPENER || obj.otyp === FLINT
         || obj.otyp === ROCK) {
-        initialWeapon(obj, normalized);
+        await initialWeapon(obj, normalized);
     }
 
     if (obj.oclass === SPBOOK_CLASS && obj.otyp !== SPE_BLANK_PAPER) {
@@ -107,10 +107,10 @@ export function ini_inv_use_obj(obj, env = {}) {
     return obj;
 }
 
-export function use_initial_inventory(env = {}) {
+export async function use_initial_inventory(env = {}) {
     const normalized = useEnv(env);
     for (let obj = normalized.state.invent; obj; obj = obj.nobj)
-        ini_inv_use_obj(obj, normalized);
+        await ini_inv_use_obj(obj, normalized);
     return normalized.state;
 }
 

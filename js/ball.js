@@ -64,8 +64,8 @@ import { otense, xnameFresh, yname } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { rn2, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
-import { setnotworn, setuqwep, setuswapwep, setuwep } from './worn.js';
-import { welded } from './wield.js';
+import { setnotworn, setuqwep, setuswapwep } from './worn.js';
+import { setuwep, welded } from './wield.js';
 import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
 
