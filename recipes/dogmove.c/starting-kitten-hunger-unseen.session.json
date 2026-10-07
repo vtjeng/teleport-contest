@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary starting kitten. The hero uses slow digestion/protective armor; class genocide removes common food/combat sources. Blind counted wait reaches dog_hunger weakness feedback and dog_starve unseen death via production dog_move, without leash/options menu.",
+  "segments": [
+    {
+      "seed": 13727043,
+      "datetime": "20830317121500",
+      "nethackrc": "OPTIONS=name:HungerField,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:cat,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed ring of slow digestion\n  Ppl  \u0017blessed +20 silver dragon scale mail\n  Tb     Wq     \u00179 blessed scrolls of genocide\n          rr  d\n            rr  l\n            rr  r\n            rr  k\n            rr  o\n            rr  g\n            rr  h\n            rr  F\n            rr  x\n            Po     1800.            300.  "
+    }
+  ]
+}
