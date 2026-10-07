@@ -196140,6 +196140,49 @@
           "evaluationCommit": "d85ffe22270b7f1edb5d596a0dac747b0a76c25c"
         }
       }
+    },
+    {
+      "id": "port-zap-blank-novel-v28-20261007",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port novel blanking and its cancellation and water-damage callers",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v28/v28-cancel-novel"
+      ],
+      "selectionReason": "Admitted v28-cancel-novel has one remaining screen; the current replay identifies skipped title, novel index, and recursive weight reset at step 44, independent of A140 runtime monster creation.",
+      "detail": "Port whole zap.c blank_novel lines 1367-1376 and wire cancel_item and trap.c water_damage; replace the injected partial adapter, clear novelidx and title in source order, and recompute enclosing container weight without claiming either caller whole.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "blank_novel",
+          "line": 1367,
+          "endLine": 1381,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1367,
+        "to": 1381
+      },
+      "syntheticProvenance": {
+        "synthetic/v28/v28-cancel-novel": {
+          "session": "synthetic/v28/v28-cancel-novel",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-cancel-novel",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-cancel-novel.session.json",
+          "recordingSha256": "0f36be3088ffe3943cacd01fb4605b9fa43aa9fe976f6607446758e0751dd699",
+          "evaluationPath": "challenges/evaluations/baseline-d85ffe22-v28.json",
+          "evaluationCommit": "d85ffe22270b7f1edb5d596a0dac747b0a76c25c"
+        }
+      }
     }
   ]
 }
