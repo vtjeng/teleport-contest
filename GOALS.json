@@ -190241,7 +190241,7 @@
     {
       "id": "port-rumors-doconsult-v26-20261007",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port Oracle consultation and wire the chat caller",
       "cFile": "rumors.c",
       "sessions": [
@@ -190255,15 +190255,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "491e25a1fae86e4b005b9b0047294ced3bb850e4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "doconsult",
           "line": 696,
           "endLine": 769,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -190441,7 +190444,79 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doconsult",
+            "implementation": "js/rumors.js",
+            "symbol": "doconsult",
+            "sourceReview": "Read and translated whole rumors.c:696-769 in definition order. Reset gm.multi before money_cnt; null, hostile and no-gold guards precede prompts. ynq uses canonical yn_function with ynq response set, q default and repeat recording; y_n uses numeric response byte. Preserve minor affordability, major no-ask count/flag checks, capped payment, canonical money2mon transfer, botl before first ACH_ORCL, minor/major event flags, integer XP/score divisions, Wisdom exercise and awaited newexplevel with canonical message owner. Minor output uses existing random_text.js outrumor and its getrumor/exercise/wording order. Major outoracle has a discarded void result and is skipped with note_unported('rumors.c outoracle'); no Oracle text, RNG or oracle-list mutations are fabricated. go.oracle_flg/svo.oracle_cnt remain their canonical source locations (zero before that owner initializes/mutates them). Removed the old MS_ORACLE refusal; UnsupportedChatError remains for independently unported shop, steed and quest caller paths. Read direct owner implementations money_cnt/currency, money2mon/splitobj/freeinv/add_to_minv, outrumor/getrumor, capitalizedMonsterName, record_achievement, exercise, more_experienced/newexplevel/pluslvl and yn_function/y_n. Existing return-valued dependencies suffice; no source owner completion credit is claimed outside doconsult.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:MS_ORACLE switch arm (679-725) directly returns doconsult(mtmp); JS now returns its awaited promise and ECMD status."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "dotalk",
+                "source": "sounds.c:1248-1420 dotalk -> dochat -> domonnoise; cmd.c:1692 registers #chat -> dotalk. Existing production dispatcher remains."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rumors-consultation.test.mjs",
+              "scripts/chat-command.test.mjs",
+              "scripts/random-text.test.mjs"
+            ],
+            "recordings": [
+              "recordings/rumors.c/oracle-minor-gold-split-b133.session.json",
+              "recordings/rumors.c/oracle-minor-exact-gold-b133.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-oracle-chat",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 42,
+                "source": "cmd.c #chat -> sounds.c dotalk/dochat/domonnoise MS_ORACLE -> rumors.c doconsult no-gold guard, ECMD_OK without time/payment/prompt."
+              }
+            ],
+            "checkedAt": "491e25a1fae86e4b005b9b0047294ced3bb850e4"
+          }
+        ],
+        "entryPointReview": "The sole active doconsult entry is Oracle monster chat, through #chat/dotalk/dochat/domonnoise. No other upstream caller or build-inactive entry exists. Admitted no-gold consultation and independent actual-Oracle minor split/exact-payment recordings establish production reachability and time/no-time results. Major branch arithmetic/state is source-pinned; its discarded outoracle owner remains an explicit outside-limit output/RNG gap, with a C-confirmed blocked recipe rather than a passing major recording.",
+        "entryPoints": [
+          {
+            "name": "Oracle consultation through #chat",
+            "functions": [
+              "doconsult"
+            ],
+            "recordings": [
+              "recordings/rumors.c/oracle-minor-gold-split-b133.session.json",
+              "recordings/rumors.c/oracle-minor-exact-gold-b133.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v26",
+                "caseId": "v26-oracle-chat",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 42,
+                "source": "cmd.c #chat -> sounds.c dotalk/dochat/domonnoise MS_ORACLE -> rumors.c doconsult no-gold guard, ECMD_OK without time/payment/prompt."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "491e25a1fae86e4b005b9b0047294ced3bb850e4",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-do-flooreffects-boulder-floor-v26-20261007",
