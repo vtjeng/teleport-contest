@@ -2,11 +2,15 @@
 
 // Independent C-first production routes through wield.c:setuwep. Capture each
 // raw C recording before comparison and retain only matching ones as evidence.
+// The two-segment save routes require the upstream documented gzip recorder
+// configuration via NETHACK_BINARY/NETHACK_INSTALL, so external save compression
+// succeeds. Default /usr/bin/compress absence exercises a separate files.c gap.
 import assert from 'node:assert/strict';
 import { OBJ_FLOOR } from '../js/const.js';
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { InMemoryStorage } from '../js/storage.js';
 import { AKLYS, BOOMERANG, LONG_SWORD, PICK_AXE, POT_SLEEPING, RIN_SEARCHING } from '../js/objects.js';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { runDifferential, validateCleanRecipe } from './diff-fresh.mjs';
@@ -28,6 +32,10 @@ export const SETUWEP_CASES = [
     'setuwep-ballrelease',
     'setuwep-returning-weapon-up',
     'setuwep-dig-fumble',
+    'setuwep-restore-pickaxe',
+    'setuwep-restore-long-sword',
+    'setuwep-restore-sunsword',
+    'setuwep-restore-bare-hands',
 ];
 
 function findSunsword() {
@@ -42,8 +50,28 @@ function findSunsword() {
     return search(game.invent) ?? search(game.level.objlist);
 }
 
-export async function verifySetuwepSegment(name, segment) {
-    const played = await runSegment(segment);
+export async function verifySetuwepSegment(name, segment, restore = null) {
+    const played = await runSegment(restore
+        ? { ...segment, storage: restore.storage } : segment);
+    if (restore) {
+        const primary = game.uwep;
+        if (name === 'setuwep-restore-bare-hands') {
+            assert.equal(primary, null);
+        } else {
+            assert.equal(primary.otyp, name === 'setuwep-restore-pickaxe'
+                ? PICK_AXE : LONG_SWORD);
+        }
+        if (name === 'setuwep-restore-sunsword') {
+            assert.equal(primary.oartifact, ART_SUNSWORD);
+            assert.equal(primary.lamplit, true, 'restore does not extinguish the reconstructed artifact');
+        }
+        if (restore.index === 0) {
+            assert.ok(restore.storage.getItem('vfs:nhsave'), 'production save completed');
+        }
+        assert.equal(game.unweapon, name === 'setuwep-restore-bare-hands'
+            || (restore.index > 0 && name === 'setuwep-restore-pickaxe'));
+        return;
+    }
     if (['setuwep-bare-hands', 'setuwep-replacement', 'setuwep-blind',
         'setuwep-quiver', 'setuwep-tool', 'setuwep-drop',
         'setuwep-container', 'setuwep-glibr'].includes(name)) {
@@ -97,11 +125,18 @@ export async function runSetuwepMatrix() {
             new URL(`../recipes/wield.c/${name}.recipe.session.json`, import.meta.url),
         )), name);
         let recording;
+        const restore = name.startsWith('setuwep-restore-')
+            ? { storage: new InMemoryStorage(), index: 0 } : null;
         const result = await runFreshMatrix({
             entries: [{ label: name, recipe }],
             summaryLabel: name.toUpperCase(),
-            chunkLimit: 1, // Debug termination leaves a save: isolate each recipe.
-            verifySegment: segment => verifySetuwepSegment(name, segment),
+            // Isolate debug saves between recipes, but retain both segments
+            // of an explicit save/restore witness in one recorder process.
+            chunkLimit: restore ? recipe.segments.length : 1,
+            verifySegment: async segment => {
+                await verifySetuwepSegment(name, segment, restore);
+                if (restore) restore.index++;
+            },
             runDifferentialFn: async input => {
                 const differential = await runDifferential(input, process.env, {
                     transformRecording: raw => {

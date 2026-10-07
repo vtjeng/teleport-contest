@@ -8,6 +8,7 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 
 import { A_CHAOTIC } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -74,10 +75,10 @@ test('welcomeBackMessage: gender changed from male to female', () => {
 // ── dorestore unit test ──
 
 // Verify dorestore returns false when no save file exists in storage.
-test('dorestore returns false with no save file', () => {
+test('dorestore returns false with no save file', async () => {
     const state = resetGame();
     // No storage set up, so vfsReadFile returns null.
-    const result = dorestore(state);
+    const result = await dorestore(state);
     assert.equal(result, false, 'dorestore must return false with no save');
 });
 
@@ -205,4 +206,71 @@ test('save-then-restore round trip produces welcome-back and full-moon messages'
         game.splev_align.length, 3,
         'splev_align must have exactly 3 alignment values',
     );
+});
+
+// restore.c:694-700 clears uwep before setuwep reinitializes weapon state.
+// A pick-axe is conservatively restored as an unconventional weapon even
+// when explicitly wielding it had set unweapon FALSE before the save.
+test('restore reinitializes the primary pick-axe and conservative unweapon flag', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/restore.c', import.meta.url), 'utf8');
+    assert.match(source, /otmp = uwep;[\s\S]*?uwep = 0;[\s\S]*?setuwep\(otmp\);/u);
+    assert.match(source, /!uwep \|\| uwep->otyp == PICK_AXE \|\| uwep->otyp == GRAPPLING_HOOK/u);
+    const recipe = JSON.parse(readFileSync(new URL(
+        '../recipes/wield.c/setuwep-restore-pickaxe.recipe.session.json', import.meta.url,
+    )));
+    const storage = new InMemoryStorage();
+    await runSegment({ ...recipe.segments[0], storage });
+    assert.equal(game.unweapon, false, 'explicit wield starts as an ordinary weapon');
+    assert.ok(storage.getItem('vfs:nhsave'), 'the production save command completed');
+    await runSegment({ ...recipe.segments[1], storage });
+    assert.ok(game.uwep, 'the source primary pointer is restored');
+    assert.equal(game.unweapon, true, 'restore.c forces the conservative pick-axe reminder');
+});
+
+for (const [variation, expected] of [['long-sword', false], ['bare-hands', true]]) {
+    test(`restore derives ${variation} weapon state instead of the saved flag`, async () => {
+        const recipe = JSON.parse(readFileSync(new URL(
+            `../recipes/wield.c/setuwep-restore-${variation}.recipe.session.json`, import.meta.url,
+        )));
+        const storage = new InMemoryStorage();
+        await runSegment({ ...recipe.segments[0], storage });
+        const saved = JSON.parse(storage.getItem('vfs:nhsave'));
+        // C restgamestate derives gu.unweapon from the reinitialized primary;
+        // the serialized JSON flag must not determine either source arm.
+        saved.unweapon = !expected;
+        storage.setItem('vfs:nhsave', JSON.stringify(saved));
+        await runSegment({ ...recipe.segments[1], storage });
+        assert.equal(game.unweapon, expected);
+    });
+}
+
+// C restores artifact existence/discovery against its compiled artifact table.
+// JS must rebuild that table before canonical setworn can inspect Sunsword.
+test('restore rebuilds the artifact catalog and preserves Sunsword light', async () => {
+    const recipe = JSON.parse(readFileSync(new URL(
+        '../recipes/wield.c/setuwep-restore-sunsword.recipe.session.json', import.meta.url,
+    )));
+    const storage = new InMemoryStorage();
+    await runSegment({ ...recipe.segments[0], storage });
+    const saved = JSON.parse(storage.getItem('vfs:nhsave'));
+    await runSegment({ ...recipe.segments[1], storage });
+    assert.equal(storage.getItem('vfs:nhsave'), null, 'debug restore declines retaining the save');
+    assert.ok(game.artilist[game.uwep.oartifact], 'the reconstructed primary artifact definition is available');
+    assert.deepEqual(game.artiexist, saved.artiexist);
+    assert.deepEqual(game.artidisco, saved.artidisco);
+    assert.equal(game.uwep.lamplit, true, 'reconstructed primary is not an old weapon to extinguish');
+});
+
+// unixmain.c:266-272 retains a debug save when y_n returns y.
+test('debug restore can retain the save through the production prompt', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/sys/unix/unixmain.c', import.meta.url), 'utf8');
+    assert.match(source, /if \(discover \|\| wizard\) \{[\s\S]*?y_n\("Do you want to keep the save file\?"\) == 'n'[\s\S]*?delete_savefile\(\)/u);
+    const recipe = JSON.parse(readFileSync(new URL(
+        '../recipes/wield.c/setuwep-restore-long-sword.recipe.session.json', import.meta.url,
+    )));
+    const storage = new InMemoryStorage();
+    await runSegment({ ...recipe.segments[0], storage });
+    // Replace only the answer to the source keep-save prompt.
+    await runSegment({ ...recipe.segments[1], moves: ' y ', storage });
+    assert.ok(storage.getItem('vfs:nhsave'), 'the y arm preserves the VFS save');
 });

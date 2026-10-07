@@ -31,6 +31,7 @@ import {
     W_TOOL,
     W_WEP,
 } from './const.js';
+import { init_artifacts, restore_artifacts } from './artifacts.js';
 import { fixup_level_locations } from './dungeon.js';
 import { game } from './gstate.js';
 import { l_nhcore_init } from './mklev.js';
@@ -39,7 +40,8 @@ import { restrap, restore_cham } from './mon.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL, S_MIMIC } from './monsters.js';
 import { init_oclass_probs } from './o_init.js';
-import { defineObjclassAliases } from './objects.js';
+import { defineObjclassAliases, GRAPPLING_HOOK, PICK_AXE } from './objects.js';
+import { setuwep } from './wield.js';
 import { getnow } from './calendar.js';
 import { rnd } from './rng.js';
 import { SAVE_FILE_PATH } from './save.js';
@@ -123,7 +125,7 @@ const WORN_SLOTS = Object.freeze([
 // C ref: restore.c dorecover() (789-951). Reads the saved game state from
 // VFS storage, applies it to the game object, and reconstructs computed
 // state. Returns true on success; false if no save file exists.
-export function dorestore(state = game) {
+export async function dorestore(state = game) {
     const raw = vfsReadFile(SAVE_FILE_PATH);
     if (raw == null) return false;
 
@@ -163,13 +165,13 @@ export function dorestore(state = game) {
 
     // Inventory and objects
     state.invent = snapshot.invent;
-    state.unweapon = snapshot.unweapon ?? false;
     if (snapshot.lastinvnr != null) state.lastinvnr = snapshot.lastinvnr;
     if (snapshot.head_engr != null) state.head_engr = snapshot.head_engr;
 
-    // Artifact tracking
-    if (snapshot.artidisco) state.artidisco = snapshot.artidisco;
-    if (snapshot.artiexist) state.artiexist = snapshot.artiexist;
+    // C has a static artifact catalog; JS rebuilds its per-game catalog
+    // before restore.c's artifact tracking fixups and setuwep call.
+    init_artifacts(state);
+    restore_artifacts(snapshot, state);
 
     // Object catalog: replace the static objects table with the saved one
     // that carries the per-game description shuffle and discovery bits.
@@ -312,6 +314,17 @@ export function dorestore(state = game) {
 
     // Rebuild equipment pointers from inventory owornmask bits.
     rebuildEquipmentPointers(state);
+
+    // C ref: restore.c:694-700 clears the reconstructed primary pointer so
+    // setuwep reinitializes it, then conservatively treats digging tools
+    // as unconventional weapons. This computed flag does not come from save.
+    const weapon = state.uwep;
+    state.uwep = null;
+    await setuwep(weapon, { state });
+    if (!state.uwep || state.uwep.otyp === PICK_AXE
+        || state.uwep.otyp === GRAPPLING_HOOK) {
+        state.unweapon = true;
+    }
 
     // C ref: dorecover():928 vision_full_recalc = 1.
     state.vision_full_recalc = 1;

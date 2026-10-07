@@ -54,7 +54,8 @@ test('source pins slot, burn, blind message, and unweapon order', () => {
 test('Sunsword shutdown clears slot and light before awaiting the message', async () => {
     const state = hero();
     const old = equip(state);
-    let release;
+    let release, messageEntered;
+    const entered = new Promise(resolve => { messageEntered = resolve; });
     const suspended = new Promise(resolve => { release = resolve; });
     const pending = setuwep(null, env(state, async text => {
         assert.equal(text, 'The long sword stops shining.');
@@ -63,8 +64,10 @@ test('Sunsword shutdown clears slot and light before awaiting the message', asyn
         assert.equal(old.lamplit, false);
         assert.equal(state.gl.light_base, null);
         assert.equal(state.unweapon, false); // C computes this only after pline has finished.
+        messageEntered();
         await suspended;
     }));
+    await entered;
     assert.equal(old.lamplit, false);
     assert.equal(state.unweapon, false);
     release();
@@ -152,4 +155,24 @@ test('incoming Ogresmasher status and burn inventory refresh precede the light m
     };
     await setuwep(incoming, options);
     assert.deepEqual(events, ['slot-inventory', 'burn-inventory', 'message']);
+});
+
+// B135's canonical worn owner can wait for artifact display. wield.c must
+// finish that source operation before extinguishing the former primary light.
+test('setuwep awaits artifact intrinsic removal before slot and light completion', async () => {
+    const state = hero();
+    const old = equip(state);
+    let releaseIntrinsic;
+    const options = env(state, () => {});
+    options.hooks.setArtifactIntrinsic = () => new Promise(resolve => {
+        releaseIntrinsic = resolve;
+    });
+    const changing = setuwep(null, options);
+    assert.equal(state.uwep, old, 'setworn has not finished the artifact removal');
+    assert.equal(old.lamplit, true, 'the following end_burn waits for setworn');
+    releaseIntrinsic();
+    await changing;
+    assert.equal(state.uwep, null);
+    assert.equal(old.lamplit, false);
+    assert.equal(state.unweapon, true);
 });

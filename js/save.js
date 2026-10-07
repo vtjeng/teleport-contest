@@ -48,7 +48,7 @@ import { level_info } from './dungeon.js';
 import { save_timers } from './timeout.js';
 import { initrack } from './track.js';
 import { vfsWriteFile } from './storage.js';
-import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
+import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
 import { save_waterlevel } from './mkmaze.js';
 
@@ -223,13 +223,8 @@ export async function dosave(state = game) {
             // universal game-over indicator.
             state.u.uhp = -1;
 
-            // C ref: save.c:63-64 display_nhwindow(WIN_MESSAGE, TRUE) then
-            // exit_nhwindows("Be seeing you..."). display_nhwindow with TRUE
-            // blocking on a NHW_MESSAGE window that is not TOPLINE_NEED_MORE
-            // just resets toplin to TOPLINE_EMPTY (wintty.c:1875-1879), and
-            // exit_nhwindows -> tty_suspend_nhwindows -> settty(str) calls
-            // term_end_screen() and raw_print(str). The raw_print clears the
-            // screen and writes the farewell.
+            // C ref: save.c:63: finish the message window before farewell.
+            await displayPendingTtyMessageWindow(state);
             tty_raw_print(state, 'Be seeing you...');
 
             // C calls nh_terminate(EXIT_SUCCESS) to exit the process. The JS
@@ -274,6 +269,10 @@ export function dosave0(state = game) {
     if (state.flags?.friday13) {
         change_luck(1, state);
     }
+
+    // C ref: save.c:147: retire Saving before serializing the game.
+    // This command runs after the TTY message window is initialized.
+    clearTtyMessageWindow(state);
 
     // C ref: save.c:168-169 savelev() + savegamestate(). The port serializes
     // the game state as a JSON snapshot to VFS storage. The binary format

@@ -12,6 +12,7 @@
 import { game, resetGame } from './gstate.js';
 import {
     MAX_COMMAND_COUNT,
+    yn_function,
 } from './cmd.js';
 import {
     activate_chosen_soundlib,
@@ -36,7 +37,7 @@ import {
     tty_wait_synch,
 } from './tty_rawprint.js';
 import { GameDisplay } from './game_display.js';
-import { setStorageForTesting, vfsReadFile, vfsWriteFile } from './storage.js';
+import { setStorageForTesting, vfsReadFile, vfsWriteFile, vfsDeleteFile } from './storage.js';
 import { light_globals_init } from './light.js';
 import { shk_globals_init } from './shk.js';
 import { objects_globals_init } from './objects.js';
@@ -63,6 +64,7 @@ import {
 } from './wintty.js';
 import { LL_NONE, NHW_MESSAGE, Upolyd } from './const.js';
 import { dorestore } from './restore.js';
+import { SAVE_FILE_PATH } from './save.js';
 import { welcomeBackMessage } from './role_init.js';
 import { udeadinside, ugenocided } from './polyself.js';
 import {
@@ -510,7 +512,7 @@ export class NethackGame {
         // exists, it calls restgame() -> dorecover() (restore.c:789-951)
         // which restores the game state, redraws the map, and prints
         // welcome(FALSE). moveloop(TRUE) then follows with resuming=true.
-        if (dorestore(g)) {
+        if (await dorestore(g)) {
             // Restore succeeded. The new segment's datetime and recorder
             // state override whatever the save carried, so moveloop_preamble
             // picks up the current segment's calendar.
@@ -558,6 +560,15 @@ export class NethackGame {
                 );
             else
                 await ttyPline(welcomeBackMessage(g), g);
+
+            // C ref: unixmain.c:266-272. Debug/explore restores ask whether
+            // to retain the save. VFS needs no chmod or compression operation.
+            if (g.discover || g.wizard) {
+                if (await yn_function('Do you want to keep the save file?',
+                    'yn', 'n', true, g) === 'n'.charCodeAt(0)) {
+                    vfsDeleteFile(SAVE_FILE_PATH);
+                }
+            }
 
             // C ref: allmain.c moveloop(TRUE):589. The preamble with
             // resuming=true applies new date-dependent effects (moon phase,
