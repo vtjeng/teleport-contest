@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T07:34:55.831Z",
+  "capturedAt": "2026-10-07T07:37:50.820Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -23520,6 +23520,24 @@
         "worker": "B",
         "goal": "port-eat-cprefx-whole-v25-20261007",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C128-20261007",
+        "type": "assign",
+        "at": "2026-10-07T07:36:09.419Z",
+        "task": "C128",
+        "worker": "C",
+        "goal": "fix-uhitm-brain-drain-owned-forgetting-v24-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B129-2de46c56-20261007",
+        "type": "published",
+        "at": "2026-10-07T07:37:44.410Z",
+        "task": "B129",
+        "commit": "2de46c564b50e425ec84b3a6166efc9bc89f63ef"
       }
     ]
   },
