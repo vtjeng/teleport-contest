@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91410131,
+      "datetime": "21330517101500",
+      "nethackrc": "OPTIONS=name:NovelBlank,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  .\u0017novel named mort\n\u0017uncursed potion of water\n#dip\nef \n.i "
+    }
+  ],
+  "comment": "Independent C-first cheap variation of the water-damage entry: name the novel Mort, using the verified do_name.c lookup. The source helper must remove this explicitly chosen title and reset its nonzero index as it does for the random title. Same seed/clock preserve setup; the changed object title is the behavior varied."
+}
