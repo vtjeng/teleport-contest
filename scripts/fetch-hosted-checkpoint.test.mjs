@@ -16,9 +16,14 @@ test('fetch accepts only the successful workflow for this repository and candida
     assert.deepEqual(verifyHostedRun(run, repository, commit), {
         provider: 'github', repository, id: '123', attempt: '2',
     });
+    // GitHub documents a ref suffix, although the exercised run omitted it.
+    assert.deepEqual(verifyHostedRun({ ...run,
+        path: `${run.path}@integration-checkpoint/candidate` }, repository, commit),
+    verifyHostedRun(run, repository, commit));
     for (const changed of [
         { status: 'in_progress' }, { conclusion: 'failure' }, { head_sha: 'b'.repeat(40) },
         { head_repository: { full_name: 'fork/project' } }, { path: 'another-workflow.yml' },
+        { path: `${run.path}@` }, { path: 'another-workflow.yml@main' },
         { run_attempt: 0 }, // Attempts start at one.
     ]) assert.throws(() => verifyHostedRun({ ...run, ...changed }, repository, commit), /successful candidate/u);
 });

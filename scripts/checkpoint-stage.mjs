@@ -30,8 +30,10 @@ function check(condition, message) {
     if (!condition) throw new Error(message);
 }
 
-export function trialGroups() {
-    const { tests: [tests], recordings: [recordings], ...groups } = checkpointGroups();
+export function trialGroups(registry = checkpointGroups()) {
+    for (const group of ['tests', 'recordings'])
+        check(registry[group]?.length === 1, `sharding requires exactly one ${group} command`);
+    const { tests: [tests], recordings: [recordings], ...groups } = registry;
     return { ...Object.fromEntries(Array.from({ length: TEST_SHARDS }, (_, index) => {
         const shard = `${index + 1}/${TEST_SHARDS}`;
         return [`tests-${index + 1}`, [{ ...tests, label: `test shard ${shard}`,

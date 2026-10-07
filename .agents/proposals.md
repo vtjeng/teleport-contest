@@ -14,17 +14,22 @@ list, with measured improvements sent to the main agent for integration:
 
 - Immediate worker continuation after acceptance: integrated as `37b4aff3`.
 - Prune redundant test setup and reassess obsolete workflow support:
-  `36993385` and `9f76d280` sent for integration. Historical span records and
+  integrated as `f7c00af8` and `4db3eed8`. Historical span records and
   delivery provenance remain necessary; do not delete their guards as Git tests.
-- Reuse unrelated tooling tests: experimental `6e9557d7`, not ready for
-  integration. Benchmark after pruning; the remaining goal CLI suite may
-  still determine the test phase's duration.
+- Reuse unrelated tooling tests: retire experimental `6e9557d7` without
+  integration. The hosted design runs those suites in parallel and already
+  reuses successful jobs on retry. A separate cross-commit cache adds input
+  invalidation rules; its benefit has not been measured. In the paired hosted
+  trial, the goal CLI shard took 121 seconds, versus 87 and 84 seconds for
+  the two suites the prototype caches, so caching those suites would not
+  remove that trial's longest test shard.
 - Automate routine acceptance: unfinished prototype, not committed. Keep
   source review, regression decisions, worker dispatch, and publication with
   the orchestrator; exercise deterministic closure against existing commands.
 - Reuse successful checks on retries: `c692427d` supports earlier successful
-  attempts of the same hosted run and commit. Nine focused tests pass; a real
-  hosted retry remains to be exercised before integration.
+  attempts of the same hosted run and commit. Run `37586670719` attempt 2
+  passed after rerunning the score job; its combined evidence retained ten
+  stages from attempt 1 and the score stage from attempt 2.
 - Parallel hosted checkpoint and deferred-check alternatives: trial
   `37584894987` at `6d4c0bf7` passed both serial baselines and all eleven
   parallel groups. All fixed-workload counts, recording totals and check
@@ -32,13 +37,13 @@ list, with measured improvements sent to the main agent for integration:
   Native Node sharding replaces the initial custom test partitioner.
 - Synthetic CI: `b5c0080e` groups consecutive cases in numeric batch order,
   100 per job, at most four jobs concurrently. Trial `37586240132` covers 675
-  cases across 25 admitted batches; complete hosted results remain pending.
+  cases across 25 admitted batches and passed with complete saved evaluations.
   The user's Free account has 20 concurrent jobs; serial benchmark jobs are
   opt-in rather than part of ordinary trials.
 - Flaky resource limits: `237ad770` separates regex correctness from explicit
   CPU/RSS measurements, preserving adversarial cases and hang watchdogs.
-  `4f9d5ee0` clears and relaxes the nurse event watchdog. Both were sent for
-  integration after focused validation. Retain local memory limits, replay
+  `4f9d5ee0` clears and relaxes the nurse event watchdog. Integrated as
+  `1d5439f1` and `b555195f`. Retain local memory limits, replay
   hang watchdogs and CI job timeouts; they protect execution rather than
   assert performance. The five-second corpse-worker watchdog is retained
   pending evidence that it causes failures.
@@ -80,9 +85,14 @@ local and hosted runs before changing acceptance instructions. A candidate
 branch can preserve pre-acceptance validation without publishing unaccepted
 work to main; the orchestrator remains the only acceptance and score writer.
 
-**Current boundary.** This is an investigation, not permission to skip checks.
-The loop already tracks asynchronous CI and stops further publication after
-a detected failure. The local checkpoint remains required for acceptance.
+**Current boundary.** The user approved hosted validation for the exact
+committed candidate. Run `37587607727` passed at `7f51250e`; the actual fetch
+command installed its evidence, and the existing checkpoint consumer read
+the matching commit and GitHub provenance. `.agents/validation.md` defines
+the hosted route. Keep the full gate before acceptance rather than defer
+required checks until publication; the paired trial supports parallelizing
+the gate without dropping coverage. The fetcher does not record synthetic
+scores: it prints the copy and explicit record steps for orchestrator review.
 
 ## Maintain the existing score baseline
 

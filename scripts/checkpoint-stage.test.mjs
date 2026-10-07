@@ -75,6 +75,14 @@ test('the CI test jobs request each Node test shard exactly once', () => {
     }
 });
 
+test('new commands in sharded groups require an explicit CI plan', () => {
+    for (const group of ['tests', 'recordings']) {
+        const registry = checkpointGroups();
+        registry[group].push(registry[group][0]); // A second required command must not disappear.
+        assert.throws(() => trialGroups(registry), /requires exactly one/u);
+    }
+});
+
 test('GitHub results identify their repository, workflow run, and attempt', () => {
     assert.deepEqual(runIdentity({}), { provider: 'local' });
     assert.deepEqual(runIdentity({ GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY: RUN.repository,
