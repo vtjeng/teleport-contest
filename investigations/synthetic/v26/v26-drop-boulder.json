@@ -1,0 +1,93 @@
+{
+  "session": "synthetic/v26/v26-drop-boulder",
+  "remainingScreens": 10,
+  "recordedSteps": 52,
+  "corpus": "synthetic",
+  "batch": "v26",
+  "caseId": "v26-drop-boulder",
+  "manifestPath": "challenges/manifests/v26.json",
+  "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+  "recordingSha256": "84f7cd33bc2eaf2b0f2b8c115cf5554f10b0508f066ba88bfc524631b21ed170",
+  "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+  "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+  "commit": "2bd5b9dc420eb6845d39b8fb2fe0b16327918966",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v26",
+    "caseId": "v26-drop-boulder",
+    "session": "synthetic/v26/v26-drop-boulder",
+    "manifestPath": "challenges/manifests/v26.json",
+    "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+    "recording": "challenges/cases/v26/v26-drop-boulder.session.json",
+    "recordingPath": "challenges/cases/v26/v26-drop-boulder.session.json",
+    "recordingSha256": "84f7cd33bc2eaf2b0f2b8c115cf5554f10b0508f066ba88bfc524631b21ed170",
+    "recipe": "challenges/cases/v26/v26-drop-boulder.recipe.session.json",
+    "recipeSha256": "be35c9ba96724aa2583d1dd36353426083d00adfbb0c5ab8d675ae4844033816",
+    "replayInputSha256": "22f5426dfbb266e4ace6877c3ba0645f59765cf9d5364b4bf4ee83e7ed352853",
+    "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+    "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44",
+    "evaluationArtifact": "challenges/evaluations/20261007095608-v26.json",
+    "evaluationUtc": "2026-10-07T09:56:27.654Z",
+    "remainingScreens": 10,
+    "recordedSteps": 52,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 42,
+        "total": 52
+      },
+      "rng": {
+        "matched": 2711,
+        "total": 2722
+      },
+      "cursors": {
+        "matched": 42,
+        "total": 52
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported drop: a boulder landing on the floor",
+      "step": 42
+    },
+    "step": 42,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported drop: a boulder landing on the floor",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "status": "complete",
+  "summary": "The step 42 stop is caused by js/do.js:preflight_dropx rejecting every boulder before the already implemented ordinary floor path runs. In C, a hero dropping a boulder on an ordinary ROOM square passes do.c:flooreffects without entering its pool or pit/hole branches; flooreffects returns FALSE and do.c:dropz places, stacks, and redraws the boulder. This lowercase d single-item drop does not execute the separate uppercase D doddrop command family.",
+  "source": {
+    "file": "do.c",
+    "functions": [
+      "flooreffects",
+      "dropz"
+    ],
+    "branch": "The object is a boulder detached from inventory and the hero drops it on an ordinary dry ROOM square without a trap, shop charge, swallowed state, shipping, engraving, visible region, or container impact. In flooreffects, boulder_hits_pool is false and the boulder pit/hole trap arm is false; no later floor-effect arm consumes it, so the result remains FALSE and dropz proceeds to placement.",
+    "callers": [
+      "The recording sends lowercase d. cmd.c:1709 dispatches d to do.c:dodrop(), whose getobj selection calls do.c:drop() for the chosen inventory object; do.c:drop() sets how_lost and calls dropx(). The adjacent uppercase D entry at cmd.c:1710 dispatches to doddrop() and is not reached.",
+      "do.c:dropx() (786-797) calls dropy() (800-803), which calls dropz() (807-842). dropz() calls flooreffects() before place_object(); it returns early only when flooreffects reports that the object was consumed.",
+      "The JavaScript path is js/cmd.js:runDropCommand -> js/do.js:dodrop/drop -> dropx -> dropzAdmitted -> flooreffects -> place_object/stackobj/newsym. preflight_dropx currently stops the object before freeinv and before this existing floor-effect path."
+    ],
+    "dependencies": [
+      "do.c:boulder_hits_pool() is the first boulder-specific flooreffects arm. On ordinary ROOM terrain it returns FALSE; the JavaScript equivalent already runs from js/do.js:flooreffects.",
+      "The next boulder-specific flooreffects arm checks t_at() for a pit or hole. The investigated square has no trap, and preflight_dropx already rejects trap squares; the corresponding JavaScript flooreffects branch is present.",
+      "When flooreffects returns FALSE, do.c:dropz() calls mkobj.c:place_object(), then invent.c:stackobj() and display.c:newsym(). The JavaScript dropzAdmitted path already wires place_object, stackobj, and newsym for the ordinary drop."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The exact queue entry .cache/v26-drop-boulder-queue-entry.json binds this case to v26, 10 remaining screens, 52 recorded steps, manifest challenges/manifests/v26.json (SHA-256 3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7), recording challenges/cases/v26/v26-drop-boulder.session.json (SHA-256 84f7cd33bc2eaf2b0f2b8c115cf5554f10b0508f066ba88bfc524631b21ed170), and evaluation challenges/evaluations/20261007095608-v26.json at 2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44. The evaluation reports 42/52 screens, 2711/2722 RNG calls, and 42/52 cursors; its first stop is step 42 with “unsupported drop: a boulder landing on the floor.”",
+    "The admitted recipe independently wishes a boulder, then uses lowercase d and selects inventory letter o. Its recorded step 42 says “You drop a boulder.” and has 11 RNG calls from the ordinary turn that follows. The result is not a boulder pushed into a pool or pit, thrown, or dropped into a trap.",
+    "Upstream nethack-c/upstream/src/do.c:drop() (714-781) delegates to dropx(); dropx() (786-797) delegates through dropy() to dropz() (807-842). In flooreffects() (162-358), the boulder branches are pool/lava at the start and pit/hole when t_at() finds a matching trap. For this ordinary ROOM square neither branch applies, the initialized result remains FALSE, and dropz() continues through place_object(), stackobj(), and newsym().",
+    "The refusing branch is JavaScript-specific: js/do.js:preflight_dropx() unconditionally throws for obj.otyp === BOULDER at line 1793, after separate checks for costly shop spots, traps, and liquid terrain. Removing or narrowing this guard for the ordinary-floor case lets the existing js/do.js:flooreffects and dropzAdmitted placement path follow C. This is a refusal in an otherwise implemented path, so the scoped task is a divergence-fix rather than a new command-family port.",
+    "The queued port-do-doddrop-v26-20261007 task is for the uppercase D command, mapped by cmd.c:1710 to do.c:doddrop() and scoped through menu_drop/category selection. This recording uses lowercase d, mapped by cmd.c:1709 to dodrop() and the single-object selection path. Both ultimately use the existing drop() helper, but the mismatch owner is the ordinary boulder landing in flooreffects()/dropz(); it does not require reserving or re-porting doddrop/menu_drop or changing drop() command selection. Relevant JavaScript source files do.js and cmd.js are unchanged between the v26 evaluation commit and examined commit 2bd5b9dc420eb6845d39b8fb2fe0b16327918966."
+  ]
+}

@@ -189039,6 +189039,39 @@
           "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
         }
       }
+    },
+    {
+      "id": "fix-do-flooreffects-boulder-floor-v26-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Allow an ordinary floor boulder drop through canonical floor effects",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v26/v26-drop-boulder"
+      ],
+      "selectionReason": "Next admitted v26 mismatch after Oracle chat: 10 remaining screens where lowercase d rejects an ordinary boulder before flooreffects and dropz.",
+      "detail": "The recorded dry ROOM square enters neither boulder pool nor pit/hole behavior. Remove or narrow the JavaScript preflight refusal so existing flooreffects and dropz place, stack, and redraw the boulder. Keep uppercase D doddrop work separate.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "flooreffects",
+      "session": "synthetic/v26/v26-drop-boulder",
+      "step": 42,
+      "syntheticProvenance": {
+        "synthetic/v26/v26-drop-boulder": {
+          "session": "synthetic/v26/v26-drop-boulder",
+          "corpus": "synthetic",
+          "batch": "v26",
+          "caseId": "v26-drop-boulder",
+          "manifestPath": "challenges/manifests/v26.json",
+          "manifestSha256": "3449f04dd0b543f15ebe9ac8f4af676875f49ab01f1dd5dadeb7396ea86a18c7",
+          "recordingPath": "challenges/cases/v26/v26-drop-boulder.session.json",
+          "recordingSha256": "84f7cd33bc2eaf2b0f2b8c115cf5554f10b0508f066ba88bfc524631b21ed170",
+          "evaluationPath": "challenges/evaluations/20261007095608-v26.json",
+          "evaluationCommit": "2b9e0c1d8384b8ca8ab5c19dc12a426f3ac42e44"
+        }
+      }
     }
   ]
 }
