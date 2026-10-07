@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T23:20:31.557Z",
+  "capturedAt": "2026-10-07T23:30:12.936Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25297,12 +25297,51 @@
         "worker": "A2",
         "goal": "fix-do-dropx-glob-consumption-v27-20261007",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A138-c0470801",
+        "type": "published",
+        "at": "2026-10-07T23:21:28.503Z",
+        "task": "A138",
+        "commit": "c0470801ca2b679826193b290cad046b57a2996c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B140-ad5efc84",
+        "type": "received",
+        "at": "2026-10-07T23:21:46.994Z",
+        "task": "B140",
+        "delivery": "ad5efc84fb4cb238edfb8834bdc4e8cdd8ebaeda"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B140-3ddc51cd",
+        "type": "integrating",
+        "at": "2026-10-07T23:22:06.722Z",
+        "task": "B140",
+        "integration": "3ddc51cd93533dce7a1a9c750514fc49578cc655"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B140-3ddc51cd-hosted",
+        "type": "validated",
+        "at": "2026-10-07T23:26:52.113Z",
+        "task": "B140",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B140-3ddc51cd93533dce7a1a9c750514fc49578cc655-accepted",
+        "type": "accepted",
+        "at": "2026-10-07T23:29:01.942Z",
+        "task": "B140"
       }
     ]
   },
   "development": {
-    "executionCommit": "069345a0d0092c5ba5149bb5be2ba5d2676b9093",
-    "measuredAt": "2026-10-07T23:16:18.657Z",
+    "executionCommit": "3ddc51cd93533dce7a1a9c750514fc49578cc655",
+    "measuredAt": "2026-10-07T23:26:20.085Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

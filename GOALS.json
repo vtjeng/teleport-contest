@@ -195855,7 +195855,7 @@
     {
       "id": "port-do-wear-wielding-corpse-v27-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port whole wielding_corpse and its glove-removal, yellow-dragon-removal and temporary-resistance-expiry callers",
       "cFile": "do_wear.c",
       "sessions": [
@@ -195863,17 +195863,24 @@
       ],
       "selectionReason": "Continue from accepted C135 with the independent v27 cockatrice gloves-off mismatch. The source owner is do_wear.c:wielding_corpse, with 5 of 81 screens remaining and no reservation overlap.",
       "detail": "C checks bare hands after glove cleanup and invokes wielding_corpse, producing the pending More prompt at segment 0 step 65; JS skips that source path. Preserve helper guards, exact killer naming, source message/death/recovery order and weapon cleanup. Wire glove removal, yellow-dragon armor removal, and temporary stone-resistance expiry callers. Translate trap.c:instapetrify only as bounded incomplete no-credit support; every other caller remains a named discarded-result gap. No whole Gloves_off, dragon_armor_handling, nh_timeout, instapetrify, or end credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "3ddc51cd93533dce7a1a9c750514fc49578cc655",
+      "openStanding": {
+        "sha": "3ddc51cd93533dce7a1a9c750514fc49578cc655",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "3ddc51cd93533dce7a1a9c750514fc49578cc655",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wielding_corpse",
           "line": 608,
           "endLine": 645,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -195893,6 +195900,114 @@
           "evaluationPath": "challenges/evaluations/accepted-4770d6451a496f23894b62228420ad4c8268047f-v27.json",
           "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f"
         }
+      },
+      "activeStanding": {
+        "sha": "3ddc51cd93533dce7a1a9c750514fc49578cc655",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wielding_corpse",
+            "implementation": "js/do_wear.js",
+            "symbol": "wielding_corpse",
+            "sourceReview": "Read whole C do_wear.c:608-643. Preserved object/gloves/slot guards; touch_petrifies and Stone_resistance evaluation; now wield versus are wielding; corpse_xname(CXN_ARTICLE)/body_part(HAND)/makeplural; voluntary removing versus losing; glove naming versus simpleonames with first set-of removal; resistance-timeout killer; BUFSZ-bounded killer; awaited supporting instapetrify; and the post-recovery resistance check before remove_worn_item. Supporting instapetrify3844-3855 preserves resistance, consumed poly_when_stoned/polymon(PM_STONE_GOLEM) short circuit, urgent output, killer pointer-safe assignment and done(STONING), but receives no whole completion credit because older discarded callers remain gaps. Existing polymon735-1071, poly_when_stoned80-86 and done1020-1126 have verified GOALS evidence; their JavaScript bodies and relevant return/state contracts were reviewed. The stone-golem form grants resistance before polymon's older discarded instapetrify branch, so that unrelated nested gap is not used by the supporting transformation. All string, property and slot owners are canonical. JS gameover guard preserves C really_done NORETURN before corpse cleanup. Deleted every selected wielding_corpse placeholder and awaited each corresponding direct source call.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Gloves_off",
+                "source": "do_wear.c:687/696, after taking off mask and gloves, cancelled_don reset, encumber_msg and make_glib. Captures on_purpose = !context.mon_moving && !gloves.in_use before any cleanup."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dragon_armor_handling",
+                "source": "do_wear.c:869/870, after yellow-dragon Stone_resistance clears; both primary and alternate calls await in source order, retaining Armor_off true/Armor_gone false voluntary argument."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:841/842 STONE_RES expiry, after dangerous-corpse protection and optional expiry message; both source calls await, even during planning. One-turn STONE_RES is added to existing nh_timeout_requires_live_state, which allmain.c caller adapter observes before cloning the remaining allocation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-wear-wielding-corpse.test.mjs",
+              "scripts/steal.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/take-off-armor.test.mjs",
+              "scripts/polyself.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/yellow-dragon-corpse-removal.session.json",
+              "recordings/do_wear.c/temporary-stone-resistance-corpse-expiry.session.json",
+              "recordings/do_wear.c/glove-removal-life-saving-variation.session.json",
+              "recordings/do_wear.c/iron-golem-corpse-protection-loss.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-cockatrice-gloves-off",
+                "segment": 0,
+                "fromStep": 65,
+                "throughStep": 69,
+                "source": "cmd.c T -> do_wear.c:dotakeoff/armoroff -> delayed Gloves_off -> wielding_corpse -> supporting trap.c:instapetrify -> end.c:done(STONING) wizard recovery -> steal.c:remove_worn_item."
+              }
+            ],
+            "checkedAt": "3ddc51cd93533dce7a1a9c750514fc49578cc655"
+          }
+        ],
+        "entryPointReview": "The selected helper has three direct source caller families: Gloves_off (both source slots), dragon_armor_handling yellow-dragon removal (both slots; invoked by ordinary and forced armor callbacks), and nh_timeout temporary STONE_RES expiry (both slots). Ordinary two-weapon admission prohibits corpse weapons, so active-alternate corpse is a hypothetical guard state covered by a source-pinned test, not an excluded compiled branch. Admitted glove removal and independent life-saving/golem variations establish the glove family; independent yellow-dragon and temporary-resistance recordings establish the other families. The optional scroll forced-glove setup is blocked earlier in the already incomplete erode_obj inventory-hook owner, whose broader command is not selected here; its blocked recipe is retained without new erosion or Gloves_off credit. All older instapetrify callers remain explicitly outside completion credit. No startup or Lua entry belongs to this range.",
+        "entryPoints": [
+          {
+            "name": "glove protection loss through T and delayed Gloves_off",
+            "functions": [
+              "wielding_corpse"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/glove-removal-life-saving-variation.session.json",
+              "recordings/do_wear.c/iron-golem-corpse-protection-loss.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-cockatrice-gloves-off",
+                "segment": 0,
+                "fromStep": 65,
+                "throughStep": 69,
+                "source": "cmd.c T -> do_wear.c:dotakeoff/armoroff -> delayed Gloves_off -> wielding_corpse -> supporting trap.c:instapetrify -> end.c:done(STONING) wizard recovery -> steal.c:remove_worn_item."
+              }
+            ]
+          },
+          {
+            "name": "yellow-dragon armor protection loss",
+            "functions": [
+              "wielding_corpse"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/yellow-dragon-corpse-removal.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "temporary Stone_resistance expiry through production elapsed-turn timeout",
+            "functions": [
+              "wielding_corpse"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/temporary-stone-resistance-corpse-expiry.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3ddc51cd93533dce7a1a9c750514fc49578cc655",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
