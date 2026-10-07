@@ -5,7 +5,7 @@
 // background_enlightenment(), basics_enlightenment(),
 // characteristics_enlightenment(), one_characteristic(),
 // status_enlightenment(), weapon_insight(), attributes_enlightenment(),
-// doattributes(), align_str(), size_str(), piousness(), mstatusline(), and
+// youhiding(), doattributes(), align_str(), size_str(), piousness(), mstatusline(), and
 // ustatusline().
 // The same source file also owns the complete vanquished-monster family:
 // vanqsort_cmp(), set_vanq_order(), dovanquished(), and list_vanquished().
@@ -14,14 +14,14 @@
 // BASICENLIGHTENMENT | MAGICENLIGHTENMENT under playmode:explore and
 // playmode:debug, and `final` is ENL_GAMEINPROGRESS. The ordinary dead
 // disclosure caller also uses BASICENLIGHTENMENT | MAGICENLIGHTENMENT with
-// ENL_GAMEOVERDEAD. `enlightenment()` refuses other final modes and
-// polymorphed heroes. `mode` is unchecked, because its two bits pick the same
-// sections here that they pick at insight.c:405-423. The next caller
-// to arrive gets no refusal from that: the potion of enlightenment
+// ENL_GAMEOVERDEAD. `enlightenment()` refuses other final modes. `mode` is
+// unchecked, because its two bits pick the same sections as insight.c:405-423.
+// The MAGIC-only hallucination-potion route has recorded hidden-state evidence.
+// Other callers choose the same sections: the potion of enlightenment
 // (potion.c:710), the wand and spell (zap.c do_enlightenment_effect()), a
 // quaffed fountain's self-knowledge (fountain.c:290) and an invoked artifact
-// (artifact.c:2163) all pass MAGICENLIGHTENMENT alone, a mode no differential
-// has covered, so each owns validating its own call. The `final` parameter is
+// (artifact.c:2163) all pass MAGICENLIGHTENMENT alone; each owns validating
+// its own call. The `final` parameter is
 // still threaded through the sections, so the signatures and call shapes match
 // the C; the remaining final modes are not validated. A site that collapses C's
 // three-way choice on `final` says so in a comment, so end-of-game disclosure
@@ -154,6 +154,11 @@ import {
     LL_WISH,
     LOW_PM,
     M_AP_NOTHING,
+    M_AP_OBJECT,
+    M_AP_FURNITURE,
+    M_AP_MONSTER,
+    TT_PIT,
+    SPIKED_PIT,
     M_AP_TYPE,
     MALE,
     MAGICAL_BREATHING,
@@ -245,7 +250,7 @@ import { timet_delta } from './allmain.js';
 import { acurr, from_what, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { enc_stat, rank_of, rank_to_xlev } from './display.js';
-import { depth, dunlev, endgamelevelname, surface } from './dungeon.js';
+import { depth, dunlev, endgamelevelname, surface, ceiling } from './dungeon.js';
 import { hu_stat, temp_resist } from './eat.js';
 import { game } from './gstate.js';
 import { newuexp } from './exper.js';
@@ -258,7 +263,7 @@ import {
 import { carrying, currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
 import {
-    an, ansimpleoname, simpleonames, suit_simple_name, the,
+    an, ansimpleoname, simple_typename, simpleonames, suit_simple_name, the,
 } from './objnam.js';
 import { oc_to_str } from './options.js';
 import {
@@ -282,6 +287,7 @@ import {
     amphibious,
     breathless,
     hates_silver,
+    hides_under,
     is_clinger,
     is_flyer,
     is_swimmer,
@@ -335,7 +341,7 @@ import { spellid } from './spell.js';
 import { is_ammo, isMetallic, is_wet_towel, objectType } from './obj.js';
 import { body_part, mbodypart, udeadinside, ugenocided } from './polyself.js';
 import { visible_region_at } from './region.js';
-import { mhidden_description } from './pager.js';
+import { mhidden_description, waterbody_name } from './pager.js';
 import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
@@ -370,6 +376,7 @@ import { RIGHT_HANDED } from './u_init.js';
 import {
     t_at,
     trapname,
+    Flying,
 } from './trap.js';
 import { digests } from './dothrow.js';
 import { dxdy_to_dist_descr } from './getpos.js';
@@ -894,11 +901,6 @@ function one_characteristic(mode, final, attrindx, state, lines) {
     // this slot leaves the macro FALSE and C prints the values normally, and
     // even the extrinsic hides nothing unless do_wear.c stuck_ring() names
     // something keeping a ring of sustain ability on.
-    //
-    // enlightenment() below refuses a polymorphed hero before any of this
-    // runs, so the first arm cannot execute yet; it is written out for the
-    // same reason the past-tense `final` arms are, which this file's header
-    // gives. The Fixed_abil arm is live.
     if (Upolyd(state.u)) {
         hide_innate_value = true;
     } else if (state.u.uprops?.[FIXED_ABIL]?.extrinsic) {
@@ -930,10 +932,8 @@ function one_characteristic(mode, final, attrindx, state, lines) {
         return; /* impossible */
     }
     /* note: final disclosure includes MAGICENLIGHTENTMENT */
-    // Neither term can decide anything yet: enlightenment() admits
-    // BASICENLIGHTENMENT alone, so the mask is 0, and it refuses a polymorphed
-    // hero. Both are written as insight.c:892 has them so the magic sections
-    // and polyself find the statement already correct.
+    // insight.c:892 shows innate values for magic enlightenment only when
+    // the hero is in the original form; polymorphed values stay hidden.
     if ((mode & MAGICENLIGHTENMENT) && !Upolyd(state.u))
         hide_innate_value = false;
 
@@ -1248,7 +1248,7 @@ function status_enlightenment(mode, final, state, lines) {
     }
     if (Upolyd(u) && (u.uundetected
         || M_AP_TYPE(state.youmonst) !== M_AP_NOTHING))
-        note_unported('insight.c youhiding');
+        youhiding(true, final, state, lines);
 
     if (H(STONED)) {
         if (final && (H(STONED) & I_SPECIAL))
@@ -1954,6 +1954,47 @@ export async function attributes_enlightenment(final, state, lines) {
             mortalitySuffix, '');
 }
 
+// C ref: insight.c youhiding() (2022-2077). Enlightenment collects its
+// line synchronously; dohide awaits the ordinary live message's promise.
+export function youhiding(via_enlghtmt, msgflag, state = game, lines = [], env = {}) {
+    const u = state.u;
+    const appearance = M_AP_TYPE(state.youmonst);
+    let description = 'hiding';
+    if (appearance !== M_AP_NOTHING) {
+        description = 'mimicking';
+        if (appearance === M_AP_OBJECT)
+            description += ' ' + an(simple_typename(state.youmonst.mappearance, state));
+        else if (appearance === M_AP_FURNITURE)
+            description += ' something';
+        else if (appearance === M_AP_MONSTER)
+            description += ' someone';
+    } else if (u.uundetected) {
+        const species = state.youmonst.data;
+        if (species.mlet === S_EEL) {
+            if (is_pool(u.ux, u.uy, state))
+                description += ' in the ' + waterbody_name(u.ux, u.uy, state, env);
+        } else if (hides_under(species)) {
+            const obj = state.level.objects[u.ux][u.uy];
+            if (obj)
+                description += ' underneath ' + ansimpleoname(obj, state);
+        } else if (is_clinger(species) || Flying(state)) {
+            description += ' on the ' + ceiling(u.ux, u.uy, state);
+        } else if (u.utrap && u.utraptype === TT_PIT) {
+            const trap = t_at(u.ux, u.uy, state);
+            description += ' in a ' + (trap && trap.ttyp === SPIKED_PIT ? 'spiked ' : '') + 'pit';
+        } else {
+            description += ' on the ' + surface(u.ux, u.uy, state);
+        }
+    }
+    if (via_enlghtmt) {
+        you_are(lines, msgflag, description, '');
+        return;
+    }
+    return (env.message ?? ttyPline)(
+        'You are ' + (msgflag ? 'already' : 'now') + ' ' + description + '.', state, env,
+    );
+}
+
 // C ref: insight.c enlightenment(). Builds the whole window's lines. C
 // creates the menu window first and destroys it last; this port opens no
 // window until the list is complete, so an unported branch leaves the screen
@@ -1961,8 +2002,6 @@ export async function attributes_enlightenment(final, state, lines) {
 export async function enlightenment(mode, final, state = game) {
     if (final !== ENL_GAMEINPROGRESS && final !== ENL_GAMEOVERDEAD)
         throw new UnsupportedEnlightenmentError('end-of-game disclosure');
-    if (Upolyd(state.u))
-        throw new UnsupportedEnlightenmentError('a polymorphed hero');
 
     const lines = [];
     const tmpbuf = highc(state.plname[0]) + state.plname.slice(1);

@@ -176,6 +176,7 @@ import { useup, update_inventory } from './invent.js';
 import { dropx, canletgo } from './do.js';
 import { getlin } from './windows.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
+import { youhiding } from './insight.js';
 import { livelog_printf } from './pline.js';
 import {
     deltrap, maketrap, reset_utrap, set_utrap, t_at, unconscious } from './trap.js';
@@ -2638,8 +2639,8 @@ export async function dogaze(state = game) {
 // C ref: polyself.c dohide() (1777-1874). "called by domonability() for
 // #monster": the poly'd hider or mimic hides, unless held, trapped, out of
 // water as an eel, without an object to hide under, or on a plane with
-// nothing above or below. trap.c instapetrify() and insight.c youhiding()
-// are unported and C discards their results, so those calls record gaps.
+// nothing above or below. The discarded trap.c instapetrify() call remains
+// an explicit gap; both hiding messages await insight.c youhiding().
 export async function dohide(state = game) {
     const u = state.u;
     const ismimic = state.youmonst.data.mlet === M.S_MIMIC;
@@ -2733,8 +2734,7 @@ export async function dohide(state = game) {
 
     if (u.uundetected
         || (ismimic && M_AP_TYPE(state.youmonst) !== M_AP_NOTHING)) {
-        // youhiding(FALSE, 1); "you are already hiding"
-        note_unported('insight.c youhiding');
+        await youhiding(false, 1, state);
         return ECMD_OK;
     }
 
@@ -2746,8 +2746,7 @@ export async function dohide(state = game) {
         u.uundetected = 1;
     }
     newsym(u.ux, u.uy);
-    // youhiding(FALSE, 0); "you are now hiding"
-    note_unported('insight.c youhiding');
+    await youhiding(false, 0, state);
     return ECMD_TIME;
 }
 
