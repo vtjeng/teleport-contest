@@ -195637,7 +195637,7 @@
     {
       "id": "port-light-obj-merge-light-sources-v27-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port whole candle light-source merging and wire inventory/drop and lit-candelabrum callers",
       "cFile": "light.c",
       "sessions": [
@@ -195645,17 +195645,24 @@
       ],
       "selectionReason": "Continue the current v27 lit-candle merge mismatch after C135 releases do.c:dropx. The source owner is whole light.c:obj_merge_light_sources with pure candle_light_range and bounded inventory, drop, and candelabrum callers; the accepted checkpoint has 6 remaining screens.",
       "detail": "Port source-ordered candle burn-duration, age, quantity, timer, and light-source merging. Wire invent.c:merged, apply.c:use_candle, and do.c:dropx caller seams. Reuse canonical end_burn, obj_stop_timers and existing timeout ownership unless runtime evidence proves an environment seam is required. No whole merged, stackobj, dropx, use_candle, generic timer, or globby completion credit.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "069345a0d0092c5ba5149bb5be2ba5d2676b9093",
+      "openStanding": {
+        "sha": "069345a0d0092c5ba5149bb5be2ba5d2676b9093",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "069345a0d0092c5ba5149bb5be2ba5d2676b9093",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "obj_merge_light_sources",
           "line": 808,
           "endLine": 825,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -195669,7 +195676,7 @@
           "endLine": 880,
           "declared": true,
           "sourceFile": "light.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -195685,6 +195692,164 @@
           "evaluationPath": "challenges/evaluations/accepted-4770d6451a496f23894b62228420ad4c8268047f-v27.json",
           "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f"
         }
+      },
+      "activeStanding": {
+        "sha": "069345a0d0092c5ba5149bb5be2ba5d2676b9093",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "obj_merge_light_sources",
+            "implementation": "js/light.js",
+            "symbol": "obj_merge_light_sources",
+            "sourceReview": "Read the whole light.c:808–822 definition, invent.c:merged814–948 and stackobj4366–4375, apply.c:use_candle1387–1468 and canonical timeout end_burn/cleanup_burn/obj_stop_timers. Preserved distinct-source end_burn before list traversal, same-object timer retention, first LS_OBJECT pointer match, candle range calculation, unconditional vision_full_recalc and break. No RNG or direct output is added. Removed the injected mergeLightSources placeholder, redundant JS lamplit mutation, use_candle note_unported marker, and only the compatible lit-candle drop refusal. Bounded merged caller now uses canonical obj_stop_timers after the post-light obj.timed test. Other object deletion/worn/glob/drop ownership is unchanged. No whole merged, stackobj, dropx, use_candle or timeout credit.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "beginMerged",
+                "source": "invent.c:merged852 calls obj_merge_light_sources(obj,otmp) after quantity/weight update and extraction, before testing obj.timed. addinv, pickup/mergedRuntime, doorganize and stackobj share this bounded canonical owner; fresh inventory adjustment/pickup/floor recordings exercise the live callers."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_candle",
+                "source": "apply.c:use_candle1460 calls obj_merge_light_sources(otmp,otmp) when the candelabrum is lit, after accepted attachment/feedback and before useupall, weight and update_inventory. doapply candle dispatch reaches this caller; independent fourth/seventh attachment witnesses match."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/light-vision.test.mjs",
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [
+              "recordings/light.c/merge-wax-on-floor.session.json",
+              "recordings/light.c/merge-tallow-on-floor.session.json",
+              "recordings/light.c/merge-wax-by-pickup.session.json",
+              "recordings/light.c/merge-wax-by-adjustment.session.json",
+              "recordings/light.c/attach-fourth-candelabrum-candle.session.json",
+              "recordings/light.c/attach-seventh-candelabrum-candle.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-merge-lit-candles",
+                "segment": 0,
+                "fromStep": 58,
+                "throughStep": 64,
+                "source": "d command -> do.c:dropx/dropz -> invent.c:stackobj/merged852 -> light.c:obj_merge_light_sources818 -> candle_light_range; timeout.c:end_burn stops only the extracted older stack, then ordinary turn/vision processing continues"
+              }
+            ],
+            "checkedAt": "069345a0d0092c5ba5149bb5be2ba5d2676b9093"
+          },
+          {
+            "name": "candle_light_range",
+            "implementation": "js/light.js",
+            "symbol": "candle_light_range",
+            "sourceReview": "Read the whole light.c:843–877 definition. Confirmed purity: no RNG, output, state writes or impure callees. Preserved exact <4/<7 candelabrum bands without JS count validation, candle square loop with MAX_RADIUS short-circuit bound and initial radius1, and radius3 fallback. Source-pinned tests cover empty/out-of-band counts, square thresholds and maximum; obsolete quantity/type refusal guards removed. Existing light.c:obj_split_light_source794–795 remains an unported discarded-void path in mkobj.c:splitobj, explicitly noted in js/obj.js; it adds no fabricated helper result.",
+            "callers": [
+              {
+                "path": "js/light.js",
+                "symbol": "obj_merge_light_sources",
+                "source": "light.c:818 assigns the consumed candle_light_range(dest) result to the surviving object light."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "begin_burn",
+                "source": "timeout.c:begin_burn1759 consumes candle_light_range(obj) for candle/candelabrum source creation. Existing canonical owner is reused and independent lighting recipes exercise it."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/light-vision.test.mjs"
+            ],
+            "recordings": [
+              "recordings/light.c/merge-wax-on-floor.session.json",
+              "recordings/light.c/merge-tallow-on-floor.session.json",
+              "recordings/light.c/merge-wax-by-pickup.session.json",
+              "recordings/light.c/merge-wax-by-adjustment.session.json",
+              "recordings/light.c/attach-fourth-candelabrum-candle.session.json",
+              "recordings/light.c/attach-seventh-candelabrum-candle.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-merge-lit-candles",
+                "segment": 0,
+                "fromStep": 58,
+                "throughStep": 64,
+                "source": "d command -> do.c:dropx/dropz -> invent.c:stackobj/merged852 -> light.c:obj_merge_light_sources818 -> candle_light_range; timeout.c:end_burn stops only the extracted older stack, then ordinary turn/vision processing continues"
+              }
+            ],
+            "checkedAt": "069345a0d0092c5ba5149bb5be2ba5d2676b9093"
+          }
+        ],
+        "entryPointReview": "Helper-only source range with two active direct call sites: invent.c:merged and apply.c:use_candle. Enumerated floor drop/stackobj, carried pickup/addinv and inventory #adjust merged callers, plus lit candelabrum attachment. Independent C evidence reaches each of these command routes; admitted drop range matches through the end. Timeout begin_burn is the required pure helper caller and is exercised by all recordings. Neither helper is excluded by build configuration. The unported obj_split_light_source path is reached only through mkobj.c:splitobj; its source-discarded gaps are preserved and a counted lit-stack drop is retained as a blocked outside-scope recipe. Whole use_candle/merged/dropx and unrelated timed/globby ownership are excluded from completion credit.",
+        "entryPoints": [
+          {
+            "name": "drop lit candles onto compatible lit floor stack",
+            "functions": [
+              "obj_merge_light_sources",
+              "candle_light_range"
+            ],
+            "recordings": [
+              "recordings/light.c/merge-wax-on-floor.session.json",
+              "recordings/light.c/merge-tallow-on-floor.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v27",
+                "caseId": "v27-merge-lit-candles",
+                "segment": 0,
+                "fromStep": 58,
+                "throughStep": 64,
+                "source": "d command -> do.c:dropx/dropz -> invent.c:stackobj/merged852 -> light.c:obj_merge_light_sources818 -> candle_light_range; timeout.c:end_burn stops only the extracted older stack, then ordinary turn/vision processing continues"
+              }
+            ]
+          },
+          {
+            "name": "pick up lit candles into compatible carried lit stack",
+            "functions": [
+              "obj_merge_light_sources",
+              "candle_light_range"
+            ],
+            "recordings": [
+              "recordings/light.c/merge-wax-by-pickup.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "adjust compatible carried lit candles into one inventory stack",
+            "functions": [
+              "obj_merge_light_sources",
+              "candle_light_range"
+            ],
+            "recordings": [
+              "recordings/light.c/merge-wax-by-adjustment.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "attach candles to a lit candelabrum",
+            "functions": [
+              "obj_merge_light_sources",
+              "candle_light_range"
+            ],
+            "recordings": [
+              "recordings/light.c/attach-fourth-candelabrum-candle.session.json",
+              "recordings/light.c/attach-seventh-candelabrum-candle.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "069345a0d0092c5ba5149bb5be2ba5d2676b9093",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -195778,6 +195943,37 @@
         "sha": "147617858bcb5f025d4110eedea0746a3fda2ac5",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "fix-do-dropx-glob-consumption-v27-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Repair glob drop consumption through dropx and flooreffects",
+      "cFile": "do.c",
+      "sessions": [],
+      "selectionReason": "The next unmatched v27 case stops at do.c dropx's globby-floor branch; source shows flooreffects consumes the incoming free glob through obj_meld and returns before placement.",
+      "detail": "Preserve do.c flooreffects lines 302-315: test the original incoming pointer after obj_meld mutates it, keep the floor neighbor as survivor, and retain generic timed/light merge boundaries.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dropx",
+      "session": "synthetic/v27/v27-drop-glob",
+      "step": 35,
+      "syntheticProvenance": {
+        "synthetic/v27/v27-drop-glob": {
+          "session": "synthetic/v27/v27-drop-glob",
+          "corpus": "synthetic",
+          "batch": "v27",
+          "caseId": "v27-drop-glob",
+          "manifestPath": "challenges/manifests/v27.json",
+          "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+          "recordingPath": "challenges/cases/v27/v27-drop-glob.session.json",
+          "recordingSha256": "703db60d24f69952868510c8dea90bc11324ea3d53a61897ba77766e5f471021",
+          "evaluationPath": "challenges/evaluations/accepted-069345a0d0092c5ba5149bb5be2ba5d2676b9093-v27.json",
+          "evaluationCommit": "069345a0d0092c5ba5149bb5be2ba5d2676b9093"
+        }
       }
     }
   ]

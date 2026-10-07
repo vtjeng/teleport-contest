@@ -1,0 +1,246 @@
+{
+  "session": "synthetic/v27/v27-drop-glob",
+  "corpus": "synthetic",
+  "batch": "v27",
+  "caseId": "v27-drop-glob",
+  "remainingScreens": 5,
+  "recordedSteps": 40,
+  "manifestPath": "challenges/manifests/v27.json",
+  "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+  "recordingPath": "challenges/cases/v27/v27-drop-glob.session.json",
+  "recordingSha256": "703db60d24f69952868510c8dea90bc11324ea3d53a61897ba77766e5f471021",
+  "recipe": "challenges/cases/v27/v27-drop-glob.recipe.session.json",
+  "recipeSha256": "a6f7f07fa38a35f044e80561500850264ecd2dc5c0aa6b13511e6768dec1324d",
+  "evaluationPath": "challenges/evaluations/accepted-4770d6451a496f23894b62228420ad4c8268047f-v27.json",
+  "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f",
+  "evaluationArtifact": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4770d6451a496f23894b62228420ad4c8268047f/run-hosted-kJ8H2K/synthetic/ci-v27.json",
+  "firstMismatchStep": 35,
+  "firstMismatchSegment": 0,
+  "mismatchKind": "refusal",
+  "diagnostic": {
+    "comparison": {
+      "passed": false,
+      "error": null,
+      "lengths": {
+        "rng": {
+          "c": 2631,
+          "js": 2622
+        },
+        "screens": {
+          "c": 40,
+          "js": 35
+        },
+        "cursors": {
+          "c": 40,
+          "js": 35
+        },
+        "animFrames": {
+          "c": 0,
+          "js": 0
+        }
+      },
+      "rngMismatch": {
+        "index": 2622,
+        "cEntry": "rn2(2)=1",
+        "cCaller": "obj_nexto_xy(mkobj.c:3680)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 35,
+          "key": "m"
+        }
+      },
+      "screenMismatch": {
+        "index": 35,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 35,
+          "key": "m"
+        },
+        "kind": "js-missing"
+      },
+      "cursorMismatch": {
+        "index": 35,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 35,
+          "key": "m"
+        },
+        "cCursor": [
+          36,
+          5,
+          1
+        ]
+      },
+      "animMismatch": null,
+      "segmentMismatch": null
+    },
+    "boundary": {
+      "name": "UnsupportedHeroCommandBoundaryError",
+      "message": "unsupported hero command: an unported branch of this command: unsupported drop: a globby object",
+      "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: unsupported drop: a globby object\n    at failClosedCommand (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:3022:19)\n    at async rhack (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:5917:25)\n    at async moveloop_core (file:///tmp/teleport-loop-worker-c-20260925/js/allmain.js:1786:9)\n    at async runSegment (file:///tmp/teleport-loop-worker-c-20260925/js/jsmain.js:779:13)\n    at async file:///tmp/teleport-loop-worker-c-20260925/.cache/C136-selected-diagnostic.mjs:6:32"
+    },
+    "hero": {
+      "ux": 37,
+      "uy": 4
+    },
+    "engraving": {
+      "nxt_engr": null,
+      "engr_x": 49,
+      "engr_y": 3,
+      "engr_txt": [
+        "d a ra?ium",
+        "ad aerarium",
+        "ad aerarium"
+      ],
+      "engr_time": 0,
+      "engr_type": 1,
+      "engr_szeach": 12,
+      "engr_alloc": 36,
+      "guardobjects": false,
+      "nowipeout": false,
+      "eread": false,
+      "erevealed": false
+    },
+    "unported": []
+  },
+  "commit": "4770d6451a496f23894b62228420ad4c8268047f",
+  "status": "complete",
+  "mismatch": {
+    "session": "synthetic/v27/v27-drop-glob",
+    "corpus": "synthetic",
+    "batch": "v27",
+    "caseId": "v27-drop-glob",
+    "remainingScreens": 5,
+    "recordedSteps": 40,
+    "manifestPath": "challenges/manifests/v27.json",
+    "manifestSha256": "24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277",
+    "recordingPath": "challenges/cases/v27/v27-drop-glob.session.json",
+    "recordingSha256": "703db60d24f69952868510c8dea90bc11324ea3d53a61897ba77766e5f471021",
+    "recipe": "challenges/cases/v27/v27-drop-glob.recipe.session.json",
+    "recipeSha256": "a6f7f07fa38a35f044e80561500850264ecd2dc5c0aa6b13511e6768dec1324d",
+    "evaluationPath": "challenges/evaluations/accepted-4770d6451a496f23894b62228420ad4c8268047f-v27.json",
+    "evaluationCommit": "4770d6451a496f23894b62228420ad4c8268047f",
+    "evaluationArtifact": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4770d6451a496f23894b62228420ad4c8268047f/run-hosted-kJ8H2K/synthetic/ci-v27.json",
+    "firstMismatchStep": 35,
+    "firstMismatchSegment": 0,
+    "mismatchKind": "refusal",
+    "diagnostic": {
+      "comparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2631,
+            "js": 2622
+          },
+          "screens": {
+            "c": 40,
+            "js": 35
+          },
+          "cursors": {
+            "c": 40,
+            "js": 35
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": {
+          "index": 2622,
+          "cEntry": "rn2(2)=1",
+          "cCaller": "obj_nexto_xy(mkobj.c:3680)",
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 35,
+            "key": "m"
+          }
+        },
+        "screenMismatch": {
+          "index": 35,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 35,
+            "key": "m"
+          },
+          "kind": "js-missing"
+        },
+        "cursorMismatch": {
+          "index": 35,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 35,
+            "key": "m"
+          },
+          "cCursor": [
+            36,
+            5,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null
+      },
+      "boundary": {
+        "name": "UnsupportedHeroCommandBoundaryError",
+        "message": "unsupported hero command: an unported branch of this command: unsupported drop: a globby object",
+        "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: unsupported drop: a globby object\n    at failClosedCommand (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:3022:19)\n    at async rhack (file:///tmp/teleport-loop-worker-c-20260925/js/cmd.js:5917:25)\n    at async moveloop_core (file:///tmp/teleport-loop-worker-c-20260925/js/allmain.js:1786:9)\n    at async runSegment (file:///tmp/teleport-loop-worker-c-20260925/js/jsmain.js:779:13)\n    at async file:///tmp/teleport-loop-worker-c-20260925/.cache/C136-selected-diagnostic.mjs:6:32"
+      },
+      "hero": {
+        "ux": 37,
+        "uy": 4
+      },
+      "engraving": {
+        "nxt_engr": null,
+        "engr_x": 49,
+        "engr_y": 3,
+        "engr_txt": [
+          "d a ra?ium",
+          "ad aerarium",
+          "ad aerarium"
+        ],
+        "engr_time": 0,
+        "engr_type": 1,
+        "engr_szeach": 12,
+        "engr_alloc": 36,
+        "guardobjects": false,
+        "nowipeout": false,
+        "eread": false,
+        "erevealed": false
+      },
+      "unported": []
+    }
+  },
+  "goalKind": "divergence-fix",
+  "summary": "Ordinary dry-floor glob drops are stopped by a source-absent preflight exclusion. Admit the existing globby floor branch and preserve the original free-glob pointer consumed by obj_meld, including same-square/adjacent coalescence and stop-before-placement behavior.",
+  "source": {
+    "file": "do.c",
+    "branch": "Grounded hero drops a glob onto admitted dry terrain. With no compatible floor neighbor it survives; with a same-square/adjacent compatible glob the existing floor glob absorbs the free dropped object and the caller pointer becomes null.",
+    "functions": [
+      "dropx",
+      "flooreffects"
+    ],
+    "callers": [
+      "do.c:drop -> dropx -> dropy/dropz -> flooreffects globby branch",
+      "cmd.c:rhack d -> do.c:dodrop/drop -> dropx",
+      "mon.c:mkcorpstat separately consumes obj_meld return and must remain unchanged"
+    ],
+    "dependencies": [
+      "Existing mkobj.c:obj_nexto_xy, obj_meld, obj_absorb and pudding_merge_message owners",
+      "Existing invent.c:mergable and canonical timeout/extraction/deallocation owners; preserve generic merged/light/timer ownership outside this scope"
+    ]
+  },
+  "evidence": [
+    "Accepted checkpoint 4770d6451a496f23894b62228420ad4c8268047f, /home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/4770d6451a496f23894b62228420ad4c8268047f/run-hosted-kJ8H2K/synthetic/ci-v27.json: 35/40 screens/cursors and2622/2631 RNG; five remaining screens. Diagnostic .cache/C136-selected-diagnostic.json and log reproduce the source-absent globby refusal at segment0 step35 key m.",
+    "do.c:786–843 source dropx/dropz does not exclude globby objects and runs flooreffects before placement. do.c:302–315 searches obj_nexto_xy and calls pudding_merge_message then explicitly discards obj_meld return, relying on its struct obj ** nulling of globbyobj. Returns !globbyobj so dropz stops when original drop was absorbed.",
+    "js/do.js preflight_dropx refuses globby before freeinv. The existing globby loop assigns survivor=obj_meld(...) and follows the retained floor object after absorption instead of stopping on the original-pointer nulling contract. That can add RNG searches and cause later placement of the deleted original.",
+    "mkobj.c:3768–3814 floor second object wins against a free first object unconditionally before weight/tie comparisons. flooreffects requires its incoming object be OBJ_FREE and obj_nexto_xy returns an OBJ_FLOOR neighbor, so a valid match consumes the original dropped object. Preserve this caller mutation without changing mon.c:727, which intentionally assigns obj_meld return.",
+    "mkobj.c:3661–3695 obj_nexto_xy local search consumes no RNG when it finds a compatible object; unsuccessful local search with recurs draws rn2(2) twice before randomized adjacent traversal. The existing js/obj.js owner implements these calls.",
+    "mkobj.c:3695–3748 obj_absorb combines flags, weighted relative ages and weights/oeaten, quantity1, SHRINK_GLOB stop/average/start, extraction/deallocation. Existing JS owners implement these operations; globby_bill_fixup remains a named discarded-void gap. Read dealloc_obj OBJ_DELETED/OBJ_LUAFREE marking and canonical timer owners. No whole obj family credit is established by this divergence fix.",
+    "The preflight floor-pile guard also refuses a mergable timed/globby member. Compatible globby floor coalescence runs and consumes the incoming object before stackobj, so it needs a narrow allowance distinct from generic invent.c:merged, lit member merging and timer/light ownership. Retain those generic refusals.",
+    "Whole flooreffects remains incomplete outside this repair: boulder-pit blind messages/deletion/reset, teeter-pit blind/ownership feedback and retained specialized caller admissions. Keep functions:[] and incompleteFunctions for both named do.c units, with existing pit/merge blocked recipes. This is correction of the existing ordinary floor path and its source pointer contract, not a whole flooreffects port.",
+    "Proposed C-first variations: single glob with no neighbor, compatible glob already on same square, compatible adjacent glob with unequal weights, and incompatible glob class. Pin original consumption, retained floor ownership/weight/timer, exact RNG branch order, awaited coalescence message and absence of duplicate placement. Add source-pinned tests to existing drop/flooreffects/object substrate suites.",
+    "A candle merge owner may update invent.c:merged/light/timer wiring; this repair can stay entirely in do.js, reusing those owners read-only. B140 gloves/petrification reservations are distinct. C135 accepted and released dropx reservation; dependencies none beyond accepted4770 base.",
+    "Manifest identity uses the admitted v27 corpus digest 24286ed91036ef464e438f9a16ae1f37e090de05fed53addc964f86919706277, as retained by the accepted evaluation. Raw file digest e5f5c4dcc5261d48ced9ddf0ff76f670dc37cdb92d6dfac01cc46a0384432e87 includes provenance fields and is not the corpusDigest selection key."
+  ]
+}
