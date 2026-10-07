@@ -7412,3 +7412,24 @@ test('explicit NO_MINVENT runtime coordinates follow C placement without invento
         assert.deepEqual(outside.calls, []);
     }
 });
+
+test('explicit runtime creation accepts kick-terrain anger and gender flags', async () => {
+    // dokick.c:1180 uses MM_ANGRY|MM_NOMSG for bees; :1230 adds one gender
+    // bit for a sink demon. The admission applies to ordinary species too.
+    assert.match(DOKICK_C_SOURCE, /MM_ANGRY\|MM_NOMSG/u);
+    assert.match(DOKICK_C_SOURCE, /MM_MALE : MM_FEMALE/u);
+    for (const flags of [MM_NOMSG | MM_ANGRY, MM_NOMSG | MM_MALE,
+        MM_NOMSG | MM_FEMALE]) {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        const random = recordingRandom();
+        const monster = await makemon_runtime(state.mons[PM_NEWT], MON_X,
+            MON_Y, flags, { state, random: random.random,
+                hooks: { newsym() {} } });
+        assert.ok(monster);
+        assert.deepEqual([monster.mx, monster.my], [MON_X, MON_Y]);
+        if (flags & MM_ANGRY) assert.equal(monster.mpeaceful, false);
+        if (flags & MM_MALE) assert.equal(monster.female, false);
+        if (flags & MM_FEMALE) assert.equal(monster.female, true);
+    }
+});

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dokick.c:kick_nondoor fountain variation. A newly chosen male Wizard wishes fountain, steps north and kicks south. C terrain, draw order and pending message inputs define the witness; no challenge recipe is copied.",
+  "segments": [
+    {
+      "seed": 12510732,
+      "datetime": "20951007144500",
+      "nethackrc": "OPTIONS=name:TerrainKick,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "\u0017fountain\nk\u0004j   "
+    }
+  ]
+}
