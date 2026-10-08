@@ -218289,7 +218289,7 @@
     {
       "id": "fix-do-dropx-inert-trap-admission-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit ordinary drops over inert traps.",
       "cFile": "do.c",
       "sessions": [
@@ -218303,8 +218303,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "02094146bef512055a829bb70fc3927ad70b441f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dropx",
       "session": "synthetic/v32/v32-altar-buc-drop",
       "step": 35,
@@ -218493,7 +218496,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "02094146bef512055a829bb70fc3927ad70b441f",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
