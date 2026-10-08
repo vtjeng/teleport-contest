@@ -21,6 +21,7 @@ import {
     CONTAINED_TOO,
     DEAF,
     DETECT_MONSTERS,
+    DIED,
     DISPLACED,
     FIG_TRANSFORM,
     FIRE_RES,
@@ -34,6 +35,7 @@ import {
     FAINTING,
     G_GONE,
     G_GENOD,
+    GENOCIDED,
     HATCH_EGG,
     HALLUC,
     HALLUC_RES,
@@ -59,6 +61,7 @@ import {
     NUM_TIMER_KINDS,
     NO_KILLER_PREFIX,
     LS_OBJECT,
+    LS_MONSTER,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_FLOOR,
@@ -68,6 +71,8 @@ import {
     RANGE_LEVEL,
     PASSES_WALLS,
     POISON_RES,
+    POISONING,
+    PLNMSG_OK_DONT_DIE,
     PROT_FROM_SHAPE_CHANGERS,
     REVIVE_MON,
     ROT_AGE,
@@ -83,6 +88,7 @@ import {
     SUPPRESS_SADDLE,
     something,
     STONED,
+    STONING,
     STONE_RES,
     STRANGLED,
     STUNNED,
@@ -94,6 +100,7 @@ import {
     TIMER_MONSTER,
     TIMER_OBJECT,
     TROLL_REVIVE_CHANCE,
+    TURNED_SLIME,
     UNCHANGING,
     Upolyd,
     VOMITING,
@@ -122,7 +129,7 @@ import { hurtle } from './dothrow.js';
 import { setwornEnv, toggle_displacement, wielding_corpse } from './do_wear.js';
 import {
     Popeye, eating_dangerous_corpse, morehungry, vomit, } from './eat.js';
-import { dealloc_killer, find_delayed_killer } from './end.js';
+import { dealloc_killer, done, find_delayed_killer } from './end.js';
 import { rot_corpse, unportedRotCorpseReason } from './dig.js';
 import { heal_legs } from './do.js';
 import { makeplural } from './fruit.js';
@@ -146,11 +153,11 @@ import { an, donameFresh, the, vtense, xname, Yname2 } from './objnam.js';
 import {
     candle_light_range, arti_light_radius, del_light_source, get_obj_location, new_light_source, } from './light.js';
 import {
-    big_to_little, breathless, cantvomit, is_flyer, is_rider, is_silent,
+    big_to_little, breathless, cantvomit, emits_light, is_flyer, is_rider, is_silent,
     is_were, locomotion, name_to_mon, mhe, nolimbs, touch_petrifies,
     type_is_pname, little_to_big,
 } from './mondata.js';
-import { body_part, rehumanize } from './polyself.js';
+import { body_part, polymon, rehumanize } from './polyself.js';
 import { hideunder, maybe_unhide_at, restartcham, wake_nearby, zombie_form } from './mon.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { Shk_Your } from './shk.js';
@@ -1132,7 +1139,7 @@ const chokeTexts2 = Object.freeze([
     'You suffocate.',
 ]);
 
-async function choke_dialogue(state, env = {}) {
+export async function choke_dialogue(state, env = {}) {
     const random = env.random ?? { rn2 };
     const message = env.message ?? ttyPline;
     const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
@@ -1314,6 +1321,45 @@ export async function stoned_dialogue(state = game, env = {}) {
     await exercise(A_DEX, false, state, random, { encumberMessage });
 }
 
+// C ref: timeout.c slimed_to_death() (457-519).
+export async function slimed_to_death(killer, state = game, env = {}) {
+    if (Upolyd(state.u) && state.youmonst.data === state.mons[PM_GREEN_SLIME]) {
+        dealloc_killer(killer, state);
+        return;
+    }
+    state.killer ??= {};
+    if (killer?.name) {
+        state.killer.format = killer.format;
+        state.killer.name = killer.name;
+    } else {
+        state.killer.format = NO_KILLER_PREFIX;
+        state.killer.name = 'turned into green slime';
+    }
+    dealloc_killer(killer, state);
+
+    if (emits_light(state.youmonst.data))
+        del_light_source(LS_MONSTER, state.youmonst, state);
+    const vital = state.svm.mvitals[PM_GREEN_SLIME];
+    const saveMvflags = vital.mvflags;
+    vital.mvflags = saveMvflags & ~G_GENOD;
+    await polymon(PM_GREEN_SLIME, state, env);
+    if (state.program_state?.gameover) return;
+    vital.mvflags = saveMvflags;
+    await done_timeout(TURNED_SLIME, SLIMED, state, env);
+    // C done() does not return after final death. The JS end owner signals
+    // that boundary with gameover, so only a life-saved hero continues here.
+    if (state.program_state?.gameover) return;
+    if (vital.mvflags & G_GENOD) {
+        state.killer.format = KILLED_BY;
+        state.killer.name = 'slimicide';
+        const text = state.iflags.last_msg === PLNMSG_OK_DONT_DIE
+            ? 'Yes, you do.  Green slime has been genocided...'
+            : 'Unfortunately, green slime has been genocided...';
+        await (env.urgentMessage ?? ttyUrgentPline)(text, state);
+        await done(GENOCIDED, state, env);
+    }
+}
+
 // C ref: timeout.c phaze_texts[] and phaze_dialogue() (528-543).
 const phazeTexts = Object.freeze([
     'You start to feel bloated.',
@@ -1357,6 +1403,19 @@ export async function region_dialogue(state = game, env = {}) {
             ?? (env.planning ? async () => {} : ttyPline);
         await message(regionTexts[regionTexts.length - i], state);
     }
+}
+
+// C ref: timeout.c done_timeout() (575-585). Keep the same property object
+// across the awaited death owner, just as C retains intrinsic_p. Its special
+// bit remains visible through final disclosure and is cleared only on return
+// from life saving; the JS end owner marks a final death with gameover.
+export async function done_timeout(how, which, state = game, env = {}) {
+    const property = state.u.uprops[which];
+    property.intrinsic |= I_SPECIAL;
+    await done(how, state, env);
+    if (state.program_state?.gameover) return;
+    property.intrinsic &= ~I_SPECIAL;
+    state.disp.botl = true;
 }
 
 // youprop.h: source-only properties do not consult their blocked field.
@@ -1408,7 +1467,7 @@ export function nh_timeout_requires_live_state(state = game) {
         && (ACCESSIBLE(state.level.at(u.ux, u.uy).typ)
             || is_pool_or_lava(u.ux, u.uy, state))) return true;
     for (const index of [
-        STONED, SICK, BLINDED, INVIS, SEE_INVIS, HALLUC, LEVITATION,
+        STONED, SICK, SLIMED, BLINDED, INVIS, SEE_INVIS, HALLUC, LEVITATION,
         FLYING, DETECT_MONSTERS, DISPLACED, GLIB,
         PROT_FROM_SHAPE_CHANGERS, STONE_RES,
     ]) {
@@ -1441,10 +1500,10 @@ async function decrement_property_timeouts(state, env) {
                 state.killer.name = 'killed by petrification';
             }
             dealloc_killer(killer, state);
-            if (!env.planning) note_unported('timeout.c done_timeout');
+            if (!env.planning) await done_timeout(STONING, STONED, state, env);
             break;
         case SLIMED:
-            if (!env.planning) note_unported('timeout.c slimed_to_death');
+            if (!env.planning) await slimed_to_death(killer, state, env);
             break;
         case VOMITING:
             await make_vomiting(0, true, state, env);
@@ -1484,7 +1543,8 @@ async function decrement_property_timeouts(state, env) {
                     }
                 }
             }
-            if (!env.planning) note_unported('timeout.c done_timeout');
+            if (!env.planning) await done_timeout(POISONING, SICK, state, env);
+            if (state.program_state?.gameover) return;
             u.usick_type = 0;
             break;
         case FAST:
@@ -1637,7 +1697,8 @@ async function decrement_property_timeouts(state, env) {
             state.killer ??= {};
             state.killer.format = KILLED_BY;
             state.killer.name = u.uburied ? 'suffocation' : 'strangulation';
-            if (!env.planning) note_unported('timeout.c done_timeout');
+            if (!env.planning) await done_timeout(DIED, STRANGLED, state, env);
+            if (state.program_state?.gameover) return;
             if (state.uamul?.otyp === AMULET_OF_STRANGULATION) {
                 await message('Your amulet vanishes!', state);
                 await useup(state.uamul, { ...env, state });

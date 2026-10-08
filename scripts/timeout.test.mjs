@@ -117,6 +117,7 @@ import {
 } from '../js/objects.js';
 import {
     UnsupportedTimerCleanupError,
+    choke_dialogue,
     attach_egg_hatch_timeout,
     attach_fig_transform_timeout,
     learn_egg_type,
@@ -2816,7 +2817,11 @@ test('timeout.c choke_dialogue preserves both countdown tables and draw order',
             const messages = [];
             const displayDraws = [];
 
-            await nh_timeout(state, {
+            // This minimal dialogue fixture has no end.c runtime state.
+            // Isolate its final warning; fatal dispatch is covered by the
+            // independent timeout.c recordings and timeout-fatal tests.
+            const operation = countdown === 1 ? choke_dialogue : nh_timeout;
+            await operation(state, {
                 random: random.random,
                 displayRandom(bound) {
                     displayDraws.push(bound);
@@ -2833,8 +2838,9 @@ test('timeout.c choke_dialogue preserves both countdown tables and draw order',
                 `${branch}, timeout ${countdown}`);
             assert.equal(state.multi, stopped ? 0 : 2,
                 `${branch}, timeout ${countdown}`);
-            assert.equal(state.u.uprops[STRANGLED].intrinsic, countdown - 1,
-                'timeout.c decrements Strangled after choke_dialogue');
+            assert.equal(state.u.uprops[STRANGLED].intrinsic,
+                countdown === 1 ? 1 : countdown - 1,
+                'choke_dialogue preserves its clock; nh_timeout decrements after the warning');
             assert.deepEqual(displayDraws, [],
                 'the preferred blue hcolor does not draw for a non-hallucinating hero');
             assert.deepEqual(random.calls, rng.map(([bound, value]) => [bound, value]));

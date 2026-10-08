@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent timeout.c:slimed_to_death temporarily ungenocided form and post-reprieve genocide branch. Seed 1542122 and setup selected before C recording. Wish inventory selection verified in a setup-only port replay; fatal path will be checked against C.",
+  "segments": [
+    {
+      "seed": 1542122,
+      "datetime": "20421108122100",
+      "nethackrc": "OPTIONS=name:FatalBranch,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\nOPTIONS=playmode:debug\n",
+      "moves": " .\u0017uncursed scroll of genocide\nrn  green slime\n   #wizintrinsic\n1c\n .            n   n ."
+    }
+  ]
+}
