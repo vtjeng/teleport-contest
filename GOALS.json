@@ -215914,6 +215914,69 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-terrain-internals-v31-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Show wizard internal terrain codes and their encoding legend",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-terrain-code-legend",
+        "synthetic/v31/v31-terrain-internal-codes"
+      ],
+      "selectionReason": "B165 tinning seed is exact. Independent admitted v31 terrain legend and internal-code cases retain 19 screens each. The paired wizcmds.c functions share cmd.c doterrain choices 5 and 6 and the canonical terrain code table; other active wizard scopes are excluded.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_map_levltyp",
+          "line": 693,
+          "endLine": 840,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "wiz_levltyp_legend",
+          "line": 841,
+          "endLine": 884,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 693,
+        "to": 884
+      },
+      "syntheticProvenance": {
+        "synthetic/v31/v31-terrain-code-legend": {
+          "session": "synthetic/v31/v31-terrain-code-legend",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-terrain-code-legend",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-terrain-code-legend.session.json",
+          "recordingSha256": "e3edeca8d923c25afb328e55f845d8439456b6202b6372d0a40c9ef3f40a8058",
+          "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+          "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6"
+        },
+        "synthetic/v31/v31-terrain-internal-codes": {
+          "session": "synthetic/v31/v31-terrain-internal-codes",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-terrain-internal-codes",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-terrain-internal-codes.session.json",
+          "recordingSha256": "055f57915b6d53278a59f174448030604bfcbae264f5688d08591ebfb60bc31c",
+          "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+          "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6"
+        }
+      }
     }
   ]
 }
