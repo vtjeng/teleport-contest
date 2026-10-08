@@ -238,27 +238,41 @@ test('cutworm discards a split tail when no worm slot remains', async () => {
 });
 
 
-test('wormhitu walks nearby tail nodes in order, skips the head and returns death', async () => {
+test('wormhitu attacks every nearby visible tail and excludes distant tail and head', async () => {
     // worm.c:359 uses squared distance < 3 and skips the dummy head node.
     // A cardinal and diagonal tail qualify; distance two cardinal does not.
     const state = wormState();
     state.u = { ux: 10, uy: 8 };
-    const worm = { wormno: 1, mx: 13, my: 8 };
+    const worm = { wormno: 1, mx: 11, my: 8 };
     state.level.worms[1] = { segments: [
         { x: 12, y: 8 }, { x: 9, y: 8 }, { x: 9, y: 7 },
-        { x: 10, y: 8 }, // Dummy head is excluded even at the hero square.
+        { x: 11, y: 8 }, // Dummy head is excluded even when adjacent.
     ] };
     const calls = [];
     const result = await wormhitu(worm, { state,
         attackHero: async (subject) => {
             calls.push([subject.mx, subject.my]);
-            // C leaves the real head unchanged and stops at the first death.
-            return calls.length === 2;
+            return 0; // Every qualifying tail must be visited without a death.
         },
     });
-    assert.equal(result, 1);
-    assert.deepEqual(calls, [[13, 8], [13, 8]]);
-    assert.equal(await wormhitu(worm, { state,
-        attackHero: async () => 0,
-    }), 0);
+    assert.equal(result, 0);
+    assert.equal(calls.length, 2, 'only cardinal and diagonal visible tails qualify');
+    assert.deepEqual(calls, [[11, 8], [11, 8]], 'C leaves the real head unchanged');
+});
+
+test('wormhitu propagates attacker death and stops before another nearby tail', async () => {
+    const state = wormState();
+    state.u = { ux: 10, uy: 8 };
+    const worm = { wormno: 1, mx: 12, my: 9 };
+    state.level.worms[1] = { segments: [
+        // Three visible tails qualify; the second attack kills the worm.
+        { x: 9, y: 8 }, { x: 9, y: 7 }, { x: 10, y: 7 },
+        { x: 12, y: 9 }, // Dummy node shares the real head's position.
+    ] };
+    let calls = 0;
+    const result = await wormhitu(worm, { state,
+        attackHero: async () => ++calls === 2,
+    });
+    assert.equal(result, 1, 'C propagates the first true mattacku result');
+    assert.equal(calls, 2, 'the third qualifying tail is not attacked after death');
 });

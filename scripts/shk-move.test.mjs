@@ -113,17 +113,25 @@ test('shk_move completes adjacent angry combat before returning zero', async () 
     const state = makeShopState({ ux: 4, uy: 5 });
     state.level.rooms[0].resident = shkp;
     const order = [];
+    let finishAttack;
+    const attackPending = new Promise(resolve => { finishAttack = resolve; });
     const result = shk_move(shkp, state, {
         attackHero: async (subject, env) => {
             assert.equal(subject, shkp);
             assert.equal(env.state, state);
-            await Promise.resolve();
+            await attackPending;
             order.push('attack completed');
             return 1; // C discards the monster-death result at this call site.
         },
     });
+    let settled = false;
+    result.then(() => { settled = true; });
     assert.deepEqual(order, []);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(settled, false, 'shk_move waits while mattacku is pending');
+    finishAttack();
     assert.equal(await result, 0);
+    assert.equal(settled, true);
     assert.deepEqual(order, ['attack completed']);
 });
 
