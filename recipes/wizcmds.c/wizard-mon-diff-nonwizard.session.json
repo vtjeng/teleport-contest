@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first monster difficulty command. Roles/seeds/clocks fixed before any recording or JavaScript comparison. Ordinary-play wizard command admission boundary.",
+  "segments": [
+    {
+      "seed": 16840063,
+      "datetime": "20571114140000",
+      "nethackrc": "OPTIONS=name:Difficulty16840063,role:Monk,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  .#wizmondiff\n   "
+    }
+  ]
+}
