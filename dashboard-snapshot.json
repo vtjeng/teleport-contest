@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T03:10:04.919Z",
+  "capturedAt": "2026-10-08T03:23:04.874Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -26033,12 +26033,53 @@
         "at": "2026-10-08T03:09:48.312Z",
         "task": "B144",
         "delivery": "d9cc94578bbfd8ef1bfcbb06299d1407e4c3b936"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A143-3d80d8d7",
+        "type": "published",
+        "at": "2026-10-08T03:11:34.042Z",
+        "task": "A143",
+        "commit": "3d80d8d7a264d1102792e270796f1bfec8463332"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A144-070d7706",
+        "type": "assign",
+        "at": "2026-10-08T03:14:05.225Z",
+        "task": "A144",
+        "worker": "A2",
+        "goal": "fix-do-dropx-throne-floor-v28-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B144-12ef8612",
+        "type": "integrating",
+        "at": "2026-10-08T03:15:42.931Z",
+        "task": "B144",
+        "integration": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B144-12ef8612de6f2bb2114e3735f82559f4ddb22cd4-validated",
+        "type": "validated",
+        "at": "2026-10-08T03:21:27.382Z",
+        "task": "B144",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B144-12ef8612de6f2bb2114e3735f82559f4ddb22cd4-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T03:22:57.784Z",
+        "task": "B144"
       }
     ]
   },
   "development": {
-    "executionCommit": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
-    "measuredAt": "2026-10-08T03:06:38.582Z",
+    "executionCommit": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4",
+    "measuredAt": "2026-10-08T03:19:49.600Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

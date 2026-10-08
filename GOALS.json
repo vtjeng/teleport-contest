@@ -198259,7 +198259,7 @@
     {
       "id": "port-rumors-outoracle-v28-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port major Oracle consultation selection and text output",
       "cFile": "rumors.c",
       "sessions": [
@@ -198273,15 +198273,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "outoracle",
           "line": 640,
           "endLine": 695,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -198293,9 +198296,9 @@
           "name": "init_oracles",
           "line": 577,
           "endLine": 597,
-          "declared": false,
+          "declared": true,
           "sourceFile": "rumors.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -198659,7 +198662,88 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "init_oracles",
+            "implementation": "js/rumors.js",
+            "symbol": "init_oracles",
+            "sourceReview": "Read whole rumors.c577-595 (generated endLine597 includes a following separator). Preserve two BUFSZ-bounded reads for comment/count, sscanf decimal width5 and positive-count admission, canonical svo.oracle_cnt assignment, allocation and ordered hexadecimal-width5 offset reads. The cursor is a local generated-byte-file handle and offsets remain only in svo.oracle_loc. C calls this helper only once per successfully opened initial outoracle; outoracle owns the flag transition. Generated makedefs data exactly matches the existing C recorder file:6217 bytes, SHA25618e87ce1f921617678027a34d52b3228e2d63312f4d37ca9bd8756add7b41891, count21 including the special record and20 normal records. No random, message or file-I/O stand-in is introduced. This helper is impure because it mutates the canonical saved Oracle state.",
+            "callers": [
+              {
+                "path": "js/rumors.js",
+                "symbol": "outoracle",
+                "source": "rumors.c656: init_oracles precedes oracle_flg=1 and the count-zero return."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rumors.test.mjs",
+              "scripts/random-text.test.mjs"
+            ],
+            "recordings": [
+              "recordings/rumors.c/oracle-major-wizard.session.json",
+              "recordings/rumors.c/oracle-cheapskate-barbarian.session.json"
+            ],
+            "sourceFile": "rumors.c",
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-oracle-major-consultation",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 56,
+                "source": "sounds.c:domonnoise MS_ORACLE -> rumors.c:doconsult755 -> outoracle640-694; first paid output initializes the list, selects rnd(20), waits for dismissal, then exercises Wisdom and grants XP."
+              }
+            ],
+            "checkedAt": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4"
+          },
+          {
+            "name": "outoracle",
+            "implementation": "js/rumors.js",
+            "symbol": "outoracle",
+            "sourceReview": "Read whole rumors.c640-694 (context640-695 includes following whitespace). Preserve prior failed-open/exhaustion guard, open success/failure, first initialization and count-zero close, normal count<=1 guard, special index0/no RNG versus rnd(count-1), selected-offset seek, swap-last and pre-decrement before the window, Delphi normal/special versus generic header, blank row, COLNO80 fgets with79-byte payload, exact --- newline sentinel, newline stripping before per-chunk xcrypt, awaited blocking NHW_TEXT display, destruction/map repair and close. Generated immutable encrypted byte data replaces runtime dlb filesystem access; local cursor lifetime replaces open/seek/close without game code I/O. Reuse pure hacklib.c xcrypt (existing source-pinned tests), canonical RNG rnd, and existing displayTtyTextWindow NHW_TEXT owner for pending-message, More, Escape, dismissal and map repair. The discarded void couldnt_open_file diagnostic remains note_unported on a missing data file; still set oracle_flg=-1 and refuse retries in source order. Ordinary valid games always use the shipped generated file. Every direct outoracle C caller is doconsult755; replace the sole note_unported placeholder with await before major_oracle, Wisdom exercise and XP. No whole doconsult, random-text, window-port, save/restore or shutdown source credit.",
+            "callers": [
+              {
+                "path": "js/rumors.js",
+                "symbol": "doconsult",
+                "source": "rumors.c755: await outoracle(cheapskate,TRUE) after capped payment, money transfer and achievement, before major_oracle, Wisdom exercise and XP. Active route: #chat -> dotalk/dochat -> sounds.c domonnoise MS_ORACLE -> doconsult."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/rumors.test.mjs",
+              "scripts/rumors-consultation.test.mjs",
+              "scripts/random-text.test.mjs"
+            ],
+            "recordings": [
+              "recordings/rumors.c/oracle-major-wizard.session.json",
+              "recordings/rumors.c/oracle-cheapskate-barbarian.session.json"
+            ],
+            "sourceFile": "rumors.c",
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-oracle-major-consultation",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 56,
+                "source": "sounds.c:domonnoise MS_ORACLE -> rumors.c:doconsult755 -> outoracle640-694; first paid output initializes the list, selects rnd(20), waits for dismissal, then exercises Wisdom and grants XP."
+              }
+            ],
+            "checkedAt": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4"
+          }
+        ],
+        "entryPointReview": "The selected source units are helpers. Their only active upstream command family is Oracle monster consultation through #chat; both full-payment normal selection and insufficient-major-payment special output have completely matching independent C recordings. The admitted v28 range48-56 also matches every earlier screen/cursor/RNG through the paid selection and subsequent turn. There is no active upstream outoracle caller with delphi=FALSE; its generic header is source-pinned without inventing a production entry. init_oracles is reached by the first paid/special outoracle in both independent recordings. save_oracles/restore_oracles field wiring is bounded supporting work, outside completion credit; two C-confirmed cross-segment variations expose broader save-window/restore dependencies and are retained solely as blocked recipes. No build-active caller is labelled inactive because of those blockers.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-wizcmds-wiz-flip-level-v28-20261008",
