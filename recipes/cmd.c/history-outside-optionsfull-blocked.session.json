@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside B171 bounded history caller scope: typed optionsfull reaches the separately parked cmd.c:doextcmd doset dispatcher gap, not a history owner; retain as representative whole-doextcmd limit. C-only correction: a short name keeps the welcome line below the TTY wrap boundary, so command keys do not merely acknowledge the startup More.",
+  "segments": [
+    {
+      "seed": 17132013,
+      "datetime": "20520919122434",
+      "nethackrc": "OPTIONS=name:Clio,role:Barbarian,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".#optionsfull\n\u001b."
+    }
+  ]
+}
