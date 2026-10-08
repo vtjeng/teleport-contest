@@ -214,6 +214,7 @@ import {
     make_hallucinated,
     make_sick,
     make_slimed,
+    make_stoned,
     make_stunned,
     set_itimeout,
 } from './potion.js';
@@ -1262,7 +1263,7 @@ export async function fix_worst_trouble(trouble, state = game) {
 
     switch (trouble) {
     case TROUBLE_STONED:
-        note_unported('potion.c make_stoned');
+        await make_stoned(0, 'You feel more limber.', 0, null, state);
         break;
     case TROUBLE_SLIMED:
         await make_slimed(0, 'The slime disappears.', state);
