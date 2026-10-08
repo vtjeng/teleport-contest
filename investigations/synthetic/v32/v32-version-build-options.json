@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v32/v32-version-build-options",
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-version-build-options",
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingSha256": "9a692d07a9cd53af3a0b96db8be4914d865c0b1c8f2996fbe99d8f0e9795619d",
+  "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+  "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+  "remainingScreens": 1,
+  "recordedSteps": 33,
+  "status": "complete",
+  "commit": "ed14bf3a221034aecb9a99c7773e9f2343528485",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-version-build-options",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-version-build-options.session.json",
+    "recordingSha256": "9a692d07a9cd53af3a0b96db8be4914d865c0b1c8f2996fbe99d8f0e9795619d",
+    "recipeSha256": "0dc3b3365105a2f328d4b8d19c8e614a1be820e53fc8cf0e6e1d2297034f7a65",
+    "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+    "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+    "evaluationUtc": "2026-10-08T21:20:26.992Z",
+    "session": "synthetic/v32/v32-version-build-options",
+    "remainingScreens": 1,
+    "recordedSteps": 33,
+    "metrics": {
+      "screens": {
+        "matched": 32,
+        "total": 33
+      },
+      "rng": {
+        "matched": 4251,
+        "total": 4251
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 33
+      }
+    },
+    "step": 10,
+    "kind": "divergence",
+    "sourceFile": "version.c",
+    "function": "getversionstring",
+    "line": 37,
+    "message": "C Unix NetHack Version versus JS MacOS NetHack Version; compiled DEV_RANDOM differs in the same page.",
+    "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+    "replayCommit": "ed14bf3a221034aecb9a99c7773e9f2343528485"
+  },
+  "goalKind": "divergence-fix",
+  "summary": "The version window differs only in compile-host strings: admitted C uses Unix and /dev/urandom; the canonical port uses the historical Darwin judge MacOS and /dev/random configuration. Both strings originate in C compile-time configuration, not hero state. Existing version fresh tests explicitly normalize these same two differences. A general fix requires a canonical build-configuration decision; changing the literals would regress existing Darwin version evidence.",
+  "source": {
+    "file": "version.c",
+    "functions": [
+      "getversionstring",
+      "doextversion"
+    ],
+    "branch": "Typed #version reaches doextversion with OPTIONS_AT_RUNTIME; getversionstring copies nomakedefs.version_id, and runtime build_opts includes DEV_RANDOM. The Linux and Darwin builds choose different PORT_ID and DEV_RANDOM before recording.",
+    "callers": [
+      "cmd.c:extcmdlist version -> doextversion; existing js/cmd.js:doextcmd5224-5229 awaits doextversion with the canonical TTY renderer and RNG. The admitted step10 newline opens the page without refusal.",
+      "pager.c:help version entry invokes doextversion; scripts/run-help-version-information.mjs verifies help and direct #version paths. version.c:doversion also calls doextversion in debug/explore mode."
+    ],
+    "dependencies": [
+      "date.c:populate_nomakedefs116 builds version_id via mdlib.c:version_id_string316 onward; include/global.h184-226 selects PORT_ID MacOS for MACOS, else Unix for UNIX. version.c:getversionstring37 copies that state rather than deriving it from seed/options/time.",
+      "mdlib.c:build_opts511-513 uses DEV_RANDOM in strong PRNG seed description; include/unixconf.h419-429 selects /dev/urandom for LINUX, /dev/random for BSD or MACOS. Existing js/mdlib.js25 selects canonical judge /dev/random.",
+      "nethack-c/patches/001-deterministic-runtime.patch pins build date May2 2026 12:00:00, but leaves these host macros intact. js/version.js17 intentionally pins MacOS judge text. Version5 input has seed/date/options/moves but no target compile-host configuration field.",
+      "Canonical configuration/evaluation contract is unresolved: a single seed-independent literal cannot satisfy raw Linux and Darwin recordings simultaneously. No source-only owner is independently eligible until the coordinator chooses how cross-host comparison should be represented. Do not infer host from session identity, recipe clock, seed or expected screen."
+    ]
+  },
+  "evidence": [
+    "Assigned-base .cache/B172/scan.json ated14bf3a emits33/33screens, no boundary, no RNG/cursor mismatch. First screen cell differs segment0step10 row0col0 C U versus JS M. Saved accepted-8ad9 evaluation measures32/33screens and33/33cursors with4251/4251RNG, remaining1.",
+    "Read whole C doextversion169-276, getversionstring35 onward, compile host macros and source producers. Source order/runtime substitutions/pager already execute; mismatch is the C build configuration rather than an omitted caller or a command/game state branch.",
+    "Existing scripts/run-help-version-information.mjs documents the judge Darwin host versus Linux C build. It passes runDifferentialAcceptingHostStrings with Unix NetHack Version -> MacOS NetHack Version and /dev/urandom -> /dev/random; scripts/fresh-matrix.mjs applies those replacements only to a comparison copy. Current admitted synthetic scorer compares raw strings strictly.",
+    "Diagnostic-only .cache/B172/host-normalization-probe.log copies the immutable recording in memory and applies exactly the existing two substitutions. Both replacements occur once, and scan reports all33screens emitted with no divergence/boundary ated14bf3a. Original admitted version recording hash remains9a692d07a9cd53af3a0b96db8be4914d865c0b1c8f2996fbe99d8f0e9795619d. No recording/corpus source was mutated, no C game was recorded, and this probe is not completion or scoring evidence.",
+    "Before any implementation, coordinator must resolve the target build configuration/recorded corpus contract. Broader doextversion/DLB/host data completion remains outside this investigation. Keep the raw one-screen mismatch visible; do not count normalized diagnostic success as admitted parity."
+  ],
+  "blocker": {
+    "kind": "compile-host-configuration",
+    "owner": "coordinator build/evaluation contract",
+    "resumeWhen": "A canonical source-backed build configuration or explicit input representation allows general cross-host behavior without seed/session special cases or rewriting admitted recordings.",
+    "sourceReservations": [],
+    "allowedPaths": []
+  }
+}
