@@ -3573,6 +3573,19 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         );
     });
 
+test('direct drop preflight admits levitation without changing ownership', () => {
+    const { hooks, lines, obj, state } = ordinaryDropFixture();
+    // C do.c:drop() checks floor reachability, but dropx() does not. Its
+    // direct callers (including reverse_loot) still place objects below a
+    // levitating hero. One intrinsic turn suffices to exercise admission.
+    state.u.uprops[LEVITATION].intrinsic = 1;
+    assert.doesNotThrow(() => preflight_dropx(obj, { state, hooks }));
+    assert.equal(state.invent, obj);
+    assert.equal(obj.where, OBJ_INVENT);
+    assert.equal(state.level.objects[10][5], null);
+    assert.deepEqual(lines, []);
+});
+
 test('ordinary drop preflight atomically refuses every excluded do.c tail',
     () => {
         const cases = [
@@ -3593,10 +3606,9 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             ['water level', /special-level/u, ({ state }) => {
                 state.water_level = { ...state.u.uz };
             }],
-            ['unreachable floor', /unreachable/u, ({ state }) => {
-                state.u.uprops[LEVITATION].intrinsic = 1;
-            }],
-            ['seen pit floor', /unreachable/u, ({ state }) => {
+            // Direct dropx has no reachability gate, but this trap still
+            // belongs to the unported shipping/floor-effects dependency.
+            ['seen pit floor', /trap/u, ({ state }) => {
                 state.level.traps.push({
                     tx: 10, ty: 5, ttyp: PIT, tseen: true,
                 });

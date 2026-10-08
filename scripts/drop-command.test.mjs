@@ -984,8 +984,8 @@ test('engraving drop recipes reach the live command with preserved text and time
 // The bounded ordinary floor fix keeps trap and liquid paths outside admission.
 test('boulders at a pit or pool stop before inventory removal', async () => {
     for (const [hazard, refusal] of [
-        // engrave.c:can_reach_floor refuses the visible pit edge before the trap guard.
-        ['pit', /unreachable floor/u],
+        // Direct dropx has no floor-reachability gate; the trap owner remains unported here.
+        ['pit', /shipping or floor effects at a trap/u],
         ['pool', /liquid terrain/u],
     ]) {
         const state = await startedGame();
@@ -1141,4 +1141,18 @@ test('throne admission retains the trap and other-furniture frontiers', async ()
         assert.ok(!pileAt(state, ux, uy).includes(obj));
         assert.equal(getRngLog().length, rngBefore);
     }
+});
+
+// do.c:758 belongs to drop(); callers such as reverse_loot bypass it by
+// entering dropx directly. dropz:838 maps blind levitation for either impact.
+test('direct dropx owns no floor-reach gate and dropz maps blind levitation after stacking', () => {
+    const c = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
+    const dropxSource = c.slice(c.indexOf('dropx(struct obj *obj)'), c.indexOf('/* dropy -'));
+    assert.ok(!dropxSource.includes('can_reach_floor'));
+    assert.match(dropxSource, /freeinv\(obj\);[\s\S]*ship_object\(obj,[\s\S]*doaltarobj\(obj\)[\s\S]*dropy\(obj\);/);
+    assert.match(c, /stackobj\(obj\);\s*if \(Blind && Levitation\)\s*map_object\(obj, 0\);\s*newsym\(u\.ux, u\.uy\);/);
+    const js = readFileSync('js/do.js', 'utf8');
+    const preflight = js.slice(js.indexOf('export function preflight_dropx'), js.indexOf('function consumeDropAdmission'));
+    assert.ok(!preflight.includes('!can_reach_floor'));
+    assert.match(js, /stackobj\(obj, normalized\);\s*if \(heroIsBlind\(normalized\.state\) && Levitation\(normalized\.state\)\) \{\s*map_object\(obj, 0, normalized\.state\);[\s\S]*requiredDropHook\(normalized, 'newsym'\)/);
 });
