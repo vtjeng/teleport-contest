@@ -258,7 +258,7 @@ import {
     gloves_simple_name, otense, vtense, yname, Yobjnam2,
 } from './objnam.js';
 import { note_unported } from './unported.js';
-import { unpunish } from './read.js';
+import { punish, unpunish } from './read.js';
 import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
 
@@ -2249,8 +2249,9 @@ function Hallucination(state) {
 // level-1 hero: godvoice(), the two verbal messages, Wisdom loss, and losexp()
 // all run before the shared prayer timer. Cases 4 and 5 now call the ported
 // attrcurse() when C selects that arm; their fallback calls sit.c rndcurse().
-// Case 6's punishment fallthrough, cases 7 and 8's
-// summon_minion(), and the default god_zaps_you() remain named boundaries.
+// Case 6 reuses read.c punish(), or falls through to the curse arm when
+// already punished. Cases 7 and 8's summon_minion() and the default
+// god_zaps_you() remain named boundaries.
 const GOD_VOICES = ['booms out', 'thunders', 'rings out', 'booms'];
 
 // C ref: pray.c godvoice() (1414-1426). `words == NULL` leaves a trailing
@@ -2351,7 +2352,12 @@ export async function angrygods(resp_god, state = game) {
     case 6:
         // C punishes an unpunished hero here and falls through to the curse
         // arm below when the hero already carries a ball and chain.
-        throw new UnsupportedPrayerError("angrygods()'s punishment");
+        if (!state.uball) {
+            await godvoice(resp_god, 'Thou hast angered me.', state);
+            await punish(null, state);
+            break;
+        }
+        // FALLTHROUGH: an already punished hero receives the curse arm.
     case 4:
     case 5:
         await godvoice(resp_god, 'Thou hast angered me.', state);

@@ -888,7 +888,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         if (!Can_dig_down(state.u?.uz, state) && !lev.candig) {
             // Can't dig further; try to make a pit
             if (t_at(mtmp.mx, mtmp.my, state)
-                || !(env._trap = maketrap(mtmp.mx, mtmp.my, PIT, { state }))) {
+                || !(env._trap = await maketrap(mtmp.mx, mtmp.my, PIT, { state }))) {
                 if (vismon)
                     await ttyPline(
                         `The ${surface(mtmp.mx, mtmp.my, state)} here is too hard to dig in.`,
@@ -907,7 +907,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             return (await mintrap(mtmp, FORCEBUNGLE, { state })) === Trap_Killed_Mon ? 1 : 2;
         }
         // Can dig down: make a hole
-        const t = maketrap(mtmp.mx, mtmp.my, HOLE, { state });
+        const t = await maketrap(mtmp.mx, mtmp.my, HOLE, { state });
         if (!t) return 2;
         recalc_block_point(mtmp.mx, mtmp.my, state);
         seetrap(t, { redraw: (x, y) => newsym(x, y) });

@@ -2108,3 +2108,30 @@ test('prayer_done unaligned-altar arm clears invulnerability and penalizes align
     assert.equal(game.u.ualign.abuse, abuse + 2);
     assert.match(game._pending_message, /Nothing else happens\.$/u);
 });
+
+test('angrygods case 6 calls punish only when unpunished, in source order', async () => {
+    const start = PRAY_C.indexOf('\nangrygods(aligntyp');
+    const cCase = PRAY_C.slice(PRAY_C.indexOf('    case 6:', start),
+        PRAY_C.indexOf('    case 7:', start));
+    assert.match(cCase, /if \(!Punished\)[\s\S]*gods_angry\(resp_god\);[\s\S]*punish\(\(struct obj \*\) 0\);[\s\S]*break;/u);
+    await startedGame();
+    clearTtyMessageWindow(game);
+    for (let i = 0; i < 12; i++) game.nhDisplay.pushKey(32);
+    game.u.ugangr = 3; game.u.uluck = 0; game.u.moreluck = 0;
+    game.u.ualign.record = 0;
+    // Independently chosen RNG seed 6 yields rn2(9)=6; source maxanger=3*3.
+    initRng(6);
+    const before = getRngLog().length;
+    await angrygods(A_LAWFUL, game);
+    assert.equal(getRngLog()[before], 'rn2(9)=6');
+    assert.ok(game.uball);
+    assert.ok(game.uchain);
+    assert.equal(game._pending_message, 'You are being punished for your misbehavior!');
+    const attachedBall = game.uball;
+    clearTtyMessageWindow(game);
+    for (let i = 0; i < 12; i++) game.nhDisplay.pushKey(32);
+    initRng(6);
+    await angrygods(A_LAWFUL, game);
+    assert.equal(game.uball, attachedBall); // case 6 now falls into cases 4-5, not punish.
+    assert.doesNotMatch(game._pending_message, /iron ball gets heavier/u);
+});

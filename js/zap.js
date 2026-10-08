@@ -4837,8 +4837,8 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
         note_unported('trap.c trap_ice_effects');
     }
     obj_ice_effects(x, y, false, env);
-    const { unearth_objs } = await import('./bury.js');
-    unearth_objs(x, y, env);
+    const { unearth_objs } = await import('./dig.js');
+    await unearth_objs(x, y, env);
     if (state.u?.uinwater) {
         vision_recalc(1, { ...env, state, redraw });
     }
@@ -5044,7 +5044,7 @@ export async function zap_over_floor(
                 rangemod -= 3;
                 lev.typ = ROOM;
                 lev.flags = 0;
-                evaporatedTrap = maketrap(x, y, PIT, env);
+                evaporatedTrap = await maketrap(x, y, PIT, env);
                 if (seeIt) msgtxt = 'The water evaporates.';
             }
             if (msgtxt && !messageGiven)

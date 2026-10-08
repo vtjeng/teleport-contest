@@ -198,8 +198,8 @@ import {
 import { isok } from './cmd_isok.js';
 import { is_art, ART_STING, attacks, has_magic_key, Stone_resistance } from './artifacts.js';
 import { exercise, adjalign, acurr, poisoned } from './attrib.js';
-import { obj_resists, unearth_objs } from './bury.js';
-import { buried_ball } from './dig.js';
+import { obj_resists } from './bury.js';
+import { buried_ball, unearth_objs } from './dig.js';
 import {
     drawbridgeFlags, drawbridgeUnder, is_ice, is_lava, is_pool,
     is_waterwall,
@@ -849,8 +849,10 @@ function pitTerrain(x, y, env) {
     }
 
     if (clearFlags) location.flags = 0;
-    capability(env, 'unearthObjects')?.(x, y, env);
-    capability(env, 'recalculateBlockPoint')?.(x, y, env);
+    const exposed = capability(env, 'unearthObjects')(x, y, env);
+    const recompute = () => capability(env, 'recalculateBlockPoint')(x, y, env);
+    if (exposed && typeof exposed.then === 'function') return exposed.then(recompute);
+    recompute();
 }
 
 // C ref: trap.c mk_trap_statue() (390-417). Create a statue and a temporary
@@ -983,14 +985,22 @@ export function maketrap(x, y, typ, rawEnv = {}) {
             && (IS_DOOR(location.typ) || IS_WALL(location.typ)))
             note_unported('shk.c add_damage');
         trap.conjoined = 0;
-        pitTerrain(x, y, env);
+        {
+            const exposed = pitTerrain(x, y, env);
+            if (exposed && typeof exposed.then === 'function')
+                return exposed.then(linkTrap);
+        }
         break;
     case HOLE:
     case TRAPDOOR:
         hole_destination(trap.dst, env);
         if (in_rooms(x, y, SHOPBASE, state).length)
             note_unported('shk.c add_damage');
-        pitTerrain(x, y, env);
+        {
+            const exposed = pitTerrain(x, y, env);
+            if (exposed && typeof exposed.then === 'function')
+                return exposed.then(linkTrap);
+        }
         break;
     case TELEP_TRAP: {
         const launchplace = state.launchplace;

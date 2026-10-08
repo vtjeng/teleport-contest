@@ -121,6 +121,7 @@ import {
     HALF_PHDAM,
     MM_NOMSG,
     RIGHT_SIDE,
+    ROT_ORGANIC,
     TAINT_AGE,
     Amask2align,
     xdir,
@@ -155,6 +156,8 @@ import {
 } from './cmd.js';
 import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj } from './invent.js';
 import { bury_an_obj } from './bury.js';
+import { punish } from './read.js';
+import { stop_timer } from './timeout.js';
 import { costly_spot, shop_keeper, stolen_value } from './shk.js';
 import { shkname } from './shknam.js';
 import { grounded, hides_under, is_flyer, is_floater, is_watch } from './mondata.js';
@@ -491,6 +494,7 @@ export async function dig(state = game, rawEnv = {}) {
                 const { set_wounded_legs } = await import('./do.js');
                 await set_wounded_legs(
                     RIGHT_SIDE,
+    ROT_ORGANIC,
                     5 + random.rnd(5),
                     state,
                     { ...rawEnv, message },
@@ -1218,12 +1222,10 @@ export async function liquid_flow(
     if (trap) await delfloortrap(trap, state);
     obj_ice_effects(x, y, true, env);
 
-    // dig.c unearth_objs() redraws the square after exposing the buried list.
-    // Its JS adapter takes that redraw through a hook to avoid a module cycle.
-    const { unearth_objs } = await import('./bury.js');
+    // unearth_objs completes punishment restoration before liquid damage.
     const redraw = rawEnv.newsym ?? rawEnv.redraw
         ?? ((rx, ry) => newsym(rx, ry, state));
-    unearth_objs(x, y, {
+    await unearth_objs(x, y, {
         ...env,
         hooks: {
             ...(rawEnv.hooks ?? {}),
@@ -1344,7 +1346,7 @@ export async function digactualhole(
 
     if (atHero && state.u.utrap) {
         if (state.u.utraptype === TT_BURIEDBALL)
-            note_unported('dig.c buried_ball_to_punishment');
+            await buried_ball_to_punishment(state, rawEnv);
         else if (state.u.utraptype === TT_INFLOOR)
             reset_utrap(false, state);
     }
@@ -2123,6 +2125,20 @@ export function buried_ball(cc, state = game) {
     return ball;
 }
 
+// C ref: dig.c buried_ball_to_punishment() (1935-1955). Reattach the same
+// unearthed ball, then silently clear the tether before deleting its text.
+export async function buried_ball_to_punishment(state = game, rawEnv = {}) {
+    const cc = { x: state.u.ux, y: state.u.uy };
+    const ball = buried_ball(cc, state);
+    if (!ball) return;
+    const env = objectGenerationEnv({ ...rawEnv, state });
+    obj_extract_self(ball, env);
+    await punish(ball, state, rawEnv);
+    await reset_utrap(false, state);
+    del_engr_at(cc.x, cc.y, state);
+    (rawEnv.redraw ?? newsym)(cc.x, cc.y, state);
+}
+
 // C ref: dig.c buried_ball_to_freedom() (1958-1979). The finder may move
 // cc to a nearby ball: place, erase and redraw that square, not the hero's.
 // The #if 0 rust-metal timer in C is not part of the reference build.
@@ -2139,4 +2155,36 @@ export async function buried_ball_to_freedom(state = game, rawEnv = {}) {
     del_engr_at(cc.x, cc.y, state);
     const redraw = rawEnv.newsym ?? rawEnv.redraw ?? newsym;
     redraw(cc.x, cc.y, state);
+}
+
+// C ref: dig.c unearth_objs() (2086-2116). Ordinary generation stays
+// synchronous. A live punishment restoration returns its awaited tail so
+// callers finish it before linking a trap or applying the next terrain effect.
+export function unearth_objs(x, y, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = objectGenerationEnv({ ...rawEnv, state });
+    const cc = { x, y };
+    const bball = buried_ball(cc, state);
+    const finish = () => {
+        del_engr_at(x, y, state);
+        if (rawEnv.hooks?.newsym) rawEnv.hooks.newsym(x, y, env);
+        else (rawEnv.redraw ?? newsym)(x, y, state);
+    };
+    const expose = first => {
+        for (let obj = first, next; obj; obj = next) {
+            next = obj.nobj;
+            if (obj.ox !== x || obj.oy !== y) continue;
+            if (bball && obj === bball && state.u.utrap
+                && state.u.utraptype === TT_BURIEDBALL) {
+                return buried_ball_to_punishment(state, rawEnv)
+                    .then(() => expose(next));
+            }
+            obj_extract_self(obj, env);
+            if (obj.timed) stop_timer(ROT_ORGANIC, obj, state, env);
+            place_object(obj, x, y, env);
+            stackobj(obj, env);
+        }
+        finish();
+    };
+    return expose(state.level.buriedobjlist);
 }

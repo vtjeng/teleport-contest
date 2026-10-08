@@ -1039,9 +1039,6 @@ test('teleds refuses every arm outside an ordinary adjacent square',
     async () => {
     // teleport.c:448-573. Each guard names the C machinery it stands in for.
     const rows = [
-        ['unearthing a buried ball', (state) => {
-            state.u.utraptype = TT_BURIEDBALL;
-        }],
         ['out of an engulfer', (state) => { state.u.uswallow = 1; }],
         ['out of an occupied vault', (state) => {
             state.level.rooms = [{ rtype: VAULT }];
@@ -1060,6 +1057,15 @@ test('teleds refuses every arm outside an ordinary adjacent square',
             reason,
         );
     }
+});
+
+test('teleds continues after the absent buried-ball finder no-op', async () => {
+    const state = await mounted();
+    const spot = { x: state.u.ux + 1, y: state.u.uy };
+    state.u.utraptype = TT_BURIEDBALL;
+    state.level.buriedobjlist = null;
+    await teleds(spot.x, spot.y, 0, state);
+    assert.deepEqual([state.u.ux, state.u.uy], [spot.x, spot.y]);
 });
 
 test('teleds awaits surprise effects at an occupied destination', async () => {
