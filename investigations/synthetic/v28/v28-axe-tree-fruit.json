@@ -1,0 +1,64 @@
+{
+  "session": "synthetic/v28/v28-axe-tree-fruit",
+  "corpus": "synthetic",
+  "batch": "v28",
+  "caseId": "v28-axe-tree-fruit",
+  "manifestPath": "challenges/manifests/v28.json",
+  "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+  "recordingPath": "challenges/cases/v28/v28-axe-tree-fruit.session.json",
+  "recordingSha256": "d6a8e25411c8531e1866cc8bbbea35c4c0f877863a3593865450496ecacf27f3",
+  "evaluationPath": "challenges/evaluations/accepted-50c5b88dd5a39f41434a34d8fc30cd167f751c4a-v28.json",
+  "evaluationCommit": "50c5b88dd5a39f41434a34d8fc30cd167f751c4a",
+  "recordedSteps": 47,
+  "remainingScreens": 19,
+  "step": 28,
+  "kind": "screen",
+  "sourceFile": "dig.c",
+  "function": "dig",
+  "status": "complete",
+  "commit": "bf11abd71c1847e67da27fd3e5fcd915fe3f8da1",
+  "mismatch": {
+    "session": "synthetic/v28/v28-axe-tree-fruit",
+    "corpus": "synthetic",
+    "batch": "v28",
+    "caseId": "v28-axe-tree-fruit",
+    "manifestPath": "challenges/manifests/v28.json",
+    "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+    "recordingPath": "challenges/cases/v28/v28-axe-tree-fruit.session.json",
+    "recordingSha256": "d6a8e25411c8531e1866cc8bbbea35c4c0f877863a3593865450496ecacf27f3",
+    "evaluationPath": "challenges/evaluations/accepted-50c5b88dd5a39f41434a34d8fc30cd167f751c4a-v28.json",
+    "evaluationCommit": "50c5b88dd5a39f41434a34d8fc30cd167f751c4a",
+    "recordedSteps": 47,
+    "remainingScreens": 19,
+    "step": 28,
+    "kind": "screen",
+    "sourceFile": "dig.c",
+    "function": "dig"
+  },
+  "goalKind": "divergence-fix",
+  "summary": "Cutting a tree reaches the source fruit roll, but dig records rnd_treefruit_at as unported even though the canonical helper is already implemented. C creates a pear on the new floor; JS skips object creation, its RNG, and the fruit glyph.",
+  "source": {
+    "file": "dig.c",
+    "functions": [
+      "dig"
+    ],
+    "branch": "Axe occupation has effort >100, DIGTYP_TREE, and rn2(5)==0. C first changes terrain to ROOM and clears flags, then invokes rnd_treefruit_at before alignment, visibility redraw, and completion message.",
+    "callers": [
+      "apply.c axe/pick command -> dig.c:use_pick_axe -> use_pick_axe2 -> set_occupation(dig) -> allmain.c occupation dispatch; js/allmain.js moveloop_core -> go.occupation -> js/dig.js:dig",
+      "dig.c:dig480–481 -> mkobj.c:rnd_treefruit_at1984–1987 -> mksobj_at -> next_ident/mksobj_init/place_object"
+    ],
+    "dependencies": [
+      "Existing js/obj.js:rnd_treefruit_at must be reused with objectGenerationEnv forwarding the canonical state, random, and object-generation hooks. It calls mksobj_at and places a floor object; no placeholder return is consumed.",
+      "Historical mkobj-c goal marks rnd_treefruit_at ported. Current dokick.c:kick_nondoor correctly calls it. dig.c:mdig_tunnel1485 uses an inline equivalent fruit creation in js/dig.js and should be audited for shared source wiring, without whole mdig_tunnel credit.",
+      "Whole dig contains existing named source-discarded gaps for mkcavearea, angry_priest, add_damage, and pay_for_damage. The proposed repair grants only bounded existing-helper caller reconciliation, no whole dig/related source completion."
+    ]
+  },
+  "evidence": [
+    "Examined whole upstream dig.c:300–569 and corresponding js/dig.js:418–755. First missing operation is dig.c480–481: after clearing terrain/flags, rn2(5)==0 calls (void)rnd_treefruit_at(dpx,dpy). js/dig.js641 instead note_unported and does not create the object.",
+    "Recorded segment0 zero-based step28 (key h) logs rn2(5)=0@dig480, rn2(5)=2@rnd_treefruit_at1986, rnd(2)=2@next_ident521, rn2(6)=5@mksobj_init971. Treefruit array index2 selects PEAR. C screen row19 column4 is green %, while JS is floor dot. The compared first unequal RNG token is index2283: C next_ident rnd(2)=2 versus JS rn2(12)=3; the missing caller starts earlier than that token because equal random draws can coincide.",
+    "Read-only worker-branch replay .cache/A141/axe-replay.json and .cache/A141/axe-replay.log at bf11abd7 reproduces first screen28 and no unsupported stop. Saved accepted evaluation retains exact19 remaining screens of47. This worker replay does not replace main evaluation provenance.",
+    "Existing helper js/obj.js1826–1836 selects from [APPLE,ORANGE,PEAR,BANANA,EUCALYPTUS_LEAF] with rn2(5) and mksobj_at; no new mkobj implementation is needed. Reconcile the source caller and use canonical objectGenerationEnv, not a separate fruit generator.",
+    "Minimal proposed reservation source:dig.c:dig plus contract:tree-fruit-floor-placement; paths js/dig.js, scripts/dig.test.mjs, scripts/dig-occupation.test.mjs, focused fresh axe runner, recipes/dig.c/, recordings/dig.c/, and task cache. Reserve mdig_tunnel only if its independent caller audit requires a source reconciliation; no initial obj.js change.",
+    "Independent validation needs C-first axe occupation variations with an independently chosen role/seed/clock, fruit-creation and no-fruit branches, terrain flags, object ownership/weight/id, redraw/message/RNG order, and elf/ranger alignment when cheaply reachable. Synthetic case47-step replay must fully match. Existing helper and dig occupation tests provide source-pinned branch coverage. No new C recordings or implementation changes were made during investigation."
+  ]
+}

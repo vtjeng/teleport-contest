@@ -1,0 +1,103 @@
+{
+  "session": "synthetic/v28/v28-buried-ball-release",
+  "corpus": "synthetic",
+  "batch": "v28",
+  "caseId": "v28-buried-ball-release",
+  "manifestPath": "challenges/manifests/v28.json",
+  "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+  "recordingPath": "challenges/cases/v28/v28-buried-ball-release.session.json",
+  "recordingSha256": "59021abf38da97dedefb59d6f72d1a429e7fe54efea3fc11c02160feb706deb4",
+  "evaluationPath": "challenges/evaluations/accepted-d6683ff41482c0da2412f4c019c8d581e668778a-v28.json",
+  "evaluationCommit": "d6683ff41482c0da2412f4c019c8d581e668778a",
+  "remainingScreens": 3,
+  "recordedSteps": 96,
+  "metrics": {
+    "screens": {
+      "matched": 93,
+      "total": 96
+    },
+    "rng": {
+      "matched": 3109,
+      "total": 3134
+    },
+    "cursors": {
+      "matched": 93,
+      "total": 96
+    }
+  },
+  "firstMismatch": {
+    "segment": 0,
+    "step": 93,
+    "kind": "refusal",
+    "message": "unsupported hero move: held hero movement"
+  },
+  "status": "complete",
+  "commit": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485",
+  "mismatch": {
+    "session": "synthetic/v28/v28-buried-ball-release",
+    "corpus": "synthetic",
+    "batch": "v28",
+    "caseId": "v28-buried-ball-release",
+    "manifestPath": "challenges/manifests/v28.json",
+    "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+    "recordingPath": "challenges/cases/v28/v28-buried-ball-release.session.json",
+    "recordingSha256": "59021abf38da97dedefb59d6f72d1a429e7fe54efea3fc11c02160feb706deb4",
+    "evaluationPath": "challenges/evaluations/accepted-d6683ff41482c0da2412f4c019c8d581e668778a-v28.json",
+    "evaluationCommit": "d6683ff41482c0da2412f4c019c8d581e668778a",
+    "remainingScreens": 3,
+    "recordedSteps": 96,
+    "metrics": {
+      "screens": {
+        "matched": 93,
+        "total": 96
+      },
+      "rng": {
+        "matched": 3109,
+        "total": 3134
+      },
+      "cursors": {
+        "matched": 93,
+        "total": 96
+      }
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 93,
+      "kind": "refusal",
+      "message": "unsupported hero move: held hero movement"
+    }
+  },
+  "goalKind": "file-port",
+  "summary": "Missing dig.c:buried_ball_to_freedom leaves the buried punishment ball and TT_BURIEDBALL tether unchanged after remove curse. Port the whole freedom helper and wire all five existing caller sites. The neighboring punishment-restoration helper requires a separate punish reuse-ball/caller closure.",
+  "source": {
+    "file": "dig.c",
+    "branch": "A buried heavy iron ball exists at the hero coordinate or within squared distance 8, with no active trap or TT_BURIEDBALL; the freedom caller releases the tether rather than restoring punishment.",
+    "functions": [
+      "buried_ball_to_freedom"
+    ],
+    "callers": [
+      "read.c:seffect_remove_curse1601 -> js/read.js1957, before the clasp message and update_inventory",
+      "apply.c:use_bell1283 -> js/apply.js3858, blessed Bell branch before res=1 and openit",
+      "pray.c:fix_worst_trouble522 -> js/pray.js1388, TROUBLE_PUNISHED after chain-disappears message",
+      "polyself.c:polymon982 -> js/polyself.js1295, wall-pass release before the caller reset_utrap(TRUE)",
+      "polyself.c:polymon997 -> js/polyself.js1313, amorphous/whirly/unsolid release after slip-free message"
+    ],
+    "dependencies": [
+      "Consumed dig.c:buried_ball1885-1930 is already fully implemented in js/dig.js2095-2148; verify the complete exact-coordinate priority, radius<=8, first-on-ties selection, trap eligibility and caller coordinate mutation. No placeholder or invented return is needed.",
+      "mkobj.c:obj_extract_self2557-2595 uses canonical js/invent.js3306 with OBJ_BURIED chain extraction and OBJ_FREE transition; mkobj.c:place_object canonical js/obj.js2873 is composed with objectGenerationEnv. The non-boulder ball does not enter block_point.",
+      "invent.c:stackobj uses canonical js/invent.js3914. objects.h1624-1627 marks heavy iron balls nonmergeable, so retain the call without introducing a compatible merge owner.",
+      "trap.c:reset_utrap1045-1057 already has the canonical js/trap.js1793 implementation. Await reset_utrap(TRUE), including resumed levitation/flight, before del_engr_at and newsym.",
+      "engrave.c:del_engr_at and display.c:newsym are existing owners. The compile-disabled #if0 rust timer is inactive in the reference build, so no timer operation is required."
+    ]
+  },
+  "evidence": [
+    "Dig.c1958-1979 whole definition first captures hero coordinates and consumes buried_ball; if no ball it has no effect. Otherwise source order is obj_extract_self, place_object at the selected ball coordinate, stackobj, reset_utrap(TRUE), del_engr_at at that coordinate, then newsym. It does not reattach a chain or manufacture a ball.",
+    "Current accepted evaluation challenges/evaluations/accepted-d6683ff41482c0da2412f4c019c8d581e668778a-v28.json at d6683ff41482c0da2412f4c019c8d581e668778a retains93/96 screens and cursors,3109/3134 RNG. Recording SHA256 59021abf38da97dedefb59d6f72d1a429e7fe54efea3fc11c02160feb706deb4 was checked against both manifest and evaluation.",
+    "Read-only bounded replay .cache/v28-buried-ball-release/replay.log and replay.json at worker commit da30432498c30c1cde6a3a9474e0d2ac22bb7215 reproduces segment0step93 held-hero movement refusal, after93 matching screens/cursors. Live JS state after refusal retains utrap=24, utraptype=6 at <60,14> with 13 buried objects and no attached punishment ball. This is the delayed consequence of the omitted helper, not a missing movement branch.",
+    "C recording step47 reports iron-ball burial; step82 reports the clasp vanishing after read.c1601, and steps93-94 move away. The JS caller prints the same clasp message while only recording note_unported; thus matching prior screens do not establish the hidden state mutation.",
+    "All five direct calls found by rg buried_ball_to_freedom nethack-c/upstream/src are active source sites in read/apply/pray/polyself and have corresponding JS production bodies. No helper return is consumed by those callers; keep their own source messages, reset, openit result and inventory-update ordering.",
+    "Independent runtime evidence plan: remove-curse variation plus blessed Bell of Opening, prayer TROUBLE_PUNISHED, wall-pass polymorph and amorphous/whirly/unsolid polymorph witnesses. The admitted remove-curse range82-95 may establish the selected helper after fixing; the other caller families need independent C-first recordings and source-pinned order/state assertions. No recordings were created during this investigation.",
+    "Related v28-buried-ball-unearth retains76/85 screens in the same accepted evaluation, but its owner dig.c:buried_ball_to_punishment1935-1955 requires read.c:punish3019-3062 reuse-ball behavior. Current JS punish always emits misbehavior and makes a new ball; it explicitly excludes reuse, swallowed, blind and fall-away branches. Additional callers span goto_level, trapmove, digactualhole, unearth_objs, teleds, level_tele, domagicportal and mkinvokearea. Keep that distinct punishment family, movement escape and its broad callers outside this freedom task.",
+    "No owner overlap: A141 reserves dig.c:dig/tree-fruit-floor-placement; A142 reserves wizcmds.c:wiz_smell and cmd.c dispatch/wizard-smell-selection; pending B142 reserves engrave.c:rloc_engr/doengrave, zap.c:zap_map and engraving-relocation. This plan only calls existing engraving deletion and does not edit their owners."
+  ]
+}

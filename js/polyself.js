@@ -8,6 +8,7 @@
 // mbodypart(), body_part(), poly_gender(), ugolemeffects(), polysense(),
 // float_vs_flight(), steed_vs_stealth(), ugenocided(), udeadinside().
 
+import { buried_ball_to_freedom } from './dig.js';
 import {
     A_CON,
     A_DEX,
@@ -1292,7 +1293,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         } else {
             await message('The buried ball is no longer bound to you.',
                 state, env);
-            note_unported('dig.c buried_ball_to_freedom');
+            await buried_ball_to_freedom(state, env);
         }
         await resetTrapWithMessage();
     } else if (likes_lava(state.youmonst.data)
@@ -1310,7 +1311,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         } else if (u.utrap && u.utraptype === TT_BURIEDBALL) {
             await message('You slip free of the buried ball and chain.',
                 state, env);
-            note_unported('dig.c buried_ball_to_freedom');
+            await buried_ball_to_freedom(state, env);
         }
     }
 

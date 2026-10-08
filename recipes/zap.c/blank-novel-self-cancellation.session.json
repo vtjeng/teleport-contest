@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91410132,
+      "datetime": "21330517101600",
+      "nethackrc": "OPTIONS=name:NovelBlank,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  .\u0017novel\n\u0017uncursed wand of cancellation\nzg. i ."
+    }
+  ],
+  "comment": "Independent C-first blank_novel cancellation variation: Valkyrie wishes a novel and cancellation wand, self-zaps once, then inspects inventory. New seed/clock and uncursed wish precede comparison. C-first setup correction: the welcome/full-moon pending More swallowed the first wish; two initial spaces complete those messages before the planned actions. Use bare novel request; no wish-parser defect inferred from the missed setup. C-first letter correction: this Valkyrie seed includes a starting oil lamp, so the novel is f and the cancellation wand g."
+}

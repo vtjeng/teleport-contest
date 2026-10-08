@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source extension: eat.c:cpostfx PM_SMALL_MIMIC -> eatmdone. Eat mimic tin and wait beyond the 20-turn mimic period; verify gold disguise and restoration. Plan precedes own C/JS comparison.",
+  "segments": [
+    {
+      "seed": 1392917,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392917,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017blessed tin of small mimic meat\nee  y     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   i "
+    }
+  ]
+}

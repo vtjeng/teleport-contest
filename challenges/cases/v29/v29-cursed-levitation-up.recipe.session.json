@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v29 candidate: potion.c:peffect_levitation -> do.c:doup. Drink cursed levitation at starting upstairs; verify upward transition/exit prompt. Fixed unsearched seed and independent clock; C-only setup corrections precede JS comparison.",
+  "segments": [
+    {
+      "seed": 1392904,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392904,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017cursed potion of levitation\nqe   n   ."
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "session": "synthetic/v28/v28-engrave-teleport-text",
+  "corpus": "synthetic",
+  "batch": "v28",
+  "caseId": "v28-engrave-teleport-text",
+  "manifestPath": "challenges/manifests/v28.json",
+  "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+  "recordingPath": "challenges/cases/v28/v28-engrave-teleport-text.session.json",
+  "recordingSha256": "da2f4d4e7bf61297fa64478afcd57e083a446ea8721c7f7fe03659396b22cf3b",
+  "evaluationPath": "challenges/evaluations/baseline-d85ffe22-v28.json",
+  "evaluationCommit": "d85ffe22270b7f1edb5d596a0dac747b0a76c25c",
+  "remainingScreens": 0,
+  "recordedSteps": 55,
+  "status": "complete",
+  "commit": "fc7bf6fb9a378a743d4a1bea6bb76d5980008b53",
+  "mismatch": {
+    "session": "synthetic/v28/v28-engrave-teleport-text",
+    "corpus": "synthetic",
+    "batch": "v28",
+    "caseId": "v28-engrave-teleport-text",
+    "manifestPath": "challenges/manifests/v28.json",
+    "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+    "recordingPath": "challenges/cases/v28/v28-engrave-teleport-text.session.json",
+    "recordingSha256": "da2f4d4e7bf61297fa64478afcd57e083a446ea8721c7f7fe03659396b22cf3b",
+    "evaluationPath": "challenges/evaluations/baseline-d85ffe22-v28.json",
+    "evaluationCommit": "d85ffe22270b7f1edb5d596a0dac747b0a76c25c",
+    "remainingScreens": 0,
+    "recordedSteps": 55,
+    "metrics": {
+      "screens": {
+        "matched": 55,
+        "total": 55
+      },
+      "rng": {
+        "matched": 7726,
+        "total": 7751
+      },
+      "cursors": {
+        "matched": 55,
+        "total": 55
+      }
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 45,
+      "kind": "rng"
+    }
+  },
+  "goalKind": "file-port",
+  "summary": "Teleporting floor text through the engraving command skips the whole engrave.c:rloc_engr helper. Screens and cursors match but eight relocation RNG calls are missing. Implement the bounded coordinate-attempt loop and destination redraw, then wire engraving and downward-wand callers; no whole caller credit.",
+  "source": {
+    "file": "engrave.c",
+    "branch": "doengrave has teleengr set for an existing non-headstone text and teleportation wand; zap_map invokes the same helper for downward teleportation wand or spell over non-headstone engraving.",
+    "functions": [
+      "rloc_engr"
+    ],
+    "callers": [
+      "engrave.c:doengrave1060 after wand identification, before clearing eread/erevealed and original-coordinate refresh",
+      "zap.c:zap_map3665 downward teleportation wand/spell arm"
+    ],
+    "dependencies": [
+      "teleport.c:goodpos86-194 consumed result; already verified in port-hack-pooleffects-spoteffects-recursive-ice-v17-20261002. Null-monster/gpflags0 branch inspected in full; no eel draw applies.",
+      "engrave.c:engr_at searches canonical state.head_engr chain; display.c:newsym destination redraw already ported."
+    ]
+  },
+  "evidence": [
+    "Complete engrave.c1667-1681 source uses tryct200 with predecrement exhaustion; draws rn1(COLNO-3,2) then rn2(ROWNO), short-circuit tests engr_at before goodpos(NULL,0), then changes both coordinates and calls newsym at the destination.",
+    "Current worker-base bounded replay .cache/B142/replay-baseline.log confirms55/55 screens/cursors but7751/7743 RNG; first missing draw index7726 is rn2(77)=2 at rloc_engr1674, segment0step45. Zero remaining screens is retained rather than hiding this measured RNG failure.",
+    "js/engrave.js948 skips rloc_engr while clearing text flags; zap_map only has probing/downward-polymorph engraving behavior, so reconcile its teleportation caller arm without claiming whole zap_map.",
+    "The helper mutates coordinate/display state and draws random numbers; independent recorded evidence must cover the downward-wand caller not exercised by the admitted engraving entry. All other engraving/zap_map arms remain outside this source-completion task."
+  ]
+}

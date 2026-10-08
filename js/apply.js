@@ -539,6 +539,7 @@ import { bimanual, is_pole, mon_adjust_speed, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
 import { encumber_msg, pickup_object, use_container } from './pickup.js';
 import {
+    buried_ball_to_freedom,
     dig_check,
     digactualhole,
     fillholetyp,
@@ -3855,7 +3856,7 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
                 result = 1;
             } else if (state.u.utrap
                 && state.u.utraptype === TT_BURIEDBALL) {
-                note_unported('dig.c buried_ball_to_freedom');
+                await buried_ball_to_freedom(state, rawEnv);
                 result = 1;
             }
             result += await openit(state, rawEnv);

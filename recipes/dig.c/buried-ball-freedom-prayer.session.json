@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first prayer witness: kill a hostile hobgoblin (neutral hero malign4 from non-coaligned maligntyp-4) to reach STRIDENT4, add blessed luckstone and a neutral altar for minor-trouble relief, then punish, bury the ball and pray. The ray direction follows the C-only nearby placement. Goblin was a setup miss because its non-always-hostile malign is only3. The first prayer chooses action2 and leaves minor punishment trouble; successive forced prayers exercise the source retry history until minor trouble is fixed.",
+  "segments": [
+    {
+      "seed": 1430806,
+      "datetime": "20531118094713",
+      "nethackrc": "OPTIONS=name:PrayerFreeBall,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  \u0017uncursed wand of death\n\u0007hostile hobgoblin\n  zey    \u0017blessed luckstone\n\u0017neutral altar\n\u0017uncursed scroll of punishment\nrg     #wizbury\n  #pray\ny y          #pray\ny y           #pray\ny y           #pray\ny y           "
+    }
+  ]
+}

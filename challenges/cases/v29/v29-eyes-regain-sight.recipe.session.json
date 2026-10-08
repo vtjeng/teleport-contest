@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v29 candidate: do_wear.c:Blindf_on Eyes of Overworld. A neutral Monk drinks blindness then wears Eyes; verify regained sight/X-ray state. Fixed unsearched seed and independent clock; C-only setup corrections precede JS comparison. C-only correction from recorded inventory/pager/setup prerequisites before comparison; original attempts preserved.",
+  "segments": [
+    {
+      "seed": 1392903,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392903,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed potion of blindness\n\u0017uncursed Eyes of the Overworld\n    qj    Pk    ."
+    }
+  ]
+}

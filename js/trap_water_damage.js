@@ -81,6 +81,7 @@ import { cansee, couldsee } from './vision.js';
 import { destroy_strings } from './zap_destroy_items.js';
 import { youSee } from './monmove.js';
 import { wet_a_towel } from './weapon.js';
+import { blank_novel } from './zap.js';
 
 function propertyActive(hero, property) {
     const value = hero?.uprops?.[property];
@@ -233,17 +234,6 @@ async function acidDamage(obj, inInvent, described, env) {
         await env.potAcidDamage(obj, inInvent, described, env);
     } else {
         note_unported('trap.c pot_acid_damage');
-    }
-}
-
-async function blankNovel(obj, env) {
-    obj.novelidx = 0;
-    if (obj.oextra && typeof obj.oextra === 'object')
-        delete obj.oextra.oname;
-    if (typeof env.blankNovel === 'function') {
-        await env.blankNovel(obj, env);
-    } else {
-        note_unported('zap.c blank_novel');
     }
 }
 
@@ -679,7 +669,7 @@ export async function water_damage(obj, description, force, env = {}) {
         obj.otyp = objects.SPE_BLANK_PAPER;
         if (obj.spestudied) obj.spestudied = random.rn2(obj.spestudied);
         obj.dknown = 0;
-        if (oldType === objects.SPE_NOVEL) await blankNovel(obj, env);
+        if (oldType === objects.SPE_NOVEL) blank_novel(obj, env);
         if (in_invent) await updateInventory(env);
         return ER_DAMAGED;
     }

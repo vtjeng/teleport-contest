@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91410131,
+      "datetime": "21330517101500",
+      "nethackrc": "OPTIONS=name:NovelBlank,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  .\u0017novel\n\u0017uncursed potion of water\n#dip\nef \n.i "
+    }
+  ],
+  "comment": "Independent C-first blank_novel water-damage entry. Fixed new seed/clock chosen before JS comparison; wished novel e and water f follow Valkyrie starting gear. Dip into water, inspect the blank book and wait; source reset and name/weight cleanup must run through trap.c water_damage. C-first setup correction: the welcome/full-moon pending More swallowed the first wish; two initial spaces complete those messages before the planned actions. Use bare novel request; no wish-parser defect inferred from the missed setup."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first SPE_TELEPORT_AWAY caller witness: create floor dust text, select teleport away (n on the second C #wizcast menu page), then cast downward. Covers spell.c:spelleffects -> weffects -> zap_updown -> zap_map -> rloc_engr without claiming casting/knowledge ownership.",
+  "segments": [
+    {
+      "seed": 91420135,
+      "datetime": "21330519101800",
+      "nethackrc": "OPTIONS=name:Relocation,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  .E-\nQuartz\n.#wizcast\n>n> ."
+    }
+  ]
+}
