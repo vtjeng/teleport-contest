@@ -197519,7 +197519,7 @@
     {
       "id": "fix-engrave-owned-zapnodir-dispatch-v28-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore charged nondirectional wand effects before engraving text.",
       "cFile": "engrave.c",
       "sessions": [],
@@ -197531,8 +197531,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doengrave_sfx_item_WAN",
       "session": "synthetic/v28/v28-engrave-create-monster",
       "step": 36,
@@ -197798,7 +197801,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-sit-special-throne-effect-v28-20261007",
@@ -197893,6 +197902,75 @@
           "recordingSha256": "4ebefa5859b9bf667ff711a1634c5afbfddf8f8e6243c0404576e398751f76b2",
           "evaluationPath": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
           "evaluationCommit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec"
+        }
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-flip-level-v28-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port live wizard level transposition in source order",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v28/v28-wiz-flip-level"
+      ],
+      "selectionReason": "Independent admitted v28 wizard flip refusal at step15, 8 remaining screens; C140 seed is fully solved, buried-ball/Vlad/Oracle scopes excluded.",
+      "detail": "Canonical investigation investigations/synthetic/v28/v28-wiz-flip-level.json traces absent command dispatcher and generation-only flip owners. Include consumed bounds helper and live extras order, retaining explicit nhlua flip caller frontier.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_flip_level",
+          "line": 412,
+          "endLine": 445,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 412,
+        "to": 445
+      },
+      "requiredFunctions": [
+        {
+          "name": "flip_level",
+          "line": 533,
+          "endLine": 925,
+          "declared": true,
+          "sourceFile": "sp_lev.c",
+          "complete": false
+        },
+        {
+          "name": "flip_level_rnd",
+          "line": 967,
+          "endLine": 985,
+          "declared": true,
+          "sourceFile": "sp_lev.c",
+          "complete": false
+        },
+        {
+          "name": "get_level_extends",
+          "line": 1353,
+          "endLine": 1440,
+          "declared": true,
+          "sourceFile": "mkmaze.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v28/v28-wiz-flip-level": {
+          "session": "synthetic/v28/v28-wiz-flip-level",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-wiz-flip-level",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-wiz-flip-level.session.json",
+          "recordingSha256": "731e024dc0254d97b404c752d19695c3b46beea14d8e18bd357abdb748883122",
+          "evaluationPath": "challenges/evaluations/accepted-4f210e358149b03cf68194ba97bfd446aea2f3e0-v28.json",
+          "evaluationCommit": "4f210e358149b03cf68194ba97bfd446aea2f3e0"
         }
       }
     }
