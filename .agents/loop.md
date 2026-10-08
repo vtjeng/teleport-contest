@@ -345,8 +345,8 @@ Keep the deployed dashboard current with completed and partial findings and
 the latest validated score. Publish changed findings at the next safe commit
 boundary without waiting for an implementation delivery. Worker activity
 alone does not require an investigation edit or publication commit.
-After each push, verify the dashboard deployment and its displayed mismatch
-queue against the published records.
+Treat a successful `Dashboard` workflow run as confirmation of deployment.
+Inspect the live page only for a reported problem or a change to its presentation.
 
 ## Workflow friction
 
