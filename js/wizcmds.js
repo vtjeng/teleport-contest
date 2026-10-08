@@ -12,6 +12,7 @@ import { FIRST_OBJECT, NUM_OBJECTS, MAXOCLASSES, OBJ_NAME } from './objects.js';
 import { MAX_GLYPH } from './glyph_offsets.js';
 import { NUMMONS } from './monsters.js';
 import { MAXPCHARS, S_vbeam, S_rslant } from './symbols.js';
+import { mstrength } from './mondata.js';
 import { memoryLayout } from './wizcmds_data.js';
 import {
     ACID_RES,
@@ -24,7 +25,7 @@ import {
     BLND_RES,
     CLAIRVOYANT,
     COLD_RES,
-    COLNO, ROWNO, COULD_SEE, IN_SIGHT, TEMP_LIT, BUFSZ,
+    COLNO, ROWNO, COULD_SEE, IN_SIGHT, TEMP_LIT, BUFSZ, NEUTRAL,
     CORR, SDOOR, WM_MASK, IS_WALL, IS_ROOM, IS_DOOR,
     CONFUSION,
     CONFLICT,
@@ -1048,6 +1049,31 @@ export async function wiz_display_macros(state = game, env = {}) {
         }
     }
     if (!trouble) rows.push({ text: 'No display macro issues detected.' });
+    await (env.window ?? displayTtyTextWindow)(state, rows);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_mon_diff() (1790-1828). Compare the live
+// catalog's stored difficulty with the source formula, in table order.
+export async function wiz_mon_diff(state = game, env = {}) {
+    const rows = [];
+    let trouble = 0;
+    for (let count = 0; state.mons[count].mlet; count++) {
+        const species = state.mons[count];
+        const calculated = mstrength(species), hardcoded = species.difficulty;
+        const difference = hardcoded - calculated;
+        if (difference) {
+            if (!trouble++) rows.push({ text: 'Review of monster difficulty ratings [index:level]:' });
+            const level = species.mlevel > 50 ? 50 : species.mlevel;
+            const text = species.pmnames[NEUTRAL].padEnd(18) + ' ['
+                + String(count).padStart(3) + ':' + String(level).padStart(2)
+                + ']: calculated: ' + String(calculated).padStart(2)
+                + ', hardcoded: ' + String(hardcoded).padStart(2)
+                + ' (' + (difference >= 0 ? '+' : '') + difference + ')';
+            rows.push({ text: truncateByteString(text, BUFSZ - 1) });
+        }
+    }
+    if (!trouble) rows.push({ text: 'No monster difficulty discrepancies were detected.' });
     await (env.window ?? displayTtyTextWindow)(state, rows);
     return ECMD_OK;
 }
