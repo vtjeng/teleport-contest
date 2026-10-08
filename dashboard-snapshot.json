@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T23:02:34.273Z",
+  "capturedAt": "2026-10-08T23:13:50.171Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -68372,12 +68372,87 @@
         "type": "accepted",
         "at": "2026-10-08T23:02:07.981Z",
         "task": "A174"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-A174-boundary-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:03:08.683Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Accepted main merged; focused checks passed. Waiting for B171 dispatcher release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-A174-5ade3297-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:03:11.191Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Accepted A174 merged; A177’s prayer cure remains blocked on A175 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-A174-dependency-availability-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:03:14.690Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "A174 merged; next options and command-description work waits on B171 doextcmd acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A174-9af802b7-20261008",
+        "type": "published",
+        "at": "2026-10-08T23:03:22.424Z",
+        "task": "A174",
+        "commit": "9af802b7d2a41421a091400e756affe84f95db87"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B174-59881684",
+        "type": "integrating",
+        "at": "2026-10-08T23:06:03.892Z",
+        "task": "B174",
+        "integration": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A175-134255d3-20261008",
+        "type": "received",
+        "at": "2026-10-08T23:07:01.621Z",
+        "task": "A175",
+        "delivery": "134255d313816fede867602f00a1d4da2b5d0a6a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A175-review-20261008",
+        "type": "activity",
+        "at": "2026-10-08T23:07:02.753Z",
+        "task": "A175",
+        "phase": "review",
+        "reason": "Reviewing the immutable prayer petrification-cure delivery while B174 completes hosted validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B174-37857567906",
+        "type": "validated",
+        "at": "2026-10-08T23:11:00.268Z",
+        "task": "B174",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B174-59881684f1ce7cc1c9bcb7cc144e8a8fb005c360-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T23:13:35.286Z",
+        "task": "B174"
       }
     ]
   },
   "development": {
-    "executionCommit": "5ade3297960ca8e3b146ec14c28a02114b2c6714",
-    "measuredAt": "2026-10-08T22:58:57.687Z",
+    "executionCommit": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360",
+    "measuredAt": "2026-10-08T23:10:32.984Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

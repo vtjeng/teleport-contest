@@ -219385,7 +219385,7 @@
     {
       "id": "fix-pager-whatis-hallucination-menu-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Show the source whatis menu during hallucination.",
       "cFile": "pager.c",
       "sessions": [],
@@ -219397,8 +219397,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "do_look",
       "session": "synthetic/v32/v32-hallucinatory-whatis",
       "step": 44,
@@ -219588,7 +219591,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
