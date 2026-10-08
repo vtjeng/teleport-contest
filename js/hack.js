@@ -5093,6 +5093,9 @@ export function terrain_changed_under_hero(state = game) {
 // gi.in_steed_dismounting suppresses only the trap/pickup tail; the preceding
 // terrain, pool and room effects still run on that C entry.
 export async function spoteffects(pick, state = game, rawEnv = {}) {
+    // Some async JS callers resume after a C NORETURN death boundary. Stop
+    // before beginning any square-arrival effects in that case.
+    if (state.program_state?.gameover) return;
     const { u } = state;
     const message = rawEnv.planning
         ? async () => {}
@@ -5173,6 +5176,9 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
                     staticState.trap = null;
                     staticState.traptyp = NO_TRAP_FLAGS;
                 }
+                // Keep the recursion-guard cleanup above, then stop before
+                // pit pickup and the remaining arrival effects after death.
+                if (state.program_state?.gameover) return;
             }
             if (pick && pit) await pickup(1, state);
         }

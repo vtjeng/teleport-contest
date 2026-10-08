@@ -19,9 +19,9 @@
 // recorded at their source boundary; the self-zap dispatch itself does not
 // reject a valid object type.
 //
-// wizcmds.c wiz_wish(), potion.c mongrantswish(), the ordinary sit.c throne,
+// wizcmds.c wiz_wish(), potion.c mongrantswish(), both sit.c throne effects,
 // zap.c's wishing wand, and allmain.c's Amulet and resumed-wish branches call
-// makewish(). sit.c special_throne_effect's wish arm remains an explicit gap.
+// makewish().
 //
 // zap.c's elemental destruction of carried and floor-borne objects lives in
 // js/zap_destroy_items.js, which the C file separates as its own group of

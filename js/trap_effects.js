@@ -1575,6 +1575,8 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                     state,
                     env,
                 );
+                if (state.program_state?.gameover)
+                    return Trap_Effect_Finished;
                 if (!random.rn2(6)) {
                     const poisonDamage = (state.u.umortality ?? 0) > oldumort ? 0 : 8;
                     await poisoned('spikes', A_STR,
@@ -1588,6 +1590,8 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                             done: (how) => done(how, state),
                             encumberMessage: (subject) => encumber_msg(subject),
                         });
+                    if (state.program_state?.gameover)
+                        return Trap_Effect_Finished;
                 }
             } else if (!conjPit && !deliberate
                 && !(plunged && (Flying(state) || is_clinger(state.youmonst.data)))) {
@@ -1598,10 +1602,16 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                     state,
                     env,
                 );
+                if (state.program_state?.gameover)
+                    return Trap_Effect_Finished;
             }
             if (Punished(state) && !carried(state.uball)) {
                 unplacebc(state);
                 await ballfall(state, env);
+                // A final death is NORETURN in C. Life-saving and a refused
+                // debug death leave gameover clear and continue normally.
+                if (state.program_state?.gameover)
+                    return Trap_Effect_Finished;
                 await placebc(state);
             }
             if (!conjPit) note_unported('trap.c selftouch');

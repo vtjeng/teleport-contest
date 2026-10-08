@@ -747,6 +747,10 @@ export async function deferred_goto(state = game) {
             Boolean(typmask & UTOTYPE_PORTAL),
             state,
         );
+        // A final death during goto_level() is NORETURN in C. The JS
+        // finalizer returns after marking gameover so the ending screen can
+        // be captured; do not resume this deferred transition's tail.
+        if (state.program_state?.gameover) return;
         if (typmask & UTOTYPE_RMPORTAL) {
             // trap.c deltrap() is not ported. No level-teleport transition
             // carries this flag; portal ejection owns the first live use.
@@ -2898,8 +2902,13 @@ export async function goto_level(
             state,
         );
         if (falling) {
-            if (Punished(state) && !welded(state.uball, state))
+            if (Punished(state) && !welded(state.uball, state)) {
                 await ballfall(state);
+                // C losehp() does not return after an accepted death. JS
+                // finalization marks gameover and unwinds asynchronously, so
+                // stop before self-touch and the rest of level arrival.
+                if (state.program_state?.gameover) return;
+            }
             note_unported('trap.c selftouch');
             do_fall_dmg = true;
         }

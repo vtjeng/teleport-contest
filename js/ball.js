@@ -2,8 +2,9 @@
 // C refs: ball.c ballrelease() (23-39), ballfall() (43-67), placebc_core() (120-145),
 // unplacebc_core() (147-190), placebc()/unplacebc() (193-219),
 // move_bc() (437-552), drag_ball() (560-830), and drag_down() (986-1031).
-// These helpers are used by dothrow.c hurtle_step() while a jumping hero is
-// punished. The pointers in drag_ball() are represented by `{ value }` cells.
+// The movement helpers are used by dothrow.c hurtle_step() while a jumping
+// hero is punished. The pointers in drag_ball() are represented by `{ value }`
+// cells.
 
 import {
     A_STR,

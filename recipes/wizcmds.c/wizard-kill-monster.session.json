@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizcmds.c:wiz_kill monster route. Unsearched seed, fixed clock and source-valid debug/setup commands. C output is inspected before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 14629032,
+      "datetime": "20650716132800",
+      "nethackrc": "OPTIONS=name:Killmonster,role:Ranger,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\nBINDINGS=V:wizkill\n",
+      "moves": " \u0007peaceful straw golem\n m#wizkill\nm.\u001b "
+    }
+  ]
+}

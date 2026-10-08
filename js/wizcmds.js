@@ -1,10 +1,11 @@
 // wizcmds.js -- the wizard-mode extended commands.
 // C refs: src/wizcmds.c wiz_map(), wiz_genesis(), wiz_level_change(),
 // wiz_level_tele(), wiz_wish(), wiz_identify(), wiz_polyself(),
-// wiz_intrinsic(), and wiz_makemap(), among the rows cmd.c dispatches here.
+// wiz_intrinsic(), wiz_kill(), and wiz_makemap(), among the rows cmd.c dispatches here.
 
 import {
     ACID_RES,
+    ARTICLE_A, ARTICLE_THE, ARTICLE_YOUR,
     ARM,
     ADORNED,
     AGGRAVATE_MONSTER,
@@ -17,6 +18,7 @@ import {
     CONFLICT,
     DEAF,
     DETECT_MONSTERS,
+    DIED,
     DISINT_RES,
     DISPLACED,
     DRAIN_RES,
@@ -70,6 +72,7 @@ import {
     STEALTH,
     STRANGLED,
     STUNNED,
+    SUPPRESS_IT, SUPPRESS_HALLUCINATION, SUPPRESS_SADDLE,
     SWIMMING,
     TELEPAT,
     TELEPORT,
@@ -82,6 +85,8 @@ import {
     WARNING,
     WOUNDED_LEGS,
     WWALKING,
+    XKILL_NOMSG,
+    has_mgivenname,
     u_at,
 } from './const.js';
 import { losexp, pluslvl } from './exper.js';
@@ -89,34 +94,38 @@ import { body_part, float_vs_flight, polyself } from './polyself.js';
 import { create_particular } from './read.js';
 import { getlin, select_menu } from './windows.js';
 import { game } from './gstate.js';
-import { cmd_from_func, makemap_prepost } from './cmd.js';
+import { done } from './end.js';
+import { mon_nam, x_monnam } from './do_name.js';
+import { dmonsfree } from './makemon_create.js';
+import { AD_PHYS, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
+import { note_unported } from './unported.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { cmd_from_func, makemap_prepost, paranoid_query, yn_function } from './cmd.js';
 import { display_inventory } from './invent.js';
 import {
     notice_mon_off, notice_mon_on, pooleffects,
 } from './hack.js';
-import { rescham, usmellmon } from './mon.js';
-import { mungspaces } from './hacklib.js';
+import { monkilled, rescham, usmellmon, xkilled } from './mon.js';
+import { dist2, mungspaces, upstart } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { makewish } from './zap.js';
-import { docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
+import { canspotmon, docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
     map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
 import { do_mapping, findit } from './detect.js';
-import { In_W_tower, print_dungeon } from './dungeon.js';
+import { In_W_tower, on_level, print_dungeon } from './dungeon.js';
 import { mklev } from './mklev.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
     make_sick, make_slimed, make_stunned,
     make_stoned, make_vomiting,
 } from './potion.js';
-import { rn2 } from './rng.js';
 import { flip_level, flip_level_rnd } from './sp_lev.js';
 import { vision_recalc } from './vision.js';
-import { PM_GRID_BUG } from './monsters.js';
 import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
-import { olfaction } from './mondata.js';
+import { nonliving, olfaction } from './mondata.js';
 // C ref: wizcmds.c wiz_makemap() (156-173). Keep the original tower flag
 // across teardown, generation and arrival; goto_level's entry effects do not
 // belong to replacement levels. The existing pre/post owner records its gaps.
@@ -672,4 +681,98 @@ export async function wiz_smell(state = game, env = {}) {
             if (glyph_is_invisible(glyph)) unmap_invisible(cc.x, cc.y, state);
         }
     }
+}
+
+// C ref: wizcmds.c wiz_kill() (243–352). The command targets repeatedly,
+// credits either the hero or monsters, and purges dead nodes without a turn.
+export async function wiz_kill(state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    // Canonical death owners pass this family into object creation and timers.
+    // In particular, rnz must retain its own recorder-visible wrapper entry.
+    const killEnv = { ...env, state, message,
+        random: { d, rn1, rn2, rnd, rne, rnl, rnz, ...(env.random ?? {}) },
+        unsupported: env.unsupported
+            ?? (reason => note_unported(reason === "the death of the hero's steed"
+                ? 'steed.c dismount_steed' : `mon.c ${reason}`)),
+    };
+    const save_verbose = state.flags.verbose;
+    const save_autodescribe = state.iflags.autodescribe;
+    const uarehere = { ...state.u.uz };
+    const cc = { x: state.u.ux, y: state.u.uy };
+    let prompt = 'Pick first monster to slay';
+    for (;;) {
+        await message(`${prompt}:`, state, env);
+        prompt = 'Next monster';
+        state.flags.verbose = false;
+        state.iflags.autodescribe = true;
+        const ans = await getpos(cc, true, 'a monster', state);
+        state.flags.verbose = save_verbose;
+        state.iflags.autodescribe = save_autodescribe;
+        if (ans < 0 || cc.x < 1) break;
+
+        let mtmp = null;
+        if (u_at(cc.x, cc.y, state)) {
+            if (state.u.usteed) {
+                const qbuf = `Kill ${mon_nam(state.u.usteed, state, env).slice(0, 110)}?`;
+                // hack.h ynq() defaults to 'q' and adds the answer to cmdq.
+                const c = await yn_function(qbuf, 'ynq', 'q', true, state);
+                if (c === 'q'.charCodeAt(0)) break;
+                if (c === 'y'.charCodeAt(0)) mtmp = state.u.usteed;
+            }
+            if (!mtmp) {
+                const qbuf = state.urole.mnum === PM_SAMURAI
+                    ? 'Perform seppuku?' : 'Commit suicide?';
+                if (await paranoid_query(true, qbuf, state)) {
+                    // you.h uhis() uses the original flags.female gender.
+                    state.killer ??= { name: '', format: KILLED_BY };
+                    state.killer.name = `${state.flags.female ? 'her' : 'his'} own player`;
+                    state.killer.format = KILLED_BY;
+                    await done(DIED, state);
+                    // end.c done() reaches the NORETURN really_done() path
+                    // after an accepted death. The JavaScript finalizer
+                    // returns only so the recorder can capture its final
+                    // screen, so do not resume dmonsfree() or command-result
+                    // handling after it.
+                    if (state.program_state?.gameover) return;
+                }
+                break;
+            }
+        } else if (state.u.uswallow) {
+            // you.h next2u() is distu(x,y) <= 2, including diagonals.
+            mtmp = dist2(cc.x, cc.y, state.u.ux, state.u.uy) <= 2
+                ? state.u.ustuck : null;
+        } else {
+            mtmp = m_at(cc.x, cc.y, state);
+        }
+        unmap_invisible(cc.x, cc.y, state);
+
+        if (mtmp) {
+            const tame = Boolean(mtmp.mtame);
+            const seen = canspotmon(mtmp, state)
+                || (state.u.uswallow && mtmp === state.u.ustuck);
+            const flgs = SUPPRESS_IT | SUPPRESS_HALLUCINATION
+                | ((tame && has_mgivenname(mtmp)) ? SUPPRESS_SADDLE : 0);
+            const articl = tame ? ARTICLE_YOUR : seen ? ARTICLE_THE : ARTICLE_A;
+            const adjs = tame ? (seen ? 'poor' : 'poor, unseen')
+                : (seen ? null : 'unseen');
+            const Mn = x_monnam(mtmp, articl, adjs, flgs, false, state, env);
+            if (!state.iflags.menu_requested) {
+                await message(`You ${nonliving(mtmp.data) ? 'destroy' : 'kill'} ${Mn}!`, state, env);
+                await xkilled(mtmp, XKILL_NOMSG, state, killEnv);
+                if (state.program_state?.gameover) return;
+            } else {
+                state.context.mon_moving = true;
+                await message(`${upstart(Mn)} is ${nonliving(mtmp.data) ? 'destroyed' : 'killed'}.`, state, env);
+                await monkilled(mtmp, null, AD_PHYS, state, killEnv);
+                if (state.program_state?.gameover) return;
+                state.context.mon_moving = false;
+            }
+            if (state.u.utotype || !on_level(state.u.uz, uarehere)) break;
+        } else {
+            await message('There is no monster there.', state, env);
+            break;
+        }
+    }
+    dmonsfree(state);
+    return ECMD_OK;
 }

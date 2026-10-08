@@ -12,6 +12,11 @@ import {PM_FLOATING_EYE} from '../js/monsters.js';
 import {HALF_PHDAM,OBJ_FLOOR,OBJ_INVENT,OBJ_FREE,W_WEP,NO_KILLER_PREFIX} from '../js/const.js';
 
 const c=readFileSync('nethack-c/upstream/src/ball.c','utf8');
+const cEnd=readFileSync('nethack-c/upstream/src/end.c','utf8');
+const jsAttrib=readFileSync('js/attrib.js','utf8');
+const jsDo=readFileSync('js/do.js','utf8');
+const jsHack=readFileSync('js/hack.js','utf8');
+const jsTrap=readFileSync('js/trap_effects.js','utf8');
 // Independent initialized hero: no monsters/pet act during these direct checks.
 const input={seed:1432801,datetime:'20551204112213',nethackrc:'OPTIONS=name:BallFall,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,!debug_mongen\n',moves:''};
 async function fixture(){
@@ -39,6 +44,23 @@ test('ballfall source guard, hit expression and ordered damage call have a canon
     assert.match(c,/ballrelease\(TRUE\);[\s\S]*?int dmg = rn1\(7, 25\);/u);
     assert.match(c,/dmg = 3;[\s\S]*?losehp\(Maybe_Half_Phys\(dmg\), "crunched in the head by an iron ball",\s*NO_KILLER_PREFIX\)/u);
     assert.equal(typeof ballOwner.ballfall,'function');
+});
+
+test('ballfall callers stop where C final death does not return',()=>{
+    assert.match(cEnd,
+        /ATTRNORETURN staticfn void really_done\(int\) NORETURN;/u);
+    assert.match(jsDo,
+        /await ballfall\(state\);\s*\/\/ C losehp\(\) does not return[\s\S]*?if \(state\.program_state\?\.gameover\) return;\s*\}\s*note_unported\('trap\.c selftouch'\)/u);
+    assert.match(jsTrap,
+        /await ballfall\(state, env\);[\s\S]*?if \(state\.program_state\?\.gameover\)\s*return Trap_Effect_Finished;\s*await placebc\(state\);/u);
+    assert.match(jsTrap,
+        /await losehp\([\s\S]*?if \(state\.program_state\?\.gameover\)\s*return Trap_Effect_Finished;[\s\S]*?await ballfall\(state, env\)/u);
+    assert.match(jsAttrib,
+        /await done\([\s\S]*?if \(state\.program_state\?\.gameover\) return;\s*\}\s*await encumberMessage\(state\)/u);
+    assert.match(jsDo,
+        /await goto_level\([\s\S]*?if \(state\.program_state\?\.gameover\) return;\s*if \(typmask & UTOTYPE_RMPORTAL\)/u);
+    assert.match(jsHack,
+        /await dotrap\(trap, trapflag, state\);[\s\S]*?finally[\s\S]*?staticState\.traptyp = NO_TRAP_FLAGS;[\s\S]*?if \(state\.program_state\?\.gameover\) return;[\s\S]*?if \(pick && pit\)/u);
 });
 
 // These values pin source short-circuit paths and the exact bounded draws,

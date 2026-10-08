@@ -501,6 +501,26 @@ test('the hero pit arm sets its timer and takes pit damage', async () => {
     assert.equal(trap.tseen, true, 'feeltrap() marks the trap known');
 });
 
+test('fatal ordinary pit damage stops before later pit draws', async () => {
+    await hero();
+    const trap = { tx: game.u.ux, ty: game.u.uy, ttyp: PIT, tseen: false };
+    game.u.uhp = 1;
+    // Keep the direct finalizer on its initialized display while suppressing
+    // disclosure; spaces answer the pending damage and death More prompts.
+    game.program_state.stopprint = 1;
+    game.nhDisplay.onEmptyQueue = () => ' '.charCodeAt(0);
+    const env = pitEnv([2, 4]);
+
+    assert.equal(
+        await trapeffect_selector(game.youmonst, trap, 0, env),
+        Trap_Effect_Finished,
+    );
+    assert.equal(game.program_state.gameover, true);
+    assert.deepEqual(env.bounds, [
+        'rn1(6,2)', 'rnd(6)',
+    ]);
+});
+
 // mon.c copy_mextra() (2596-2646). Its live caller is save_mtraits(), which
 // runs for the pet the pit kills; scripts/mon-kill.test.mjs pins that route
 // end to end and this pins the record-by-record copy underneath it.
