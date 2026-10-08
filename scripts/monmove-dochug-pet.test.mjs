@@ -39,6 +39,7 @@ function baseEnv(events) {
     return {
         state: {
             u: {
+                uhp: 10, // Source phase-four gate admits a living hero.
                 uprops: {
                     [HALLUC]: {
                         intrinsic: 0,
@@ -93,7 +94,10 @@ function baseEnv(events) {
             events.push('items');
             return false;
         },
-        attackHero: () => events.push('attack'),
+        attackHero: () => {
+            events.push('attack');
+            return 0; // mattacku returns zero while its attacker survives.
+        },
         wakeMessage: () => events.push('wake-message'),
         monsterCanSeeHero: () => true,
         trappedPrologue: () => false,

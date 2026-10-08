@@ -1131,7 +1131,8 @@ export const You_can_move_again = 'You can move again.';
 // ", 18)`. savelife() leaves multi negative and allmain.c releases it through
 // unmul(), so this state-dependent message belongs here rather than being
 // treated as unreachable.
-export async function unmul(msg_override, state = game) {
+export async function unmul(msg_override, state = game, env = {}) {
+    const message = env.planning ? async () => {} : (env.message ?? ttyPline);
     state.disp ??= {};
     state.disp.botl = true;
     state.multi = 0; /* caller will usually have done this already */
@@ -1146,7 +1147,7 @@ export async function unmul(msg_override, state = game) {
     if (msg_override != null) state.nomovemsg = msg_override;
     else if (state.nomovemsg == null) state.nomovemsg = You_can_move_again;
     if (state.nomovemsg) {
-        await ttyPline(state.nomovemsg, state);
+        await message(state.nomovemsg, state, env);
         if (Upolyd(state.u)
             && state.nomovemsg.toLowerCase().startsWith(
                 'you survived that ',
@@ -1155,7 +1156,7 @@ export async function unmul(msg_override, state = game) {
                 state.mons?.[state.u.umonnum] ?? state.youmonst.data,
                 Ugender(state),
             ));
-            await ttyPline(`You are ${form}.`, state);
+            await message(`You are ${form}.`, state, env);
         }
     }
     state.nomovemsg = null;
@@ -1169,7 +1170,7 @@ export async function unmul(msg_override, state = game) {
         /* clear afternmv before calling it (to override the
            encumbrance hack for levitation--see weight_cap()) */
         state.afternmv = null;
-        await f(state);
+        await f(state, env);
     }
 }
 

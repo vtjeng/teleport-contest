@@ -106,19 +106,25 @@ test('shk_move returns 0 for a stationary shopkeeper at guard position', () => {
     assert.equal(result, 0);
 });
 
-test('shk_move refuses an angry shopkeeper', () => {
-    // C ref: shk.c:4897-4901.  An angry shopkeeper (mpeaceful === false)
-    // calls mattacku(), which is not ported.  Keep the hero within dist2 < 3
-    // so this close-combat branch is reached before move_special().
+test('shk_move completes adjacent angry combat before returning zero', async () => {
+    // shk.c:4897-4901 consumes no result but completes mattacku first.
+    // Cardinal adjacency also admits the grid-bug polymorph form.
     const shkp = makeStationaryShopkeeper({ mpeaceful: false });
     const state = makeShopState({ ux: 4, uy: 5 });
     state.level.rooms[0].resident = shkp;
-
-    assert.throws(
-        () => shk_move(shkp, state),
-        (err) => err instanceof UnsupportedShopError
-            && err.message.includes('close combat'),
-    );
+    const order = [];
+    const result = shk_move(shkp, state, {
+        attackHero: async (subject, env) => {
+            assert.equal(subject, shkp);
+            assert.equal(env.state, state);
+            await Promise.resolve();
+            order.push('attack completed');
+            return 1; // C discards the monster-death result at this call site.
+        },
+    });
+    assert.deepEqual(order, []);
+    assert.equal(await result, 0);
+    assert.deepEqual(order, ['attack completed']);
 });
 
 test('shk_move refuses a following shopkeeper', () => {

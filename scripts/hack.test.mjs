@@ -1500,6 +1500,21 @@ test('unmul clears afternmv before running it', async () => {
     assert.equal(idle.afternmv ?? null, null);
 });
 
+test('unmul forwards silent planning operations after clearing the callback', async () => {
+    // mhitu.c:703 stops object impersonation through the canonical callback.
+    const state = unmulState({ nomovemsg: 'You were hiding.', multi_reason: 'mimicking' });
+    const env = { planning: true, message: async () => { throw new Error('live message'); } };
+    let seen;
+    state.afternmv = async (called, forwarded) => {
+        seen = { called, forwarded, callback: called.afternmv, message: called.nomovemsg };
+    };
+    await unmul('You appear to be yourself again.', state, env);
+    assert.equal(state.multi, 0);
+    assert.equal(state.multi_reason, null);
+    assert.equal(state._pending_message ?? null, null);
+    assert.deepEqual(seen, { called: state, forwarded: env, callback: null, message: null });
+});
+
 test('end_running frees the travel map whether or not a run was going', () => {
     // hack.c:4151-4154 frees gt.travelmap outside both the `context.run` block
     // and the `and_travel` arm, so neither guard can withhold the clear. The

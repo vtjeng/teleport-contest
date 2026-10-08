@@ -24,6 +24,7 @@ import {
     DETECT_MONSTERS,
     DEAF,
     DISINT_RES,
+    DISPLACED,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -83,6 +84,8 @@ import { intrinsic_possible } from './eat.js';
 import {
     dist2, encodeUtf8ByteString, online2, sgn, s_suffix, strncmpi, upstart,
 } from './hacklib.js';
+import { mattacku } from './mhitu.js';
+import { PM_GRID_BUG } from './monsters.js';
 import { inv_cnt, nh_delay_output } from './hack.js';
 import {
     add_to_minv,
@@ -2675,7 +2678,8 @@ function shk_fixes_damage(shkp, state) {
 
 // C ref: shk.c shk_move() (4880-4993). Covers the ordinary peaceful path and
 // hands candidate selection to priest.c move_special(), which is shared by
-// both special movers. Combat, following speech, and repair still stop at
+// both special movers. Adjacent combat awaits mattacku in C order; following
+// speech and repair still stop at
 // their source branches.
 //
 // Return values match C: 1 = moved, 0 = didn't, -1 = let m_move do it,
@@ -2693,7 +2697,8 @@ export function shk_move(shkp, state, rawEnv = {}) {
 
     const hero = state.u;
     const udist = dist2(omx, omy, hero?.ux ?? 0, hero?.uy ?? 0);
-    if (udist < 3) {
+    if (udist < 3 && (shkp.data !== state.mons[PM_GRID_BUG]
+        || omx === hero.ux || omy === hero.uy)) {
         const conflict = state.u?.uprops?.[CONFLICT];
         const conflictActive = Boolean(
             conflict?.intrinsic || conflict?.extrinsic,
@@ -2702,10 +2707,21 @@ export function shk_move(shkp, state, rawEnv = {}) {
         if (!shkp.mpeaceful
             || (conflictActive
                 && !resist_conflict(shkp, state, random))) {
-            if (typeof env.attackHero !== 'function')
-                throw new UnsupportedShopError('shk_move close combat');
-            env.attackHero(shkp, env);
-            return 0;
+            // C discards the result, but completes mattacku before returning.
+            // Only this impure arm needs a promise; peaceful movement stays
+            // synchronous and m_move awaits either mover result.
+            return (async () => {
+                const displaced = hero.uprops?.[DISPLACED];
+                if (displaced?.intrinsic || displaced?.extrinsic) {
+                    if (!env.planning)
+                        await (env.message ?? ttyPline)(
+                            `Your displaced image doesn't fool ${shkname(shkp, state)}!`,
+                            state, env,
+                        );
+                }
+                await (env.attackHero ?? mattacku)(shkp, env);
+                return 0;
+            })();
         }
         if (eshkp.following)
             throw new UnsupportedShopError('shk_move following speech');

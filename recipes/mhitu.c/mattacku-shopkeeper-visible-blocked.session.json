@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked by existing display.c:newsym/vision_recalc closed-door map memory: strict RNG/cursors match but step141 door glyph differs. The blind variation verifies the active shk_move caller instead. Blocked at display.c:newsym/vision_recalc remembered door presentation after entering shop: C closed-door glyph + versus JS horizontal wall -, first differing boundary141; RNG/cursors match. Keep outside completion evidence.",
+  "segments": [
+    {
+      "seed": 1483044,
+      "datetime": "20930819151617",
+      "nethackrc": "OPTIONS=name:SpecialCallers,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!acoustics,!autopickup,!debug_mongen,pettype:none\n",
+      "moves": "\u00165\n #levelchange\n20\n                          \u0017ring of conflict\nPel     \u0014hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkk.     m. m. m. m. m. m."
+    }
+  ]
+}

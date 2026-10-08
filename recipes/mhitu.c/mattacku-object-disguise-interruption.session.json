@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked at eat.c:cpostfx1224 display_nhwindow(WIN_MAP,TRUE): its existing gap moves the invisible-monster map paint and animation boundary before the matching mattacku interruption. No completed runtime branch claim. Independent C-first object-disguise-interruption; source-valid inputs planned before replay comparison. This probe supplies no completion evidence until its state and caller are verified. Corrected setup follows observed C inventory letters/mount location; previous setup-only probe supplies no completion evidence. C query audit: exactly two spaces drain open/smell messages, then y answers Eat it; a third preceding space selected the default no and produced a matching setup miss. That miss is not completion evidence.",
+  "segments": [
+    {
+      "seed": 1483024,
+      "datetime": "20930819151617",
+      "nethackrc": "OPTIONS=name:HiddenCallers,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!acoustics,!autopickup,!debug_mongen,pettype:none\n",
+      "moves": "\u0017uncursed blindfold\nae\u0007sleeping sewer rat\n\u0017blessed tin of large mimic meat\nef  y    m. m. m. m. m. m. m."
+    }
+  ]
+}
