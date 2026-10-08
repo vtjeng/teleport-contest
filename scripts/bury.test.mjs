@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import * as digging from '../js/dig.js';
+import { unearth_objs } from '../js/dig.js';
 
 import {
     BURN_OBJECT,
@@ -28,7 +29,6 @@ import { ART_LONGBOW_OF_DIANA } from '../js/artifacts.js';
 import {
     bury_an_obj,
     obj_resists,
-    unearth_objs,
 } from '../js/bury.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
@@ -71,6 +71,7 @@ function burialState(moves = 20) {
     const state = {
         level: new GameMap(),
         moves,
+        u: { utrap: 0, utraptype: 0 },
         program_state: { gameover: false },
     };
     objects_globals_init(state);

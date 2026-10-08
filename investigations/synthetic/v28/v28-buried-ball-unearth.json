@@ -7,22 +7,22 @@
   "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
   "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
   "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
-  "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
-  "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
-  "evaluationUtc": "2026-10-08T04:24:32.322Z",
-  "remainingScreens": 9,
+  "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json",
+  "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+  "evaluationUtc": "2026-10-08T05:21:34.693Z",
+  "remainingScreens": 8,
   "recordedSteps": 85,
   "metrics": {
     "screens": {
-      "matched": 76,
+      "matched": 77,
       "total": 85
     },
     "rng": {
-      "matched": 4668,
+      "matched": 7200,
       "total": 7218
     },
     "cursors": {
-      "matched": 76,
+      "matched": 80,
       "total": 85
     }
   },
@@ -31,7 +31,7 @@
   "kind": "refusal",
   "message": "burial requires buried_ball_to_punishment for otyp 477",
   "status": "complete",
-  "commit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+  "commit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
   "mismatch": {
     "session": "synthetic/v28/v28-buried-ball-unearth",
     "corpus": "synthetic",
@@ -41,68 +41,61 @@
     "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
     "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
     "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
-    "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
-    "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
-    "evaluationUtc": "2026-10-08T04:24:32.322Z",
-    "remainingScreens": 9,
+    "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json",
+    "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+    "evaluationUtc": "2026-10-08T05:21:34.693Z",
+    "remainingScreens": 8,
     "recordedSteps": 85,
     "metrics": {
       "screens": {
-        "matched": 76,
+        "matched": 77,
         "total": 85
       },
       "rng": {
-        "matched": 4668,
+        "matched": 7200,
         "total": 7218
       },
       "cursors": {
-        "matched": 76,
+        "matched": 80,
         "total": 85
       }
     },
     "passed": false,
     "step": 76,
-    "kind": "refusal",
-    "message": "burial requires buried_ball_to_punishment for otyp 477",
-    "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json"
+    "kind": "rng",
+    "message": "Missing ball.c:ballfall at do.c:goto_level shaft arrival",
+    "workerReplayCommit": "7827213d98ccd1315957fadeef0a3434fcbc31cd",
+    "workerReplayDiagnostic": ".cache/C143-buried-ball-unearth-scan.json",
+    "evaluationArtifact": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json"
   },
   "goalKind": "file-port",
-  "summary": "Missing dig.c:buried_ball_to_punishment leaves the buried tether unchanged before downward digging; maketrap then reaches unearth_objs and refuses the same restoration. Port whole punishment restoration with source-required read.c:punish reuse-ball behavior and whole unearth_objs, preserving awaited ordering and every active caller frontier.",
+  "summary": "The restored buried punishment reaches a shaft arrival that still skips whole ball.c:ballfall. Port its guard, hit-chance and damage order and await both source callers: goto_level shaft arrival and trapeffect_pit after unplacebc. The C142 delivery exposes this next source owner; its accepted baseline evaluation still records nine remaining screens pending integration.",
   "source": {
-    "file": "dig.c",
-    "branch": "A downward digging action at a hero tethered by TT_BURIEDBALL calls buried_ball_to_punishment before maketrap. The helper finds a buried iron ball at the hero square or nearby, reuses that same ball with a new chain, clears the tether silently and redraws its old square.",
+    "file": "ball.c",
+    "branch": "A punished hero falls through a hole/trapdoor and the ball is not welded, or a punished uncarried ball follows a hero into a pit. Differing ball/hero coordinates permit rn2(5) only when the ball is not wielded; a hit releases any carried ball before rn1(7,25), anatomy/helmet feedback and half-physical damage.",
     "functions": [
-      "buried_ball_to_punishment",
-      "unearth_objs"
+      "ballfall"
     ],
     "callers": [
-      "dig.c:digactualhole656 before furniture handling/maketrap; JS currently note_unported",
-      "dig.c:unearth_objs2100 after consumed buried_ball and before its loop continues; JS bury.js currently refuses/injects this operation",
-      "do.c:goto_level1595 before old-level save; JS note_unported",
-      "hack.c:trapmove1679 TT_BURIEDBALL anchored wriggle_free; JS trapmove currently refuses all held types except PIT/BEARTRAP",
-      "teleport.c:teleds458 before ball_active calculation; JS currently refuses buried-ball path",
-      "teleport.c:level_tele1302 before next_to_u; JS note_unported",
-      "teleport.c:domagicportal1451 before next_to_u; the production owner is absent in JS",
-      "mklev.c:mkinvokearea2461 before reset_utrap and invocation transmutation; JS spell.deadbook currently note_unported for the whole owner"
+      "do.c:goto_level1807, inside falling random-arrival branch before selftouch/placebc; JS do.js2902 keeps note_unported",
+      "trap.c:trapeffect_pit1957, Punished&&!carried after unplacebc and before placebc; JS trap_effects.js1607 keeps note_unported"
     ],
     "dependencies": [
-      "Consumed dig.c:buried_ball1885-1930 is fully implemented in js/dig.js; verify complete exact-first, nearest squared distance<=8, first-on-ties, trap eligibility and caller-coordinate mutation. Current unearth_objs duplicates only exact-square lookup and must call canonical finder.",
-      "read.c:punish3019-3062 receives the extracted heavy iron ball as reuse flag. JS punish is partial: unconditional misbehavior/new-ball behavior, rejects unsolid/blind/swallowed. Whole source audit is required; no substitute RNG/state/message for the reuse branch.",
-      "Existing canonical obj_extract_self OBJ_BURIED->OBJ_FREE, setworn W_CHAIN/W_BALL, mkobj, ball.c placebc, reset_utrap(FALSE), del_engr_at and newsym owners are reusable. set_bc is absent: this discarded void call must remain named unless separately ported; no invented blind state.",
-      "unearth_objs active callers: dig.c:liquid_flow862, trap.c:maketrap563, zap.c:melt_ice5058. Existing JS unearth/pitTerrain are synchronous; maketrap already supports conditional Promise return for runtime statue creation. Preserve synchronous no-punishment generation while awaiting any restoration continuation before block recomputation/linking/next caller effect.",
-      "Audit live PIT/HOLE maketrap consumers in zap.c/muse.c/apply.c and the existing awaited dig/music paths before widening async admission. Do not globally change generation contracts or claim these caller functions complete.",
-      "domagicportal and mkinvokearea are active C caller entries with absent JS production owners. TT_BURIEDBALL trapmove branch is also unported. Reserve bounded admissions where possible; otherwise retain source-named blocked recipes and incomplete closure, rather than omitting active callers."
+      "Existing ball.c:ballrelease23-39 is source-equivalent: carried&&!welded, optional awaited startled message, canonical primary/swap/quiver setters, freeinv and encumber_msg. Reuse it; no duplicate release implementation or ballrelease credit.",
+      "Consumed predicates carried(obj.h332), welded(wield.c1050-1058), hard_helmet(do_wear.c568-574) and body_part(polyself.c) have canonical implementations. Reuse hard_helmet from do_wear.js and HEAD anatomy from polyself.js.",
+      "Yname2(objnam.c2376-2383), hack.c:losehp4255-4292 and existing Half_physical_damage intrinsic/extrinsic macro expansion are reusable. Preserve existing awaited death/debug-revival behavior; no owner expansion required.",
+      "Pit callers can participate in planned monster actions; use existing silent message/random/losehp environment conventions and clone contracts. Do not add RNG or mutate live state during planning. Both production callers are already async.",
+      "Existing selftouch, set_bc and other unrelated ball/chain limitations remain named gaps outside ballfall."
     ]
   },
   "evidence": [
-    "Exact accepted-main evaluation challenges/evaluations/accepted-e0d0dcd2de84273a7db3e7676a895db314cb98d2-v28.json at e0d0dcd2de84273a7db3e7676a895db314cb98d2 reports76/85 screens and cursors,4668/7218 RNG; nine remaining screens. Its hosted origin is .git/checkpoint-results/e0d0dcd2de84273a7db3e7676a895db314cb98d2/run-hosted-vu7J4n/synthetic/ci-v28.json. Manifest corpus digest394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039 and recording hash1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54 verified against both saved evaluation and recording bytes.",
-    "Read-only single-case replay .cache/C142-buried-ball-unearth-accepted-scan.json at ccc19e7876bac50f265d456eca0c7ee87a543f01, whose tracked tree exactly equals accepted e0d0dcd2de84273a7db3e7676a895db314cb98d2, reproduces step76 key> refusal burial requires buried_ball_to_punishment for otyp477 with76 emitted screens. C recording key> emits You dig a hole through the floor / You fall through, then generates a destination level. Earlier prepared .cache/v28-runs/v28-buried-ball-unearth.boundary.json pins stack dozap -> weffects -> zap_dig -> dighole -> digactualhole -> maketrap -> pitTerrain -> unearth_objs; the refreshed scan agrees with that first stop/count.",
-    "The first missing source effect precedes the thrown refusal: digactualhole C656 restores punishment before maketrap, while js/dig.js records note_unported. A repaired first call clears TT_BURIEDBALL before the later unearth loop; the refusal is a downstream manifestation, not the earliest owner.",
-    "Whole dig.c1935-1955: capture hero coordinates, consume buried_ball, no-ball no-op, extract same ball, punish(ball), reset_utrap(FALSE), delete engraving at selected ball coordinates, newsym there. Source #if0 rust timer is inactive. Whole unearth_objs2086-2116 consumes buried_ball, preserves next pointer before mutations, uses punishment restoration only for tethered selected ball, otherwise extraction/ROT_ORGANIC stop/placement/stack, then deletes engraving and redraws.",
-    "Whole read.c punish3019-3062: reuse flag suppresses misbehavior and new-ball allocation. Existing JS always emits misbehavior and mkobj(BALL_CLASS), so merely wiring the helper would invent an extra ball and RNG calls. Preserve chain-first allocation, reused identity, heavier existing-punishment branch, unsolid drop path and swallowed/blind display ordering from source.",
-    "Source search rg buried_ball_to_punishment nethack-c/upstream/src finds eight direct active calls, listed above. No build exclusion makes absent domagicportal or invocation inactive. Compile-disabled Rust timer is the only selected #if0 branch.",
-    "Existing maketrap JS931-1011 returns Promise only for a runtime statue tail, and its selected digging caller already awaits it. Reuse this supported continuation mechanism for restoration; .cache/C142-maketrap-callers.txt records27 textual sites for the bounded live-consumer audit. Do not infer that every unawaited call is unsafe: WEB/MAGIC_PORTAL and no-tether generation paths cannot enter unearth punishment.",
-    "Independent evidence plan: digging-unearth role/object variation, release by adjacent teleport, level teleport, ordinary goto_level, tether movement expiry, and a direct terrain-unearth variation that actually executes the unearth punishment arm. Reuse-ball identity and chain-only RNG allocation need production post-state assertions. Preserve portal/invocation loader/owner blockers if those callers cannot be admitted safely. No C recording or source edit was made during this investigation.",
-    "Accepted-tree source recheck: dig.c helper/finder/unearth and read.c punish bodies are unchanged. The intervening do.js diff only adds THRONE dry-floor admission in preflight_dropx; goto_level buried-ball placeholder remains. The proposal still needs same-object punishment reuse, canonical finder, ordered conditional unearth continuation and active caller frontiers; no game or recording edits were made."
+    "Worker-local replay at immutable C142 7827213d98ccd1315957fadeef0a3434fcbc31cd: .cache/C143-buried-ball-unearth-scan.json and .cache/C143-ballfall-replay.json. All85 boundaries are emitted,77screens/cursors together match,8remain. First RNG mismatch step76/index7177 is C rn2(5)=1 @ballfall(ball.c51) against JS d(1,6)=5. First screen/cursor mismatch step77: C The iron ball falls on your head.--More--, JS object-list display.",
+    "Exact C trace then draws rn2(7)=3 at ballfall54, representing rn1(7,25)=28; C emits You die at78, debug Die?79, refusal-to-die feedback80, shaft d(1,6)=6 at81 and survival82. JS omits the hit/damage/input waits and advances directly to shaft damage. The mismatch is missing source behavior, not a terminal rendering difference.",
+    "Whole ball.c43-67: null/welded-carried early return; compute gets_hit before release with both coordinate and wield short circuits; ballrelease(TRUE) before damage draw; rn1(7,25) before head message; hard helmet overrides damage to3 after draw and emits feedback regardless verbose; soft helmet message only verbose; Maybe_Half_Phys rounds up before losehp with exact killer and NO_KILLER_PREFIX. Do not add post-losehp branches absent from C.",
+    "Source search rg \\bballfall\\b nethack-c/upstream/src finds exactly two direct active caller functions, do.c goto_level1807 and trap.c trapeffect_pit1957. Both JS sites currently preserve named gaps. Wire awaited ballfall in those exact source positions. Preserve caller guards, unplacebc/placebc ordering and unrelated selftouch gaps; no whole caller credit.",
+    "Owner review: js/ball.js ballrelease207-218 already follows ball.c23-39, js/wield.js welded368 follows C1050-1058, js/do_wear.js hard_helmet861 follows C568-574, js/obj.js carried1236 follows obj.h332, js/objnam.js Yname21733 follows C2376-2383, js/polyself.js body_part2001 uses canonical anatomy and js/hack.js losehp1280 owns live/planned HP and death. Existing worn.js swap/quiver wrappers remain synchronous on these non-artifact slots.",
+    "Immutable admitted provenance remains manifest challenges/manifests/v28.json, corpusDigest 394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039, recording challenges/cases/v28/v28-buried-ball-unearth.session.json sha256 1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54; saved accepted evaluation challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json names 1cf15831c237fc4d910c6a10ae138e75c4ab5939 with8remaining. This report uses worker-local8remaining only; do not use it as a replacement accepted evaluation. Recheck against C142 accepted checkpoint before central queueing. Replay input sha256 6bedd27e9056fc741f9d0426f7b65f735283c0be4ef34a4301e5473166638940, diagnosticToolSha256 01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82.",
+    "Independent evidence plan: legal punishment then shaft fall and legal punishment then pit/spiked pit, with role/helmet/material variations. Source-pinned tests cover null ball, welded-carried guard, colocated and wielded short circuits, zero/positive rn2(5), release-before-rn1 order, damage25..31, hard helmet3, soft verbose/noverbose, half-physical ceil and anatomy. Use production replay state assertions for ball inventory/slot release; no C recording or game edit during this investigation.",
+    "No existing verified ballfall unit was found in GOALS.json. Ledger status .cache/C143-ledger-status.json shows only pending C142 reservations; none overlaps ball.c:ballfall or punishment-ball-fall. C142 remains the required pending ancestor. Portal/invocation frontiers retained in C142 packet are separate active helper callers; this ballfall task does not close them."
   ]
 }

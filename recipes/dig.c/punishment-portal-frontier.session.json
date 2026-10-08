@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED: teleport.c:domagicportal has no JS owner; trap.c magic-portal hero dispatch refuses before its buried_ball_to_punishment call at teleport.c1451. A wished to-nowhere portal is a setup attempt, not closure evidence.",
+  "segments": [
+    {
+      "seed": 1422808,
+      "datetime": "20541113101519",
+      "nethackrc": "OPTIONS=name:Buried1422801,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017magic portal\n    \u0017uncursed scroll of punishment\nre    #wizbury\n  lh      ."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first air-elemental variation: the source legal whirly/unsolid form avoids fog-cloud visible regions and reaches punish -> dropy without a chain.",
+  "segments": [
+    {
+      "seed": 1422821,
+      "datetime": "20541113101519",
+      "nethackrc": "OPTIONS=name:Punish1422821,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017uncursed scroll of punishment\n  #polyself\nair elemental\n      re       ."
+    }
+  ]
+}

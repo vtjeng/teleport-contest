@@ -142,6 +142,7 @@ import {
     TRAP_CLEARLY_IMMUNE,
     TRAPNUM,
     TT_BEARTRAP,
+    TT_BURIEDBALL,
     TT_PIT,
     Upolyd,
     VIBRATING_SQUARE,
@@ -219,7 +220,7 @@ import {
 } from './command_bindings.js';
 import { clear_kickedloc } from './dokick.js';
 import { drag_ball, move_bc } from './ball.js';
-import { dig_typ, use_pick_axe2, watch_dig } from './dig.js';
+import { buried_ball, buried_ball_to_punishment, dig_typ, use_pick_axe2, watch_dig } from './dig.js';
 import {
     Amonnam,
     a_monnam,
@@ -1713,7 +1714,7 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
 // The test is on the trap type rather than on u.utrap because the other arms
 // differ: TT_PIT returns TRUE for an adjacent seen pit (1583) and
 // TT_BURIEDBALL for a step inside the chain's reach (1648), and both of those
-// do reach test_move(). Neither is ported; trapmove() stops on the type.
+// do reach test_move(), so destination admission still applies to those arms.
 function heldStepIgnoresDestination(state) {
     return Boolean(state.u?.utrap) && state.u.utraptype === TT_BEARTRAP;
 }
@@ -3779,9 +3780,8 @@ async function domove_fight_empty(x, y, state) {
 //
 // TT_PIT now delegates to trap.c:climb_pit(), except for the adjacent visible
 // pit that C permits the hero to enter. The remaining unported arms are
-// TT_WEB, TT_LAVA, TT_INFLOOR and TT_BURIEDBALL. The pit arm reads desttrap;
-// C uses x and y in the unported lava and buried-ball arms. The buried-ball
-// arm owns anchored, which chooses "wrench the ball" in wriggle_free().
+// TT_WEB, TT_LAVA and TT_INFLOOR. The buried-ball arm below preserves the
+// shared wriggle_free label's anchored message and punishment restoration.
 async function trapmove(x, y, desttrap, state = game) {
     const u = state.u;
 
@@ -3794,6 +3794,28 @@ async function trapmove(x, y, desttrap, state = game) {
         if (desttrap && desttrap.tseen && is_pit(desttrap.ttyp))
             return true; /* move into adjacent pit */
         await climb_pit(state);
+        return false;
+    }
+    // C ref: hack.c:1632-1680, only the anchored TT_BURIEDBALL arm.
+    if (u.utraptype === TT_BURIEDBALL) {
+        const cc = { x: u.ux, y: u.uy };
+        if (buried_ball(cc, state) && dist2(x, y, cc.x, cc.y) <= 2) {
+            if (state.flags.verbose)
+                await ttyNorep("You move within the chain's reach.", state);
+            return true;
+        }
+        const steedname = u.usteed ? y_monnam(u.usteed, state) : null;
+        if (--u.utrap) {
+            if (state.flags.verbose)
+                await ttyNorep(steedname
+                    ? `You and ${steedname} are chained to the buried ball.`
+                    : 'You are chained to the buried ball.', state);
+        } else {
+            await ttyPline(steedname
+                ? `${upstart(steedname)} finally wrenches the ball free.`
+                : 'You finally wrench the ball free.', state);
+            await buried_ball_to_punishment(state);
+        }
         return false;
     }
     if (u.utraptype !== TT_BEARTRAP) {

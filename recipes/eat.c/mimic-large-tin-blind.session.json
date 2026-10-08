@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first cheap variation of the blind tin witness. The same independently chosen seed and setup isolate the large mimic 40-turn cpostfx branch from the small mimic 20-turn branch, followed by eatmdone restoration. No seed search.",
+  "segments": [
+    {
+      "seed": 1472902,
+      "datetime": "20520707101500",
+      "nethackrc": "OPTIONS=name:MimicWitness,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   \u0017uncursed blindfold\nae\u0017blessed tin of large mimic meat\nef  y . . . . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

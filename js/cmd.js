@@ -5672,6 +5672,10 @@ export async function rhack(key, state = game) {
             const res = await failClosedCommand(
                 key, state, () => doextcmd(key, state),
             );
+            // A named command can reach C's nonreturning finalizer. The
+            // JavaScript finalizer returns for screen capture only; do not
+            // apply cmd.c's result handling after that terminal boundary.
+            if (state.program_state?.gameover) return;
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
@@ -6255,6 +6259,7 @@ export async function rhack(key, state = game) {
         if (command === 'wizkill') {
             // C cmd.c rhack() consumes the same no-time result for a bound key.
             const res = await runKillCommand(key, state);
+            if (state.program_state?.gameover) return;
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

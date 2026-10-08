@@ -433,5 +433,6 @@ test('wizard kill dispatch admits the menu prefix and no-time configured key', a
     assert.match(source, /"wizkill", "slay a monster",[\s\S]*?wiz_kill, \(IFBURIED \| AUTOCOMPLETE \| WIZMODECMD[\s\S]*?CMD_M_PREFIX \| NOFUZZERCMD\)/u);
     assert.ok(ADMITTED_COMMANDS.includes('wizkill'));
     assert.match(js, /case 'wiz_kill':\s*return await runKillCommand\(key, state\);/u);
-    assert.match(js, /if \(command === 'wizkill'\)[\s\S]*?ECMD_CANCEL \| ECMD_FAIL[\s\S]*?resetCommandVars\(state, state.multi < 0\)/u);
+    assert.match(js, /if \(command === '#'\)[\s\S]*?doextcmd\(key, state\)[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?resetCommandVars\(state, state.multi < 0\)/u);
+    assert.match(js, /if \(command === 'wizkill'\)[\s\S]*?runKillCommand\(key, state\)[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?resetCommandVars\(state, state.multi < 0\)/u);
 });

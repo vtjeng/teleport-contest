@@ -7,7 +7,8 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    BLINDED, ECMD_OK, KILLED_BY, LAST_PROP, SLIMED, STONED, TIMEOUT,
+    BLINDED, DISCLOSE_NO_WITHOUT_PROMPT, ECMD_OK, KILLED_BY, LAST_PROP,
+    SLIMED, STONED, TIMEOUT,
 } from '../js/const.js';
 import { delayed_killer } from '../js/end.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -385,6 +386,25 @@ test('wiz_kill clears an empty invisible marker before its no-monster message', 
             assert.equal(glyph_is_invisible(glyph_at(x, y, state)), false);
     } }), ECMD_OK);
     assert.deepEqual(messages, ['Pick first monster to slay:', 'There is no monster there.']);
+});
+
+test('wiz_kill stops at accepted suicide before dead-monster cleanup', async () => {
+    const { wiz_kill } = await import('../js/wizcmds.js');
+    const state = await smellTestGame();
+    state.wizard = false; // Skip the debug-mode reprieve after confirming suicide.
+    state.iflags.window_inited = false; // C's no-window finalization needs no key.
+    state.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+    state.flags.bones = false;
+    state.invent = null;
+    state.moves = Math.max(state.moves, 2);
+    // A call to dmonsfree() would reject this unmatched pending count.  C's
+    // accepted-suicide path never reaches that cleanup after done(DIED).
+    state.iflags.purge_monsters = 1;
+    queueSmellKeys(state, '.yes\n');
+
+    assert.equal(await wiz_kill(state), undefined);
+    assert.equal(state.program_state.gameover, true);
+    assert.equal(state.iflags.purge_monsters, 1);
 });
 
 test('wiz_kill follows the whole source control flow and caller contracts', () => {
