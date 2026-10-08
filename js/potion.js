@@ -153,7 +153,7 @@ import { permapoisoned, Sting_effects } from './artifacts.js';
 import {
     bot, newsym, see_monsters, see_objects, see_traps, swallowed, tmp_at,
 } from './display.js';
-import { goto_level, heal_legs, trycall } from './do.js';
+import { doup, goto_level, heal_legs, trycall } from './do.js';
 import {
     Amonnam,
     Monnam,
@@ -1779,7 +1779,7 @@ async function peffect_polymorph(otmp, state = game) {
 //        drink_ok() (505-521), dodrink() (526-615).
 // ---------------------------------------------------------------------------
 
-// C ref: potion.c peffect_levitation() (1164-1215). Levitation potions and
+// C ref: potion.c peffect_levitation() (1165-1221). Levitation potions and
 // spells use the same property timeout, cursed ceiling impact, and sink effect.
 async function peffect_levitation(otmp, state) {
     const { u } = state;
@@ -1800,7 +1800,7 @@ async function peffect_levitation(otmp, state) {
         if (levitation.blocked) {
             // BLevitation means the rise is still blocked.
         } else if (stairway_at(u.ux, u.uy, state)?.up) {
-            note_unported('do.c doup');
+            await doup(state);
             state.gp.potion_nothing = 0;
         } else if (has_ceiling(u.uz, state)) {
             const dmg = rnd(!state.uarmh ? 10

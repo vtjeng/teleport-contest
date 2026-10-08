@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B151 C-first recipe. Shared sink tail peffect_levitation -> spoteffects(FALSE) -> dosinkfall; independent terrain-wish setup. Seed chosen before recording with no scan. C drinking on a sink prompts first; n declines before choosing the potion.",
+  "segments": [
+    {
+      "seed": 84815116,
+      "datetime": "20320516102347",
+      "nethackrc": "OPTIONS=name:LevitationExtra,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017sink\n\u0017uncursed potion of levitation\nqne       ."
+    }
+  ]
+}
