@@ -12,7 +12,7 @@
   "evaluationPath": "challenges/evaluations/accepted-12ef8612de6f2bb2114e3735f82559f4ddb22cd4-v28.json",
   "evaluationCommit": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4",
   "status": "complete",
-  "commit": "7559dee61dab0ef0bfef072ae4da5981051e6255",
+  "commit": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v28",
