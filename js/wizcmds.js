@@ -21,6 +21,7 @@ import {
     CLAIRVOYANT,
     COLD_RES,
     COLNO, ROWNO, COULD_SEE, IN_SIGHT, TEMP_LIT,
+    CORR, SDOOR, WM_MASK, IS_WALL, IS_ROOM, IS_DOOR,
     CONFUSION,
     CONFLICT,
     DEAF,
@@ -135,6 +136,28 @@ import { vision_recalc } from './vision.js';
 import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { nonliving, olfaction } from './mondata.js';
+
+// C ref: wizcmds.c wiz_show_wmodes() (657-689). The canonical interface
+// in options.js is tty, matching the recorder's active WINDOWPORT(tty).
+// The existing text window owns create/putstr/display(TRUE)/destroy.
+export async function wiz_show_wmodes(state = game, env = {}) {
+    const lines = [{ text: '' }]; // Source tty-only blank top line.
+    for (let y = 0; y < ROWNO; y++) {
+        let row = '';
+        for (let x = 0; x < COLNO; x++) {
+            const location = state.level.at(x, y);
+            if (u_at(x, y, state)) row += '@';
+            else if (IS_WALL(location.typ) || location.typ === SDOOR)
+                row += String(location.wall_info & WM_MASK);
+            else if (location.typ === CORR) row += '#';
+            else if (IS_ROOM(location.typ) || IS_DOOR(location.typ)) row += '.';
+            else row += 'x';
+        }
+        lines.push({ text: row.slice(1) }); // Column zero is off screen; never trim rows.
+    }
+    await (env.window ?? displayTtyTextWindow)(state, lines);
+    return ECMD_OK;
+}
 
 // C ref: wizcmds.c wiz_show_seenv() (576-617). Each map cell occupies two
 // columns; C narrows a full-width crop by one cell to avoid an 80-byte row.

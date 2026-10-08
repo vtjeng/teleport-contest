@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first outside-limit probe: ordinary playmode rejects the wizard-only wall-mode command before entering wiz_show_wmodes.",
+  "segments": [
+    {
+      "seed": 16540033,
+      "datetime": "20540711133000",
+      "nethackrc": "OPTIONS=name:Wmode16540033,role:Barbarian,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .#wmode\n "
+    }
+  ]
+}
