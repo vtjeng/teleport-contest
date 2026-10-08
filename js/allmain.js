@@ -123,7 +123,6 @@ import {
     swallowed,
     under_water,
     timebot,
-    UnsupportedMapMemoryError,
 } from './display.js';
 import {
     dismissPendingTtyMessage,
@@ -1228,12 +1227,6 @@ function elapsedTurnPlanningRefusals() {
         // reach shk.c onbill() while distant_name() names the returned child.
         // The live-scan catch already converts this same shop refusal.
         UnsupportedShopError,
-        // mon.c mondead() forgets the invisible-monster marker through
-        // display.c unmap_object(), which refuses an engraved square. A
-        // monster dying on a square that carries both reaches that refusal
-        // from inside the monster scan, where the previous code raised the
-        // injected refusal of the first class above.
-        UnsupportedMapMemoryError,
     ];
 }
 

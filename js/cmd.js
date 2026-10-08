@@ -136,7 +136,6 @@ import {
     newsym,
     objnum_to_glyph,
     vobj_at,
-    UnsupportedMapMemoryError,
     UnsupportedTransientDisplayError,
 } from './display.js';
 import {
@@ -2910,10 +2909,6 @@ export function failClosedCommandRefusals() {
         // anything, so an unported option value stops with no output; its
         // pick loop stops after the player has committed a selection.
         UnsupportedOptionMenuError,
-        // display.c unmap_object() raises this for a square that shows an
-        // engraving, which hack.c domove_fight_empty() is the one ported
-        // caller that can reach.
-        UnsupportedMapMemoryError,
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,
