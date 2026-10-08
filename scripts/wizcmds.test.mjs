@@ -471,3 +471,21 @@ test('wiz_kill follows the whole source control flow and caller contracts', () =
     const js = readFileSync('js/wizcmds.js', 'utf8');
     assert.match(js, /export async function wiz_kill\(/u);
 });
+
+test('wiz_rumor_check awaits its diagnostic window and returns source ECMD_OK', async () => {
+    const { wiz_rumor_check } = await import('../js/wizcmds.js');
+    const source = readFileSync(new URL('../nethack-c/upstream/src/wizcmds.c', import.meta.url), 'utf8');
+    assert.match(source, /wiz_rumor_check\(void\)\s*\{\s*rumor_check\(\);\s*return ECMD_OK;/u);
+    let release;
+    const pending = new Promise(resolve => { release = resolve; });
+    let entered = false;
+    let settled = false;
+    const call = wiz_rumor_check({}, { window: () => { entered = true; return pending; } })
+        .then(result => { settled = true; return result; });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(entered, true);
+    assert.equal(settled, false, 'the command cannot return while its text window is pending');
+    release();
+    assert.equal(await call, ECMD_OK);
+    assert.equal(settled, true);
+});
