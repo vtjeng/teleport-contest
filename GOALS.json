@@ -211656,8 +211656,8 @@
           "name": "wiz_show_seenv",
           "line": 576,
           "endLine": 620,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -211830,7 +211830,70 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_show_seenv",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_seenv",
+            "sourceReview": "Whole wizcmds.c576–617: source integer startx/stopx clamp and full-span adjustment; all y rows and half-open x crop; u_at overrides byte with @@, seenv &0xff before zero branch, lowercase zero-padded hex otherwise. Only trailing spaces removed, empty rows retained. Existing canonical displayTtyTextWindow owns create/putstr/display(TRUE)/destroy and is awaited before ECMD_OK. No RNG, turn or map-state changes; all source return dependencies are existing canonical operations. No gap or refusal remains for this command.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "C cmd.c1990–1991 extcmdlist wizseenv row points to wiz_show_seenv. Bounded JS case/import awaits the whole helper and returns its ECMD_OK. Existing generated registry, wizard/buried flags, rhack and text-window dispatch are reused unchanged. Source search finds no other production caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-seenv.test.mjs",
+              "scripts/wiz-vision.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-seenv-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-seenv-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-seen-vectors",
+                "segment": 0,
+                "fromStep": 15,
+                "throughStep": 19,
+                "source": "cmd.c extcmdlist wizseenv -> doextcmd -> wizcmds.c:wiz_show_seenv576–617; blocking NHW_TEXT shows the seen-vector bytes then dismissal restores the map and returns ECMD_OK."
+              }
+            ],
+            "checkedAt": "f93c4e5e3bebe7454755e07745e9e03d7f7e85a0"
+          }
+        ],
+        "entryPointReview": "Only active entry is wizard #wizseenv via extcmdlist/doextcmd. The admitted case reaches the right-clipped crop after room movement. Independent C-first Barbarian ordinary and Valkyrie blindfold variants display and dismiss two windows apiece: room movement changes seenv bytes, while the blind wait retains previously seen bytes. Source tests cover full-span left/center crops, right crop, hero excluded at ux1, masking/lowercase/zero/hero formatting and await/ECMD_OK order. Independent seeds/clocks and source routes were chosen before recording/JS comparison; both valid first recordings reached the mission without a seed search.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizseenv",
+            "functions": [
+              "wiz_show_seenv"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-seenv-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-seenv-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-seen-vectors",
+                "segment": 0,
+                "fromStep": 15,
+                "throughStep": 19,
+                "source": "cmd.c extcmdlist wizseenv -> doextcmd -> wizcmds.c:wiz_show_seenv576–617; blocking NHW_TEXT shows the seen-vector bytes then dismissal restores the map and returns ECMD_OK."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
