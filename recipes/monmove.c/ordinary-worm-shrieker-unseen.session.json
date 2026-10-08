@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary movement aggression: mon.c mm_aggression admits baby purple worm against shrieker, monmove.c m_move selects occupied candidate -> m_move_aggress -> canonical mattackm bite/miss and possible reverse attack. New independent seed/clock, female Healer and no pet. Cheap visibility variation creates invisible baby worm, reaching pre_mm_attack map-memory operation. Inputs chosen from source before C/JS comparison; no challenge inputs copied. Initial C-only twelve-turn route did not reach aggression because the baby worm has speed3; extend the source-derived wait to80 turns before JS comparison of the revised route.",
+  "segments": [
+    {
+      "seed": 15530041,
+      "datetime": "20460817122432",
+      "nethackrc": "OPTIONS=name:OrdinaryAggression,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\n8 peaceful shrieker\n   #wizgenesis\npeaceful invisible baby purple worm\n   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   "
+    }
+  ]
+}
