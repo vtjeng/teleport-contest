@@ -145,3 +145,23 @@ test('successful faint gate postpones starvation even below the fatal nutrition 
         assert.equal(state.multi, -2);
     }
 });
+
+test('morehungry fills planning hunger operations without changing supplied RNG or callbacks', async () => {
+    const { morehungry } = await import('../js/eat.js');
+    const { HUNGRY } = await import('../js/const.js');
+    const state = hero(151, NOT_HUNGRY); // One point crosses the source <=150 boundary.
+    state.context.run = 1;
+    const random = { rn2: () => assert.fail('HUNGRY uses no gate draw') };
+    await morehungry(1, state, { planning: true, random });
+    assert.equal(state.u.uhs, HUNGRY);
+    assert.equal(state.context.run, 0);
+    const second = hero(151, NOT_HUNGRY), events = [];
+    const env = { planning: true, random,
+        message: async text => events.push(['message', text]),
+        endRunning: s => events.push(['run', s === second]),
+        statusRefresh: s => events.push(['bot', s === second]),
+    };
+    await morehungry(1, second, env);
+    assert.deepEqual(events, [['message', 'You are beginning to feel hungry.'], ['run', true], ['bot', true]]);
+    assert.equal(env.random, random);
+});

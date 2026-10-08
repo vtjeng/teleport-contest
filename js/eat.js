@@ -1899,9 +1899,21 @@ function hungerTransitionMessage(newhs, incr, state) {
 
 // C ref: eat.c morehungry() (3281-3285). Subtracts hunger and lets newuhs()
 // comment on the result. Used by spell casting to charge for energy spent.
-export async function morehungry(num, state, env) {
+export async function morehungry(num, state, env = {}) {
     state.u.uhunger -= num;
-    await newuhs(true, state, env);
+    // C's callers use the global pline/bot/end_running operations. Some
+    // optional effect environments carry only their own message and RNG;
+    // fill missing hunger operations while retaining every supplied callback.
+    await newuhs(true, state, {
+        ...env,
+        message: env.message ?? (env.planning ? async () => {} : ttyPline),
+        statusRefresh: env.statusRefresh
+            ?? (env.planning ? async () => {} : async () => {
+                const { bot } = await import('./display.js');
+                return bot(state);
+            }),
+        endRunning: env.endRunning ?? endRunning,
+    });
 }
 
 // C ref: eat.c choke() (245-291). The return value is only a JS control-flow
