@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 
 import {
     A_CHAOTIC,
@@ -168,3 +169,21 @@ test('msummon uses the runtime creation contract and preserves census delta',
         assert.equal(calls[0].flags, MM_EMIN | MM_NOMSG);
         assert.equal(calls[0].env._msummon, true);
     });
+
+// C minion.c:11-14 chooses four elementals in this order; 198-255 owns
+// creation flags, minion extension and the deliberate absence of set_malign.
+test('summon_minion preserves elemental order and the divine creation contract', () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/minion.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/minion.js', import.meta.url), 'utf8');
+    assert.match(c, /PM_AIR_ELEMENTAL, PM_FIRE_ELEMENTAL,\s*PM_EARTH_ELEMENTAL, PM_WATER_ELEMENTAL/u);
+    const body = js.slice(js.indexOf('export async function summon_minion('), js.indexOf('// C ref: minion.c demon_talk'));
+    assert.match(body, /PM_AIR_ELEMENTAL, M\.PM_FIRE_ELEMENTAL,\s*M\.PM_EARTH_ELEMENTAL, M\.PM_WATER_ELEMENTAL/u);
+    assert.match(body, /await makemon_runtime\(/u);
+    assert.match(body, /MM_NOMSG \| \(needsMinion \? MM_EMIN : 0\)/u);
+    assert.match(body, /min_align = alignment/u);
+    assert.match(body, /renegade = false/u);
+    assert.match(body, /mstrategy &= ~STRAT_APPEARMSG/u);
+    assert.match(body, /mpeaceful = false/u);
+    assert.doesNotMatch(body, /set_malign\(/u);
+    assert.doesNotMatch(body, /rawEnv\.makemon|env\.makemon/u);
+});

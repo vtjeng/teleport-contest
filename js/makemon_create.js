@@ -1463,16 +1463,17 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (NO_MINVENT | MM_EDOG | MM_NOMSG);
-    // minion.c msummon() creates an aligned minion at the hero square during
-    // ordinary monster turns.  It uses MM_EMIN|MM_NOMSG and the async runtime
+    // minion.c msummon() and summon_minion() create an aligned minion at
+    // the hero square during monster turns and divine anger.  It uses MM_EMIN|MM_NOMSG and the async runtime
     // tail just like the other explicit runtime callers; the marker keeps this
     // admission tied to that source call instead of widening all MM_EMIN use.
     const minionSummonCall = !state.in_mklev
-        && normalized._msummon === true
+        && (normalized._msummon === true || normalized._summon_minion === true)
         && Boolean(ptr)
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (MM_EMIN | MM_NOMSG);
+    const divineMinionCall = minionSummonCall && normalized._summon_minion === true;
     // wizard.c nasty() is called both by mcastu.c with a non-null summoner
     // (MM_NOMSG at enexto(summoner->mux, summoner->muy)) and by the late-game
     // harassment caller with NULL (NO_MM_FLAGS at the hero square). Keep its
@@ -1610,6 +1611,9 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !statueInventoryCall
             && !specialRoomCall
             && !cloneuCall
+            // summon_minion uses the generic creation lifecycle; C imposes
+            // no initial-level species reservoir on this divine caller.
+            && !divineMinionCall
             && !wereSummonCall
             && !deadbookCall
             && !runtimeGroupCall

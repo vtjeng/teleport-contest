@@ -14,7 +14,7 @@
 //        u_gname() (2524), and align_gname() (2530).
 //
 // prayer_done() handles delayed prayer resolution; pray_revive() and
-// the unported angrygods() cases remain source gaps. pleased() is ported below;
+// god_zaps_you() remains a source gap. pleased() is ported below;
 // its calls to helpers without a running-game owner use note_unported().
 
 import { buried_ball_to_freedom } from './dig.js';
@@ -159,6 +159,7 @@ import {
 } from './mondata.js';
 import { makeplural } from './fruit.js';
 import {
+    S_HUMAN,
     AD_BLND,
     AT_ENGL,
     PM_CLERIC,
@@ -241,7 +242,7 @@ import { killed, mon_offmap, wake_nearby } from './mon.js';
 import { monflee } from './monmove.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { dlord } from './minion.js';
+import { dlord, summon_minion } from './minion.js';
 import { cmap_to_type } from './mkroom.js';
 import { resist } from './zap.js';
 import { known_spell, spelleffects } from './spell.js';
@@ -663,7 +664,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
         adjalign(-5, state);
         u.ugangr += 3;
         await adjattrib(A_WIS, -1, 1, state);
-        if (!In_hell(u.uz, state)) note_unported('pray.c angrygods');
+        if (!In_hell(u.uz, state)) await angrygods(u.ualign.type, state);
         change_luck(-5, state);
     } else {
         adjalign(5, state);
@@ -758,7 +759,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
             await godvoice(altaralign, 'Suffer, infidel!', state);
             change_luck(-5, state);
             await adjattrib(A_WIS, -2, 1, state);
-            if (!In_hell(u.uz, state)) note_unported('pray.c angrygods');
+            if (!In_hell(u.uz, state)) await angrygods(u.ualign.type, state);
         }
         return;
     }
@@ -789,7 +790,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
 
         if (rnl(u.ulevel) > 6 && u.ualign.record > 0
             && rnd(u.ualign.record) > Math.trunc(3 * ALIGNLIM(state) / 4)) {
-            note_unported('minion.c summon_minion');
+            await summon_minion(altaralign, true, state);
         }
         const priest = findpriest(temple_occupied(u.urooms, state), state);
         if (priest && !p_coaligned(priest, state))
@@ -803,7 +804,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
         await exercise(A_WIS, false, state);
         if (rnl(u.ulevel) > 6 && u.ualign.record > 0
             && rnd(u.ualign.record) > Math.trunc(7 * ALIGNLIM(state) / 8)) {
-            note_unported('minion.c summon_minion');
+            await summon_minion(altaralign, true, state);
         }
     }
 }
@@ -2250,8 +2251,8 @@ function Hallucination(state) {
 // all run before the shared prayer timer. Cases 4 and 5 now call the ported
 // attrcurse() when C selects that arm; their fallback calls sit.c rndcurse().
 // Case 6 reuses read.c punish(), or falls through to the curse arm when
-// already punished. Cases 7 and 8's summon_minion() and the default
-// god_zaps_you() remain named boundaries.
+// already punished. Cases 7 and 8 summon a hostile divine minion; the default
+// records the discarded-void god_zaps_you() gap before updating the timer.
 const GOD_VOICES = ['booms out', 'thunders', 'rings out', 'booms'];
 
 // C ref: pray.c godvoice() (1414-1426). `words == NULL` leaves a trailing
@@ -2341,11 +2342,12 @@ export async function angrygods(resp_god, state = game) {
         await ttyPline(
             `"Thou ${u.ualign.record < 0 && resp_god === u.ualign.type
                 ? 'hast strayed from the path'
-                : 'art arrogant'}, ${is_human(state.youmonst?.data)
+                : 'art arrogant'}, ${state.youmonst?.data?.mlet === S_HUMAN
                 ? 'mortal' : 'creature'}."`,
             state,
         );
-        await ttyPline('"Thou must relearn thy lessons!"', state);
+        set_voice(null, 0, 80, voice_deity, state);
+        await verbalize('Thou must relearn thy lessons!', state);
         await adjattrib(A_WIS, -1, 0, state, { message: ttyPline });
         await losexp(null, state);
         break;
@@ -2382,9 +2384,22 @@ export async function angrygods(resp_god, state = game) {
         break;
     case 7:
     case 8:
-        throw new UnsupportedPrayerError("angrygods()'s summoned minion");
+        await godvoice(resp_god, null, state);
+        set_voice(null, 0, 80, voice_deity, state);
+        await verbalize(
+            `Thou durst ${on_altar(state) && a_align(u.ux, u.uy, state) !== resp_god
+                ? 'scorn' : 'call upon'} me?`, state,
+        );
+        await ttyPline(
+            `"Then die, ${state.youmonst.data.mlet === S_HUMAN ? 'mortal' : 'creature'}!"`,
+            state,
+        );
+        await summon_minion(resp_god, false, state);
+        break;
     default:
-        throw new UnsupportedPrayerError("angrygods()'s lightning bolt");
+        await godvoice(resp_god, 'Thou hast angered me.', state);
+        note_unported('pray.c god_zaps_you');
+        break;
     }
     /* even though this might not be in response to prayer, set pray timer */
     const new_ublesscnt = rnz(300);
