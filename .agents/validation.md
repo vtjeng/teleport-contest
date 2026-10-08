@@ -65,7 +65,11 @@ competition holdout is outside this workspace.
   sandbox. It requires a successful run from this repository's checkpoint
   workflow whose commit equals local HEAD, verifies the downloaded summary's
   commit and run identity, and installs its evidence in the shared checkpoint
-  archive. Trust the CI combine steps; do not rerun their checks locally.
+  archive. Import permits uncommitted regular closure reports, not changed
+  execution inputs. The imported verdict covers only the committed candidate.
+  The importer does not validate report contents; applicable closure and
+  publication checks remain separate. Trust the CI combine steps; do not rerun
+  their checks locally.
   Keep HEAD at the candidate until import and closure finish. The hosted
   summary retains its actual GitHub run and per-stage attempts. Hosted runners
   use job timeouts and isolation rather than the local systemd wrapper.
