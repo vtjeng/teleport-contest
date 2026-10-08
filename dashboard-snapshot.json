@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T11:31:31.300Z",
+  "capturedAt": "2026-10-08T11:35:18.105Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -27584,6 +27584,24 @@
         "task": "B156",
         "worker": "B",
         "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C147-gold-dragon-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T11:33:06.460Z",
+        "task": "C147",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A155-hunger-faint-97e5495e",
+        "type": "assign",
+        "at": "2026-10-08T11:34:56.098Z",
+        "task": "A155",
+        "worker": "A2",
+        "kind": "investigation"
       }
     ]
   },
