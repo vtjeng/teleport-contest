@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T08:34:52.212Z",
+  "capturedAt": "2026-10-08T08:50:24.004Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -26958,12 +26958,51 @@
         "at": "2026-10-08T08:34:30.439Z",
         "task": "C145",
         "goal": "port-spell-skilled-storm-target-family-v29-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C144-00b93d783",
+        "type": "published",
+        "at": "2026-10-08T08:37:52.146Z",
+        "task": "C144",
+        "commit": "00b93d7834ce84f77f602d24f752d25b3a4d0189"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A150-494c9990",
+        "type": "received",
+        "at": "2026-10-08T08:38:27.358Z",
+        "task": "A150",
+        "delivery": "494c9990181a7f23d450f5612d037186a5126af3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A150-2a0173971",
+        "type": "integrating",
+        "at": "2026-10-08T08:42:15.021Z",
+        "task": "A150",
+        "integration": "2a0173971a37c29e79ad85b6438561097d24ca76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A150-2a0173971",
+        "type": "validated",
+        "at": "2026-10-08T08:47:38.168Z",
+        "task": "A150",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-A150-2a0173971",
+        "type": "accepted",
+        "at": "2026-10-08T08:50:06.124Z",
+        "task": "A150"
       }
     ]
   },
   "development": {
-    "executionCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
-    "measuredAt": "2026-10-08T08:27:28.403Z",
+    "executionCommit": "2a0173971a37c29e79ad85b6438561097d24ca76",
+    "measuredAt": "2026-10-08T08:46:34.592Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
