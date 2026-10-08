@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pickup.c:reverse_loot witness. Already-looted chestless throne skips courtmon/makemon and reaches named floor drop. Seed/clock/setup selected independently before comparison; potion inventory letter established from C-only setup inspection. Generation-only range15630100-15630200 stopped after5 no-key replays kept2 chestless levels; predicate examined floor chests, not command RNG.",
+  "segments": [
+    {
+      "seed": 15630104,
+      "datetime": "20400618141900",
+      "nethackrc": "OPTIONS=name:Reverse15630034,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017looted throne\n\u0017171 gold pieces\n\u0017uncursed potion of confusion\nqe  #loot\n  #loot\n  #loot\n  #loot\n  "
+    }
+  ]
+}
