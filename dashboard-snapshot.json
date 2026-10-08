@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T08:50:24.004Z",
+  "capturedAt": "2026-10-08T09:12:10.954Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -26997,12 +26997,101 @@
         "type": "accepted",
         "at": "2026-10-08T08:50:06.124Z",
         "task": "A150"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A150-304fb0fc0",
+        "type": "published",
+        "at": "2026-10-08T08:51:06.499Z",
+        "task": "A150",
+        "commit": "304fb0fc04b9f193ffff0fd4ae9bbf5a10aaa9fd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1bbbfac266524b3d15f7fdb54099c02276ec9c7b",
+        "type": "ready",
+        "at": "2026-10-08T09:00:43.136Z",
+        "task": "A151",
+        "delivery": "1bbbfac266524b3d15f7fdb54099c02276ec9c7b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A151-1bbbfac2",
+        "type": "received",
+        "at": "2026-10-08T09:01:37.192Z",
+        "task": "A151",
+        "delivery": "1bbbfac266524b3d15f7fdb54099c02276ec9c7b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A152-trapped-door-investigation-995be01e",
+        "type": "assign",
+        "at": "2026-10-08T09:03:43.657Z",
+        "task": "A152",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A151-9f7db4123",
+        "type": "integrating",
+        "at": "2026-10-08T09:04:46.006Z",
+        "task": "A151",
+        "integration": "9f7db41233cca4114fe040f41e72e0282fbe08b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3bb21384538740c6a69e3595d29de5855eb8b855",
+        "type": "ready",
+        "at": "2026-10-08T09:08:23.476Z",
+        "task": "C145",
+        "delivery": "3bb21384538740c6a69e3595d29de5855eb8b855"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C145-3bb21384",
+        "type": "received",
+        "at": "2026-10-08T09:09:15.591Z",
+        "task": "C145",
+        "delivery": "3bb21384538740c6a69e3595d29de5855eb8b855"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A152-doopen-indir-whole-20261008",
+        "type": "implement",
+        "at": "2026-10-08T09:09:42.475Z",
+        "task": "A152",
+        "goal": "port-lock-doopen-indir-whole-v29-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A151-9f7db4123",
+        "type": "validated",
+        "at": "2026-10-08T09:10:10.429Z",
+        "task": "A151",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C146-kick-legless-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T09:10:22.924Z",
+        "task": "C146",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A151-9f7db41233cca4114fe040f41e72e0282fbe08b0-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T09:11:57.680Z",
+        "task": "A151"
       }
     ]
   },
   "development": {
-    "executionCommit": "2a0173971a37c29e79ad85b6438561097d24ca76",
-    "measuredAt": "2026-10-08T08:46:34.592Z",
+    "executionCommit": "9f7db41233cca4114fe040f41e72e0282fbe08b0",
+    "measuredAt": "2026-10-08T09:09:35.515Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
