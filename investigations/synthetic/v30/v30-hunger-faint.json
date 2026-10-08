@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v30.json",
   "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
   "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
-  "evaluationPath": "challenges/evaluations/accepted-0172abf7af9d21f1fb6da3289c532b49ffda3a78-v30.json",
-  "evaluationCommit": "0172abf7af9d21f1fb6da3289c532b49ffda3a78",
-  "remainingScreens": 1694,
+  "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+  "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
+  "remainingScreens": 718,
   "recordedSteps": 2532,
   "status": "complete",
-  "commit": "55d192cad799b1c02a60ff59deed657bdf0febb3",
+  "commit": "bd16ad744b6750f92cb55ced1cd65e13f0cfa7f2",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v30",
@@ -25,11 +25,11 @@
     "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
     "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
     "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
-    "evaluationPath": "challenges/evaluations/accepted-0172abf7af9d21f1fb6da3289c532b49ffda3a78-v30.json",
-    "evaluationCommit": "0172abf7af9d21f1fb6da3289c532b49ffda3a78",
-    "evaluationArtifact": "challenges/evaluations/accepted-0172abf7af9d21f1fb6da3289c532b49ffda3a78-v30.json",
-    "evaluationUtc": "2026-10-08T13:20:24.258Z",
-    "remainingScreens": 1694,
+    "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+    "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
+    "evaluationArtifact": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+    "evaluationUtc": "2026-10-08T15:23:15.213Z",
+    "remainingScreens": 718,
     "recordedSteps": 2532,
     "previousScreensMatched": null,
     "regression": false,
@@ -37,58 +37,60 @@
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 838,
+        "matched": 1814,
         "total": 2532
       },
       "rng": {
-        "matched": 8989,
+        "matched": 26838,
         "total": 27304
       },
       "cursors": {
-        "matched": 838,
+        "matched": 1814,
         "total": 2532
       }
     },
     "firstMismatch": {
       "kind": "stop",
-      "step": 838,
-      "message": "elapsed-turn nh_timeout requires a ported timeout function, but zombify_mon() is due"
+      "step": 1814,
+      "message": "the hunger clock reached unported hunger-status transition"
     },
-    "step": 838,
+    "step": 1814,
     "kind": "stop",
-    "sourceFile": "do.c",
-    "function": "zombify_mon",
-    "message": "elapsed-turn nh_timeout requires a ported timeout function, but zombify_mon() is due",
-    "cFile": "do.c",
+    "sourceFile": "eat.c",
+    "function": "newuhs",
+    "message": "the hunger clock reached unported hunger-status transition",
+    "cFile": "eat.c",
     "luaFile": null,
-    "line": 2299
+    "line": 3362
   },
-  "summary": "The elapsed turn refuses a due zombie-revival timer because timeout_funcs lacks do.c:zombify_mon. Port the whole callback and register its timer dispatch, with live handoff before planning the newly created monster tail.",
+  "summary": "After the verified zombie timer prefix, zero-based step1814 stops before allocating the elapsed turn because the hero has nutrition1/statusWEAK and preflightGetHungry refuses the next FAINTING transition. C eat.c:newuhs handles fainting, delayed unfaint and starvation; JavaScript still throws on those branches. Port whole newuhs/unfaint and remove the source-disconnected hunger refusals, preserving rounded negative hunger, wake-up RNG and live fatal-input handoff.",
   "goalKind": "file-port",
   "source": {
-    "file": "do.c",
-    "branch": "A ZOMBIFY_MON corpse timer expires; the corpse species has a non-genocided zombie form, or falls back to rot_corpse otherwise.",
+    "file": "eat.c",
+    "branch": "newuhs computes FAINTING for uhunger<=0 outside eatfood/force_save_hs: source FAINTED hysteresis, rounded signed hunger division, first faint versus probabilistic repeated faint/starvation, delayed callback and hunger/exhaustion deaths.",
     "functions": [
-      "zombify_mon"
+      "newuhs",
+      "unfaint"
     ],
     "callers": [
-      "allmain.c:moveloop_core -> timeout.c:nh_timeout -> run_timers:2237 -> timeout_funcs[ZOMBIFY_MON] -> do.c:zombify_mon2299-2317",
-      "JS allmain elapsed-turn planner -> timeout.js unportedDueTimerReason stops before callback; register canonical do.js owner and include zombie timers in nh_timeout_requires_live_state.",
-      "objnam.c:readobjnam5222-5225 debug zombifying wish starts the same production callback; JS must pass the canonical corpse object to start_timer, not the mutable obj_to_any wrapper."
+      "allmain.c moveloop_core -> eat.c gethungry3276 -> newuhs; hack.c domove melee -> gethungry",
+      "eat.c do_reset_eat446/done_eating550/morehungry3284/lesshungry3332/doeat3910 -> newuhs",
+      "fountain.c drinking282, potion.c nutrition722/785/858, polyself.c newman431/436, uhitm.c digestion5056 -> newuhs",
+      "newuhs3428 assigns ga.afternmv=unfaint -> hack.c unmul4206 delayed callback"
     ],
     "dependencies": [
-      "Reuse source-pinned mon.c:zombie_form consumed return and canonical mkobj.c:free_omid/free_omonst/set_corpsenm; revive_mon/revive_corpse and dig.c:rot_corpse own subsequent effects.",
-      "No whole timeout/run_timers/nh_timeout/revive_mon completion credit. Existing free_omonst -> dealloc_mextra discarded void gap remains named; no fabricated replacement.",
-      "Preserve timer unlink and timed-count decrement before callback, metadata clearing before set_corpsenm, and revive_mon or rot_corpse dispatch in source order. Live handoff avoids clone-only monster creation/map publication.",
-      "Required set_corpsenm -> weight consumed eaten_stat result is wired to canonical eat.c owner. Positive conversion cancels all remaining corpse timers; no-form non-conversion paths retain bounded rot/nonfloor or multiple-timer admission limits."
+      "Consumed is_fainted/acurr source predicates are already canonical; reuse their pure tests. Unfaint calls existing Hear_again then stop_occupation; forward clone RNG and message/state env at that supporting helper seam.",
+      "Reuse incr_itimeout/nomul/HDeaf/stop_occupation/done(STARVING), bot status and end_running. Canonical done must run live because life saving/wizard recovery reads input; add bounded elapsed-turn hunger handoff and planning continuation.",
+      "C discards trap.c selftouch result; canonical hero selftouch is absent. Record note_unported and keep independent petrifying-corpse falling witness as a named downstream limit; no trap ownership.",
+      "reset_faint is separate discarded-void caller in minion/trap/vault and remains unported outside selected newuhs/unfaint scope. No invented state._unfaint alias."
     ]
   },
   "evidence": [
-    "Accepted evaluation at0172abf7 records838/2532screens/cursors and8989/27304RNG. Assigned focused replay .cache/A157/replay.json reproduces missing callback before zero-based838, moves412; all838 captured screens/cursors and8989 RNG calls match C.",
-    "Read whole do.c:zombify_mon2299-2317: zombie_form; NON_PM/G_GENOD gate; clear omid then omonst; set_corpsenm; revive_mon with original timeout; otherwise rot_corpse. timeout.c1983 is the sole direct source caller through the enum callback table; timeout.c2237 dispatches arg and timeout after unlink/timed decrement.",
-    "Read existing complete zombie_form mapping, canonical set_corpsenm timer/nutrition/weight path, revive_mon/revive_corpse and rot_corpse owners. Scope is whole zombify_mon plus bounded timer table/live-handoff wiring; source-pinned metadata/genocide/no-form tests and fresh production human-zombie variation are required.",
-    "The old monmove message-operation diagnosis was resolved by accepted A155; it no longer explains the first boundary. Preserve independent ordinary combat evidence and do not widen into C148 mattacku hidden-hero scope.",
-    "Independent human-floor and gnome-inventory C-first witnesses exposed a malformed debug-wish TIMER_OBJECT payload in js/objnam_readobjnam.js2315. Existing JS timer dispatch receives raw corpse objects; C copies anything containing the corpse pointer. Supporting caller correction removes the wrapper and preserves ordinary ROT+ZOMB timers until set_corpsenm cancellation.",
-    "Runtime evidence plan includes a third lichen no-form floor fallback (no ordinary rot timer by mkobj.c:start_corpse_timeout), and explicit blocked carried-lichen/floor-newt recipes naming dig.c:rot_corpse nonfloor and timeout.c:run_timers non-conversion coexisting-timer boundaries. Whole zombify_mon completion is withheld until those inherited runtime paths are verified."
+    "Accepted f5e0576f v30 evaluation:1814/2532 screens/cursors and26838/27304 RNG, remainingScreens718. Replay .cache/A158/replay.log at examined bd16ad74 confirms the same stop before zero-based1814 keydot, game.moves900, uhunger1, uhs3WEAK, multi0.",
+    "C step1814 retains successive rn2(20) draws in gethungry3191, sleeping rn2(10) at3174 and repeated newuhs3416 rn2(20). The first faint short-circuits the newuhs random gate because prior status<=WEAK. JS preflight predicts this later source transition and refuses before C monster-tail distfleeck draws; those earlier functions are not the cause.",
+    "Read whole eat.c:newuhs3362–3511, unfaint3336–3344 and Hear_again1801–1810. C uses signed rounded integer division sgn(hunger)*((abs(hunger)+5)/10); first faint stops occupation before message, increments timed deafness, sets multi/reason/nomovemsg/afternmv, then discarded selftouch unless levitating. Repeated faint/stateFAINTED suppresses duplicate faint effects but retains source RNG ordering. Starvation checks -(100+10*ACURR(CON)), sets STARVED/status/killer and calls done, returning after life saving.",
+    "Existing js/eat.js preflightGetHungry511–515/590, gethungry674 and newuhs1818/1858 reject these paths; common HUNGRY/WEAK code also omits active non-eating occupation interruption and checks uhp instead of the source Upolyd-selected mh. Remove UnsupportedHungerTransitionError only after every throw site is replaced; reconcile its cmd/allmain registry tests.",
+    "Existing newuhs callers already await the canonical owner and forward state/env in eat.js, potion.js, fountain.js, polyself.js and uhitm.js. Reconcile source-ordered helper operations and gethungry/allmain live handoff, not whole surrounding owners. hack.js unmul already clears afternmv before awaiting f(state,env).",
+    "Independent validation: ordinary starting hero long controlled starvation wait, cheap role/property variation, eating recovery, FAINTED wake-up and death/life-saving choices through production callers. Use source-pinned tests for negative-hunger rounding, exact wake/faint draw sequence, occupation interruption, Upolyd exhaustion and starvation-return order. Preserve the selected source prefix and downstream named void gaps."
   ]
 }
