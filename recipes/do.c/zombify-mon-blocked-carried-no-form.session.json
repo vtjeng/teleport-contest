@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked evidence limit: dig.c:rot_corpse OBJ_INVENT is not ported. This independent no-zombie-form debug wish keeps a lichen corpse carried; lichen has no ordinary ROT_CORPSE timer, so A157 preserves only the downstream nonfloor rot frontier rather than a coexisting-timer refusal.",
+  "segments": [
+    {
+      "seed": 15741004,
+      "datetime": "20510319101300",
+      "nethackrc": "OPTIONS=name:ZombieFallback,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u0017zombifying lichen corpse\n  m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   "
+    }
+  ]
+}

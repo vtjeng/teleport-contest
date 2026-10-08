@@ -32,6 +32,7 @@ import {
     FAINTED,
     FAINTING,
     G_GONE,
+    G_GENOD,
     HATCH_EGG,
     HALLUC,
     HALLUC_RES,
@@ -591,7 +592,7 @@ const timeout_funcs = [
     { name: 'rot_organic' },
     { name: 'rot_corpse', f: rot_corpse, unported: unportedRotCorpseReason },
     { name: 'revive_mon', f: reviveMonCallback, unported: () => null },
-    { name: 'zombify_mon' },
+    { name: 'zombify_mon', f: zombifyMonCallback, unported: unportedZombifyMonReason },
     { name: 'burn_object', f: burn_object, unported: () => null },
     { name: 'hatch_egg', f: hatch_egg, unported: () => null },
     {
@@ -610,6 +611,24 @@ if (timeout_funcs.length !== NUM_TIME_FUNCS)
 async function reviveMonCallback(arg, timeout, env) {
     const { revive_mon } = await import('./do.js');
     return revive_mon(arg, timeout, env);
+}
+
+// do.c owns conversion and revival. Resolve it at dispatch, as for REVIVE_MON,
+// so the timeout queue does not create a static cycle with do.js.
+async function zombifyMonCallback(arg, timeout, env) {
+    const { zombify_mon } = await import('./do.js');
+    return zombify_mon(arg, timeout, env);
+}
+
+// The fallback reaches the existing bounded rot_corpse owner. Preserve its
+// admission check before run_timers unlinks anything in the due prefix.
+function unportedZombifyMonReason(body, env) {
+    const zmon = zombie_form(env.state.mons[body.corpsenm]);
+    if (zmon !== NON_PM && !(env.state.mvitals[zmon].mvflags & G_GENOD))
+        return null;
+    if (Math.trunc(body.timed ?? 0) !== 1)
+        return 'the due object to hold only its own timer';
+    return unportedRotCorpseReason(body, env);
 }
 
 // C ref: mkobj.c shrink_glob(). Build the full env for the timer callback,
@@ -703,7 +722,11 @@ function unportedDueTimerReason(state, env) {
         // from remove_object() with a nonzero `timed`, and that can stop and
         // restart a timer on ice, which is exactly the prefix change the walk
         // above assumes away.
-        if (timer.kind === TIMER_OBJECT
+        // zombify_mon -> set_corpsenm stops the corpse's other timers before
+        // conversion/revival. Debug zombifying wishes retain both ROT_CORPSE
+        // and ZOMBIFY_MON until this source operation; fallback rot admission
+        // remains checked by unportedZombifyMonReason.
+        if (timer.kind === TIMER_OBJECT && timer.func_index !== ZOMBIFY_MON
             && Math.trunc(timer.arg?.timed ?? 0) !== 1)
             return 'the due object to hold only its own timer';
         const reason = entry.unported(timer.arg, env);
@@ -1364,11 +1387,12 @@ function Flying(state) {
 export function nh_timeout_requires_live_state(state = game) {
     const u = state.u;
     if (u.uinvulnerable) return false;
-    // revive() creates a monster, removes its corpse, and redraws the level.
+    // Revival creates a monster, removes its corpse, and redraws the level.
     // Run this timer live before planning the elapsed turn's monster tail.
     for (let timer = state.gt?.timer_base;
         timer && timer.timeout <= state.moves; timer = timer.next) {
-        if (timer.kind === TIMER_OBJECT && timer.func_index === REVIVE_MON)
+        if (timer.kind === TIMER_OBJECT
+            && (timer.func_index === REVIVE_MON || timer.func_index === ZOMBIFY_MON))
             return true;
     }
     if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)
