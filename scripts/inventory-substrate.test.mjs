@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { getRngLog } from '../js/rng.js';
 
 import {
     ACH_AMUL,
@@ -43,6 +44,7 @@ import {
     OBJ_LUAFREE,
     OBJ_ONBILL,
     PIT,
+    TT_PIT,
     ROOM,
     FOUNTAIN,
     STAIRS,
@@ -3441,6 +3443,38 @@ test('dropx runs doaltarobj before placing cursed noncoin and coin objects',
         assert.equal(coins.state.u.uconduct?.gnostic ?? 0, 0);
     });
 
+// do.c:flooreffects only treats a nonboulder pit landing specially when
+// trap.c:uteetering_at_seen_pit is true. A caught hero is inside the pit.
+test('dropx admits inert traps and preserves the ordinary altar tail', async () => {
+    for (const [ttyp, seen, caught, altar] of [
+        [PIT, true, true, true], // C excludes an already-trapped hero.
+        [PIT, false, false, false], // Unseen pits fail the tseen predicate.
+        [WEB, true, false, false], // Webs add no do.c landing branch.
+    ]) {
+        const { obj, state, hooks } = ordinaryDropFixture();
+        // Fixture coordinates locate the hero's ordinary dry floor square.
+        const trap = { tx: 10, ty: 5, ttyp, tseen: seen };
+        state.level.traps = [trap];
+        state.u.utrap = caught ? 4 : 0; // Nonzero caught timeout vs free hero.
+        state.u.utraptype = caught ? TT_PIT : 0;
+        if (altar) state.level.at(10, 5).typ = ALTAR;
+        obj.cursed = altar ? 1 : 0; // Exercise the existing black flash.
+        obj.bknown = 0;
+        const draws = getRngLog().length;
+        await dropx(obj, { state, hooks });
+        assert.equal(state.invent, null);
+        assert.equal(obj.where, OBJ_FLOOR);
+        assert.strictEqual(state.level.objects[10][5], obj);
+        assert.strictEqual(state.level.traps[0], trap);
+        assert.equal(state.u.utrap, caught ? 4 : 0);
+        assert.equal(getRngLog().length, draws); // Inert ship/floor branches.
+        if (altar) {
+            assert.equal(obj.bknown, 1);
+            assert.equal(state.u.uconduct.gnostic, 1);
+        }
+    }
+});
+
 test('monster altar flooreffects calls the shared doaltarobj port', async () => {
     const { obj, state } = ordinaryDropFixture();
     obj.where = OBJ_FREE;
@@ -3506,7 +3540,7 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         state.level.flags.has_shop = true;
         // Use a trap to trigger the guard before mutation, since the hero is
         // not at a costly spot and the narrowed shop guard is inert here.
-        state.level.traps = [{ tx: 10, ty: 5 }];
+        state.level.traps = [{ tx: 10, ty: 5, ttyp: PIT, tseen: true }];
 
         assert.throws(
             () => preflight_dropx(ball, { state, hooks }),
@@ -3627,8 +3661,8 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 state.uball = obj;
             }],
             ['unpaid ball', /unpaid/u, ({ obj }) => { obj.unpaid = true; }],
-            ['trap effects', /trap/u, ({ state }) => {
-                state.level.traps.push({ tx: 10, ty: 5, ttyp: WEB });
+            ['seen pit-edge effects', /trap/u, ({ state }) => {
+                state.level.traps.push({ tx: 10, ty: 5, ttyp: PIT, tseen: true });
             }],
             ['liquid effects', /liquid/u, ({ state }) => {
                 state.level.at(10, 5).typ = LAVAPOOL;
@@ -3815,7 +3849,9 @@ test('a heavy hold reaches drop admission after addinv and its message',
         const { hooks, obj: ball, state } = ordinaryDropFixture();
         state.u.acurr.a[A_STR] = 3;
         state.u.acurr.a[A_CON] = 3;
-        state.level.traps = [{ tx: 10, ty: 5, ttyp: WEB }];
+        // A fountain keeps this inventory callback-order test at a refused
+        // dry-floor branch without diverting through can_reach_floor.
+        state.level.at(10, 5).typ = FOUNTAIN;
         state.invent = null;
         ball.where = OBJ_FREE;
         ball.dknown = false;
