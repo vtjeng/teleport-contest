@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Reproduce the four makedefs-generated random-access text files which the
+// Reproduce the makedefs-generated random-access text files which the
 // JavaScript runtime needs.  Keeping their encrypted byte layout preserves the
 // exact rn2() bounds and offset-selection behavior in rumors.c:get_rnd_line().
 
@@ -96,6 +96,44 @@ function buildRumorFile(trueSource, falseSource) {
     return DONT_EDIT + header + trueBody + falseBody;
 }
 
+// C ref: util/makedefs.c special_oracle[], h_filter() and do_oracles().
+// Keep the special record, encrypted line boundaries and byte offsets in the
+// generated file; rumors.c reads this layout without runtime filesystem access.
+function buildOracleFile(source, makedefs) {
+    const specialBody = makedefs.match(
+        /static const char \*special_oracle\[\] = \{([\s\S]*?)\n\};/u,
+    )?.[1];
+    if (!specialBody) throw new Error('could not locate makedefs.c special_oracle[]');
+    const special = specialBody.trim().split(/,\s*\n/u).map(entry =>
+        [...entry.matchAll(/"((?:\\.|[^"\\])*)"/gu)]
+            .map(match => JSON.parse(`"${match[1]}"`)).join('') + '\n');
+    const records = [special];
+    let current = [];
+    for (const line of sourceLines(source)) {
+        if (line.startsWith('#')) continue;
+        if (line.startsWith('-----')) {
+            if (current.length) records.push(current);
+            current = [];
+        } else {
+            current.push(line);
+        }
+    }
+    if (current.length) records.push(current);
+
+    const count = records.length;
+    let body = '---\n';
+    const offsets = [];
+    for (const record of records) {
+        offsets.push(body.length);
+        body += record.map(line => xcrypt(line)).join('') + '---\n';
+    }
+    offsets.push(body.length); // do_oracles also writes the EOF offset.
+    const header = `${DONT_EDIT}${String(count).padStart(5, ' ')}\n`;
+    const textOffset = header.length + offsets.length * 6;
+    return header + offsets.map(offset => `${fixedHex(offset + textOffset, 5)}\n`).join('')
+        + body;
+}
+
 function requireAscii(source, sourceName) {
     if (/[^\x00-\x7f]/u.test(source))
         throw new Error(`${sourceName} contains a non-ASCII byte`);
@@ -130,6 +168,10 @@ export function buildRandomTextFiles(upstreamRoot = UPSTREAM_ROOT) {
             'grue',
             enabledSymbols,
             BOGUSMON_PAD_LENGTH,
+        ),
+        oracles: buildOracleFile(
+            readSource('oracles.txt'),
+            readFileSync(join(upstreamRoot, 'util', 'makedefs.c'), 'utf8'),
         ),
     });
 }
