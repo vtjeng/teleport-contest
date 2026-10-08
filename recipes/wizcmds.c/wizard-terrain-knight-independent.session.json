@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Knight witness for both internal terrain map and paired legend through wizard #terrain choices5/6; source commands consume no time after the initial rest.",
+  "segments": [
+    {
+      "seed": 81726611,
+      "datetime": "20400416101139",
+      "nethackrc": "OPTIONS=name:TerrainProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,showexp,time\n",
+      "moves": ".#terrain\ne    #terrain\nf    "
+    }
+  ]
+}

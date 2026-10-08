@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap independent C-first Ranger depth-three DECgraphics variation: source raw terrain codes and default feature-symbol suffix remain independent of active map graphics; test level metadata and both wizard choices.",
+  "segments": [
+    {
+      "seed": 81726613,
+      "datetime": "20400416112139",
+      "nethackrc": "OPTIONS=name:TerrainProbe,role:Ranger,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,showexp,time,symset:DECgraphics\n",
+      "moves": ".\u00163\n      #terrain\ne    #terrain\nf    "
+    }
+  ]
+}
