@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: eat.c:start_tin/tin_done spinach arm. Open blessed spinach tin and eat its contents. Required C observation: Spinach smell/content and strength effect. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search. C-only correction before own JS: C Eat-it question follows tin More; space dismisses before explicit yes.",
+  "segments": [
+    {
+      "seed": 16136051,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136051,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed tin of spinach\nee y                                "
+    }
+  ]
+}

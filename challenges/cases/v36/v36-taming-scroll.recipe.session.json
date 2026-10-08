@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: read.c:seffect_taming -> dog.c:tamedog. Read blessed taming near peaceful kitten. Required C observation: Animal tameness reassessed by scroll, not figurine creation. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search.",
+  "segments": [
+    {
+      "seed": 16136056,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136056,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007peaceful kitten\n                \u0017blessed scroll of taming\nre                "
+    }
+  ]
+}
