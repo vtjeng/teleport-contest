@@ -22,21 +22,15 @@ owns.
 
 ## When a correctness review is warranted
 
-Recorded play is the port's oracle: the fixed-workload sessions and the
-recordings under `recordings/` replay on every checkpoint, and a mismatch they
-find goes to the mismatch queue, not to a review. A review reads code the
-oracle does not reach. Run one in these three cases:
+Use one independent, read-only reviewer for a specific unresolved correctness
+concern. Give it the affected functions, authoritative source, existing
+evidence, and question to answer. This targeted check is not a formal audit.
+Neither targeted checks nor formal audits replace required runtime evidence.
 
-- A C or Lua source port is closing and an entry point in scope lacks a
-  matching synthetic range or recording (`AGENTS.md`, "Validate completed
-  work"). Scope the review to functions no cited evidence executes and
-  compare each against its C or Lua source. A review does not replace runtime
-  evidence required to close an active entry point.
-- A divergence fix required multiple deliveries or crossed several source
-  functions. Scope the review to the functions the fix touched.
-- The user asks for one.
-
-Do not schedule a review by elapsed commits or changed lines.
+Reserve formal multi-agent audits for the user's request or a concrete
+cross-subsystem risk that a targeted review cannot resolve. State that risk
+before launching. The number of deliveries, functions touched, commits
+since the last audit, or changed lines does not independently trigger an audit.
 
 Three other passes have their own occasions. Run one `/simplify-codebase` pass over
 the whole of `js/` before the Phase 1 freeze on 2026-11-29, because Phase 2
@@ -47,31 +41,20 @@ readability problem a reader hit, scoped to that code.
 
 ## Readiness for a formal review pass
 
-Launch a formal review pass only when the code under review is committed and
-its evidence is complete. Prepare with
+Launch a formal review pass when the code is committed and its focused
+validation evidence is available. Prepare with
 `node scripts/audit-worktree.mjs prepare ... --readiness`, which runs
-`npm run checkpoint` and `npm run quality -- --check --health` at the
-repository head and refuses to prepare while any command fails.
+`npm run quality -- --check --health`, not a full checkpoint.
+Use existing checkpoint evidence when available; a full checkpoint is not
+a prerequisite for reviewing code.
 
-Three manual attestations, recorded in `auditMetrics.readiness`, are also
-required:
-
-- **boundary** (the field keeps its historical name): name the functions or
-  the committed range under review, and state which recording, fixed-workload
-  session, or source-pinned test executes each function, or that none does.
-- **sourceReview**: confirm that every function in scope was traced against
-  upstream C or Lua, covering state and PRNG order, and that every
-  `note_unported()` call and every remaining `Unsupported*Error` throw in
-  scope was listed.
-- **completeness**: confirm that no `note_unported()` call in scope stands in
-  for a value the C uses (`AGENTS.md`, "Port whole source units and wire their callers").
-
-A missing attestation or a red prepared command is `NOT READY`: launch no
-reviewers.
+Give reviewers the existing source-completion and validation evidence.
+Reviewers inspect the relevant C or Lua source and report concrete gaps;
+do not require separate attestations or duplicate evidence summaries.
 
 ## Which finders to run
 
-Run every correctness review as a `full` `/audit-diff-correctness` pass, whose
+Run every formal correctness audit as a `full` `/audit-diff-correctness` pass, whose
 behavior, readability-risk, test-quality, and variable-flow finders always run.
 The two finders below are optional; before recording the pass, state which of
 their triggers applied.
@@ -110,6 +93,17 @@ changes.
 After the audit-fix commit lands, re-verify its diff against the pass's
 confirmed findings and record the pass with `--range <base>..<audit-fix
 commit>`, so the fixes are inside the recorded range.
+
+Use one targeted verifier to review all corrections and report all remaining
+problems together. Do not restart general discovery or full readiness after
+each edit. Optional test improvements do not block
+acceptance; concrete correctness defects still require resolution.
+
+Finish corrections and focused checks before requesting the hosted checkpoint
+for the final commit. Reuse a passing result only when it names that exact
+commit. Changed execution inputs require new validation under
+`.agents/validation.md`; recording a review does not itself require another
+checkpoint.
 
 ## Running formal review passes
 

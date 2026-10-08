@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent C-first fixed-gender Rogue save/restore Oracle continuation. role.c Master Assassin has fixed male gender, avoiding the separately unported Wizard nemesis restoration draw. Direction selected from C prefix before JS comparison. C prefix places Oracle immediately east. First segment pays, dismisses the Oracle window, saves; second segment restores and consumes the next normal offset. Blocked outside B144 by save.c:dosave blank WIN_MESSAGE More and restore.c/monmove.c restored-monster scheduling after the second outoracle window. The selected helper reaches rnd(19) in C, but this recipe is not passing runtime evidence for persistence.",
+  "segments": [
+    {
+      "seed": 8144105,
+      "datetime": "20430515093000",
+      "nethackrc": "OPTIONS=name:OracleRelay,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u00172000 gold pieces\n\u0007peaceful Oracle\ny   #chat\nlny .Sy "
+    },
+    {
+      "seed": 8144106,
+      "datetime": "20430516094000",
+      "nethackrc": "OPTIONS=name:OracleRelay,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " n#chat\nlny ."
+    }
+  ]
+}

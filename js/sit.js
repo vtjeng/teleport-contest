@@ -1,5 +1,5 @@
 // C refs: sit.c take_gold() (14-35), throne_sit_effect() (39-234),
-// lay_an_egg() (358-399), dosit() (400-568), rndcurse() (569-638),
+// special_throne_effect() (238-354), lay_an_egg() (358-399), dosit() (400-568), rndcurse() (569-638),
 // and attrcurse() (644-762). `#sit` owns the complete
 // guard and terrain chain; source-discarded void effects that remain
 // unported are named and skipped.
@@ -7,6 +7,10 @@
 import {
     AGGRAVATE_MONSTER,
     A_CON,
+    ACID_RES,
+    DRAIN_RES,
+    POLY_NOFLAGS,
+    UTOTYPE_NONE,
     A_MAX,
     A_STR,
     A_WIS,
@@ -78,6 +82,7 @@ import {
     mhis,
     haseyes,
     is_prince,
+    is_vampire,
     slithy,
     sticks,
 } from './mondata.js';
@@ -223,44 +228,120 @@ async function sit_exercise(index, state, random) {
     await exercise(index, false, state, random, options);
 }
 
-// C ref: sit.c special_throne_effect() cases 7 and 10. Case 7 loses an
-// intrinsic and prints the amusement line; case 10 applies
-// seffect_remove_curse() to a blessed fake spellbook while HConfusion is
-// temporarily forced on.
+// C ref: sit.c special_throne_effect() (238-354). Keep the original throne
+// coordinate across a wish and leave ordinary throne-removal RNG to the caller.
 async function special_throne_effect(effect, state, rawEnv = {}) {
-    if (effect === 7) {
-        const random = sit_water_random(rawEnv);
-        const message = rawEnv.message
-            ?? (await import('./tty_message.js')).ttyPline;
-        await attrcurse(state, { ...rawEnv, random, message });
-        await message('The throne somehow seems to be amused.', state);
-        return;
-    }
-    if (effect !== 10) {
-        note_unported('sit.c special_throne_effect');
-        return;
-    }
-
     const u = state.u;
-    const confusion = u.uprops?.[CONFUSION];
-    const savedConfusion = confusion?.intrinsic ?? 0;
-    const confusionProperty = (u.uprops ??= {})[CONFUSION]
-        ??= { intrinsic: 0, extrinsic: 0 };
-    const fakeSpellbook = newObject({
-        otyp: SPE_REMOVE_CURSE,
-        oclass: SPBOOK_CLASS,
-        blessed: true,
-    });
-    confusionProperty.intrinsic = 1;
-    try {
-        const { seffects } = await import('./read.js');
-        await seffects(fakeSpellbook, state, {
-            ...rawEnv,
-            state,
-            random: sit_water_random(rawEnv),
+    const tx = u.ux, ty = u.uy;
+    const random = sit_water_random(rawEnv);
+    const message = rawEnv.message ?? ttyPline;
+    const env = { ...rawEnv, state, random, message };
+    switch (effect) {
+    case 1:
+    case 2:
+    case 3:
+    case 4: {
+        const { makewish } = await import('./zap.js');
+        await makewish(state);
+        const location = state.level.at(tx, ty);
+        location.typ = ROOM;
+        location.flags = 0;
+        const { map_background, newsym } = await import('./display.js');
+        map_background(tx, ty, false, state);
+        // newsym_force() also sets tty dirty bounds; this renderer repaints
+        // the whole map, as in the ordinary throne caller below.
+        newsym(tx, ty, state);
+        await message('The throne disintegrates, having spent its power.', state, env);
+        break;
+    }
+    case 5: {
+        await message('Sitting on the throne was a terrible experience.', state, env);
+        const resistance = u.uprops[DRAIN_RES];
+        if (!(resistance.intrinsic || resistance.extrinsic)) {
+            const { losexp } = await import('./exper.js');
+            await losexp('a bad experience sitting on a throne', state, env);
+            if (state.program_state?.gameover) return; // C done(DIED) never returns.
+            if (u.ulevelmax > u.ulevel) --u.ulevelmax;
+        }
+        break;
+    }
+    case 6: {
+        await message('A greasy liquid sprays all over you!', state, env);
+        for (let object = state.invent; object; object = object.nobj)
+            if (object.oclass !== OBJECT_COIN_CLASS) object.greased = true;
+        const { make_glib } = await import('./potion.js');
+        make_glib(random.rn1(101, 100), state, env);
+        update_inventory(env);
+        break;
+    }
+    case 7:
+        await attrcurse(state, env);
+        await message('The throne somehow seems to be amused.', state, env);
+        break;
+    case 8: {
+        const { find_hell } = await import('./dungeon.js');
+        const destination = {};
+        find_hell(destination, state);
+        destination.dlevel = state.dungeons[destination.dnum].num_dunlevs - 1;
+        if (u.uhave.amulet) {
+            await message('You feel extremely disoriented for a moment.', state, env);
+        } else {
+            const { schedule_goto } = await import('./do.js');
+            schedule_goto(destination, UTOTYPE_NONE, null,
+                'You feel extremely out of place.', state);
+        }
+        break;
+    }
+    case 9: {
+        await message('The throne seeems to be calling for help!', state, env);
+        const { msummon } = await import('./minion.js');
+        await msummon(null, env);
+        await msummon(null, env);
+        await msummon(null, env);
+        break;
+    }
+    case 10: {
+        const confusion = u.uprops[CONFUSION];
+        const savedConfusion = confusion.intrinsic;
+        const fakeSpellbook = newObject({
+            otyp: SPE_REMOVE_CURSE, oclass: SPBOOK_CLASS, blessed: true,
         });
-    } finally {
-        confusionProperty.intrinsic = savedConfusion;
+        confusion.intrinsic = 1;
+        try {
+            const { seffects } = await import('./read.js');
+            await seffects(fakeSpellbook, state, env);
+        } finally {
+            confusion.intrinsic = savedConfusion;
+        }
+        break;
+    }
+    case 11:
+        if (is_vampire(state.youmonst.data)) {
+            await message('You feel unworthy.', state, env);
+        } else {
+            await message('This throne was not meant for those such as you!', state, env);
+            await message('You feel a change coming over you.', state, env);
+            const { polyself } = await import('./polyself.js');
+            await polyself(POLY_NOFLAGS, state);
+        }
+        break;
+    case 12: {
+        await message('The throne is covered in acid!', state, env);
+        const resistance = u.uprops[ACID_RES];
+        const { losehp } = await import('./hack.js');
+        await losehp(random.rnd(resistance.intrinsic || resistance.extrinsic ? 16 : 80),
+            'acidic chair', KILLED_BY_AN, state, env);
+        if (state.program_state?.gameover) return; // No exercise after C done(DIED).
+        await sit_exercise(A_CON, state, random);
+        break;
+    }
+    case 13: {
+        await message('As you sit on the throne, your body and mind start to warp.', state, env);
+        const { adjattrib } = await import('./attrib.js');
+        for (let ability = 0; ability < A_MAX; ++ability)
+            await adjattrib(ability, random.rn2(5) - 2, -1, state, env);
+        break;
+    }
     }
 }
 

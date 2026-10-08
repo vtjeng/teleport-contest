@@ -45,6 +45,7 @@ import { setuwep } from './wield.js';
 import { getnow } from './calendar.js';
 import { rnd } from './rng.js';
 import { SAVE_FILE_PATH } from './save.js';
+import { restore_oracles } from './rumors.js';
 import { set_residency, restshk } from './shk.js';
 import { vfsReadFile, vfsDeleteFile, vfsListFiles } from './storage.js';
 import { initrack } from './track.js';
@@ -172,6 +173,7 @@ export async function dorestore(state = game) {
     // before restore.c's artifact tracking fixups and setuwep call.
     init_artifacts(state);
     restore_artifacts(snapshot, state);
+    restore_oracles(snapshot, state);
 
     // Object catalog: replace the static objects table with the saved one
     // that carries the per-game description shuffle and discovery bits.

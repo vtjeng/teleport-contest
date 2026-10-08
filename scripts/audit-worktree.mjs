@@ -40,6 +40,8 @@ export const USAGE = `Usage:
 
 prepare creates an isolated worktree at the exact reviewed commit, initializes
 the pinned NetHack source without fetching, and snapshots the audit prompt.
+--readiness checks quality-area ownership and health without running a
+checkpoint. Full validation belongs to the final acceptance gate.
 
 check verifies that the prepared files have not changed and prints the manual
 codex exec command. cleanup removes only a clean worktree that matches the
@@ -301,11 +303,10 @@ function repositoryRootFor(path = PROJECT_ROOT) {
     );
 }
 
-// Machine readiness checks runtime behavior and quality-area ownership.
+// Review preparation checks quality-area ownership, not runtime behavior.
 // On-demand reviews cover their exact range, not all earlier review debt.
 export function readinessCommands() {
     return [
-        { label: 'checkpoint', command: 'npm', args: ['run', 'checkpoint'] },
         { label: 'quality check', command: 'npm',
             args: ['run', 'quality', '--', '--check', '--health'] },
     ];

@@ -66,7 +66,7 @@ function scriptedRandom(script) {
 
 test('generated random-text data matches the pinned source and byte layout', () => {
     const sourceHashes = {
-        // These hashes pin the five upstream data inputs at revision 16ff591.
+        // These hashes pin the upstream data inputs at revision 16ff591.
         'rumors.tru': '86464822e8e09ca653f9e588f696b7af3d986fe17145454a5c101e2bdf98b012',
         'rumors.fal': '2f1ca072a66c1ee83aa3e87762f84721c91ea97dc1949fd01d65ecc55f6fda06',
         'engrave.txt': '9dbe56e0a14786d9a406778ddb1bcaba31fbba758b21149dff5210f32df93585',
@@ -128,6 +128,8 @@ test('generated random-text data matches the pinned source and byte layout', () 
         engrave: '997a0b2ecc90a46f58e8c9df0682710fa3aaaacbe3464f12d0300d234159849d',
         epitaph: 'a5325ff6040e99103a245b90521dee0f47b0f64e4c628f75765e837ffcd56318',
         bogusmon: '889f9966974ad5d714d7bdd33619b4636bb751004459655d6d7c0a450b3e0681',
+        // The Oracle file is byte-identical to C makedefs' header, offsets and encrypted records.
+        oracles: '18e87ce1f921617678027a34d52b3228e2d63312f4d37ca9bd8756add7b41891',
     });
     for (const [filename, data] of Object.entries(RANDOM_TEXT_FILES))
         assert.equal(sha256(data, 'latin1'), RANDOM_TEXT_FILE_HASHES[filename]);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary dry THRONE drop. Unsearched seed14428031 and clock20621015101927; C startup shows the adjacent west square is ordinary room floor, so h moves away from the upstairs before a wizard-created throne. Wished ruby e varies object class without altering the dry throne path. No admitted inputs copied.",
+  "segments": [
+    {
+      "seed": 14428031,
+      "datetime": "20621015101927",
+      "nethackrc": "OPTIONS=name:ThroneFloor,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " h\u0017throne\n   \u0017ruby\n   de  "
+    }
+  ]
+}

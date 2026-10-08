@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked after independently recorded C grease effect: do.c:dropx preflight rejects THRONE when do_wear.c:glibr drops the armed Knight’s sword after slippery fingers. A143 ports the special throne function; ordinary throne floor/drop admission is a separate task. No matching recording is committed for this route. Independent C-first Vlad special-throne grease route; cmd.c requested level menu, dungeon.c Vlad entry, wizard-created throne at current position, then source debug effect6. No JS comparison inspected before recording. Newly selected Knight/seed/clock and menu-request prefix differ from admitted inputs.",
+  "segments": [
+    {
+      "seed": 14328011,
+      "datetime": "20610709141723",
+      "nethackrc": "OPTIONS=name:ThroneGrease,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,!tips,!verbose\n",
+      "moves": " #levelchange\n25\n                                                                                          m\u0016>I\n                                   \u0017throne\n               #sit\n 6\n                         i "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside A144 bounded THRONE scope. Independent C-first ordinary fountain drop reuses the C-established non-stairway floor step; C dropx/dropz/flooreffects takes its ordinary default floor path, but js/do.js:preflight_dropx still refuses FOUNTAIN as non-ordinary terrain. No passing recording is claimed; this source admission boundary is preserved separately.",
+  "segments": [
+    {
+      "seed": 14428031,
+      "datetime": "20621015101927",
+      "nethackrc": "OPTIONS=name:ThroneFloor,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " h\u0017fountain\n   da  "
+    }
+  ]
+}
