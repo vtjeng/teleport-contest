@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: apply.c:use_cream_pie/use_towel. Apply cream pie to face then wipe it with towel. Required C observation: Cream blindfold is removed and face cleaned. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732015,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732015,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed towel\n\u0017cream pie\naf        ae             "
+    }
+  ]
+}

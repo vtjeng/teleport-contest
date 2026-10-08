@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: options.c:doset/botl.c:status_hilite_menu. Open status highlight configuration through full options. Required C observation: Status field/condition highlight menu. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732025,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732025,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:statushilites\n\n                \u001b"
+    }
+  ]
+}

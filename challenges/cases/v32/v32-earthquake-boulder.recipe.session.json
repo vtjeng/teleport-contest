@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: music.c:do_earthquake344+/do.c:flooreffects. Stand with wished floor boulder and play earthquake drum. Required C observation: Quake pit and boulder filling or source miss. Seed, clock and input history fixed before any JavaScript comparison, without a seed search. C-only correction of inventory letters, pager acknowledgments, intrinsic/option spelling or source-confirmed placement from initial C observations, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 15732014,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732014,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".l\u0017boulder\n\u0017uncursed drum of earthquake\nafy                :    "
+    }
+  ]
+}

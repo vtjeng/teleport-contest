@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: do.c:dosinkring402-662. Create sink off stairs and drop ring of searching. Required C observation: Ring descends drain and emits sink-ring class effect. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732003,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732003,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "..l\u0017sink\n\u0017uncursed ring of searching\nde          :    "
+    }
+  ]
+}

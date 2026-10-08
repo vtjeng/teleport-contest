@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: apply.c:use_whip/weapon.c:possibly_unwield. Archeologist uses bullwhip on armed goblin. Required C observation: Weapon is disarmed or C proficiency/direction miss. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732016,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732016,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0007goblin\naeh     ael        "
+    }
+  ]
+}

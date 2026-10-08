@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: uhitm.c:mhitm_ad_pest/mhitm_ad_dise. Level20 hero stands next to Pestilence. Required C observation: Sickness applied by disease Rider touch. Seed, clock and input history fixed before any JavaScript comparison, without a seed search. C-only correction of inventory letters, pager acknowledgments, intrinsic/option spelling or source-confirmed placement from initial C observations, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 15732034,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732034,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n20\n                         \u0007Pestilence\nm. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   "
+    }
+  ]
+}
