@@ -214397,7 +214397,7 @@
     {
       "id": "port-wizcmds-wiz-display-macros-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the wizard display macro diagnostic and canonical glyph decoder",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -214411,8 +214411,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_display_macros",
@@ -214766,6 +214769,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
