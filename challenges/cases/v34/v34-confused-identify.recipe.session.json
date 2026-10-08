@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: read.c:seffect_identify2055-2095. Read identify while confused with unknown wand. Required C observation: Unconventional identification confusion text. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934020,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934020,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of confusion\nqe        \u0017uncursed scroll of identify\nrf                    "
+    }
+  ]
+}

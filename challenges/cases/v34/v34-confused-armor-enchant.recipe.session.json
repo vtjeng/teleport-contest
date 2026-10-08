@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: read.c:seffect_enchant_armor confuse erosionproof branch. Confused hero reads blessed armor-enchant wearing mail. Required C observation: Suit erosionproofing distinct from protection increase. Fixed before JS comparisons; no seed search or recipe changes based on JS failures. C-only setup correction from observed role inventory, More acknowledgments, newly created monster coordinates, and source-confirmed ability state/Pw prerequisites; before any JS comparison.",
+  "segments": [
+    {
+      "seed": 15934022,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934022,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of confusion\nqf        \u0017blessed scroll of enchant armor\nrg                    "
+    }
+  ]
+}

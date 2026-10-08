@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: read.c:seffect_punishment1976-2010. Read punishment scroll while confused. Required C observation: Guilty feeling without attaching ball/chain. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934018,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934018,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed potion of confusion\nqe        \u0017uncursed scroll of punishment\nrf                    "
+    }
+  ]
+}

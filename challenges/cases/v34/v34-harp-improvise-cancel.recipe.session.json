@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: music.c:do_play_instrument charm_monsters. Play magical harp near hostile kitten. Required C observation: Harp charges charm/tame nearby monster. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934040,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934040,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed magic harp\n\u0007kitten\n      ae n                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: read.c:do_genocide reverse branch. Read cursed genocide scroll naming gecko. Required C observation: Chosen monsters appear without confusion. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934017,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934017,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed scroll of genocide\nregecko\n                      "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: apply.c:use_stone2680-2790. Archeologist rubs diamond on blessed touchstone. Required C observation: Touchstone identifies real gem and updates inventory. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934008,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934008,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed touchstone\n\u0017diamond\nagj                    "
+    }
+  ]
+}
