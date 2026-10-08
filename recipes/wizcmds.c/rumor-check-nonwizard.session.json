@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9187403,
+      "datetime": "20361109114500",
+      "nethackrc": "OPTIONS=name:OrdinaryReader,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+      "moves": ".#wizrumorcheck\n"
+    }
+  ],
+  "comment": "Independent C-first normal-mode boundary: cmd.c WIZMODECMD hides wizrumorcheck, without a diagnostic window or time use."
+}

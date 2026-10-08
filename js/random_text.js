@@ -25,6 +25,7 @@ import { the_unique_pm } from './objnam.js';
 import { verbalize } from './pline.js';
 import { RANDOM_TEXT_FILES } from './random_text_data.js';
 import { rn2 } from './rng.js';
+import { init_rumors } from './rumors.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -159,32 +160,6 @@ export function get_rnd_text(
     return get_rnd_line(data, random, start, 0, padlength);
 }
 
-export function parseRumorHeader(data) {
-    const comment = readByteLine(data, 0);
-    const header = comment && readByteLine(data, comment.position);
-    if (!header) return null;
-    const match = header.text.match(
-        /^(\d+),(\d+),([0-9a-f]+);(\d+),(\d+),([0-9a-f]+);0,0,([0-9a-f]+)\n$/iu,
-    );
-    if (!match) return null;
-    const parsed = {
-        trueCount: Number(match[1]),
-        trueSize: Number(match[2]),
-        trueStart: Number.parseInt(match[3], 16),
-        falseCount: Number(match[4]),
-        falseSize: Number(match[5]),
-        falseStart: Number.parseInt(match[6], 16),
-        eof: Number.parseInt(match[7], 16),
-    };
-    parsed.trueEnd = parsed.trueStart + parsed.trueSize;
-    parsed.falseEnd = parsed.falseStart + parsed.falseSize;
-    if (parsed.trueSize < 1 || parsed.falseSize < 1
-        || parsed.trueEnd !== parsed.falseStart
-        || parsed.falseEnd !== parsed.eof
-        || parsed.eof > data.length) return null;
-    return parsed;
-}
-
 // JS omits C's caller-owned output buffer.  The remaining arguments and all
 // random choices retain getrumor()'s source order.
 export function getrumor(truth, excludeCookie, rawEnv = {}) {
@@ -194,13 +169,22 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
         random: rawEnv.random ?? { rn2 },
         state: rawEnv.state ?? game,
     };
+    const state = env.state;
+    state.gt ??= {};
+    state.gf ??= {};
+    state.gt.true_rumor_size ??= 0;
+    if (state.gt.true_rumor_size < 0) return '';
     const data = env.files[RUMORFILE];
     if (typeof data !== 'string') {
-        env.couldntOpenFile?.(RUMORFILE);
+        note_unported('rumors.c couldnt_open_file');
+        state.gt.true_rumor_size = -1;
         return '';
     }
-    const ranges = parseRumorHeader(data);
-    if (!ranges) return `Error reading "${RUMORFILE}".`;
+    // C rumors.c:139-146 initializes the same offsets used by rumor_check.
+    if (state.gt.true_rumor_size === 0) {
+        init_rumors({ data, position: 0 }, state);
+        if (state.gt.true_rumor_size < 0) return `Error reading "${RUMORFILE}".`;
+    }
 
     const rng = randomFunction(env.random);
     let rumor = '';
@@ -213,13 +197,13 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
         switch (adjustedTruth) {
         case 2:
         case 1:
-            beginning = ranges.trueStart;
-            ending = ranges.trueEnd;
+            beginning = state.gt.true_rumor_start;
+            ending = state.gt.true_rumor_end;
             break;
         case 0:
         case -1:
-            beginning = ranges.falseStart;
-            ending = ranges.falseEnd;
+            beginning = state.gf.false_rumor_start;
+            ending = state.gf.false_rumor_end;
             break;
         default:
             env.impossible?.('strange truth value for rumor');
