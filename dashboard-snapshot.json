@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T21:40:34.437Z",
+  "capturedAt": "2026-10-08T21:50:59.288Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -67503,12 +67503,168 @@
         "worker": "C",
         "state": "idle",
         "reason": "Accepted B167 is merged at a clean boundary. C154 fatal-timeout investigation is complete and awaits the coordinator’s implementation context; the C152 correction is submitted for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B167-published-8e0e9010ccc4e12b22bdffa04919a4e44aba0877",
+        "type": "published",
+        "at": "2026-10-08T21:41:05.305Z",
+        "task": "B167",
+        "commit": "8e0e9010ccc4e12b22bdffa04919a4e44aba0877"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B171-A172-dispatch-owner-20261008",
+        "type": "park",
+        "at": "2026-10-08T21:41:34.802Z",
+        "task": "B171"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B172-version-build-options-20261008",
+        "type": "assign",
+        "at": "2026-10-08T21:42:02.019Z",
+        "task": "B172",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B172-version-audit-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:42:03.276Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the v32 version and build options mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C152-integrating-e0af258f80b5a632caf9419b124b7f4046d63e78",
+        "type": "integrating",
+        "at": "2026-10-08T21:42:48.865Z",
+        "task": "C152",
+        "integration": "e0af258f80b5a632caf9419b124b7f4046d63e78"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A172-received-ee0bd332d930dc99504aeb6792f935551c754305",
+        "type": "received",
+        "at": "2026-10-08T21:43:54.413Z",
+        "task": "A172",
+        "delivery": "ee0bd332d930dc99504aeb6792f935551c754305"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A172-review-ee0bd332d930dc99504aeb6792f935551c754305",
+        "type": "activity",
+        "at": "2026-10-08T21:43:55.379Z",
+        "task": "A172",
+        "phase": "review",
+        "reason": "Previewing A172 wizard custom glyphs and source parser/cache evidence while corrected C152 hosted validation runs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B172-compile-host-contract-20261008",
+        "type": "park",
+        "at": "2026-10-08T21:44:09.631Z",
+        "task": "B172"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B173-options-fruit-20261008",
+        "type": "assign",
+        "at": "2026-10-08T21:44:33.204Z",
+        "task": "B173",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B173-options-fruit-audit-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:44:34.361Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the v32 fruit option mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B173-A172-full-options-owner-20261008",
+        "type": "park",
+        "at": "2026-10-08T21:45:58.036Z",
+        "task": "B173"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B174-hallucinatory-whatis-20261008",
+        "type": "assign",
+        "at": "2026-10-08T21:46:27.635Z",
+        "task": "B174",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B174-hallucinatory-whatis-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:46:28.792Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating hallucinatory map descriptions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-647b6547b993865fa7144dd1c85174e9202f2c1a",
+        "type": "ready",
+        "at": "2026-10-08T21:46:39.864Z",
+        "task": "A174",
+        "delivery": "647b6547b993865fa7144dd1c85174e9202f2c1a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C152-validated-e0af258f80b5a632caf9419b124b7f4046d63e78",
+        "type": "validated",
+        "at": "2026-10-08T21:47:42.643Z",
+        "task": "C152",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A175-prayer-stoning-71278af4",
+        "type": "assign",
+        "at": "2026-10-08T21:48:10.678Z",
+        "task": "A175",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A175-prayer-cure-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:48:11.879Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B174-hallucinatory-menu-20261008",
+        "type": "implement",
+        "at": "2026-10-08T21:48:21.096Z",
+        "task": "B174",
+        "goal": "fix-pager-whatis-hallucination-menu-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C152-e0af258f80b5a632caf9419b124b7f4046d63e78-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T21:50:37.717Z",
+        "task": "C152"
       }
     ]
   },
   "development": {
-    "executionCommit": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
-    "measuredAt": "2026-10-08T21:33:57.158Z",
+    "executionCommit": "e0af258f80b5a632caf9419b124b7f4046d63e78",
+    "measuredAt": "2026-10-08T21:47:07.279Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source path for glyphs.c:parse_id S_* monster-class lookup and fanout through startup glyph customization, then wiz_custom diagnostics. New seed/role/date; named IBM set disables Unicode while tagged basic-black class customization remains active.",
+  "segments": [
+    {
+      "seed": 17270015,
+      "datetime": "20610112151500",
+      "nethackrc": "OPTIONS=name:Glyphclasses,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\nOPTIONS=symset:IBMgraphics\nOPTIONS=glyph:S_ant:U+0041/black\n",
+      "moves": "  #wizcustom\n\u001b "
+    }
+  ]
+}
