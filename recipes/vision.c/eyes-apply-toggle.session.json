@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first vision.c:vision_recalc x-ray overlay witness. Unsearched seed15429011 and clock20730412151816; female Monk safely wears her artifact. Apply dispatcher toggles the eyewear through both canonical callbacks. C independently confirmed Eyes inventory letterk; initial j probe only selected a food item and is retained as invalid setup in cache.",
+  "segments": [
+    {
+      "seed": 15429011,
+      "datetime": "20730412151816",
+      "nethackrc": "OPTIONS=name:XrayWitness,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   \u0017uncursed Eyes of the Overworld\n    ak    ak    ."
+    }
+  ]
+}

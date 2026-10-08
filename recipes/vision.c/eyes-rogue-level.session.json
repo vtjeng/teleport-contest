@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent passing outside-limit variation: wizard teleport to the source Rogue special level, then wear/remove Eyes. vision.c:vision_recalc skips the ordinary x-ray arm on Rogue levels. This recording verifies that guard at runtime; it does not establish whole rogue_vision or generation completion.",
+  "segments": [
+    {
+      "seed": 15429011,
+      "datetime": "20730412151816",
+      "nethackrc": "OPTIONS=name:XrayWitness,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   \u0017uncursed Eyes of the Overworld\n    \u0016rogue\n    Pk    R    ."
+    }
+  ]
+}

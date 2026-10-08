@@ -814,13 +814,48 @@ export function vision_recalc(control = 0, env = {}) {
         return;
     }
 
-    // The current vision subset models the ordinary one-square night-vision
-    // range. C computes night vision before overlaying mobile light sources.
-    for (let row = 0; row < ROWNO; row++) {
-        for (let col = next_rmin[row]; col <= next_rmax[row]; col++) {
-            if (!(next[row][col] & COULD_SEE)) continue;
-            if (Math.abs(col - ux) <= 1 && Math.abs(row - uy) <= 1)
-                next[row][col] |= IN_SIGHT;
+    // C ref: vision.c:631-668. X-ray vision adds sight without adding
+    // line of sight, including in water and pits. Blind, Rogue, swallowed
+    // and shutdown vision take earlier source branches and skip this arm.
+    if (control !== 2 && !u.uswallow && !rogueLevel && u.xray_range >= 0) {
+        if (u.xray_range) {
+            for (let row = uy - u.xray_range; row <= uy + u.xray_range; ++row) {
+                if (row < 0) continue;
+                if (row >= ROWNO) break;
+                const width = circle_offset(u.xray_range, Math.abs(uy - row));
+                const start = Math.max(1, ux - width);
+                const stop = Math.min(COLNO - 1, ux + width);
+                for (let col = start; col <= stop; ++col) {
+                    const oldValue = next[row][col];
+                    next[row][col] |= IN_SIGHT;
+                    const loc = level.at(col, row);
+                    const oldseenv = loc.seenv;
+                    loc.seenv = SVALL;
+                    // C redraws against the old published bitmap here;
+                    // the normal update loop redraws after publication.
+                    if (!(oldValue & IN_SIGHT) || oldseenv !== SVALL)
+                        redraw(col, row);
+                }
+                next_rmin[row] = Math.min(start, next_rmin[row]);
+                next_rmax[row] = Math.max(stop, next_rmax[row]);
+            }
+        } else {
+            next[uy][ux] |= IN_SIGHT;
+            level.at(ux, uy).seenv = SVALL;
+            next_rmin[uy] = Math.min(ux, next_rmin[uy]);
+            next_rmax[uy] = Math.max(ux, next_rmax[uy]);
+        }
+    }
+
+    // The existing night-vision subset models ordinary one-square range.
+    // C:670 gives x-ray precedence and suppresses night vision underwater.
+    if (!underwaterOutsideWaterLevel && (u.xray_range ?? -1) < (u.nv_range ?? 1)) {
+        for (let row = 0; row < ROWNO; row++) {
+            for (let col = next_rmin[row]; col <= next_rmax[row]; col++) {
+                if (!(next[row][col] & COULD_SEE)) continue;
+                if (Math.abs(col - ux) <= 1 && Math.abs(row - uy) <= 1)
+                    next[row][col] |= IN_SIGHT;
+            }
         }
     }
 
