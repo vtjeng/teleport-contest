@@ -219598,6 +219598,37 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-pray-petrification-cure-caller-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire canonical make_stoned at the prayer petrification cure",
+      "cFile": "pray.c",
+      "sessions": [],
+      "selectionReason": "Seed continuation from immutable A174 advances menu search to step 44. The bounded prayer caller is independent of active reservations and reuses an existing canonical potion owner.",
+      "detail": "C pray.c line 383 calls make_stoned with zero timeout, the limber message, zero killer format, and null killer. JavaScript records a stale source gap. Await the canonical owner at this source point; preserve timer bits, delayed killer cleanup, message and status updates, and zero RNG order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "fix_worst_trouble",
+      "session": "synthetic/v32/v32-prayer-stoning",
+      "step": 44,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-prayer-stoning": {
+          "session": "synthetic/v32/v32-prayer-stoning",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-prayer-stoning",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-prayer-stoning.session.json",
+          "recordingSha256": "cdf294f0b9b89768eb8b8cc10930ee641e6d39b4303e1f10d2d995c7bd03402e",
+          "evaluationPath": "challenges/evaluations/accepted-59881684f1ce7cc1c9bcb7cc144e8a8fb005c360-v32.json",
+          "evaluationCommit": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360"
+        }
+      }
     }
   ]
 }
