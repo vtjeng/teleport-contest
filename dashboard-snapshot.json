@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T09:12:10.954Z",
+  "capturedAt": "2026-10-08T09:41:31.646Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -27086,12 +27086,154 @@
         "type": "accepted",
         "at": "2026-10-08T09:11:57.680Z",
         "task": "A151"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A151-55a02286e",
+        "type": "published",
+        "at": "2026-10-08T09:12:59.824Z",
+        "task": "A151",
+        "commit": "55a02286eeba7654fb9453a0fa71820861f788c7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C145-e72bb650a",
+        "type": "integrating",
+        "at": "2026-10-08T09:14:27.486Z",
+        "task": "C145",
+        "integration": "e72bb650aae0e5e251577c767adc4b5101c89aa7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C145-overread-37755373111",
+        "type": "feedback",
+        "at": "2026-10-08T09:20:09.089Z",
+        "task": "C145",
+        "delivery": "3bb21384538740c6a69e3595d29de5855eb8b855"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C146-for-C145-input-boundary-correction-20261008",
+        "type": "park",
+        "at": "2026-10-08T09:20:18.166Z",
+        "task": "C146"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C145-input-boundary-correction-20261008",
+        "type": "resume",
+        "at": "2026-10-08T09:20:33.048Z",
+        "task": "C145"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-18ba07098f0f74ee9e0d60eae7aaa68aca9b0cf7",
+        "type": "ready",
+        "at": "2026-10-08T09:20:43.094Z",
+        "task": "B150",
+        "delivery": "18ba07098f0f74ee9e0d60eae7aaa68aca9b0cf7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B150-18ba0709",
+        "type": "received",
+        "at": "2026-10-08T09:21:37.304Z",
+        "task": "B150",
+        "delivery": "18ba07098f0f74ee9e0d60eae7aaa68aca9b0cf7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B151-cursed-levitation-investigation-dd4e13c3-20261008",
+        "type": "assign",
+        "at": "2026-10-08T09:26:06.464Z",
+        "task": "B151",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bd5551e0a7fbc553eaa96a4fd2c4491e42874ca4",
+        "type": "ready",
+        "at": "2026-10-08T09:27:35.147Z",
+        "task": "A152",
+        "delivery": "bd5551e0a7fbc553eaa96a4fd2c4491e42874ca4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A152-bd5551e0",
+        "type": "received",
+        "at": "2026-10-08T09:28:23.914Z",
+        "task": "A152",
+        "delivery": "bd5551e0a7fbc553eaa96a4fd2c4491e42874ca4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bafa92efe898baa059079f6f1b30cbfb2671fd7c",
+        "type": "ready",
+        "at": "2026-10-08T09:29:49.270Z",
+        "task": "C145",
+        "delivery": "bafa92efe898baa059079f6f1b30cbfb2671fd7c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A153-demonbane-investigation-ca99faab",
+        "type": "assign",
+        "at": "2026-10-08T09:30:11.656Z",
+        "task": "A153",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C145-bafa92ef",
+        "type": "received",
+        "at": "2026-10-08T09:30:18.405Z",
+        "task": "C145",
+        "delivery": "bafa92efe898baa059079f6f1b30cbfb2671fd7c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C145-e7f2d850",
+        "type": "integrating",
+        "at": "2026-10-08T09:30:47.877Z",
+        "task": "C145",
+        "integration": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C145-e7f2d850",
+        "type": "validated",
+        "at": "2026-10-08T09:36:13.364Z",
+        "task": "C145",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A153-invoke-banish-whole-20261008",
+        "type": "implement",
+        "at": "2026-10-08T09:37:02.083Z",
+        "task": "A153",
+        "goal": "port-artifact-invoke-banish-v29-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C145-e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T09:38:13.967Z",
+        "task": "C145"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C146-after-C145-accepted-20261008",
+        "type": "resume",
+        "at": "2026-10-08T09:40:03.409Z",
+        "task": "C146"
       }
     ]
   },
   "development": {
-    "executionCommit": "9f7db41233cca4114fe040f41e72e0282fbe08b0",
-    "measuredAt": "2026-10-08T09:09:35.515Z",
+    "executionCommit": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
+    "measuredAt": "2026-10-08T09:35:28.116Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
