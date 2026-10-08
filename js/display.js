@@ -1449,18 +1449,11 @@ function display_monster(x, y, monster, sightflags, wormTail, state = game) {
             presented, state, detected,
         );
 
-        // C show_mon_or_warn() clears a remembered invisible marker and then
-        // remembers a visible floor object beneath the monster. The only
-        // unported branch in that void helper is forgetting an engraved
-        // square; preserve that named gap without using a fake return value.
+        // C show_mon_or_warn() clears the remembered invisible marker before
+        // remembering a visible object beneath the monster.
         const location = state.level.at(x, y);
         if (glyph_is_invisible(location.remembered_glyph?.glyph)) {
-            try {
-                unmap_object(x, y, state);
-            } catch (error) {
-                if (!(error instanceof UnsupportedMapMemoryError)) throw error;
-                note_unported('display.c unmap_object');
-            }
+            unmap_object(x, y, state);
             const object = vobj_at(x, y, state);
             if (cansee(x, y, state) && object)
                 map_object(object, false, state);
@@ -3620,34 +3613,8 @@ export function map_engraving(engraving, show, state = game) {
     if (show) show_glyph_cell(x, y, glyph);
 }
 
-// The refusal class for a map-memory rewrite this port cannot perform.
-// js/cmd.js failClosedCommandRefusals() lists it, so a command that reaches
-// one ends its segment on the last screen it matched.
-export class UnsupportedMapMemoryError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'UnsupportedMapMemoryError';
-    }
-}
-
-// C ref: display.c unmap_object() (408-438). Forgets whatever the map showed
-// at <x,y> and puts back the terrain, the seen trap, or plain stone. hack.c
-// domove_fight_empty() calls it before it names what the hero swung at,
-// because the square is about to become known empty.
-//
-// Its engraving arm stops, and no longer for want of a helper:
-// engraving_to_glyph() is ported now, so the arm could be written as C writes
-// it. What it still needs is a recorded case, because retiring the stop lets a
-// force-fight at an engraved square keep running, and no differential covers
-// that square today. The deferral force-fight-engraved-square owns the port;
-// this comment says only why the stop stands, not that it cannot go.
-// spot_shows_engravings() restricts the arm
-// to CORR, ICE and ROOM, all three of them ACCESSIBLE() and none of them
-// furniture, so the squares that can reach it are exactly the ones
-// domove_fight_empty() calls thin air. That arm is live, so a force-fight at
-// an engraved square reaches this refusal; js/cmd.js
-// failClosedCommandRefusals() lists UnsupportedMapMemoryError, so the segment
-// ends there rather than the error escaping.
+// C ref: display.c unmap_object() (408-438). Restore known trap, engraving,
+// or terrain memory without drawing; callers redraw the square when needed.
 export function unmap_object(x, y, state = game) {
     if (!state.level?.flags?.hero_memory) return;
     const location = state.level.at(x, y);
@@ -3661,19 +3628,19 @@ export function unmap_object(x, y, state = game) {
         const showsEngravings = location.typ === CORR
             || location.typ === ICE
             || location.typ === ROOM;
-        if (showsEngravings && engr_at(x, y, state) && !covered) {
-            throw new UnsupportedMapMemoryError(
-                'forgetting a square that shows an engraving',
-            );
+        const engraving = showsEngravings ? engr_at(x, y, state) : null;
+        if (engraving && !covered) {
+            if (cansee(x, y, state)) engraving.erevealed = 1;
+            map_engraving(engraving, 0, state);
+        } else {
+            map_background(x, y, 0, state);
         }
-        map_background(x, y, 0, state);
         /* turn remembered dark room squares dark */
-        // C compares levl[x][y].glyph with cmap_to_glyph(S_room). The compare
-        // can only succeed on what map_background() just wrote, and
-        // back_to_glyph() writes S_room for exactly the ROOM squares this
-        // test already names, so the typ test carries the whole condition.
-        if (!location.waslit && location.typ === ROOM)
+        if (!location.waslit
+            && location.remembered_glyph?.glyph === cmap_to_glyph(S_room, state)
+            && location.typ === ROOM) {
             location.remembered_glyph = rememberedCmap(S_stone, state);
+        }
     } else {
         location.remembered_glyph = rememberedCmap(S_stone, state);
     }

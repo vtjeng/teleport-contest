@@ -2177,9 +2177,8 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
     state.gb.bldrpushtime = moves;
 
     /* Move the boulder *after* the message. */
-    // 206-207. unmap_object() has its own explicit map-memory boundary when
-    // the remembered square also contains an unsupported engraving/sensed
-    // monster; the call itself remains in source order.
+    // 206-207. Restore underlying memory before moving the boulder onto a
+    // square that remembers an invisible monster.
     if (glyph_is_invisible(glyph_at(rx, ry, state)))
         unmap_object(rx, ry, state);
     otmp.next_boulder = 0;
