@@ -217471,7 +217471,7 @@
     {
       "id": "port-wizcmds-wiz-custom-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wizard glyph customization diagnostics and ID cache",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -217485,22 +217485,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ab29afa9c189495b317c57344fa9c9536fd03649",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_custom",
           "line": 1934,
           "endLine": 1986,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "wizcustom_callback",
           "line": 1987,
           "endLine": 2030,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -217512,81 +217515,81 @@
           "name": "fill_glyphid_cache",
           "line": 303,
           "endLine": 333,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "init_glyph_cache",
           "line": 334,
           "endLine": 354,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "free_glyphid_cache",
           "line": 355,
           "endLine": 371,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "add_glyph_to_cache",
           "line": 372,
           "endLine": 394,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "find_glyph_in_cache",
           "line": 395,
           "endLine": 417,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "find_glyphid_in_cache_by_glyphnum",
           "line": 418,
           "endLine": 434,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "glyph_hash",
           "line": 435,
           "endLine": 451,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "glyphid_cache_status",
           "line": 452,
           "endLine": 457,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "wizcustom_glyphids",
           "line": 808,
           "endLine": 823,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "parse_id",
           "line": 824,
           "endLine": 1166,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -217745,6 +217748,977 @@
                 "Existing glyphs.js combines glyph_find_core/parse_id through sourceGlyphNumber/sourceSymbolIndex and stores applied customizations only in gg.glyph_customizations. Wire the new source-owned parser/cache to this active startup/configuration route. Source cache callers are symbols.c do_symset1072–1077, options.c optfn_symset4226–4230 and initoptions7154–7155/7377–7378, wiz_custom, and save.c freedynamicdata1178–1179. Bound caller reconciliation to cache lifecycle; retain whole options/symbols/save exclusions and inactive earlyarg dump interface.",
                 "Raw diagnostic values differ from rendered glyph presentation: display.c reset_glyphmap2739–3086 fixes base symidx/color before map_glyphinfo adds coordinate hero overrides and glyphPresentation applies custom Unicode/basic color/RGB. Reuse its existing resolver before those presentation effects, with no second glyph map. Supporting raw-field contract and canonical known_handling relocation authorized by root; no whole display owner credit.",
                 "Independent runtime plan: wizard default menu/cache release; named IBM/DEC title/handler; Enhanced named UTF8 symbol set with explicit glyph RGB/basic color and non-ASCII Unicode rows; ordinary-play refusal. Source-pinned tests cover hash/probe/order, parser early returns/class fences/cache lifecycle and exact diagnostic row formats. Existing glyph customization/source-catalog, symbol and option focused tests provide regression evidence. Admitted default case alone cannot prove configured-row behavior."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_custom",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_custom",
+            "sourceReview": "Whole wizcmds.c1934–1984, closing brace verified. Wizard admission, conditional fill, standard heading, exact primary name/active/known_handling title, ordered enumeration, awaited PICK_NONE menu destruction, conditional free then docrt. Ordinary unavailable command and ECMD_OK retained. Source tty termcap init_hilite944 obtains colorcount from terminal Co; current recorder/backend capability is256, with supplied canonical field honored.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c wizard extended command table and dispatcher -> wiz_custom; awaited JS arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "wizcustom_callback",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wizcustom_callback",
+            "sourceReview": "Whole wizcmds.c1987–2027. Nonzero win and nonnull ID gates; raw Unicode pointer or nonzero customcolor row gate. Exact four-digit index, minimum44 ID, raw decimal-backslash byte/base color, minimum11 unsigned hex, minimum4 codepoint plus UTF8 decimal byte sequence, final BUFSZ-1 byte bound, value=glyph+1/ATR_NONE/NO_COLOR. Existing applied G_* customizations and symbol-owned S_* Unicode compose the source raw u field; CP437 browser presentation is excluded. Supporting raw accessor uses same reset_glyphmap resolver before custom presentation and handles full enum including piletop venom; no second glyph map or whole display credit.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "wizcustom_glyphids",
+                "source": "glyphs.c818 calls callback for every nonnull cached ID, including the empty venom string."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "fill_glyphid_cache",
+            "implementation": "js/glyphs.js",
+            "symbol": "fill_glyphid_cache",
+            "sourceReview": "Whole glyphs.c303–321: initialize absent table, zero find_struct, reserved pointer/restype=res_fill_cache, consume parse_id result, free failed cache. All active existing startup/named-set/wizard lifecycle adapters wired. No whole options/symbols caller credit.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_custom",
+                "source": "wizcmds.c1948–1949 fill before diagnostic menu."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "parseNethackrc",
+                "source": "options.c initoptions7154–7155 fill before configuration parsing."
+              },
+              {
+                "path": "js/symbols.js",
+                "symbol": "loadSymbolSet",
+                "source": "symbols.c do_symset1072–1074 wraps source read_sym_file."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "init_glyph_cache",
+            "implementation": "js/glyphs.js",
+            "symbol": "init_glyph_cache",
+            "sourceReview": "Whole glyphs.c334–352: power-of-two size at least2*MAX_GLYPH, lsize increment for each doubling, zero glyphnum/null ID per bucket; one gg.glyphid_cache record owns pointer,size,lsize.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "fill_glyphid_cache",
+                "source": "glyphs.c307–308 initializes table only when absent."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "free_glyphid_cache",
+            "implementation": "js/glyphs.js",
+            "symbol": "free_glyphid_cache",
+            "sourceReview": "Whole glyphs.c355–369: absent-cache no-op, free IDs/table via JS collection and null canonical pointer. Source order before redraw/apply remains explicit; no persistent duplicate pointer state.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_custom",
+                "source": "wizcmds.c1978–1979 frees after menu dismissal and before docrt."
+              },
+              {
+                "path": "js/glyphs.js",
+                "symbol": "fill_glyphid_cache",
+                "source": "glyphs.c316–319 frees after parse failure."
+              },
+              {
+                "path": "js/symbols.js",
+                "symbol": "loadSymbolSet",
+                "source": "symbols.c1076–1077 frees after successful or failed named symbol-file read."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "parseNethackrc",
+                "source": "options.c7377–7378 startup lifetime end."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "initoptions_finish",
+                "source": "options.c7377–7378 before apply_customizations."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "add_glyph_to_cache",
+            "implementation": "js/glyphs.js",
+            "symbol": "add_glyph_to_cache",
+            "sourceReview": "Whole glyphs.c372–392: unsigned hash, first masked bucket, odd second probe, first empty bucket insertion including nonnull empty ID, wrap termination and source full-table panic.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "parse_id",
+                "source": "glyphs.c1114–1115 fills in ascending glyph order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "find_glyph_in_cache",
+            "implementation": "js/glyphs.js",
+            "symbol": "find_glyph_in_cache",
+            "sourceReview": "Whole glyphs.c395–415: same double-hash probe, null bucket early miss, case-insensitive exact identifier returns glyphnum; wrap miss=-1. Reads cache only, no RNG/output/mutation, pure.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "parse_id",
+                "source": "glyphs.c876–886 uses cache and early-returns without clearing a prior result on miss."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "glyphs.c",
+            "synthetic": [],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "find_glyphid_in_cache_by_glyphnum",
+            "implementation": "js/glyphs.js",
+            "symbol": "find_glyphid_in_cache_by_glyphnum",
+            "sourceReview": "Whole glyphs.c418–432: absent table=>null; linear bucket scan, glyph number matches with nonnull ID (empty string is a valid pointer), return ID/null. Pure read only.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "wizcustom_glyphids",
+                "source": "glyphs.c816 obtains identifier before callback."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "glyphs.c",
+            "synthetic": [],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "glyph_hash",
+            "implementation": "js/glyphs.js",
+            "symbol": "glyph_hash",
+            "sourceReview": "Whole glyphs.c435–449: ASCII lowercase bytes, uint32 rotate-left1 and XOR in source order. Reference Linux signed char high bytes promote before XOR; NUL terminates. Pure.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "add_glyph_to_cache",
+                "source": "glyphs.c374 hash, mask and odd second probe."
+              },
+              {
+                "path": "js/glyphs.js",
+                "symbol": "find_glyph_in_cache",
+                "source": "glyphs.c397 identical hash/probe for lookup."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "glyphs.c",
+            "synthetic": [],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "glyphid_cache_status",
+            "implementation": "js/glyphs.js",
+            "symbol": "glyphid_cache_status",
+            "sourceReview": "Whole glyphs.c452–455: pointer nonnull test only, pure. Reuses one canonical cache owner.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_custom",
+                "source": "wizcmds.c1948 and1978 cache lifetime tests."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "parseNethackrc",
+                "source": "options.c initoptions7154/7377 status tests."
+              },
+              {
+                "path": "js/symbols.js",
+                "symbol": "loadSymbolSet",
+                "source": "symbols.c1072/1076 status tests."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "glyphs.c",
+            "synthetic": [],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "wizcustom_glyphids",
+            "implementation": "js/glyphs.js",
+            "symbol": "wizcustom_glyphids",
+            "sourceReview": "Whole glyphs.c808–821: absent cache no-op; ascending0..MAX_GLYPH-1, consume linear ID lookup, callback when pointer is nonnull even if empty text. Source callback supplied directly by caller, not an unported placeholder.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_custom",
+                "source": "wizcmds.c1967 enumeration before end/select menu."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "parse_id",
+            "implementation": "js/glyphs.js",
+            "symbol": "parse_id",
+            "sourceReview": "Whole glyphs.c824–1162, including dump/fill reserved pointer early failure, cache shortcut/miss preservation, generated G_* naming order/duplicates/unnamed skips/venom empty string, no-cache lookup, S_* cmap/object/monster class ranges and inclusive S_nothing fencepost, success/failure result fields and explicit dump output sink. Existing source-generated catalog and compiled C reference replace repeated fixed-name construction; all9578 dump lines match C exactly. Fill consumes real add_glyph_to_cache, lookup consumes real find_glyph_in_cache; no note_unported return or placeholder consumed. Native earlyarg stdout process adapter remains outside game interface, not filesystem game code. Identifier comparisons use canonical ASCII-only lcase, so Unicode Kelvin sign does not falsely alias ASCII k; source-pinned regressions cover both G_ and S_ spellings.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "fill_glyphid_cache",
+                "source": "glyphs.c315 consumes fill result and clears failed cache."
+              },
+              {
+                "path": "js/glyphs.js",
+                "symbol": "glyph_find",
+                "source": "glyphs.c241 glyph_find_core consumes parser success/type/val; existing combined fanout retained."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          }
+        ],
+        "entryPointReview": "Wizard #wizcustom is the command entry; default admitted range plus independent default/IBM/Unicode/class recipes cover actual command dispatch, row callbacks, menu dismissal, cache release and redraw. Configuration parsing/named symbol-file selection already produce source glyph customizations; bounded cache/parser lifecycle wiring is reached by the same independent named-set/configuration recipes. S_ant class variation exercises startup S_* lookup/fanout; G_* RGB variation and exact compiled dump test cover other parser modes. Ordinary-play source command registry refusal is outside-boundary runtime evidence; direct source test covers unavailable routine branch. Existing options.c optfn_symset do_handler, save.c freedynamicdata and earlyarg process dump owners have no implemented whole-source path here and remain named caller frontiers, with no completion credit; no new source stub is consumed. Native FILE* dump uses a supplied output sink, source-pinned against the compiled C catalog.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizcustom",
+            "functions": [
+              "wiz_custom",
+              "wizcustom_callback",
+              {
+                "sourceFile": "glyphs.c",
+                "name": "fill_glyphid_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "init_glyph_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "free_glyphid_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "add_glyph_to_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "find_glyph_in_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "find_glyphid_in_cache_by_glyphnum"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "glyph_hash"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "glyphid_cache_status"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "wizcustom_glyphids"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "parse_id"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ]
+          },
+          {
+            "name": "startup named symbol/glyph configuration",
+            "functions": [
+              {
+                "sourceFile": "glyphs.c",
+                "name": "fill_glyphid_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "init_glyph_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "free_glyphid_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "add_glyph_to_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "parse_id"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "glyph_hash"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "glyphid_cache_status"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ab29afa9c189495b317c57344fa9c9536fd03649",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-do-dropx-inert-trap-admission-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Admit ordinary drops over inert traps.",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v32/v32-altar-buc-drop"
+      ],
+      "selectionReason": "Seed continuation after independent v31 owners were claimed or native-pointer blocked; v32 altar drop has 16 unmatched screens and an independent dropx admission defect.",
+      "detail": "An obsolete dropx preflight rejects every trap before inventory extraction or altar handling. C reaches an ordinary dry-floor drop for this nonboulder dagger: the hero is already caught in the pit, so neither pit-edge nor shaft floor effects apply. doaltarobj already implements the black flash; this is a bounded trap-admission divergence.",
+      "openedAt": "4cd12a37a7432c31523b0adeb8f98c288059631d",
+      "openStanding": {
+        "sha": "ab29afa9c189495b317c57344fa9c9536fd03649",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "02094146bef512055a829bb70fc3927ad70b441f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dropx",
+      "session": "synthetic/v32/v32-altar-buc-drop",
+      "step": 35,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-altar-buc-drop": {
+          "session": "synthetic/v32/v32-altar-buc-drop",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-altar-buc-drop",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-altar-buc-drop.session.json",
+          "recordingSha256": "d460590aeabf0d672c99368d3c2a3d362aacec18e2ef0889a40eb0874868bed2",
+          "evaluationPath": "challenges/evaluations/accepted-ab29afa9c189495b317c57344fa9c9536fd03649-v32.json",
+          "evaluationCommit": "ab29afa9c189495b317c57344fa9c9536fd03649"
+        }
+      },
+      "activeStanding": {
+        "sha": "ab29afa9c189495b317c57344fa9c9536fd03649",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-altar-buc-drop",
+          "session": "synthetic/v32/v32-altar-buc-drop",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-altar-buc-drop.session.json",
+          "recordingPath": "challenges/cases/v32/v32-altar-buc-drop.session.json",
+          "recordingSha256": "d460590aeabf0d672c99368d3c2a3d362aacec18e2ef0889a40eb0874868bed2",
+          "recipe": "challenges/cases/v32/v32-altar-buc-drop.recipe.session.json",
+          "recipeSha256": "9a8af0047fd0b6dfac3dfca1dfaeee0a27e3bf29c49fbce9df487ad5e9f332d8",
+          "replayInputSha256": "ee79d4c445603380747a4d2f2ab019da2e259b44b3e76ac0f83fc65849b991ac",
+          "evaluationPath": "challenges/evaluations/accepted-ab29afa9c189495b317c57344fa9c9536fd03649-v32.json",
+          "evaluationCommit": "ab29afa9c189495b317c57344fa9c9536fd03649",
+          "evaluationArtifact": "challenges/evaluations/accepted-ab29afa9c189495b317c57344fa9c9536fd03649-v32.json",
+          "evaluationUtc": "2026-10-08T21:57:55.241Z",
+          "remainingScreens": 16,
+          "recordedSteps": 51,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 51
+            },
+            "rng": {
+              "matched": 2049,
+              "total": 2057
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: shipping or floor effects at a trap",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: shipping or floor effects at a trap",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-altar-buc-drop.json",
+            "result": {
+              "session": "synthetic/v32/v32-altar-buc-drop",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-altar-buc-drop",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "d460590aeabf0d672c99368d3c2a3d362aacec18e2ef0889a40eb0874868bed2",
+              "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v32.json",
+              "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+              "remainingScreens": 16,
+              "recordedSteps": 51,
+              "status": "complete",
+              "commit": "b2cf5aa15bf8d617223a84da1eabef7605995efa",
+              "mismatch": {
+                "version": 1,
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-altar-buc-drop",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-altar-buc-drop.session.json",
+                "recordingSha256": "d460590aeabf0d672c99368d3c2a3d362aacec18e2ef0889a40eb0874868bed2",
+                "recipeSha256": "9a8af0047fd0b6dfac3dfca1dfaeee0a27e3bf29c49fbce9df487ad5e9f332d8",
+                "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v32.json",
+                "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+                "replayInputSha256": "baeded212c21f8e021f5bafb7222a91783c52d44c0992dd0df6f017eb2d7f8b0",
+                "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+                "replayCommit": "3a987ec6504de5bec46ca2bcb8b86420384e507a",
+                "session": "synthetic/v32/v32-altar-buc-drop",
+                "evaluationUtc": "2026-10-08T20:50:17.876Z",
+                "remainingScreens": 16,
+                "recordedSteps": 51,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 2049,
+                    "total": 2057
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 51
+                  }
+                },
+                "previousScreensMatched": 35,
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "do.c",
+                "function": "dropx",
+                "line": 785,
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: shipping or floor effects at a trap"
+              },
+              "summary": "An obsolete dropx preflight rejects every trap before inventory extraction or altar handling. C reaches an ordinary dry-floor drop for this nonboulder dagger: the hero is already caught in the pit, so neither pit-edge nor shaft floor effects apply. doaltarobj already implements the black flash; this is a bounded trap-admission divergence.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "dropx"
+                ],
+                "branch": "Ordinary nonboulder object drops onto dry terrain with an inert trap: not a hole/trapdoor or an active uteetering_at_seen_pit/uescaped_shaft landing. The selected hero is caught in a seen pit (utrap nonzero, utraptype TT_PIT), so the trap adds no floor effect.",
+                "callers": [
+                  "do.c:drop -> dropx785-797 -> freeinv -> ship_object -> doaltarobj on an altar -> dropy/dropz/flooreffects. JS dodrop/drop stops in preflight_dropx before freeinv.",
+                  "Existing direct dropx/dropz callers share this guard, including invent.c:hold_another_object; the fix adds no caller or floor-effect implementation."
+                ],
+                "dependencies": [
+                  "Canonical pure trap.c:uteetering_at_seen_pit6648-6653 and uescaped_shaft6660-6664 (js/trap.js547-562) retain active landing frontiers. Read exact position, seen and TT_PIT tests.",
+                  "dokick.c:down_gate1943-1975 returns MIGR_NOWHERE for a plain pit without downward stairs; ship_object1639 onward immediately returns FALSE before RNG. Existing js/dokick.js implements these early returns. Preserve all hole/trapdoor and boulder trap refusals.",
+                  "Read whole do.c:flooreffects161-361: boulder/pit-hole, lava/water, pit-edge/shaft, glob, moving-monster altar and hot-ground potion arms. None fires for the selected dagger. Other existing admission limits remain."
+                ]
+              },
+              "evidence": [
+                "Focused assigned-base scan run-3sDpW0 (.cache/B169/scan.json) reproduces segment0 step35 refusal: unsupported drop: shipping or floor effects at a trap. Saved accepted-2f52799b evaluation remains35/51screens/cursors and2049/2057RNG; remaining16 matches the unchanged corpus/recording identity.",
+                "Read admitted independent C recipe/recording. Replay state at refusal: ALTAR at the hero, seen PIT, utrap4 and utraptype TT_PIT; both canonical trap predicates are false. Coordinates/counts are diagnostic data, not implementation constants. C step35 prints There is a black flash as a dagger hits the altar.",
+                "Read whole do.c:dropx785-797 and doaltarobj363-392. JS preserves freeinv -> ship -> altar -> dropy and altar blind/gnostic/coin/flash/bknown behavior; the unconditional t_at guard in preflight_dropx1947 prevents those existing owners.",
+                "Smallest correction admits inert nonboulder trap landings, retaining boulder trap, all shaft, seen pit-edge, liquid, shop, attachment and special merge guards. No whole drop/flooreffects/trap/shipping completion credit.",
+                "Focused search found stale inert WEB refusals in inventory-substrate and unseen PIT refusals in engraving/throne tests. Replace effect-frontier fixtures with active seen pit edges or shafts; add inert pit/other-trap extraction/altar/placement/RNG assertions. Record independent trapped ordinary/blessed/cursed drops and retain a boulder or pit-edge outside-limit recipe."
+              ],
+              "proposal": {
+                "goalId": "fix-do-dropx-inert-trap-admission-v32-20261008",
+                "summary": "Admit ordinary drops over inert traps.",
+                "selectionReason": "Seed continuation after independent v31 owners were claimed or native-pointer blocked; v32 altar drop has16 unmatched screens and an independent dropx admission defect.",
+                "dependencyReady": true,
+                "sourceUnits": [
+                  {
+                    "file": "do.c",
+                    "name": "dropx",
+                    "start": 785,
+                    "end": 797
+                  }
+                ],
+                "proposedReservations": [
+                  "session:synthetic/v32/v32-altar-buc-drop",
+                  "source:do.c:dropx",
+                  "contract:drop-inert-trap-admission"
+                ],
+                "proposedPaths": [
+                  "js/do.js",
+                  "scripts/drop-command.test.mjs",
+                  "scripts/inventory-substrate.test.mjs",
+                  "recipes/do.c/",
+                  "recordings/do.c/",
+                  "investigations/synthetic/v32/v32-altar-buc-drop.json",
+                  ".cache/"
+                ],
+                "dependencies": []
+              }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "02094146bef512055a829bb70fc3927ad70b441f",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-display-unmap-object-engraving-v32-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete engraved-square map-memory restoration",
+      "cFile": "display.c",
+      "sessions": [
+        "synthetic/v32/v32-engraved-forcefight"
+      ],
+      "selectionReason": "Seed continuation after fully matching A172 custom glyph session: independent v32 forcefight engraving refusal is source-traced to whole display.c unmap_object; existing helpers and callers are canonical.",
+      "detail": "Complete the engraving branch, exact remembered-room darkening compare, and obsolete refusal/caller cleanup. No whole hack, cmd, allmain, or show_mon_or_warn ownership.",
+      "openedAt": "b2da796c637a8f4d30ed8f07f77ef6cf25d66240",
+      "openStanding": {
+        "sha": "02094146bef512055a829bb70fc3927ad70b441f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "unmap_object",
+          "line": 409,
+          "endLine": 474,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 409,
+        "to": 474
+      },
+      "syntheticProvenance": {
+        "synthetic/v32/v32-engraved-forcefight": {
+          "session": "synthetic/v32/v32-engraved-forcefight",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-engraved-forcefight",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+          "recordingSha256": "d16ca10b3509219ccf002082af3363c458c17dd39950045485cca76bf66df61d",
+          "evaluationPath": "challenges/evaluations/accepted-02094146bef512055a829bb70fc3927ad70b441f-v32.json",
+          "evaluationCommit": "02094146bef512055a829bb70fc3927ad70b441f"
+        }
+      },
+      "activeStanding": {
+        "sha": "02094146bef512055a829bb70fc3927ad70b441f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-engraved-forcefight",
+          "session": "synthetic/v32/v32-engraved-forcefight",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+          "recordingPath": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+          "recordingSha256": "d16ca10b3509219ccf002082af3363c458c17dd39950045485cca76bf66df61d",
+          "recipe": "challenges/cases/v32/v32-engraved-forcefight.recipe.session.json",
+          "recipeSha256": "3b493407fabeb06178d6522bd1afad2931e8fed86a4109d45a28cc0e10208c97",
+          "replayInputSha256": "66af79114d75d7fb93e2b422fe4d48476eb04b8ca317f346748ea3ec78c57088",
+          "evaluationPath": "challenges/evaluations/accepted-02094146bef512055a829bb70fc3927ad70b441f-v32.json",
+          "evaluationCommit": "02094146bef512055a829bb70fc3927ad70b441f",
+          "evaluationArtifact": "challenges/evaluations/accepted-02094146bef512055a829bb70fc3927ad70b441f-v32.json",
+          "evaluationUtc": "2026-10-08T22:20:59.449Z",
+          "remainingScreens": 12,
+          "recordedSteps": 26,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 14,
+              "total": 26
+            },
+            "rng": {
+              "matched": 2676,
+              "total": 2681
+            },
+            "cursors": {
+              "matched": 14,
+              "total": 26
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: forgetting a square that shows an engraving",
+            "step": 14
+          },
+          "step": 14,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: forgetting a square that shows an engraving",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-engraved-forcefight.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-engraved-forcefight",
+              "session": "synthetic/v32/v32-engraved-forcefight",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingPath": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+              "recording": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+              "recordingSha256": "d16ca10b3509219ccf002082af3363c458c17dd39950045485cca76bf66df61d",
+              "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+              "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+              "remainingScreens": 12,
+              "recordedSteps": 26,
+              "passed": false,
+              "metrics": {
+                "screens": {
+                  "matched": 14,
+                  "total": 26
+                },
+                "rng": {
+                  "matched": 2676,
+                  "total": 2681
+                },
+                "cursors": {
+                  "matched": 14,
+                  "total": 26
+                }
+              },
+              "error": null,
+              "firstMismatch": {
+                "kind": "stop",
+                "step": 14,
+                "message": "unsupported hero command: an unported branch of this command: forgetting a square that shows an engraving"
+              },
+              "step": 14,
+              "kind": "stop",
+              "sourceFile": "display.c",
+              "function": "unmap_object",
+              "status": "complete",
+              "commit": "3c29936cee0cf96ba5a61d3e0ca601aec50f2b6e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-engraved-forcefight",
+                "session": "synthetic/v32/v32-engraved-forcefight",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+                "recording": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+                "recordingSha256": "d16ca10b3509219ccf002082af3363c458c17dd39950045485cca76bf66df61d",
+                "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+                "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+                "remainingScreens": 12,
+                "recordedSteps": 26,
+                "passed": false,
+                "metrics": {
+                  "screens": {
+                    "matched": 14,
+                    "total": 26
+                  },
+                  "rng": {
+                    "matched": 2676,
+                    "total": 2681
+                  },
+                  "cursors": {
+                    "matched": 14,
+                    "total": 26
+                  }
+                },
+                "error": null,
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 14,
+                  "message": "unsupported hero command: an unported branch of this command: forgetting a square that shows an engraving"
+                },
+                "step": 14,
+                "kind": "stop",
+                "sourceFile": "display.c",
+                "function": "unmap_object"
+              },
+              "summary": "Force-fighting an empty engraved square stops in unmap_object instead of revealing a visible engraving and restoring its memory glyph. Complete the engraving arm and preserve the exact remembered-room glyph comparison before darkening.",
+              "source": {
+                "file": "display.c",
+                "branch": "hero_memory enabled; no uncovered seen trap; square seen previously; ROOM/CORR/ICE contains an uncovered engraving",
+                "functions": [
+                  "unmap_object"
+                ],
+                "callers": [
+                  "hack.c:domove_fight_empty:2280 (rhack movement with F prefix)",
+                  "hack.c:dopush:207",
+                  "display.c:unmap_invisible:391/show_mon_or_warn:490",
+                  "detect.c:clear_stale_map:326",
+                  "mon.c:mondead:3171/xkilled:3359",
+                  "potion.c:peffect_monster_detection:933",
+                  "zap.c:bhit:4041/4084"
+                ],
+                "dependencies": [
+                  "Existing engrave.c:engr_at, engrave.h:spot_shows_engravings and engraving_to_glyph",
+                  "Existing vision.c:cansee, trap.c:t_at, display.h:covers_traps",
+                  "Existing display.c:map_trap/map_engraving/map_background and canonical map-memory glyph owner"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Accepted A171 v32 evaluation measures 14/26 screens and cursors; .cache/A173/selected-before.json independently confirms segment0 step14 key l refusal at examined worker HEAD. No other sessions replayed.",
+                "C display.c409-438 returns only when hero_memory is disabled, selects uncovered known trap first, otherwise reveals an uncovered engraving when cansee and calls map_engraving(ep,0). It maps background only in the engraving else. Darkening requires !waslit AND remembered glyph==cmap_to_glyph(S_room) AND typ==ROOM. JS currently throws on engraving and substitutes typ==ROOM for the glyph comparison; that substitution is invalid once engraving mapping is restored.",
+                "JS display.js map_engraving3612-3622 already maps engraving_to_glyph and writes canonical location.remembered_glyph without drawing when show=0. cansee uses IN_SIGHT, so an out-of-sight unrevealed engraving must remain unrevealed but still gets its engraving memory glyph as in C. No placeholder return dependency is required.",
+                "All C direct callers were searched against current JS. They already call unmap_object with canonical state; show_mon_or_warn catches its only refusal and records a gap. Remove this obsolete catch, the error class, its cmd/allmain registry entries, and stale tests/commentary in the same source task. No whole caller or renderer/vision ownership credit.",
+                "Validation plan: fail-first forcefight/engraving memory tests pin revealed/unrevealed, trap priority, no-memory/no-seenv, ice/corridor/room, no drawing, and glyph-sensitive darkening; admitted step14 and full26-step replay; independent ordinary engraving forcefight primary/cheap variation plus representative non-engraving existing recordings. Helper-only source range has no new command dispatcher; existing callers remain canonical."
               ]
             }
           }
