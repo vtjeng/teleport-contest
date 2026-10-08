@@ -3,14 +3,26 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
-import { digest, reuseKey } from './checkpoint-reuse.mjs';
+import { release } from 'node:os';
+import { digest, executionTree } from './checkpoint-reuse.mjs';
 import { requireReportOnlyImportTree } from './fetch-hosted-checkpoint.mjs';
+
+let nodeIdentity;
+function runtimeKey() {
+    // The loaded Node process is fixed; environment values can change between calls.
+    nodeIdentity ??= digest(JSON.stringify({ executable: digest(readFileSync(process.execPath)),
+        versions: process.versions, arguments: process.execArgv,
+        platform: process.platform, arch: process.arch, release: release() }));
+    const environment = Object.entries(process.env).sort(([a], [b]) => a.localeCompare(b));
+    return digest(JSON.stringify({ nodeIdentity, environment }));
+}
 
 function inputKey(root, boundary) {
     try {
         requireReportOnlyImportTree(root);
         const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
-        return digest(JSON.stringify({ version: 1, inputs: reuseKey(root, head), boundary }));
+        return digest(JSON.stringify({ version: 1, tree: executionTree(root, head),
+            runtime: runtimeKey(), boundary }));
     } catch {
         // Dirty execution inputs or unavailable provenance require an ordinary replay.
         return null;
