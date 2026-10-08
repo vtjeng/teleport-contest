@@ -201547,16 +201547,20 @@
     {
       "id": "port-ball-ballfall-v28-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port punishment ball impacts during shaft and pit falls",
       "cFile": "ball.c",
       "sessions": [
         "synthetic/v28/v28-buried-ball-unearth"
       ],
-      "selectionReason": "Continue the accepted C142 buried-ball seed: whole ball.c:ballfall is skipped by goto_level and trapeffect_pit. Accepted checkpoint 1cf15831 leaves 8 of 85 screens unmatched; investigation investigations/synthetic/v28/v28-buried-ball-unearth.json traces the first remaining RNG mismatch to ball.c:ballfall.",
+      "selectionReason": "C143 is the next dependency-ready received delivery. Its complete ball.c:ballfall implementation and both live callers target the current v28 buried-ball-unearth mismatch and preserve the accepted A146 baseline.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c9955e3b333f7029087e869872a9b06debbd31ff",
+      "openStanding": {
+        "sha": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -201585,7 +201589,220 @@
           "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json",
           "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-buried-ball-unearth",
+          "session": "synthetic/v28/v28-buried-ball-unearth",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+          "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+          "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+          "recipe": "challenges/cases/v28/v28-buried-ball-unearth.recipe.session.json",
+          "recipeSha256": "505cf79f34642043283b2ed784ae9fc90eca1e54902450267841adc49b5b417a",
+          "replayInputSha256": "a6160bd443409f7fa7efa932f6735e85dbcfb34e33851cfe7395cf5d48a91c28",
+          "evaluationPath": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json",
+          "evaluationCommit": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+          "evaluationArtifact": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json",
+          "evaluationUtc": "2026-10-08T06:09:18.406Z",
+          "remainingScreens": 8,
+          "recordedSteps": 85,
+          "previousScreensMatched": 77,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 77,
+              "total": 85
+            },
+            "rng": {
+              "matched": 7200,
+              "total": 7218
+            },
+            "cursors": {
+              "matched": 80,
+              "total": 85
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 77,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 77,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 7177,
+              "cEntry": "rn2(5)=1",
+              "cCaller": "ballfall(ball.c:51)",
+              "jsEntry": "d(1,6)=5",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": ">"
+              },
+              "stepIndex": 76
+            },
+            "cursor": {
+              "index": 77,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 77,
+                "key": " "
+              },
+              "cCursor": [
+                41,
+                0,
+                1
+              ],
+              "jsCursor": [
+                49,
+                3,
+                1
+              ]
+            }
+          },
+          "step": 76,
+          "kind": "rng",
+          "sourceFile": "ball.c",
+          "function": "ballfall",
+          "message": null,
+          "cFile": "ball.c",
+          "luaFile": null,
+          "line": 51,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-buried-ball-unearth.json",
+            "result": {
+              "session": "synthetic/v28/v28-buried-ball-unearth",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-buried-ball-unearth",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+              "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+              "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json",
+              "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+              "evaluationUtc": "2026-10-08T05:21:34.693Z",
+              "remainingScreens": 8,
+              "recordedSteps": 85,
+              "metrics": {
+                "screens": {
+                  "matched": 77,
+                  "total": 85
+                },
+                "rng": {
+                  "matched": 7200,
+                  "total": 7218
+                },
+                "cursors": {
+                  "matched": 80,
+                  "total": 85
+                }
+              },
+              "passed": false,
+              "step": 76,
+              "kind": "refusal",
+              "message": "burial requires buried_ball_to_punishment for otyp 477",
+              "status": "complete",
+              "commit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+              "mismatch": {
+                "session": "synthetic/v28/v28-buried-ball-unearth",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-buried-ball-unearth",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+                "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+                "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json",
+                "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+                "evaluationUtc": "2026-10-08T05:21:34.693Z",
+                "remainingScreens": 8,
+                "recordedSteps": 85,
+                "metrics": {
+                  "screens": {
+                    "matched": 77,
+                    "total": 85
+                  },
+                  "rng": {
+                    "matched": 7200,
+                    "total": 7218
+                  },
+                  "cursors": {
+                    "matched": 80,
+                    "total": 85
+                  }
+                },
+                "passed": false,
+                "step": 76,
+                "kind": "rng",
+                "message": "Missing ball.c:ballfall at do.c:goto_level shaft arrival",
+                "workerReplayCommit": "7827213d98ccd1315957fadeef0a3434fcbc31cd",
+                "workerReplayDiagnostic": ".cache/C143-buried-ball-unearth-scan.json",
+                "evaluationArtifact": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json"
+              },
+              "goalKind": "file-port",
+              "summary": "The restored buried punishment reaches a shaft arrival that still skips whole ball.c:ballfall. Port its guard, hit-chance and damage order and await both source callers: goto_level shaft arrival and trapeffect_pit after unplacebc. The C142 delivery exposes this next source owner; its accepted baseline evaluation still records nine remaining screens pending integration.",
+              "source": {
+                "file": "ball.c",
+                "branch": "A punished hero falls through a hole/trapdoor and the ball is not welded, or a punished uncarried ball follows a hero into a pit. Differing ball/hero coordinates permit rn2(5) only when the ball is not wielded; a hit releases any carried ball before rn1(7,25), anatomy/helmet feedback and half-physical damage.",
+                "functions": [
+                  "ballfall"
+                ],
+                "callers": [
+                  "do.c:goto_level1807, inside falling random-arrival branch before selftouch/placebc; JS do.js2902 keeps note_unported",
+                  "trap.c:trapeffect_pit1957, Punished&&!carried after unplacebc and before placebc; JS trap_effects.js1607 keeps note_unported"
+                ],
+                "dependencies": [
+                  "Existing ball.c:ballrelease23-39 is source-equivalent: carried&&!welded, optional awaited startled message, canonical primary/swap/quiver setters, freeinv and encumber_msg. Reuse it; no duplicate release implementation or ballrelease credit.",
+                  "Consumed predicates carried(obj.h332), welded(wield.c1050-1058), hard_helmet(do_wear.c568-574) and body_part(polyself.c) have canonical implementations. Reuse hard_helmet from do_wear.js and HEAD anatomy from polyself.js.",
+                  "Yname2(objnam.c2376-2383), hack.c:losehp4255-4292 and existing Half_physical_damage intrinsic/extrinsic macro expansion are reusable. Preserve existing awaited death/debug-revival behavior; no owner expansion required.",
+                  "Pit callers can participate in planned monster actions; use existing silent message/random/losehp environment conventions and clone contracts. Do not add RNG or mutate live state during planning. Both production callers are already async.",
+                  "Existing selftouch, set_bc and other unrelated ball/chain limitations remain named gaps outside ballfall."
+                ]
+              },
+              "evidence": [
+                "Worker-local replay at immutable C142 7827213d98ccd1315957fadeef0a3434fcbc31cd: .cache/C143-buried-ball-unearth-scan.json and .cache/C143-ballfall-replay.json. All85 boundaries are emitted,77screens/cursors together match,8remain. First RNG mismatch step76/index7177 is C rn2(5)=1 @ballfall(ball.c51) against JS d(1,6)=5. First screen/cursor mismatch step77: C The iron ball falls on your head.--More--, JS object-list display.",
+                "Exact C trace then draws rn2(7)=3 at ballfall54, representing rn1(7,25)=28; C emits You die at78, debug Die?79, refusal-to-die feedback80, shaft d(1,6)=6 at81 and survival82. JS omits the hit/damage/input waits and advances directly to shaft damage. The mismatch is missing source behavior, not a terminal rendering difference.",
+                "Whole ball.c43-67: null/welded-carried early return; compute gets_hit before release with both coordinate and wield short circuits; ballrelease(TRUE) before damage draw; rn1(7,25) before head message; hard helmet overrides damage to3 after draw and emits feedback regardless verbose; soft helmet message only verbose; Maybe_Half_Phys rounds up before losehp with exact killer and NO_KILLER_PREFIX. Do not add post-losehp branches absent from C.",
+                "Source search rg \\bballfall\\b nethack-c/upstream/src finds exactly two direct active caller functions, do.c goto_level1807 and trap.c trapeffect_pit1957. Both JS sites currently preserve named gaps. Wire awaited ballfall in those exact source positions. Preserve caller guards, unplacebc/placebc ordering and unrelated selftouch gaps; no whole caller credit.",
+                "Owner review: js/ball.js ballrelease207-218 already follows ball.c23-39, js/wield.js welded368 follows C1050-1058, js/do_wear.js hard_helmet861 follows C568-574, js/obj.js carried1236 follows obj.h332, js/objnam.js Yname21733 follows C2376-2383, js/polyself.js body_part2001 uses canonical anatomy and js/hack.js losehp1280 owns live/planned HP and death. Existing worn.js swap/quiver wrappers remain synchronous on these non-artifact slots.",
+                "Immutable admitted provenance remains manifest challenges/manifests/v28.json, corpusDigest 394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039, recording challenges/cases/v28/v28-buried-ball-unearth.session.json sha256 1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54; saved accepted evaluation challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json names 1cf15831c237fc4d910c6a10ae138e75c4ab5939 with8remaining. This report uses worker-local8remaining only; do not use it as a replacement accepted evaluation. Recheck against C142 accepted checkpoint before central queueing. Replay input sha256 6bedd27e9056fc741f9d0426f7b65f735283c0be4ef34a4301e5473166638940, diagnosticToolSha256 01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82.",
+                "Independent evidence plan: legal punishment then shaft fall and legal punishment then pit/spiked pit, with role/helmet/material variations. Source-pinned tests cover null ball, welded-carried guard, colocated and wielded short circuits, zero/positive rn2(5), release-before-rn1 order, damage25..31, hard helmet3, soft verbose/noverbose, half-physical ceil and anatomy. Use production replay state assertions for ball inventory/slot release; no C recording or game edit during this investigation.",
+                "No existing verified ballfall unit was found in GOALS.json. Ledger status .cache/C143-ledger-status.json shows only pending C142 reservations; none overlaps ball.c:ballfall or punishment-ball-fall. C142 remains the required pending ancestor. Portal/invocation frontiers retained in C142 packet are separate active helper callers; this ballfall task does not close them."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-detect-reveal-terrain-v29-20261008",
