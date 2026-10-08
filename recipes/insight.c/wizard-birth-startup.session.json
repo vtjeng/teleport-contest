@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first insight.c:doborn wizard-birth-startup route. Inputs selected before C or JS comparison; startup pony, created/genocided lichen and ordinary WIZMODECMD exclusion vary the source state/action history. Genocide input is resolved from the C inventory before JS comparison. C rejects pettype:pony; omit that option so Knight makedog creates its source default pony.",
+  "segments": [
+    {
+      "seed": 9187601,
+      "datetime": "20361114131500",
+      "nethackrc": "OPTIONS=name:Born9187601,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".#wizborn\n .#wizborn\n "
+    }
+  ]
+}

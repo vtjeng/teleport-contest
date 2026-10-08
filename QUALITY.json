@@ -315,6 +315,7 @@
         "js/uhitm.js",
         "js/windows.js",
         "js/wizcmds.js",
+        "js/wizcmds_data.js",
         "js/write.js"
       ],
       "generatedOutputs": [

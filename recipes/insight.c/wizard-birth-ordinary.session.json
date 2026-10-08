@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first insight.c:doborn wizard-birth-ordinary route. Inputs selected before C or JS comparison; startup pony, created/genocided lichen and ordinary WIZMODECMD exclusion vary the source state/action history. Genocide input is resolved from the C inventory before JS comparison.",
+  "segments": [
+    {
+      "seed": 9187603,
+      "datetime": "20361116134500",
+      "nethackrc": "OPTIONS=name:Born9187603,role:Healer,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".#wizborn\n"
+    }
+  ]
+}
