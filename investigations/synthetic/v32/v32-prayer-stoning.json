@@ -1,0 +1,136 @@
+{
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-prayer-stoning",
+  "session": "synthetic/v32/v32-prayer-stoning",
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingPath": "challenges/cases/v32/v32-prayer-stoning.session.json",
+  "recording": "challenges/cases/v32/v32-prayer-stoning.session.json",
+  "recordingSha256": "cdf294f0b9b89768eb8b8cc10930ee641e6d39b4303e1f10d2d995c7bd03402e",
+  "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+  "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+  "remainingScreens": 31,
+  "recordedSteps": 63,
+  "passed": false,
+  "metrics": {
+    "screens": {
+      "matched": 32,
+      "total": 63
+    },
+    "rng": {
+      "matched": 2580,
+      "total": 2580
+    },
+    "cursors": {
+      "matched": 63,
+      "total": 63
+    }
+  },
+  "error": null,
+  "firstMismatch": {
+    "kind": "screen",
+    "step": 16,
+    "row": 2,
+    "column": 1,
+    "cCell": {
+      "ch": "[",
+      "color": 8,
+      "attr": 0,
+      "decgfx": 0
+    },
+    "jsCell": {
+      "ch": " ",
+      "color": 8,
+      "attr": 0,
+      "decgfx": 0
+    }
+  },
+  "step": 16,
+  "kind": "screen",
+  "sourceFile": "win/tty/getline.c",
+  "function": "hooked_tty_getlin",
+  "status": "complete",
+  "commit": "7a50f172de5337299ff35738c5dfd8b8237afce2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-prayer-stoning",
+    "session": "synthetic/v32/v32-prayer-stoning",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-prayer-stoning.session.json",
+    "recording": "challenges/cases/v32/v32-prayer-stoning.session.json",
+    "recordingSha256": "cdf294f0b9b89768eb8b8cc10930ee641e6d39b4303e1f10d2d995c7bd03402e",
+    "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+    "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+    "remainingScreens": 31,
+    "recordedSteps": 63,
+    "passed": false,
+    "metrics": {
+      "screens": {
+        "matched": 32,
+        "total": 63
+      },
+      "rng": {
+        "matched": 2580,
+        "total": 2580
+      },
+      "cursors": {
+        "matched": 63,
+        "total": 63
+      }
+    },
+    "error": null,
+    "firstMismatch": {
+      "kind": "screen",
+      "step": 16,
+      "row": 2,
+      "column": 1,
+      "cCell": {
+        "ch": "[",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": " ",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "step": 16,
+    "kind": "screen",
+    "sourceFile": "win/tty/getline.c",
+    "function": "hooked_tty_getlin"
+  },
+  "summary": "Menu search getlin repaints the map over an active menu. C keeps the physical menu while flushing only dirty gbuf cells; JS clears and rebuilds the full screen at the prompt flush.",
+  "source": {
+    "file": "win/tty/getline.c",
+    "branch": "MENU_SEARCH while gameplay PICK_ANY menu is displayed and hero coordinates initialized; hooked_tty_getlin opens its prompt through custompline/flush_screen",
+    "functions": [
+      "hooked_tty_getlin",
+      "display.c:flush_screen"
+    ],
+    "callers": [
+      "win/tty/wintty.c:process_menu_window MENU_SEARCH1700–1709 -> tty_getlin -> hooked_tty_getlin",
+      "win/tty/getline.c:tty_getlin36–40 and tty_get_ext_cmd -> hooked_tty_getlin",
+      "wizcmds.c:wiz_intrinsic949–1006 -> select_menu -> process_menu_window"
+    ],
+    "dependencies": [
+      "Canonical level.at(x,y).gnew is existing C gbuf dirty-cell state; show_glyph_cell sets it and flush_screen clears it.",
+      "C ttyDisplay.inread increments before custompline and decrements before clear_nhwindow; model one counter on existing nhDisplay with finally cleanup.",
+      "Existing windows.c:getlin and select_menu bot_disabled lifetimes preserve status rows; no new menu snapshot or active-menu owner required.",
+      "Separate later pray.c:fix_worst_trouble TROUBLE_STONED discards make_stoned via note_unported; no ownership in this menu flush fix."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Accepted A171 v32 evidence records32/63 matching screens with full2580 RNG and63/63 cursors; the number of matched screens is not a prefix. .cache/A174/selected-before.json reproduces first screen difference at zero-based step16 colon, row2,column1, C [ versus JS blank.",
+    "C wintty.c1705–1709 reads Search for with tty_getlin while preserving menu rows. getline.c43–64 raises ttyDisplay.inread before custompline; its exit214 decrements before clearing WIN_MESSAGE. display.c2208–2267 flushes gbuf rows/cells only when gnew (or configured framecolor), then updates cursor. No dirty map cells exist while the player searches this unchanged menu.",
+    "JS tty_menu.js1264/1509 has canonical PICK_ONE/PICK_ANY menu search, but getline.js157 flushes when u.ux exists; display.js _buildScreenOutput clears the terminal grid and redraws every map cell. Thus menu rows disappear before the source prompt is read. Startup-only tty_menu tests with u.ux absent cannot expose the bug.",
+    "Whole getter/menu/renderer ownership is excluded. Bounded source-backed fix uses the existing dirty-cell owner during getlin physical-screen flush, keeps unchanged menu cells, applies dirty map cells including blanks, retains cursor and existing status behavior, and forwards C inread counter lifetime with finally cleanup. Root explicitly approved the shared contract before implementation.",
+    "Validation: fail-first live-map PICK_ONE/PICK_ANY search tests checking menu cells beneath prompt, exact cursor/selection and ordinary prompt behavior; dirty-glyph blank write and counter cleanup tests; independent C-first intrinsic search primary/cheap variation and one outside-menu getlin route; exact selected replay. The later prayer make_stoned frontier is separate and may leave additional unmatched screens after this function."
+  ]
+}
