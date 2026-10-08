@@ -220262,6 +220262,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pager-look-all-coordinate-modes-v32-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port pager monster and object list coordinate modes",
+      "cFile": "pager.c",
+      "sessions": [
+        "synthetic/v32/v32-coordinate-monster-list"
+      ],
+      "selectionReason": "Independent v32 seed continuation after the whatis menu fixes reaches look_all at step 18. The exact refusal is isolated to this complete pager function and does not overlap active display owners.",
+      "detail": "Port whole pager.c look_all and retain its four do_look callers. Preserve y-major traversal, self sensing, invisible and warning rows, object descriptions, coordinate mode fallback and widths, encoded-glyph truncation, mixed-glyph output, window headers, and empty-list messages. Reuse coord_desc with an explicit mode; trap and engraving list functions remain separate.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "look_all",
+          "line": 1979,
+          "endLine": 2077,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1979,
+        "to": 2077
+      },
+      "syntheticProvenance": {
+        "synthetic/v32/v32-coordinate-monster-list": {
+          "session": "synthetic/v32/v32-coordinate-monster-list",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-coordinate-monster-list",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-coordinate-monster-list.session.json",
+          "recordingSha256": "d751892501b5009acd7ec71d16c86567850ba542eff17959ea975d06f66cc23e",
+          "evaluationPath": "challenges/evaluations/accepted-e33607ad95e3679854ac2ad80df3e3852f127a5a-v32.json",
+          "evaluationCommit": "e33607ad95e3679854ac2ad80df3e3852f127a5a"
+        }
+      }
     }
   ]
 }
