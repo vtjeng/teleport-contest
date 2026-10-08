@@ -9,6 +9,7 @@
 // ustatusline().
 // The same source file also owns the complete vanquished-monster family:
 // vanqsort_cmp(), set_vanq_order(), dovanquished(), and list_vanquished().
+// doborn() reports species birth/death counts through the wizard command.
 //
 // `doattributes()` is the normal caller, so `mode` is BASICENLIGHTENMENT, or
 // BASICENLIGHTENMENT | MAGICENLIGHTENMENT under playmode:explore and
@@ -322,6 +323,7 @@ import {
     MZ_MEDIUM,
     MZ_SMALL,
     MZ_TINY,
+    NUMMONS,
     PM_LONG_WORM,
     PM_GREEN_SLIME,
     PM_HIGH_CLERIC,
@@ -2687,6 +2689,30 @@ export async function list_genocided(
 export async function dogenocided(state = game, options = {}) {
     const defquery = state.iflags?.menu_requested ? 'a' : 'y';
     await list_genocided(defquery, false, state, options);
+    return ECMD_OK;
+}
+
+// C ref: insight.c doborn() (3145-3182). The tty NHW_TEXT owner displays and
+// destroys the window after dismissal, including display_nhwindow(FALSE)'s
+// blocking text-window behavior. Monster vitals are read in declaration order.
+export async function doborn(state = game,
+                              { displayTextWindow = displayTtyTextWindow } = {}) {
+    const lines = [{ text: 'died born' }];
+    const mvitals = monsterVitals(state);
+    for (let index = LOW_PM; index < NUMMONS; ++index) {
+        const vital = mvitals[index];
+        const born = vital?.born ?? 0;
+        const died = vital?.died ?? 0;
+        const gone = (vital?.mvflags ?? 0) & G_GONE;
+        if (!born && !died && !gone) continue;
+        const marker = gone === G_EXTINCT ? 'E'
+            : gone === G_GENOD ? 'G' : gone ? 'X' : ' ';
+        const name = state.mons[index].pmnames[NEUTRAL];
+        lines.push({ text: `${String(died).padStart(4)} ${String(born).padStart(4)} ${marker} ${name.padEnd(30)}` });
+    }
+    lines.push({ text: '' });
+    // C formats the accumulated totals into buf but never puts that line.
+    await displayTextWindow(state, lines);
     return ECMD_OK;
 }
 
