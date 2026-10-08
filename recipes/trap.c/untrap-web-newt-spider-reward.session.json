@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first webmaker variation: become a cave spider after the independently observed newt web setup. Source webmaker keeps untrap_prob at base chance three and prevents the failed attempt from trapping the hero. Ordinary attempt loop is fixed before C observation. C-only pager correction: shield/weapon removal, load and monster-ability advice occupy five More pages; acknowledge all before beginning the fixed eight source chance attempts. The C cave-spider form reverts after the newt’s first bite; the source-supported giant-spider variation retains enough monster HP for the same attempt loop.",
+  "segments": [
+    {
+      "seed": 1442912,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442912,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " lj#wizgenesis\nhostile newt\n\u0017web\n \u0006j. \u0017wand of opening\n  #polyself\ngiant spider\n       #untrap\nk    #untrap\nk    #untrap\nk    #untrap\nk    #untrap\nk    #untrap\nk    #untrap\nk    #untrap\nk    ."
+    }
+  ]
+}
