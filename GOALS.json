@@ -210366,6 +210366,75 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-rumor-boundary-check-v30-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Wizard rumor-boundary and text-catalog diagnostic",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v30/v30-rumor-boundaries"
+      ],
+      "selectionReason": "Independent accepted v30-rumor-boundaries step 16 command stop; whole diagnostic and shared init_rumors source closure. Full trace is in investigations/synthetic/v30/v30-rumor-boundaries.json.",
+      "detail": "Port whole wiz_rumor_check, rumor_check, others_check, and init_rumors. Use bounded getrumor cache initialization and live cmd dispatch. Reuse generated data, window, random selection, and Oracle owners without additional completion credit. Cover admitted v30 steps 16-18 and independent fresh and fortune-cookie/repeated diagnostic variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_rumor_check",
+          "line": 1102,
+          "endLine": 1116,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1102,
+        "to": 1116
+      },
+      "requiredFunctions": [
+        {
+          "name": "init_rumors",
+          "line": 85,
+          "endLine": 116,
+          "declared": false,
+          "sourceFile": "rumors.c",
+          "complete": false
+        },
+        {
+          "name": "rumor_check",
+          "line": 196,
+          "endLine": 307,
+          "declared": false,
+          "sourceFile": "rumors.c",
+          "complete": false
+        },
+        {
+          "name": "others_check",
+          "line": 308,
+          "endLine": 419,
+          "declared": false,
+          "sourceFile": "rumors.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v30/v30-rumor-boundaries": {
+          "session": "synthetic/v30/v30-rumor-boundaries",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-rumor-boundaries",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-rumor-boundaries.session.json",
+          "recordingSha256": "e14c2062a0e622d9f63f5ff62a815a9a0e641bd896438d80024b2614096f74a4",
+          "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+          "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325"
+        }
+      }
     }
   ]
 }
