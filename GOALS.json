@@ -199519,7 +199519,7 @@
     {
       "id": "port-dokick-impact-drop-v28-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port floor-pile impact migration and shop charges",
       "cFile": "dokick.c",
       "sessions": [
@@ -199527,17 +199527,24 @@
       ],
       "selectionReason": "Seed continuation from B144 selects synthetic/v28/v28-hole-floor-pile-fall with seven remaining screens at accepted evaluation 12ef8612; impact_drop and its floor-object migration contract are unreserved. Coordinate the disjoint goto_level caller in shared js/do.js with accepted A144 dropx.",
       "detail": "Port whole dokick.c impact_drop lines 1511-1622 and replace all seven direct discarded-gap caller sites with awaited source-order calls. Preserve obj_delivery and hot_pursuit as named outside-limit discarded-result gaps.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "855784a645eae57f5b60228656d47487d2d68b7d",
+      "openStanding": {
+        "sha": "ce4c30bab8acdfdfeafc52afadea090164b65a59",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "impact_drop",
           "line": 1511,
           "endLine": 1638,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -199557,6 +199564,300 @@
           "evaluationPath": "challenges/evaluations/accepted-64eeb6b668c69fe3216f8c9a92abd98be0d499c7-v28.json",
           "evaluationCommit": "64eeb6b668c69fe3216f8c9a92abd98be0d499c7"
         }
+      },
+      "activeStanding": {
+        "sha": "ce4c30bab8acdfdfeafc52afadea090164b65a59",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-hole-floor-pile-fall",
+          "session": "synthetic/v28/v28-hole-floor-pile-fall",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-hole-floor-pile-fall.session.json",
+          "recordingPath": "challenges/cases/v28/v28-hole-floor-pile-fall.session.json",
+          "recordingSha256": "5708cb979b63bc5897b36ee2cf137efeef62aebc96cb6a687948915eed963737",
+          "recipe": "challenges/cases/v28/v28-hole-floor-pile-fall.recipe.session.json",
+          "recipeSha256": "0cf33bbb405ad6d886a776b85a2f7e923c7f5afec07779d3e3b275e89e7e85fb",
+          "replayInputSha256": "fc680e6583bbe7af5636627a1cfb51fdda3db404b10c67f05939c8aa22ed70f8",
+          "evaluationPath": "challenges/evaluations/accepted-ce4c30bab8acdfdfeafc52afadea090164b65a59-v28.json",
+          "evaluationCommit": "ce4c30bab8acdfdfeafc52afadea090164b65a59",
+          "evaluationArtifact": "challenges/evaluations/accepted-ce4c30bab8acdfdfeafc52afadea090164b65a59-v28.json",
+          "evaluationUtc": "2026-10-08T04:10:07.035Z",
+          "remainingScreens": 7,
+          "recordedSteps": 42,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 42
+            },
+            "rng": {
+              "matched": 2218,
+              "total": 4382
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 35,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 35,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 13,
+              "column": 18,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2026,
+              "cEntry": "rn2(3)=0",
+              "cCaller": "getbones(bones.c:645)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 34,
+                "key": ">"
+              },
+              "stepIndex": 34
+            },
+            "cursor": {
+              "index": 35,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 35,
+                "key": " "
+              },
+              "cCursor": [
+                7,
+                16,
+                1
+              ],
+              "jsCursor": [
+                19,
+                17,
+                1
+              ]
+            }
+          },
+          "step": 34,
+          "kind": "rng",
+          "sourceFile": "bones.c",
+          "function": "getbones",
+          "message": null,
+          "cFile": "bones.c",
+          "luaFile": null,
+          "line": 645,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-hole-floor-pile-fall.json",
+            "result": {
+              "session": "synthetic/v28/v28-hole-floor-pile-fall",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-hole-floor-pile-fall",
+              "remainingScreens": 7,
+              "recordedSteps": 42,
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-hole-floor-pile-fall.session.json",
+              "recordingSha256": "5708cb979b63bc5897b36ee2cf137efeef62aebc96cb6a687948915eed963737",
+              "evaluationPath": "challenges/evaluations/accepted-12ef8612de6f2bb2114e3735f82559f4ddb22cd4-v28.json",
+              "evaluationCommit": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4",
+              "status": "complete",
+              "commit": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-hole-floor-pile-fall",
+                "session": "synthetic/v28/v28-hole-floor-pile-fall",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recording": "challenges/cases/v28/v28-hole-floor-pile-fall.session.json",
+                "recordingPath": "challenges/cases/v28/v28-hole-floor-pile-fall.session.json",
+                "recordingSha256": "5708cb979b63bc5897b36ee2cf137efeef62aebc96cb6a687948915eed963737",
+                "recipe": "challenges/cases/v28/v28-hole-floor-pile-fall.recipe.session.json",
+                "recipeSha256": "0cf33bbb405ad6d886a776b85a2f7e923c7f5afec07779d3e3b275e89e7e85fb",
+                "evaluationPath": "challenges/evaluations/accepted-12ef8612de6f2bb2114e3735f82559f4ddb22cd4-v28.json",
+                "evaluationCommit": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4",
+                "evaluationUtc": "2026-10-08T03:18:38.892Z",
+                "remainingScreens": 7,
+                "recordedSteps": 42,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 2218,
+                    "total": 4382
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 42
+                  }
+                },
+                "passed": false,
+                "error": null,
+                "step": 34,
+                "kind": "rng",
+                "firstMismatch": {
+                  "index": 2026,
+                  "cEntry": "rn2(3)=0",
+                  "cCaller": "getbones(bones.c:645)",
+                  "jsEntry": "rn2(5)=0",
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 34,
+                    "key": ">"
+                  }
+                },
+                "sourceFile": "dokick.c",
+                "function": "impact_drop",
+                "message": "Missing impact_drop before level departure changes subsequent generation RNG."
+              },
+              "summary": "Whole dokick.c:impact_drop is missing. A ration left on the hero square is considered for falling through the newly dug hole before goto_level saves the source level. Omitting its rn2(3) shifts destination generation; port the whole pile/migration/billing function and reconcile all seven direct source calls. Successful object delivery below remains a separate named obj_delivery gap.",
+              "source": {
+                "file": "dokick.c",
+                "branch": "Nonempty floor pile at a recognized downward gate with a valid destination; skip missile and attached ball/chain, use rn2(30) for boulders or rn2(3) otherwise, then transfer chosen objects before visible impact and shop-debt messages.",
+                "functions": [
+                  "impact_drop"
+                ],
+                "callers": [
+                  "do.c:goto_level:1612-1613 falling entry before check_special_room/level saving; js/do.js:2655-2660 records a discarded gap",
+                  "dig.c:digactualhole:772-773 hero held or wont_fall; js/dig.js:1430 discarded gap",
+                  "dig.c:digactualhole:798-799 off-hero hole; js/dig.js:1446 discarded gap",
+                  "trap.c:fall_through:649 dont_fall entry; js/trap.js:668-671 discarded gap",
+                  "dokick.c:ship_object:1680 boulder over a hole; js/dokick.js:1581 discarded gap",
+                  "dokick.c:ship_object:1689 missile stays at gate; js/dokick.js:1588 discarded gap",
+                  "dokick.c:ship_object:1762 missile migrated then impacts remaining pile; js/dokick.js:1623 discarded gap"
+                ],
+                "dependencies": [
+                  "dokick.c:down_gate:1943-1975 and drop_to:1473-1506 consumed destination helpers already exist in js/dokick.js; preserve gate_str lookup, special stronghold/endgame/bottom/quest destinations and dlev override order",
+                  "mkobj.c:obj_extract_self and add_to_migration canonical owners in js/obj.js:3122; preserve floor nexthere iteration and gm.migrating_objs identity/from-level fields",
+                  "shk.c:costly_spot, shop_keeper, stolen_value:3754-3891, currency, shkname/Shknam plus hack.c:in_rooms and vision.c:cansee have existing canonical implementations; stolen_value is consumed and must be audited/reused rather than skipped",
+                  "shk.c:picked_container:3085-3100 exists and recursively clears nested noncoin no_charge",
+                  "shk.c:hot_pursuit has no implementation and remains an explicitly named discarded void dependency; mon.c:angry_guards exists, its result is discarded",
+                  "dokick.c:obj_delivery:1770-1857 is an outside-limit downstream discarded void gap in js/do.js:3129, not a return dependency of impact_drop; successful migration/arrival probes must retain this frontier",
+                  "ship_object source caller families: hero drop/tipping(do.c), hero thrown projectile(dothrow.c), kicked object settlement(zap.c bhit), monster missiles(mthrowu.c); trap.c rolling-boulder caller remains outside-limit where its production arm is incomplete"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/accepted-12ef8612de6f2bb2114e3735f82559f4ddb22cd4-v28.json at 12ef8612de6f2bb2114e3735f82559f4ddb22cd4: screens/cursors 35/42, RNG2218/4382, 7 unmatched screens; recipe challenges/cases/v28/v28-hole-floor-pile-fall.recipe.session.json SHA2560cf33bbb405ad6d886a776b85a2f7e923c7f5afec07779d3e3b275e89e7e85fb; recording challenges/cases/v28/v28-hole-floor-pile-fall.session.json SHA2565708cb979b63bc5897b36ee2cf137efeef62aebc96cb6a687948915eed963737.",
+                "Frozen single-case worker replay at 7559dee61dab0ef0bfef072ae4da5981051e6255, bounded run-hHIpMu, .cache/v28-hole-floor-pile-fall/replay.json: no refusal, first numerical RNG mismatch segment0 step34 (C getbones rn2(3)=0 versus JS makelevel rn2(5)=0); first screen/cursor mismatch step35. This worker observation does not replace saved main totals.",
+                "Recorded step34 begins exercise rn2(19)=14; hole_destination rn2(4)=0,1; impact_drop(dokick.c1569) rn2(3)=1; getbones rn2(3)=0. JS skips impact_drop; its getbones draw consumes the omitted value1 and the next comparison diverges. C skips migration on that roll, so the selected case does not require implementing obj_delivery.",
+                "C dokick.c:1511-1622 whole function: resolve destination before dlev override; snapshot shop debit/robbed/peacefulness before silent billing; save nexthere before extraction; count quantities including protected objects; rock-caused boulder skip consumes no draw; obj_extract_self then stolen_value/picked_container/no_charge then add_to_migration/coordinates/owornmask; message only when something fell and square is visible; preserve literal singular impact text and shop notification order.",
+                "Search rg 'impact_drop\\(' nethack-c/upstream/src js found seven source calls and no JS implementation. Each existing live call records note_unported. Source scope is one whole function with awaited bounded caller replacements in js/dokick.js, js/do.js, js/dig.js, js/trap.js; no whole caller credit.",
+                "Runtime plan: admitted falling-hole range through step41 covers goto_level; independently designed levitating/held digging and off-hero digging cover both digactualhole sites, nonfalling trapdoor covers fall_through, and gate pile drops/throws/kicks plus a monster-missile variation cover shared ship_object. Choose successful migration while hero stays on original level to observe impact without unported arrival; retain a successful-arrival recipe blocked by obj_delivery and a shop-theft probe blocked by hot_pursuit if those downstream limits prevent a fully matching recording.",
+                "Reservation check .cache/v28-hole-floor-pile-fall/status-after-B144.json: no impact_drop/floor-object migration owner is reserved. A144 owns do.c:dropx and edits shared js/do.js, so goto_level-only edit requires explicit coordination. C141 owns wiz_flip_level/flip_level and its vision publication contract. B144 is accepted; no next implementation claim before the central queue/assignment gate."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "impact_drop",
+            "implementation": "js/dokick.js",
+            "symbol": "impact_drop",
+            "sourceReview": "Read all dokick.c1511-1622 (generated context1511-1638 includes following ship_object declaration comment). Preserve empty-pile guard, down_gate and drop_to before no-destination return and dlev override, costly_spot and shopkeeper debit/robbed/anger snapshot, saved nexthere before any extraction, missile exclusion before quantity count, attached ball/chain quantity count but no draw, rock/boulder short circuit without draw, boulder rn2(30) and ordinary rn2(3), obj_extract_self before silent consumed stolen_value, nested picked_container/no_charge cleanup before add_to_migration, destination dungeon/level/owornmask writes before dct quantity count. Preserve visible all/some/singular literal messages (an+other has no added space), shop robbed/debit comparisons against snapshots, customer assignment with PL_NSIZ, prior anger versus thief/scream text, discarded hot_pursuit gap, existing angry_guards and theft early return. No injected replacement or Unsupported impact_drop refusal remains. Existing consumed down_gate/drop_to, costly_spot/shop_keeper/in_rooms/stolen_value/currency/shkname/Shknam/cansee owners were read and reused; no new return dependency was skipped. Canonical objectGenerationEnv supplies floor extraction; bind existing recalc_block_point for boulder removal in this selected caller, preserving owner state signature. hot_pursuit is the sole named unported discarded void callee within impact_drop. No whole caller, shipping, billing, vision or arrival source-completion credit.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c1612-1613 falling calls impact_drop(NULL,ux,uy,newlevel->dlevel) before check_special_room and old-level save; pass only canonical state."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "digactualhole",
+                "source": "dig.c772-773 held/wont_fall hero hole and798-799 off-hero hole call impact_drop only if newobjs, before pickup or monster migration; await existing env at both sites."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "fall_through",
+                "source": "trap.c649 dont_fall branch calls impact_drop(NULL,ux,uy,0) before pending-message flush/temporary opening closure; await with state."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "ship_object",
+                "source": "dokick.c1680 boulder/hole guard;1689 nodrop before maybe_unhide_at;1762 migrated missile before newsym; all three await impact_drop with existing shipping env, preserving source order. Indirect commands/actions: do.c drop, dothrow.c hitfloor, zap.c kicked bhit settlement, mthrowu.c drop_throw/m_throw."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dokick-shipping.test.mjs",
+              "scripts/do.test.mjs",
+              "scripts/dig.test.mjs",
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/impact-dig-levitating.session.json",
+              "recordings/dokick.c/impact-dig-levitating-variation.session.json",
+              "recordings/dokick.c/impact-dig-offhero.session.json",
+              "recordings/dokick.c/impact-trapdoor-huge.session.json",
+              "recordings/dokick.c/impact-missile-stairs.session.json",
+              "recordings/dokick.c/impact-missile-stairs-wait-3.session.json",
+              "recordings/dokick.c/impact-missile-stairs-wait-4.session.json",
+              "recordings/dokick.c/impact-missile-stairs-throw.session.json",
+              "recordings/dokick.c/impact-missile-kick.session.json",
+              "recordings/dokick.c/impact-missile-monster.session.json",
+              "recordings/dokick.c/impact-boulder-throw-hole.session.json"
+            ],
+            "sourceFile": "dokick.c",
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-hole-floor-pile-fall",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 41,
+                "source": "zap.c:dozap -> zap_dig -> dig.c:dighole/digactualhole786-792 -> do.c:goto_level1613 -> dokick.c:impact_drop1511-1622; floor ration chance tested before level teardown, recorded rn2(3)=1 keeps it upstairs, then departure completes."
+              },
+              {
+                "batch": "v28",
+                "caseId": "v28-dig-altar-offstairs",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 54,
+                "source": "apply.c:do_break_wand4071 -> dig.c:digactualhole798-799 off-hero hole with nonempty adjacent floor pile -> dokick.c:impact_drop1569 rn2(3)=2; all subsequent screens/cursors/RNG match through end."
+              }
+            ],
+            "checkedAt": "e90b92783bbf7e1c5c09b0346908c3f44006131b"
+          }
+        ],
+        "entryPointReview": "impact_drop is a helper-only source unit, so the helper entryPoints list is empty. All seven build-active direct C calls are wired and have matching production runtime evidence: admitted falling-hole departure; independent levitating hero hole; broken-wand off-hero hole; huge hero nonfalling trapdoor; ship_object boulder guard via downward throw; ordinary missile stays and migrates over stairs, with both successful and rejected floor-pile rolls. Independent drop, downward throw, kick, and monster crossbow-bolt cases verify the shared shipping caller family. Trap rolling-boulder launch and every broader ship_object caller remain outside whole shipping completion credit; this task replaces only its three existing direct impact_drop sites and does not claim unrelated launch behavior. Source-pinned tests cover protected ball/chain/missile, rock/boulder no-draw, all destination guards, dlev override, pointer identity/from-level values, quantity-based grammar, shop debit snapshot and theft visibility/anger. Successful migration is recorded while hero remains on the old level, avoiding a false claim about obj_delivery.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -199781,6 +200082,646 @@
         "sha": "ce4c30bab8acdfdfeafc52afadea090164b65a59",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "port-dig-buried-ball-punishment-v28-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Restore buried-ball punishment with same-object reuse and ordered unearthing",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v28/v28-buried-ball-unearth"
+      ],
+      "selectionReason": "Independent admitted case synthetic/v28/v28-buried-ball-unearth has nine remaining screens at digactualhole -> buried_ball_to_punishment before maketrap. The complete investigation traces the required whole punish and unearth owners plus active caller frontiers.",
+      "detail": "",
+      "openedAt": "6bdd9ebdc01362909344a372e1cc0064f0754f32",
+      "openStanding": {
+        "sha": "7727bdc5c54b8c8c34b8d3acf281bc4ef821f1d2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "buried_ball_to_punishment",
+          "line": 1935,
+          "endLine": 1957,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1935,
+        "to": 1957
+      },
+      "requiredFunctions": [
+        {
+          "name": "punish",
+          "line": 3019,
+          "endLine": 3065,
+          "declared": true,
+          "sourceFile": "read.c",
+          "complete": false
+        },
+        {
+          "name": "unearth_objs",
+          "line": 2086,
+          "endLine": 2124,
+          "declared": true,
+          "sourceFile": "dig.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v28/v28-buried-ball-unearth": {
+          "session": "synthetic/v28/v28-buried-ball-unearth",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-buried-ball-unearth",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+          "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+          "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+          "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b"
+        }
+      },
+      "activeStanding": {
+        "sha": "7727bdc5c54b8c8c34b8d3acf281bc4ef821f1d2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-buried-ball-unearth",
+          "session": "synthetic/v28/v28-buried-ball-unearth",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+          "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+          "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+          "recipe": "challenges/cases/v28/v28-buried-ball-unearth.recipe.session.json",
+          "recipeSha256": "505cf79f34642043283b2ed784ae9fc90eca1e54902450267841adc49b5b417a",
+          "replayInputSha256": "ddda6cad7367767e34d25979564f09fd87f00c1a4f1c298c61575b00895612a8",
+          "evaluationPath": "challenges/evaluations/accepted-29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c-v28.json",
+          "evaluationCommit": "29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c",
+          "evaluationArtifact": "challenges/evaluations/accepted-29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c-v28.json",
+          "evaluationUtc": "2026-10-08T04:48:11.499Z",
+          "remainingScreens": 9,
+          "recordedSteps": 85,
+          "previousScreensMatched": 76,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 76,
+              "total": 85
+            },
+            "rng": {
+              "matched": 4668,
+              "total": 7218
+            },
+            "cursors": {
+              "matched": 76,
+              "total": 85
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "burial requires buried_ball_to_punishment for otyp 477",
+            "step": 76
+          },
+          "step": 76,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "burial requires buried_ball_to_punishment for otyp 477",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-buried-ball-unearth.json",
+            "result": {
+              "session": "synthetic/v28/v28-buried-ball-unearth",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-buried-ball-unearth",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+              "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+              "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+              "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+              "evaluationUtc": "2026-10-08T04:24:32.322Z",
+              "remainingScreens": 9,
+              "recordedSteps": 85,
+              "metrics": {
+                "screens": {
+                  "matched": 76,
+                  "total": 85
+                },
+                "rng": {
+                  "matched": 4668,
+                  "total": 7218
+                },
+                "cursors": {
+                  "matched": 76,
+                  "total": 85
+                }
+              },
+              "passed": false,
+              "step": 76,
+              "kind": "refusal",
+              "message": "burial requires buried_ball_to_punishment for otyp 477",
+              "status": "complete",
+              "commit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+              "mismatch": {
+                "session": "synthetic/v28/v28-buried-ball-unearth",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-buried-ball-unearth",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+                "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+                "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+                "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+                "evaluationUtc": "2026-10-08T04:24:32.322Z",
+                "remainingScreens": 9,
+                "recordedSteps": 85,
+                "metrics": {
+                  "screens": {
+                    "matched": 76,
+                    "total": 85
+                  },
+                  "rng": {
+                    "matched": 4668,
+                    "total": 7218
+                  },
+                  "cursors": {
+                    "matched": 76,
+                    "total": 85
+                  }
+                },
+                "passed": false,
+                "step": 76,
+                "kind": "refusal",
+                "message": "burial requires buried_ball_to_punishment for otyp 477",
+                "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json"
+              },
+              "goalKind": "file-port",
+              "summary": "Missing dig.c:buried_ball_to_punishment leaves the buried tether unchanged before downward digging; maketrap then reaches unearth_objs and refuses the same restoration. Port whole punishment restoration with source-required read.c:punish reuse-ball behavior and whole unearth_objs, preserving awaited ordering and every active caller frontier.",
+              "source": {
+                "file": "dig.c",
+                "branch": "A downward digging action at a hero tethered by TT_BURIEDBALL calls buried_ball_to_punishment before maketrap. The helper finds a buried iron ball at the hero square or nearby, reuses that same ball with a new chain, clears the tether silently and redraws its old square.",
+                "functions": [
+                  "buried_ball_to_punishment",
+                  "unearth_objs"
+                ],
+                "callers": [
+                  "dig.c:digactualhole656 before furniture handling/maketrap; JS currently note_unported",
+                  "dig.c:unearth_objs2100 after consumed buried_ball and before its loop continues; JS bury.js currently refuses/injects this operation",
+                  "do.c:goto_level1595 before old-level save; JS note_unported",
+                  "hack.c:trapmove1679 TT_BURIEDBALL anchored wriggle_free; JS trapmove currently refuses all held types except PIT/BEARTRAP",
+                  "teleport.c:teleds458 before ball_active calculation; JS currently refuses buried-ball path",
+                  "teleport.c:level_tele1302 before next_to_u; JS note_unported",
+                  "teleport.c:domagicportal1451 before next_to_u; the production owner is absent in JS",
+                  "mklev.c:mkinvokearea2461 before reset_utrap and invocation transmutation; JS spell.deadbook currently note_unported for the whole owner"
+                ],
+                "dependencies": [
+                  "Consumed dig.c:buried_ball1885-1930 is fully implemented in js/dig.js; verify complete exact-first, nearest squared distance<=8, first-on-ties, trap eligibility and caller-coordinate mutation. Current unearth_objs duplicates only exact-square lookup and must call canonical finder.",
+                  "read.c:punish3019-3062 receives the extracted heavy iron ball as reuse flag. JS punish is partial: unconditional misbehavior/new-ball behavior, rejects unsolid/blind/swallowed. Whole source audit is required; no substitute RNG/state/message for the reuse branch.",
+                  "Existing canonical obj_extract_self OBJ_BURIED->OBJ_FREE, setworn W_CHAIN/W_BALL, mkobj, ball.c placebc, reset_utrap(FALSE), del_engr_at and newsym owners are reusable. set_bc is absent: this discarded void call must remain named unless separately ported; no invented blind state.",
+                  "unearth_objs active callers: dig.c:liquid_flow862, trap.c:maketrap563, zap.c:melt_ice5058. Existing JS unearth/pitTerrain are synchronous; maketrap already supports conditional Promise return for runtime statue creation. Preserve synchronous no-punishment generation while awaiting any restoration continuation before block recomputation/linking/next caller effect.",
+                  "Audit live PIT/HOLE maketrap consumers in zap.c/muse.c/apply.c and the existing awaited dig/music paths before widening async admission. Do not globally change generation contracts or claim these caller functions complete.",
+                  "domagicportal and mkinvokearea are active C caller entries with absent JS production owners. TT_BURIEDBALL trapmove branch is also unported. Reserve bounded admissions where possible; otherwise retain source-named blocked recipes and incomplete closure, rather than omitting active callers."
+                ]
+              },
+              "evidence": [
+                "Exact accepted-main evaluation challenges/evaluations/accepted-e0d0dcd2de84273a7db3e7676a895db314cb98d2-v28.json at e0d0dcd2de84273a7db3e7676a895db314cb98d2 reports76/85 screens and cursors,4668/7218 RNG; nine remaining screens. Its hosted origin is .git/checkpoint-results/e0d0dcd2de84273a7db3e7676a895db314cb98d2/run-hosted-vu7J4n/synthetic/ci-v28.json. Manifest corpus digest394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039 and recording hash1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54 verified against both saved evaluation and recording bytes.",
+                "Read-only single-case replay .cache/C142-buried-ball-unearth-accepted-scan.json at ccc19e7876bac50f265d456eca0c7ee87a543f01, whose tracked tree exactly equals accepted e0d0dcd2de84273a7db3e7676a895db314cb98d2, reproduces step76 key> refusal burial requires buried_ball_to_punishment for otyp477 with76 emitted screens. C recording key> emits You dig a hole through the floor / You fall through, then generates a destination level. Earlier prepared .cache/v28-runs/v28-buried-ball-unearth.boundary.json pins stack dozap -> weffects -> zap_dig -> dighole -> digactualhole -> maketrap -> pitTerrain -> unearth_objs; the refreshed scan agrees with that first stop/count.",
+                "The first missing source effect precedes the thrown refusal: digactualhole C656 restores punishment before maketrap, while js/dig.js records note_unported. A repaired first call clears TT_BURIEDBALL before the later unearth loop; the refusal is a downstream manifestation, not the earliest owner.",
+                "Whole dig.c1935-1955: capture hero coordinates, consume buried_ball, no-ball no-op, extract same ball, punish(ball), reset_utrap(FALSE), delete engraving at selected ball coordinates, newsym there. Source #if0 rust timer is inactive. Whole unearth_objs2086-2116 consumes buried_ball, preserves next pointer before mutations, uses punishment restoration only for tethered selected ball, otherwise extraction/ROT_ORGANIC stop/placement/stack, then deletes engraving and redraws.",
+                "Whole read.c punish3019-3062: reuse flag suppresses misbehavior and new-ball allocation. Existing JS always emits misbehavior and mkobj(BALL_CLASS), so merely wiring the helper would invent an extra ball and RNG calls. Preserve chain-first allocation, reused identity, heavier existing-punishment branch, unsolid drop path and swallowed/blind display ordering from source.",
+                "Source search rg buried_ball_to_punishment nethack-c/upstream/src finds eight direct active calls, listed above. No build exclusion makes absent domagicportal or invocation inactive. Compile-disabled Rust timer is the only selected #if0 branch.",
+                "Existing maketrap JS931-1011 returns Promise only for a runtime statue tail, and its selected digging caller already awaits it. Reuse this supported continuation mechanism for restoration; .cache/C142-maketrap-callers.txt records27 textual sites for the bounded live-consumer audit. Do not infer that every unawaited call is unsafe: WEB/MAGIC_PORTAL and no-tether generation paths cannot enter unearth punishment.",
+                "Independent evidence plan: digging-unearth role/object variation, release by adjacent teleport, level teleport, ordinary goto_level, tether movement expiry, and a direct terrain-unearth variation that actually executes the unearth punishment arm. Reuse-ball identity and chain-only RNG allocation need production post-state assertions. Preserve portal/invocation loader/owner blockers if those callers cannot be admitted safely. No C recording or source edit was made during this investigation.",
+                "Accepted-tree source recheck: dig.c helper/finder/unearth and read.c punish bodies are unchanged. The intervening do.js diff only adds THRONE dry-floor admission in preflight_dropx; goto_level buried-ball placeholder remains. The proposal still needs same-object punishment reuse, canonical finder, ordered conditional unearth continuation and active caller frontiers; no game or recording edits were made."
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "port-wizcmds-wiz-makemap-v28-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port wizard dungeon-level recreation and command dispatch",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v28/v28-wiz-recreate-level"
+      ],
+      "selectionReason": "Independent admitted case synthetic/v28/v28-wiz-recreate-level has seven remaining screens and a refreshed complete investigation at accepted B145; the higher-priority buried-ball task is active independently on worker C.",
+      "detail": "Port whole wizcmds.c wiz_makemap and its interactive and queued command dispatch. Reuse In_W_tower, makemap_prepost, and mklev in C order while preserving named teardown and arrival gaps.",
+      "openedAt": "c96a61949f77deff90e4df644aef60975632294c",
+      "openStanding": {
+        "sha": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "wiz_makemap",
+          "line": 156,
+          "endLine": 175,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 156,
+        "to": 175
+      },
+      "syntheticProvenance": {
+        "synthetic/v28/v28-wiz-recreate-level": {
+          "session": "synthetic/v28/v28-wiz-recreate-level",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-wiz-recreate-level",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+          "recordingSha256": "bb74a1e9cec092a37592e4c641be40dfc340b2973c3ca7c5f9aff5f422caca2c",
+          "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+          "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b"
+        }
+      },
+      "activeStanding": {
+        "sha": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-wiz-recreate-level",
+          "session": "synthetic/v28/v28-wiz-recreate-level",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+          "recordingPath": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+          "recordingSha256": "bb74a1e9cec092a37592e4c641be40dfc340b2973c3ca7c5f9aff5f422caca2c",
+          "recipe": "challenges/cases/v28/v28-wiz-recreate-level.recipe.session.json",
+          "recipeSha256": "8427405850e7b96babe3b16f9151e798334fd74529abc50cb4b4b46536472f31",
+          "replayInputSha256": "1a4a49c081d62538552ecf65bfc9143a384fb84979455ca189c7deda168de343",
+          "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+          "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+          "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+          "evaluationUtc": "2026-10-08T04:24:32.322Z",
+          "remainingScreens": 7,
+          "recordedSteps": 20,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 20
+            },
+            "rng": {
+              "matched": 2601,
+              "total": 4837
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 20
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_makemap() for the extended command 'wizmakemap' is not ported",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_makemap",
+          "message": "unsupported hero command: wiz_makemap() for the extended command 'wizmakemap' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-wiz-recreate-level.json",
+            "result": {
+              "session": "synthetic/v28/v28-wiz-recreate-level",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-wiz-recreate-level",
+              "remainingScreens": 7,
+              "recordedSteps": 20,
+              "metrics": {
+                "screens": {
+                  "matched": 13,
+                  "total": 20
+                },
+                "rng": {
+                  "matched": 2601,
+                  "total": 4837
+                },
+                "cursors": {
+                  "matched": 13,
+                  "total": 20
+                }
+              },
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+              "recording": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+              "recordingSha256": "bb74a1e9cec092a37592e4c641be40dfc340b2973c3ca7c5f9aff5f422caca2c",
+              "recipe": "challenges/cases/v28/v28-wiz-recreate-level.recipe.session.json",
+              "recipeSha256": "8427405850e7b96babe3b16f9151e798334fd74529abc50cb4b4b46536472f31",
+              "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+              "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+              "evaluationUtc": "2026-10-08T04:24:32.322Z",
+              "step": 13,
+              "segment": 0,
+              "kind": "unsupported",
+              "function": "wiz_makemap",
+              "sourceFile": "wizcmds.c",
+              "message": "unsupported hero command: wiz_makemap() for the extended command 'wizmakemap' is not ported",
+              "status": "complete",
+              "commit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+              "mismatch": {
+                "session": "synthetic/v28/v28-wiz-recreate-level",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-wiz-recreate-level",
+                "remainingScreens": 7,
+                "recordedSteps": 20,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 20
+                  },
+                  "rng": {
+                    "matched": 2601,
+                    "total": 4837
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 20
+                  }
+                },
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recordingPath": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+                "recording": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+                "recordingSha256": "bb74a1e9cec092a37592e4c641be40dfc340b2973c3ca7c5f9aff5f422caca2c",
+                "recipe": "challenges/cases/v28/v28-wiz-recreate-level.recipe.session.json",
+                "recipeSha256": "8427405850e7b96babe3b16f9151e798334fd74529abc50cb4b4b46536472f31",
+                "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+                "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+                "evaluationUtc": "2026-10-08T04:24:32.322Z",
+                "step": 13,
+                "segment": 0,
+                "kind": "unsupported",
+                "function": "wiz_makemap",
+                "sourceFile": "wizcmds.c",
+                "message": "unsupported hero command: wiz_makemap() for the extended command 'wizmakemap' is not ported",
+                "passed": false,
+                "error": null,
+                "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json"
+              },
+              "goalKind": "file-port",
+              "summary": "The wizmakemap extended command is selected correctly but cmd.c dispatch refuses its absent wizcmds.c:wiz_makemap owner. Port the whole command and wire direct and queued dispatch; reuse existing map pre/post and generation owners with their named teardown and arrival limits.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Wizard mode selects #wizmakemap on an existing dungeon level. C saves In_W_tower before teardown, calls makemap_prepost(TRUE), mklev, then makemap_prepost(FALSE), and returns ECMD_OK without spending a turn; nonwizard invocation prints unavailability and returns the same result.",
+                "functions": [
+                  "wiz_makemap"
+                ],
+                "callers": [
+                  "cmd.c:extcmdlist wizmakemap row1980-1981 -> doextcmd selected command -> rhack result handling",
+                  "end.c:fuzzer_savelife1007-1013 -> cmdq_add_ec(CQ_CANNED,wiz_makemap) -> cmd.c:rhack queued function dispatch"
+                ],
+                "dependencies": [
+                  "dungeon.c:In_W_tower1923-1940 consumes current tower bounds; established js/dungeon.js owner, no new whole-helper credit",
+                  "cmd.c:makemap_prepost986-1080 and mklev.c:mklev are void calls with existing owners; verify canonical state and source ordering",
+                  "Existing makemap_prepost carries discarded gaps wizcmds.c:makemap_remove_mons, dungeon.c:rm_mapseen, files.c freeing handles, do.c:u_collide_m and questpgr.c:deliver_splev_message; retain exact gaps unless separately scoped",
+                  "Source teardown family makemap_unmakemon73-106/makemap_remove_mons110-151 can be selected separately; keepdogs(TRUE) currently refuses and is a discarded void callee",
+                  "Accepted C141 supplies vision_reset publication and live flip contracts; this command calls the established post helper and does not change vision or flip owners"
+                ]
+              },
+              "evidence": [
+                "Read all wizcmds.c156-172 and cmd.c986-1080. Whole command: tower snapshot, pre-helper, level generation, post-helper, nonwizard message, ECMD_OK return. No command-level RNG may substitute for mklev.",
+                "At examined HEAD 6f880d8ce85dde8e4789f9fd0ac8f1deddc1cab5, which includes accepted B145 e90b92783bbf7e1c5c09b0346908c3f44006131b, focused run-GnzI0G reproduces segment 0 step 13 UnsupportedHeroCommandBoundaryError in doextcmd. C has 20 screens and 4,837 RNG calls; JS emits 13 screens and 2,601 RNG calls. The first omitted C RNG call, index 2,601, is rn2(3)=1 at getbones(bones.c:645), from mklev. Diagnostic: .cache/v28-wiz-recreate-level/replay-accepted.json.",
+                "js/extcmdlist_data.js carries the wizmakemap row; js/wizcmds.js has no wiz_makemap export and js/cmd.js doextcmd has no corresponding arm. rhack handles canned extcmd rows separately; adding only the interactive switch leaves the end.c caller unimplemented.",
+                "js/cmd.js makemap_prepost2545-2617 calls note_unported makemap_remove_mons. js/mklev.js446 initializes mapseen, calls getbones and makelevel which clears level structures. Removal helper is a named discarded-return limitation, not a consumed-result dependency of the selected command.",
+                "C makemap_remove_mons uses keepdogs(TRUE), uncreates local monsters, removes level-bound migrating shopkeepers/priests/guards, and dmonsfree. js/dog.js keepdogs(TRUE) unconditionally refuses. A wider family must address that support or retain its gap; passing FALSE would violate source.",
+                "C makemap_prepost uses savelev with a FREEING NHFILE; JS pre-helper calls savelev without its existing FREEING option. Verify snapshots and timer/light disposal before broader pre-helper completion. No pre-helper credit proposed.",
+                "Entry evidence plan: admitted case covers debug command; independent role/map variation establishes full command and no-time tail. Queued-row source-pinned test and independent repeat-command recording should verify canned dispatch. Rare fuzzer_savelife producer remains an explicit enclosing entry frontier unless recorded.",
+                "Proposed writes: js/wizcmds.js and minimal js/cmd.js dispatch sites; scripts/wizcmds.test.mjs, scripts/cmd-span.test.mjs, scripts/run-wizard-makemap.mjs; recipes/wizcmds.c/ and recordings/wizcmds.c/. No game edits, C recordings, aggregate scan or implementation claim during investigation."
+              ],
+              "passed": false,
+              "error": null
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_makemap",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_makemap",
+            "sourceReview": "Read whole wizcmds.c156-173 and cmd.c986-1080 before editing. Preserve wizard guard; consumed In_W_tower snapshot before map teardown; await canonical makemap_prepost(TRUE,saved flag), mklev(), makemap_prepost(FALSE,same flag); preserve nonwizard unavailcmd/ecname spelling and ECMD_OK return. Replacement level omits goto_level-specific guardian/alarm effects exactly as C. No command RNG, injected operation, synthetic output or placeholder. Existing js/dungeon.js In_W_tower and js/mklev.js mklev owners read; map pre/post source and existing canonical state signatures audited. Named discarded pre/post helper gaps remain in their existing owner. Whole completion credit is limited to wiz_makemap; no whole cmd, map pre/post, level generation, monster teardown, pet transfer or end.c credit.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist1980-1981 and doextcmd selected ef_funct: await wiz_makemap and return ECMD_OK to existing rhack result tail."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c queued extcmd function pointer invocation3737 -> wiz_makemap; end.c fuzzer_savelife1007-1013 already queues CQ_CANNED row, and Ctrl-A repeat supplies the same queued callback. Await without another prompt, retain ECMD reset/time tail."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd-span.test.mjs",
+              "scripts/hero-death.test.mjs",
+              "scripts/mon-genocide.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json",
+              "recordings/wizcmds.c/makemap-nonwizard.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-wiz-recreate-level",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 19,
+                "source": "cmd.c:doextcmd/rhack -> wizcmds.c:wiz_makemap156-173 -> cmd.c:makemap_prepost(TRUE) -> mklev.c:mklev -> makemap_prepost(FALSE) and ECMD_OK; all recorded results through final wait match."
+              }
+            ],
+            "checkedAt": "29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c"
+          }
+        ],
+        "entryPointReview": "Interactive wizard extended command is reached by the admitted complete case and independent Wizard variation. Queued function dispatch is reached by immediate Ctrl-A repeat in independent Tourist recording, with second getbones generation at step17 after interactive generation step16; both branches use the same production callback queued by fuzzer_savelife. Existing end.c producer remains unchanged and its source-pinned queue test passes; no broader fuzzer or death credit. Nonwizard registry admission blocks the owner before its else arm and is recorded independently; unreachable owner else is source-pinned. The task preserves explicit discarded-return teardown and arrival helper gaps, with a representative pet/monster teardown recipe outside the passing corpus.",
+        "entryPoints": [
+          {
+            "name": "Wizard extended command recreates current level",
+            "functions": [
+              "wiz_makemap"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-wiz-recreate-level",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 19,
+                "source": "cmd.c:doextcmd/rhack -> wizcmds.c:wiz_makemap156-173 -> cmd.c:makemap_prepost(TRUE) -> mklev.c:mklev -> makemap_prepost(FALSE) and ECMD_OK; all recorded results through final wait match."
+              }
+            ]
+          },
+          {
+            "name": "Queued repeated wizard recreation callback",
+            "functions": [
+              "wiz_makemap"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Nonwizard command registry refusal",
+            "functions": [
+              "wiz_makemap"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-nonwizard.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-eat-eatmdone-mimic-restoration-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Restore temporary mimic disguise after eating",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v29/v29-eat-small-mimic-tin"
+      ],
+      "selectionReason": "The complete v29 investigation investigations/synthetic/v29/v29-eat-small-mimic-tin.json identifies eat.c:eatmdone as the highest-priority free source owner: 102 screens remain after the temporary small-mimic disguise fails to clear.",
+      "detail": "Port whole eat.c eatmdone and wire both existing cpostfx cleanup and delayed ga.afternmv dispatch. Preserve the separately named windows.c display_nhwindow blocking-map gap and do not claim whole cpostfx completion.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "eatmdone",
+          "line": 163,
+          "endLine": 180,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 163,
+        "to": 180
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-eat-small-mimic-tin": {
+          "session": "synthetic/v29/v29-eat-small-mimic-tin",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-eat-small-mimic-tin",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+          "recordingSha256": "1f6ebc359511986856842725ed7764b5e51a012d5580c9506fcf4a88b0a6e8d6",
+          "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+          "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
+        }
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-kill-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard monster selection and kill command",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v29/v29-quantum-mechanic-box"
+      ],
+      "selectionReason": "The complete v29 investigation investigations/synthetic/v29/v29-quantum-mechanic-box.json identifies the next highest independent owner: 30 screens remain because wizcmds.c:wiz_kill has no production dispatcher.",
+      "detail": "Port whole wizcmds.c wiz_kill and wire interactive doextcmd dispatch. Preserve mount, swallowed, suicide, m-prefix monkilled, level-change and dmonsfree branches in source order; verify selected and independent entry paths.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_kill",
+          "line": 243,
+          "endLine": 352,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 243,
+        "to": 352
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-quantum-mechanic-box": {
+          "session": "synthetic/v29/v29-quantum-mechanic-box",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-quantum-mechanic-box",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-quantum-mechanic-box.session.json",
+          "recordingSha256": "0d4fc84b0d0a5fe91664646e7ac7a24fe75dd4787e9c6c350cb9025ad4ab0ede",
+          "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+          "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
+        }
       }
     }
   ]

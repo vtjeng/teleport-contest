@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T04:19:35.278Z",
+  "capturedAt": "2026-10-08T05:11:53.638Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -26259,12 +26259,162 @@
         "type": "accepted",
         "at": "2026-10-08T04:19:27.579Z",
         "task": "A145"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A145-855784a645ea",
+        "type": "published",
+        "at": "2026-10-08T04:20:43.247Z",
+        "task": "A145",
+        "commit": "855784a645eae57f5b60228656d47487d2d68b7d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B145-2c315a82761f",
+        "type": "received",
+        "at": "2026-10-08T04:21:02.799Z",
+        "task": "B145",
+        "delivery": "2c315a82761f9e8728643f1b814681084bd14f29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B145-e90b92783bbf-v2",
+        "type": "integrating",
+        "at": "2026-10-08T04:21:23.866Z",
+        "task": "B145",
+        "integration": "e90b92783bbf7e1c5c09b0346908c3f44006131b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B145-e90b92783bbf7e1c5c09b0346908c3f44006131b-validated",
+        "type": "validated",
+        "at": "2026-10-08T04:31:43.729Z",
+        "task": "B145",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B145-e90b92783bbf7e1c5c09b0346908c3f44006131b-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T04:33:00.247Z",
+        "task": "B145"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C142-port-dig-buried-ball-punishment-v28-20261008-v2",
+        "type": "assign",
+        "at": "2026-10-08T04:34:46.902Z",
+        "task": "C142",
+        "worker": "C",
+        "goal": "port-dig-buried-ball-punishment-v28-20261008",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B146-port-wizcmds-wiz-makemap-v28-20261008",
+        "type": "assign",
+        "at": "2026-10-08T04:36:02.539Z",
+        "task": "B146",
+        "worker": "B",
+        "goal": "port-wizcmds-wiz-makemap-v28-20261008",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B145-c96a61949f77",
+        "type": "published",
+        "at": "2026-10-08T04:40:16.957Z",
+        "task": "B145",
+        "commit": "c96a61949f77deff90e4df644aef60975632294c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-310611ea0cf92774e894fa5f95c7b8da8068bbb1",
+        "type": "ready",
+        "at": "2026-10-08T04:44:27.549Z",
+        "task": "B146",
+        "delivery": "310611ea0cf92774e894fa5f95c7b8da8068bbb1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B146-310611ea0cf9",
+        "type": "received",
+        "at": "2026-10-08T04:44:47.050Z",
+        "task": "B146",
+        "delivery": "310611ea0cf92774e894fa5f95c7b8da8068bbb1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B146-29d45c37f0d1",
+        "type": "integrating",
+        "at": "2026-10-08T04:44:58.649Z",
+        "task": "B146",
+        "integration": "29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B146-29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c-validated",
+        "type": "validated",
+        "at": "2026-10-08T04:53:45.244Z",
+        "task": "B146",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B146-29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T04:55:01.565Z",
+        "task": "B146"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B146-7727bdc5c54b",
+        "type": "published",
+        "at": "2026-10-08T04:56:24.510Z",
+        "task": "B146",
+        "commit": "7727bdc5c54b8c8c34b8d3acf281bc4ef821f1d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7827213d98ccd1315957fadeef0a3434fcbc31cd",
+        "type": "ready",
+        "at": "2026-10-08T05:08:18.456Z",
+        "task": "C142",
+        "delivery": "7827213d98ccd1315957fadeef0a3434fcbc31cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C142-7827213d98cc",
+        "type": "received",
+        "at": "2026-10-08T05:08:47.802Z",
+        "task": "C142",
+        "delivery": "7827213d98ccd1315957fadeef0a3434fcbc31cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B147-port-eat-eatmdone-mimic-restoration-v29-20261008",
+        "type": "assign",
+        "at": "2026-10-08T05:11:36.908Z",
+        "task": "B147",
+        "worker": "B",
+        "goal": "port-eat-eatmdone-mimic-restoration-v29-20261008",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A146-port-wizcmds-wiz-kill-v29-20261008",
+        "type": "assign",
+        "at": "2026-10-08T05:11:38.898Z",
+        "task": "A146",
+        "worker": "A2",
+        "goal": "port-wizcmds-wiz-kill-v29-20261008",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "ce4c30bab8acdfdfeafc52afadea090164b65a59",
-    "measuredAt": "2026-10-08T04:11:48.605Z",
+    "executionCommit": "7727bdc5c54b8c8c34b8d3acf281bc4ef821f1d2",
+    "measuredAt": "2026-10-08T05:01:18.234Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

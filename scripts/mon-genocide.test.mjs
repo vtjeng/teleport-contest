@@ -158,8 +158,8 @@ test('all four production callers await the shared source owner and remove the p
     assert.doesNotMatch(level,/function kill_genocided_monsters/u);
 });
 
-// #wizmakemap is not dispatched yet; its existing post-map source callback
-// also runs through sp_lev.c lspo_finalize_level and must use the shared sweep.
+// #wizmakemap's post-map callback also runs through sp_lev.c
+// lspo_finalize_level and must use the shared sweep.
 test('the existing post-map callback removes genocided monsters before arrival checks',async()=>{
     const state=await hero();
     const mon=spawn(PM_NEWT);

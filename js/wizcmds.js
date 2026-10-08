@@ -1,7 +1,7 @@
 // wizcmds.js -- the wizard-mode extended commands.
 // C refs: src/wizcmds.c wiz_map(), wiz_genesis(), wiz_level_change(),
-// wiz_level_tele(), wiz_wish(), wiz_identify(), wiz_polyself(), and
-// wiz_intrinsic(), among the rows of that file cmd.c dispatches here.
+// wiz_level_tele(), wiz_wish(), wiz_identify(), wiz_polyself(),
+// wiz_intrinsic(), and wiz_makemap(), among the rows cmd.c dispatches here.
 
 import {
     ACID_RES,
@@ -89,7 +89,7 @@ import { body_part, float_vs_flight, polyself } from './polyself.js';
 import { create_particular } from './read.js';
 import { getlin, select_menu } from './windows.js';
 import { game } from './gstate.js';
-import { cmd_from_func } from './cmd.js';
+import { cmd_from_func, makemap_prepost } from './cmd.js';
 import { display_inventory } from './invent.js';
 import {
     notice_mon_off, notice_mon_on, pooleffects,
@@ -103,7 +103,8 @@ import { makewish } from './zap.js';
 import { docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
     map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
 import { do_mapping, findit } from './detect.js';
-import { print_dungeon } from './dungeon.js';
+import { In_W_tower, print_dungeon } from './dungeon.js';
+import { mklev } from './mklev.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
     make_sick, make_slimed, make_stunned,
@@ -116,6 +117,21 @@ import { PM_GRID_BUG } from './monsters.js';
 import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { olfaction } from './mondata.js';
+// C ref: wizcmds.c wiz_makemap() (156-173). Keep the original tower flag
+// across teardown, generation and arrival; goto_level's entry effects do not
+// belong to replacement levels. The existing pre/post owner records its gaps.
+export async function wiz_makemap(state = game) {
+    if (state.wizard) {
+        const was_in_W_tower = In_W_tower(state.u.ux, state.u.uy, state.u.uz, state);
+        await makemap_prepost(true, was_in_W_tower, state);
+        await mklev();
+        await makemap_prepost(false, was_in_W_tower, state);
+    } else {
+        await ttyPline("Unavailable command 'wizmakemap'.", state);
+    }
+    return ECMD_OK;
+}
+
 // C ref: wizcmds.c wiz_map() (176-198), the #wizmap command and its C('f')
 // binding. The temporary clearing of HConfusion and HHallucination keeps
 // detect.c do_mapping() in its ordinary, unconfused branch. The source walks
