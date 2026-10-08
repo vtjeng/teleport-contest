@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary outside-menu getlin cancellation. dungeon.c:donamelevel -> windows.c:getlin -> hooked_tty_getlin reads its text prompt; Escape returns to the map. New seed/options chosen independently before comparison.",
+  "segments": [
+    {
+      "seed": 17471059,
+      "datetime": "20640519102133",
+      "nethackrc": "OPTIONS=name:PromptCancel,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #annotate\n\u001b  "
+    }
+  ]
+}
