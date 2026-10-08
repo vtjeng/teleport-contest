@@ -210370,7 +210370,7 @@
     {
       "id": "port-wizcmds-rumor-boundary-check-v30-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Wizard rumor-boundary and text-catalog diagnostic",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -210378,8 +210378,12 @@
       ],
       "selectionReason": "Independent accepted v30-rumor-boundaries step 16 command stop; whole diagnostic and shared init_rumors source closure. Full trace is in investigations/synthetic/v30/v30-rumor-boundaries.json.",
       "detail": "Port whole wiz_rumor_check, rumor_check, others_check, and init_rumors. Use bounded getrumor cache initialization and live cmd dispatch. Reuse generated data, window, random selection, and Oracle owners without additional completion credit. Cover admitted v30 steps 16-18 and independent fresh and fortune-cookie/repeated diagnostic variations.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "24cdebdb544f247fb143bf2e9318098c2b1dcc9e",
+      "openStanding": {
+        "sha": "60cfdf72acbaf0b1eef2b7535f81dac356565c02",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -210434,7 +210438,168 @@
           "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
           "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "60cfdf72acbaf0b1eef2b7535f81dac356565c02",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-rumor-boundaries",
+          "session": "synthetic/v30/v30-rumor-boundaries",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-rumor-boundaries.session.json",
+          "recordingPath": "challenges/cases/v30/v30-rumor-boundaries.session.json",
+          "recordingSha256": "e14c2062a0e622d9f63f5ff62a815a9a0e641bd896438d80024b2614096f74a4",
+          "recipe": "challenges/cases/v30/v30-rumor-boundaries.recipe.session.json",
+          "recipeSha256": "1a020c47502b717e44e3b46ebb8be049bd87eea97170c3b13637f3af81c054d5",
+          "replayInputSha256": "3de35d9cb8b3edada882228ef9c4110c2393c2f79e902a5ce1afbbe3c645e705",
+          "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+          "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
+          "evaluationArtifact": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+          "evaluationUtc": "2026-10-08T15:23:15.213Z",
+          "remainingScreens": 12,
+          "recordedSteps": 28,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 28
+            },
+            "rng": {
+              "matched": 2051,
+              "total": 2051
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 28
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_rumor_check() for the extended command 'wizrumorcheck' is not ported",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_rumor_check",
+          "message": "unsupported hero command: wiz_rumor_check() for the extended command 'wizrumorcheck' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-rumor-boundaries.json",
+            "result": {
+              "session": "synthetic/v30/v30-rumor-boundaries",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-rumor-boundaries",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "e14c2062a0e622d9f63f5ff62a815a9a0e641bd896438d80024b2614096f74a4",
+              "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+              "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
+              "remainingScreens": 12,
+              "recordedSteps": 28,
+              "status": "complete",
+              "commit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-rumor-boundaries",
+                "session": "synthetic/v30/v30-rumor-boundaries",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-rumor-boundaries.session.json",
+                "recordingPath": "challenges/cases/v30/v30-rumor-boundaries.session.json",
+                "recordingSha256": "e14c2062a0e622d9f63f5ff62a815a9a0e641bd896438d80024b2614096f74a4",
+                "recipe": "challenges/cases/v30/v30-rumor-boundaries.recipe.session.json",
+                "recipeSha256": "1a020c47502b717e44e3b46ebb8be049bd87eea97170c3b13637f3af81c054d5",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+                "evaluationCommit": "f5e0576f9dbaed8f436935876e8315f4b977c325",
+                "evaluationArtifact": "challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json",
+                "evaluationUtc": "2026-10-08T15:23:15.213Z",
+                "remainingScreens": 12,
+                "recordedSteps": 28,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 28
+                  },
+                  "rng": {
+                    "matched": 2051,
+                    "total": 2051
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 28
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_rumor_check() for the extended command 'wizrumorcheck' is not ported",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_rumor_check",
+                "message": "unsupported hero command: wiz_rumor_check() for the extended command 'wizrumorcheck' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "file-port",
+              "summary": "The active wizard rumor-boundary command has no dispatcher/owner. Port whole wiz_rumor_check plus rumors.c rumor_check, others_check and shared init_rumors; retain exact byte offsets, padding, first/last fgets traversal and the two-page text window, with no RNG or turn use. Wire init_rumors through both rumor_check and existing getrumor using one source state cache.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Wizard extended command wizrumorcheck invokes wiz_rumor_check unconditionally and returns ECMD_OK after the rumor/catalog text-window diagnostic; valid generated rumor and random-text files are available.",
+                "functions": [
+                  "wiz_rumor_check() whole wizcmds.c:1102–1106",
+                  "rumor_check() whole rumors.c:196–303",
+                  "others_check() whole rumors.c:309–408",
+                  "init_rumors() whole rumors.c:85–107"
+                ],
+                "callers": [
+                  "cmd.c:1989 extcmdlist wizrumorcheck -> wizcmds.c:1102 wiz_rumor_check -> rumors.c:196 rumor_check",
+                  "rumors.c:208 rumor_check and rumors.c:140 getrumor call shared init_rumors; getrumor is already in random_text.js and must reuse one canonical initialized offset cache",
+                  "rumors.c:294–296 rumor_check calls others_check for engravings, epitaphs and bogus monsters in that order"
+                ],
+                "dependencies": [
+                  "Reuse generated RANDOM_TEXT_FILES byte strings, canonical hacklib.c:xcrypt and TTY text-window/message-window owners; no filesystem/network operations in game code.",
+                  "Existing parseRumorHeader returns a temporary range object and does not publish C gt/gf cache fields; it also rejects boundary relationships that C init_rumors only comments as assertions. A whole init_rumors owner must match C sscanf/positive-size rules and wire the existing getrumor initialization seam; no whole getrumor credit without separate source completion.",
+                  "Missing-file couldnt_open_file is a discarded-result helper; preserve its precise source note unless the canonical impossible owner is available. No substitute error behavior, RNG or data-file mutation.",
+                  "Keep existing getrumor/outrumor, Oracle and CapitalMon owners source-audited/read-only except the shared initialization caller/cache seam. No A157 readobjnam or timer contract overlap."
+                ]
+              },
+              "evidence": [
+                "Accepted canonical evaluation challenges/evaluations/accepted-f5e0576f9dbaed8f436935876e8315f4b977c325-v30.json at f5e0576f9dbaed8f436935876e8315f4b977c325 and hosted run 37800014558 synthetic/ci-v30.json agree: 16/28 screens and cursors, 2051/2051 RNG; 12 unmatched screens. Corpus digest bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007, recording e14c2062a0e622d9f63f5ff62a815a9a0e641bd896438d80024b2614096f74a4, and recipe 1a020c47502b717e44e3b46ebb8be049bd87eea97170c3b13637f3af81c054d5 are unchanged.",
+                "Focused .cache/C149-rumor-before.json on the accepted f5e0576f9dbaed8f436935876e8315f4b977c325 behavior reproduces 16 emitted boundaries and the command refusal at zero-based step 16, with no earlier divergence. cmd.c extcmdlist already names wiz_rumor_check; cmd.js dispatch has no matching case and wizcmds.js has no owner. The refusal is command dispatch, not failed file access.",
+                "Whole wizcmds.c:1102–1106 calls rumor_check then returns ECMD_OK. It has no explicit wizard predicate because extcmdlist enforces WIZMODECMD; production dispatch must await the diagnostic and consume no game turn.",
+                "Whole rumors.c:196–303 conditionally opens by cached true_rumor_size, initializes once, prints T/F decimal and hex starts/ends/sizes with width6, reads and decrypts first/last entries with fgets/ftell boundary order, closes then appends three catalog checks, displays/destroys one text window. The diagnostic deliberately retains underscore padding. Source error branches distinguish failed initialization/earlier failure from first failed open and still inspect the catalogs.",
+                "Whole others_check309–408 lazily creates a window, appends blank/title, validates comment line, decrypts first/second/last entries, counts chunks and emits no-second/only-two/ellipsis branches; it strips newlines before xcrypt but preserves padding. With all three generated files, output is24 lines and the24-row TTY window shows23 lines then one line. C admitted steps16/17 verify both pages;18 verifies redraw/dismissal.",
+                "Whole init_rumors85–107 reads two lines, parses seven fields, requires positive true/false sizes, publishes gt.true_rumor_size/start/end and gf.false_rumor_size/start/end, or stores true size-1 and closes. Both C callers must see the same initialized values. Existing random_text.js parseRumorHeader/getrumor lack this cache and add assertions beyond C; isolate the required shared initialization seam rather than claiming broader random-text source completion.",
+                "Generated byte-file provenance is scripts/generate-random-text-data.mjs -> js/random_text_data.js; decrypt values by canonical xcrypt, not pasted expected screens or source-table copying. No new fixed table is needed. Existing displayTtyTextWindow implements full-screen pagination and source dismissal; displayPendingTtyMessageWindow implements the failed-initialization message wait.",
+                "Independent evidence plan: C-first fresh-start check and a cheap role/menu-option variation with a prior fortune-cookie/getrumor read followed by repeated checks, proving both init_rumors callers, cached no-reinitialization, diagnostic RNG silence and no turn use. Focused source-pinned fixtures cover invalid headers, failed file access, truncated/empty/malformed catalog and zero/one/two/three/four entry boundaries. Runtime error-file variations cannot be produced with immutable standard data files and stay focused tests with explicit source conditions."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
