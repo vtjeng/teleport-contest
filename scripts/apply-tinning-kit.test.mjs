@@ -6,7 +6,7 @@ import { doapply } from '../js/apply.js';
 import { ECMD_TIME, HOMEMADE_TIN, OBJ_INVENT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_DEATH, PM_LICHEN, PM_NEWT } from '../js/monsters.js';
+import { PM_CHICKATRICE, PM_DEATH, PM_LICHEN, PM_NEWT } from '../js/monsters.js';
 import { CORPSE, TIN, TINNING_KIT } from '../js/objects.js';
 
 const recipe = JSON.parse(readFileSync(new URL(
@@ -15,6 +15,10 @@ const recipe = JSON.parse(readFileSync(new URL(
 ), 'utf8'));
 const floorRecipe = JSON.parse(readFileSync(new URL(
     '../recipes/apply.c/tinning-kit-newt-independent.session.json',
+    import.meta.url,
+), 'utf8'));
+const petrifierRecipe = JSON.parse(readFileSync(new URL(
+    '../recipes/apply.c/tinning-petrifier-valkyrie-independent.session.json',
     import.meta.url,
 ), 'utf8'));
 
@@ -102,3 +106,34 @@ test('doapply revives an inventory Rider before its answer about War',
             /Yes\.\.\.  But War does not preserve its enemies/u);
         assert.equal(kit.spe, 52);
     });
+
+test('tinning waits for petrification recovery before making the tin', async () => {
+    const segment = petrifierRecipe.segments[0];
+    // Stop at C's debug death prompt, after the fatal message and its two
+    // More acknowledgements. done() clears killer.name after recovery.
+    await runSegment({ ...segment,
+        moves: segment.moves.slice(0, segment.moves.indexOf('afyn') + 6) });
+    // apply.c:2206 constructs this exact killer before instapetrify; the
+    // independent C recipe declines debug death and then finishes tinning.
+    assert.equal(game.killer.name,
+        'trying to tin a chickatrice corpse without gloves');
+    assert.equal(inventoryObjects().some((obj) => obj.otyp === TIN), false);
+    const chargesBeforeRecovery = inventoryObject(TINNING_KIT).spe;
+    await runSegment(segment);
+    assert.equal(inventoryObject(TINNING_KIT).spe, chargesBeforeRecovery - 1);
+    assert.equal(inventoryObject(TIN).corpsenm, PM_CHICKATRICE);
+    assert.equal(inventoryObjects().some((obj) => obj.otyp === CORPSE), false);
+    assert.equal(game.unported.has('polyself.c instapetrify'), false);
+});
+
+test('use_tinning_kit preserves the C petrification and conversion order', () => {
+    const c = readFileSync(new URL(
+        '../nethack-c/upstream/src/apply.c', import.meta.url,
+    ), 'utf8').split('use_tinning_kit(struct obj *obj)')[1]
+        .split('void\nuse_unicorn_horn')[0];
+    const js = readFileSync(new URL('../js/apply.js', import.meta.url), 'utf8')
+        .split('async function use_tinning_kit(')[1]
+        .split('// C ref: youprop.h')[0];
+    assert.match(c, /kbuf\[0\] = '\\0';[\s\S]*trying to tin %s without gloves[\s\S]*instapetrify\(kbuf\);[\s\S]*is_rider[\s\S]*consume_obj_charge[\s\S]*mksobj/u);
+    assert.match(js, /let kbuf = '';[\s\S]*trying to tin \$\{corpseName\} without gloves[\s\S]*await instapetrify\(kbuf, state, env\);[\s\S]*is_rider[\s\S]*consume_obj_charge[\s\S]*mksobj/u);
+});

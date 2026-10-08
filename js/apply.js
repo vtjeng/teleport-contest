@@ -527,6 +527,7 @@ import {
     activate_statue_trap,
     deltrap,
     fill_pit,
+    instapetrify,
     Levitation,
     maketrap,
     reset_utrap,
@@ -1565,8 +1566,8 @@ export function tinnable(corpse, state = game) {
 }
 
 // C ref: apply.c use_tinning_kit() (2177-2258). apply.c:doapply() ignores
-// this helper's return and retains its initial ECMD_TIME result. The ordinary
-// floor/inventory tin path is ported here. Rider revival delegates to the
+// this helper's return and retains its initial ECMD_TIME result. Petrification
+// finishes before charge consumption or tin creation. Rider revival delegates to the
 // whole do.c:revive_corpse() owner with the caller's lifecycle environment.
 async function use_tinning_kit(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
@@ -1588,7 +1589,8 @@ async function use_tinning_kit(obj, state = game, env = {}) {
 
     if (touch_petrifies(species) && !Stone_resistance(state) && !state.uarmg) {
         const corpseName = an(cxname(corpse, state), state);
-        if (poly_when_stoned(state.youmonst.data)) {
+        let kbuf = '';
+        if (poly_when_stoned(state.youmonst.data, state)) {
             await message(
                 `You tin ${corpseName} without wearing gloves.`,
                 state,
@@ -1598,10 +1600,12 @@ async function use_tinning_kit(obj, state = game, env = {}) {
                 `Tinning ${corpseName} without wearing gloves is a fatal mistake...`,
                 state,
             );
+            kbuf = `trying to tin ${corpseName} without gloves`;
         }
-        // apply.c discards instapetrify()'s result. Preserve the call-site gap
-        // without inventing its delayed-death or life-saving state changes.
-        note_unported('polyself.c instapetrify');
+        await instapetrify(kbuf, state, env);
+        // C's really_done() never returns after death; the JS end owner
+        // retains the final terminal boundary and sets gameover instead.
+        if (state.program_state?.gameover) return;
     }
 
     if (is_rider(species)) {
