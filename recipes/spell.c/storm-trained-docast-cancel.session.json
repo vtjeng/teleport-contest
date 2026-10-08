@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary docast entry: seed1452915 chosen before replay; wished blessed fireball book is o and gain-level potions merge into f, as the C inventory shows. Three potions supply source spell energy; study, advance attack magic to Skilled, then choose learned fireball via Zc, toggle markers twice and cancel. Sixty wait inputs finish study before casting.",
+  "segments": [
+    {
+      "seed": 1452915,
+      "datetime": "20590417113521",
+      "nethackrc": "OPTIONS=name:StormC145,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " \u0017blessed spellbook of fireball\n\u00173 blessed potions of gain level\n   qf  qf  qf  ro ............................................................ #enhance\nyp \u001bZc   $$\u001b     "
+    }
+  ]
+}

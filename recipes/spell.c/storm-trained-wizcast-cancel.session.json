@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first trained Wizard casting: source #enhance attack-spell skill from Basic to Skilled, then #wizcast fireball with marker toggles and cancellation. Seed1452914 was chosen before replay; C-only menus establish p for attack skill and c for fireball.",
+  "segments": [
+    {
+      "seed": 1452914,
+      "datetime": "20590417113521",
+      "nethackrc": "OPTIONS=name:StormC145,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #enhance\nyp \u001b#wizcast\nc   $$\u001b     "
+    }
+  ]
+}

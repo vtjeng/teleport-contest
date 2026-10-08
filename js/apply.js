@@ -589,7 +589,7 @@ import {
 import { digests, hurtle, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
 import { makeplural } from './fruit.js';
 import { change_luck } from './moveloop_preamble.js';
-import { getpos } from './getpos.js';
+import { getpos, getpos_sethilite } from './getpos.js';
 import { SPE_JUMPING, BOULDER } from './objects.js';
 import { S_goodpos } from './symbols.js';
 import { in_rooms } from './rooms.js';
@@ -695,7 +695,7 @@ export function get_valid_polearm_position(x, y, state = game) {
 // C ref: apply.c display_polearm_positions() (3334-3353).
 export async function display_polearm_positions(onOff, state = game) {
     if (onOff) {
-        await tmp_at(DISP_BEAM, cmap_to_glyph(S_goodpos, state), state);
+        await tmp_at(DISP_BEAM, map_glyphinfo(cmap_to_glyph(S_goodpos, state), state), state);
         for (let dx = -3; dx <= 3; ++dx) {
             for (let dy = -3; dy <= 3; ++dy) {
                 const x = state.u.ux + dx;
@@ -1029,15 +1029,9 @@ export async function use_pole(obj, autohit, state = game) {
         }
     }
     if (!autohit) {
-        state.getpos_hilitefunc = (onOff) => display_polearm_positions(onOff, state);
-        state.getpos_getvalid = (x, y) => get_valid_polearm_position(x, y, state);
-        try {
-            if (await getpos(target, true, 'the spot to hit', state) < 0)
-                return res | ECMD_CANCEL;
-        } finally {
-            state.getpos_hilitefunc = null;
-            state.getpos_getvalid = null;
-        }
+        await getpos_sethilite(display_polearm_positions, get_valid_polearm_position, state);
+        if (await getpos(target, true, 'the spot to hit', state) < 0)
+            return res | ECMD_CANCEL;
     }
 
     glyph = glyph_at(target.x, target.y, state);
@@ -1280,7 +1274,7 @@ export function can_grapple_location(x, y, state = game) {
 
 export async function display_grapple_positions(onOff, state = game) {
     if (onOff) {
-        await tmp_at(DISP_BEAM, cmap_to_glyph(S_goodpos, state), state);
+        await tmp_at(DISP_BEAM, map_glyphinfo(cmap_to_glyph(S_goodpos, state), state), state);
         for (let dx = -3; dx <= 3; ++dx) {
             for (let dy = -3; dy <= 3; ++dy) {
                 const x = dx + state.u.ux;
@@ -1335,16 +1329,9 @@ export async function use_grapple(obj, state = game, env = {}) {
 
     await message('Where do you want to hit?', state);
     cc = { x: state.u.ux, y: state.u.uy };
-    state.getpos_hilitefunc = (onOff) =>
-        display_grapple_positions(onOff, state);
-    state.getpos_getvalid = (x, y) => can_grapple_location(x, y, state);
-    try {
-        if (await getpos(cc, true, 'the spot to hit', state) < 0)
-            return res | ECMD_CANCEL;
-    } finally {
-        state.getpos_hilitefunc = null;
-        state.getpos_getvalid = null;
-    }
+    await getpos_sethilite(display_grapple_positions, can_grapple_location, state);
+    if (await getpos(cc, true, 'the spot to hit', state) < 0)
+        return res | ECMD_CANCEL;
 
     typ = uwep_skill_type(state);
     if (dist2(cc.x, cc.y, state.u.ux, state.u.uy) > grapple_range(state)) {
@@ -2914,15 +2901,9 @@ export async function jump(magic = 0, state = game) {
     const target = { x: state.u.ux, y: state.u.uy };
     state.gj ??= {};
     state.gj.jumping_is_magic = magic;
-    state.getpos_hilitefunc = display_jump_positions;
-    state.getpos_getvalid = get_valid_jump_position;
-    try {
-        if (await getpos(target, true, 'the desired position', state) < 0)
-            return ECMD_CANCEL;
-    } finally {
-        state.getpos_hilitefunc = null;
-        state.getpos_getvalid = null;
-    }
+    await getpos_sethilite(display_jump_positions, get_valid_jump_position, state);
+    if (await getpos(target, true, 'the desired position', state) < 0)
+        return ECMD_CANCEL;
     if (!await is_valid_jump_pos(target.x, target.y, magic, true, state))
         return ECMD_FAIL;
     if (state.u.usteed && u_at(target.x, target.y, state)) {

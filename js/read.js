@@ -357,7 +357,7 @@ import { more_experienced } from './exper.js';
 import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    cmap_to_glyph, map_invisible, newsym, shieldeff, tmp_at,
+    cmap_to_glyph, map_glyphinfo, map_invisible, newsym, shieldeff, tmp_at,
 } from './display.js';
 import { dropCommandEnv, dropy, flooreffects, trycall } from './do.js';
 import { placebc, set_bc } from './ball.js';
@@ -429,7 +429,7 @@ import { alter_cost, shk_your } from './shk.js';
 import { pmname } from './do_name.js';
 import { outrumor } from './random_text.js';
 import { note_unported } from './unported.js';
-import { getpos } from './getpos.js';
+import { getpos, getpos_sethilite } from './getpos.js';
 import { explode } from './explode.js';
 import { create_gas_cloud, valid_cloud_pos } from './region.js';
 import { burn_away_slime, end_burn } from './timeout.js';
@@ -2512,7 +2512,7 @@ export function can_center_cloud(x, y, state = game) {
 export async function display_stinking_cloud_positions(onOff, state = game) {
     if (onOff) {
         const dist = 6;
-        await tmp_at(DISP_BEAM, cmap_to_glyph(S_goodpos, state), state);
+        await tmp_at(DISP_BEAM, map_glyphinfo(cmap_to_glyph(S_goodpos, state), state), state);
         for (let dx = -dist; dx <= dist; ++dx) {
             for (let dy = -dist; dy <= dist; ++dy) {
                 const x = state.u.ux + dx;
@@ -2537,20 +2537,8 @@ export async function do_stinking_cloud(sobj, mentionStinking, state = game) {
         state,
     );
     const cc = { x: state.u.ux, y: state.u.uy };
-    state.getpos_hilitefunc = (onOff, callbackState = state) => (
-        display_stinking_cloud_positions(onOff, callbackState)
-    );
-    state.getpos_getvalid = (x, y, callbackState = state) => (
-        can_center_cloud(x, y, callbackState)
-    );
-    let getposResult;
-    try {
-        getposResult = await getpos(cc, true, 'the desired position', state);
-    } finally {
-        // C resets getpos_sethilite(NULL, NULL) at the end of getpos().
-        state.getpos_hilitefunc = null;
-        state.getpos_getvalid = null;
-    }
+    await getpos_sethilite(display_stinking_cloud_positions, can_center_cloud, state);
+    const getposResult = await getpos(cc, true, 'the desired position', state);
 
     if (getposResult < 0) {
         await ttyPline('Never mind.', state);
@@ -2642,22 +2630,8 @@ export async function seffect_fire(scroll, state = game) {
             dam *= 5;
             await ttyPline('Where do you want to center the explosion?', state);
 
-            // getpos_sethilite() in getpos.c installs these callbacks for the
-            // duration of getpos(); JS stores the same callback contract on
-            // the owning game state. getpos() writes cc in source order.
-            state.getpos_hilitefunc = (onOff, callbackState = state) => (
-                display_stinking_cloud_positions(onOff, callbackState)
-            );
-            state.getpos_getvalid = (x, y, callbackState = state) => (
-                can_center_cloud(x, y, callbackState)
-            );
-            try {
-                await getpos(cc, true, 'the desired position', state);
-            } finally {
-                // C getpos() always finishes with getpos_sethilite(NULL,NULL).
-                state.getpos_hilitefunc = null;
-                state.getpos_getvalid = null;
-            }
+            await getpos_sethilite(display_stinking_cloud_positions, can_center_cloud, state);
+            await getpos(cc, true, 'the desired position', state);
             if (!can_center_cloud(cc.x, cc.y, state)) {
                 // C's fire-scroll caller discards getpos()'s return code; an
                 // escape or out-of-range position falls back to the hero.

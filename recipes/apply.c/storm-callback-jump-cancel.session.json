@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c callback witness. Knight with no pet/legacy/tip setup enters the target chooser, toggles markers twice and cancels. Source getpos_sethilite installs and clears the callback through the live command. Seed1452911 chosen without search; C-only setup observations are retained.",
+  "segments": [
+    {
+      "seed": 1452911,
+      "datetime": "20590417113521",
+      "nethackrc": "OPTIONS=name:CallbackC145,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #jump\n   $$\u001b     "
+    }
+  ]
+}
