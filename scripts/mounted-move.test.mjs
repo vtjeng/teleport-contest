@@ -80,6 +80,8 @@ function attackerAt(state, species, dx, dy) {
         muy: state.u.uy,
         m_lev: 0,
         mcansee: true,
+        mcanmove: true,
+        mhp: 10, mhpmax: 10, // Survive the pony's canonical retaliation.
     };
 }
 
@@ -102,6 +104,7 @@ function steedTestEnv(state, random) {
         unsupported: refuser(),
         throwRangedWeapon: () => {},
         wieldMonsterItem: async () => 0,
+        wieldMonsterItemAgainstMonster: async () => 0,
     };
 }
 
@@ -296,7 +299,7 @@ test('every monster that reaches mattacku() spends a draw on the steed',
     assert.deepEqual(plain.bounds, [4]);
 });
 
-test('mattacku() draws before it tests adjacency and refuses only when both',
+test('mattacku() draws before adjacency and redirects a successful gate to the steed',
     async () => {
     const state = await mounted();
     // you.h:560 m_next2u() is `distu <= 2`, and dist2() squares, so the
@@ -311,11 +314,13 @@ test('mattacku() draws before it tests adjacency and refuses only when both',
     assert.deepEqual(spared.bounds, [2], 'the draw happens either way');
 
     for (const attacker of [near, diagonal]) {
-        await assert.rejects(
-            () => mattacku(attacker, steedTestEnv(state, fixedRandom(0))),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && /steed/u.test(error.message),
-        );
+        const redirect = steedTestEnv(state, fixedRandom(0));
+        const riderHp = state.u.uhp;
+        const mountHp = state.u.usteed.mhp;
+        assert.equal(await mattacku(attacker, redirect), false);
+        assert.equal(state.u.uhp, riderHp, 'redirect leaves the rider alone');
+        assert.equal(state.u.usteed.mhp, mountHp - 1);
+        assert.equal(redirect.random.bounds[0], 2, 'redirect gate precedes combat RNG');
     }
     // The same neighbour with a nonzero draw is C's fall-through to the arms
     // that attack the rider. That is the AT_WEAP melee arm, whose to-hit test

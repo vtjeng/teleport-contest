@@ -1170,7 +1170,7 @@ test('eatmdone releases only its message and resets any active disguise', async 
 
 test('eatmdone and both cpostfx sites preserve C buffer and redraw order', () => {
     assert.match(EAT_C, /eatmdone\(void\)[\s\S]*gn\.nomovemsg == ge\.eatmbuf[\s\S]*ge\.eatmbuf = 0;[\s\S]*if \(U_AP_TYPE\)[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*newsym\(u\.ux, u\.uy\);[\s\S]*return 0;/u);
-    assert.match(EAT_JS, /export function eatmdone[\s\S]*state\.nomovemsg === state\.eatmbuf[\s\S]*state\.eatmbuf = null;[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*newsym\(state\.u\.ux, state\.u\.uy\);[\s\S]*return 0;/u);
+    assert.match(EAT_JS, /export function eatmdone[\s\S]*state\.nomovemsg === state\.eatmbuf[\s\S]*state\.eatmbuf = null;[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*if \(!env\.planning\)[\s\S]*env\.redraw \?\? newsym[\s\S]*return 0;/u);
     assert.match(EAT_JS, /if \(state\.eatmbuf\) eatmdone\(state\);/u);
     assert.match(EAT_JS, /state\.afternmv = eatmdone;/u);
     assert.doesNotMatch(EAT_JS, /note_unported\('eat\.c eatmdone'\)/u);

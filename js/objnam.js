@@ -24,6 +24,7 @@ import {
     HAND, MV_KNOWS_EGG,
     MALE, NEUTRAL, NON_PM,
     QBUFSZ,
+    M_AP_OBJECT, M_AP_TYPE,
     P_BOW, W_AMUL, W_ARMOR, W_BALL, W_CHAIN, W_QUIVER, W_RING, W_RINGL, W_RINGR,
     WARN_OF_MON, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEP, plur,
 } from './const.js';
@@ -84,6 +85,7 @@ import {
     TOWEL, T_SHIRT, VENOM_CLASS, WAND_CLASS, WEAPON_CLASS, WOODEN_HARP,
     YELLOW_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALES,
     HORN_OF_PLENTY,
+    GOLD_PIECE, STRANGE_OBJECT,
 } from './objects.js';
 import {
     append_price_quote,
@@ -313,6 +315,16 @@ export function simple_typename(otyp, state = game) {
     const pp = bufp.indexOf(' (');
     /* strip the appended description */
     return pp >= 0 ? bufp.slice(0, pp) : bufp;
+}
+
+// C ref: objnam.c mimic_obj_name() (5606–5616).
+export function mimic_obj_name(mtmp, state = game) {
+    if (M_AP_TYPE(mtmp) === M_AP_OBJECT) {
+        if (mtmp.mappearance === GOLD_PIECE) return 'gold';
+        if (mtmp.mappearance !== STRANGE_OBJECT)
+            return simple_typename(mtmp.mappearance, state);
+    }
+    return 'whatcha-may-callit';
 }
 
 // C refs: objnam.c suit_simple_name(), cloak_simple_name(),

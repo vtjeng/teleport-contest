@@ -432,6 +432,7 @@ function makeState() {
             utrack: [],
         },
         u: {
+            uhp: 10, // Source phase-four gate admits a living hero.
             ux: 10,
             uy: 10,
             uinwater: false,

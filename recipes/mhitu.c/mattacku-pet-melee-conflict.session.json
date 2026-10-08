@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pet-melee-conflict; source-valid inputs planned before replay comparison. C-first runtime state and direct production caller verified in the saved entry trace. Corrected setup follows observed C inventory letters/mount location; previous setup-only probe supplies no completion evidence.",
+  "segments": [
+    {
+      "seed": 1483021,
+      "datetime": "20930819151617",
+      "nethackrc": "OPTIONS=name:HiddenCallers,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!acoustics,!autopickup,!debug_mongen,pettype:dog\n",
+      "moves": "\u0017ring of conflict\nPel     m. m. m. m. m. m.m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. "
+    }
+  ]
+}

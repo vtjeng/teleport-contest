@@ -117,6 +117,33 @@ import {
     obj_is_pname,
 } from '../js/objnam.js';
 
+test('mimic_obj_name follows the object appearance branches in C', async () => {
+    const { mimic_obj_name } = await import('../js/objnam.js');
+    const { M_AP_OBJECT, M_AP_MONSTER, M_AP_NOTHING } = await import('../js/const.js');
+    const { GOLD_PIECE, STRANGE_OBJECT, DAGGER } = await import('../js/objects.js');
+    const source = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
+    const body = source.slice(source.indexOf('mimic_obj_name(struct monst *mtmp)'));
+    assert.match(body, /mappearance == GOLD_PIECE\)[\s\S]*?return "gold";/u);
+    assert.match(body, /mappearance != STRANGE_OBJECT\)[\s\S]*?simple_typename/u);
+    assert.match(body, /return "whatcha-may-callit";/u);
+    assert.equal(typeof mimic_obj_name, 'function');
+    // Gold, the unknown object, and a known dagger exercise all return arms.
+    const state = namingState();
+    state.objects[DAGGER].oc_name_known = 1;
+    state.objects[DAGGER].oc_uname = 'NamedType';
+    for (const [m_ap_type, mappearance, expected] of [
+        [M_AP_OBJECT, GOLD_PIECE, 'gold'],
+        [M_AP_OBJECT, STRANGE_OBJECT, 'whatcha-may-callit'],
+        [M_AP_OBJECT, DAGGER, 'dagger'],
+        [M_AP_MONSTER, DAGGER, 'whatcha-may-callit'],
+        [M_AP_NOTHING, GOLD_PIECE, 'whatcha-may-callit'],
+    ]) {
+        assert.equal(mimic_obj_name({ m_ap_type, mappearance }, state), expected);
+    }
+    assert.equal(state.objects[DAGGER].oc_uname, 'NamedType',
+        'simple_typename restores the player-assigned type name');
+});
+
 import {
     MZ_MEDIUM,
     PM_ARCHON,

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-valid blind shopkeeper caller variation. The visible route is retained as a named blocked display.c:newsym door-presentation recipe; this variation keeps mattacku source/RNG order while avoiding that unrelated visible redraw. New seed1483044 was selected by the declared generation search, inputs independently chosen.",
+  "segments": [
+    {
+      "seed": 1483044,
+      "datetime": "20930819151617",
+      "nethackrc": "OPTIONS=name:SpecialCallers,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!acoustics,!autopickup,!debug_mongen,pettype:none\n",
+      "moves": "\u00165\n #levelchange\n20\n                          \u0017ring of conflict\nPel     \u0017uncursed blindfold\naf     \u0014hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkk.     m. m. m. m. m. m."
+    }
+  ]
+}

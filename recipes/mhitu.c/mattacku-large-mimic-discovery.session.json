@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first large-mimic-discovery. Seed and input plan chosen before JS comparison; branches asserted against source and actual replay state.",
+  "segments": [
+    {
+      "seed": 1483013,
+      "datetime": "20930819151617",
+      "nethackrc": "OPTIONS=name:HiddenRoutes,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!verbose,!acoustics,!autopickup,!debug_mongen,pettype:none\n",
+      "moves": ".#polyself\nlarge mimic\n       #monster\n#wizgenesis\nhostile sewer rat\n. . . . . . . . . . . . . ."
+    }
+  ]
+}

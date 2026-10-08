@@ -42,7 +42,7 @@ function makeState() {
     const uprops = [];
     uprops[HALLUC] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    return { u: { uprops } };
+    return { u: { uprops, uhp: 10 } }; // C phase four requires a living hero.
 }
 
 function makeMonster(overrides = {}) {
@@ -74,7 +74,10 @@ function baseEnv(state, events) {
         random: {
             rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
         },
-        attackHero: () => events.push('attack'),
+        attackHero: () => {
+            events.push('attack');
+            return 0; // mattacku returns zero while its attacker survives.
+        },
         monFlee: () => assert.fail('this fixture is not scared'),
         monsterCanSeeHero: () => {
             events.push('can-see-hero');

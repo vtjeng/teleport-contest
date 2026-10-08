@@ -209453,6 +209453,522 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mhitu-mattacku-concealment-v30-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete monster attacks against concealed heroes and wire every direct caller",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "synthetic/v30/v30-hide-ceiling"
+      ],
+      "selectionReason": "C148 selected the earliest unresolved v30 hide-ceiling mismatch and traced it to mattacku concealment handling.",
+      "detail": "Port whole mattacku with its consumed helper dependencies and seven direct callers; preserve retained vault, display, worm movement, and downstream combat frontiers.",
+      "openedAt": "b952041a4e7e10cda5d6d20e35256917ab21b9a5",
+      "openStanding": {
+        "sha": "0172abf7af9d21f1fb6da3289c532b49ffda3a78",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "a148df01be4939c1a3da632df635b3ea4d6e5ec4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mattacku",
+          "line": 491,
+          "endLine": 955,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 491,
+        "to": 955
+      },
+      "requiredFunctions": [
+        {
+          "name": "calc_mattacku_vars",
+          "line": 448,
+          "endLine": 466,
+          "declared": true,
+          "sourceFile": "mhitu.c",
+          "complete": true
+        },
+        {
+          "name": "mimic_obj_name",
+          "line": 5606,
+          "endLine": 5623,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": true
+        },
+        {
+          "name": "wormhitu",
+          "line": 344,
+          "endLine": 372,
+          "declared": true,
+          "sourceFile": "worm.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v30/v30-hide-ceiling": {
+          "session": "synthetic/v30/v30-hide-ceiling",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hide-ceiling",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-hide-ceiling.session.json",
+          "recordingSha256": "ccd87bbd9214881ee3185568387b22030367051751967c29286e2db4764f5fe6",
+          "evaluationPath": "challenges/evaluations/accepted-0172abf7af9d21f1fb6da3289c532b49ffda3a78-v30.json",
+          "evaluationCommit": "0172abf7af9d21f1fb6da3289c532b49ffda3a78"
+        }
+      },
+      "activeStanding": {
+        "sha": "0172abf7af9d21f1fb6da3289c532b49ffda3a78",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hide-ceiling",
+          "session": "synthetic/v30/v30-hide-ceiling",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-hide-ceiling.session.json",
+          "recordingPath": "challenges/cases/v30/v30-hide-ceiling.session.json",
+          "recordingSha256": "ccd87bbd9214881ee3185568387b22030367051751967c29286e2db4764f5fe6",
+          "recipe": "challenges/cases/v30/v30-hide-ceiling.recipe.session.json",
+          "recipeSha256": "a38cbbcb96920387fd7db4d94c8fba2e64e23fb8697082466ea276340a5ece56",
+          "replayInputSha256": "fe11496ff9cd272facb4162855bdfda2ee0dcf84e719a4d383c38dfe31813ed9",
+          "evaluationPath": "challenges/evaluations/accepted-0172abf7af9d21f1fb6da3289c532b49ffda3a78-v30.json",
+          "evaluationCommit": "0172abf7af9d21f1fb6da3289c532b49ffda3a78",
+          "evaluationArtifact": "challenges/evaluations/accepted-0172abf7af9d21f1fb6da3289c532b49ffda3a78-v30.json",
+          "evaluationUtc": "2026-10-08T13:20:24.258Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 2815,
+              "total": 2861
+            },
+            "cursors": {
+              "matched": 52,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster finding the hidden hero",
+            "step": 52
+          },
+          "step": 52,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster finding the hidden hero",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-hide-ceiling.json",
+            "result": {
+              "session": "synthetic/v30/v30-hide-ceiling",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-hide-ceiling",
+              "remainingScreens": 1,
+              "recordedSteps": 53,
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "ccd87bbd9214881ee3185568387b22030367051751967c29286e2db4764f5fe6",
+              "evaluationPath": "challenges/evaluations/accepted-858bbec21e0fe926f7207af4635b5919d833aebb-v30.json",
+              "evaluationCommit": "858bbec21e0fe926f7207af4635b5919d833aebb",
+              "status": "complete",
+              "commit": "64ab98f0103b7440eaf54462ac4613e4798f43d4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-hide-ceiling",
+                "session": "synthetic/v30/v30-hide-ceiling",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-hide-ceiling.session.json",
+                "recordingPath": "challenges/cases/v30/v30-hide-ceiling.session.json",
+                "recordingSha256": "ccd87bbd9214881ee3185568387b22030367051751967c29286e2db4764f5fe6",
+                "recipe": "challenges/cases/v30/v30-hide-ceiling.recipe.session.json",
+                "recipeSha256": "a38cbbcb96920387fd7db4d94c8fba2e64e23fb8697082466ea276340a5ece56",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-858bbec21e0fe926f7207af4635b5919d833aebb-v30.json",
+                "evaluationCommit": "858bbec21e0fe926f7207af4635b5919d833aebb",
+                "evaluationArtifact": "challenges/evaluations/accepted-858bbec21e0fe926f7207af4635b5919d833aebb-v30.json",
+                "evaluationUtc": "2026-10-08T12:24:38.908Z",
+                "remainingScreens": 1,
+                "recordedSteps": 53,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 2815,
+                    "total": 2861
+                  },
+                  "cursors": {
+                    "matched": 52,
+                    "total": 53
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a monster finding the hidden hero",
+                  "step": 52
+                },
+                "step": 52,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a monster finding the hidden hero",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "file-port",
+              "summary": "A monster finding the concealed piercer hero stops in mattacku before C clears concealment, announces the fall, exchanges positions through enexto/teleds, and resolves the falling attack. Whole mattacku still contains steed and disguise refusals; its source task also requires calc_mattacku_vars shared targeting publication and the missing returned mimic_obj_name helper. Retain supporting-owner limits and the vault disguise caller frontier explicitly.",
+              "source": {
+                "file": "mhitu.c",
+                "branch": "u.uundetected && !range2 && foundyou && !u.uswallow: an adjacent monster targets the hidden hero. Ceiling hiders except trapper fall; other concealed heroes are exposed in place. Both return zero before the ordinary attack loop.",
+                "functions": [
+                  "mattacku() whole mhitu.c:491–951",
+                  "calc_mattacku_vars() whole mhitu.c:448–463 (required source targeting publication)",
+                  "mimic_obj_name() whole objnam.c:5606–5616 (required consumed-return helper for the separate disguised-object arm)"
+                ],
+                "callers": [
+                  "monmove.c:954 dochug swallowed-movement reattack consumes mattacku result",
+                  "monmove.c:971 dochug phase-four standard attack consumes mattacku result",
+                  "dogmove.c:911 pet_ranged_attk consumes mattacku result; canonical JS adapter is attackHeroWithMattacku",
+                  "dogmove.c:1286 dog_move hero-square melee entry discards mattacku result; existing injected attackHero reaches the same owner"
+                ],
+                "dependencies": [
+                  "Reuse existing teleport.c enexto and teleds with the source RNG/message/redraw environment and live/planning separation; teleds retains its occupied-vault/mimic/engulfer frontiers, without new whole teleport credit",
+                  "Reuse canonical monst placement index, mon set_ustuck/killed, worn which_armor/find_mac, do_wear hard_helmet, objnam naming, do_name m_monnam and dungeon ceiling",
+                  "Steed arm must consume canonical mhitm.c mattackm outcomes in source order, including bhitpos/notonhead publication before retaliation; retain lower combat owner limits without claiming their completion",
+                  "mimic_obj_name consumes existing simple_typename and has a second source caller in vault.c invault:473; JS invault currently refuses the entire disguised/hidden-hero branch before that call, so retain a named caller frontier unless a bounded admission and independent witness are explicitly added",
+                  "worm.c worm_move is absent and its return is discarded: record a precise note_unported gap; do not invent tail movement",
+                  "Audit existing hitmu/gulpmu/gazemu/explmu/mcastu/mthrowu owner results and limits; this task must not broaden their source credit implicitly"
+                ]
+              },
+              "evidence": [
+                "Accepted evaluation challenges/evaluations/accepted-858bbec21e0fe926f7207af4635b5919d833aebb-v30.json reports52/53 screens and52/53 cursors for v30-hide-ceiling, with2815/2861 RNG matches. The admitted v30 corpus digest and recording digest are retained in this report; no aggregate evaluation was rerun.",
+                "Focused scanner .cache/C148-hide-ceiling-before.json at64ab98f0103b7440eaf54462ac4613e4798f43d4 reproduces52 emitted screens, no prior divergence and boundary simple monster action requires a monster finding the hidden hero at zero-based step52 (key .). C screen52 starts You fall from the ceiling!--More--. Its RNG includes collect_coords(teleport.c:700) draws for enexto and rnd(20)=7 at mattacku(mhitu.c:604), so independent continued recipes must cover the tail beyond this final captured screen.",
+                "mhitu.c:551–656 maps an unseen attacker, clears u.uundetected, then distinguishes ceiling and surface hiding. Ceiling order is awaited fall message, remove_monster, enexto plus eel/water exclusion, replacement or swapped placement, discarded worm_move, teleds(TELEDS_ALLOW_DRAG), set_apparxy, redraw, non-piercer return, helmet or falling damage resolution, then return0. Surface order temporarily clears EGG spe during doname before restoring it and redrawing.",
+                "JS mhitu.js:1638 refuses this entire branch. Its comments incorrectly say enexto/teleds/set_ustuck/unmul are absent, although their canonical owners now exist. The same function retains steed mattackm refusal and both disguise refusals; closing only the selected ceiling branch would leave a partial function. Select whole mattacku, including source preamble/dead/underwater/invulnerable checks and per-attack DEADMONSTER guard.",
+                "mhitu.c:448–463 calc_mattacku_vars publishes gb.bhitpos and gn.notonhead after calculating four booleans. JS calc_mattacku_vars currently returns only the booleans. Restore this whole small required unit as part of the caller contract, including later attack-slot recalculation and corresponding planning clone fields.",
+                "mhitu.c:694 consumes objnam.c mimic_obj_name; no JavaScript declaration exists. C5606–5616 returns gold for GOLD_PIECE object appearance, existing simple_typename for other non-STRANGE_OBJECT appearances, and whatcha-may-callit otherwise. Source-pinned tests can establish its pure branches; vault.c:473 caller remains behind the explicit JS invault disguise refusal.",
+                "All four direct mattacku call sites are currently wired through canonical functions or the live/planning attackHero adapter. Independently record ordinary dochug, engulfed reattack, pet melee and pet ranged routes; cite existing strict recordings only after replay-prefix/source verification. Unreachable routes must remain in incompleteFunctions with blocked recipes rather than empty entry evidence.",
+                "After accepted-main merge, directly affected scripts/unported-monster-actions.test.mjs passed134/134 (.cache/C148-boundary-focused.log, bounded run-4B3YVy). This is a merge boundary check, not evidence that missing mattacku source behavior is implemented."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mattacku",
+            "implementation": "js/mhitu.js",
+            "symbol": "mattacku",
+            "sourceReview": "Whole mhitu.c:491–951 read in definition order (generated491–955 includes next declaration boundary). Preserve target publication, adjacent nomul, DEADMONSTER and underwater guards, swallowed restriction before steed branch, orc/non-orc rn2 short circuit, both mattackm statuses and retaliation publication. Hidden hero branch marks unseen attacker before clearing concealment; ceiling removes attacker before enexto, eel/water exclusion restores it, swap and ignored retry retain C ordering, teleds precedes set_apparxy/redraw; non-piercer returns0, hard helmet skips both attack/damage draws, other piercer uses rnd20 then d3,6 and canonical killed. Surface feedback temporarily clears/restores EGG spe in finally. Sticky mimic sets ustuck then clears both appearance fields; non-mimic object disguise formats source name and awaits source-equivalent unmul callback clearing/message/eatmdone order. Invulnerable feedback follows summonmu and precedes offensive item handling. All attack kinds and existing canonical returned owners audited; per-slot dead/target guards and visibility refresh match C, j remains initialized once outside loop and engulf cooldown retains it; weapon dieroll and nonaccumulating bonus, skipdrin, nonmagical wildmiss suppression, bot, waking rn2, death/done statuses follow C. Owned concealment/steed/disguise/invulnerability refusals removed. Ordinary live messages await; planning performs identical state/RNG with silent message/map/redraw seams. Discarded worm.c:worm_move is precisely noted, no tail movement invented. Existing sound effect and lower combat/teleport/offensive/spell owner frontiers remain named with no owner credit.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:954 swallowed-holder movement return mattacku; independent engulfed-reattack second live call has swallowed=true"
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:971 phase-four hero attack consumes attacker-death return; source positive hero HP gate precedes attack; near tail wormhitu follows it"
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "pet_ranged_attk",
+                "source": "dogmove.c:911 confused tame ranged target selection consumes mattacku death result; independent pet-ranged-dog live stack confirms the hero-target arm even when worm/head-style actual distance produces no melee roll"
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c:1286 hero-square conflict pet melee discards mattacku return after awaiting completion; independent pet-melee-conflict"
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "shk_move",
+                "source": "shk.c:4889–4901 adjacent hostile/failed-conflict resistance, grid-bug orthogonal restriction and displaced-image message before discarded awaited mattacku, return0; independent blind shopkeeper"
+              },
+              {
+                "path": "js/priest.js",
+                "symbol": "pri_move",
+                "source": "priest.c:185–203 two altar rn1 draws then hostile/conflict adjacency, displaced-image message, discarded awaited mattacku, return0; independent natural-temple priest"
+              },
+              {
+                "path": "js/worm.js",
+                "symbol": "wormhitu",
+                "source": "worm.c:359 near visible tail calls mattacku with actual head unmoved; return1 on attacker death; independent long-worm-tail"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/mounted-move.test.mjs",
+              "scripts/planning-isolation.test.mjs",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/shk-move.test.mjs",
+              "scripts/priest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mattacku-piercer-fall.session.json",
+              "recordings/mhitu.c/mattacku-lurker-fall.session.json",
+              "recordings/mhitu.c/mattacku-mimic-discovery.session.json",
+              "recordings/mhitu.c/mattacku-trapper-discovery.session.json",
+              "recordings/mhitu.c/mattacku-large-mimic-discovery.session.json",
+              "recordings/worm.c/mattacku-long-worm-tail.session.json",
+              "recordings/mhitu.c/mattacku-engulfed-reattack.session.json",
+              "recordings/mhitu.c/mattacku-mounted-rat-redirect.session.json",
+              "recordings/mhitu.c/mattacku-pet-melee-conflict.session.json",
+              "recordings/mhitu.c/mattacku-priest-temple-adjacent.session.json",
+              "recordings/mhitu.c/mattacku-shopkeeper-blind.session.json",
+              "recordings/mhitu.c/mattacku-pet-ranged-dog.session.json",
+              "recordings/mhitu.c/mattacku-piercer-hit.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-hide-ceiling",
+                "segment": 0,
+                "fromStep": 51,
+                "throughStep": 52,
+                "source": "cmd.c wait -> allmain monster movement -> monmove.c:dochug971 -> mhitu.c:mattacku551–609 clears concealment, removes/replaces monster, relocates hero and emits the fall boundary. Independent continued recordings verify the rest of that attack after this final admitted boundary."
+              }
+            ],
+            "checkedAt": "a148df01be4939c1a3da632df635b3ea4d6e5ec4"
+          },
+          {
+            "name": "calc_mattacku_vars",
+            "implementation": "js/mhitu.js",
+            "symbol": "calc_mattacku_vars",
+            "sourceReview": "Whole mhitu.c:448–463 (generated448–466) calculates mdistu>3, !monnear, u_at and canseemon in order, then publishes hero coordinates into shared gb.bhitpos and clears gn.notonhead. No RNG/output, but shared-state mutation makes it impure. mattacku calls it at initial entry and after each prior slot; refreshed youseeit is used in engulf feedback. Tests pin coordinates/flags and threshold distinctions to C.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:509 and787 initial and later-slot target recalculation"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mattacku-piercer-fall.session.json",
+              "recordings/mhitu.c/mattacku-lurker-fall.session.json",
+              "recordings/mhitu.c/mattacku-mimic-discovery.session.json",
+              "recordings/mhitu.c/mattacku-trapper-discovery.session.json",
+              "recordings/mhitu.c/mattacku-large-mimic-discovery.session.json",
+              "recordings/worm.c/mattacku-long-worm-tail.session.json",
+              "recordings/mhitu.c/mattacku-engulfed-reattack.session.json",
+              "recordings/mhitu.c/mattacku-mounted-rat-redirect.session.json",
+              "recordings/mhitu.c/mattacku-pet-melee-conflict.session.json",
+              "recordings/mhitu.c/mattacku-priest-temple-adjacent.session.json",
+              "recordings/mhitu.c/mattacku-shopkeeper-blind.session.json",
+              "recordings/mhitu.c/mattacku-pet-ranged-dog.session.json",
+              "recordings/mhitu.c/mattacku-piercer-hit.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-hide-ceiling",
+                "segment": 0,
+                "fromStep": 51,
+                "throughStep": 52,
+                "source": "cmd.c wait -> allmain monster movement -> monmove.c:dochug971 -> mhitu.c:mattacku551–609 clears concealment, removes/replaces monster, relocates hero and emits the fall boundary. Independent continued recordings verify the rest of that attack after this final admitted boundary."
+              }
+            ],
+            "checkedAt": "a148df01be4939c1a3da632df635b3ea4d6e5ec4"
+          },
+          {
+            "name": "mimic_obj_name",
+            "implementation": "js/objnam.js",
+            "symbol": "mimic_obj_name",
+            "sourceReview": "Whole objnam.c:5606–5616 (generated5606–5623 includes following comments) returns gold for object-type gold appearance; non-strange object delegates canonical simple_typename; every other type/strange appearance returns whatcha-may-callit. Source is pure: no RNG/output/game-state mutation. Canonical simple_typename temporarily clears/restores the object user-name; tests assert restoration and source results. Whole vault invault disguise producer remains the existing explicit refusal before this helper; no vault caller-family credit.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:689 visible non-mimic object-disguise feedback delegates source naming; focused test proves production owner expression. Existing vault.c:473 invault disguise producer refuses before helper, retained as an upstream frontier rather than an inactive build branch."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/objnam.test.mjs",
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "objnam.c",
+            "synthetic": [],
+            "checkedAt": "a148df01be4939c1a3da632df635b3ea4d6e5ec4"
+          },
+          {
+            "name": "wormhitu",
+            "implementation": "js/worm.js",
+            "symbol": "wormhitu",
+            "sourceReview": "Whole worm.c:343–362 read. Walk visible tail nodes in existing linked-list/array order, excluding final hidden head node, distu<3 before each awaited mattacku; return1 on first truthy attacker-death status else0. Head coordinates stay unchanged as the source explicitly documents its known out-of-range limitation. No new tail relocation, random roll or damage. Canonical worm storage used without a second state value.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:976 after ordinary hostile/conflict phase-four attack; consumes wormhitu result before cuss"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/worm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/worm.c/mattacku-long-worm-tail.session.json"
+            ],
+            "sourceFile": "worm.c",
+            "synthetic": [],
+            "checkedAt": "a148df01be4939c1a3da632df635b3ea4d6e5ec4"
+          }
+        ],
+        "entryPointReview": "The corrected global C caller search finds seven direct mattacku sites, all active and all listed with independent strictly matching recordings below. C-first read-only cache loader logs live (not planning) owner entries and stacks without changing input/RNG/state/output/returns; .cache/C148-live-call-traces.json verifies each exact site. Ordinary phase-four attacks, swallowed movement, pet melee, confused pet ranged selection, shopkeeper, priest and visible worm tail all execute. m_move awaits either synchronous peaceful or asynchronous attack special-mover result before status comparison. calc_mattacku_vars is reached by each owner entry. mimic_obj_name is a pure helper with source tests; the separate active-but-unported vault disguise producer remains a named upstream frontier, no invault completion credit. No caller is classified inactive to avoid evidence. Object-tin map-window and visible-shop door-memory branch variations are blocked recipes, not completion evidence; alternative ordinary direct caller recordings cover these source entry points. No whole unmul/eatmdone/shk_move/pri_move/dochug/dog_move/pet_ranged_attk credit.",
+        "entryPoints": [
+          {
+            "name": "dochug ordinary phase-four combat and concealed hero discovery",
+            "functions": [
+              "mattacku",
+              "calc_mattacku_vars"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mattacku-piercer-fall.session.json",
+              "recordings/mhitu.c/mattacku-lurker-fall.session.json",
+              "recordings/mhitu.c/mattacku-mimic-discovery.session.json",
+              "recordings/mhitu.c/mattacku-trapper-discovery.session.json",
+              "recordings/mhitu.c/mattacku-large-mimic-discovery.session.json",
+              "recordings/mhitu.c/mattacku-mounted-rat-redirect.session.json",
+              "recordings/mhitu.c/mattacku-piercer-hit.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-hide-ceiling",
+                "segment": 0,
+                "fromStep": 51,
+                "throughStep": 52,
+                "source": "cmd.c wait -> allmain monster movement -> monmove.c:dochug971 -> mhitu.c:mattacku551–609 clears concealment, removes/replaces monster, relocates hero and emits the fall boundary. Independent continued recordings verify the rest of that attack after this final admitted boundary."
+              }
+            ]
+          },
+          {
+            "name": "dochug swallowed-holder movement attack",
+            "functions": [
+              "mattacku",
+              "calc_mattacku_vars"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mattacku-engulfed-reattack.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "dog_move conflict melee against hero square",
+            "functions": [
+              "mattacku",
+              "calc_mattacku_vars"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mattacku-pet-melee-conflict.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "pet_ranged_attk confused tame hero target",
+            "functions": [
+              "mattacku",
+              "calc_mattacku_vars"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mattacku-pet-ranged-dog.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "shk_move adjacent conflict attack",
+            "functions": [
+              "mattacku",
+              "calc_mattacku_vars"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mattacku-shopkeeper-blind.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "pri_move adjacent temple conflict attack",
+            "functions": [
+              "mattacku",
+              "calc_mattacku_vars"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mattacku-priest-temple-adjacent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "dochug wormhitu near visible tail attack",
+            "functions": [
+              "mattacku",
+              "calc_mattacku_vars",
+              {
+                "sourceFile": "worm.c",
+                "name": "wormhitu"
+              }
+            ],
+            "recordings": [
+              "recordings/worm.c/mattacku-long-worm-tail.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a148df01be4939c1a3da632df635b3ea4d6e5ec4",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

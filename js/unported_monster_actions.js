@@ -1437,11 +1437,9 @@ async function throwRangedWeapon(monster, env) {
     });
 }
 
-// The dochug() operation that mhitu.c mattacku() sits behind. Everything it
-// still refuses -- the hero-concealment blocks, summonmu(), use_offensive()'s
-// arms outside the hurled potion, wildmiss(), hitmu() and every aatyp arm
-// outside the two melee ones -- refuses from inside mattacku() itself, so this
-// seam adds only the operations that file cannot import.
+// Shared mattacku adapter for dochug, pet attacks and the special movers.
+// Supply the canonical combat operations used by its nested source owners;
+// their existing unsupported branches remain named at those owners.
 function attackHeroWithMattacku(monster, env) {
     const missileEnv = monsterMissileEnv(monster, env);
     return mattacku(monster, {
@@ -1453,6 +1451,7 @@ function attackHeroWithMattacku(monster, env) {
         // operation and escapes runSegment() as a bare TypeError.
         ...missileEnv,
         throwRangedWeapon,
+        wieldMonsterItemAgainstMonster,
         useOffensiveItem,
         unsupported,
         // C ref: mhitu.c:930 castmu(mtmp, mattk, TRUE, foundyou).
@@ -1530,15 +1529,8 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
         // One dochug() now serves both, as in C. m_move() picks the mover.
         dochug: (subject, actionEnv) => dochug(subject, {
                 ...actionEnv,
-                // This file's one seam onto mhitu.c mattacku(). C reaches it
-                // from dochug()'s standard-attack gate whether or not the
-                // monster moved first, and js/monmove.js now breaks into that
-                // gate the way monmove.c:948 does instead of calling mattacku()
-                // a second way. Two further seams still refuse ahead of C's
-                // steed draw, named by symbol because both line citations here
-                // were wrong: js/dogmove.js dog_move()'s usteed arm
-                // (dogmove.c:911) and js/dogmove.js pet_ranged_attk()
-                // (dogmove.c:1286).
+                // Canonical mattacku operations are shared by both dochug
+                // attacks, both pet calls, shk_move, pri_move and wormhitu.
                 attackHero: attackHeroWithMattacku,
                 // C ref: monmove.c:895-907. Iterate AT_MAGC attack slots
                 // with AD_SPEL or AD_CLRC and call castmu(FALSE, FALSE).
