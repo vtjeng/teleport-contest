@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent wood-golem outside variation: ordinary permanent damage returns the hero to human form before shared Death touch. Covers form setup and later human touch, not the Upolyd touch branch.",
+  "segments": [
+    {
+      "seed": 17681301,
+      "datetime": "20710719112344",
+      "nethackrc": "OPTIONS=name:DeathForm,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #polyself\nwood golem\n      #wizgenesis\nDeath\ny m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n               "
+    }
+  ]
+}

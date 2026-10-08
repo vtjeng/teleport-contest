@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent Upolyd touch witness: uhitm.c:mhitm_ad_elec passive iron-golem counterattack reaches the simple monster action shock-resistance refusal before touch_of_death. Keep out of passing recordings.",
+  "segments": [
+    {
+      "seed": 17681327,
+      "datetime": "20710719112344",
+      "nethackrc": "OPTIONS=name:DeathForm,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #polyself\niron golem\n      #wizgenesis\nDeath\ny m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n   m. n               "
+    }
+  ]
+}
