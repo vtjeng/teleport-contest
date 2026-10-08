@@ -211903,6 +211903,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-insight-doborn-v30-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Display source monster birth and death statistics through #wizborn",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v30/v30-birth-statistics"
+      ],
+      "selectionReason": "Accepted A159/A160 dispatcher prerequisites leave the distinct #wizborn arm independent of the older queued B162 statistics arm. The current complete investigation attributes the remaining five v30-birth-statistics screens to whole insight.c doborn and its bounded production caller.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doborn",
+          "line": 3145,
+          "endLine": 3186,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3145,
+        "to": 3186
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-birth-statistics": {
+          "session": "synthetic/v30/v30-birth-statistics",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-birth-statistics",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-birth-statistics.session.json",
+          "recordingSha256": "f78495918122ab7f305cb8832e16095a5c151b56736eb2e4d7fcae1df94753a5",
+          "evaluationPath": "challenges/evaluations/accepted-fd0c960c3088c7db9177d7fdac93295af563489a-v30.json",
+          "evaluationCommit": "fd0c960c3088c7db9177d7fdac93295af563489a"
+        }
+      }
     }
   ]
 }

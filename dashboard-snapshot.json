@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T18:14:14.879Z",
+  "capturedAt": "2026-10-08T18:28:01.437Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -65862,12 +65862,84 @@
         "type": "accepted",
         "at": "2026-10-08T18:14:00.295Z",
         "task": "A160"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A160-c302a1dcc-20261008",
+        "type": "published",
+        "at": "2026-10-08T18:15:41.428Z",
+        "task": "A160",
+        "commit": "c302a1dcc2c46b6a2123022e4e4a986d7b8327d8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-Prep1-13f6614b0-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T18:17:21.803Z",
+        "task": "Prep1",
+        "integration": "13f6614b0debfb6b2dab2f332663f5b7ee2f803f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C151-after-A160-20261008",
+        "type": "resume",
+        "at": "2026-10-08T18:17:26.381Z",
+        "task": "C151"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C151-source-recheck-active-20261008",
+        "type": "turn",
+        "at": "2026-10-08T18:17:27.507Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C151-doborn-after-A160-20261008",
+        "type": "implement",
+        "at": "2026-10-08T18:17:54.513Z",
+        "task": "C151",
+        "goal": "port-insight-doborn-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A160-published-sync-idle-20261008",
+        "type": "turn",
+        "at": "2026-10-08T18:18:26.291Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "A160 is accepted and synced. The remaining wall-modes and object-probabilities reports require the doextcmd caller boundary reserved in priority for older B162 statistics; C151 owns birth statistics and B163 owns pyrolisk. Ready to resume after that dispatcher handoff or admission of new independent cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep1-13f6614b0debfb6b2dab2f332663f5b7ee2f803f-validated",
+        "type": "validated",
+        "at": "2026-10-08T18:24:07.199Z",
+        "task": "Prep1",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-Prep1-13f6614b0debfb6b2dab2f332663f5b7ee2f803f-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T18:24:08.488Z",
+        "task": "Prep1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep-wait-v37-admission-20261008",
+        "type": "turn",
+        "at": "2026-10-08T18:25:02.120Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep1 is accepted and the worktree includes the accepted v37 commit. Waiting for the orchestrator to publish v37 admission before claiming v38."
       }
     ]
   },
   "development": {
-    "executionCommit": "fd0c960c3088c7db9177d7fdac93295af563489a",
-    "measuredAt": "2026-10-08T18:11:28.552Z",
+    "executionCommit": "13f6614b0debfb6b2dab2f332663f5b7ee2f803f",
+    "measuredAt": "2026-10-08T18:22:50.542Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
