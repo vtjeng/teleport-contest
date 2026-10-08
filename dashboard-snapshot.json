@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T18:59:35.190Z",
+  "capturedAt": "2026-10-08T19:15:30.503Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -66148,12 +66148,111 @@
         "type": "accepted",
         "at": "2026-10-08T18:59:20.963Z",
         "task": "A164"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A164-e82ab5be4-20261008",
+        "type": "published",
+        "at": "2026-10-08T19:00:23.483Z",
+        "task": "A164",
+        "commit": "e82ab5be4e1d93f610794ad21564709ad681b4c5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B163-review-20261008",
+        "type": "activity",
+        "at": "2026-10-08T19:01:02.568Z",
+        "task": "B163",
+        "phase": "review",
+        "reason": "Reviewing the bounded make_corpse RNG environment correction and its independent C-first evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A165-wall-modes-ec09d3f3-20261008",
+        "type": "assign",
+        "at": "2026-10-08T19:01:09.685Z",
+        "task": "A165",
+        "worker": "A2",
+        "goal": "port-wizcmds-wiz-show-wmodes-v30-20261008",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A165-wmodes-active-20261008",
+        "type": "turn",
+        "at": "2026-10-08T19:01:10.778Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B163-f527447fd-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T19:06:30.295Z",
+        "task": "B163",
+        "integration": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9fe6073151cf4d05573ca4a6a3e199e6ce3fc618",
+        "type": "ready",
+        "at": "2026-10-08T19:06:52.827Z",
+        "task": "A165",
+        "delivery": "9fe6073151cf4d05573ca4a6a3e199e6ce3fc618"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A165-9fe60731-20261008",
+        "type": "received",
+        "at": "2026-10-08T19:07:19.496Z",
+        "task": "A165",
+        "delivery": "9fe6073151cf4d05573ca4a6a3e199e6ce3fc618"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A166-probabilities-investigation-9fe60731-20261008",
+        "type": "assign",
+        "at": "2026-10-08T19:08:15.143Z",
+        "task": "A166",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-A166-probabilities-investigation-active-20261008",
+        "type": "turn",
+        "at": "2026-10-08T19:08:16.314Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A166-object-probabilities-20261008",
+        "type": "implement",
+        "at": "2026-10-08T19:10:15.937Z",
+        "task": "A166",
+        "goal": "port-wizcmds-wiz-objprobs-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B163-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-validated",
+        "type": "validated",
+        "at": "2026-10-08T19:13:05.903Z",
+        "task": "B163",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B163-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T19:15:22.933Z",
+        "task": "B163"
       }
     ]
   },
   "development": {
-    "executionCommit": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
-    "measuredAt": "2026-10-08T18:56:04.816Z",
+    "executionCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+    "measuredAt": "2026-10-08T19:11:10.254Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

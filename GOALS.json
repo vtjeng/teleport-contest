@@ -213136,7 +213136,7 @@
     {
       "id": "fix-mon-make-corpse-rnz-env-v30-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore the canonical corpse timer RNG wrapper through make_corpse object generation",
       "cFile": "mon.c",
       "sessions": [
@@ -213150,8 +213150,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "make_corpse",
       "session": "synthetic/v30/v30-pyrolisk-gaze",
       "step": 103,
@@ -213384,7 +213387,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
