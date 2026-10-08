@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first eat.c cpostfx polymorph-food tin route. Newly chosen seed/clock and source-valid food/setup; C inventory prompts determined selections before JS comparison.",
+  "segments": [
+    {
+      "seed": 15129011,
+      "datetime": "20681223171100",
+      "nethackrc": "OPTIONS=name:Foodtin,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017blessed tin of chameleon meat\nee  y          i "
+    }
+  ]
+}

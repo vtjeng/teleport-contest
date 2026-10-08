@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v29.json",
   "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
   "recordingSha256": "b77591ee6ce3ef5455b6a78972ba87e52162c7be0d279eea2229d080edc0604a",
-  "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
-  "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+  "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+  "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
   "status": "complete",
-  "commit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+  "commit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v29",
@@ -25,10 +25,10 @@
     "recipe": "challenges/cases/v29/v29-firebrand-storm.recipe.session.json",
     "recipeSha256": "d4e4f30135bf659ea8740cff6c45fa0e07098efa4bef92652acee086e98c1ce1",
     "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
-    "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
-    "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
-    "evaluationArtifact": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
-    "evaluationUtc": "2026-10-08T05:02:17.323Z",
+    "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+    "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+    "evaluationArtifact": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+    "evaluationUtc": "2026-10-08T08:02:48.939Z",
     "remainingScreens": 23,
     "recordedSteps": 71,
     "previousScreensMatched": null,
@@ -72,25 +72,26 @@
       "can_center_spell_location()",
       "display_spell_target_positions()",
       "throwspell()",
-      "spelleffects() skilled SPE_FIREBALL/SPE_CONE_OF_COLD branch (wire this branch; other spelleffects() branches remain separately partial)"
+      "spelleffects() skilled SPE_FIREBALL/SPE_CONE_OF_COLD arm1420–1452 (bounded production caller only; no whole spelleffects credit)"
     ],
     "callers": [
       "nethack-c/upstream/src/artifact.c:2040-2050 invoke_storm_spell() raises the spell skill to P_EXPERT and calls spelleffects(storm, FALSE, TRUE); artifact.c:2169-2171 routes FIRESTORM/SNOWSTORM to it. The existing JavaScript caller mirrors this at js/artifacts.js:2588-2601 and 2709-2712.",
       "nethack-c/upstream/src/spell.c:1422 calls throwspell() from the skilled fireball/cone-of-cold branch; the current JavaScript caller at js/spell.js:1403-1410 frees the pseudo object and throws UnsupportedSpellCastError instead."
     ],
     "dependencies": [
-      "getpos.c:getpos_sethilite() (41-63) installs the validity and highlight callbacks consumed by getpos.c:getpos(); js/getpos.js:getpos() reads state.getpos_getvalid and state.getpos_hilitefunc, but there is no direct JavaScript getpos_sethilite() helper.",
-      "getpos.c:getpos() is implemented in js/getpos.js; hack.c:walk_path() is implemented as js/dothrow.js:walk_path().",
+      "Whole getpos.c:getpos_sethilite (41–63) is absent. Existing js/getpos.js:getpos_getvalids_selection and forceGetposSelectionRedraw approximate only current-callback redraw at getpos entry. Source requires union of old/new valid locations before callback installation, persistent hilite/default state, map-frame color and changed-state redraw; getpos clears callbacks via sethilite(NULL,NULL) at getpos.c1164. Reconcile that adapter through the canonical setter and bounded getpos/apply caller wiring without claiming whole getpos or selvar completion. All active external setter callers include read.c1898 seffects_stinking_cloud and3090 cast_stinking_cloud, plus apply.c2062 jump/3464 polearm/3757 grapple. Existing JS read/apply callers use direct assignment and cleanup; reconcile those five callers and canonical getpos.c toggle/refresh/exit without new credit for broader bodies.",
       "explode.c:explode() is implemented in js/explode.js; zap.c:spell_damage_bonus() and zapyourself() are implemented in js/zap.js. The selected spell branch still needs to wire and supply their C arguments in source order.",
-      "The self-target branch also calls attrib.c:losehp(); preserve this existing caller contract if targeting the hero is reachable."
+      "The self-target branch also calls attrib.c:losehp(); preserve this existing caller contract if targeting the hero is reachable.",
+      "C walk_path belongs to dothrow.c:656–735, not hack.c; reuse the existing awaited js/dothrow.js owner. The existing cansee/canspotmon/tmp_at, clearTtyMessageWindow, explode, zapyourself, spell_damage_bonus and losehp owners require direct source argument/order audit."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The saved current evaluation challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json identifies v29-firebrand-storm at 48/71 matching screens and cursors and 2894/2956 matching RNG calls; its first mismatch is stop at step 48 with the same skilled fireball/cone-of-cold refusal as js/spell.js:1403-1410. The immutable C recording challenges/cases/v29/v29-firebrand-storm.session.json has “Where do you want to cast the spell?--More--” at step 48, confirming that the refusal skips the target-selection prompt. No additional replay was needed to identify this branch.",
+    "Current saved challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json at 8b31f4af8514f59efa2a37b307822b1a00bf6908 retains 48/71 matching screens/cursors and 2894/2956 RNG calls. The immutable recording digest is b77591ee6ce3ef5455b6a78972ba87e52162c7be0d279eea2229d080edc0604a. Saved baseline stop step48 identifies the skilled fireball refusal; the source owner files js/spell.js/js/getpos.js/js/dothrow.js/js/explode.js have no Git diff between accepted 8b31f4af8514f59efa2a37b307822b1a00bf6908 and the submitted worker HEAD, so their owner/caller findings remain applicable.",
     "C caller trace: nethack-c/upstream/src/artifact.c:2040-2050 temporarily sets P_SKILL(skill)=P_EXPERT and calls spelleffects(storm,FALSE,TRUE); artifact.c:2169-2171 dispatches FIRESTORM/SNOWSTORM to invoke_storm_spell(). The matching production caller already exists at js/artifacts.js:2588-2601, 2709-2712, so artifact dispatch is not the missing owner.",
     "C behavior trace: nethack-c/upstream/src/spell.c:1419-1449 enters the skilled arm, calls throwspell(), chooses rnd(8)+1 explosions, invokes explode() or zapyourself()/losehp() for self-target, and consumes rnd(3) offsets with visibility, wall, and swallowed checks that reflect invalid locations to the center. The JavaScript refusal occurs before this logic; js/explode.js and js/zap.js already contain the explosion and spell-damage helpers.",
     "The source helper family is contiguous in nethack-c/upstream/src/spell.c:1607-1701: spell_aim_step() accepts zap-passable squares or open doors; can_center_spell_location() limits the center to visible, non-stone-wall squares within distance 10; display_spell_target_positions() highlights those centers; throwspell() handles water, user cancellation, range, swallowing, target visibility and walls, then walks the path and sets u.dx/u.dy. throwspell() calls getpos.c:getpos_sethilite() (41-63), so the task must preserve the callback state consumed by the existing getpos implementation.",
-    "spell_aim_step() and can_center_spell_location() are pure source helpers and need source-pinned result tests. display_spell_target_positions() and throwspell() are impure; this case’s recorded C path provides the applicable runtime evidence once it matches through the relevant steps."
+    "spell_aim_step() and can_center_spell_location() are pure source helpers and need source-pinned result tests. display_spell_target_positions() and throwspell() are impure; this case’s recorded C path provides the applicable runtime evidence once it matches through the relevant steps.",
+    "Rechecked getpos.c41–63,85,764,1164 against js/getpos.js177–219,905 onward: there is no canonical getpos_sethilite or persistent getpos_hilite_state/map_frame_color in JS. Three apply.c callers install callbacks directly (polearm, grapple, jump); source setter/cycler/getpos-exit call sites must remain aligned. This is a source-backed dependency boundary, not permission to replace callbacks by test injection."
   ]
 }

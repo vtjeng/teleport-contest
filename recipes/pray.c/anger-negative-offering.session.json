@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first coaligned unicorn offering reaches pray.c offer_negative_valued -> gods_upset -> angrygods. Corpse falls to the source floor-sacrifice prompt because of its weight.",
+  "segments": [
+    {
+      "seed": 15029018,
+      "datetime": "20671021154900",
+      "nethackrc": "OPTIONS=name:Wrathlawful,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " l\u0017lawful altar\n\u0017white unicorn corpse\n #offer\ny      :"
+    }
+  ]
+}

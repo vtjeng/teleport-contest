@@ -1,0 +1,98 @@
+{
+  "session": "synthetic/v29/v29-punished-blindfold",
+  "corpus": "synthetic",
+  "batch": "v29",
+  "caseId": "v29-punished-blindfold",
+  "manifestPath": "challenges/manifests/v29.json",
+  "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+  "recordingSha256": "c44264f9e21e2c19daf374479c3d38e34a7aaf8a48ffab03d7fc8e139da0381a",
+  "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+  "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+  "remainingScreens": 7,
+  "recordedSteps": 67,
+  "status": "complete",
+  "commit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v29",
+    "caseId": "v29-punished-blindfold",
+    "session": "synthetic/v29/v29-punished-blindfold",
+    "manifestPath": "challenges/manifests/v29.json",
+    "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+    "recording": "challenges/cases/v29/v29-punished-blindfold.session.json",
+    "recordingPath": "challenges/cases/v29/v29-punished-blindfold.session.json",
+    "recordingSha256": "c44264f9e21e2c19daf374479c3d38e34a7aaf8a48ffab03d7fc8e139da0381a",
+    "recipe": "challenges/cases/v29/v29-punished-blindfold.recipe.session.json",
+    "recipeSha256": "736182ac438190defd557e2b114270a1e9f15a3ca6a05d631c7679c3424d6f35",
+    "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+    "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+    "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+    "evaluationArtifact": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+    "evaluationUtc": "2026-10-08T08:02:48.939Z",
+    "remainingScreens": 7,
+    "recordedSteps": 67,
+    "previousScreensMatched": 60,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 60,
+        "total": 67
+      },
+      "rng": {
+        "matched": 2377,
+        "total": 2401
+      },
+      "cursors": {
+        "matched": 60,
+        "total": 67
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: set_bc(0) while Punished",
+      "step": 60
+    },
+    "step": 60,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: set_bc(0) while Punished",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "goalKind": "file-port",
+  "summary": "Wearing a blindfold while punished reaches do_wear.c:Blindf_on newly-blind arm, which JavaScript refuses at set_bc(0). Complete whole Blindf_on/Blindf_off with required ball.c:set_bc and consumed bc_order; wire all direct callers and reconcile canonical remembered-map glyph storage before blind ball/chain movement.",
+  "source": {
+    "file": "do_wear.c",
+    "branch": "A sighted punished hero wears an ordinary blindfold at segment0 step60. C do_wear.c:Blindf_on1461-1493 snapshots already_blind before remove_worn_item/setworn/on_msg. After W_TOOL changes Blind from false to true, it sets changed, prints verbose sight-loss feedback, invokes ball.c:set_bc(0) at1476, then toggle_blindness. JavaScript reaches the same guard but throws instead of setting the ball/chain felt and remembered-glyph state. Adjacent Blindf_off1495-1535 requires the same setup if removal of Eyes loses sight, so this is the same whole eyewear family as the Eyes companion.",
+    "functions": [
+      "Blindf_on",
+      "Blindf_off"
+    ],
+    "callers": [
+      "do_wear.c:accessory_or_armor_on2421 reaches Blindf_on from P/#puton; armor_or_accessory_off1821 and removal chains reach Blindf_off from R/#remove and A/#takeoffall. Existing JS callers await these callbacks.",
+      "apply.c:doapply4250 and4248 await on/off for BLINDFOLD/LENSES; existing js/apply.js4859-4865 routes both.",
+      "do_wear.c:set_wear1545 must replace the existing Blindf_on gap; allmain.c73 new-game gear and zap.c:poly_obj1946-1948 are upstream routes, with non-ring poly_obj remaining the declared outside-limit producer."
+    ],
+    "dependencies": [
+      "Required ball.c:bc_order354-371 returns stack order to set_bc and move_bc. Existing js/ball.js:bcOrder90 is incomplete (missing u.uswallow and discarded impossible gap) and uses a different source name; reconcile whole helper and direct callers. It calls impossible on an invalid missing pile, so do not assert source purity merely because ordinary branches only read.",
+      "Whole ball.c:set_bc380-425 is absent. Source sets bc_order/bc_felt, uses hero memory when already blind/swallowed, otherwise removes chain and floor ball, calls newsym, captures underlying remembered glyphs, and restores source pile order/redraw. Canonical remove_object/place_object/newsym exist. C discards impossible result; note_unported with no fabricated output.",
+      "set_bc direct callers: do_wear.c1476/1523 (on/off), potion.c:make_blinded309 (before set_itimeout/toggle), read.c:punish3059 after placebc before final newsym (already_blind1). Wire all bounded callers, and compare C Blind macro rather than only BLINDED property in read caller. No whole potion/read caller credit. Completing Blindf_on removes the last UnsupportedAccessoryOnError throws; delete its class plus the existing cmd.js import and failClosedErrorTypes registry entry, with no cmd.c completion credit.",
+      "Supporting ball-memory contract: current placebc_core150 reads obsolete cell.glyph; unplacebc_core192/199 writes that obsolete field, while canonical rm.glyph representation is cell.remembered_glyph.{glyph}. move_bc358/359/375/390 reads live glyph_at although ball.c465/466/486/506 reads levl remembered glyph. Reconcile these exact reads/writes and current bcOrder sites without broad placebc/unplacebc/move_bc completion credit. Preserve logical integer u.bglyph/u.cglyph, pile identity and side-effect order.",
+      "Existing remove_worn_item/setworn/artifact intrinsic/on_msg/off_msg/toggle_blindness/gulp_blnd_check source owners supply the rest. toggle_blindness2311 fully matches potion.c336-364, with source vision/see_monsters/Sting/inventory order; keep known vision.c XRAY hidden-corridor overlay frontier outside scope and preserve planning-clone display seams when wiring set_bc."
+    ]
+  },
+  "evidence": [
+    "Accepted B149 evaluation challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json reports60/67 screens and cursors,2377/2401 RNG. The manifest corpus digest and C recording SHA256 are unchanged. Worker-local isolated replay .cache/B150/replay-companion.log (bounded run-yDa4sw) at 763f3ebcc1aac6fb64b01ea7fc79d74f2c87a8d3 confirms first stop segment0 step60 keyf: set_bc(0) while Punished. No game edits or fresh C recording were used for diagnosis.",
+    "The admitted independent C recipe reads an uncursed scroll of punishment, then wears an uncursed blindfold with P while the attached ball remains on the floor. Its Blindf_on1476 call precedes toggle_blindness, and the reference continues through later blind steps. The first unmatched C draw rn2(5)=2 belongs to distfleeck(monmove.c538) after the callback; do not add an RNG draw to set_bc or eyewear as a replacement.",
+    "Whole ball.c:set_bc380-425 first consumes bc_order, sets u.bc_felt to BC_BALL|BC_CHAIN for a floor ball or BC_CHAIN for a carried ball, and handles already-blind/swallowed state by copying hero remembered glyph. Otherwise it temporarily extracts the chain and floor ball, calls newsym to capture underlying levl glyphs, restores objects in the original pile order, and redraws. Existing JS has no set_bc owner.",
+    "Consumed ball.c:bc_order354-371 forces whole helper reconciliation: different positions, carried ball or swallowed hero return BCPOS_DIFFER; same-position pile traversal returns BCPOS_CHAIN or BCPOS_BALL according to first object. Its final impossible output is a discarded-result gap and prevents calling this helper source-pure. Existing bcOrder omits swallowed handling; retain source-name and direct move_bc callers.",
+    "All set_bc callers belong in the bounded closure: Blindf_on1476, Blindf_off1523, potion.c:make_blinded309 before timeout installation and toggle, and read.c:punish3059 after placebc before final newsym, guarded by C Blind rather than only BLINDED. Existing potion/read note_unported sites must be replaced. This grants no whole potion/read completion credit.",
+    "Canonical remembered map glyphs are cell.remembered_glyph.{glyph}; u.bglyph/u.cglyph cache logical integer glyphs. Existing placebc_core reads obsolete cell.glyph, unplacebc_core writes it, and move_bc reads transient glyph_at where ball.c465/466/486/506 reads levl glyph memory. Reconcile exactly these state accesses as supporting contract work, preserving extraction, stack identity, redraw order and planning-clone display isolation; no whole ball movement credit.",
+    "Whole adjacent Blindf_off and the Eyes companion share sight-change cleanup. Bound all active production callers: accessory_or_armor_on, armor_or_accessory_off/removal chains, apply.c doapply eyewear toggles, and set_wear eyewear callback. Remove last UnsupportedAccessoryOnError class plus cmd.js import/registry after implementing its final throws; no cmd.c source credit.",
+    "Independent runtime evidence still required before implementation completion: floor/carried punished blindfold variations; make_blinded while punished; already-blind punishment set_bc(1); ordinary and held eyewear; apply on/off; temporarily blind Eyes regain/loss and blind-from-birth conduct. Source-pinned stack-order/swallowed and display-isolated memory tests complement recordings. Keep non-ring zap.c:poly_obj and vision.c XRAY hidden-corridor overlay as named outside limits."
+  ]
+}

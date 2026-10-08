@@ -354,3 +354,22 @@ test('independent C-first tins reach golem conversion and early life-saved consu
     for (const name of ['golem-tin', 'fatal-tin-lifesaved'])
         await verifyCorpsePrefxSegment(loadCorpsePrefxRecipe(name).segments[0]);
 });
+
+// eat.c:1251-1262 consumes a polymorph tin before calling polyself, so a
+// potentially fatal transformation cannot place that tin into bones.
+test('polymorph food calls canonical polyself after early tin consumption', async () => {
+    const js = readFileSync(new URL('../js/eat.js', import.meta.url), 'utf8');
+    const c = EAT_C.slice(EAT_C.indexOf('    case PM_CHAMELEON:'),
+        EAT_C.indexOf('    case PM_DISPLACER_BEAST:'));
+    const body = js.slice(js.indexOf('    case PM_CHAMELEON:'),
+        js.indexOf('    case PM_DISPLACER_BEAST:'));
+    assert.ok(c.indexOf('use_up_tin(') < c.indexOf('polyself(POLY_NOFLAGS)'));
+    assert.match(body, /await polyself\(POLY_NOFLAGS, state, env\)/u);
+    assert.ok(body.indexOf('await use_up_tin(') < body.indexOf('await polyself('));
+    assert.doesNotMatch(body, /note_unported\('polyself\.c polyself'\)/u);
+    const { runJsSession, compareSessionOutputs } = await import('./diff-fresh.mjs');
+    const recording = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v29/v29-eat-chameleon-tin.session.json', import.meta.url), 'utf8'));
+    const replay = await runJsSession(recording, process.cwd());
+    assert.equal(compareSessionOutputs(recording, replay).passed, true);
+});

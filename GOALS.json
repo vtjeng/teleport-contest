@@ -202581,7 +202581,7 @@
     {
       "id": "port-artifact-invoke-untrap-family-v29-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore Master Key untrapping through the complete untrap/disarm family and door-mimic return path",
       "cFile": "artifact.c",
       "sessions": [
@@ -202595,15 +202595,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "invoke_untrap",
           "line": 1838,
           "endLine": 1847,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -202617,7 +202620,7 @@
           "endLine": 5257,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "could_untrap",
@@ -202625,7 +202628,7 @@
           "endLine": 5288,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "untrap_prob",
@@ -202633,7 +202636,7 @@
           "endLine": 5340,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "cnv_trap_obj",
@@ -202641,7 +202644,7 @@
           "endLine": 5374,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "into_vs_onto",
@@ -202649,7 +202652,7 @@
           "endLine": 5392,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "move_into_trap",
@@ -202657,7 +202660,7 @@
           "endLine": 5440,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "try_disarm",
@@ -202665,7 +202668,7 @@
           "endLine": 5529,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "reward_untrap",
@@ -202673,7 +202676,7 @@
           "endLine": 5552,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "disarm_holdingtrap",
@@ -202681,7 +202684,7 @@
           "endLine": 5593,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "disarm_landmine",
@@ -202689,7 +202692,7 @@
           "endLine": 5606,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "unsqueak_ok",
@@ -202697,7 +202700,7 @@
           "endLine": 5629,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "disarm_squeaky_board",
@@ -202705,7 +202708,7 @@
           "endLine": 5663,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "disarm_shooting_trap",
@@ -202713,7 +202716,7 @@
           "endLine": 5676,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "try_lift",
@@ -202721,7 +202724,7 @@
           "endLine": 5699,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "help_monster_out",
@@ -202729,7 +202732,7 @@
           "endLine": 5793,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "disarm_box",
@@ -202737,7 +202740,7 @@
           "endLine": 5820,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "untrap_box",
@@ -202745,7 +202748,7 @@
           "endLine": 5847,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "untrap",
@@ -202753,7 +202756,7 @@
           "endLine": 6100,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "stumble_on_door_mimic",
@@ -202761,7 +202764,7 @@
           "endLine": 772,
           "declared": true,
           "sourceFile": "lock.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "trap_ice_effects",
@@ -202769,7 +202772,7 @@
           "endLine": 7197,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -203035,7 +203038,876 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "invoke_untrap",
+            "implementation": "js/artifacts.js",
+            "symbol": "invoke_untrap",
+            "sourceReview": "artifact.c1838-1847: await whole canonical untrap(TRUE,0,0,NULL); clear age only on return0 and return ECMD_CANCEL; successful handling returns ECMD_TIME. Remove the old gap and unconditional cancellation. Preserve arti_invoke cooldown/RNG before this helper.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c2158 UNTRAP case consumes invoke_untrap return through #invoke/doinvoke"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/artifact.c/untrap-invoke-no-trap.session.json",
+              "recordings/artifact.c/untrap-invoke-cancel.session.json",
+              "recordings/artifact.c/untrap-floor-box-invoke.session.json",
+              "recordings/artifact.c/untrap-two-floor-boxes-invoke.session.json"
+            ],
+            "sourceFile": "artifact.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-key-invoke-untrap",
+                "segment": 0,
+                "fromStep": 70,
+                "throughStep": 79,
+                "source": "artifact.c arti_invoke -> invoke_untrap -> trap.c untrap: interactive Master Key floor/door direction and consumed return through the final recorded command boundary."
+              }
+            ],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "dountrap",
+            "implementation": "js/trap.js",
+            "symbol": "dountrap",
+            "sourceReview": "trap.c5248-5257: await preliminary check and return ECMD_OK on rejection; await consumed untrap return before ECMD_TIME/OK selection. Production extended and canned dispatch use the same owner.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c1915-1916 extcmdlist untrap; cmd.c4712/4731/4825 canned queue retains same dountrap dispatcher"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-floor-box.session.json",
+              "recordings/lock.c/untrap-door-mimic.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "could_untrap",
+            "implementation": "js/trap.js",
+            "symbol": "could_untrap",
+            "sourceReview": "trap.c5258-5288: preserve near_capacity, hands/webmaker/movement, sticking, stuck/welded bimanual, optional floor reach checks in order. Read welded knowledge side effect through existing owner. Await verbose feedback; silent autounlock still consumes the integer result.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "dountrap",
+                "source": "trap.c:5250"
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "pick_lock",
+                "source": "lock.c472 container and606 door AUTOUNLOCK_UNTRAP consumed checks, now awaited"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/lock.c/untrap-box-autounlock.session.json",
+              "recordings/lock.c/untrap-door-autounlock.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "untrap_prob",
+            "implementation": "js/trap.js",
+            "symbol": "untrap_prob",
+            "sourceReview": "trap.c5289-5340: audit whole chance computation, primary/secondary blade and monster short circuit, Sting/fire special case, webmaker, confusion/hallucination/blind/stun/fumbling order, madeby_u decrement, Ranger bear guaranteed success, Rogue MAXULEV and quest-artifact rolls, Ranger decrement and minimum1 before final rn2. Preserve canonical urole.mnum and raw state.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "try_disarm",
+                "source": "trap.c:5480"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "help_monster_out",
+                "source": "trap.c:5726"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-pit-newt.session.json",
+              "recordings/trap.c/untrap-web-newt-spider-reward.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "cnv_trap_obj",
+            "implementation": "js/trap.js",
+            "symbol": "cnv_trap_obj",
+            "sourceReview": "trap.c5341-5374: canonical initialized mksobj, quantity/weight, dart-only poison, place before bury/stack, redraw, hero trap reset, monster release, deletion. All active direct callers are audited: holding/mine/shooting disarm, digactualhole and newly admitted trap_ice_effects. Retain discarded shk.c:sellobj gap without inventing billing; existing bury_an_obj/stackobj owners remain authoritative.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_holdingtrap",
+                "source": "trap.c:5580"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_landmine",
+                "source": "trap.c:5601"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_shooting_trap",
+                "source": "trap.c:5671"
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "digactualhole",
+                "source": "dig.c1009 magic excavation conversion with bury_it TRUE"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "trap_ice_effects",
+                "source": "trap.c:7188"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-owned-landmine-ranger.session.json",
+              "recordings/trap.c/untrap-arrow.session.json",
+              "recordings/trap.c/untrap-trap-conversion-digging.session.json",
+              "recordings/trap.c/untrap-melting-ice-bear.session.json",
+              "recordings/trap.c/untrap-melting-ice-landmine.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "into_vs_onto",
+            "implementation": "js/trap.js",
+            "symbol": "into_vs_onto",
+            "sourceReview": "trap.c5375-5392: pure eight-case switch (bear, pit, spiked pit, hole, teleport, level teleport, portal, web) and default false. No RNG, output or mutation.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "move_into_trap",
+                "source": "trap.c:5437"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "move_into_trap",
+            "implementation": "js/trap.js",
+            "symbol": "move_into_trap",
+            "sourceReview": "trap.c5393-5440: test_move before punished drag_ball; preserve separate output-pointer cells, prior-position publication, u_on_newpos/umoved, redraw/vision, move_bc, tseen clear, failing_untrap bracket, awaited spoteffects, re-find trap and wisdom exercise. Remove Punished substitute/refusal and obsolete ball gap. Correct retained discarded gap owner to apply.c:check_leash. Final death returns before later state because C cannot return from done; life saving/debug survival continues normally.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "try_disarm",
+                "source": "trap.c:5515"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-board-adjacent-punished.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "try_disarm",
+            "implementation": "js/trap.js",
+            "symbol": "try_disarm",
+            "sourceReview": "trap.c5441-5529: monster/boulder/diagonal/floor checks before chance; use state-aware trap naming. Preserve forced-failure short circuit, rnl(5), tame abuse before rnd4 damage/killed, web spread rn2(3)/existing trap conditions, awaited dotrap/dismount, under-hero versus adjacent movement, and return0/1/2. Await existing abuse/exercise/message owners. Stop after final web-spread death before downstream state.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_holdingtrap",
+                "source": "trap.c:5557"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_landmine",
+                "source": "trap.c:5596"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_squeaky_board",
+                "source": "trap.c:5643"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_shooting_trap",
+                "source": "trap.c:5666"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-owned-landmine-ranger.session.json",
+              "recordings/trap.c/untrap-squeaky-oil-ranger.session.json",
+              "recordings/trap.c/untrap-arrow.session.json",
+              "recordings/trap.c/untrap-web-newt-reward.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "reward_untrap",
+            "implementation": "js/trap.js",
+            "symbol": "reward_untrap",
+            "sourceReview": "trap.c5530-5552: preserve !madeby_u guard, rnl10 before hostility/helpless/frozen/mindless/unique/human predicates, peaceful/set_malign/message, then rn2(3) && rnl8 before lawful check/adjalign. Audited all three callers: holding release, pit help, and magical openholdingtrap; independent traces execute each.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_holdingtrap",
+                "source": "trap.c:5576"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "help_monster_out",
+                "source": "trap.c:5788"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "openholdingtrap",
+                "source": "trap.c:6202"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-pit-newt.session.json",
+              "recordings/trap.c/untrap-web-newt-spider-reward.session.json",
+              "recordings/trap.c/untrap-magic-opening-reward-extra-wand.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "disarm_holdingtrap",
+            "implementation": "js/trap.js",
+            "symbol": "disarm_holdingtrap",
+            "sourceReview": "trap.c5553-5593: consume try_disarm before action; release held monster and reward without deleting its trap; bear conversion otherwise; web primary/secondary blade and artifact naming as C (including source use of uwep); delete web only, then newsym/return1.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5968"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-web-newt-spider-reward.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "disarm_landmine",
+            "implementation": "js/trap.js",
+            "symbol": "disarm_landmine",
+            "sourceReview": "trap.c5594-5606: consumed try_disarm0/1/2, source message then one LAND_MINE conversion, return1. Owned Ranger mine successfully reaches the positive branch; ordinary chance failure is retained as a variation.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5970"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-owned-landmine-ranger.session.json",
+              "recordings/trap.c/untrap-landmine.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "unsqueak_ok",
+            "implementation": "js/trap.js",
+            "symbol": "unsqueak_ok",
+            "sourceReview": "trap.c5607-5629: pure callback reads only object type/class/appearance knowledge. Null excluded, grease suggested, known oil suggested, all other potions downplayed, other objects excluded. Export solely for source-pinned pure tests.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_squeaky_board",
+                "source": "trap.c:5636"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "disarm_squeaky_board",
+            "implementation": "js/trap.js",
+            "symbol": "disarm_squeaky_board",
+            "sourceReview": "trap.c5630-5663: callback getobj cancellation, cursed/lit/empty/non-oil bad_tool boolean grouping, consumed try_disarm. Grease charge or oil useup before canonical makeknown macro expansion discover_object(TRUE,TRUE,TRUE), repair/delete/redraw, experience and awaited new level in C order. Remove obsolete discovery gap.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5972"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-squeaky-oil-ranger.session.json",
+              "recordings/trap.c/untrap-squeaky-grease-ranger.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "disarm_shooting_trap",
+            "implementation": "js/trap.js",
+            "symbol": "disarm_shooting_trap",
+            "sourceReview": "trap.c5664-5676: consumed try_disarm, source message, count50-rnl50 and cnv_trap_obj with dart/arrow argument, return1. Both shooting arms are independently reached.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5974"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-arrow.session.json",
+              "recordings/trap.c/untrap-dart.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "try_lift",
+            "implementation": "js/trap.js",
+            "symbol": "try_lift",
+            "sourceReview": "trap.c5677-5699: calc_capacity before conditional trapped-monster kindness; preserve madeby_u/hostility/mobility/mindless/human short circuits before rnl10, peaceful/set_malign/message, return0/1. Impure despite the ordinary lightweight success path.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "help_monster_out",
+                "source": "trap.c:5774/5782"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-pit-newt.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "help_monster_out",
+            "implementation": "js/trap.js",
+            "symbol": "help_monster_out",
+            "sourceReview": "trap.c5700-5793: trapped/capacity checks, chance/helpless ordering, cockatrice touch before failed sleeping grip, canonical polymon plus message-window flush or instapetrify with exact killer string (remove both obsolete gaps), wake/thaw RNG, corpse/minventory weight and consumed try_lift calls, release/reward/fill_pit. Existing fill_pit/flooreffects frontier is retained without broader credit.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5987"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-pit-newt.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "disarm_box",
+            "implementation": "js/trap.js",
+            "symbol": "disarm_box",
+            "sourceReview": "trap.c5794-5820: DEX+level, Rogue multiplier, force short circuit before confusion/fumbling/rnd difficulty; canonical awaited chest_trap or clear/tknown/experience/newlevel; await dex exercise. Stop after final chest-trap death because done cannot return in C. Not-trapped feedback clears tknown.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap_box",
+                "source": "trap.c:5840"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:6016"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-floor-box.session.json",
+              "recordings/artifact.c/untrap-floor-box-invoke.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "untrap_box",
+            "implementation": "js/trap.js",
+            "symbol": "untrap_box",
+            "sourceReview": "trap.c5821-5847: detection force/chance/tknown/confusion short circuits, known-name feedback, tknown/observe/wisdom order, consumed disarm query then disarm_box. Correct caller object comes from the canonical floor pile or explicit autounlock container.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5879"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:6018"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-floor-box.session.json",
+              "recordings/artifact.c/untrap-floor-box-invoke.session.json",
+              "recordings/lock.c/untrap-box-autounlock.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "untrap",
+            "implementation": "js/trap.js",
+            "symbol": "untrap",
+            "sourceReview": "trap.c5848-6100: audit full force/key, getdir/cancel/autounlock return protocol, bounds, seen trap, both canonical level.objects[x][y]/nexthere loops, reach/plural/source an() text, floor trap/container choice, floor subtype dispatch, at-most-one selected box per turn, awaited mimic with canonical tty environment, door states/detection/disarm/failure/RNG/exercise/messages in source order. Remove cell.objects substitute. Preserve existing flags/doormask adapters and discarded shk.c:add_damage. Final b_trapped death does not destroy/redraw the door after C done.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_untrap",
+                "source": "artifact.c1840 force TRUE consumed return"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "dountrap",
+                "source": "trap.c:5253"
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "pick_lock",
+                "source": "lock.c480 floor-container and611 door autounlock return; exact container/coordinate variants"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-pit-newt.session.json",
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/artifact.c/untrap-two-floor-boxes-invoke.session.json",
+              "recordings/lock.c/untrap-box-autounlock.session.json",
+              "recordings/lock.c/untrap-door-autounlock.session.json",
+              "recordings/lock.c/untrap-door-mimic.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-key-invoke-untrap",
+                "segment": 0,
+                "fromStep": 70,
+                "throughStep": 79,
+                "source": "artifact.c arti_invoke -> invoke_untrap -> trap.c untrap: interactive Master Key floor/door direction and consumed return through the final recorded command boundary."
+              }
+            ],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "stumble_on_door_mimic",
+            "implementation": "js/lock.js",
+            "symbol": "stumble_on_door_mimic",
+            "sourceReview": "lock.c759-772: whole m_at/is_door_mappear/Protection_from_shape_changers predicate, awaited existing stumble_onto_mimic with state/ttyPline environment, true after reveal, false otherwise. Remove owned UnsupportedLockError throw. Await this consumed result at untrap/doopen_indir/doclose; broader lock caller bodies retain their existing frontiers.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:6026"
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen_indir",
+                "source": "lock.c820 consumed helper"
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doclose",
+                "source": "lock.c987 consumed helper"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/untrap-door-mimic.session.json",
+              "recordings/lock.c/open-door-mimic.session.json",
+              "recordings/lock.c/close-door-mimic.session.json"
+            ],
+            "sourceFile": "lock.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "trap_ice_effects",
+            "implementation": "js/trap.js",
+            "symbol": "trap_ice_effects",
+            "sourceReview": "trap.c7175-7197: whole function; melting and trap guard, clear trapped monster before conversion, LANDMINE/BEAR_TRAP choose source tool and await bury_it conversion; other destructible traps removed, undestroyable traps preserved. Wire awaited call at zap.c5056 after spot_stop_timers and before obj_ice_effects/unearth_objs. Preserve existing melt_ice remainder without whole zap completion credit.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "melt_ice",
+                "source": "zap.c5056 after timers and before object ice effects/unearth"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-melting-ice-bear.session.json",
+              "recordings/trap.c/untrap-melting-ice-landmine.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          }
+        ],
+        "entryPointReview": "Source caller search is retained in .cache/C144-C-caller-sites.txt and complete source review above. Active entries are artifact invocation; normal #untrap dispatcher (also reused by existing canned context-menu queue); floor-container and door autounlock; open and close door-mimic consumers; magic digging trap conversion; adjacent magical trap-release reward; and fire/timer melting-ice trap conversion. All are wired through canonical owners and have matching independent recordings or an admitted range. Source trap_ice_effects was initially absent and is now whole, by scope-C144-ice-trap-closure-20261008. No compile-time excluded caller found. No new credit for cmd dispatch, pick_lock/doopen/doclose, digging, openholdingtrap, zap.c:melt_ice, polymorph, naming, equipment, damage, discovery or ball/chain owners.",
+        "entryPoints": [
+          {
+            "name": "Master Key invocation",
+            "functions": [
+              {
+                "sourceFile": "artifact.c",
+                "name": "invoke_untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap"
+              }
+            ],
+            "recordings": [
+              "recordings/artifact.c/untrap-invoke-no-trap.session.json",
+              "recordings/artifact.c/untrap-invoke-cancel.session.json",
+              "recordings/artifact.c/untrap-floor-box-invoke.session.json",
+              "recordings/artifact.c/untrap-two-floor-boxes-invoke.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-key-invoke-untrap",
+                "segment": 0,
+                "fromStep": 70,
+                "throughStep": 79,
+                "source": "artifact.c arti_invoke -> invoke_untrap -> trap.c untrap: interactive Master Key floor/door direction and consumed return through the final recorded command boundary."
+              }
+            ]
+          },
+          {
+            "name": "ordinary untrap floor traps and containers",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "dountrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "could_untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap_prob"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "cnv_trap_obj"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "try_disarm"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "move_into_trap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "reward_untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "disarm_holdingtrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "disarm_landmine"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "disarm_squeaky_board"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "disarm_shooting_trap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "try_lift"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "help_monster_out"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "disarm_box"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap_box"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-landmine.session.json",
+              "recordings/trap.c/untrap-owned-landmine-ranger.session.json",
+              "recordings/trap.c/untrap-arrow.session.json",
+              "recordings/trap.c/untrap-dart.session.json",
+              "recordings/trap.c/untrap-floor-box.session.json",
+              "recordings/trap.c/untrap-squeaky-oil-ranger.session.json",
+              "recordings/trap.c/untrap-squeaky-grease-ranger.session.json",
+              "recordings/trap.c/untrap-board-adjacent-ordinary.session.json",
+              "recordings/trap.c/untrap-board-adjacent-punished.session.json",
+              "recordings/trap.c/untrap-pit-newt.session.json",
+              "recordings/trap.c/untrap-web-newt-reward.session.json",
+              "recordings/trap.c/untrap-web-newt-spider-reward.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "container autounlock",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "could_untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap_box"
+              }
+            ],
+            "recordings": [
+              "recordings/lock.c/untrap-box-autounlock.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "door autounlock",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "could_untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap"
+              }
+            ],
+            "recordings": [
+              "recordings/lock.c/untrap-door-autounlock.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "door mimic through untrap",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap"
+              },
+              {
+                "sourceFile": "lock.c",
+                "name": "stumble_on_door_mimic"
+              }
+            ],
+            "recordings": [
+              "recordings/lock.c/untrap-door-mimic.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "door mimic through open",
+            "functions": [
+              {
+                "sourceFile": "lock.c",
+                "name": "stumble_on_door_mimic"
+              }
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-mimic.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "door mimic through close",
+            "functions": [
+              {
+                "sourceFile": "lock.c",
+                "name": "stumble_on_door_mimic"
+              }
+            ],
+            "recordings": [
+              "recordings/lock.c/close-door-mimic.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "magical excavation trap conversion",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "cnv_trap_obj"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-trap-conversion-digging.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "adjacent magical holding-trap release reward",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "reward_untrap"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-magic-opening-reward-extra-wand.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "melting-ice trap conversion",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "trap_ice_effects"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "cnv_trap_obj"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-melting-ice-bear.session.json",
+              "recordings/trap.c/untrap-melting-ice-landmine.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-do-wear-amulet-on-v29-20261008",
@@ -203532,6 +204404,934 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pray-angrygods-summon-minion-v29-20261008",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port divine anger and minion summoning",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v29/v29-sacrifice-human-race"
+      ],
+      "selectionReason": "Seed continuation selects v29 sacrifice-human-race: pray.c angrygods cases 7 and 8 call the missing whole minion.c summon_minion family before the shared prayer timer update.",
+      "detail": "Port whole pray.c angrygods lines 704-784 and whole minion.c summon_minion lines 198-255. Wire bounded sacrifice_your_race and offer_different_alignment_altar callers plus the exact makemon runtime admission. Keep unported god_zaps_you and its three high-altar summon callers as an explicit blocked frontier.",
+      "openedAt": "00b93d7834ce84f77f602d24f752d25b3a4d0189",
+      "openStanding": {
+        "sha": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "angrygods",
+          "line": 704,
+          "endLine": 787,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 704,
+        "to": 787
+      },
+      "requiredFunctions": [
+        {
+          "name": "summon_minion",
+          "line": 198,
+          "endLine": 262,
+          "declared": true,
+          "sourceFile": "minion.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v29/v29-sacrifice-human-race": {
+          "session": "synthetic/v29/v29-sacrifice-human-race",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-sacrifice-human-race",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+          "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+          "evaluationPath": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+        }
+      },
+      "activeStanding": {
+        "sha": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-sacrifice-human-race",
+          "session": "synthetic/v29/v29-sacrifice-human-race",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+          "recordingPath": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+          "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+          "recipe": "challenges/cases/v29/v29-sacrifice-human-race.recipe.session.json",
+          "recipeSha256": "c143df7ee557b2ced8357de027cac3ec334bf6906278b6729e2c461e1fdc4f93",
+          "replayInputSha256": "f576660bdde8a5c820b1f9f87194914a81f7019dc3e234bde74da4ba7228c9ee",
+          "evaluationPath": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+          "evaluationArtifact": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationUtc": "2026-10-08T08:26:10.227Z",
+          "remainingScreens": 14,
+          "recordedSteps": 54,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2803,
+              "total": 2877
+            },
+            "cursors": {
+              "matched": 52,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 40,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 40,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2802,
+              "cEntry": "rn2(9)=8",
+              "cCaller": "angrygods(pray.c:725)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 40,
+                "key": " "
+              },
+              "stepIndex": 40
+            },
+            "cursor": {
+              "index": 40,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 40,
+                "key": " "
+              },
+              "cCursor": [
+                76,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 40,
+          "kind": "rng",
+          "sourceFile": "pray.c",
+          "function": "angrygods",
+          "message": null,
+          "cFile": "pray.c",
+          "luaFile": null,
+          "line": 725,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-sacrifice-human-race.json",
+            "result": {
+              "session": "synthetic/v29/v29-sacrifice-human-race",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-sacrifice-human-race",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+              "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+              "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+              "remainingScreens": 14,
+              "recordedSteps": 54,
+              "status": "complete",
+              "commit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-sacrifice-human-race",
+                "session": "synthetic/v29/v29-sacrifice-human-race",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+                "recordingPath": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+                "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+                "recipe": "challenges/cases/v29/v29-sacrifice-human-race.recipe.session.json",
+                "recipeSha256": "c143df7ee557b2ced8357de027cac3ec334bf6906278b6729e2c461e1fdc4f93",
+                "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
+                "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+                "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+                "evaluationArtifact": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+                "evaluationUtc": "2026-10-08T05:02:17.323Z",
+                "remainingScreens": 14,
+                "recordedSteps": 54,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2803,
+                    "total": 2877
+                  },
+                  "cursors": {
+                    "matched": 52,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 40,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 40,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2802,
+                    "cEntry": "rn2(9)=8",
+                    "cCaller": "angrygods(pray.c:725)",
+                    "jsEntry": "rn2(5)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 40,
+                      "key": " "
+                    },
+                    "stepIndex": 40
+                  },
+                  "cursor": {
+                    "index": 40,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 40,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      76,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 40,
+                "kind": "rng",
+                "sourceFile": "pray.c",
+                "function": "angrygods",
+                "message": null,
+                "cFile": "pray.c",
+                "luaFile": null,
+                "line": 725
+              },
+              "summary": "Own-race sacrifice at the neutral altar skips angrygods before its Luck penalty at step40 (14 screens remain). Whole angrygods needs cases7/8 and explicit discarded-void lightning gap; independent whole summon_minion plus bounded runtime makemon admission supplies the selected neutral elemental and lawful/chaotic/talking caller routes.",
+              "source": {
+                "file": "pray.c",
+                "branch": "A non-chaotic hero outside Gehennom offers a corpse of their own race on a non-high neutral altar. sacrifice_your_race() increases u.ugangr by 3 and calls angrygods() before change_luck(-5); in this recording rn2(maxanger) returns 8, selecting angrygods() cases 7/8.",
+                "functions": [
+                  "angrygods"
+                ],
+                "callers": [
+                  "offer_corpse() -> sacrifice_your_race(): nethack-c/upstream/src/pray.c:1993-1994; js/pray.js:813-833.",
+                  "sacrifice_your_race() -> angrygods(): nethack-c/upstream/src/pray.c:1765-1771; js/pray.js:662-668, where the call is currently skipped with note_unported().",
+                  "offer_different_alignment_altar() -> angrygods(): nethack-c/upstream/src/pray.c:1648-1656; js/pray.js:751-762.",
+                  "gods_upset() -> angrygods(): nethack-c/upstream/src/pray.c:1436-1442; js/pray.js:2226-2231.",
+                  "prayer_done() -> angrygods(): nethack-c/upstream/src/pray.c:2307-2325; js/pray.js:1686-1707."
+                ],
+                "dependencies": [
+                  "minion.c:summon_minion198-255 is missing. Its returned species selectors lminion/ndemon and makemon result already have canonical owners; add bounded makemon.c:makemon runtime admission for this MM_EMIN|MM_NOMSG caller, preserving explicit msummon distinction.",
+                  "pray.c:god_zaps_you is an unported discarded-void callee in angrygods default; retain note_unported and named blocked evidence. Its three high-altar summon_minion sites cannot be wired until the parent exists.",
+                  "Other two summon_minion callers in offer_different_alignment_altar1681/1692 must be wired with talk=TRUE; audit the race-sacrifice and rejected-altar angry calls and existing gods_upset/prayer_done calls."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json records 40/54 screens matched and the first mismatch at step 40: C rng entry rn2(9)=8 from angrygods(pray.c:725), while the positional JavaScript entry is rn2(5)=0; the C screen is blank at row 0, column 38 where JavaScript has a dash. The queue records 14 remaining screens for recording e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9.",
+                "The permitted single-case replay, node scripts/scan-sessions.mjs --json --synthetic v29/v29-sacrifice-human-race, reproduces the step-40 divergence and lists pray.c angrygods in the runtime unported set. The JavaScript rn2(5) is the next positional RNG entry after the skipped C call, not a roll attributed to angrygods.",
+                "nethack-c/upstream/src/pray.c:1698-1778 shows the human-race offering path; at lines 1765-1771 the non-chaotic branch changes alignment, increments u.ugangr, calls angrygods(u.ualign.type) outside Gehennom, and only then calls change_luck(-5). js/pray.js:589-683 mirrors the caller but uses note_unported(\"pray.c angrygods\") at line 666 before change_luck(-5), explaining the absent C behavior.",
+                "nethack-c/upstream/src/pray.c:704-784 defines angrygods(); rn2(maxanger) at line 725 selects cases 7/8 in this recording, which call godvoice(), verbalize the threat, and summon_minion() at lines 760-772 before the shared timer update. js/pray.js:2306-2385 currently throws UnsupportedPrayerError for cases 7/8 at lines 2377-2379. The recording step 41 includes the summon and subsequent angry-god RNG calls; nethack-c/upstream/src/minion.c:198 is the required callee owner.",
+                "Fresh single-session replay at5ecdef9c, .cache/A150/before-replay.json (run-uzDx42), retains14remaining screens and the exact C rn2(9)=8 anger-roll handoff. No intervening accepted change touches this source cause.",
+                "Complete C angrygods704-784: clamp maxanger1..15; source speaks mortal iff gy.youmonst.data.mlet==S_HUMAN, not the broader is_human predicate. Cases7/8 call godvoice, SetVoice, verbalize call-upon/scorn, Then-die quote, summon_minion(FALSE), then common rnz300 max timer. Default calls gods_angry before discarded-void god_zaps_you. JS currently throws for both missing arms; required task owns the whole anger function.",
+                "Complete C summon_minion198-255 selects lawful lminion, neutral elementals[AIR,FIRE,EARTH,WATER], chaotic/none ndemon, guards NON_PM, distinguishes angel/other minion/special priest or guard flags, writes emin min_align and renegadeFALSE, conditionally speaks with Deaf wording and visible appearance, clears STRAT_APPEARMSG only for talk, and forces hostile without set_malign. Existing js/minion selectors and makemon newemin/runtime tails are canonical, but MM_EMIN runtime admission currently requires _msummon; a separate source caller marker is needed for summon_minion.",
+                "Actionable source scope: whole pray.c:angrygods704-784 and minion.c:summon_minion198-255; bounded pray.c:sacrifice_your_race, offer_different_alignment_altar callers and makemon.c:makemon runtime admission. Existing gods_upset/prayer_done remain audited canonical callers. Keep god_zaps_you/high-altar downstream calls as named gaps with blocked evidence. Independent C-first records must cover own-race neutral/lawful/chaotic variations, delayed prayer anger, rejected different-alignment offering, and talkTRUE altar rivalry or an explicit source blocker. No scope overlaps C144 trap/door-mimic or B Amulet_on."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "angrygods",
+            "implementation": "js/pray.js",
+            "symbol": "angrygods",
+            "sourceReview": "Read whole pray.c704-784 and all five source call sites1442/1656/1770/2312/2325. Preserve Inhell alignment override, protection reset, C integer divisions/STRIDENT comparison/clamp1-15, selector RNG, displeasure, lessons with S_HUMAN wording and canonical SetVoice/verbalize/Wisdom/losexp, punishment fallthrough, curse short-circuit and common max-only rnz(300) timer. Cases7/8 now reproduce godvoice, scorn/call-upon choice, deity voice, Then-die line and await canonical summon_minion. Default reproduces gods_angry then records discarded-void pray.c god_zaps_you gap, without invented substitute effects; common timer follows as source states. All angrygods note_unported caller substitutes and selected UnsupportedPrayerError arms removed. Existing unrelated UnsupportedPrayerError class remains used. Audit canonical attrcurse/rndcurse/punish/losexp/align/naming/visibility and whole minion198-255 plus lminion429-441/ndemon444-464/mkclass/makemon runtime, newemin and initialization owners. No placeholder return is consumed. Bounded makemon runtime admission forwards existing canonical placement, HP/inventory/RNG lifecycle for this exact MM_EMIN|MM_NOMSG call at hero; no whole makemon credit.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "gods_upset",
+                "source": "pray.c1442; dosacrifice -> offer_negative_valued -> gods_upset -> awaited angrygods. Independent coaligned white-unicorn offering reaches this source arm."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_different_alignment_altar",
+                "source": "pray.c1656 rejected conversion arm; awaited canonical anger before return. Surrounding conversion/rejection remains its existing owner; rare rejected-conversion branch has no distinct fresh citation."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "sacrifice_your_race",
+                "source": "pray.c1770 calls anger after alignment/Wisdom/ugangr and before change_luck(-5); cmd #offer runtime is selected and independently recorded."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c2312/2325; doprayer installs delayed nomovemsg callback, allmain unmul resumes canonical prayer_done then awaits anger. Fresh repeated early prayers cover delayed entry."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs",
+              "scripts/minion.test.mjs",
+              "scripts/makemon.test.mjs",
+              "scripts/pray-offering-alignment.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/anger-sacrifice-neutral.session.json",
+              "recordings/pray.c/anger-sacrifice-lawful.session.json",
+              "recordings/pray.c/anger-sacrifice-lessons.session.json",
+              "recordings/pray.c/anger-sacrifice-curses.session.json",
+              "recordings/pray.c/anger-sacrifice-punishment.session.json",
+              "recordings/pray.c/anger-delayed-prayer.session.json",
+              "recordings/pray.c/anger-negative-offering.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-sacrifice-human-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 53,
+                "source": "cmd.c doextcmd #offer -> pray.c dosacrifice/offer_corpse -> sacrifice_your_race1765-1771 -> angrygods704-784 case8 -> minion.c summon_minion198-255 neutral AIR_ELEMENTAL -> makemon.c makemon MM_EMIN|MM_NOMSG. Subsequent admitted tail fully matches."
+              }
+            ],
+            "checkedAt": "2a0173971a37c29e79ad85b6438561097d24ca76"
+          }
+        ],
+        "entryPointReview": "angrygods is helper-only and all production calls are in pray.c: gods_upset1442, rejected conversion1656, own-race sacrifice1770, delayed prayer2312/2325. The active command families are #offer and #pray; independent negative/race sacrifices and delayed prayer reach them. summon_minion is called only from pray.c god_zaps_you684-686, angrygods771, and rival altar1681/1692. Neutral non-speaking branch is admitted; lawful/chaotic speaking branches freshly match. Both rival conversion outcomes are exercised, with speaking at success rarity gates; source-pinned tests/whole source review retain the failure rarity gate. Absent god_zaps_you high-altar callers remain active and incomplete, not inactive. No whole sacrifice/offer helper, prayer_done, gods_upset, god_zaps_you, makemon, selector or naming/sounds completion credit.",
+        "entryPoints": [
+          {
+            "name": "Own-race sacrifice divine anger",
+            "functions": [
+              "angrygods",
+              {
+                "sourceFile": "minion.c",
+                "name": "summon_minion"
+              }
+            ],
+            "recordings": [
+              "recordings/pray.c/anger-sacrifice-neutral.session.json",
+              "recordings/pray.c/anger-sacrifice-lawful.session.json",
+              "recordings/pray.c/anger-sacrifice-lessons.session.json",
+              "recordings/pray.c/anger-sacrifice-curses.session.json",
+              "recordings/pray.c/anger-sacrifice-punishment.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-sacrifice-human-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 53,
+                "source": "cmd.c doextcmd #offer -> pray.c dosacrifice/offer_corpse -> sacrifice_your_race1765-1771 -> angrygods704-784 case8 -> minion.c summon_minion198-255 neutral AIR_ELEMENTAL -> makemon.c makemon MM_EMIN|MM_NOMSG. Subsequent admitted tail fully matches."
+              }
+            ]
+          },
+          {
+            "name": "Negative-value sacrifice divine anger",
+            "functions": [
+              "angrygods"
+            ],
+            "recordings": [
+              "recordings/pray.c/anger-negative-offering.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Delayed prayer divine anger",
+            "functions": [
+              "angrygods"
+            ],
+            "recordings": [
+              "recordings/pray.c/anger-delayed-prayer.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Rival altar divine minion",
+            "functions": [
+              {
+                "sourceFile": "minion.c",
+                "name": "summon_minion"
+              }
+            ],
+            "recordings": [
+              "recordings/pray.c/anger-rival-altar.session.json",
+              "recordings/pray.c/anger-rival-altar-chaotic.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "High-altar divine minion through god_zaps_you",
+            "functions": [
+              {
+                "sourceFile": "minion.c",
+                "name": "summon_minion"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "2a0173971a37c29e79ad85b6438561097d24ca76",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "angrygods and ordinary summon_minion callers are implemented and verified; minion.c:summon_minion still has three active high-altar callers inside unported pray.c:god_zaps_you. Resume after god_zaps_you is ported so those callers can be wired and replay-verified."
+    },
+    {
+      "id": "port-do-wear-eyewear-blindness-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port eyewear blindness and punishment glyph setup",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v29/v29-eyes-regain-sight",
+        "synthetic/v29/v29-punished-blindfold"
+      ],
+      "selectionReason": "Seed continuation from completed Amulet_on selects the same do_wear accessory family: Eyes regaining sight and punished blindfold share whole Blindf_on and adjacent Blindf_off. Require consumed bc_order and whole set_bc plus their direct callers and canonical remembered-map state.",
+      "detail": "Whole do_wear.c Blindf_on lines 1461-1493 and Blindf_off lines 1495-1535; required ball.c bc_order lines 354-371 and set_bc lines 380-425; bounded source caller and existing ball memory read/write reconciliation. Preserve non-ring poly_obj and XRAY overlay frontiers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Blindf_on",
+          "line": 1461,
+          "endLine": 1494,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "Blindf_off",
+          "line": 1495,
+          "endLine": 1538,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1461,
+        "to": 1538
+      },
+      "requiredFunctions": [
+        {
+          "name": "bc_order",
+          "line": 354,
+          "endLine": 379,
+          "declared": false,
+          "sourceFile": "ball.c",
+          "complete": false
+        },
+        {
+          "name": "set_bc",
+          "line": 380,
+          "endLine": 436,
+          "declared": false,
+          "sourceFile": "ball.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v29/v29-eyes-regain-sight": {
+          "session": "synthetic/v29/v29-eyes-regain-sight",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-eyes-regain-sight",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-eyes-regain-sight.session.json",
+          "recordingSha256": "aae73f89a8f19d19af64c8b8c583dce890065bb15bce207118e4075d926ebc3d",
+          "evaluationPath": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+        },
+        "synthetic/v29/v29-punished-blindfold": {
+          "session": "synthetic/v29/v29-punished-blindfold",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-punished-blindfold",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-punished-blindfold.session.json",
+          "recordingSha256": "c44264f9e21e2c19daf374479c3d38e34a7aaf8a48ffab03d7fc8e139da0381a",
+          "evaluationPath": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+        }
+      }
+    },
+    {
+      "id": "port-spell-skilled-storm-target-family-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port skilled storm target selection and canonical callback installation, then wire the existing skilled fireball and cone-of-cold arm",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v29/v29-firebrand-storm"
+      ],
+      "selectionReason": "The completed C144 Key case matches all 80 steps. The next independent saved v29 mismatch, Fire Brand storm, has 23 remaining screens at step 48; its target-selection family and callback contract do not overlap A150 or B150.",
+      "detail": "Port the whole four-function spell target family and whole getpos_sethilite. Bound spelleffects to the skilled fireball and cone-of-cold arm and reconcile existing getpos, apply, and read callback callers. Preserve existing artifact, explode, zap, and walk_path owners without broader source credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "spell_aim_step",
+          "line": 1607,
+          "endLine": 1618,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "can_center_spell_location",
+          "line": 1619,
+          "endLine": 1626,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "display_spell_target_positions",
+          "line": 1627,
+          "endLine": 1654,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "throwspell",
+          "line": 1655,
+          "endLine": 1706,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1607,
+        "to": 1706
+      },
+      "requiredFunctions": [
+        {
+          "name": "getpos_sethilite",
+          "line": 41,
+          "endLine": 71,
+          "declared": false,
+          "sourceFile": "getpos.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v29/v29-firebrand-storm": {
+          "session": "synthetic/v29/v29-firebrand-storm",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-firebrand-storm",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-firebrand-storm.session.json",
+          "recordingSha256": "b77591ee6ce3ef5455b6a78972ba87e52162c7be0d279eea2229d080edc0604a",
+          "evaluationPath": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+        }
+      }
+    },
+    {
+      "id": "fix-eat-cpostfx-polymorph-caller-v29-20261008",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore polymorph food's canonical post-effect caller",
+      "cFile": "eat.c",
+      "sessions": [],
+      "selectionReason": "The admitted v29 chameleon-tin replay reaches eat.c cpostfx at step 37 and skips its canonical polymorph caller, leaving 9 screens unmatched.",
+      "detail": "Reconcile the bounded cpostfx polymorph-food call and tin NULL-context behavior, forward the existing polyself/newman hunger environment, and retain delayed start_engulf animation capture as an explicit outside-scope boundary.",
+      "openedAt": "3c9a274614df7bea8ed94f2f2433c4cc122fcdc4",
+      "openStanding": {
+        "sha": "2a0173971a37c29e79ad85b6438561097d24ca76",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "cpostfx",
+      "session": "synthetic/v29/v29-eat-chameleon-tin",
+      "step": 37,
+      "syntheticProvenance": {
+        "synthetic/v29/v29-eat-chameleon-tin": {
+          "session": "synthetic/v29/v29-eat-chameleon-tin",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-eat-chameleon-tin",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-eat-chameleon-tin.session.json",
+          "recordingSha256": "238db4fb3be6fc6c4706076385032a868eab92d6ed129f25d9f1ca28f7ee19b2",
+          "evaluationPath": "challenges/evaluations/accepted-2a0173971a37c29e79ad85b6438561097d24ca76-v29.json",
+          "evaluationCommit": "2a0173971a37c29e79ad85b6438561097d24ca76"
+        }
+      },
+      "activeStanding": {
+        "sha": "2a0173971a37c29e79ad85b6438561097d24ca76",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-eat-chameleon-tin",
+          "session": "synthetic/v29/v29-eat-chameleon-tin",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-eat-chameleon-tin.session.json",
+          "recordingPath": "challenges/cases/v29/v29-eat-chameleon-tin.session.json",
+          "recordingSha256": "238db4fb3be6fc6c4706076385032a868eab92d6ed129f25d9f1ca28f7ee19b2",
+          "recipe": "challenges/cases/v29/v29-eat-chameleon-tin.recipe.session.json",
+          "recipeSha256": "7efdd869db6b0380fd04c3a55aec01785631d38f98a4b3917450ed9f79eb90cf",
+          "replayInputSha256": "5235868e85ae11a019eb6aab30a5f93e82cf4fdd10dd25a6ce967939d3eb8449",
+          "evaluationPath": "challenges/evaluations/accepted-2a0173971a37c29e79ad85b6438561097d24ca76-v29.json",
+          "evaluationCommit": "2a0173971a37c29e79ad85b6438561097d24ca76",
+          "evaluationArtifact": "challenges/evaluations/accepted-2a0173971a37c29e79ad85b6438561097d24ca76-v29.json",
+          "evaluationUtc": "2026-10-08T08:45:40.748Z",
+          "remainingScreens": 9,
+          "recordedSteps": 46,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 46
+            },
+            "rng": {
+              "matched": 2662,
+              "total": 2705
+            },
+            "cursors": {
+              "matched": 43,
+              "total": 46
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 37,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 69,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2661,
+              "cEntry": "rn2(20)=6",
+              "cCaller": "polyself(polyself.c:490)",
+              "jsEntry": "rn2(5)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "y"
+              },
+              "stepIndex": 37
+            },
+            "cursor": {
+              "index": 37,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "y"
+              },
+              "cCursor": [
+                77,
+                0,
+                1
+              ],
+              "jsCursor": [
+                53,
+                17,
+                1
+              ]
+            }
+          },
+          "step": 37,
+          "kind": "rng",
+          "sourceFile": "polyself.c",
+          "function": "polyself",
+          "message": null,
+          "cFile": "polyself.c",
+          "luaFile": null,
+          "line": 490,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-eat-chameleon-tin.json",
+            "result": {
+              "session": "synthetic/v29/v29-eat-chameleon-tin",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-eat-chameleon-tin",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "238db4fb3be6fc6c4706076385032a868eab92d6ed129f25d9f1ca28f7ee19b2",
+              "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+              "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+              "remainingScreens": 9,
+              "recordedSteps": 46,
+              "status": "complete",
+              "commit": "27b02bc5686ab15f3ad0243904d34884379a822f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-eat-chameleon-tin",
+                "session": "synthetic/v29/v29-eat-chameleon-tin",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-eat-chameleon-tin.session.json",
+                "recordingPath": "challenges/cases/v29/v29-eat-chameleon-tin.session.json",
+                "recordingSha256": "238db4fb3be6fc6c4706076385032a868eab92d6ed129f25d9f1ca28f7ee19b2",
+                "recipe": "challenges/cases/v29/v29-eat-chameleon-tin.recipe.session.json",
+                "recipeSha256": "7efdd869db6b0380fd04c3a55aec01785631d38f98a4b3917450ed9f79eb90cf",
+                "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+                "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+                "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+                "evaluationArtifact": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+                "evaluationUtc": "2026-10-08T08:02:48.939Z",
+                "remainingScreens": 9,
+                "recordedSteps": 46,
+                "previousScreensMatched": 37,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 46
+                  },
+                  "rng": {
+                    "matched": 2662,
+                    "total": 2705
+                  },
+                  "cursors": {
+                    "matched": 43,
+                    "total": 46
+                  }
+                },
+                "firstMismatch": {
+                  "passed": false,
+                  "error": null,
+                  "lengths": {
+                    "rng": {
+                      "c": 2705,
+                      "js": 2676
+                    },
+                    "screens": {
+                      "c": 46,
+                      "js": 46
+                    },
+                    "cursors": {
+                      "c": 46,
+                      "js": 46
+                    },
+                    "animFrames": {
+                      "c": 0,
+                      "js": 0
+                    }
+                  },
+                  "rngMismatch": {
+                    "index": 2661,
+                    "cEntry": "rn2(20)=6",
+                    "cCaller": "polyself(polyself.c:490)",
+                    "jsEntry": "rn2(5)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "y"
+                    }
+                  },
+                  "screenMismatch": {
+                    "index": 37,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 69,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "cursorMismatch": {
+                    "index": 37,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      77,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      53,
+                      17,
+                      1
+                    ]
+                  },
+                  "animMismatch": null,
+                  "segmentMismatch": null
+                },
+                "step": 37,
+                "kind": "rng",
+                "sourceFile": "eat.c",
+                "function": "cpostfx",
+                "message": null,
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": 1262
+              },
+              "summary": "The chameleon tin is consumed early and grants its fixed nutrition, but eat.c:cpostfx skips the subsequent canonical polyself(POLY_NOFLAGS) call. At step37 C begins polymorph system-shock RNG and becomes a male rothe; JavaScript records a polyself gap and continues in human form. Wire that single shared corpse/tin/digestion caller after the source message, preserving early tin lifetime and both random/controlled polymorph source behavior.",
+              "source": {
+                "file": "eat.c",
+                "branch": "PM_CHAMELEON, PM_DOPPELGANGER, PM_SANDESTIN or PM_GENETIC_ENGINEER with !Unchanging: use_up_tin and lesshungry precede the metamorphosis message and polyself(POLY_NOFLAGS). Unchanging bypasses those early effects and preserves ordinary tin consumption tail.",
+                "functions": [
+                  "cpostfx() bounded polymorph caller at1251-1263; no whole cpostfx credit"
+                ],
+                "callers": [
+                  "eat.c:consume_tin1611-1613 -> cpostfx after cprefx and early tin guard, through cmd.c doeat command and start_tin occupation. JS eat.js consume_tin1128 already awaits shared cpostfx.",
+                  "eat.c:done_eating563 -> cpostfx after completed corpse meal, and Finish_digestion3964 -> cpostfx from hack.c unmul delayed digestion. Existing shared caller function ensures the same source correction reaches all three."
+                ],
+                "dependencies": [
+                  "Reuse canonical polyself.c:polyself469-731 and newman334-467. Independent genetic-engineer tin exposes missing optional env forwarding: successful newman changes Satiated to NotHungry but both newuhs(FALSE) sites lack statusRefresh. Supporting bounded reconciliation forwards env through both existing newman calls and supplies canonical live bot or silent planning refresh; no whole polyself/newman credit.",
+                  "Existing eat.c:use_up_tin1516-1527 / js/eat.js1030 clears tin pointer and o_id before potentially fatal polymorph; canonical lesshungry preserves source200 plus metallivorous5 nutrition.",
+                  "Consumed-return helpers in complete cpostfx1129-1329 (corpse_intrinsic, attack/damage/property/race checks) already have canonical owners; this bounded divergence adds no new return-valued dependency. Source-discarded mimic dismount/display and lycanthropy retouch gaps remain excluded.",
+                  "Canonical polymon body/equipment owners handle selected male rothe, shield removal and spear drop. Independent variations must cover transformed food consumption and Unchanging immediately outside the caller guard; record source-valid remaining limits rather than broadening unrelated polymorph owners.",
+                  "C initializes svc.context.tin before every cpostfx entry. A corpse-first independent route has no JS tin context yet, so this branch must obtain the canonical tinContext(state).tin, whose NULL default excludes tin-only nutrition and deletion."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Read whole upstream eat.c:cpostfx1129-1329 and JS eat.js2558-2808; the four polymorph-food species share the exact source branch1251-1263. JS already reproduces early use_up_tin/lesshungry/message but uses note_unported(polyself.c polyself) instead of the existing canonical async function. Whole caller source review finds no source flag conditional that permits skipping this call.",
+                "Read whole upstream polyself.c:polyself469-731 and newman334-467. The selected random polymon path needs only the existing canonical caller. The independent genetic-engineer tin reaches successful newman and exposes the missing newuhs status operation; C newman433/437 and polyself692/714 establish the exact supporting env-forwarding sites.",
+                "Current saved accepted8b31f4af v29 evaluation has37/46 screens and nine remaining. Read-only replay at examined27b02bc5 reproduces the exact first RNG mismatch: C rn2(20)=6 at polyself.c490 versus JS rn2(5)=1 at zero-basedstep37, after the consume/change message; no refusal occurs. Artifact .cache/A151/before-replay.log preserve all outputs and final cleared tin pointer/o_id.",
+                "Immutable C steps37-39 show system-shock test, random candidate rn2(330)=81, newman gate rn2(5)=2, polymon sex draw rn2(10)=0, then male rothe/shield removal/spear drop. JS stays human with polyselfs0; early nutrition/tin clearing are already correct and must precede the added call.",
+                "Scope is a bounded divergence in the existing source owner cpostfx; reserve source:eat.c:cpostfx and contract:tin-polymorph-consumption. Edit js/eat.js, focused eat-tin/corpse tests and dedicated food-polymorph runner, independent recipes/eat.c and recordings/eat.c. No whole cpostfx/polyself/polymon credit. Active command/tin occupation, corpse meal and delayed digestion callers require admitted or independent evidence as reachable; any helper setup blocker must remain explicit.",
+                "Independent source-valid corpse entry reaches done_eating -> cpostfx without a tin context; the original JS dereference throws at eat.js2715 whereas C reads its zeroed NULL pointer. The canonical context initializer supplies that source default.",
+                "Purple-worm genetic-engineer digestion reaches Finish_digestion -> cpostfx. Its stable screens/RNG/cursors match after the bounded correction, but transient animation differs before that callback: C start_engulf delays show the swallow message whereas JS retains the preceding bite pager. Source Invisible excludes tmp_at placement but not nh_delay_output capture, so this remains an explicit independent display boundary rather than whole-source completion evidence."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { isok } from '../js/cmd_isok.js';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -111,7 +112,6 @@ import {
     TROUBLE_STUNNED,
     TROUBLE_UNUSEABLE_HANDS,
     TROUBLE_WOUNDED_LEGS,
-    UnsupportedPrayerError,
     altar_wrath,
     altarmask_at,
     angrygods,
@@ -1227,13 +1227,7 @@ test('angrygods() sizes rn2(maxanger) from anger, luck and alignment',
             clearTtyMessageWindow(game);
             for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
             const before = getRngLog().length;
-            await angrygods(coaligned ? A_LAWFUL : A_CHAOTIC, game)
-                .catch((error) => {
-                    // Cases 6 through 8 and the default remain refused by
-                    // name; cases 4 and 5 now run their source-backed curse
-                    // arm. Every case draws rn2(maxanger) first.
-                    assert.ok(error instanceof UnsupportedPrayerError, `${label}: ${error.stack}`);
-                });
+            await angrygods(coaligned ? A_LAWFUL : A_CHAOTIC, game);
             assert.match(
                 getRngLog()[before],
                 new RegExp(`^rn2\\(${bound}\\)=`, 'u'),
@@ -1286,12 +1280,7 @@ test('gods_upset() moves u.ugangr toward the god it names', async () => {
         // next call's message does not stop for a --More-- no key answers.
         clearTtyMessageWindow(game);
         for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
-        return gods_upset(align, game).catch((error) => {
-            // The anger bookkeeping occurs before angrygods(). Some random
-            // outcomes still reach intentionally deferred punishment arms,
-            // while cases 0 through 3 now complete source-backed behavior.
-            assert.ok(error instanceof UnsupportedPrayerError);
-        });
+        return gods_upset(align, game);
     };
 
     game.u.ugangr = 0;
@@ -1506,20 +1495,11 @@ test('prayer_done() runs pleased() and its water caller branches', async () => {
     };
     game.level.objects[game.u.ux][game.u.uy] = crossAlignedWater;
     for (let i = 0; i < 128; ++i) game.nhDisplay.pushKey(32);
-    const crossAlignedError = await prayer_done(game).catch((error) => error);
+    await prayer_done(game);
     assert.equal(crossAlignedWater.cursed, true);
-    if (crossAlignedError instanceof Error) {
-        assert.ok(
-            crossAlignedError instanceof UnsupportedPrayerError,
-            `${crossAlignedError.constructor?.name}: ${crossAlignedError.message}`,
-        );
-        assert.doesNotMatch(crossAlignedError.message, /water_prayer/u);
-        assert.match(crossAlignedError.message, /angrygods\(\)/u);
-    }
 
-    // p_type 1 calls the same helper before angrygods(), without p_type 0's
-    // delay or Luck penalties. Its specific helper path is reached despite any
-    // later angrygods() branch that remains outside this task.
+    // p_type 1 calls water_prayer before the full anger response, without
+    // p_type 0's timer or Luck penalties.
     const p1Water = {
         otyp: POT_WATER,
         oclass: POTION_CLASS,
@@ -1532,16 +1512,8 @@ test('prayer_done() runs pleased() and its water caller branches', async () => {
     game.level.objects[game.u.ux][game.u.uy] = p1Water;
     game.gp = { p_type: 1, p_aligntyp: A_CHAOTIC };
     for (let i = 0; i < 128; ++i) game.nhDisplay.pushKey(32);
-    const p1Error = await prayer_done(game).catch((error) => error);
+    await prayer_done(game);
     assert.equal(p1Water.cursed, true);
-    if (p1Error instanceof Error) {
-        assert.ok(
-            p1Error instanceof UnsupportedPrayerError,
-            `${p1Error.constructor?.name}: ${p1Error.message}`,
-        );
-        assert.doesNotMatch(p1Error.message, /water_prayer|p_type 1 arm/u);
-        assert.match(p1Error.message, /angrygods\(\)/u);
-    }
 
     // With no changeable water, p_type 2 consumes FALSE and reaches pleased().
     game.level.objects[game.u.ux][game.u.uy] = null;
@@ -1551,9 +1523,9 @@ test('prayer_done() runs pleased() and its water caller branches', async () => {
     await prayer_done(game);
     assert.match(game._pending_message, /^You feel that .* is /u);
 
-    for (const [name, typ, aligntyp] of [
-        ['a coaligned altar', ALTAR, game.u.ualign.type],
-        ['no altar at all', wasTyp, A_CHAOTIC],
+    for (const [typ, aligntyp] of [
+        [ALTAR, game.u.ualign.type],
+        [wasTyp, A_CHAOTIC],
     ]) {
         here.typ = typ;
         game.gp = { p_type: 0, p_aligntyp: aligntyp };
@@ -1561,14 +1533,7 @@ test('prayer_done() runs pleased() and its water caller branches', async () => {
         // message stops for a --More-- no key answers.
         clearTtyMessageWindow(game);
         for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
-        const error = await prayer_done(game).catch((error) => error);
-        if (error instanceof Error) {
-            // angrygods() can still refuse whichever case its rn2() draws;
-            // what must not happen is the water_prayer() stop.
-            assert.ok(error instanceof UnsupportedPrayerError, name);
-            assert.doesNotMatch(error.message, /water_prayer/u, name);
-            assert.match(error.message, /angrygods\(\)/u, name);
-        }
+        await prayer_done(game);
     }
     here.typ = wasTyp;
     here.flags = wasMask;
@@ -2134,4 +2099,15 @@ test('angrygods case 6 calls punish only when unpunished, in source order', asyn
     await angrygods(A_LAWFUL, game);
     assert.equal(game.uball, attachedBall); // case 6 now falls into cases 4-5, not punish.
     assert.doesNotMatch(game._pending_message, /iron ball gets heavier/u);
+});
+
+test('own-race sacrifice reaches source angry gods and minion in v29', async () => {
+    // pray.c:1765-1771 calls angrygods before the Luck penalty; cases7/8
+    // summon an elemental and set the prayer timer in the selected record.
+    assert.match(PRAY_C, /angrygods\(u\.ualign\.type\);\s*change_luck\(-5\);/u);
+    assert.doesNotMatch(PRAY_JS, /note_unported\('pray\.c angrygods'\)/u);
+    const recording = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v29/v29-sacrifice-human-race.session.json', import.meta.url), 'utf8'));
+    const result = await runJsSession(recording, process.cwd());
+    assert.equal(compareSessionOutputs(recording, result).passed, true);
 });
