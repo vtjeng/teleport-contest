@@ -213671,7 +213671,7 @@
     {
       "id": "port-wizcmds-wiz-objprobs-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete wizard object probability report and bounded command dispatcher",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -213685,8 +213685,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_objprobs",
@@ -213932,6 +213935,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

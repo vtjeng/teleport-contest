@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T19:25:42.917Z",
+  "capturedAt": "2026-10-08T19:39:15.266Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -66346,12 +66346,110 @@
         "type": "accepted",
         "at": "2026-10-08T19:25:35.007Z",
         "task": "A165"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A165-10e4532b8-20261008",
+        "type": "published",
+        "at": "2026-10-08T19:26:14.770Z",
+        "task": "A165",
+        "commit": "10e4532b85b733f8b32c86155c81957f1ec700cd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A167-display-macros-20261008",
+        "type": "implement",
+        "at": "2026-10-08T19:26:59.692Z",
+        "task": "A167",
+        "goal": "port-wizcmds-wiz-display-macros-v31-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A166-review-20261008",
+        "type": "activity",
+        "at": "2026-10-08T19:28:32.859Z",
+        "task": "A166",
+        "phase": "review",
+        "reason": "Reviewing the whole wiz_objprobs translation, float32 percentage formatting, dispatcher wiring, and independent C-first table evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A166-3c3b11a2a-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T19:32:06.726Z",
+        "task": "A166",
+        "integration": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-74e61dc29d4121756dc449665b3cc7ae0a87b3a2",
+        "type": "ready",
+        "at": "2026-10-08T19:34:41.739Z",
+        "task": "B164",
+        "delivery": "74e61dc29d4121756dc449665b3cc7ae0a87b3a2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B164-74e61dc2-20261008",
+        "type": "received",
+        "at": "2026-10-08T19:35:22.637Z",
+        "task": "B164",
+        "delivery": "74e61dc29d4121756dc449665b3cc7ae0a87b3a2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B165-tinning-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T19:36:17.311Z",
+        "task": "B165",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B165-investigation-active-20261008",
+        "type": "turn",
+        "at": "2026-10-08T19:36:18.472Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the remaining petrifying-corpse tinning mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A166-3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d-validated",
+        "type": "validated",
+        "at": "2026-10-08T19:36:36.070Z",
+        "task": "A166",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-73ca874db82e89244683ec1e83ad2fca03893db3",
+        "type": "ready",
+        "at": "2026-10-08T19:38:21.646Z",
+        "task": "A167",
+        "delivery": "73ca874db82e89244683ec1e83ad2fca03893db3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A166-3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T19:38:48.199Z",
+        "task": "A166"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A167-73ca874d-20261008",
+        "type": "received",
+        "at": "2026-10-08T19:39:11.071Z",
+        "task": "A167",
+        "delivery": "73ca874db82e89244683ec1e83ad2fca03893db3"
       }
     ]
   },
   "development": {
-    "executionCommit": "7002c1cb236a754350f7d8a5384840474ab5d55b",
-    "measuredAt": "2026-10-08T19:22:45.775Z",
+    "executionCommit": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+    "measuredAt": "2026-10-08T19:35:55.682Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
