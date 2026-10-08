@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pickup.c:reverse_loot witness. Naturally generated nearest floor chest receives the contribution; this seed has a chest so it does not claim no-chest court creation. Seed/clock/setup selected independently before comparison; potion inventory letter established from C-only setup inspection.",
+  "segments": [
+    {
+      "seed": 15630034,
+      "datetime": "20400617131231",
+      "nethackrc": "OPTIONS=name:Reverse15630034,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017throne\n\u0017137 gold pieces\n\u0017uncursed potion of confusion\nqe  #loot\n  #loot\n  #loot\n  #loot\n  "
+    }
+  ]
+}
