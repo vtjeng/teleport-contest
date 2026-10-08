@@ -1,0 +1,112 @@
+{
+  "session": "synthetic/v32/v32-coordinate-monster-list",
+  "corpus": "synthetic",
+  "batch": "v32",
+  "caseId": "v32-coordinate-monster-list",
+  "manifestPath": "challenges/manifests/v32.json",
+  "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+  "recordingSha256": "d751892501b5009acd7ec71d16c86567850ba542eff17959ea975d06f66cc23e",
+  "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+  "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+  "remainingScreens": 14,
+  "recordedSteps": 32,
+  "status": "complete",
+  "commit": "c7a65acb1e97e83b1de1b481846241ed0246be55",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v32",
+    "caseId": "v32-coordinate-monster-list",
+    "manifestPath": "challenges/manifests/v32.json",
+    "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+    "recordingPath": "challenges/cases/v32/v32-coordinate-monster-list.session.json",
+    "recordingSha256": "d751892501b5009acd7ec71d16c86567850ba542eff17959ea975d06f66cc23e",
+    "recipeSha256": "ec73d98d4d12053c8c689a491827193286c57f1cec17bec40d3b812ad76eceb3",
+    "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+    "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+    "evaluationUtc": "2026-10-08T21:20:26.992Z",
+    "session": "synthetic/v32/v32-coordinate-monster-list",
+    "remainingScreens": 14,
+    "recordedSteps": 32,
+    "metrics": {
+      "screens": {
+        "matched": 18,
+        "total": 32
+      },
+      "rng": {
+        "matched": 2322,
+        "total": 2322
+      },
+      "cursors": {
+        "matched": 18,
+        "total": 32
+      }
+    },
+    "step": 18,
+    "kind": "stop",
+    "sourceFile": "pager.c",
+    "function": "look_all",
+    "line": 1979,
+    "message": "unsupported hero command: an unported branch of this command: unsupported whatis: alternate list coordinates",
+    "replayCommit": "c7a65acb1e97e83b1de1b481846241ed0246be55"
+  },
+  "summary": "The full-compass nearby-monster list reaches look_all, but JS refuses every coordinate mode except NONE/MAP. Port whole pager.c:look_all, reusing the existing source coordinate formatter with an explicit mode argument, and preserve source hero sensing, invisible/warning rows, coordinate widths, truncation and decoded glyph cells. Alternate trap/engraving list coordinates remain separate source limits.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "pager.c",
+    "functions": [
+      "look_all"
+    ],
+    "branch": "A non-hallucinating, unswallowed hero selects m/M/o/O from do_look with a configured compass/full-compass/screen coordinate mode; current JS checks the mode before scanning and refuses it.",
+    "callers": [
+      "pager.c:do_look1859-1870 dispatches m/M/o/O to look_all(TRUE/ FALSE, TRUE/ FALSE), then returns ECMD_OK. Existing js/pager.js awaits all four cases; typed #whatis and help-menu whatis enter the same production do_look family."
+    ],
+    "dependencies": [
+      "getpos.c:coord_desc595-645 and pure dxdy_to_dist_descr554-589 are already translated and source-pinned in js/getpos.js/scripts/getpos-cycle.test.mjs. Source look_all supplies explicit cmode, including NONE-to-MAP fallback; add that explicit argument without option mutation.",
+      "pager.c:look_region_nearby1967-1975 returns clipped row-major bounds; existing js/pager.js/source-pinned test covers the asymmetric x/y lower bounds.",
+      "Existing self_lookat108-133, look_at_monster422-552 and look_at_object383-419 provide consumed output buffers. monhealthdescr is compile-time disabled and returns empty. Preserve existing naming/state dependencies; no copied description helper.",
+      "display.h:canspotself171-176 uses Blind/uswallow/(!Invisible&&!uundetected) or Unblind_telepat/Detect_monsters. Existing display.js private hero helper is separate; use the exact expression in pager without reserving the active display owner.",
+      "display.c glyph predicates/glyph_to_warning, map_glyphinfo plus tty_menu.js decoded glyphCells provide existing glyph classification/text output. Source look_all putmixed decodes the encoded glyph; use this substrate rather than remembered disp_ch.",
+      "pager.c:look_traps and look_engrs independently still refuse alternate coordinates. They are outside this whole look_all scope; preserve a representative blocked recipe. No do_look completion credit."
+    ]
+  },
+  "evidence": [
+    "Assigned-base .cache/B176/scan.json/log reproduces18/32screens and first stop segment0step18 keym, no earlier divergence; saved evaluation has2322/2322RNG and18/32cursors. C header is Monsters currently shown near (here):.",
+    "Complete pager.c:look_all1979-2084 scans y-major/x-minor, counts monster/self/invisible/warning or object rows, uses source constants for warning/invisible text, emits the header on count1, then coordinate prefix and encoded glyph. Source calls display_nhwindow(TRUE) if count, otherwise pline, then destroys the window.",
+    "Current JS look_all827-884 only accepts NONE/MAP, hardcodes map header/alignment, treats any hero glyph as visible self, omits invisible/warning rows and uses remembered display character. All are branches of the same selected function rather than new source owners.",
+    "C coordinate widths are raw SCREEN, MAP right-aligned8 with single-digit-y trailing space, compass/full-compass right-aligned12. COMPASS nearby header is you/your position; COMFULL header is coord_desc(hero)=(here). Source lookbuf capacity accounts for encoded glyph length before decode.",
+    "Existing getpos-cycle.test.mjs136 pins every pure mode. Add explicit-mode override test and source-derived alignment/header/glyph-row tests, plus independent C-first nearby/all monster/object variations. Admitted range18-31 supplies the full-compass nearby-monster entry. Future runtime blockers must remain named, with no broader pager/getpos completion claim."
+  ],
+  "proposal": {
+    "goalId": "port-pager-look-all-coordinate-modes-v32-20261008",
+    "summary": "Port complete map monster/object lists and coordinate modes.",
+    "selectionReason": "Independent v32 seed continuation after B174 and B175 report. Exact assigned-base refusal identifies whole look_all; source does not overlap queued do_look or active display owners.",
+    "detail": "The full-compass nearby-monster list reaches look_all, but JS refuses every coordinate mode except NONE/MAP. Port whole pager.c:look_all, reusing the existing source coordinate formatter with an explicit mode argument, and preserve source hero sensing, invisible/warning rows, coordinate widths, truncation and decoded glyph cells. Alternate trap/engraving list coordinates remain separate source limits.",
+    "sourceUnits": [
+      {
+        "file": "pager.c",
+        "name": "look_all",
+        "start": 1979,
+        "end": 2084
+      }
+    ],
+    "completionCredit": "Whole look_all only; verify existing pure coordinate formatter and source bounds; no whole do_look/getpos/display credit.",
+    "proposedReservations": [
+      "session:synthetic/v32/v32-coordinate-monster-list",
+      "source:pager.c:look_all",
+      "contract:map-list-coordinate-modes"
+    ],
+    "proposedPaths": [
+      "js/pager.js",
+      "js/getpos.js",
+      "scripts/whatis-command.test.mjs",
+      "scripts/getpos-cycle.test.mjs",
+      "scripts/run-coordinate-lists.mjs",
+      "recipes/pager.c/",
+      "recordings/pager.c/",
+      "investigations/synthetic/v32/v32-coordinate-monster-list.json",
+      ".cache/"
+    ],
+    "dependencies": []
+  }
+}
