@@ -13,6 +13,11 @@ import {
     ECMD_TIME,
     FOUNTAIN,
     GRAVE,
+    GLIB,
+    DRAIN_RES,
+    ACID_RES,
+    A_MAX,
+    UTOTYPE_DEFERRED,
     FROMOUTSIDE,
     ICE,
     LADDER,
@@ -53,6 +58,7 @@ import {
     PM_QUEEN_BEE,
     PM_LICHEN,
     PM_TRAPPER,
+    PM_VAMPIRE,
     S_DRAGON,
     S_EEL,
 } from '../js/monsters.js';
@@ -1165,4 +1171,122 @@ test('maybe_unhide_at returns for a square holding nobody', async () => {
         () => maybe_unhide_at(game.u.ux, game.u.uy, game),
     );
     game.u.uundetected = 0;
+});
+
+
+test('Vlad throne grease excludes coins and keeps its source RNG and timeout order', async () => {
+    const start = C_SIT.indexOf('special_throne_effect(int effect) {');
+    const special = C_SIT.slice(start, C_SIT.indexOf('lay_an_egg(void)', start));
+    assert.match(special, /oclass != COIN_CLASS[\s\S]*?greased = 1;[\s\S]*?make_glib\(rn1\(101, 100\)\);[\s\S]*?update_inventory\(\)/u);
+    await standOnStairs();
+    heroSquare().typ = THRONE;
+    game.u.uz.dnum = game.tower_dnum;
+    game.wizard = false;
+    const coin = addinv(mksobj(GOLD_PIECE, false, false, objectGenerationEnv({ state: game })), { state: game });
+    const objects = inventoryObjects();
+    for (const object of objects) object.greased = false;
+    const calls = [], messages = [];
+    const random = {
+        rnd(n) {
+            calls.push(['rnd', n]);
+            return n === 6 ? 5 : 6; // Proc the effect, then choose grease case6.
+        },
+        rn1(n, base) {
+            calls.push(['rn1', n, base]);
+            return base + 93; // Source rn2(101)=93, inside [100,200].
+        },
+    };
+    assert.equal(await dosit(game, { random, message: async text => messages.push(text) }), ECMD_TIME);
+    assert.deepEqual(calls, [['rnd', 6], ['rnd', 13], ['rn1', 101, 100]]);
+    assert.deepEqual(messages, ['You sit on the opulent throne.', 'A greasy liquid sprays all over you!']);
+    assert.equal(coin.greased, false);
+    assert.ok(objects.filter(object => object.oclass !== COIN_CLASS).every(object => object.greased));
+    assert.equal(game.u.uprops[GLIB].intrinsic, 193);
+    assert.equal(heroSquare().typ, THRONE, 'special throne has no ordinary random removal draw');
+    assert.ok(!game.unported.has('sit.c special_throne_effect'));
+});
+
+
+async function specialThroneFixture() {
+    await standOnStairs();
+    heroSquare().typ = THRONE;
+    game.u.uz.dnum = game.tower_dnum;
+    game.wizard = false;
+}
+
+function selectedThroneRandom(effect, extra = {}) {
+    return { rnd: n => n === 6 ? 5 : effect, ...extra }; // C's gate >4, then selected effect.
+}
+
+test('Vlad drain checks both resistance terms and permanently lowers peak level', async () => {
+    for (const source of [null, 'intrinsic', 'extrinsic']) {
+        const resistant = source !== null;
+        await specialThroneFixture();
+        game.u.ulevel = 2; // Above lethal level-one drain.
+        game.u.ulevelmax = 4; // A previously reached higher level.
+        if (source) game.u.uprops[DRAIN_RES][source] = 1; // Either C macro term grants resistance.
+        const messages = [];
+        await dosit(game, { random: selectedThroneRandom(5), message: async t => messages.push(t) });
+        assert.equal(game.u.ulevel, resistant ? 2 : 1);
+        assert.equal(game.u.ulevelmax, resistant ? 4 : 3);
+        assert.ok(messages.includes('Sitting on the throne was a terrible experience.'));
+    }
+});
+
+test('Vlad teleport schedules the penultimate Gehennom level unless carrying the Amulet', async () => {
+    for (const amulet of [false, true]) {
+        await specialThroneFixture();
+        game.u.uhave.amulet = amulet;
+        game.u.utotype = 0;
+        const messages = [];
+        await dosit(game, { random: selectedThroneRandom(8), message: async t => messages.push(t) });
+        if (amulet) {
+            assert.equal(game.u.utotype, 0);
+            assert.ok(messages.includes('You feel extremely disoriented for a moment.'));
+        } else {
+            assert.equal(game.u.utotype, UTOTYPE_DEFERRED);
+            const dnum = game.valley_level.dnum;
+            assert.deepEqual(game.u.utolev, { dnum, dlevel: game.dungeons[dnum].num_dunlevs - 1 });
+            assert.equal(game.gd.dfr_post_msg, 'You feel extremely out of place.');
+        }
+    }
+});
+
+test('Vlad polymorph leaves a vampire unchanged', async () => {
+    await specialThroneFixture();
+    game.youmonst.data = game.mons[PM_VAMPIRE]; // is_vampire selects the no-polyself arm.
+    const messages = [];
+    await dosit(game, { random: selectedThroneRandom(11), message: async t => messages.push(t) });
+    assert.deepEqual(messages, ['You sit on the opulent throne.', 'You feel unworthy.']);
+    assert.equal(game.youmonst.data, game.mons[PM_VAMPIRE]);
+});
+
+test('Vlad acid chooses source damage bounds before CON exercise', async () => {
+    for (const source of [null, 'intrinsic', 'extrinsic']) {
+        const resistant = source !== null;
+        await specialThroneFixture();
+        if (source) game.u.uprops[ACID_RES][source] = 1; // Both terms select rnd(16).
+        const calls = [];
+        const random = { rnd(n) { calls.push(n); return n === 6 ? 5 : n === 13 ? 12 : 1; },
+            rn2: () => 1 }; // One nonfatal damage; exercise stays within C's rn2 branch.
+        const before = game.u.uhp;
+        await dosit(game, { random, message: async () => {} });
+        assert.deepEqual(calls, [6, 13, resistant ? 16 : 80]);
+        assert.equal(game.u.uhp, before - 1);
+    }
+});
+
+test('Vlad ability shuffle draws for all abilities and has no throne-removal draw', async () => {
+    await specialThroneFixture();
+    const calls = [], messages = [];
+    const random = selectedThroneRandom(13, { rn2(n) { calls.push(n); return 2; } });
+    // rn2(5)=2 produces zero adjustment for each ability, preserving its base.
+    await dosit(game, { random, message: async t => messages.push(t) });
+    assert.deepEqual(calls, Array(A_MAX).fill(5));
+    assert.ok(messages.includes('As you sit on the throne, your body and mind start to warp.'));
+    assert.equal(heroSquare().typ, THRONE);
+    const start = C_SIT.indexOf('special_throne_effect(int effect) {');
+    const special = C_SIT.slice(start, C_SIT.indexOf('lay_an_egg(void)', start));
+    assert.match(special, /ability < A_MAX[\s\S]*?adjattrib\(ability, rn2\(5\) - 2, -1\)/u);
+    assert.match(special, /seeems to be calling for help![\s\S]*?msummon\(NULL\);\s*msummon\(NULL\);\s*msummon\(NULL\);/u);
 });

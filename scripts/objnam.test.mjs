@@ -1292,11 +1292,9 @@ test('the worn-glove matrix keeps its enchantment spread and control', () => {
     assert.equal(control.datetime, knight.datetime);
 });
 
-// C ref: objnam.c doname_base():1400-1407. Slippery fingers are a property of
-// the hero, not of the gloves, so no differential can reach this clause:
-// js/wield.js:102 records that nothing in the port grants Glib, and the three
-// roles that start in a pair start with dry hands. scripts/run-worn-glove-name
-// .mjs records what C paints for those three; only a unit test can set Glib.
+// C ref: objnam.c doname_base():1400-1407. Slippery fingers belong to
+// the hero; only the worn glove slot gains this clause. The independent
+// run-special-throne.mjs routes establish its live inventory output.
 test('worn gloves take the slippery clause and nothing else does', () => {
     const state = namingState();
     const gloves = objectOf(state, LEATHER_GLOVES,
@@ -1314,10 +1312,10 @@ test('worn gloves take the slippery clause and nothing else does', () => {
     state.u.uprops[GLIB] = { extrinsic: 1 };
     assert.match(donameFresh(gloves, state), / \(being worn\)$/u);
 
-    // C:1406's Concat(bp, 1, "; slippery)") backs up over the paren it just
-    // wrote, so the phrase gains a clause rather than a second parenthesis.
+    // C:1406 passes bp_eos-1 to strncat, which scans the existing paren
+    // and appends after it. The recorder preserves this accidental syntax.
     state.u.uprops[GLIB] = { intrinsic: 1 };
-    assert.match(donameFresh(gloves, state), / \(being worn; slippery\)$/u);
+    assert.match(donameFresh(gloves, state), / \(being worn\); slippery\)$/u);
 
     // C tests `obj == uarmg`, not the mask, so a second pair of gloves the
     // hero is not wearing in that slot stays dry even while she is slippery.
@@ -1331,16 +1329,17 @@ test('worn gloves take the slippery clause and nothing else does', () => {
 
 test('Concat and ConcatF keep their distinct C byte bounds and delta writes',
     () => {
+        assert.match(OBJNAM_SOURCE, /Strncat\(base ## _eos - delta, text, base ## spaceleft \+ delta\)/u);
         // objnam.c sets BUFSZ=256 and PREFIX=80; bp therefore has 175 bytes
         // before its terminating NUL. The final ')' makes delta=1 observable.
         const capacity = 256 - 80 - 1;
         const fullBody = `${'x'.repeat(capacity - 1)})`;
         assert.equal(fullBody.length, capacity);
 
-        // strncat(spaceleft + delta) copies one byte after backing up one.
+        // strncat scans past the existing final byte and appends one byte.
         assert.equal(
             concatNameBody(fullBody, '; slippery)', 1),
-            `${'x'.repeat(capacity - 1)};`,
+            `${fullBody};`,
         );
         // snprintf(size=1) writes only the NUL after backing up, so the
         // replaced closing parenthesis disappears without a replacement.
