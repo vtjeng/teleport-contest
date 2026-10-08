@@ -213398,7 +213398,7 @@
     {
       "id": "port-wizcmds-wiz-show-wmodes-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete wizard wall-mode diagnostic and bounded command dispatcher",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -213412,8 +213412,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_show_wmodes",
@@ -213657,6 +213660,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

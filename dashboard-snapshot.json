@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T19:15:30.503Z",
+  "capturedAt": "2026-10-08T19:25:42.917Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -66247,12 +66247,111 @@
         "type": "accepted",
         "at": "2026-10-08T19:15:22.933Z",
         "task": "B163"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B163-6df60c06f-20261008",
+        "type": "published",
+        "at": "2026-10-08T19:16:05.671Z",
+        "task": "B163",
+        "commit": "6df60c06fd5447d98567c8787f19aad2e433f265"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B164-selection-active-20261008",
+        "type": "turn",
+        "at": "2026-10-08T19:16:37.837Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Selecting the next independent source task after the corpse RNG correction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B164-container-probing-20261008",
+        "type": "assign",
+        "at": "2026-10-08T19:18:00.588Z",
+        "task": "B164",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-A165-review-20261008",
+        "type": "activity",
+        "at": "2026-10-08T19:18:34.114Z",
+        "task": "A165",
+        "phase": "review",
+        "reason": "Reviewing the complete wiz_show_wmodes source translation, dispatcher wiring, and independent C-first text-window evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A165-7002c1cb2-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T19:19:05.886Z",
+        "task": "A165",
+        "integration": "7002c1cb236a754350f7d8a5384840474ab5d55b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-84fa155929d37163a0fd4475fc9a54105674a2d3",
+        "type": "ready",
+        "at": "2026-10-08T19:20:19.666Z",
+        "task": "A166",
+        "delivery": "84fa155929d37163a0fd4475fc9a54105674a2d3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A166-84fa1559-20261008",
+        "type": "received",
+        "at": "2026-10-08T19:21:11.042Z",
+        "task": "A166",
+        "delivery": "84fa155929d37163a0fd4475fc9a54105674a2d3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A167-display-macros-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T19:22:19.580Z",
+        "task": "A167",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A167-display-macros-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T19:22:20.823Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B164-cinventory-20261008",
+        "type": "implement",
+        "at": "2026-10-08T19:22:22.355Z",
+        "task": "B164",
+        "goal": "port-invent-display-cinventory-v31-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A165-7002c1cb236a754350f7d8a5384840474ab5d55b-validated",
+        "type": "validated",
+        "at": "2026-10-08T19:23:21.560Z",
+        "task": "A165",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A165-7002c1cb236a754350f7d8a5384840474ab5d55b-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T19:25:35.007Z",
+        "task": "A165"
       }
     ]
   },
   "development": {
-    "executionCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
-    "measuredAt": "2026-10-08T19:11:10.254Z",
+    "executionCommit": "7002c1cb236a754350f7d8a5384840474ab5d55b",
+    "measuredAt": "2026-10-08T19:22:45.775Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
