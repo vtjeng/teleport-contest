@@ -88,11 +88,11 @@
     ],
     "callers": [
       "hack.c:domove_fight_empty:2280 (rhack movement with F prefix)",
-      "hack.c:maybe_unhide_at:207",
+      "hack.c:dopush:207",
       "display.c:unmap_invisible:391/show_mon_or_warn:490",
-      "detect.c:check_map_spot:326",
+      "detect.c:clear_stale_map:326",
       "mon.c:mondead:3171/xkilled:3359",
-      "potion.c:peffect_gain_ability:933",
+      "potion.c:peffect_monster_detection:933",
       "zap.c:bhit:4041/4084"
     ],
     "dependencies": [
