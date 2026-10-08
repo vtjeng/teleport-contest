@@ -213671,7 +213671,7 @@
     {
       "id": "port-wizcmds-wiz-objprobs-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete wizard object probability report and bounded command dispatcher",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -213685,8 +213685,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_objprobs",
@@ -213928,6 +213931,453 @@
                 "fromStep": 14,
                 "throughStep": 18,
                 "source": "cmd.c extcmdlist1977-1978 -> doextcmd -> wizcmds.c:wiz_objprobs1832-1868. Initial five pages verify traversal, class separators and percentage text; independent recordings cover the remaining classes and final dismissal."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-invent-display-cinventory-v31-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port probed container inventory display and its source naming callbacks",
+      "cFile": "invent.c",
+      "sessions": [
+        "synthetic/v31/v31-container-probing"
+      ],
+      "selectionReason": "The admitted v31 container-probing mismatch begins when zap.c bhito calls invent.c display_cinventory; the whole cinv_doname through display_cinventory family owns the missing menu, with cinv_ansimpleoname retained as incomplete until its alternate callback has runtime evidence.",
+      "detail": "",
+      "openedAt": "6a5fee932ecc1b1b3a71ee668e5a7d165e961aea",
+      "openStanding": {
+        "sha": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cinv_doname",
+          "line": 5391,
+          "endLine": 5422,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "cinv_ansimpleoname",
+          "line": 5423,
+          "endLine": 5445,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "display_cinventory",
+          "line": 5446,
+          "endLine": 5476,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 5391,
+        "to": 5476
+      },
+      "syntheticProvenance": {
+        "synthetic/v31/v31-container-probing": {
+          "session": "synthetic/v31/v31-container-probing",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-container-probing",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-container-probing.session.json",
+          "recordingSha256": "072a315e1cc49109004aafaa4adcf180a56b4b98170d266ca1baf7aaec991a38",
+          "evaluationPath": "challenges/evaluations/accepted-3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d-v31.json",
+          "evaluationCommit": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d"
+        }
+      },
+      "activeStanding": {
+        "sha": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-container-probing",
+          "session": "synthetic/v31/v31-container-probing",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-container-probing.session.json",
+          "recordingPath": "challenges/cases/v31/v31-container-probing.session.json",
+          "recordingSha256": "072a315e1cc49109004aafaa4adcf180a56b4b98170d266ca1baf7aaec991a38",
+          "recipe": "challenges/cases/v31/v31-container-probing.recipe.session.json",
+          "recipeSha256": "86ca4d4a64b488f857fafe185547f74bbfe70a48b2629c1b2ca9a335c08eb4c9",
+          "replayInputSha256": "b215376b8c9aa60052551b425328d2a387ec7fbadf5b6fb99d3b8ca794656db6",
+          "evaluationPath": "challenges/evaluations/accepted-3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d-v31.json",
+          "evaluationCommit": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+          "evaluationArtifact": "challenges/evaluations/accepted-3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d-v31.json",
+          "evaluationUtc": "2026-10-08T19:34:26.947Z",
+          "remainingScreens": 3,
+          "recordedSteps": 63,
+          "previousScreensMatched": 60,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 60,
+              "total": 63
+            },
+            "rng": {
+              "matched": 2179,
+              "total": 2179
+            },
+            "cursors": {
+              "matched": 61,
+              "total": 63
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": ">"
+              },
+              "cCursor": [
+                35,
+                13,
+                1
+              ],
+              "jsCursor": [
+                56,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 48,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-container-probing.json",
+            "result": {
+              "session": "synthetic/v31/v31-container-probing",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-container-probing",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "072a315e1cc49109004aafaa4adcf180a56b4b98170d266ca1baf7aaec991a38",
+              "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+              "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+              "remainingScreens": 3,
+              "recordedSteps": 63,
+              "status": "complete",
+              "commit": "2ef23e02e2dcb1081bbb03ae4e2c19497f263011",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-container-probing",
+                "session": "synthetic/v31/v31-container-probing",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-container-probing.session.json",
+                "recordingPath": "challenges/cases/v31/v31-container-probing.session.json",
+                "recordingSha256": "072a315e1cc49109004aafaa4adcf180a56b4b98170d266ca1baf7aaec991a38",
+                "recipe": "challenges/cases/v31/v31-container-probing.recipe.session.json",
+                "recipeSha256": "86ca4d4a64b488f857fafe185547f74bbfe70a48b2629c1b2ca9a335c08eb4c9",
+                "replayInputSha256": "2b9b36d4565562353240545434382d2cf4286947fa33ecc671d1be8ec6bae3de",
+                "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+                "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+                "evaluationArtifact": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+                "evaluationUtc": "2026-10-08T19:09:55.598Z",
+                "remainingScreens": 3,
+                "recordedSteps": 63,
+                "previousScreensMatched": 60,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 60,
+                    "total": 63
+                  },
+                  "rng": {
+                    "matched": 2179,
+                    "total": 2179
+                  },
+                  "cursors": {
+                    "matched": 61,
+                    "total": 63
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": ">"
+                    },
+                    "cCursor": [
+                      35,
+                      13,
+                      1
+                    ],
+                    "jsCursor": [
+                      56,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 48,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Probing a nonempty chest omits the container inventory menu. zap.c:bhito observes every direct child then calls invent.c:display_cinventory; js/zap.js substitutes note_unported and continues into staircase probing. Port the complete cinv_doname/cinv_ansimpleoname/display_cinventory family and await the existing probing caller, reusing canonical safe_qbuf/query_objlist/menu owners.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "invent.c",
+                "functions": [
+                  "cinv_doname",
+                  "cinv_ansimpleoname",
+                  "display_cinventory"
+                ],
+                "branch": "WAN_PROBING hits a nonempty container or statue, excluding the Schroedinger-box arm. bhito first observes the container and its direct children, then displays those children in inventory order with PICK_NONE. The omission shifts the menu acknowledgement and subsequent staircase/probe messages without changing RNG.",
+                "callers": [
+                  "zap.c:bhito2222-2274, sole active caller at2255 discards display_cinventory return after observe_object on every direct child; current js/zap.js3080 records invent.c display_cinventory as unported.",
+                  "invent.c:display_cinventory5452-5457 passes cinv_doname and cinv_ansimpleoname into objnam.c:safe_qbuf; required helper return values construct Contents of ...: heading."
+                ],
+                "dependencies": [
+                  "objnam.c:safe_qbuf5624-5698 and short_oname2009-2085: existing canonical JS owners preserve byte limits, fallback callbacks and temporary naming-state restoration. Reuse without new owner credit.",
+                  "objnam.c:doname/doname_base and ansimpleoname2446-2474: existing canonical naming owners; preserve trapped-name insertion with C strstri/strsubst semantics, including the source cinv_ansimpleoname nonzero strncmp guards. Test the source results rather than fixing the surprising guards.",
+                  "pickup.c:query_objlist1025-1215, allow_all517-520 and canonical inventory sorting/menu: INVORDER_SORT/PICK_NONE only. The incomplete INCLUDE_HERO guard is not supplied by this caller. No consumed dependency requires a new implementation in this flag subset.",
+                  "invent.c:invdisp_nothing5290-5308 already implemented; verify empty-menu heading/blank/(empty)/PICK_NONE order. display_cinventory empty branch has no current external C caller because bhito calls it only for nonempty contents; direct source-pinned coverage preserves that inactive branch.",
+                  "Compiled menu cleanup/free ownership is represented by canonical select_menu/query_objlist; preserve return first selected object only when n>0 and cknown assignment after menu acknowledgement."
+                ]
+              },
+              "evidence": [
+                "Tracked accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31 evaluation measures60/63 screens,61/63 cursors,2179/2179 RNG. First mismatch segment0step48 key>: C contents menu starts at column29 with seven children, JS begins There is a staircase... and cursor56,0 instead of35,13.",
+                "Complete admitted C recording shows chest creation atstep43, drop45, direction selection47, contents menu48, menu acknowledgement49, staircase More49 and probe continuation50. This is an actual nonempty-container witness, not the recipe comment's possible empty target miss.",
+                "Read complete upstream invent.c:cinv_doname5391-5419, cinv_ansimpleoname5423-5441 and display_cinventory5446-5473 at16ff59115315917b93185d026aeefea06db9b0f4; selected C-order range5391-5473. No corresponding JS functions exist; current probing arm explicitly calls note_unported.",
+                "Fresh focused replay .cache/B164/confirm.log, bounded run-W4zMvD at current base, emits all63screens but omits the contents menu at48 and instead emits the source post-menu staircase message. RNG already matches; this is missing display behavior, not a random/order defect.",
+                "Read active caller WAN_PROBING branch2222-2274 and JS counterpart3055-3094, complete safe_qbuf/short_oname and query_objlist flag paths, and existing invdisp_nothing. Preserve observations before awaited menu, then outer res=1/learnwand and zap_updown continuation after acknowledgement.",
+                "Live reservations exclude A165 wall-mode and A166 probability diagnostic owners and C152 migration. invent.c container-display family and zap.c:bhito probing-display caller seam are unreserved; no diagnostic cmd/wizcmds ownership is needed."
+              ],
+              "proposal": {
+                "goalId": "port-invent-display-cinventory-v31-20261008",
+                "summary": "Display probed container contents in inventory order.",
+                "selectionReason": "B163 seed is fully resolved. Independent admitted v31-container-probing retains three unmatched screens at accepted f527; source trace identifies omitted invent.c container-display family, independent of active wizard diagnostic and migration tasks.",
+                "sourceUnits": [
+                  {
+                    "file": "invent.c",
+                    "name": "cinv_doname",
+                    "start": 5391,
+                    "end": 5419
+                  },
+                  {
+                    "file": "invent.c",
+                    "name": "cinv_ansimpleoname",
+                    "start": 5423,
+                    "end": 5441
+                  },
+                  {
+                    "file": "invent.c",
+                    "name": "display_cinventory",
+                    "start": 5446,
+                    "end": 5473
+                  }
+                ],
+                "reservations": [
+                  "session:synthetic/v31/v31-container-probing",
+                  "source:invent.c:cinv_doname",
+                  "source:invent.c:cinv_ansimpleoname",
+                  "source:invent.c:display_cinventory",
+                  "source:zap.c:bhito",
+                  "contract:probed-container-inventory-display"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v31/v31-container-probing.json",
+                  "js/invent.js",
+                  "js/zap.js",
+                  "scripts/invent-display-span.test.mjs",
+                  "scripts/zap-command.test.mjs",
+                  "scripts/run-container-probing.mjs",
+                  "recipes/invent.c/",
+                  "recordings/invent.c/",
+                  ".cache/"
+                ],
+                "dependencies": [],
+                "runtimeEvidencePlan": [
+                  "Admitted nonempty-chest probing segment0steps48-62 establishes production caller and full result.",
+                  "Independent C-first different-role container probing plus cheap box/statue/trapped variation, observed before JS comparison; retain unrelated blockers.",
+                  "Source-pinned naming results for trapped/untrapped locked/unlocked container, byte boundary and source strncmp behavior; canonical menu source ordering and cknown-after-acknowledgement test.",
+                  "Empty display_cinventory path is not entered by the sole current external source caller; preserve it with focused source/empty menu contract coverage and explicit caller inactivity."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cinv_doname",
+            "implementation": "js/invent.js",
+            "symbol": "cinv_doname",
+            "sourceReview": "Read whole invent.c5391-5419. Use canonical donameFresh (source doname/zero flags), C byte-length plus sizeof trapped including NUL guard, case-insensitive locked/unlocked searches, source first-match pointer comparison, case-sensitive substitution on the selected suffix, then an trapped article replacement. Keep source duplicated trapped when modern doname already includes known trap; independent C trapped-box menu says a trapped trapped unlocked large box. No state/RNG surrogate or naming-owner changes.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "display_cinventory",
+                "source": "invent.c5452-5457 safe_qbuf main formatting callback; objnam.c short_oname invokes callback while preserving/restoring temporary shortened names"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/probing-chest-valkyrie-independent.session.json",
+              "recordings/invent.c/probing-trapped-box-valkyrie-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-container-probing",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 62,
+                "source": "zap.c:dozap/weffects -> zap_updown downward WAN_PROBING -> bhitpile -> bhito2252-2255 -> invent.c:display_cinventory5446-5473 -> safe_qbuf/cinv_doname5391-5419 and query_objlist INVORDER_SORT/PICK_NONE; menu acknowledgement before staircase/probe continuation"
+              }
+            ],
+            "checkedAt": "1dbabc453aff8caab336e2f171f1c30fe991e5b5"
+          },
+          {
+            "name": "display_cinventory",
+            "implementation": "js/invent.js",
+            "symbol": "display_cinventory",
+            "sourceReview": "Read whole invent.c5446-5473. Canonical safe_qbuf Contents of / colon heading and two naming callbacks; nonempty query_objlist consumes INVORDER_SORT/PICK_NONE and allow_all, empty invdisp_nothing heading/blank/(empty)/acknowledgement; n>0 selects first pick_list object, otherwise null; cknown is assigned after menu finishes. Free/select buffer ownership remains canonical menu implementation. Existing invdisp_nothing source implementation verified rather than duplicated. Replaced and removed the sole production note_unported marker with awaited display_cinventory after every direct child observation in bhito. No injected query surrogate or broader bhito completion credit.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "zap.c2252-2255, WAN_PROBING nonempty container/statue branch; observe every direct child, then discarded display_cinventory result; C outer ray and post-probe continuation follow menu acknowledgement"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs",
+              "scripts/zap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/probing-chest-valkyrie-independent.session.json",
+              "recordings/invent.c/probing-trapped-box-valkyrie-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-container-probing",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 62,
+                "source": "zap.c:dozap/weffects -> zap_updown downward WAN_PROBING -> bhitpile -> bhito2252-2255 -> invent.c:display_cinventory5446-5473 -> safe_qbuf/cinv_doname5391-5419 and query_objlist INVORDER_SORT/PICK_NONE; menu acknowledgement before staircase/probe continuation"
+              }
+            ],
+            "checkedAt": "1dbabc453aff8caab336e2f171f1c30fe991e5b5"
+          }
+        ],
+        "entryPointReview": "Only active source entry is zap.c:bhito2255 for nonempty probed containers/statues, excluding Schroedinger box. Both vertical zap_updown/bhitpile and lateral bhit converge on this same object-effect callback. Existing production dispatch remains unchanged; selected downward C case establishes display caller and menu acknowledgement before the outer map/staircase continuation. Independent ordinary chest and known trapped large-box variations cover grouping, contents observation and trap-heading source duplication. display_cinventory empty arm has no current external C entry: bhito emits its own empty message and does not call it; focused test preserves that internal branch and post-acknowledgement cknown tail without labeling a build-inactive function. Positive PICK_NONE selection is likewise unreachable with the reference menu port but source return handling is translated. No new build-inactive function or omitted callee is declared. cinv_ansimpleoname is an impure conditional alternate callback because existing minimal_xname temporarily mutates/restores catalog fields. Source-pinned results do not establish its production execution. A separate C-only long-named trapped box reached a main-formatter menu atstep123, retaining named text; it failed to reach the alternate. Preserve that callback as incomplete with its blocked recipe rather than declaring it inactive or pure.",
+        "entryPoints": [
+          {
+            "name": "Probe nonempty container or statue inventory-style contents",
+            "functions": [
+              "cinv_doname",
+              "display_cinventory"
+            ],
+            "recordings": [
+              "recordings/invent.c/probing-chest-valkyrie-independent.session.json",
+              "recordings/invent.c/probing-trapped-box-valkyrie-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-container-probing",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 62,
+                "source": "zap.c:dozap/weffects -> zap_updown downward WAN_PROBING -> bhitpile -> bhito2252-2255 -> invent.c:display_cinventory5446-5473 -> safe_qbuf/cinv_doname5391-5419 and query_objlist INVORDER_SORT/PICK_NONE; menu acknowledgement before staircase/probe continuation"
               }
             ]
           }

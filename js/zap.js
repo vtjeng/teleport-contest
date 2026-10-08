@@ -73,6 +73,7 @@ import {
     getobj,
     display_binventory,
     display_minventory,
+    display_cinventory,
     set_cknown_lknown,
     hands_obj,
     hold_another_object,
@@ -3077,7 +3078,7 @@ export async function bhito(obj, wand, state = game,
                 } else {
                     for (let item = obj.cobj; item; item = item.nobj)
                         observe_object(item, state);
-                    note_unported('invent.c display_cinventory');
+                    await display_cinventory(obj, state);
                 }
                 res = 1;
             } else if (obj.otyp === TIN) {

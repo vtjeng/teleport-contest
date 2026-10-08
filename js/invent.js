@@ -124,6 +124,7 @@ import {
     Amask2align,
     PICK_ANY,
     PICK_NONE,
+    QBUFSZ,
     PICK_ONE,
     MINV_PICKMASK,
     MINV_ALL,
@@ -170,7 +171,7 @@ import {
 } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
-import { digit, ing_suffix, letter, s_suffix, visctrl } from './hacklib.js';
+import { digit, encodeUtf8ByteString, ing_suffix, letter, s_suffix, strstri, strsubst, visctrl } from './hacklib.js';
 import {
     LOW_PM,
     PM_ARCHEOLOGIST,
@@ -229,7 +230,7 @@ import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
 import { ice_descr } from './pager.js';
 import { can_reach_floor } from './engrave.js';
-import { add_valid_menu_class, allow_category, force_decor, query_objlist, u_safe_from_fatal_corpse } from './pickup.js';
+import { add_valid_menu_class, allow_all, allow_category, force_decor, query_objlist, u_safe_from_fatal_corpse } from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -5709,6 +5710,62 @@ export async function display_minventory(
     if (pickings === PICK_ANY)
         return Array.isArray(selected) ? (selected[0]?.value ?? null) : null;
     return selected?.value ?? null;
+}
+
+// C ref: invent.c cinv_doname() (5391-5419). Trap knowledge is inserted
+// into the container heading without changing the canonical naming owner.
+export function cinv_doname(obj, state = game) {
+    let result = donameFresh(obj, state);
+    // sizeof "trapped " includes its terminating byte in C.
+    if (obj.otrapped && encodeUtf8ByteString(result).length + 9 <= QBUFSZ) {
+        const p = strstri(result, ' locked');
+        const q = strstri(result, ' unlocked');
+        if (p >= 0 && (q < 0 || p < q))
+            result = result.slice(0, p)
+                + strsubst(result.slice(p), ' locked ', ' trapped locked ');
+        else if (q >= 0)
+            result = result.slice(0, q)
+                + strsubst(result.slice(q), ' unlocked ', ' trapped unlocked ');
+        result = strsubst(result, 'an trapped ', 'a trapped ');
+    }
+    return result;
+}
+
+// C ref: invent.c cinv_ansimpleoname() (5423-5441). The source's strncmp
+// guards are nonzero comparisons; preserve them even for a matching article.
+export function cinv_ansimpleoname(obj, state = game) {
+    let result = ansimpleoname(obj, state);
+    if (obj.otrapped) {
+        if (!result.startsWith('a '))
+            result = strsubst(result, 'a ', 'a trapped ');
+        else if (!result.startsWith('an '))
+            result = strsubst(result, 'an ', 'an trapped ');
+        else if (!result.startsWith('the '))
+            result = strsubst(result, 'the ', 'the trapped ');
+        else
+            result = strsubst(result, '', 'trapped ');
+    }
+    return result;
+}
+
+// C ref: invent.c display_cinventory() (5446-5473). Probing shows direct
+// contents in inventory order and waits before marking the contents known.
+export async function display_cinventory(obj, state = game, hooks = {}) {
+    const title = safe_qbuf(
+        'Contents of ', ':', obj, cinv_doname, cinv_ansimpleoname, 'that', state,
+    );
+    let result;
+    if (obj.cobj) {
+        result = await query_objlist(
+            obj.cobj, INVORDER_SORT, allow_all, state, title, PICK_NONE,
+        );
+    } else {
+        await invdisp_nothing(title, '(empty)', state, hooks);
+        result = { n: 0, pick_list: [] };
+    }
+    const ret = result.n > 0 ? result.pick_list[0].obj : null;
+    obj.cknown = true;
+    return ret;
 }
 
 // C ref: invent.c only_here() (5476-5480). The active filter coordinates are
