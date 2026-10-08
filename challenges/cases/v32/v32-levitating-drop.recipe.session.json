@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: do.c:drop714-784/dothrow.c:hitfloor. Wear levitation boots and drop ordinary dagger while unable to reach floor. Required C observation: Object falls from floating hero through hitfloor. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732001,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732001,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed levitation boots\nWe       \u0017uncursed dagger\ndf          :   "
+    }
+  ]
+}

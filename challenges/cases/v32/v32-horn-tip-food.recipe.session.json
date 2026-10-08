@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: mkobj.c:hornoplenty/pickup.c:dotip. Tip a charged horn of plenty onto floor. Required C observation: Generated food or potion falls out and charge consumed. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732010,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732010,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed horn of plenty\n#tip\ne        :     "
+    }
+  ]
+}

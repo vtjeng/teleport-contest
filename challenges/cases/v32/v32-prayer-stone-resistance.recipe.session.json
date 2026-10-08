@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: pray.c:fix_worst_trouble TROUBLE_STONED. Set timed stoning via wizard intrinsic then force successful prayer. Required C observation: You feel more limber and stoning timeout ends. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732006,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732006,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizintrinsic\n:stoning\n\n      #pray\nyy                  "
+    }
+  ]
+}

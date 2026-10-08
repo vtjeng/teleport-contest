@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B157 C-first candidate: options.c:optfn_fruit/fruitadd. Rename favorite fruit via option handler. Required C observation: New fruit name prompt stores unique fruit. Seed, clock and input history fixed before any JavaScript comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15732027,
+      "datetime": "20350815122134",
+      "nethackrc": "OPTIONS=name:Probe15732027,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#optionsfull\n:fruit\n\ncloudberry\n                  \u001b"
+    }
+  ]
+}
