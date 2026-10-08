@@ -204408,7 +204408,7 @@
     {
       "id": "port-pray-angrygods-summon-minion-v29-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port divine anger and minion summoning",
       "cFile": "pray.c",
       "sessions": [
@@ -204430,7 +204430,7 @@
           "line": 704,
           "endLine": 787,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -204442,7 +204442,7 @@
           "name": "summon_minion",
           "line": 198,
           "endLine": 262,
-          "declared": false,
+          "declared": true,
           "sourceFile": "minion.c",
           "complete": false
         }
@@ -204719,7 +204719,151 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "angrygods",
+            "implementation": "js/pray.js",
+            "symbol": "angrygods",
+            "sourceReview": "Read whole pray.c704-784 and all five source call sites1442/1656/1770/2312/2325. Preserve Inhell alignment override, protection reset, C integer divisions/STRIDENT comparison/clamp1-15, selector RNG, displeasure, lessons with S_HUMAN wording and canonical SetVoice/verbalize/Wisdom/losexp, punishment fallthrough, curse short-circuit and common max-only rnz(300) timer. Cases7/8 now reproduce godvoice, scorn/call-upon choice, deity voice, Then-die line and await canonical summon_minion. Default reproduces gods_angry then records discarded-void pray.c god_zaps_you gap, without invented substitute effects; common timer follows as source states. All angrygods note_unported caller substitutes and selected UnsupportedPrayerError arms removed. Existing unrelated UnsupportedPrayerError class remains used. Audit canonical attrcurse/rndcurse/punish/losexp/align/naming/visibility and whole minion198-255 plus lminion429-441/ndemon444-464/mkclass/makemon runtime, newemin and initialization owners. No placeholder return is consumed. Bounded makemon runtime admission forwards existing canonical placement, HP/inventory/RNG lifecycle for this exact MM_EMIN|MM_NOMSG call at hero; no whole makemon credit.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "gods_upset",
+                "source": "pray.c1442; dosacrifice -> offer_negative_valued -> gods_upset -> awaited angrygods. Independent coaligned white-unicorn offering reaches this source arm."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_different_alignment_altar",
+                "source": "pray.c1656 rejected conversion arm; awaited canonical anger before return. Surrounding conversion/rejection remains its existing owner; rare rejected-conversion branch has no distinct fresh citation."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "sacrifice_your_race",
+                "source": "pray.c1770 calls anger after alignment/Wisdom/ugangr and before change_luck(-5); cmd #offer runtime is selected and independently recorded."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c2312/2325; doprayer installs delayed nomovemsg callback, allmain unmul resumes canonical prayer_done then awaits anger. Fresh repeated early prayers cover delayed entry."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs",
+              "scripts/minion.test.mjs",
+              "scripts/makemon.test.mjs",
+              "scripts/pray-offering-alignment.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/anger-sacrifice-neutral.session.json",
+              "recordings/pray.c/anger-sacrifice-lawful.session.json",
+              "recordings/pray.c/anger-sacrifice-lessons.session.json",
+              "recordings/pray.c/anger-sacrifice-curses.session.json",
+              "recordings/pray.c/anger-sacrifice-punishment.session.json",
+              "recordings/pray.c/anger-delayed-prayer.session.json",
+              "recordings/pray.c/anger-negative-offering.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-sacrifice-human-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 53,
+                "source": "cmd.c doextcmd #offer -> pray.c dosacrifice/offer_corpse -> sacrifice_your_race1765-1771 -> angrygods704-784 case8 -> minion.c summon_minion198-255 neutral AIR_ELEMENTAL -> makemon.c makemon MM_EMIN|MM_NOMSG. Subsequent admitted tail fully matches."
+              }
+            ],
+            "checkedAt": "2a0173971a37c29e79ad85b6438561097d24ca76"
+          }
+        ],
+        "entryPointReview": "angrygods is helper-only and all production calls are in pray.c: gods_upset1442, rejected conversion1656, own-race sacrifice1770, delayed prayer2312/2325. The active command families are #offer and #pray; independent negative/race sacrifices and delayed prayer reach them. summon_minion is called only from pray.c god_zaps_you684-686, angrygods771, and rival altar1681/1692. Neutral non-speaking branch is admitted; lawful/chaotic speaking branches freshly match. Both rival conversion outcomes are exercised, with speaking at success rarity gates; source-pinned tests/whole source review retain the failure rarity gate. Absent god_zaps_you high-altar callers remain active and incomplete, not inactive. No whole sacrifice/offer helper, prayer_done, gods_upset, god_zaps_you, makemon, selector or naming/sounds completion credit.",
+        "entryPoints": [
+          {
+            "name": "Own-race sacrifice divine anger",
+            "functions": [
+              "angrygods",
+              {
+                "sourceFile": "minion.c",
+                "name": "summon_minion"
+              }
+            ],
+            "recordings": [
+              "recordings/pray.c/anger-sacrifice-neutral.session.json",
+              "recordings/pray.c/anger-sacrifice-lawful.session.json",
+              "recordings/pray.c/anger-sacrifice-lessons.session.json",
+              "recordings/pray.c/anger-sacrifice-curses.session.json",
+              "recordings/pray.c/anger-sacrifice-punishment.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-sacrifice-human-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 53,
+                "source": "cmd.c doextcmd #offer -> pray.c dosacrifice/offer_corpse -> sacrifice_your_race1765-1771 -> angrygods704-784 case8 -> minion.c summon_minion198-255 neutral AIR_ELEMENTAL -> makemon.c makemon MM_EMIN|MM_NOMSG. Subsequent admitted tail fully matches."
+              }
+            ]
+          },
+          {
+            "name": "Negative-value sacrifice divine anger",
+            "functions": [
+              "angrygods"
+            ],
+            "recordings": [
+              "recordings/pray.c/anger-negative-offering.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Delayed prayer divine anger",
+            "functions": [
+              "angrygods"
+            ],
+            "recordings": [
+              "recordings/pray.c/anger-delayed-prayer.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Rival altar divine minion",
+            "functions": [
+              {
+                "sourceFile": "minion.c",
+                "name": "summon_minion"
+              }
+            ],
+            "recordings": [
+              "recordings/pray.c/anger-rival-altar.session.json",
+              "recordings/pray.c/anger-rival-altar-chaotic.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "High-altar divine minion through god_zaps_you",
+            "functions": [
+              {
+                "sourceFile": "minion.c",
+                "name": "summon_minion"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "2a0173971a37c29e79ad85b6438561097d24ca76",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "angrygods and ordinary summon_minion callers are implemented and verified; minion.c:summon_minion still has three active high-altar callers inside unported pray.c:god_zaps_you. Resume after god_zaps_you is ported so those callers can be wired and replay-verified."
     },
     {
       "id": "port-do-wear-eyewear-blindness-v29-20261008",
