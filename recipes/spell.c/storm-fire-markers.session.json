@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first spell.c:throwspell case: Fire Brand target two west on visible floor, with two literal $ toggles. Seeds1452901..1452906 and datetime20590417113521 chosen before replay, without search. C inventory establishes wished sword letter e for the Fire Brand cases and f for the Frost Brand variation. C-only terrain corrections, the literal dollar-pair correction, and source message acknowledgements are preserved in C145 cache artifacts.",
+  "segments": [
+    {
+      "seed": 1452902,
+      "datetime": "20590417113521",
+      "nethackrc": "OPTIONS=name:StormC145,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " \u0017Fire Brand\n#invoke\ne   $$hh.                                        "
+    }
+  ]
+}

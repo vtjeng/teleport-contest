@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { getpos } from '../js/getpos.js';
+import { getpos, getpos_sethilite } from '../js/getpos.js';
 import { runSegment } from '../js/jsmain.js';
 
 const C_SOURCE = readFileSync(
@@ -43,7 +43,7 @@ test('getpos SHOWVALID always resumes targeting without a callback', async () =>
     });
 
     assert.equal(replay.getInputExhausted(), true);
-    assert.equal(game.getpos_hilitefunc, undefined);
+    assert.equal(game.getpos_hilitefunc, null); // C exit installs NULL callbacks.
     // The next getpos loop iteration redraws the source goal prompt after
     // SHOWVALID; '$' must not be interpreted as a terrain feature symbol.
     assert.equal(game._ttyToplines, 'Move cursor to the desired position:');
@@ -57,7 +57,7 @@ test('getpos SHOWVALID retains the optional highlight callback', async () => {
     });
     game.iflags.bgcolors = false;
     const calls = [];
-    game.getpos_hilitefunc = async (enabled) => { calls.push(enabled); };
+    await getpos_sethilite(async (enabled) => { calls.push(enabled); }, null, game);
     const coordinate = { x: game.u.ux, y: game.u.uy };
     game.nhDisplay.pushKey('$'.charCodeAt(0));
     game.nhDisplay.pushKey(0x1B);
@@ -66,7 +66,8 @@ test('getpos SHOWVALID retains the optional highlight callback', async () => {
         await getpos(coordinate, false, 'desired location', game),
         -1,
     );
-    assert.deepEqual(calls, [true, false]);
+    assert.deepEqual(calls, [true]); // C Escape clears callbacks without invoking FALSE.
+    assert.equal(game.getpos_hilitefunc, null);
     assert.equal(game.nhDisplay.inputQueueLength, 0);
 });
 
@@ -78,8 +79,8 @@ test('getpos consumes the caller-installed selection during its initial prompt f
     game.iflags.bgcolors = false;
     game.flags.verbose = true;
     const hero = { x: game.u.ux, y: game.u.uy };
-    game.getpos_getvalid = async (x, y) => x === hero.x + 2 && y === hero.y;
-    game.getpos_hilitefunc = async () => {};
+    await getpos_sethilite(async () => {},
+        async (x, y) => x === hero.x + 2 && y === hero.y, game);
 
     const jumpStart = APPLY_SOURCE.indexOf(
         '\njump(int magic) /* 0=Physical, otherwise skill level */',
@@ -141,10 +142,9 @@ test('getpos preserves the final dirty-glyph cursor when no prompt pline follows
     game.flags.tips = false;
     const hero = { x: game.u.ux, y: game.u.uy };
     const lastDirtyGlyph = { x: hero.x + 2, y: hero.y };
-    game.getpos_getvalid = async (x, y) => (
+    await getpos_sethilite(async () => {}, async (x, y) => (
         x === lastDirtyGlyph.x && y === lastDirtyGlyph.y
-    );
-    game.getpos_hilitefunc = async () => {};
+    ), game);
 
     const flushStart = DISPLAY_SOURCE.indexOf('flush_screen(int cursor_on_u)');
     const flushBody = DISPLAY_SOURCE.slice(flushStart, flushStart + 2000);
