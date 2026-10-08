@@ -131,7 +131,7 @@ import { paranoid_query, y_n } from './cmd.js';
 import { eaten_stat, floorfood } from './eat.js';
 import { newsym, xlev_to_rank } from './display.js';
 import { dropy, heal_legs } from './do.js';
-import { stuck_ring, unchanger } from './do_wear.js';
+import { stuck_ring, unchanger, setwornEnv } from './do_wear.js';
 import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
@@ -248,7 +248,7 @@ import { cmap_to_type } from './mkroom.js';
 import { resist } from './zap.js';
 import { known_spell, spelleffects } from './spell.js';
 import { welded } from './wield.js';
-import { bimanual, which_armor } from './worn.js';
+import { bimanual, setnotworn, which_armor } from './worn.js';
 import { encumber_msg, rider_corpse_revival } from './pickup.js';
 import { init_uhunger } from './u_init.js';
 import { see_monsters } from './display.js';
@@ -1271,7 +1271,14 @@ export async function fix_worst_trouble(trouble, state = game) {
     case TROUBLE_STRANGLED:
         if (state.uamul && state.uamul.otyp === AMULET_OF_STRANGULATION) {
             await ttyPline('Your amulet vanishes!', state);
-            note_unported('invent.c useup');
+            // pray.c:391 -> useupall removes the worn slot before freeing
+            // the amulet; wait for that owner before announcing breathing.
+            await useup(state.uamul, {
+                state,
+                hooks: {
+                    setNotWorn: (obj, env) => setnotworn(obj, setwornEnv(env.state)),
+                },
+            });
         }
         await ttyPline('You can breathe again.', state);
         state.u.uprops[STRANGLED].intrinsic = 0;
