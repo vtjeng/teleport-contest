@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T23:25:57.105Z",
+  "capturedAt": "2026-10-08T23:38:32.104Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -68522,12 +68522,127 @@
         "type": "accepted",
         "at": "2026-10-08T23:25:26.902Z",
         "task": "A175"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A177-after-A175-e07a3433-20261008",
+        "type": "resume",
+        "at": "2026-10-08T23:26:46.329Z",
+        "task": "A177"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A177-active-after-A175-e07a3433-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:26:47.636Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Refresh lycanthropy prayer source scope after A175 acceptance releases its caller."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C158-prayer-strangulation-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T23:26:53.640Z",
+        "task": "C158",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C158-prayer-strangulation-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:26:54.911Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the remaining strangulation-prayer mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A175-035d9572-20261008",
+        "type": "published",
+        "at": "2026-10-08T23:27:05.786Z",
+        "task": "A175",
+        "commit": "035d9572a879dca7a2738fe3ba3c51485a534c03"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-post-A175-dependency-availability-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:28:22.477Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "A175 merged; prayer candidates belong to A177/C158, while options work waits on B171 acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A177-C158-prayer-priority-20261008",
+        "type": "park",
+        "at": "2026-10-08T23:29:11.749Z",
+        "task": "A177"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-A177-C158-20261008",
+        "type": "turn",
+        "at": "2026-10-08T23:29:12.913Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Lycanthropy source audit is ready; C158’s prayer caller has priority before A177 implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C158-strangulation-consumption-20261008",
+        "type": "implement",
+        "at": "2026-10-08T23:30:05.361Z",
+        "task": "C158",
+        "goal": "fix-pray-strangulation-amulet-consumption-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C154-e33607ad-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T23:30:22.224Z",
+        "task": "C154",
+        "integration": "e33607ad95e3679854ac2ad80df3e3852f127a5a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B176-8652d4f9-20261008",
+        "type": "received",
+        "at": "2026-10-08T23:31:44.305Z",
+        "task": "B176",
+        "delivery": "8652d4f924870b21b579a8cfeb623f3630b8d8a0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-B176-review-20261008",
+        "type": "activity",
+        "at": "2026-10-08T23:31:52.155Z",
+        "task": "B176",
+        "phase": "review",
+        "reason": "Reviewing immutable pager coordinate-list implementation and evidence while the prior hosted checkpoint runs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C154-e33607ad95e3679854ac2ad80df3e3852f127a5a-validated",
+        "type": "validated",
+        "at": "2026-10-08T23:35:20.798Z",
+        "task": "C154",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C154-e33607ad95e3679854ac2ad80df3e3852f127a5a-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T23:38:15.134Z",
+        "task": "C154"
       }
     ]
   },
   "development": {
-    "executionCommit": "e07a3433218418185470f93e6ed7061c6e1982cb",
-    "measuredAt": "2026-10-08T23:22:12.854Z",
+    "executionCommit": "e33607ad95e3679854ac2ad80df3e3852f127a5a",
+    "measuredAt": "2026-10-08T23:34:48.271Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
