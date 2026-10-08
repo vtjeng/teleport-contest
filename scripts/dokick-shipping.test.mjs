@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
-    HOLE, IN_SIGHT, MIGR_LADDER_UP, MIGR_NOWHERE, MIGR_RANDOM,
+    HOLE, IN_SIGHT, MIGR_LADDER_UP, MIGR_NOWHERE, MIGR_RANDOM, MIGR_WITH_HERO,
     MIGR_SSTAIRS, MIGR_STAIRS_UP, OBJ_CONTAINED, OBJ_DELETED,
-    OBJ_MIGRATING, TRAPDOOR,
+    OBJ_FLOOR, OBJ_MIGRATING, TRAPDOOR,
 } from '../js/const.js';
 import {
     container_impact_dmg, down_gate, drop_to, otransit_msg,
@@ -12,12 +13,13 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { mksobj, objectType, place_object } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
 import { add_to_container } from '../js/invent.js';
 import {
     BAG_OF_HOLDING, BAG_OF_TRICKS, BOULDER, CORPSE, DAGGER, EGG,
     GLASS, LARGE_BOX, MIRROR, POT_WATER,
 } from '../js/objects.js';
-import { PM_NEWT } from '../js/monsters.js';
+import { PM_NEWT, PM_SHOPKEEPER } from '../js/monsters.js';
 
 async function setup() {
     // Reuse the independently preselected Healer recipe's seed/date. It starts
@@ -234,7 +236,7 @@ test('otransit_msg names corpses and agrees impact, chain, and fall verbs', asyn
 
 test('ship_object reports pile impact before migration', async () => {
     // One visible dagger on a ladder hits one floor object. rn2(100)=1 leaves
-    // the missile intact; the missing void impact_drop cannot move the pile.
+    // the missile intact; impact_drop's rn2(3)=1 keeps the floor pile upstairs.
     const state = await setup();
     const { ux: x, uy: y } = state.u;
     stair(state, true);
@@ -250,7 +252,175 @@ test('ship_object reports pile impact before migration', async () => {
         ['The dagger hits another object and falls down the ladder.']);
     assert.equal(state.gm.migrating_objs, obj);
     assert.equal(state.level.objects[x][y], pile,
-        'unported impact_drop is recorded, not replaced with invented pile movement');
+        'impact_drop tested the pile and left it upstairs');
+});
+
+test('impact_drop preserves protected objects, quantities and boulder draw order', async () => {
+    const { impact_drop } = await import('../js/dokick.js');
+    const state = await setup();
+    const { ux: x, uy: y } = state.u;
+    stair(state);
+    const floor = [];
+    // The head-to-tail pile contains a missile, attached objects, a boulder,
+    // then two daggers. Protected objects count toward oct but never draw.
+    for (const type of [DAGGER, BOULDER, DAGGER, DAGGER, DAGGER]) {
+        const obj = mksobj(type, false, false, { state });
+        place_object(obj, x, y, objectGenerationEnv({ state }));
+        floor.unshift(obj);
+    }
+    const [missile, ball, chain, boulder, daggers] = floor;
+    state.uball = ball;
+    state.uchain = chain;
+    daggers.quan = 2; // dct counts quantity, not the number of object nodes.
+    const draws = [];
+    await impact_drop(missile, x, y, 7, { state,
+        random: { rn2: n => { draws.push(n); return 0; } },
+    });
+    assert.deepEqual(draws, [30, 3]); // C boulder denominator30, ordinary3.
+    assert.equal(state.gm.migrating_objs, daggers);
+    assert.equal(daggers.nobj, boulder);
+    assert.equal(state.level.objects[x][y], missile);
+    assert.deepEqual([daggers.ox, daggers.oy, daggers.owornmask], [0, 7, MIGR_WITH_HERO]);
+    assert.deepEqual([daggers.omigr_from_dnum, daggers.omigr_from_dlevel], [0, 1]);
+    assert.equal(ball.where, OBJ_FLOOR); // Attached objects remain upstairs.
+    assert.equal(chain.where, OBJ_FLOOR);
+});
+
+test('impact_drop gates precede dlev override and rock skips boulder RNG', async () => {
+    const { impact_drop } = await import('../js/dokick.js');
+    const { ROCK } = await import('../js/objects.js');
+    const state = await setup();
+    const { ux: x, uy: y } = state.u;
+    const boulder = mksobj(BOULDER, false, false, { state });
+    place_object(boulder, x, y, objectGenerationEnv({ state }));
+    const missile = mksobj(ROCK, false, false, { state });
+    const draws = [];
+    const env = { state, random: { rn2: n => { draws.push(n); return 0; } } };
+    await impact_drop(null, x, y, 7, env); // No gate still returns before dlev7.
+    stair(state);
+    await impact_drop(missile, x, y, 0, env);
+    assert.deepEqual(draws, []);
+    assert.equal(state.level.objects[x][y], boulder);
+    assert.equal(state.gm.migrating_objs ?? null, null);
+});
+
+test('impact_drop pins literal source singular and partial-pile messages', async () => {
+    const { impact_drop } = await import('../js/dokick.js');
+    for (const [missilePresent, quantity, partial, expected] of [
+        [false, 1, false, 'The adjacent object falls down the stairs.'],
+        [false, 2, false, 'All the adjacent objects fall down the stairs.'],
+        [false, 1, true, 'One of the adjacent objects falls down the stairs.'],
+        [false, 2, true, 'Some of the adjacent objects fall down the stairs.'],
+        [true, 1, false, 'From the impact, the other object falls.'],
+        [true, 1, true, 'From the impact, another object falls.'],
+        [true, 2, true, 'From the impact, other objects fall.'],
+    ]) {
+        const state = await setup();
+        const { ux: x, uy: y } = state.u;
+        stair(state);
+        state.viz_array[y][x] = IN_SIGHT;
+        if (partial) {
+            const protectedObject = mksobj(DAGGER, false, false, { state });
+            place_object(protectedObject, x, y, { state });
+            state.uball = protectedObject; // Count it, but don't drop it.
+        }
+        const obj = mksobj(DAGGER, false, false, { state });
+        obj.quan = quantity;
+        place_object(obj, x, y, { state });
+        const messages = [];
+        const missile = missilePresent ? mksobj(DAGGER, false, false, { state }) : null;
+        await impact_drop(missile, x, y, 0, { state,
+            random: { rn2: () => 0 }, message: text => messages.push(text) });
+        assert.deepEqual(messages, [expected]);
+    }
+});
+
+test('impact_drop and all seven direct calls retain upstream order', () => {
+    const source = readFileSync('nethack-c/upstream/src/dokick.c', 'utf8');
+    const js = readFileSync('js/dokick.js', 'utf8');
+    assert.match(source, /obj2 = obj->nexthere;[\s\S]*oct \+= obj->quan;[\s\S]*rn2\(obj->otyp == BOULDER \? 30 : 3\)/u);
+    assert.match(js, /export async function impact_drop[\s\S]*obj_extract_self[\s\S]*await stolen_value[\s\S]*add_to_migration[\s\S]*obj\.owornmask = toloc/u);
+    const owners = ['js/dokick.js', 'js/do.js', 'js/dig.js', 'js/trap.js']
+        .map(path => readFileSync(path, 'utf8')).join('\n');
+    assert.equal((owners.match(/await impact_drop\(/gu) ?? []).length, 7);
+    assert.doesNotMatch(owners, /note_unported\('dokick\.c impact_drop'\)/u);
+});
+
+test('impact_drop snapshots shop debit and bills silent lost goods before migration', async () => {
+    const { impact_drop } = await import('../js/dokick.js');
+    const { GOLD_PIECE } = await import('../js/objects.js');
+    const { ROOMOFFSET, SHOPBASE } = await import('../js/const.js');
+    const state = await setup();
+    const { ux: x, uy: y } = state.u;
+    stair(state);
+    state.level.flags.has_shop = true;
+    // A single interior shop contains hero/gate and keeper, with its free
+    // entrance square one column away. Five existing debt plus nine lost
+    // gold pieces verifies that the message names the delta, not total14.
+    const keeper = { mx: x, my: y, mpeaceful: true, isshk: true,
+        data: state.mons[PM_SHOPKEEPER], mnum: PM_SHOPKEEPER,
+        mextra: { eshk: { shoplevel: { ...state.u.uz }, shoproom: ROOMOFFSET,
+            shk: { x: x + 1, y }, shknam: 'Asidonhopo', debit: 5, robbed: 0,
+            credit: 0, billct: 0, bill_p: [] } } };
+    state.level.rooms[0] = { rtype: SHOPBASE, resident: keeper };
+    state.level.at(x, y).roomno = ROOMOFFSET;
+    state.level.at(x, y).edge = false;
+    state.u.urooms = [ROOMOFFSET];
+    const coins = mksobj(GOLD_PIECE, false, false, { state });
+    coins.quan = 9;
+    place_object(coins, x, y, { state });
+    const messages = [];
+    await impact_drop(null, x, y, 0, { state,
+        random: { rn2: () => 0 }, message: text => messages.push(text) });
+    assert.equal(keeper.mextra.eshk.debit, 14);
+    assert.equal(keeper.mextra.eshk.robbed, 0);
+    assert.equal(state.gm.migrating_objs, coins);
+    assert.equal(coins.where, OBJ_MIGRATING);
+    assert.equal(messages.length, 1); // No impact text for the invisible gate.
+    assert.deepEqual(messages, ['You owe Asidonhopo 9 zorkmids for goods lost.']);
+});
+
+test('impact_drop reports theft after silent billing with prior anger and visibility', async () => {
+    const { impact_drop } = await import('../js/dokick.js');
+    const { GOLD_PIECE } = await import('../js/objects.js');
+    const { ROOMOFFSET, SHOPBASE } = await import('../js/const.js');
+    for (const [angry, visible, report] of [
+        [false, true, '"Shipping, you are a thief!"'],
+        [true, true, 'Asidonhopo is infuriated!'],
+        [false, false, 'You hear a scream, "Thief!"'],
+    ]) {
+        const state = await setup();
+        const { ux: x, uy: y } = state.u;
+        stair(state);
+        state.level.flags.has_shop = true;
+        state.plname = 'Shipping';
+        const keeper = { mx: x, my: y, mpeaceful: !angry, isshk: true,
+            data: state.mons[PM_SHOPKEEPER], mnum: PM_SHOPKEEPER,
+            mextra: { eshk: { shoplevel: { ...state.u.uz }, shoproom: ROOMOFFSET,
+                shk: { x: x + 1, y }, shknam: 'Asidonhopo', debit: 5,
+                robbed: 7, credit: 0, billct: 0, bill_p: [], customer: '' } } };
+        state.level.rooms[0] = { rtype: SHOPBASE, resident: keeper };
+        state.level.at(x, y).roomno = ROOMOFFSET;
+        state.level.at(x, y).edge = false;
+        // Outside the shop, silent stolen_value adds nine to existing robbed7.
+        state.u.ux = x + 2;
+        state.level.at(x + 2, y).roomno = 0;
+        state.u.urooms = [];
+        if (visible) state.viz_array[y][x] = IN_SIGHT;
+        const coins = mksobj(GOLD_PIECE, false, false, { state });
+        coins.quan = 9;
+        place_object(coins, x, y, { state });
+        const messages = [];
+        await impact_drop(null, x, y, 0, { state,
+            random: { rn2: () => 0 }, message: text => messages.push(text) });
+        assert.equal(keeper.mextra.eshk.robbed, 16);
+        assert.deepEqual(messages, [
+            ...(visible ? ['All the adjacent objects fall down the stairs.'] : []),
+            'You removed 9 zorkmids worth of goods!', report,
+        ]);
+        if (visible) assert.equal(keeper.mextra.eshk.customer, 'Shipping');
+        assert.ok(state.unported.has('shk.c hot_pursuit'));
+    }
 });
 
 

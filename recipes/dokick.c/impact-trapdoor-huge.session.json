@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first huge hero trapdoor candidate; stone giant is too large to fall, source fall_through dont_fit branch, floor ration already at trap. C-first observation and strict frozen comparison retained in .cache/B145; production impact_drop is reached through the source caller, with no synthetic input copy.",
+  "segments": [
+    {
+      "seed": 1464502,
+      "datetime": "20520707101500",
+      "nethackrc": "OPTIONS=name:ImpactProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": "   .h#polyself\nstone giant\n  dd\u0017trap door\nlh        "
+    }
+  ]
+}

@@ -341,7 +341,7 @@ import { cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rn
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
 import { costly_spot, sellobj_state } from './shk.js';
-import { container_impact_dmg, ship_object } from './dokick.js';
+import { container_impact_dmg, impact_drop, ship_object } from './dokick.js';
 import { set_levltyp } from './terrain.js';
 import {
     stairway_at,
@@ -2506,7 +2506,7 @@ function discard_unreachable_levels(state, leavingTutorial) {
 // the arrival tail at 1967-1993.
 //
 // Remaining gaps are limited to discarded calls whose source owners are not
-// yet available (impact_drop, selftouch, fix_shop_damage, and the migration
+// yet available (selftouch, fix_shop_damage, and the migration
 // sweeps). The selected goto_level branches themselves are source-ordered,
 // including endgame/tutorial transitions, portal fallback, flight, falling,
 // and the unreachable-level cleanup. Gehennom, Knox, Mines, Sokoban and the
@@ -2653,10 +2653,8 @@ export async function goto_level(
     // aware and is deliberately left intact.
 
     if (falling) {
-        // do.c:1612-1613. impact_drop() is a discarded void call; its owner
-        // is not ported, so preserve the source boundary without rejecting
-        // the rest of the fall transition.
-        note_unported('dokick.c impact_drop');
+        // do.c:1612-1613: assess the departing pile before saving the level.
+        await impact_drop(null, u.ux, u.uy, newlevel.dlevel, { state });
     }
 
     await check_special_room(true, state);
@@ -3122,10 +3120,8 @@ export async function goto_level(
 // for the objects that were sent ahead and once for the ones that travel with
 // the hero.
 //
-// gm.migrating_objs is empty on every path the port reaches. Its writers are
-// dokick.c's ship_object(), the shopkeeper's stolen-goods handling and the
-// object half of a level change, none of which is ported, and js/dog.js
-// migrate_to_level() moves monsters rather than objects.
+// ship_object() and impact_drop() populate gm.migrating_objs. Arrival remains
+// an explicit discarded-call gap until the object-delivery owner is ported.
 function obj_delivery(near_hero, state = game) {
     if (state.gm?.migrating_objs) {
         note_unported('dokick.c obj_delivery');
