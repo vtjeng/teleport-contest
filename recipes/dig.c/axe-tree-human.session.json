@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first human Barbarian. A debug-wished +90 axe finishes each dig occupation in one source effort increment, avoiding nearby-monster interruption. Three trees reuse the adjacent squares; this C route takes the no-fruit gate each time. Independent seed/clock/role and repeat count; selected v28 plus source-pinned tests cover fruit creation.",
+  "segments": [
+    {
+      "seed": 14128011,
+      "datetime": "20520708131415",
+      "nethackrc": "OPTIONS=name:Axehuman,role:Barbarian,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " \u0017uncursed +90 axe\nwe \u0017tree\nlaeh h\u0017tree\nlaeh h\u0017tree\nlaeh "
+    }
+  ]
+}

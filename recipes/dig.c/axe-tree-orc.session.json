@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first orc Barbarian with an ordinary +2 axe. Additional initial orc food puts the wished axe at g. The occupation accumulates effort and completes after its message pager is acknowledged; this C route takes the no-fruit gate. Independent seed/clock/race varies starting attributes, inventory and effort.",
+  "segments": [
+    {
+      "seed": 14128013,
+      "datetime": "20520708131415",
+      "nethackrc": "OPTIONS=name:Axeorc,role:Barbarian,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " \u0017uncursed +2 axe\nwg \u0017tree\nlagh................ "
+    }
+  ]
+}
