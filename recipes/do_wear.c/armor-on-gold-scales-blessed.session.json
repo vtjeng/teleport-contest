@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first gold-scales-blessed. Caveman startup supplies a source suit; C-only inventory observation established initial armor letter e and first new object f. Remove e, then wear the independently selected wished suit. Character/gold object/BUC/blindness variations follow C branch differences. The female blessed-scales variation uses the active named #wear route.",
+  "segments": [
+    {
+      "seed": 1473002,
+      "datetime": "20920718141516",
+      "nethackrc": "OPTIONS=name:GoldArmor,role:Caveman,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!verbose,!tips,!acoustics,!autopickup,!debug_mongen,pettype:none\n",
+      "moves": " Te      \u0017blessed gold dragon scales\n#wear\nf       .i "
+    }
+  ]
+}
