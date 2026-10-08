@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T02:57:20.781Z",
+  "capturedAt": "2026-10-08T03:10:04.919Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25970,12 +25970,75 @@
         "worker": "C",
         "goal": "port-wizcmds-wiz-flip-level-v28-20261008",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C140-d523543e",
+        "type": "published",
+        "at": "2026-10-08T02:57:57.575Z",
+        "task": "C140",
+        "commit": "d523543eab95da59bc188b508dc1c218d249cb23"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5eaf618ab5d9aa4a473a756118beb561968dbe6c",
+        "type": "ready",
+        "at": "2026-10-08T02:58:53.236Z",
+        "task": "A143",
+        "delivery": "5eaf618ab5d9aa4a473a756118beb561968dbe6c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A143-5eaf618a",
+        "type": "received",
+        "at": "2026-10-08T02:59:18.193Z",
+        "task": "A143",
+        "delivery": "5eaf618ab5d9aa4a473a756118beb561968dbe6c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A143-144aaa0d",
+        "type": "integrating",
+        "at": "2026-10-08T03:02:02.876Z",
+        "task": "A143",
+        "integration": "144aaa0d0e674fb54bb4cdff8dc27515272e5919"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A143-144aaa0d0e674fb54bb4cdff8dc27515272e5919-validated",
+        "type": "validated",
+        "at": "2026-10-08T03:07:50.971Z",
+        "task": "A143",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A143-144aaa0d0e674fb54bb4cdff8dc27515272e5919-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T03:09:13.932Z",
+        "task": "A143"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d9cc94578bbfd8ef1bfcbb06299d1407e4c3b936",
+        "type": "ready",
+        "at": "2026-10-08T03:09:18.579Z",
+        "task": "B144",
+        "delivery": "d9cc94578bbfd8ef1bfcbb06299d1407e4c3b936"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B144-d9cc9457",
+        "type": "received",
+        "at": "2026-10-08T03:09:48.312Z",
+        "task": "B144",
+        "delivery": "d9cc94578bbfd8ef1bfcbb06299d1407e4c3b936"
       }
     ]
   },
   "development": {
-    "executionCommit": "4f210e358149b03cf68194ba97bfd446aea2f3e0",
-    "measuredAt": "2026-10-08T02:53:52.916Z",
+    "executionCommit": "144aaa0d0e674fb54bb4cdff8dc27515272e5919",
+    "measuredAt": "2026-10-08T03:06:38.582Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
