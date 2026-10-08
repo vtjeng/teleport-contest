@@ -15,6 +15,7 @@ import {
     PIT,
     POOL,
     ROOM,
+    THRONE,
 } from '../js/const.js';
 import { boulder_hits_pool, flooreffects } from '../js/do.js';
 import { GameMap } from '../js/game.js';
@@ -377,4 +378,23 @@ test('flooreffects rejects an object that is not free', async () => {
         () => land(fixture(), object({ where: OBJ_FLOOR })),
         /flooreffects: obj not free/u,
     );
+});
+
+// do.c:flooreffects's hot-ground potion arm explicitly admits only ROOM
+// or CORR. THRONE retains the initial FALSE even on a hot level.
+test('a potion on a hot throne has no floor effect or survival draw', async () => {
+    assert.match(C_DO, /obj->oclass == POTION_CLASS && svl.level.flags.temperature > 0\s+&& \(levl\[x\]\[y\].typ == ROOM \|\| levl\[x\]\[y\].typ == CORR\)/u);
+    const state = fixture({ temperature: 1 }); // Positive temperature enables the adjacent ROOM/CORR arm.
+    state.level.at(DROP_X, DROP_Y).typ = THRONE;
+    const potion = object({ otyp: POT_WATER, oclass: POTION_CLASS });
+    const priorHit = { x: AWAY_X, y: AWAY_Y }; // A distinct coordinate detects bhitpos restoration.
+    state.gb = { bhitpos: { ...priorHit } };
+    const forbidden = () => { throw new Error('a throne has no hot-potion draw or message'); };
+    assert.equal(await land(state, potion, DROP_X, DROP_Y, {
+        random: { rn2: forbidden }, message: forbidden,
+    }), false);
+    assert.equal(potion.where, OBJ_FREE);
+    assert.equal(potion.nobj, null);
+    assert.equal(potion.nexthere, null);
+    assert.deepEqual(state.gb.bhitpos, priorHit);
 });

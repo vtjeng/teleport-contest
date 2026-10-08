@@ -1925,11 +1925,11 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('liquid terrain');
     // do.c:flooreffects leaves a boulder intact on dry terrain without a
     // pit or hole. The trap and liquid guards above bound this floor path.
-    // Doorways and stairways add no flooreffects() branch when shipping
-    // leaves the object on this level.
+    // Doorways, thrones and stairways add no flooreffects() branch when
+    // shipping leaves the object on this level.
     if (location.typ !== ROOM && location.typ !== CORR
         && location.typ !== DOOR && location.typ !== SINK
-        && !IS_ALTAR(location.typ) && !stway) {
+        && location.typ !== THRONE && !IS_ALTAR(location.typ) && !stway) {
         throw new UnsupportedDropError('non-ordinary terrain');
     }
     // do.c:dropx/dropz/flooreffects adds no effect for an engraving on dry
