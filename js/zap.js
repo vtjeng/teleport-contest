@@ -101,7 +101,7 @@ import {
     AD_ACID, AD_ANY, AD_COLD, AD_DGST, AD_DISN, AD_DRLI, AD_ELEC, AD_FIRE, AD_DRST, AD_MAGM, AD_RBRE, AD_SEDU, AD_SSEX, AD_WRAP, AT_ENGL, PM_CLAY_GOLEM, PM_CROCODILE, PM_FLESH_GOLEM, PM_GLASS_GOLEM, PM_GOLD_GOLEM, PM_IRON_GOLEM, PM_LEATHER_GOLEM, PM_PAPER_GOLEM, PM_ROPE_GOLEM, PM_SKELETON, PM_STONE_GOLEM, PM_STRAW_GOLEM, PM_WOOD_GOLEM, PM_DEATH, PM_DOPPELGANGER, PM_MONK, PM_KNIGHT, PM_HEALER, PM_GHOST, PM_PESTILENCE, PM_GREMLIN, PM_LONG_WORM, PM_ARCHEOLOGIST, G_NOCORPSE, G_UNIQ, NUMMONS, S_EEL, S_GOLEM, S_MIMIC, S_ZOMBIE, MZ_MEDIUM, } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
-import { del_engr_at, engr_at, make_engr_at } from './engrave.js';
+import { del_engr_at, engr_at, make_engr_at, rloc_engr } from './engrave.js';
 import { random_engraving } from './random_engraving.js';
 import {
     carried,
@@ -3797,8 +3797,8 @@ export async function bhitpile(wand, tx, ty, state = game,
 }
 
 // C ref: zap.c zap_map() (3625-3825). The WAN_PROBING arm maps terrain and
-// traps before it teaches the wand; the downward polymorph arm handles its
-// engraving. Other zap_map branches remain at their source boundaries.
+// traps before it teaches the wand; the downward polymorph and teleportation
+// arms handle engraving. Other zap_map branches remain at their source boundaries.
 export async function zap_map(
     x, y, wand, state = game,
     random = { rn2, rn2_on_display_rng }, rawEnv = {},
@@ -3874,23 +3874,31 @@ export async function zap_map(
         return undefined;
     }
 
-    if (wand?.otyp !== WAN_POLYMORPH && wand?.otyp !== SPE_POLYMORPH)
-        return undefined;
     if ((state.u?.dz ?? 0) <= 0) return undefined;
     const engraving = engr_at(x, y, state);
     if (!engraving || engraving.engr_type === HEADSTONE)
         return undefined;
-    del_engr_at(x, y, state);
-    const replacement = random_engraving({ ...rawEnv, state, random });
-    make_engr_at(
-        x,
-        y,
-        replacement.text,
-        replacement.pristine,
-        state.moves ?? 0,
-        0,
-        { ...rawEnv, state, random },
-    );
+    switch (wand?.otyp) {
+    case WAN_POLYMORPH:
+    case SPE_POLYMORPH: {
+        del_engr_at(x, y, state);
+        const replacement = random_engraving({ ...rawEnv, state, random });
+        make_engr_at(
+            x,
+            y,
+            replacement.text,
+            replacement.pristine,
+            state.moves ?? 0,
+            0,
+            { ...rawEnv, state, random },
+        );
+        break;
+    }
+    case WAN_TELEPORTATION:
+    case SPE_TELEPORT_AWAY:
+        rloc_engr(engraving, state, { ...rawEnv, random });
+        break;
+    }
     return undefined;
 }
 
