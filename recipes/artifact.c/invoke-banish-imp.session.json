@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first artifact.c:invoke_banish setup. Seed/clock chosen before recording. Lawful Priest is Demonbane's source alignment/role; wish the artifact, create a potentially visible peaceful imp through the source wizard monster command, then use #invoke. C observes the inventory letter before JS comparison. No challenge recipe copied.",
+  "segments": [
+    {
+      "seed": 15329011,
+      "datetime": "20710209123011",
+      "nethackrc": "OPTIONS=name:Banish153,role:Priest,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": "\u0017blessed Demonbane\n\u0007peaceful imp\n#invoke\ni."
+    }
+  ]
+}
