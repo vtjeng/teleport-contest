@@ -213692,8 +213692,8 @@
           "name": "wiz_objprobs",
           "line": 1832,
           "endLine": 1872,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -213869,7 +213869,70 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_objprobs",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_objprobs",
+            "sourceReview": "Whole wizcmds.c1832-1868 read. First loop sums every live per-game object probability from FIRST_OBJECT through NUM_OBJECTS-1 before the second loop filters null OBJ_NAME descriptors. Nonnull empty strings remain rows. Initial class comes from FIRST_OBJECT even if its descriptor is null; blank separator occurs only when a displayed object changes class. Canonical objects/obj_descr and OBJ_NAME are reused. Integer widths4, source float32 multiplication/division then promoted printf rounding (ties to even), percent width6/two decimal digits, BUFSZ-1 byte capacity and definition-order rows preserved. A development-only compiled exact expression pins midpoint rounding in both directions,1002 class totals,1/3,999/1000 and zero/zero recorder sign; pure internal formatter tested. Existing canonical TTY text window is awaited for create/putstr/display(FALSE)/destroy; returns ECMD_OK after dismissal with no RNG, map or command-turn mutation. C source/JS helper purity and catalog macros audited; no missing consumed-return owner or discarded unported call. Obsolete command refusal removed. DEBUG/NH_DEVEL_STATUS preprocessor gate is active in the recorder and existing registry; ordinary play admission remains excluded. No independent object initialization/gem probability or whole dispatcher/text renderer credit.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "C cmd.c1977-1978 extcmdlist wizobjprobs row calls wiz_objprobs and carries IFBURIED|AUTOCOMPLETE|WIZMODECMD. Existing generated registry and rhack/extended-command input dispatch reach the new awaited arm. Source search finds only this active runtime caller, extern declaration and definition."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-objprobs.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-objprobs-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-objprobs-deep.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-object-probabilities",
+                "segment": 0,
+                "fromStep": 14,
+                "throughStep": 18,
+                "source": "cmd.c extcmdlist1977-1978 -> doextcmd -> wizcmds.c:wiz_objprobs1832-1868. Initial five pages verify traversal, class separators and percentage text; independent recordings cover the remaining classes and final dismissal."
+              }
+            ],
+            "checkedAt": "b25f95dace7fe6ca34fb5a104562795421605c4a"
+          }
+        ],
+        "entryPointReview": "Only active entry is wizard #wizobjprobs through cmd.c extcmdlist/doextcmd/rhack. Admitted range covers the first five pages. Independently chosen Barbarian and Wizard roles/seeds/clocks invoke the full table and dismiss twice, including final venom class and map restoration. Depth5 variation tests an initialized live object table after level teleport; its C output matches the ordinary table, so no changed gem-probability branch credit is claimed. An independent normal Samurai case verifies WIZMODECMD admission rejects the command before this helper. Source-pinned tests cover unnamed/empty names, class totals/separators, truncation and exact float formatting. No additional runtime entry exists.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizobjprobs",
+            "functions": [
+              "wiz_objprobs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-objprobs-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-objprobs-deep.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-object-probabilities",
+                "segment": 0,
+                "fromStep": 14,
+                "throughStep": 18,
+                "source": "cmd.c extcmdlist1977-1978 -> doextcmd -> wizcmds.c:wiz_objprobs1832-1868. Initial five pages verify traversal, class separators and percentage text; independent recordings cover the remaining classes and final dismissal."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
