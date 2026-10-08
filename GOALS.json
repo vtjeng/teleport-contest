@@ -219858,6 +219858,59 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-timeout-fatal-expiry-family-v32-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port fatal timeout death and green slime expiry",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v32/v32-pestilence-touch"
+      ],
+      "selectionReason": "The admitted Pestilence case reaches fatal sickness at step 93, where JavaScript skips done_timeout and loses the source death prompt, life-saving state, and later RNG order. Completing the shared fatal timeout family closes all active callers coherently.",
+      "detail": "Port whole timeout.c slimed_to_death and done_timeout in source order. Wire bounded nh_timeout STONED, SICK, STRANGLED, and SLIMED expiry callers plus the existing live-state handoff. Preserve delayed killers, I_SPECIAL disclosure, survival-only cleanup, temporary green-slime ungenocide, light removal, and genocide follow-up while retaining named downstream owner frontiers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "slimed_to_death",
+          "line": 457,
+          "endLine": 533,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 457,
+        "to": 533
+      },
+      "requiredFunctions": [
+        {
+          "name": "done_timeout",
+          "line": 575,
+          "endLine": 587,
+          "declared": false,
+          "sourceFile": "timeout.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v32/v32-pestilence-touch": {
+          "session": "synthetic/v32/v32-pestilence-touch",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-pestilence-touch",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-pestilence-touch.session.json",
+          "recordingSha256": "a0a0ffde30bee6cb3ef90979dc6b00e265e8b584e3aefc53d0a07aede7f8646e",
+          "evaluationPath": "challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json",
+          "evaluationCommit": "e07a3433218418185470f93e6ed7061c6e1982cb"
+        }
+      }
     }
   ]
 }
