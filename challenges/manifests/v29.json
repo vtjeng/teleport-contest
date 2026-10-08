@@ -1,0 +1,2798 @@
+{
+  "version": 1,
+  "batch": "v29",
+  "status": "prepared-unadmitted",
+  "comparisonBase": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+  "priorBatch": "v28",
+  "sourceCommit": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "priorBatchManifestFileSha256": "2722262d9e81679cfaa1a710eb92a17fbe5b84860d67f7aebf5722da8f79e028",
+  "priorBatchCorpusDigest": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+  "unresolvedOlderCaseIds": [],
+  "olderEvaluationEvidence": [
+    {
+      "batch": "v1",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v1.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v2",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v2.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v3",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v3.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v4",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v4.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v5",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v5.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v6",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v6.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v7",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v7.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v8",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v8.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v9",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v9.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v10",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v10.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v11",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v11.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v12",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v12.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v13",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v13.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v14",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v14.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v15",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v15.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v16",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v16.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v17",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v17.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v18",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v18.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v19",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v19.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v20",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v20.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v21",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v21.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v22",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v22.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v23",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v23.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v24",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v24.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v25",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v25.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v26",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v26.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    },
+    {
+      "batch": "v27",
+      "path": "challenges/evaluations/accepted-abc3d27654490c19347f6a3571442fa505fc7576-v27.json",
+      "sha": "abc3d27654490c19347f6a3571442fa505fc7576",
+      "cases": []
+    }
+  ],
+  "cases": [
+    {
+      "id": "v29-amulet-change",
+      "title": "amulet change",
+      "mission": "Wear an uncursed amulet of change; verify gender change and amulet consumption.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "do_wear.c:Amulet_on AMULET_OF_CHANGE",
+        "do_wear.c:Amulet_on AMULET_OF_CHANGE"
+      ],
+      "sourceTrace": "do_wear.c:1000-1039 removes the amulet, changes sex through polyself.c:change_sex, announces the new sex and consumes it. C step31 says masculine/disintegrates. JS do_wear.js:1213 refuses the branch at step30.",
+      "outcome": "reached",
+      "cOutcome": "do_wear.c:1000-1039 removes the amulet, changes sex through polyself.c:change_sex, announces the new sex and consumes it. C step31 says masculine/disintegrates. JS do_wear.js:1213 refuses the branch at step30.",
+      "inputs": [
+        {
+          "seed": 1392901,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392901,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed amulet of change\nPe    i "
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-amulet-change.recipe.session.json",
+      "recipeSha256": "826c833092e9ad5608e18e7f68473d265594f5672f2c69dacff6600468543733",
+      "recording": "challenges/cases/v29/v29-amulet-change.session.json",
+      "recordingSha256": "cdb881cba7268f305121728b8de1c0d6e5d5ed253e26903f824ef943e5bdb0c0",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-amulet-change; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-amulet-change.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-cursed-towel"
+        ],
+        "causalDistinction": "Amulet changes sex and is consumed; towel produces face gunk and blindness without changing sex or disintegrating."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 30,
+        "firstMismatchOwner": "do_wear.c:Amulet_on AMULET_OF_CHANGE",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2396,
+              "js": 2389
+            },
+            "screens": {
+              "c": 37,
+              "js": 30
+            },
+            "cursors": {
+              "c": 37,
+              "js": 30
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2389,
+            "cEntry": "rn2(19)=0",
+            "cCaller": "exercise(attrib.c:509)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 30,
+              "key": "e"
+            }
+          },
+          "screenMismatch": {
+            "index": 30,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 30,
+              "key": "e"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 30,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 30,
+              "key": "e"
+            },
+            "cCursor": [
+              45,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-amulet-change.comparison.json"
+      }
+    },
+    {
+      "id": "v29-punished-blindfold",
+      "title": "punished blindfold",
+      "mission": "Read punishment then wear blindfold while ball remains attached; verify blind ball/chain memory.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "do_wear.c:Blindf_on -> ball.c:set_bc",
+        "do_wear.c:Blindf_on Punished set_bc"
+      ],
+      "sourceTrace": "do_wear.c:1461-1499 calls ball.c:set_bc(0) before toggling newly acquired blindness. C step60 wears blindfold while the ordinary attached punishment ball remains active; JS do_wear.js:1432 refuses this ball-memory prerequisite.",
+      "outcome": "reached",
+      "cOutcome": "do_wear.c:1461-1499 calls ball.c:set_bc(0) before toggling newly acquired blindness. C step60 wears blindfold while the ordinary attached punishment ball remains active; JS do_wear.js:1432 refuses this ball-memory prerequisite.",
+      "inputs": [
+        {
+          "seed": 1392902,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392902,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017uncursed scroll of punishment\nre   \u0017uncursed blindfold\nPf     ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-punished-blindfold.recipe.session.json",
+      "recipeSha256": "736182ac438190defd557e2b114270a1e9f15a3ca6a05d631c7679c3424d6f35",
+      "recording": "challenges/cases/v29/v29-punished-blindfold.session.json",
+      "recordingSha256": "c44264f9e21e2c19daf374479c3d38e34a7aaf8a48ffab03d7fc8e139da0381a",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-punished-blindfold; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-punished-blindfold.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-buried-ball-release"
+        ],
+        "causalDistinction": "Attached floor ball and chain remain punishment while sight becomes blind. Prior ball was buried then released by remove curse, changing utrap/ownership rather than blindness memory."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 60,
+        "firstMismatchOwner": "do_wear.c:Blindf_on Punished set_bc",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2401,
+              "js": 2377
+            },
+            "screens": {
+              "c": 67,
+              "js": 60
+            },
+            "cursors": {
+              "c": 67,
+              "js": 60
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2377,
+            "cEntry": "rn2(5)=2",
+            "cCaller": "distfleeck(monmove.c:538)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 60,
+              "key": "f"
+            }
+          },
+          "screenMismatch": {
+            "index": 60,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 60,
+              "key": "f"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 60,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 60,
+              "key": "f"
+            },
+            "cCursor": [
+              66,
+              16,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-punished-blindfold.comparison.json"
+      }
+    },
+    {
+      "id": "v29-eyes-regain-sight",
+      "title": "eyes regain sight",
+      "mission": "A neutral Monk drinks blindness then wears Eyes; verify regained sight/X-ray state.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "do_wear.c:Blindf_on Eyes of Overworld",
+        "do_wear.c:Blindf_on Eyes sight restoration"
+      ],
+      "sourceTrace": "do_wear.c:1477-1497 has the opposite blindness transition: previously blind hero wears Eyes of Overworld, You can see and toggle_blindness. C step76 establishes sight restored; JS do_wear.js:1459 refuses it at step75. This is distinct from the preceding Punished/newly-blind arm.",
+      "outcome": "reached",
+      "cOutcome": "do_wear.c:1477-1497 has the opposite blindness transition: previously blind hero wears Eyes of Overworld, You can see and toggle_blindness. C step76 establishes sight restored; JS do_wear.js:1459 refuses it at step75. This is distinct from the preceding Punished/newly-blind arm.",
+      "inputs": [
+        {
+          "seed": 1392903,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392903,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed potion of blindness\n\u0017uncursed Eyes of the Overworld\n    qj    Pk    ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-eyes-regain-sight.recipe.session.json",
+      "recipeSha256": "5eba307f81155a1e19b9629baee5c77254c09de6481adc94066704bca1ceb8a2",
+      "recording": "challenges/cases/v29/v29-eyes-regain-sight.session.json",
+      "recordingSha256": "aae73f89a8f19d19af64c8b8c583dce890065bb15bce207118e4075d926ebc3d",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-eyes-regain-sight; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-eyes-regain-sight.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-cursed-towel"
+        ],
+        "causalDistinction": "Artifact lenses restore sight to a previously blind Monk and provide X-ray equipment; towel acquires blindness by face gunk."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 75,
+        "firstMismatchOwner": "do_wear.c:Blindf_on Eyes sight restoration",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2360,
+              "js": 2336
+            },
+            "screens": {
+              "c": 81,
+              "js": 75
+            },
+            "cursors": {
+              "c": 81,
+              "js": 75
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2336,
+            "cEntry": "rn2(5)=2",
+            "cCaller": "distfleeck(monmove.c:538)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 76,
+              "key": " "
+            }
+          },
+          "screenMismatch": {
+            "index": 75,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 75,
+              "key": "k"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 75,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 75,
+              "key": "k"
+            },
+            "cCursor": [
+              77,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-eyes-regain-sight.comparison.json"
+      }
+    },
+    {
+      "id": "v29-cursed-levitation-up",
+      "title": "cursed levitation up",
+      "mission": "Drink cursed levitation at starting upstairs; verify upward transition/exit prompt.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "potion.c:peffect_levitation -> do.c:doup",
+        "potion.c:peffect_levitation doup caller"
+      ],
+      "sourceTrace": "potion.c:1165-1203 calls do.c:doup on upstairs for cursed levitation. C step33 asks whether to climb out with no return; a space chooses default no, then hero floats gently to stairs. JS potion.js:1805 skips doup, so its message does not become More at step32. RNG matches completely.",
+      "outcome": "reached",
+      "cOutcome": "potion.c:1165-1203 calls do.c:doup on upstairs for cursed levitation. C step33 asks whether to climb out with no return; a space chooses default no, then hero floats gently to stairs. JS potion.js:1805 skips doup, so its message does not become More at step32. RNG matches completely.",
+      "inputs": [
+        {
+          "seed": 1392904,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392904,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017cursed potion of levitation\nqe   n   ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-cursed-levitation-up.recipe.session.json",
+      "recipeSha256": "b864707215606504baaf5c3b35d93c4a8b778c55828e7243ac1baf5e9695915b",
+      "recording": "challenges/cases/v29/v29-cursed-levitation-up.session.json",
+      "recordingSha256": "278cd887062d85c64c94eeb0048d5a486174e053c7fa04fd47727ac5d5859d8a",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-cursed-levitation-up; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-cursed-levitation-up.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-hole-floor-pile-fall"
+        ],
+        "causalDistinction": "Cursed potion attempts upward stairs traversal and prompts to escape; previous case digs a downward hole and migrates a floor pile."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 32,
+        "firstMismatchOwner": "potion.c:peffect_levitation doup caller",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2510,
+              "js": 2510
+            },
+            "screens": {
+              "c": 41,
+              "js": 41
+            },
+            "cursors": {
+              "c": 41,
+              "js": 41
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": {
+            "index": 32,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 32,
+              "key": "e"
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 30,
+            "cCell": {
+              "ch": "-",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": " ",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 32,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 32,
+              "key": "e"
+            },
+            "cCursor": [
+              38,
+              0,
+              1
+            ],
+            "jsCursor": [
+              22,
+              5,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-cursed-levitation-up.comparison.json"
+      }
+    },
+    {
+      "id": "v29-demonbane-banish",
+      "title": "demonbane banish",
+      "mission": "Lawful Cleric invokes Demonbane with a visible imp; verify demon vanishing/migration.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "artifact.c:invoke_banish",
+        "artifact.c:invoke_banish monster-list/migration"
+      ],
+      "sourceTrace": "artifact.c:1963-2000 scans live fmon, admits visible imp, selects Gehennom level with rn2(24), migrates and announces vanishing. C step44 demon disappears. JS artifacts.js:2520 scans stale state.fmon, so skips live level.monlist and migration draw.",
+      "outcome": "reached",
+      "cOutcome": "artifact.c:1963-2000 scans live fmon, admits visible imp, selects Gehennom level with rn2(24), migrates and announces vanishing. C step44 demon disappears. JS artifacts.js:2520 scans stale state.fmon, so skips live level.monlist and migration draw.",
+      "inputs": [
+        {
+          "seed": 1392905,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392905,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed Demonbane\n\u0007peaceful imp\n#invoke\nj    ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-demonbane-banish.recipe.session.json",
+      "recipeSha256": "d3535e0577a5325eb9fff5b271dd9b77dc621d36cdff3548aea766b11f543c26",
+      "recording": "challenges/cases/v29/v29-demonbane-banish.session.json",
+      "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-demonbane-banish; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-demonbane-banish.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-mirror-medusa"
+        ],
+        "causalDistinction": "Visible demon is banished alive to another level; Medusa is killed by reflected gaze, with stone-death/statue/experience state."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 44,
+        "firstMismatchOwner": "artifact.c:invoke_banish monster-list/migration",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2392,
+              "js": 2404
+            },
+            "screens": {
+              "c": 50,
+              "js": 50
+            },
+            "cursors": {
+              "c": 50,
+              "js": 50
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2378,
+            "cEntry": "rn2(24)=20",
+            "cCaller": "invoke_banish(artifact.c:1996)",
+            "jsEntry": "rn2(5)=4",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 44,
+              "key": "j"
+            }
+          },
+          "screenMismatch": {
+            "index": 44,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 44,
+              "key": "j"
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 0,
+            "cCell": {
+              "ch": "T",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": "W",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-demonbane-banish.comparison.json"
+      }
+    },
+    {
+      "id": "v29-key-invoke-untrap",
+      "title": "key invoke untrap",
+      "mission": "Chaotic Rogue invokes Master Key near a wished bear trap; verify direction/disarming prompts.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "artifact.c:invoke_untrap -> trap.c:untrap",
+        "artifact.c:invoke_untrap consumed untrap return"
+      ],
+      "sourceTrace": "artifact.c:1838-1845 calls trap.c:untrap(TRUE) and consumes its return. C step70 asks direction and step71 says no known traps there; no disarm is claimed. JS artifacts.js:2412 skips untrap and resets age/cancels without the direction prompt.",
+      "outcome": "partly reached",
+      "cOutcome": "artifact.c:1838-1845 calls trap.c:untrap(TRUE) and consumes its return. C step70 asks direction and step71 says no known traps there; no disarm is claimed. JS artifacts.js:2412 skips untrap and resets age/cancels without the direction prompt.",
+      "inputs": [
+        {
+          "seed": 1392906,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392906,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017bear trap trap\nl\u0017uncursed The Master Key of Thievery\n     #invoke\ngh y     ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-key-invoke-untrap.recipe.session.json",
+      "recipeSha256": "07124edf520d5f236ce4e17e6590229f95f13668bfb8b4490a6ff4612bf18d23",
+      "recording": "challenges/cases/v29/v29-key-invoke-untrap.session.json",
+      "recordingSha256": "989017009bc0da16807b96e50a1d738c20d5906d80ae52ecbadb724b5723a067",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-key-invoke-untrap; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-key-invoke-untrap.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-quantum-box-locked-miss"
+        ],
+        "causalDistinction": "Artifact power enters magical untrap direction selection; locked ordinary box tipping refuses a locked container without entering untrap."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 70,
+        "firstMismatchOwner": "artifact.c:invoke_untrap consumed untrap return",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2792,
+              "js": 2803
+            },
+            "screens": {
+              "c": 80,
+              "js": 80
+            },
+            "cursors": {
+              "c": 80,
+              "js": 80
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2757,
+            "cEntry": "rn2(5)=1",
+            "cCaller": "distfleeck(monmove.c:538)",
+            "jsEntry": "d(2,4)=3",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 73,
+              "key": "y"
+            }
+          },
+          "screenMismatch": {
+            "index": 70,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 70,
+              "key": "g"
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 0,
+            "cCell": {
+              "ch": "I",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": "W",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 70,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 70,
+              "key": "g"
+            },
+            "cCursor": [
+              19,
+              0,
+              1
+            ],
+            "jsCursor": [
+              46,
+              8,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-key-invoke-untrap.comparison.json"
+      }
+    },
+    {
+      "id": "v29-excalibur-vampire-retouch",
+      "title": "excalibur vampire retouch",
+      "mission": "Lawful Knight wields Excalibur then becomes vampire; verify incompatible artifact retouch/drop.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "artifact.c:retouch_equipment",
+        "artifact.c:retouch_equipment compatibility"
+      ],
+      "sourceTrace": "artifact.c:2640-2711 retouches equipment after polymorph. Knight becomes vampire and keeps Excalibur: this setup does not prove an incompatible artifact drop. Complete local recording matches.",
+      "outcome": "missed; complete local match",
+      "cOutcome": "artifact.c:2640-2711 retouches equipment after polymorph. Knight becomes vampire and keeps Excalibur: this setup does not prove an incompatible artifact drop. Complete local recording matches.",
+      "inputs": [
+        {
+          "seed": 1392907,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392907,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed Excalibur\nwi    #polyself\nvampire\n     i "
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-excalibur-vampire-retouch.recipe.session.json",
+      "recipeSha256": "d2bb64defa3dfba55adc0bef9357f10ab22ab066f8cd564e2a3189d2a4adae18",
+      "recording": "challenges/cases/v29/v29-excalibur-vampire-retouch.session.json",
+      "recordingSha256": "d10439201a365a5442f00322422b441e46987b9986fd6e64b9c4430166e24826",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-excalibur-vampire-retouch; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-excalibur-vampire-retouch.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-poly-worn-cloak"
+        ],
+        "causalDistinction": "Knight retains compatible wielded Excalibur in humanoid vampire form; former self ray became lemure and exercised cloak/armor breakage. No cloak is worn in this case and artifact compatibility was the target."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matches complete retained history.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2500,
+              "js": 2500
+            },
+            "screens": {
+              "c": 53,
+              "js": 53
+            },
+            "cursors": {
+              "c": 53,
+              "js": 53
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-excalibur-vampire-retouch.comparison.json"
+      }
+    },
+    {
+      "id": "v29-quantum-mechanic-box",
+      "title": "quantum mechanic box",
+      "mission": "Create actual quantum mechanic, kill with wizard kill, tip its spe=1 large box; verify cat observation.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "makemon.c:m_initinv PM_QUANTUM_MECHANIC -> pickup.c:observe_quantum_cat",
+        "wizcmds.c:wiz_kill dispatch"
+      ],
+      "sourceTrace": "makemon.c:777 rolls rn2(20)=4, so actual quantum mechanic has no special cat box. C wizcmds.c:243-335 debug selection kills it at step42 and grants XP. JS cmd.js:5294 refuses the distinct wiz_kill dispatch at step37. No quantum observation is claimed; conservative runway exclusion.",
+      "outcome": "missed quantum box; wizard kill reached",
+      "cOutcome": "makemon.c:777 rolls rn2(20)=4, so actual quantum mechanic has no special cat box. C wizcmds.c:243-335 debug selection kills it at step42 and grants XP. JS cmd.js:5294 refuses the distinct wiz_kill dispatch at step37. No quantum observation is claimed; conservative runway exclusion.",
+      "inputs": [
+        {
+          "seed": 1392908,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392908,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0007peaceful quantum mechanic\n#wizkill\n   k.    \u001b k   #tip\ny       ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-quantum-mechanic-box.recipe.session.json",
+      "recipeSha256": "706ab2d90036b0fccee8692d7716f8fb21a5f2c0257c66f5a163b83e3a20d026",
+      "recording": "challenges/cases/v29/v29-quantum-mechanic-box.session.json",
+      "recordingSha256": "0d4fc84b0d0a5fe91664646e7ac7a24fe75dd4787e9c6c350cb9025ad4ab0ede",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-quantum-mechanic-box; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-quantum-mechanic-box.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-quantum-box-tip"
+        ],
+        "causalDistinction": "Actual quantum-mechanic constructor followed by debug monster selection/killing, with no box produced, rather than a wished ordinary large box tipped onto the floor. Also differs from reflected Medusa stone death."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 37,
+        "firstMismatchOwner": "wizcmds.c:wiz_kill dispatch",
+        "countsTowardRunway": false,
+        "exclusionReason": "Incidental missing debug kill dispatch; quantum box was not created, conservative exclusion.",
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 3038,
+              "js": 2992
+            },
+            "screens": {
+              "c": 67,
+              "js": 37
+            },
+            "cursors": {
+              "c": 67,
+              "js": 37
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2992,
+            "cEntry": "rn2(6)=4",
+            "cCaller": "xkilled(mon.c:3587)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 42,
+              "key": "."
+            }
+          },
+          "screenMismatch": {
+            "index": 37,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 37,
+              "key": "\n"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 37,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 37,
+              "key": "\n"
+            },
+            "cCursor": [
+              35,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-quantum-mechanic-box.comparison.json"
+      }
+    },
+    {
+      "id": "v29-eat-chameleon-tin",
+      "title": "eat chameleon tin",
+      "mission": "Eat a blessed tin of chameleon; verify metamorphosis rather than ordinary food.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "eat.c:cpostfx -> polyself.c:polyself",
+        "eat.c:cpostfx chameleon polyself caller"
+      ],
+      "sourceTrace": "eat.c:cpostfx:1245-1272 consumes tin, provides nutrition and calls polyself(POLY_NOFLAGS). C step37 draws polyself RNG, then becomes male rothe and drops equipment. JS eat.js:2714 skips this source call.",
+      "outcome": "reached",
+      "cOutcome": "eat.c:cpostfx:1245-1272 consumes tin, provides nutrition and calls polyself(POLY_NOFLAGS). C step37 draws polyself RNG, then becomes male rothe and drops equipment. JS eat.js:2714 skips this source call.",
+      "inputs": [
+        {
+          "seed": 1392909,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392909,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017blessed tin of chameleon meat\nee  y      i "
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-eat-chameleon-tin.recipe.session.json",
+      "recipeSha256": "7efdd869db6b0380fd04c3a55aec01785631d38f98a4b3917450ed9f79eb90cf",
+      "recording": "challenges/cases/v29/v29-eat-chameleon-tin.session.json",
+      "recordingSha256": "238db4fb3be6fc6c4706076385032a868eab92d6ed129f25d9f1ca28f7ee19b2",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-eat-chameleon-tin; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-eat-chameleon-tin.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-royal-dragon-egg-timer"
+        ],
+        "causalDistinction": "Hero eats chameleon meat and changes body; previous jelly/egg history changes egg contents/timer without food-driven hero polymorph."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 37,
+        "firstMismatchOwner": "eat.c:cpostfx chameleon polyself caller",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2705,
+              "js": 2676
+            },
+            "screens": {
+              "c": 46,
+              "js": 46
+            },
+            "cursors": {
+              "c": 46,
+              "js": 46
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2661,
+            "cEntry": "rn2(20)=6",
+            "cCaller": "polyself(polyself.c:490)",
+            "jsEntry": "rn2(5)=1",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 37,
+              "key": "y"
+            }
+          },
+          "screenMismatch": {
+            "index": 37,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 37,
+              "key": "y"
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 69,
+            "cCell": {
+              "ch": "-",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": " ",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 37,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 37,
+              "key": "y"
+            },
+            "cCursor": [
+              77,
+              0,
+              1
+            ],
+            "jsCursor": [
+              53,
+              17,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-eat-chameleon-tin.comparison.json"
+      }
+    },
+    {
+      "id": "v29-sink-quaff-gas",
+      "title": "sink quaff gas",
+      "mission": "Drink from an actual sink in fixed repeated history; verify stench/gas-cloud or toxic-waste branch.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "fountain.c:drinksink",
+        "fountain.c:drinksink reached ordinary branches"
+      ],
+      "sourceTrace": "fountain.c:595-714 fixed 20-quaff history draws ordinary faucet effects, sewer rat/water elemental and broken pipes, then drinks resultant fountain. No gas cloud or toxic metamorphosis observed. Full C/JS history matches including debug-death refusal defaults.",
+      "outcome": "missed gas/toxic target; complete local match",
+      "cOutcome": "fountain.c:595-714 fixed 20-quaff history draws ordinary faucet effects, sewer rat/water elemental and broken pipes, then drinks resultant fountain. No gas cloud or toxic metamorphosis observed. Full C/JS history matches including debug-death refusal defaults.",
+      "inputs": [
+        {
+          "seed": 1392910,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392910,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017sink\nqy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    qy    "
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-sink-quaff-gas.recipe.session.json",
+      "recipeSha256": "7b05fa0b44d3f4db7c15f40efccd1354c90c13a8b3f417efcd69bddc199f5fea",
+      "recording": "challenges/cases/v29/v29-sink-quaff-gas.session.json",
+      "recordingSha256": "9cb51f71436dc461a33dee8dd2e21a0fd6910fc63bea3e16b1d0d3fbbfaa343c",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-sink-quaff-gas; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-sink-quaff-gas.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-shop-horn-use"
+        ],
+        "causalDistinction": "Hero drinks a stationary sink until pipes become a fountain; previous owned horn produces inventory food/potions and never drinks fixtures."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matches complete retained history.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 3099,
+              "js": 3099
+            },
+            "screens": {
+              "c": 129,
+              "js": 129
+            },
+            "cursors": {
+              "c": 129,
+              "js": 129
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-sink-quaff-gas.comparison.json"
+      }
+    },
+    {
+      "id": "v29-open-trapped-door",
+      "title": "open trapped door",
+      "mission": "Wish trapped closed door off stairs, step away and open back toward it; verify explosion.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "lock.c:doopen_indir -> trap.c:b_trapped",
+        "lock.c:doopen_indir D_TRAPPED caller"
+      ],
+      "sourceTrace": "objnam.c terrain wish first makes iron bars (legal surrogate wall), then trapped closed door. lock.c:904-921 successful opening calls b_trapped, clears door and redraws. C step37 KABOOM/stagger with rnd(6); JS lock.js:1240 refuses D_TRAPPED.",
+      "outcome": "reached",
+      "cOutcome": "objnam.c terrain wish first makes iron bars (legal surrogate wall), then trapped closed door. lock.c:904-921 successful opening calls b_trapped, clears door and redraws. C step37 KABOOM/stagger with rnd(6); JS lock.js:1240 refuses D_TRAPPED.",
+      "inputs": [
+        {
+          "seed": 1392911,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392911,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017iron bars\n\u0017trapped closed door\nloh   oh   oh   oh   "
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-open-trapped-door.recipe.session.json",
+      "recipeSha256": "f8b03763081194414293e07f307a823471277947ddcd41596e26fba49cd88b14",
+      "recording": "challenges/cases/v29/v29-open-trapped-door.session.json",
+      "recordingSha256": "cff84ed58b855357085e4e24d18ddb63c3c3bbd43813c3ef7373995b7ddc0a71",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-open-trapped-door; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-open-trapped-door.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-fumbling-landmine-set"
+        ],
+        "causalDistinction": "Existing trapped door explodes when opened; previous landmine is a carried tool deliberately set as a floor trap."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 37,
+        "firstMismatchOwner": "lock.c:doopen_indir D_TRAPPED caller",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2794,
+              "js": 2747
+            },
+            "screens": {
+              "c": 56,
+              "js": 37
+            },
+            "cursors": {
+              "c": 56,
+              "js": 37
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2747,
+            "cEntry": "rnd(6)=4",
+            "cCaller": "b_trapped(trap.c:6697)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 37,
+              "key": "h"
+            }
+          },
+          "screenMismatch": {
+            "index": 37,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 37,
+              "key": "h"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 37,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 37,
+              "key": "h"
+            },
+            "cCursor": [
+              61,
+              4,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-open-trapped-door.comparison.json"
+      }
+    },
+    {
+      "id": "v29-terrain-projection-objects",
+      "title": "terrain projection objects",
+      "mission": "Place an object on ordinary floor, select known map without monsters; verify object-preserving projection.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "cmd.c:doterrain -> detect.c:reveal_terrain",
+        "cmd.c:doterrain choice3 reveal_terrain"
+      ],
+      "sourceTrace": "cmd.c:1098-1170 choice3 selects known terrain/traps/objects without monsters and calls detect.c:reveal_terrain. C step32 displays projection and later browse-map; JS cmd.js:3206 refuses choice3. Diamond was dropped first to make retained object glyph meaningful.",
+      "outcome": "reached",
+      "cOutcome": "cmd.c:1098-1170 choice3 selects known terrain/traps/objects without monsters and calls detect.c:reveal_terrain. C step32 displays projection and later browse-map; JS cmd.js:3206 refuses choice3. Diamond was dropped first to make retained object glyph meaningful.",
+      "inputs": [
+        {
+          "seed": 1392912,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392912,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017uncursed diamond\nde#terrain\nc\n   \u001b."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-terrain-projection-objects.recipe.session.json",
+      "recipeSha256": "ce0e0a0f4f26c53c48d133f7b690370409bc5d7e26d2885e8daa5caabf7d16e8",
+      "recording": "challenges/cases/v29/v29-terrain-projection-objects.session.json",
+      "recordingSha256": "0c1c7929ab931001134d5b68730fbf76cfabd78cad10477b6d47118a68dfa08d",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-terrain-projection-objects; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-terrain-projection-objects.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-wiz-flip-level"
+        ],
+        "causalDistinction": "Projection filters monster glyphs while retaining object/trap/map memory, then restores ordinary view; map flip changes actual terrain/coordinates."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 32,
+        "firstMismatchOwner": "cmd.c:doterrain choice3 reveal_terrain",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2876,
+              "js": 2872
+            },
+            "screens": {
+              "c": 39,
+              "js": 32
+            },
+            "cursors": {
+              "c": 39,
+              "js": 32
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2872,
+            "cEntry": "rn2(12)=6",
+            "cCaller": "mcalcmove(mon.c:1164)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 38,
+              "key": "."
+            }
+          },
+          "screenMismatch": {
+            "index": 32,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 32,
+              "key": "c"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 32,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 32,
+              "key": "c"
+            },
+            "cCursor": [
+              57,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-terrain-projection-objects.comparison.json"
+      }
+    },
+    {
+      "id": "v29-firebrand-storm",
+      "title": "firebrand storm",
+      "mission": "Invoke Fire Brand against nearby peaceful lichen; verify map target and fire storm.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "artifact.c:invoke_storm_spell",
+        "spell.c:spelleffects skilled fireball throwspell"
+      ],
+      "sourceTrace": "artifact.c:2039-2051 Fire Brand temporarily sets attack skill expert and calls spelleffects. spell.c:1421-1450 gets target through throwspell then repeats fire explosions. C step53 starts fireball against lichen/hero; JS spell.js refuses skilled fireball/cone-of-cold throwspell/explode before targeting at step48.",
+      "outcome": "reached",
+      "cOutcome": "artifact.c:2039-2051 Fire Brand temporarily sets attack skill expert and calls spelleffects. spell.c:1421-1450 gets target through throwspell then repeats fire explosions. C step53 starts fireball against lichen/hero; JS spell.js refuses skilled fireball/cone-of-cold throwspell/explode before targeting at step48.",
+      "inputs": [
+        {
+          "seed": 1392913,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392913,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed Fire Brand\n\u0007peaceful lichen\n#invoke\nf    .                ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-firebrand-storm.recipe.session.json",
+      "recipeSha256": "d4e4f30135bf659ea8740cff6c45fa0e07098efa4bef92652acee086e98c1ce1",
+      "recording": "challenges/cases/v29/v29-firebrand-storm.session.json",
+      "recordingSha256": "b77591ee6ce3ef5455b6a78972ba87e52162c7be0d279eea2229d080edc0604a",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-firebrand-storm; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-firebrand-storm.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-mirror-medusa"
+        ],
+        "causalDistinction": "Area storm from artifact invokes skilled fireball with map target and multiple blasts; previous mirror redirects a single monster gaze."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 48,
+        "firstMismatchOwner": "spell.c:spelleffects skilled fireball throwspell",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2956,
+              "js": 2894
+            },
+            "screens": {
+              "c": 71,
+              "js": 48
+            },
+            "cursors": {
+              "c": 71,
+              "js": 48
+            },
+            "animFrames": {
+              "c": 8,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2894,
+            "cEntry": "rnd(8)=3",
+            "cCaller": "spelleffects(spell.c:1425)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 53,
+              "key": "."
+            }
+          },
+          "screenMismatch": {
+            "index": 48,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 48,
+              "key": "f"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 48,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 48,
+              "key": "f"
+            },
+            "cCursor": [
+              44,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-firebrand-storm.comparison.json"
+      }
+    },
+    {
+      "id": "v29-punishment-ball-drag",
+      "title": "punishment ball drag",
+      "mission": "Read punishment and move repeatedly with attached floor ball; verify coordinate drag and time usage.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "ball.c:drag_ball",
+        "ball.c:drag_ball"
+      ],
+      "sourceTrace": "Read punishment and walk with attached floor ball; ball.c:drag_ball updates coordinates and movement time. Complete C/JS recording matches. Final floor-pile menu remains visible; later raw movement keys are consumed by that menu, as recorded.",
+      "outcome": "reached; complete local match",
+      "cOutcome": "Read punishment and walk with attached floor ball; ball.c:drag_ball updates coordinates and movement time. Complete C/JS recording matches. Final floor-pile menu remains visible; later raw movement keys are consumed by that menu, as recorded.",
+      "inputs": [
+        {
+          "seed": 1392914,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392914,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017uncursed scroll of punishment\nre    llhhl."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-punishment-ball-drag.recipe.session.json",
+      "recipeSha256": "e225c8d5c746a02ea210565a4efa1a15e5d28fbd5f980993b9cdcdd2220d5aa5",
+      "recording": "challenges/cases/v29/v29-punishment-ball-drag.session.json",
+      "recordingSha256": "2d8cff78a825f1e22b590efe7a16cd762fa99fa7a4f64d76858e4d219da1f515",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-punishment-ball-drag; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-punishment-ball-drag.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-buried-ball-redig"
+        ],
+        "causalDistinction": "Ball stays attached and on floor during movement; prior bury/redig sequence puts ball in buried object chain and hero in TT_BURIEDBALL."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matches complete retained history.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2298,
+              "js": 2298
+            },
+            "screens": {
+              "c": 46,
+              "js": 46
+            },
+            "cursors": {
+              "c": 46,
+              "js": 46
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-punishment-ball-drag.comparison.json"
+      }
+    },
+    {
+      "id": "v29-nymph-remove-clothing",
+      "title": "nymph remove clothing",
+      "mission": "Wear cursed shirt then become nymph and use monster ability; verify curse-independent clothing removal.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "polyself.c:doremove",
+        "polyself.c:doremove no-Punished guard"
+      ],
+      "sourceTrace": "Source audit corrected the initial target: polyself.c:1481-1495 doremove removes punishment, not clothing. C wood nymph remains unpunished and #monster says not chained; cursed shirt is retained. Complete local recording matches.",
+      "outcome": "missed clothing target; complete local match",
+      "cOutcome": "Source audit corrected the initial target: polyself.c:1481-1495 doremove removes punishment, not clothing. C wood nymph remains unpunished and #monster says not chained; cursed shirt is retained. Complete local recording matches.",
+      "inputs": [
+        {
+          "seed": 1392915,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392915,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017cursed Hawaiian shirt\nWe     #polyself\nwood nymph\n     #monster\n    i "
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-nymph-remove-clothing.recipe.session.json",
+      "recipeSha256": "8464ad0cb07457b0b881f39adb196d70c97e0434b23ff425a17c50e727add21c",
+      "recording": "challenges/cases/v29/v29-nymph-remove-clothing.session.json",
+      "recordingSha256": "3bbed5e26a627e9ba2bae5adc9994e2a0bc6a5910fd48bc7559c056ccdae9e43",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-nymph-remove-clothing; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-nymph-remove-clothing.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-poly-worn-cloak"
+        ],
+        "causalDistinction": "Humanoid nymph retains shirt and tests an unpunished special ability; lemure transformation breaks worn cloak. No clothing-removal credit is claimed."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matches complete retained history.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 3040,
+              "js": 3040
+            },
+            "screens": {
+              "c": 73,
+              "js": 73
+            },
+            "cursors": {
+              "c": 73,
+              "js": 73
+            },
+            "animFrames": {
+              "c": 2,
+              "js": 2
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-nymph-remove-clothing.comparison.json"
+      }
+    },
+    {
+      "id": "v29-sink-polymorph-ring",
+      "title": "sink polymorph ring",
+      "mission": "Drop a polymorph ring into an actual sink; verify fixture transformation.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "do.c:dosinkring RIN_POLYMORPH",
+        "do.c:dosinkring RIN_POLYMORPH"
+      ],
+      "sourceTrace": "do.c:582-586 dispatches polymorph_sink:404-444. C step38 draws rn2(4)=2, then sink transforms into altar at step39 and completes ring call prompt. Complete C/JS recording matches.",
+      "outcome": "reached; complete local match",
+      "cOutcome": "do.c:582-586 dispatches polymorph_sink:404-444. C step38 draws rn2(4)=2, then sink transforms into altar at step39 and completes ring call prompt. Complete C/JS recording matches.",
+      "inputs": [
+        {
+          "seed": 1392916,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392916,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017sink\n\u0017uncursed ring of polymorph\ndf   \u001b\n ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-sink-polymorph-ring.recipe.session.json",
+      "recipeSha256": "000231e129c558a53247ab41d3a7fb4c7f08d50973715c506580a8578f8b3da2",
+      "recording": "challenges/cases/v29/v29-sink-polymorph-ring.session.json",
+      "recordingSha256": "93ab8e6502f3b89c7d52cdfa2f77fc027ee7b88d2b09be6a7730c840484a361a",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-sink-polymorph-ring; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-sink-polymorph-ring.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-hole-floor-pile-fall"
+        ],
+        "causalDistinction": "Dropping ring intentionally transforms sink into altar and drains ring; prior floor pile is considered for migration when a newly dug hole changes level."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matches complete retained history.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2924,
+              "js": 2924
+            },
+            "screens": {
+              "c": 46,
+              "js": 46
+            },
+            "cursors": {
+              "c": 46,
+              "js": 46
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-sink-polymorph-ring.comparison.json"
+      }
+    },
+    {
+      "id": "v29-eat-small-mimic-tin",
+      "title": "eat small mimic tin",
+      "mission": "Eat mimic tin and wait beyond the 20-turn mimic period; verify gold disguise and restoration.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "eat.c:cpostfx PM_SMALL_MIMIC -> eatmdone",
+        "eat.c:cpostfx mimic blocking map display"
+      ],
+      "sourceTrace": "eat.c:cpostfx:1183-1225 sets object disguise, newsym/curs_on_u, then display_nhwindow(WIN_MAP, TRUE); JS eat.js:2668 skips that blocking display. First animation grouping differs at step40 (C0 frames, JS3). Next, eat.c:163-179 eatmdone resets m_ap_type/newsym: C step41 restores human glyph while JS eat.js:2663 callback only notes eatmdone and retains gold glyph. The first animation difference and subsequent glyph/RNG differences are retained separately in comparison evidence.",
+      "outcome": "reached",
+      "cOutcome": "eat.c:cpostfx:1183-1225 sets object disguise, newsym/curs_on_u, then display_nhwindow(WIN_MAP, TRUE); JS eat.js:2668 skips that blocking display. First animation grouping differs at step40 (C0 frames, JS3). Next, eat.c:163-179 eatmdone resets m_ap_type/newsym: C step41 restores human glyph while JS eat.js:2663 callback only notes eatmdone and retains gold glyph. The first animation difference and subsequent glyph/RNG differences are retained separately in comparison evidence.",
+      "inputs": [
+        {
+          "seed": 1392917,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392917,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017blessed tin of small mimic meat\nee  y     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   i "
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-eat-small-mimic-tin.recipe.session.json",
+      "recipeSha256": "9b17af5db0b3447752d8f598869859e48e9c7377670afc13c95eabdc5454fa0c",
+      "recording": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+      "recordingSha256": "1f6ebc359511986856842725ed7764b5e51a012d5580c9506fcf4a88b0a6e8d6",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-eat-small-mimic-tin; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-eat-small-mimic-tin.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-royal-dragon-egg-timer"
+        ],
+        "causalDistinction": "Eating mimic meat temporarily disguises hero as floor gold then restores glyph, rather than modifying an egg species/timer. Distinct from chameleon body polymorph: no monster body transform is required here."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 40,
+        "firstMismatchOwner": "eat.c:cpostfx mimic blocking map display",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 3110,
+              "js": 3346
+            },
+            "screens": {
+              "c": 143,
+              "js": 143
+            },
+            "cursors": {
+              "c": 143,
+              "js": 143
+            },
+            "animFrames": {
+              "c": 3,
+              "js": 3
+            }
+          },
+          "rngMismatch": {
+            "index": 2804,
+            "cEntry": "rn2(5)=4",
+            "cCaller": "distfleeck(monmove.c:538)",
+            "jsEntry": "rn2(1)=0",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 45,
+              "key": "."
+            }
+          },
+          "screenMismatch": {
+            "index": 41,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 41,
+              "key": " "
+            },
+            "kind": "ch",
+            "row": 12,
+            "column": 17,
+            "cCell": {
+              "ch": "@",
+              "color": 15,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": "$",
+              "color": 11,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": null,
+          "animMismatch": {
+            "index": 40,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 40,
+              "key": " "
+            },
+            "kind": "count",
+            "cCount": 0,
+            "jsCount": 3
+          },
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-eat-small-mimic-tin.comparison.json"
+      }
+    },
+    {
+      "id": "v29-kick-sink",
+      "title": "kick sink",
+      "mission": "Place sink off stairs, move away, kick sink repeatedly; verify pipe/dishwasher or injury branch.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "dokick.c:kick_nondoor IS_SINK",
+        "dokick.c:kick_nondoor sink arm"
+      ],
+      "sourceTrace": "dokick.c:1194-1240 kicks sink pipes, may spawn dish washer or sink_backs_up. C first says Klunk pipes vibrate, later black pudding appears and is kicked; full history including debug death rescue matches.",
+      "outcome": "reached; complete local match",
+      "cOutcome": "dokick.c:1194-1240 kicks sink pipes, may spawn dish washer or sink_backs_up. C first says Klunk pipes vibrate, later black pudding appears and is kicked; full history including debug death rescue matches.",
+      "inputs": [
+        {
+          "seed": 1392918,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392918,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017sink\nl\u0004h     \u0004h     \u0004h     \u0004h     \u0004h     "
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-kick-sink.recipe.session.json",
+      "recipeSha256": "4756b6201dce3cec49640e7adb51e71bb96cdd092048b02ec30cd78001ec974d",
+      "recording": "challenges/cases/v29/v29-kick-sink.session.json",
+      "recordingSha256": "e5c7de3c5b3e1e878562b942582c30e44867e524eda7dd0711cade11ca817837",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-kick-sink; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-kick-sink.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-jump-floor-trap"
+        ],
+        "causalDistinction": "Adjacent fixture kicking and pipe/pudding effects; previous jumping boots target a floor trap and neither kick a fixture nor spawn sink occupants."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": true,
+        "firstMismatchStep": null,
+        "firstMismatchOwner": null,
+        "countsTowardRunway": false,
+        "exclusionReason": "Matches complete retained history.",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2624,
+              "js": 2624
+            },
+            "screens": {
+              "c": 45,
+              "js": 45
+            },
+            "cursors": {
+              "c": 45,
+              "js": 45
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-kick-sink.comparison.json"
+      }
+    },
+    {
+      "id": "v29-kick-legless-hero",
+      "title": "kick legless hero",
+      "mission": "Become a snake and attempt a kick; verify source refusal flush and no time use.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "dokick.c:dokick no-limbs guard",
+        "dokick.c:dokick no-limbs guard"
+      ],
+      "sourceTrace": "dokick.c:1265-1316 refuses kick when snake has no legs and flushes message window; C step25 no legs/More, no kick direction asked. JS dokick.js:1262 throws instead of source refusal.",
+      "outcome": "reached",
+      "cOutcome": "dokick.c:1265-1316 refuses kick when snake has no legs and flushes message window; C step25 no legs/More, no kick direction asked. JS dokick.js:1262 throws instead of source refusal.",
+      "inputs": [
+        {
+          "seed": 1392919,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392919,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".#polyself\nsnake\n       \u0004    ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-kick-legless-hero.recipe.session.json",
+      "recipeSha256": "68704383aceb377db2de6f106adae4b1bee306b4c58b65f1faff1c3db47fe13b",
+      "recording": "challenges/cases/v29/v29-kick-legless-hero.session.json",
+      "recordingSha256": "a6fd34aac412250fd39218506dce6369029359a4a6ccc4e9d8ab69d3c56b9c9d",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-kick-legless-hero; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-kick-legless-hero.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-poly-worn-cloak"
+        ],
+        "causalDistinction": "Snake deliberately attempts anatomy-invalid kick after dropping handheld gear; lemure self ray exercised cloak breakage without a kick action."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 25,
+        "firstMismatchOwner": "dokick.c:dokick no-limbs guard",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2882,
+              "js": 2873
+            },
+            "screens": {
+              "c": 31,
+              "js": 25
+            },
+            "cursors": {
+              "c": 31,
+              "js": 25
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2873,
+            "cEntry": "rn2(5)=3",
+            "cCaller": "distfleeck(monmove.c:538)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 30,
+              "key": "."
+            }
+          },
+          "screenMismatch": {
+            "index": 25,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 25,
+              "key": "\u0004"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 25,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 25,
+              "key": "\u0004"
+            },
+            "cCursor": [
+              38,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-kick-legless-hero.comparison.json"
+      }
+    },
+    {
+      "id": "v29-sacrifice-human-race",
+      "title": "sacrifice human race",
+      "mission": "Place neutral altar and sacrifice fresh human corpse as neutral human; verify blood staining/alignment/deity wrath.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "pray.c:sacrifice_your_race -> angrygods",
+        "pray.c:sacrifice_your_race angrygods caller"
+      ],
+      "sourceTrace": "pray.c:1698-1780 own-race corpse at neutral altar stains altar chaotic, applies alignment/anger/WIS changes, then calls angrygods. C step40 voice of Odin and rn2(9)=8 from angrygods:725. JS pray.js:665 skips angrygods; first RNG/message diverges before later results.",
+      "outcome": "reached",
+      "cOutcome": "pray.c:1698-1780 own-race corpse at neutral altar stains altar chaotic, applies alignment/anger/WIS changes, then calls angrygods. C step40 voice of Odin and rn2(9)=8 from angrygods:725. JS pray.js:665 skips angrygods; first RNG/message diverges before later results.",
+      "inputs": [
+        {
+          "seed": 1392920,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392920,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".l\u0017neutral altar\n\u0017human corpse\n#offer\ne             ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-sacrifice-human-race.recipe.session.json",
+      "recipeSha256": "c143df7ee557b2ced8357de027cac3ec334bf6906278b6729e2c461e1fdc4f93",
+      "recording": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+      "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-sacrifice-human-race; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-sacrifice-human-race.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-dig-altar-wrath"
+        ],
+        "causalDistinction": "Human corpse offered to an existing neutral altar triggers sacrificial offense and deity anger; prior digging attempts targeted altar terrain but never reached altar wrath."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 40,
+        "firstMismatchOwner": "pray.c:sacrifice_your_race angrygods caller",
+        "countsTowardRunway": true,
+        "exclusionReason": null,
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2877,
+              "js": 2831
+            },
+            "screens": {
+              "c": 54,
+              "js": 54
+            },
+            "cursors": {
+              "c": 54,
+              "js": 54
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2802,
+            "cEntry": "rn2(9)=8",
+            "cCaller": "angrygods(pray.c:725)",
+            "jsEntry": "rn2(5)=0",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 40,
+              "key": " "
+            }
+          },
+          "screenMismatch": {
+            "index": 40,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 40,
+              "key": " "
+            },
+            "kind": "ch",
+            "row": 0,
+            "column": 38,
+            "cCell": {
+              "ch": " ",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            },
+            "jsCell": {
+              "ch": "-",
+              "color": 8,
+              "attr": 0,
+              "decgfx": 0
+            }
+          },
+          "cursorMismatch": {
+            "index": 40,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 40,
+              "key": " "
+            },
+            "cCursor": [
+              76,
+              0,
+              1
+            ],
+            "jsCursor": [
+              46,
+              0,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-sacrifice-human-race.comparison.json"
+      }
+    },
+    {
+      "id": "v29-amulet-breathing",
+      "title": "amulet breathing",
+      "mission": "Wear magical breathing amulet outside gas; verify ordinary on-message after region-danger query.",
+      "selectionRationale": "Independent C source design preceded own JavaScript comparison. C-observed selectors/pagers corrected before comparison; retain valid matches and target misses.",
+      "sourcePointers": [
+        "do_wear.c:Amulet_on -> region.c:region_danger",
+        "do_wear.c:Amulet_on region_danger caller"
+      ],
+      "sourceTrace": "do_wear.c:984-994 temporarily removes magical-breathing extrinsic to query region_danger then restores it; no gas present means ordinary on-message. C step41 completes wearing. JS do_wear.js:1205 refuses region_danger integration. Retained but not counted as a second Amulet_on family refusal.",
+      "outcome": "reached; conservative runway exclusion",
+      "cOutcome": "do_wear.c:984-994 temporarily removes magical-breathing extrinsic to query region_danger then restores it; no gas present means ordinary on-message. C step41 completes wearing. JS do_wear.js:1205 refuses region_danger integration. Retained but not counted as a second Amulet_on family refusal.",
+      "inputs": [
+        {
+          "seed": 1392921,
+          "datetime": "20480506070809",
+          "nethackrc": "OPTIONS=name:Probe1392921,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+          "moves": ".\u0017uncursed amulet of magical breathing\nPf    ."
+        }
+      ],
+      "recipe": "challenges/cases/v29/v29-amulet-breathing.recipe.session.json",
+      "recipeSha256": "0577f3923ba324368b4fb96594ff5861fa2ae04a9d3435767332292011469ef7",
+      "recording": "challenges/cases/v29/v29-amulet-breathing.session.json",
+      "recordingSha256": "b404b5884c332ef3eab8c433134e40a8ec769e9dd3b41177e487fac071ea9f8c",
+      "reproducibility": "Independent patched C replay via node .cache/C139-record-case.mjs replay v29-amulet-breathing; strict deep equality of every segment/step/key/RNG/screen/cursor. Final replay completed before commit and delivery. /tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-amulet-breathing.replay.log",
+      "overlapReview": {
+        "comparedAgainstEveryCase": [
+          "v28/v28-axe-tree-fruit",
+          "v28/v28-buried-ball-redig",
+          "v28/v28-buried-ball-release",
+          "v28/v28-buried-ball-unearth",
+          "v28/v28-cancel-novel",
+          "v28/v28-cursed-jelly-kills-egg",
+          "v28/v28-cursed-towel",
+          "v28/v28-cursed-wand-backfire",
+          "v28/v28-dig-altar-offstairs",
+          "v28/v28-dig-altar-wrath",
+          "v28/v28-engrave-create-monster",
+          "v28/v28-engrave-teleport-text",
+          "v28/v28-fumbling-landmine-set",
+          "v28/v28-fumbling-mine-bungle",
+          "v28/v28-hole-floor-pile-fall",
+          "v28/v28-jump-floor-trap",
+          "v28/v28-mirror-medusa",
+          "v28/v28-oracle-major-consultation",
+          "v28/v28-poly-worn-cloak",
+          "v28/v28-quantum-box-locked-miss",
+          "v28/v28-quantum-box-tip",
+          "v28/v28-royal-dragon-egg-timer",
+          "v28/v28-shop-horn-use",
+          "v28/v28-tin-rider-inventory",
+          "v28/v28-vault-cursed-whistle",
+          "v28/v28-vlad-special-throne",
+          "v28/v28-wiz-flip-level",
+          "v28/v28-wiz-recreate-level",
+          "v28/v28-wiz-smell-self"
+        ],
+        "unresolvedOlderCases": [],
+        "closestEarlierCases": [
+          "v28-cursed-towel"
+        ],
+        "causalDistinction": "Passive magical breathing equipment without gas; prior cursed towel accumulates face gunk and blindness. No sex-changing effect or item consumption, unlike this batch change amulet."
+      },
+      "localComparison": {
+        "base": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+        "passed": false,
+        "firstMismatchStep": 41,
+        "firstMismatchOwner": "do_wear.c:Amulet_on region_danger caller",
+        "countsTowardRunway": false,
+        "exclusionReason": "Second Amulet_on family refusal, conservatively excluded.",
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2748,
+              "js": 2720
+            },
+            "screens": {
+              "c": 47,
+              "js": 41
+            },
+            "cursors": {
+              "c": 47,
+              "js": 41
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2720,
+            "cEntry": "rn2(5)=1",
+            "cCaller": "distfleeck(monmove.c:538)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 41,
+              "key": "f"
+            }
+          },
+          "screenMismatch": {
+            "index": 41,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 41,
+              "key": "f"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 41,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 41,
+              "key": "f"
+            },
+            "cCursor": [
+              51,
+              12,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/v29-runs/v29-amulet-breathing.comparison.json"
+      }
+    }
+  ]
+}

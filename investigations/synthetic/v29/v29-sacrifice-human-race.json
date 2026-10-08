@@ -1,0 +1,142 @@
+{
+  "session": "synthetic/v29/v29-sacrifice-human-race",
+  "corpus": "synthetic",
+  "batch": "v29",
+  "caseId": "v29-sacrifice-human-race",
+  "manifestPath": "challenges/manifests/v29.json",
+  "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+  "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+  "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+  "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+  "remainingScreens": 14,
+  "recordedSteps": 54,
+  "status": "complete",
+  "commit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v29",
+    "caseId": "v29-sacrifice-human-race",
+    "session": "synthetic/v29/v29-sacrifice-human-race",
+    "manifestPath": "challenges/manifests/v29.json",
+    "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+    "recording": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+    "recordingPath": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+    "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+    "recipe": "challenges/cases/v29/v29-sacrifice-human-race.recipe.session.json",
+    "recipeSha256": "c143df7ee557b2ced8357de027cac3ec334bf6906278b6729e2c461e1fdc4f93",
+    "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
+    "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+    "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+    "evaluationArtifact": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+    "evaluationUtc": "2026-10-08T05:02:17.323Z",
+    "remainingScreens": 14,
+    "recordedSteps": 54,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 40,
+        "total": 54
+      },
+      "rng": {
+        "matched": 2803,
+        "total": 2877
+      },
+      "cursors": {
+        "matched": 52,
+        "total": 54
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 40,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 40,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 38,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2802,
+        "cEntry": "rn2(9)=8",
+        "cCaller": "angrygods(pray.c:725)",
+        "jsEntry": "rn2(5)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 40,
+          "key": " "
+        },
+        "stepIndex": 40
+      },
+      "cursor": {
+        "index": 40,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 40,
+          "key": " "
+        },
+        "cCursor": [
+          76,
+          0,
+          1
+        ],
+        "jsCursor": [
+          46,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 40,
+    "kind": "rng",
+    "sourceFile": "pray.c",
+    "function": "angrygods",
+    "message": null,
+    "cFile": "pray.c",
+    "luaFile": null,
+    "line": 725
+  },
+  "summary": "Offering a human corpse on the non-high neutral altar reaches sacrifice_your_race(): C calls angrygods() before applying the subsequent Luck penalty, but JavaScript records pray.c angrygods as unported and skips it. The omitted call causes the step-40 RNG and screen divergence; the C anger roll selects cases 7/8, which also require minion.c summon_minion for the step-41 replay.",
+  "source": {
+    "file": "pray.c",
+    "branch": "A non-chaotic hero outside Gehennom offers a corpse of their own race on a non-high neutral altar. sacrifice_your_race() increases u.ugangr by 3 and calls angrygods() before change_luck(-5); in this recording rn2(maxanger) returns 8, selecting angrygods() cases 7/8.",
+    "functions": [
+      "sacrifice_your_race",
+      "angrygods"
+    ],
+    "callers": [
+      "offer_corpse() -> sacrifice_your_race(): nethack-c/upstream/src/pray.c:1993-1994; js/pray.js:813-833.",
+      "sacrifice_your_race() -> angrygods(): nethack-c/upstream/src/pray.c:1765-1771; js/pray.js:662-668, where the call is currently skipped with note_unported().",
+      "offer_different_alignment_altar() -> angrygods(): nethack-c/upstream/src/pray.c:1648-1656; js/pray.js:751-762.",
+      "gods_upset() -> angrygods(): nethack-c/upstream/src/pray.c:1436-1442; js/pray.js:2226-2231.",
+      "prayer_done() -> angrygods(): nethack-c/upstream/src/pray.c:2307-2325; js/pray.js:1686-1707."
+    ],
+    "dependencies": [
+      "minion.c:summon_minion; angry gods cases 7/8 call it, and the assigned recording reaches this branch at step 41."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json records 40/54 screens matched and the first mismatch at step 40: C rng entry rn2(9)=8 from angrygods(pray.c:725), while the positional JavaScript entry is rn2(5)=0; the C screen is blank at row 0, column 38 where JavaScript has a dash. The queue records 14 remaining screens for recording e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9.",
+    "The permitted single-case replay, node scripts/scan-sessions.mjs --json --synthetic v29/v29-sacrifice-human-race, reproduces the step-40 divergence and lists pray.c angrygods in the runtime unported set. The JavaScript rn2(5) is the next positional RNG entry after the skipped C call, not a roll attributed to angrygods.",
+    "nethack-c/upstream/src/pray.c:1698-1778 shows the human-race offering path; at lines 1765-1771 the non-chaotic branch changes alignment, increments u.ugangr, calls angrygods(u.ualign.type) outside Gehennom, and only then calls change_luck(-5). js/pray.js:589-683 mirrors the caller but uses note_unported(\"pray.c angrygods\") at line 666 before change_luck(-5), explaining the absent C behavior.",
+    "nethack-c/upstream/src/pray.c:704-784 defines angrygods(); rn2(maxanger) at line 725 selects cases 7/8 in this recording, which call godvoice(), verbalize the threat, and summon_minion() at lines 760-772 before the shared timer update. js/pray.js:2306-2385 currently throws UnsupportedPrayerError for cases 7/8 at lines 2377-2379. The recording step 41 includes the summon and subsequent angry-god RNG calls; nethack-c/upstream/src/minion.c:198 is the required callee owner."
+  ]
+}

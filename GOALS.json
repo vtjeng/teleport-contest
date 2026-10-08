@@ -200148,7 +200148,7 @@
     {
       "id": "port-wizcmds-wiz-makemap-v28-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port wizard dungeon-level recreation and command dispatch",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -200156,17 +200156,24 @@
       ],
       "selectionReason": "Independent admitted case synthetic/v28/v28-wiz-recreate-level has seven remaining screens and a refreshed complete investigation at accepted B145; the higher-priority buried-ball task is active independently on worker C.",
       "detail": "Port whole wizcmds.c wiz_makemap and its interactive and queued command dispatch. Reuse In_W_tower, makemap_prepost, and mklev in C order while preserving named teardown and arrival gaps.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "c96a61949f77deff90e4df644aef60975632294c",
+      "openStanding": {
+        "sha": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_makemap",
           "line": 156,
           "endLine": 175,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -200185,6 +200192,361 @@
           "recordingSha256": "bb74a1e9cec092a37592e4c641be40dfc340b2973c3ca7c5f9aff5f422caca2c",
           "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
           "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b"
+        }
+      },
+      "activeStanding": {
+        "sha": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-wiz-recreate-level",
+          "session": "synthetic/v28/v28-wiz-recreate-level",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+          "recordingPath": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+          "recordingSha256": "bb74a1e9cec092a37592e4c641be40dfc340b2973c3ca7c5f9aff5f422caca2c",
+          "recipe": "challenges/cases/v28/v28-wiz-recreate-level.recipe.session.json",
+          "recipeSha256": "8427405850e7b96babe3b16f9151e798334fd74529abc50cb4b4b46536472f31",
+          "replayInputSha256": "1a4a49c081d62538552ecf65bfc9143a384fb84979455ca189c7deda168de343",
+          "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+          "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+          "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+          "evaluationUtc": "2026-10-08T04:24:32.322Z",
+          "remainingScreens": 7,
+          "recordedSteps": 20,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 20
+            },
+            "rng": {
+              "matched": 2601,
+              "total": 4837
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 20
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_makemap() for the extended command 'wizmakemap' is not ported",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_makemap",
+          "message": "unsupported hero command: wiz_makemap() for the extended command 'wizmakemap' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-wiz-recreate-level.json",
+            "result": {
+              "session": "synthetic/v28/v28-wiz-recreate-level",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-wiz-recreate-level",
+              "remainingScreens": 7,
+              "recordedSteps": 20,
+              "metrics": {
+                "screens": {
+                  "matched": 13,
+                  "total": 20
+                },
+                "rng": {
+                  "matched": 2601,
+                  "total": 4837
+                },
+                "cursors": {
+                  "matched": 13,
+                  "total": 20
+                }
+              },
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+              "recording": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+              "recordingSha256": "bb74a1e9cec092a37592e4c641be40dfc340b2973c3ca7c5f9aff5f422caca2c",
+              "recipe": "challenges/cases/v28/v28-wiz-recreate-level.recipe.session.json",
+              "recipeSha256": "8427405850e7b96babe3b16f9151e798334fd74529abc50cb4b4b46536472f31",
+              "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+              "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+              "evaluationUtc": "2026-10-08T04:24:32.322Z",
+              "step": 13,
+              "segment": 0,
+              "kind": "unsupported",
+              "function": "wiz_makemap",
+              "sourceFile": "wizcmds.c",
+              "message": "unsupported hero command: wiz_makemap() for the extended command 'wizmakemap' is not ported",
+              "status": "complete",
+              "commit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+              "mismatch": {
+                "session": "synthetic/v28/v28-wiz-recreate-level",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-wiz-recreate-level",
+                "remainingScreens": 7,
+                "recordedSteps": 20,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 20
+                  },
+                  "rng": {
+                    "matched": 2601,
+                    "total": 4837
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 20
+                  }
+                },
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recordingPath": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+                "recording": "challenges/cases/v28/v28-wiz-recreate-level.session.json",
+                "recordingSha256": "bb74a1e9cec092a37592e4c641be40dfc340b2973c3ca7c5f9aff5f422caca2c",
+                "recipe": "challenges/cases/v28/v28-wiz-recreate-level.recipe.session.json",
+                "recipeSha256": "8427405850e7b96babe3b16f9151e798334fd74529abc50cb4b4b46536472f31",
+                "evaluationPath": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json",
+                "evaluationCommit": "e90b92783bbf7e1c5c09b0346908c3f44006131b",
+                "evaluationUtc": "2026-10-08T04:24:32.322Z",
+                "step": 13,
+                "segment": 0,
+                "kind": "unsupported",
+                "function": "wiz_makemap",
+                "sourceFile": "wizcmds.c",
+                "message": "unsupported hero command: wiz_makemap() for the extended command 'wizmakemap' is not ported",
+                "passed": false,
+                "error": null,
+                "evaluationArtifact": "challenges/evaluations/accepted-e90b92783bbf7e1c5c09b0346908c3f44006131b-v28.json"
+              },
+              "goalKind": "file-port",
+              "summary": "The wizmakemap extended command is selected correctly but cmd.c dispatch refuses its absent wizcmds.c:wiz_makemap owner. Port the whole command and wire direct and queued dispatch; reuse existing map pre/post and generation owners with their named teardown and arrival limits.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Wizard mode selects #wizmakemap on an existing dungeon level. C saves In_W_tower before teardown, calls makemap_prepost(TRUE), mklev, then makemap_prepost(FALSE), and returns ECMD_OK without spending a turn; nonwizard invocation prints unavailability and returns the same result.",
+                "functions": [
+                  "wiz_makemap"
+                ],
+                "callers": [
+                  "cmd.c:extcmdlist wizmakemap row1980-1981 -> doextcmd selected command -> rhack result handling",
+                  "end.c:fuzzer_savelife1007-1013 -> cmdq_add_ec(CQ_CANNED,wiz_makemap) -> cmd.c:rhack queued function dispatch"
+                ],
+                "dependencies": [
+                  "dungeon.c:In_W_tower1923-1940 consumes current tower bounds; established js/dungeon.js owner, no new whole-helper credit",
+                  "cmd.c:makemap_prepost986-1080 and mklev.c:mklev are void calls with existing owners; verify canonical state and source ordering",
+                  "Existing makemap_prepost carries discarded gaps wizcmds.c:makemap_remove_mons, dungeon.c:rm_mapseen, files.c freeing handles, do.c:u_collide_m and questpgr.c:deliver_splev_message; retain exact gaps unless separately scoped",
+                  "Source teardown family makemap_unmakemon73-106/makemap_remove_mons110-151 can be selected separately; keepdogs(TRUE) currently refuses and is a discarded void callee",
+                  "Accepted C141 supplies vision_reset publication and live flip contracts; this command calls the established post helper and does not change vision or flip owners"
+                ]
+              },
+              "evidence": [
+                "Read all wizcmds.c156-172 and cmd.c986-1080. Whole command: tower snapshot, pre-helper, level generation, post-helper, nonwizard message, ECMD_OK return. No command-level RNG may substitute for mklev.",
+                "At examined HEAD 6f880d8ce85dde8e4789f9fd0ac8f1deddc1cab5, which includes accepted B145 e90b92783bbf7e1c5c09b0346908c3f44006131b, focused run-GnzI0G reproduces segment 0 step 13 UnsupportedHeroCommandBoundaryError in doextcmd. C has 20 screens and 4,837 RNG calls; JS emits 13 screens and 2,601 RNG calls. The first omitted C RNG call, index 2,601, is rn2(3)=1 at getbones(bones.c:645), from mklev. Diagnostic: .cache/v28-wiz-recreate-level/replay-accepted.json.",
+                "js/extcmdlist_data.js carries the wizmakemap row; js/wizcmds.js has no wiz_makemap export and js/cmd.js doextcmd has no corresponding arm. rhack handles canned extcmd rows separately; adding only the interactive switch leaves the end.c caller unimplemented.",
+                "js/cmd.js makemap_prepost2545-2617 calls note_unported makemap_remove_mons. js/mklev.js446 initializes mapseen, calls getbones and makelevel which clears level structures. Removal helper is a named discarded-return limitation, not a consumed-result dependency of the selected command.",
+                "C makemap_remove_mons uses keepdogs(TRUE), uncreates local monsters, removes level-bound migrating shopkeepers/priests/guards, and dmonsfree. js/dog.js keepdogs(TRUE) unconditionally refuses. A wider family must address that support or retain its gap; passing FALSE would violate source.",
+                "C makemap_prepost uses savelev with a FREEING NHFILE; JS pre-helper calls savelev without its existing FREEING option. Verify snapshots and timer/light disposal before broader pre-helper completion. No pre-helper credit proposed.",
+                "Entry evidence plan: admitted case covers debug command; independent role/map variation establishes full command and no-time tail. Queued-row source-pinned test and independent repeat-command recording should verify canned dispatch. Rare fuzzer_savelife producer remains an explicit enclosing entry frontier unless recorded.",
+                "Proposed writes: js/wizcmds.js and minimal js/cmd.js dispatch sites; scripts/wizcmds.test.mjs, scripts/cmd-span.test.mjs, scripts/run-wizard-makemap.mjs; recipes/wizcmds.c/ and recordings/wizcmds.c/. No game edits, C recordings, aggregate scan or implementation claim during investigation."
+              ],
+              "passed": false,
+              "error": null
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_makemap",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_makemap",
+            "sourceReview": "Read whole wizcmds.c156-173 and cmd.c986-1080 before editing. Preserve wizard guard; consumed In_W_tower snapshot before map teardown; await canonical makemap_prepost(TRUE,saved flag), mklev(), makemap_prepost(FALSE,same flag); preserve nonwizard unavailcmd/ecname spelling and ECMD_OK return. Replacement level omits goto_level-specific guardian/alarm effects exactly as C. No command RNG, injected operation, synthetic output or placeholder. Existing js/dungeon.js In_W_tower and js/mklev.js mklev owners read; map pre/post source and existing canonical state signatures audited. Named discarded pre/post helper gaps remain in their existing owner. Whole completion credit is limited to wiz_makemap; no whole cmd, map pre/post, level generation, monster teardown, pet transfer or end.c credit.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist1980-1981 and doextcmd selected ef_funct: await wiz_makemap and return ECMD_OK to existing rhack result tail."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c queued extcmd function pointer invocation3737 -> wiz_makemap; end.c fuzzer_savelife1007-1013 already queues CQ_CANNED row, and Ctrl-A repeat supplies the same queued callback. Await without another prompt, retain ECMD reset/time tail."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd-span.test.mjs",
+              "scripts/hero-death.test.mjs",
+              "scripts/mon-genocide.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json",
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json",
+              "recordings/wizcmds.c/makemap-nonwizard.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-wiz-recreate-level",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 19,
+                "source": "cmd.c:doextcmd/rhack -> wizcmds.c:wiz_makemap156-173 -> cmd.c:makemap_prepost(TRUE) -> mklev.c:mklev -> makemap_prepost(FALSE) and ECMD_OK; all recorded results through final wait match."
+              }
+            ],
+            "checkedAt": "29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c"
+          }
+        ],
+        "entryPointReview": "Interactive wizard extended command is reached by the admitted complete case and independent Wizard variation. Queued function dispatch is reached by immediate Ctrl-A repeat in independent Tourist recording, with second getbones generation at step17 after interactive generation step16; both branches use the same production callback queued by fuzzer_savelife. Existing end.c producer remains unchanged and its source-pinned queue test passes; no broader fuzzer or death credit. Nonwizard registry admission blocks the owner before its else arm and is recorded independently; unreachable owner else is source-pinned. The task preserves explicit discarded-return teardown and arrival helper gaps, with a representative pet/monster teardown recipe outside the passing corpus.",
+        "entryPoints": [
+          {
+            "name": "Wizard extended command recreates current level",
+            "functions": [
+              "wiz_makemap"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-ordinary.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-wiz-recreate-level",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 19,
+                "source": "cmd.c:doextcmd/rhack -> wizcmds.c:wiz_makemap156-173 -> cmd.c:makemap_prepost(TRUE) -> mklev.c:mklev -> makemap_prepost(FALSE) and ECMD_OK; all recorded results through final wait match."
+              }
+            ]
+          },
+          {
+            "name": "Queued repeated wizard recreation callback",
+            "functions": [
+              "wiz_makemap"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-repeat-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Nonwizard command registry refusal",
+            "functions": [
+              "wiz_makemap"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/makemap-nonwizard.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "29d45c37f0d1dd9c0f472cd3b2a18b8a0b659a2c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-eat-eatmdone-mimic-restoration-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Restore temporary mimic disguise after eating",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v29/v29-eat-small-mimic-tin"
+      ],
+      "selectionReason": "The complete v29 investigation investigations/synthetic/v29/v29-eat-small-mimic-tin.json identifies eat.c:eatmdone as the highest-priority free source owner: 102 screens remain after the temporary small-mimic disguise fails to clear.",
+      "detail": "Port whole eat.c eatmdone and wire both existing cpostfx cleanup and delayed ga.afternmv dispatch. Preserve the separately named windows.c display_nhwindow blocking-map gap and do not claim whole cpostfx completion.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "eatmdone",
+          "line": 163,
+          "endLine": 180,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 163,
+        "to": 180
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-eat-small-mimic-tin": {
+          "session": "synthetic/v29/v29-eat-small-mimic-tin",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-eat-small-mimic-tin",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-eat-small-mimic-tin.session.json",
+          "recordingSha256": "1f6ebc359511986856842725ed7764b5e51a012d5580c9506fcf4a88b0a6e8d6",
+          "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+          "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
+        }
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-kill-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard monster selection and kill command",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v29/v29-quantum-mechanic-box"
+      ],
+      "selectionReason": "The complete v29 investigation investigations/synthetic/v29/v29-quantum-mechanic-box.json identifies the next highest independent owner: 30 screens remain because wizcmds.c:wiz_kill has no production dispatcher.",
+      "detail": "Port whole wizcmds.c wiz_kill and wire interactive doextcmd dispatch. Preserve mount, swallowed, suicide, m-prefix monkilled, level-change and dmonsfree branches in source order; verify selected and independent entry paths.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_kill",
+          "line": 243,
+          "endLine": 352,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 243,
+        "to": 352
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-quantum-mechanic-box": {
+          "session": "synthetic/v29/v29-quantum-mechanic-box",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-quantum-mechanic-box",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-quantum-mechanic-box.session.json",
+          "recordingSha256": "0d4fc84b0d0a5fe91664646e7ac7a24fe75dd4787e9c6c350cb9025ad4ab0ede",
+          "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+          "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0"
         }
       }
     }

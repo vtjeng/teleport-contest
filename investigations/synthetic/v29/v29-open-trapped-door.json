@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v29/v29-open-trapped-door",
+  "corpus": "synthetic",
+  "batch": "v29",
+  "caseId": "v29-open-trapped-door",
+  "manifestPath": "challenges/manifests/v29.json",
+  "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+  "recordingSha256": "cff84ed58b855357085e4e24d18ddb63c3c3bbd43813c3ef7373995b7ddc0a71",
+  "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+  "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+  "remainingScreens": 19,
+  "recordedSteps": 56,
+  "status": "complete",
+  "commit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v29",
+    "caseId": "v29-open-trapped-door",
+    "session": "synthetic/v29/v29-open-trapped-door",
+    "manifestPath": "challenges/manifests/v29.json",
+    "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+    "recording": "challenges/cases/v29/v29-open-trapped-door.session.json",
+    "recordingPath": "challenges/cases/v29/v29-open-trapped-door.session.json",
+    "recordingSha256": "cff84ed58b855357085e4e24d18ddb63c3c3bbd43813c3ef7373995b7ddc0a71",
+    "recipe": "challenges/cases/v29/v29-open-trapped-door.recipe.session.json",
+    "recipeSha256": "f8b03763081194414293e07f307a823471277947ddcd41596e26fba49cd88b14",
+    "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
+    "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+    "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+    "evaluationArtifact": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+    "evaluationUtc": "2026-10-08T05:02:17.323Z",
+    "remainingScreens": 19,
+    "recordedSteps": 56,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 37,
+        "total": 56
+      },
+      "rng": {
+        "matched": 2747,
+        "total": 2794
+      },
+      "cursors": {
+        "matched": 37,
+        "total": 56
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: picking a lock requires D_TRAPPED door trap in doopen_indir()",
+      "step": 37
+    },
+    "step": 37,
+    "kind": "stop",
+    "sourceFile": "lock.c",
+    "function": "doopen_indir",
+    "message": "unsupported hero command: an unported branch of this command: picking a lock requires D_TRAPPED door trap in doopen_indir()",
+    "cFile": "lock.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first mismatch is the trapped-door success arm of lock.c:doopen_indir(). At step 37, #open targets a closed D_TRAPPED door and C passes the strength roll; it calls b_trapped(\"door\", FINGER), sets the door to D_NODOOR, and refreshes vision. JavaScript throws before these effects. The existing b_trapped() port is available, but shop-door add_damage() remains unported. Whole-function scope also includes the separate AUTOUNLOCK_KICK branch that currently throws.",
+  "source": {
+    "file": "lock.c",
+    "branch": "doopen_indir() targets a real closed door with D_TRAPPED after passing the hands, pit, mimic, and size checks, and rnl(20) is below (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3. The recorded #open command reaches this arm at step 37. The same whole function also contains an AUTOUNLOCK_KICK path for an already locked door when that flag is enabled.",
+    "functions": [
+      "doopen_indir"
+    ],
+    "callers": [
+      "lock.c:doopen() dispatches the #open command and calls doopen_indir(0, 0).",
+      "hack.c:test_move() calls doopen_indir(x, y) for automatic opening while walking into a closed door."
+    ],
+    "dependencies": [
+      "trap.c:b_trapped() performs the trapped-door explosion; its JavaScript port is js/trap.js:b_trapped().",
+      "hack.c:in_rooms() determines whether the door is in a shop and therefore gates shop damage.",
+      "shk.c:add_damage() accounts for shop-door damage and is still unported; its return is discarded."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "C source at nethack-c/upstream/src/lock.c:780-921 shows the entire doopen_indir() unit. Its success arm at lines 904-916 calls b_trapped(\"door\", FINGER) when D_TRAPPED is set, then changes the mask to D_NODOOR, conditionally calls add_damage() for a shop, and calls feel_newsym() and recalc_block_point().",
+    "Direct callers are nethack-c/upstream/src/lock.c:773-776 (doopen() for the #open command) and nethack-c/upstream/src/hack.c:1099-1101 (test_move() automatic opening).",
+    "At the examined commit, js/lock.js:1093 onward translates doopen_indir() but its D_TRAPPED arm throws UnsupportedLockError before the trap call and subsequent door/vision updates. The same function also has an existing AUTOUNLOCK_KICK throw in its locked-door branch. js/trap.js:3504 onward already implements b_trapped(); js/lock.js:582-590 uses it for a trapped door opened through pick_lock() and records the still-unported shop add_damage() side effect.",
+    "C source nethack-c/upstream/src/trap.c:6694-6709 defines b_trapped(): it draws rnd(5 + (level < 5 ? level : 2 + level / 2)), prints the explosion, applies damage and exercises, then stuns. On this level the recording logs rnd(6)=4 at trap.c:6697.",
+    "The assigned saved evaluation challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json reports the first mismatch for this case as a stop at step 37: the unported D_TRAPPED branch in doopen_indir(). The assigned recording challenges/cases/v29/v29-open-trapped-door.session.json shows the C action at step 37 logs rnl(20)=13 at lock.c:904, then rnd(6)=4 in b_trapped(), and displays “The door opens. KABOOM!! The door was booby-trapped! You stagger...”."
+  ]
+}
