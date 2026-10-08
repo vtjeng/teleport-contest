@@ -215176,7 +215176,7 @@
     {
       "id": "port-wizcmds-wiz-mon-diff-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the wizard monster difficulty diagnostic",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -215190,8 +215190,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_mon_diff",
@@ -215426,6 +215429,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
