@@ -675,7 +675,14 @@ export async function drinkfountain(state = game, env = {}) {
         // newuhs(FALSE) updates hunger status; it is ported in eat.js.
         // Import deferred to avoid a circular dependency at load time.
         const { newuhs } = await import('./eat.js');
-        await newuhs(false, state, env);
+        const { endRunning } = await import('./hack.js');
+        await newuhs(false, state, {
+            ...env,
+            message,
+            endRunning: env.endRunning
+                ?? ((currentState) => endRunning(currentState)),
+            statusRefresh: env.statusRefresh ?? (() => bot()),
+        });
         if (mgkftn) return;
     } else {
         switch (fate) {

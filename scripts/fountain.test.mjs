@@ -25,6 +25,7 @@ import {
     FROMOUTSIDE,
     G_GONE,
     HALLUC,
+    HUNGRY,
     IN_SIGHT,
     ICE,
     ICED_POOL,
@@ -36,6 +37,7 @@ import {
     ROOM,
     SICK,
     SICK_VOMITABLE,
+    WEAK,
     SEE_INVIS,
     SINK,
     S_LRING,
@@ -1239,6 +1241,36 @@ test('drinkfountain follows fountain.c foul-water fate 20', async () => {
     assert.equal(location.horizontal, 0);
     assert.equal(location.flags, 0);
 });
+
+test('refreshing fountain draught completes a rising hunger transition',
+    async () => {
+        await startedGame();
+        const location = game.level.at(game.u.ux, game.u.uy);
+        location.typ = FOUNTAIN;
+        location.horizontal = 1; // C blessedftn: skip the common dryup tail.
+        game.u.uhunger = 48;
+        game.u.uhs = WEAK;
+        const messages = [];
+        const rndBounds = [];
+
+        await drinkfountain(game, {
+            message: (line) => messages.push(line),
+            random: {
+                rnd(bound) {
+                    rndBounds.push(bound);
+                    return bound === 30 ? 1 : 3;
+                },
+            },
+        });
+
+        assert.deepEqual(rndBounds, [30, 10]);
+        assert.equal(game.u.uhunger, 51);
+        assert.equal(game.u.uhs, HUNGRY);
+        assert.deepEqual(messages, [
+            'The cool draught refreshes you.',
+            'You only feel hungry now.',
+        ]);
+    });
 
 test('drinkfountain follows fountain.c unlooted find-gem fate 27', async () => {
     const source = await readFile(
