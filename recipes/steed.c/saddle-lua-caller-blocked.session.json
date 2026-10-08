@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED whole-owner caller evidence: sp_lev.c lspo_object2319 -> steed.c put_saddle_on_mon via a Lua des.monster inventory callback. dat/Kni-strt.lua108 supplies the source warhorse+saddle pattern; saddle-carrier.lua would contain des.monster({id=\"warhorse\",peaceful=1,inventory=function() des.object(\"saddle\"); end}). JS has no wizcmds.c wiz_load_lua/loader owner and refuses #wizloadlua before filename/program dispatch. The supporting Lua script must be installed for a future reference run; no whole saddle/Lua owner or caller credit is claimed by C150.",
+  "segments": [
+    {
+      "seed": 9187504,
+      "datetime": "20361113130000",
+      "nethackrc": "OPTIONS=name:SaddleLuaFrontier,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": ".#wizloadlua\nsaddle-carrier.lua\n"
+    }
+  ]
+}

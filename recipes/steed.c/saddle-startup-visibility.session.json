@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Knight seed9187501/date20361110121500. C-only prefix places the starting pony south; #loot south and yes exposes startup mpickobj identification loss before initedog. This male Knight/input history is independent of the admitted v30 case.",
+  "segments": [
+    {
+      "seed": 9187501,
+      "datetime": "20361110121500",
+      "nethackrc": "OPTIONS=name:SaddleVisibility,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#loot\njy   ."
+    }
+  ]
+}
