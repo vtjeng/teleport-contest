@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first untrap recipe. Unsearched inputs fixed before C observation or JS comparison. Cheap squeaky-board variation selects oil, allowing its discovery owner to run if disarm succeeds. C-only floor correction: east is a wall from this starting room; west reaches ordinary floor before creating the squeaky board. C-first chance variation: retry the still-present board up to five times. Stop the final regression input after C first reports its source repair branch; retain earlier failure effects as source evidence. C observation reached repair on the second attempt; truncate subsequent no-trap attempts and retain that repair with one settling wait.",
+  "segments": [
+    {
+      "seed": 1442911,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442911,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " h\u0017uncursed potion of oil\n   \u0017squeaky board\n  \u0006#untrap\n>g    #untrap\n>g ."
+    }
+  ]
+}

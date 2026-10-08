@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first door autounlock route: source terrain wish installs a locked trapped door on the existing doorway, then apply a skeleton key with autounlock:untrap enabled. Seed/role is the independently observed doorway layout; no JS selection.",
+  "segments": [
+    {
+      "seed": 1442907,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442907,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\nOPTIONS=autounlock:untrap\n",
+      "moves": " hh\u0017locked trapped door\n l\u0017uncursed skeleton key\n  aghy y      ."
+    }
+  ]
+}

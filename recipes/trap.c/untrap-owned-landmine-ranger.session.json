@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first untrap recipe. Unsearched inputs fixed before C observation or JS comparison. Source apply trap-setting makes a hero-owned landmine. Ranger difficulty reduction makes rn2(1) success after madeby_u reduction. C-only occupation correction: acknowledge the begin-setting More with space before letting the three-turn occupation finish. C-only location/prompt correction: the east square in this map has a hidden magic trap. Use south room floor and acknowledge begin-setting before waiting for completion. C-only window correction: the trap-discovery line produces a second More before occupation completion; acknowledge both.",
+  "segments": [
+    {
+      "seed": 1442907,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442907,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " j\u0017untrapped land mine\nag  ........#untrap\n>     ."
+    }
+  ]
+}

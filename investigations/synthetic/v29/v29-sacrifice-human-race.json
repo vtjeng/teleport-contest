@@ -11,7 +11,7 @@
   "remainingScreens": 14,
   "recordedSteps": 54,
   "status": "complete",
-  "commit": "5ecdef9c1182fa79b3fe3270fadabf68e17e28de",
+  "commit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v29",

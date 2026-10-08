@@ -202581,7 +202581,7 @@
     {
       "id": "port-artifact-invoke-untrap-family-v29-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore Master Key untrapping through the complete untrap/disarm family and door-mimic return path",
       "cFile": "artifact.c",
       "sessions": [
@@ -202589,17 +202589,24 @@
       ],
       "selectionReason": "synthetic/v29/v29-key-invoke-untrap, investigations/synthetic/v29/v29-key-invoke-untrap.json: missing artifact invoke_untrap dispatch consumes the incomplete trap untrap return family, so include whole trap.c:dountrap..untrap and lock.c:stumble_on_door_mimic rather than closing a wrapper-only task.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "538851d3a855cb9510b3301322f8f2e40a686b6e",
+      "openStanding": {
+        "sha": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "invoke_untrap",
           "line": 1838,
           "endLine": 1847,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -202613,7 +202620,7 @@
           "endLine": 5257,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "could_untrap",
@@ -202621,7 +202628,7 @@
           "endLine": 5288,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "untrap_prob",
@@ -202629,7 +202636,7 @@
           "endLine": 5340,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "cnv_trap_obj",
@@ -202637,7 +202644,7 @@
           "endLine": 5374,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "into_vs_onto",
@@ -202645,7 +202652,7 @@
           "endLine": 5392,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "move_into_trap",
@@ -202653,7 +202660,7 @@
           "endLine": 5440,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "try_disarm",
@@ -202661,7 +202668,7 @@
           "endLine": 5529,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "reward_untrap",
@@ -202669,7 +202676,7 @@
           "endLine": 5552,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "disarm_holdingtrap",
@@ -202677,7 +202684,7 @@
           "endLine": 5593,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "disarm_landmine",
@@ -202685,7 +202692,7 @@
           "endLine": 5606,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "unsqueak_ok",
@@ -202693,7 +202700,7 @@
           "endLine": 5629,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "disarm_squeaky_board",
@@ -202701,7 +202708,7 @@
           "endLine": 5663,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "disarm_shooting_trap",
@@ -202709,7 +202716,7 @@
           "endLine": 5676,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "try_lift",
@@ -202717,7 +202724,7 @@
           "endLine": 5699,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "help_monster_out",
@@ -202725,7 +202732,7 @@
           "endLine": 5793,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "disarm_box",
@@ -202733,7 +202740,7 @@
           "endLine": 5820,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "untrap_box",
@@ -202741,7 +202748,7 @@
           "endLine": 5847,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "untrap",
@@ -202749,7 +202756,7 @@
           "endLine": 6100,
           "declared": true,
           "sourceFile": "trap.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "stumble_on_door_mimic",
@@ -202757,7 +202764,15 @@
           "endLine": 772,
           "declared": true,
           "sourceFile": "lock.c",
-          "complete": false
+          "complete": true
+        },
+        {
+          "name": "trap_ice_effects",
+          "line": 7175,
+          "endLine": 7197,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -202773,6 +202788,1125 @@
           "evaluationPath": "challenges/evaluations/accepted-2becf24bebd527647f267e1f6cd7507291e3df46-v29.json",
           "evaluationCommit": "2becf24bebd527647f267e1f6cd7507291e3df46"
         }
+      },
+      "activeStanding": {
+        "sha": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-key-invoke-untrap",
+          "session": "synthetic/v29/v29-key-invoke-untrap",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-key-invoke-untrap.session.json",
+          "recordingPath": "challenges/cases/v29/v29-key-invoke-untrap.session.json",
+          "recordingSha256": "989017009bc0da16807b96e50a1d738c20d5906d80ae52ecbadb724b5723a067",
+          "recipe": "challenges/cases/v29/v29-key-invoke-untrap.recipe.session.json",
+          "recipeSha256": "07124edf520d5f236ce4e17e6590229f95f13668bfb8b4490a6ff4612bf18d23",
+          "replayInputSha256": "3bdd2eaf35a19dfd305d5243b03f9ea9a3ea0669895a21dab953cac2c6acb1a1",
+          "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+          "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+          "evaluationArtifact": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+          "evaluationUtc": "2026-10-08T08:02:48.939Z",
+          "remainingScreens": 10,
+          "recordedSteps": 80,
+          "previousScreensMatched": 70,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 70,
+              "total": 80
+            },
+            "rng": {
+              "matched": 2758,
+              "total": 2792
+            },
+            "cursors": {
+              "matched": 70,
+              "total": 80
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 70,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 70,
+                "key": "g"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "I",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2757,
+              "cEntry": "rn2(5)=1",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "d(2,4)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 73,
+                "key": "y"
+              },
+              "stepIndex": 73
+            },
+            "cursor": {
+              "index": 70,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 70,
+                "key": "g"
+              },
+              "cCursor": [
+                19,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                8,
+                1
+              ]
+            }
+          },
+          "step": 70,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-key-invoke-untrap.json",
+            "result": {
+              "session": "synthetic/v29/v29-key-invoke-untrap",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-key-invoke-untrap",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "989017009bc0da16807b96e50a1d738c20d5906d80ae52ecbadb724b5723a067",
+              "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+              "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+              "remainingScreens": 10,
+              "recordedSteps": 80,
+              "status": "complete",
+              "commit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-key-invoke-untrap",
+                "session": "synthetic/v29/v29-key-invoke-untrap",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-key-invoke-untrap.session.json",
+                "recordingPath": "challenges/cases/v29/v29-key-invoke-untrap.session.json",
+                "recordingSha256": "989017009bc0da16807b96e50a1d738c20d5906d80ae52ecbadb724b5723a067",
+                "recipe": "challenges/cases/v29/v29-key-invoke-untrap.recipe.session.json",
+                "recipeSha256": "07124edf520d5f236ce4e17e6590229f95f13668bfb8b4490a6ff4612bf18d23",
+                "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
+                "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+                "evaluationArtifact": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationUtc": "2026-10-08T05:02:17.323Z",
+                "remainingScreens": 10,
+                "recordedSteps": 80,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 70,
+                    "total": 80
+                  },
+                  "rng": {
+                    "matched": 2758,
+                    "total": 2792
+                  },
+                  "cursors": {
+                    "matched": 70,
+                    "total": 80
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 70,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 70,
+                      "key": "g"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "I",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2757,
+                    "cEntry": "rn2(5)=1",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "d(2,4)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 73,
+                      "key": "y"
+                    },
+                    "stepIndex": 73
+                  },
+                  "cursor": {
+                    "index": 70,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 70,
+                      "key": "g"
+                    },
+                    "cCursor": [
+                      19,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      8,
+                      1
+                    ]
+                  }
+                },
+                "step": 70,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The Master Key invocation mismatch is caused by the JavaScript artifact.c invoke_untrap() wrapper returning without calling trap.c untrap(). C asks for a direction; the JavaScript replay leaves the invoke prompt on screen and consumes the next key as a game command. Port and wire invoke_untrap() to the existing untrap() implementation.",
+              "source": {
+                "file": "artifact.c",
+                "branch": "When arti_invoke() selects an artifact whose invocation property is UNTRAP and its cost check succeeds, invoke_untrap() calls untrap(TRUE, 0, 0, NULL). That path asks for a direction. In this recording, the westward answer finds no known trap, so untrap() returns false and invoke_untrap() resets the artifact age and returns ECMD_CANCEL.",
+                "functions": [
+                  "invoke_untrap"
+                ],
+                "callers": [
+                  "artifact.c:arti_invoke() dispatches the UNTRAP case (2158); artifact.c:doinvoke() enters arti_invoke() (1749-1758)."
+                ],
+                "dependencies": [
+                  "trap.c:untrap() (5848 onward), already implemented in js/trap.js:untrap(); its usual interactive path calls cmd.c:getdir() (3962-4019), already implemented in js/cmd.js:getdir()."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json records the first mismatch at screen 70, step 70, key g (C cell I, JavaScript cell W), with the first RNG divergence at step 73. The recorded session challenges/cases/v29/v29-key-invoke-untrap.session.json shows that step 70 asks for an invocation direction in C; key h at step 71 then produces “You know of no traps there.”",
+                "nethack-c/upstream/src/artifact.c:1838-1846 implements invoke_untrap(): call untrap(TRUE, 0, 0, NULL); if it returns false, clear obj->age and return ECMD_CANCEL; otherwise return ECMD_TIME. artifact.c:2158 dispatches UNTRAP from arti_invoke().",
+                "nethack-c/upstream/src/trap.c:5848 onward shows that the usual untrap path calls getdir() before checking the target and returns false when no known trap or door is at that location. nethack-c/upstream/src/cmd.c:3988 supplies the default “In what direction?” prompt.",
+                "At examined commit 9f590c88f193a980f8f819ebfad051a65f36faa0, js/artifacts.js:2410-2414 instead calls note_unported(\"trap.c untrap\"), resets obj.age, and returns ECMD_CANCEL without calling untrap(). The existing js/trap.js:2823 untrap() and js/cmd.js:getdir() implementations are therefore bypassed. This leaves the invoke prompt on screen and lets the recorded h answer fall through as a normal command, matching the queue’s subsequent step-73 RNG divergence.",
+                "Implementation scope: port the whole artifact.c invoke_untrap() function and wire it to the existing JavaScript trap.untrap() function. Keep the C cancellation behavior when untrap() returns false. The source trace does not require a new trap.c port for this prompt/no-trap branch."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "invoke_untrap",
+            "implementation": "js/artifacts.js",
+            "symbol": "invoke_untrap",
+            "sourceReview": "artifact.c1838-1847: await whole canonical untrap(TRUE,0,0,NULL); clear age only on return0 and return ECMD_CANCEL; successful handling returns ECMD_TIME. Remove the old gap and unconditional cancellation. Preserve arti_invoke cooldown/RNG before this helper.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c2158 UNTRAP case consumes invoke_untrap return through #invoke/doinvoke"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/artifact.c/untrap-invoke-no-trap.session.json",
+              "recordings/artifact.c/untrap-invoke-cancel.session.json",
+              "recordings/artifact.c/untrap-floor-box-invoke.session.json",
+              "recordings/artifact.c/untrap-two-floor-boxes-invoke.session.json"
+            ],
+            "sourceFile": "artifact.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-key-invoke-untrap",
+                "segment": 0,
+                "fromStep": 70,
+                "throughStep": 79,
+                "source": "artifact.c arti_invoke -> invoke_untrap -> trap.c untrap: interactive Master Key floor/door direction and consumed return through the final recorded command boundary."
+              }
+            ],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "dountrap",
+            "implementation": "js/trap.js",
+            "symbol": "dountrap",
+            "sourceReview": "trap.c5248-5257: await preliminary check and return ECMD_OK on rejection; await consumed untrap return before ECMD_TIME/OK selection. Production extended and canned dispatch use the same owner.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c1915-1916 extcmdlist untrap; cmd.c4712/4731/4825 canned queue retains same dountrap dispatcher"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-floor-box.session.json",
+              "recordings/lock.c/untrap-door-mimic.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "could_untrap",
+            "implementation": "js/trap.js",
+            "symbol": "could_untrap",
+            "sourceReview": "trap.c5258-5288: preserve near_capacity, hands/webmaker/movement, sticking, stuck/welded bimanual, optional floor reach checks in order. Read welded knowledge side effect through existing owner. Await verbose feedback; silent autounlock still consumes the integer result.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "dountrap",
+                "source": "trap.c:5250"
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "pick_lock",
+                "source": "lock.c472 container and606 door AUTOUNLOCK_UNTRAP consumed checks, now awaited"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/lock.c/untrap-box-autounlock.session.json",
+              "recordings/lock.c/untrap-door-autounlock.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "untrap_prob",
+            "implementation": "js/trap.js",
+            "symbol": "untrap_prob",
+            "sourceReview": "trap.c5289-5340: audit whole chance computation, primary/secondary blade and monster short circuit, Sting/fire special case, webmaker, confusion/hallucination/blind/stun/fumbling order, madeby_u decrement, Ranger bear guaranteed success, Rogue MAXULEV and quest-artifact rolls, Ranger decrement and minimum1 before final rn2. Preserve canonical urole.mnum and raw state.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "try_disarm",
+                "source": "trap.c:5480"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "help_monster_out",
+                "source": "trap.c:5726"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-pit-newt.session.json",
+              "recordings/trap.c/untrap-web-newt-spider-reward.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "cnv_trap_obj",
+            "implementation": "js/trap.js",
+            "symbol": "cnv_trap_obj",
+            "sourceReview": "trap.c5341-5374: canonical initialized mksobj, quantity/weight, dart-only poison, place before bury/stack, redraw, hero trap reset, monster release, deletion. All active direct callers are audited: holding/mine/shooting disarm, digactualhole and newly admitted trap_ice_effects. Retain discarded shk.c:sellobj gap without inventing billing; existing bury_an_obj/stackobj owners remain authoritative.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_holdingtrap",
+                "source": "trap.c:5580"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_landmine",
+                "source": "trap.c:5601"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_shooting_trap",
+                "source": "trap.c:5671"
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "digactualhole",
+                "source": "dig.c1009 magic excavation conversion with bury_it TRUE"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "trap_ice_effects",
+                "source": "trap.c:7188"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-owned-landmine-ranger.session.json",
+              "recordings/trap.c/untrap-arrow.session.json",
+              "recordings/trap.c/untrap-trap-conversion-digging.session.json",
+              "recordings/trap.c/untrap-melting-ice-bear.session.json",
+              "recordings/trap.c/untrap-melting-ice-landmine.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "into_vs_onto",
+            "implementation": "js/trap.js",
+            "symbol": "into_vs_onto",
+            "sourceReview": "trap.c5375-5392: pure eight-case switch (bear, pit, spiked pit, hole, teleport, level teleport, portal, web) and default false. No RNG, output or mutation.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "move_into_trap",
+                "source": "trap.c:5437"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "move_into_trap",
+            "implementation": "js/trap.js",
+            "symbol": "move_into_trap",
+            "sourceReview": "trap.c5393-5440: test_move before punished drag_ball; preserve separate output-pointer cells, prior-position publication, u_on_newpos/umoved, redraw/vision, move_bc, tseen clear, failing_untrap bracket, awaited spoteffects, re-find trap and wisdom exercise. Remove Punished substitute/refusal and obsolete ball gap. Correct retained discarded gap owner to apply.c:check_leash. Final death returns before later state because C cannot return from done; life saving/debug survival continues normally.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "try_disarm",
+                "source": "trap.c:5515"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-board-adjacent-punished.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "try_disarm",
+            "implementation": "js/trap.js",
+            "symbol": "try_disarm",
+            "sourceReview": "trap.c5441-5529: monster/boulder/diagonal/floor checks before chance; use state-aware trap naming. Preserve forced-failure short circuit, rnl(5), tame abuse before rnd4 damage/killed, web spread rn2(3)/existing trap conditions, awaited dotrap/dismount, under-hero versus adjacent movement, and return0/1/2. Await existing abuse/exercise/message owners. Stop after final web-spread death before downstream state.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_holdingtrap",
+                "source": "trap.c:5557"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_landmine",
+                "source": "trap.c:5596"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_squeaky_board",
+                "source": "trap.c:5643"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_shooting_trap",
+                "source": "trap.c:5666"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-owned-landmine-ranger.session.json",
+              "recordings/trap.c/untrap-squeaky-oil-ranger.session.json",
+              "recordings/trap.c/untrap-arrow.session.json",
+              "recordings/trap.c/untrap-web-newt-reward.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "reward_untrap",
+            "implementation": "js/trap.js",
+            "symbol": "reward_untrap",
+            "sourceReview": "trap.c5530-5552: preserve !madeby_u guard, rnl10 before hostility/helpless/frozen/mindless/unique/human predicates, peaceful/set_malign/message, then rn2(3) && rnl8 before lawful check/adjalign. Audited all three callers: holding release, pit help, and magical openholdingtrap; independent traces execute each.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_holdingtrap",
+                "source": "trap.c:5576"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "help_monster_out",
+                "source": "trap.c:5788"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "openholdingtrap",
+                "source": "trap.c:6202"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-pit-newt.session.json",
+              "recordings/trap.c/untrap-web-newt-spider-reward.session.json",
+              "recordings/trap.c/untrap-magic-opening-reward-extra-wand.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "disarm_holdingtrap",
+            "implementation": "js/trap.js",
+            "symbol": "disarm_holdingtrap",
+            "sourceReview": "trap.c5553-5593: consume try_disarm before action; release held monster and reward without deleting its trap; bear conversion otherwise; web primary/secondary blade and artifact naming as C (including source use of uwep); delete web only, then newsym/return1.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5968"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-web-newt-spider-reward.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "disarm_landmine",
+            "implementation": "js/trap.js",
+            "symbol": "disarm_landmine",
+            "sourceReview": "trap.c5594-5606: consumed try_disarm0/1/2, source message then one LAND_MINE conversion, return1. Owned Ranger mine successfully reaches the positive branch; ordinary chance failure is retained as a variation.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5970"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-owned-landmine-ranger.session.json",
+              "recordings/trap.c/untrap-landmine.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "unsqueak_ok",
+            "implementation": "js/trap.js",
+            "symbol": "unsqueak_ok",
+            "sourceReview": "trap.c5607-5629: pure callback reads only object type/class/appearance knowledge. Null excluded, grease suggested, known oil suggested, all other potions downplayed, other objects excluded. Export solely for source-pinned pure tests.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_squeaky_board",
+                "source": "trap.c:5636"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "disarm_squeaky_board",
+            "implementation": "js/trap.js",
+            "symbol": "disarm_squeaky_board",
+            "sourceReview": "trap.c5630-5663: callback getobj cancellation, cursed/lit/empty/non-oil bad_tool boolean grouping, consumed try_disarm. Grease charge or oil useup before canonical makeknown macro expansion discover_object(TRUE,TRUE,TRUE), repair/delete/redraw, experience and awaited new level in C order. Remove obsolete discovery gap.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5972"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-squeaky-oil-ranger.session.json",
+              "recordings/trap.c/untrap-squeaky-grease-ranger.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "disarm_shooting_trap",
+            "implementation": "js/trap.js",
+            "symbol": "disarm_shooting_trap",
+            "sourceReview": "trap.c5664-5676: consumed try_disarm, source message, count50-rnl50 and cnv_trap_obj with dart/arrow argument, return1. Both shooting arms are independently reached.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5974"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-arrow.session.json",
+              "recordings/trap.c/untrap-dart.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "try_lift",
+            "implementation": "js/trap.js",
+            "symbol": "try_lift",
+            "sourceReview": "trap.c5677-5699: calc_capacity before conditional trapped-monster kindness; preserve madeby_u/hostility/mobility/mindless/human short circuits before rnl10, peaceful/set_malign/message, return0/1. Impure despite the ordinary lightweight success path.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "help_monster_out",
+                "source": "trap.c:5774/5782"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-pit-newt.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "help_monster_out",
+            "implementation": "js/trap.js",
+            "symbol": "help_monster_out",
+            "sourceReview": "trap.c5700-5793: trapped/capacity checks, chance/helpless ordering, cockatrice touch before failed sleeping grip, canonical polymon plus message-window flush or instapetrify with exact killer string (remove both obsolete gaps), wake/thaw RNG, corpse/minventory weight and consumed try_lift calls, release/reward/fill_pit. Existing fill_pit/flooreffects frontier is retained without broader credit.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5987"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-pit-newt.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "disarm_box",
+            "implementation": "js/trap.js",
+            "symbol": "disarm_box",
+            "sourceReview": "trap.c5794-5820: DEX+level, Rogue multiplier, force short circuit before confusion/fumbling/rnd difficulty; canonical awaited chest_trap or clear/tknown/experience/newlevel; await dex exercise. Stop after final chest-trap death because done cannot return in C. Not-trapped feedback clears tknown.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap_box",
+                "source": "trap.c:5840"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:6016"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-floor-box.session.json",
+              "recordings/artifact.c/untrap-floor-box-invoke.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "untrap_box",
+            "implementation": "js/trap.js",
+            "symbol": "untrap_box",
+            "sourceReview": "trap.c5821-5847: detection force/chance/tknown/confusion short circuits, known-name feedback, tknown/observe/wisdom order, consumed disarm query then disarm_box. Correct caller object comes from the canonical floor pile or explicit autounlock container.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:5879"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:6018"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-floor-box.session.json",
+              "recordings/artifact.c/untrap-floor-box-invoke.session.json",
+              "recordings/lock.c/untrap-box-autounlock.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "untrap",
+            "implementation": "js/trap.js",
+            "symbol": "untrap",
+            "sourceReview": "trap.c5848-6100: audit full force/key, getdir/cancel/autounlock return protocol, bounds, seen trap, both canonical level.objects[x][y]/nexthere loops, reach/plural/source an() text, floor trap/container choice, floor subtype dispatch, at-most-one selected box per turn, awaited mimic with canonical tty environment, door states/detection/disarm/failure/RNG/exercise/messages in source order. Remove cell.objects substitute. Preserve existing flags/doormask adapters and discarded shk.c:add_damage. Final b_trapped death does not destroy/redraw the door after C done.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_untrap",
+                "source": "artifact.c1840 force TRUE consumed return"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "dountrap",
+                "source": "trap.c:5253"
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "pick_lock",
+                "source": "lock.c480 floor-container and611 door autounlock return; exact container/coordinate variants"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-pit-newt.session.json",
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/artifact.c/untrap-two-floor-boxes-invoke.session.json",
+              "recordings/lock.c/untrap-box-autounlock.session.json",
+              "recordings/lock.c/untrap-door-autounlock.session.json",
+              "recordings/lock.c/untrap-door-mimic.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-key-invoke-untrap",
+                "segment": 0,
+                "fromStep": 70,
+                "throughStep": 79,
+                "source": "artifact.c arti_invoke -> invoke_untrap -> trap.c untrap: interactive Master Key floor/door direction and consumed return through the final recorded command boundary."
+              }
+            ],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "stumble_on_door_mimic",
+            "implementation": "js/lock.js",
+            "symbol": "stumble_on_door_mimic",
+            "sourceReview": "lock.c759-772: whole m_at/is_door_mappear/Protection_from_shape_changers predicate, awaited existing stumble_onto_mimic with state/ttyPline environment, true after reveal, false otherwise. Remove owned UnsupportedLockError throw. Await this consumed result at untrap/doopen_indir/doclose; broader lock caller bodies retain their existing frontiers.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c:6026"
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen_indir",
+                "source": "lock.c820 consumed helper"
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doclose",
+                "source": "lock.c987 consumed helper"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/untrap-door-mimic.session.json",
+              "recordings/lock.c/open-door-mimic.session.json",
+              "recordings/lock.c/close-door-mimic.session.json"
+            ],
+            "sourceFile": "lock.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          },
+          {
+            "name": "trap_ice_effects",
+            "implementation": "js/trap.js",
+            "symbol": "trap_ice_effects",
+            "sourceReview": "trap.c7175-7197: whole function; melting and trap guard, clear trapped monster before conversion, LANDMINE/BEAR_TRAP choose source tool and await bury_it conversion; other destructible traps removed, undestroyable traps preserved. Wire awaited call at zap.c5056 after spot_stop_timers and before obj_ice_effects/unearth_objs. Preserve existing melt_ice remainder without whole zap completion credit.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "melt_ice",
+                "source": "zap.c5056 after timers and before object ice effects/unearth"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/untrap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-melting-ice-bear.session.json",
+              "recordings/trap.c/untrap-melting-ice-landmine.session.json"
+            ],
+            "sourceFile": "trap.c",
+            "synthetic": [],
+            "checkedAt": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+          }
+        ],
+        "entryPointReview": "Source caller search is retained in .cache/C144-C-caller-sites.txt and complete source review above. Active entries are artifact invocation; normal #untrap dispatcher (also reused by existing canned context-menu queue); floor-container and door autounlock; open and close door-mimic consumers; magic digging trap conversion; adjacent magical trap-release reward; and fire/timer melting-ice trap conversion. All are wired through canonical owners and have matching independent recordings or an admitted range. Source trap_ice_effects was initially absent and is now whole, by scope-C144-ice-trap-closure-20261008. No compile-time excluded caller found. No new credit for cmd dispatch, pick_lock/doopen/doclose, digging, openholdingtrap, zap.c:melt_ice, polymorph, naming, equipment, damage, discovery or ball/chain owners.",
+        "entryPoints": [
+          {
+            "name": "Master Key invocation",
+            "functions": [
+              {
+                "sourceFile": "artifact.c",
+                "name": "invoke_untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap"
+              }
+            ],
+            "recordings": [
+              "recordings/artifact.c/untrap-invoke-no-trap.session.json",
+              "recordings/artifact.c/untrap-invoke-cancel.session.json",
+              "recordings/artifact.c/untrap-floor-box-invoke.session.json",
+              "recordings/artifact.c/untrap-two-floor-boxes-invoke.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-key-invoke-untrap",
+                "segment": 0,
+                "fromStep": 70,
+                "throughStep": 79,
+                "source": "artifact.c arti_invoke -> invoke_untrap -> trap.c untrap: interactive Master Key floor/door direction and consumed return through the final recorded command boundary."
+              }
+            ]
+          },
+          {
+            "name": "ordinary untrap floor traps and containers",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "dountrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "could_untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap_prob"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "cnv_trap_obj"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "try_disarm"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "move_into_trap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "reward_untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "disarm_holdingtrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "disarm_landmine"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "disarm_squeaky_board"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "disarm_shooting_trap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "try_lift"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "help_monster_out"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "disarm_box"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap_box"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-bear-ranger.session.json",
+              "recordings/trap.c/untrap-landmine.session.json",
+              "recordings/trap.c/untrap-owned-landmine-ranger.session.json",
+              "recordings/trap.c/untrap-arrow.session.json",
+              "recordings/trap.c/untrap-dart.session.json",
+              "recordings/trap.c/untrap-floor-box.session.json",
+              "recordings/trap.c/untrap-squeaky-oil-ranger.session.json",
+              "recordings/trap.c/untrap-squeaky-grease-ranger.session.json",
+              "recordings/trap.c/untrap-board-adjacent-ordinary.session.json",
+              "recordings/trap.c/untrap-board-adjacent-punished.session.json",
+              "recordings/trap.c/untrap-pit-newt.session.json",
+              "recordings/trap.c/untrap-web-newt-reward.session.json",
+              "recordings/trap.c/untrap-web-newt-spider-reward.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "container autounlock",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "could_untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap_box"
+              }
+            ],
+            "recordings": [
+              "recordings/lock.c/untrap-box-autounlock.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "door autounlock",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "could_untrap"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap"
+              }
+            ],
+            "recordings": [
+              "recordings/lock.c/untrap-door-autounlock.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "door mimic through untrap",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "untrap"
+              },
+              {
+                "sourceFile": "lock.c",
+                "name": "stumble_on_door_mimic"
+              }
+            ],
+            "recordings": [
+              "recordings/lock.c/untrap-door-mimic.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "door mimic through open",
+            "functions": [
+              {
+                "sourceFile": "lock.c",
+                "name": "stumble_on_door_mimic"
+              }
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-mimic.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "door mimic through close",
+            "functions": [
+              {
+                "sourceFile": "lock.c",
+                "name": "stumble_on_door_mimic"
+              }
+            ],
+            "recordings": [
+              "recordings/lock.c/close-door-mimic.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "magical excavation trap conversion",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "cnv_trap_obj"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-trap-conversion-digging.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "adjacent magical holding-trap release reward",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "reward_untrap"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-magic-opening-reward-extra-wand.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "melting-ice trap conversion",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "trap_ice_effects"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "cnv_trap_obj"
+              }
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-melting-ice-bear.session.json",
+              "recordings/trap.c/untrap-melting-ice-landmine.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -203269,6 +204403,477 @@
         "sha": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "port-pray-angrygods-summon-minion-v29-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port divine anger and minion summoning",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v29/v29-sacrifice-human-race"
+      ],
+      "selectionReason": "Seed continuation selects v29 sacrifice-human-race: pray.c angrygods cases 7 and 8 call the missing whole minion.c summon_minion family before the shared prayer timer update.",
+      "detail": "Port whole pray.c angrygods lines 704-784 and whole minion.c summon_minion lines 198-255. Wire bounded sacrifice_your_race and offer_different_alignment_altar callers plus the exact makemon runtime admission. Keep unported god_zaps_you and its three high-altar summon callers as an explicit blocked frontier.",
+      "openedAt": "00b93d7834ce84f77f602d24f752d25b3a4d0189",
+      "openStanding": {
+        "sha": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "angrygods",
+          "line": 704,
+          "endLine": 787,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 704,
+        "to": 787
+      },
+      "requiredFunctions": [
+        {
+          "name": "summon_minion",
+          "line": 198,
+          "endLine": 262,
+          "declared": false,
+          "sourceFile": "minion.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v29/v29-sacrifice-human-race": {
+          "session": "synthetic/v29/v29-sacrifice-human-race",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-sacrifice-human-race",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+          "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+          "evaluationPath": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+        }
+      },
+      "activeStanding": {
+        "sha": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-sacrifice-human-race",
+          "session": "synthetic/v29/v29-sacrifice-human-race",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+          "recordingPath": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+          "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+          "recipe": "challenges/cases/v29/v29-sacrifice-human-race.recipe.session.json",
+          "recipeSha256": "c143df7ee557b2ced8357de027cac3ec334bf6906278b6729e2c461e1fdc4f93",
+          "replayInputSha256": "f576660bdde8a5c820b1f9f87194914a81f7019dc3e234bde74da4ba7228c9ee",
+          "evaluationPath": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3",
+          "evaluationArtifact": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationUtc": "2026-10-08T08:26:10.227Z",
+          "remainingScreens": 14,
+          "recordedSteps": 54,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2803,
+              "total": 2877
+            },
+            "cursors": {
+              "matched": 52,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 40,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 40,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2802,
+              "cEntry": "rn2(9)=8",
+              "cCaller": "angrygods(pray.c:725)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 40,
+                "key": " "
+              },
+              "stepIndex": 40
+            },
+            "cursor": {
+              "index": 40,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 40,
+                "key": " "
+              },
+              "cCursor": [
+                76,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 40,
+          "kind": "rng",
+          "sourceFile": "pray.c",
+          "function": "angrygods",
+          "message": null,
+          "cFile": "pray.c",
+          "luaFile": null,
+          "line": 725,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-sacrifice-human-race.json",
+            "result": {
+              "session": "synthetic/v29/v29-sacrifice-human-race",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-sacrifice-human-race",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+              "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+              "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+              "remainingScreens": 14,
+              "recordedSteps": 54,
+              "status": "complete",
+              "commit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-sacrifice-human-race",
+                "session": "synthetic/v29/v29-sacrifice-human-race",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+                "recordingPath": "challenges/cases/v29/v29-sacrifice-human-race.session.json",
+                "recordingSha256": "e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9",
+                "recipe": "challenges/cases/v29/v29-sacrifice-human-race.recipe.session.json",
+                "recipeSha256": "c143df7ee557b2ced8357de027cac3ec334bf6906278b6729e2c461e1fdc4f93",
+                "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
+                "evaluationPath": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+                "evaluationCommit": "c78a4462405df8f3fdd065a619f8a07678f632cd",
+                "evaluationArtifact": "challenges/evaluations/accepted-c78a4462405df8f3fdd065a619f8a07678f632cd-v29.json",
+                "evaluationUtc": "2026-10-08T05:02:17.323Z",
+                "remainingScreens": 14,
+                "recordedSteps": 54,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2803,
+                    "total": 2877
+                  },
+                  "cursors": {
+                    "matched": 52,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 40,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 40,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2802,
+                    "cEntry": "rn2(9)=8",
+                    "cCaller": "angrygods(pray.c:725)",
+                    "jsEntry": "rn2(5)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 40,
+                      "key": " "
+                    },
+                    "stepIndex": 40
+                  },
+                  "cursor": {
+                    "index": 40,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 40,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      76,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 40,
+                "kind": "rng",
+                "sourceFile": "pray.c",
+                "function": "angrygods",
+                "message": null,
+                "cFile": "pray.c",
+                "luaFile": null,
+                "line": 725
+              },
+              "summary": "Own-race sacrifice at the neutral altar skips angrygods before its Luck penalty at step40 (14 screens remain). Whole angrygods needs cases7/8 and explicit discarded-void lightning gap; independent whole summon_minion plus bounded runtime makemon admission supplies the selected neutral elemental and lawful/chaotic/talking caller routes.",
+              "source": {
+                "file": "pray.c",
+                "branch": "A non-chaotic hero outside Gehennom offers a corpse of their own race on a non-high neutral altar. sacrifice_your_race() increases u.ugangr by 3 and calls angrygods() before change_luck(-5); in this recording rn2(maxanger) returns 8, selecting angrygods() cases 7/8.",
+                "functions": [
+                  "angrygods"
+                ],
+                "callers": [
+                  "offer_corpse() -> sacrifice_your_race(): nethack-c/upstream/src/pray.c:1993-1994; js/pray.js:813-833.",
+                  "sacrifice_your_race() -> angrygods(): nethack-c/upstream/src/pray.c:1765-1771; js/pray.js:662-668, where the call is currently skipped with note_unported().",
+                  "offer_different_alignment_altar() -> angrygods(): nethack-c/upstream/src/pray.c:1648-1656; js/pray.js:751-762.",
+                  "gods_upset() -> angrygods(): nethack-c/upstream/src/pray.c:1436-1442; js/pray.js:2226-2231.",
+                  "prayer_done() -> angrygods(): nethack-c/upstream/src/pray.c:2307-2325; js/pray.js:1686-1707."
+                ],
+                "dependencies": [
+                  "minion.c:summon_minion198-255 is missing. Its returned species selectors lminion/ndemon and makemon result already have canonical owners; add bounded makemon.c:makemon runtime admission for this MM_EMIN|MM_NOMSG caller, preserving explicit msummon distinction.",
+                  "pray.c:god_zaps_you is an unported discarded-void callee in angrygods default; retain note_unported and named blocked evidence. Its three high-altar summon_minion sites cannot be wired until the parent exists.",
+                  "Other two summon_minion callers in offer_different_alignment_altar1681/1692 must be wired with talk=TRUE; audit the race-sacrifice and rejected-altar angry calls and existing gods_upset/prayer_done calls."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json records 40/54 screens matched and the first mismatch at step 40: C rng entry rn2(9)=8 from angrygods(pray.c:725), while the positional JavaScript entry is rn2(5)=0; the C screen is blank at row 0, column 38 where JavaScript has a dash. The queue records 14 remaining screens for recording e6a5efe57d2c9183baafa65049874604fa7c4d9f26ff3e09da54bd3d0fa634b9.",
+                "The permitted single-case replay, node scripts/scan-sessions.mjs --json --synthetic v29/v29-sacrifice-human-race, reproduces the step-40 divergence and lists pray.c angrygods in the runtime unported set. The JavaScript rn2(5) is the next positional RNG entry after the skipped C call, not a roll attributed to angrygods.",
+                "nethack-c/upstream/src/pray.c:1698-1778 shows the human-race offering path; at lines 1765-1771 the non-chaotic branch changes alignment, increments u.ugangr, calls angrygods(u.ualign.type) outside Gehennom, and only then calls change_luck(-5). js/pray.js:589-683 mirrors the caller but uses note_unported(\"pray.c angrygods\") at line 666 before change_luck(-5), explaining the absent C behavior.",
+                "nethack-c/upstream/src/pray.c:704-784 defines angrygods(); rn2(maxanger) at line 725 selects cases 7/8 in this recording, which call godvoice(), verbalize the threat, and summon_minion() at lines 760-772 before the shared timer update. js/pray.js:2306-2385 currently throws UnsupportedPrayerError for cases 7/8 at lines 2377-2379. The recording step 41 includes the summon and subsequent angry-god RNG calls; nethack-c/upstream/src/minion.c:198 is the required callee owner.",
+                "Fresh single-session replay at5ecdef9c, .cache/A150/before-replay.json (run-uzDx42), retains14remaining screens and the exact C rn2(9)=8 anger-roll handoff. No intervening accepted change touches this source cause.",
+                "Complete C angrygods704-784: clamp maxanger1..15; source speaks mortal iff gy.youmonst.data.mlet==S_HUMAN, not the broader is_human predicate. Cases7/8 call godvoice, SetVoice, verbalize call-upon/scorn, Then-die quote, summon_minion(FALSE), then common rnz300 max timer. Default calls gods_angry before discarded-void god_zaps_you. JS currently throws for both missing arms; required task owns the whole anger function.",
+                "Complete C summon_minion198-255 selects lawful lminion, neutral elementals[AIR,FIRE,EARTH,WATER], chaotic/none ndemon, guards NON_PM, distinguishes angel/other minion/special priest or guard flags, writes emin min_align and renegadeFALSE, conditionally speaks with Deaf wording and visible appearance, clears STRAT_APPEARMSG only for talk, and forces hostile without set_malign. Existing js/minion selectors and makemon newemin/runtime tails are canonical, but MM_EMIN runtime admission currently requires _msummon; a separate source caller marker is needed for summon_minion.",
+                "Actionable source scope: whole pray.c:angrygods704-784 and minion.c:summon_minion198-255; bounded pray.c:sacrifice_your_race, offer_different_alignment_altar callers and makemon.c:makemon runtime admission. Existing gods_upset/prayer_done remain audited canonical callers. Keep god_zaps_you/high-altar downstream calls as named gaps with blocked evidence. Independent C-first records must cover own-race neutral/lawful/chaotic variations, delayed prayer anger, rejected different-alignment offering, and talkTRUE altar rivalry or an explicit source blocker. No scope overlaps C144 trap/door-mimic or B Amulet_on."
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "port-do-wear-eyewear-blindness-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port eyewear blindness and punishment glyph setup",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v29/v29-eyes-regain-sight",
+        "synthetic/v29/v29-punished-blindfold"
+      ],
+      "selectionReason": "Seed continuation from completed Amulet_on selects the same do_wear accessory family: Eyes regaining sight and punished blindfold share whole Blindf_on and adjacent Blindf_off. Require consumed bc_order and whole set_bc plus their direct callers and canonical remembered-map state.",
+      "detail": "Whole do_wear.c Blindf_on lines 1461-1493 and Blindf_off lines 1495-1535; required ball.c bc_order lines 354-371 and set_bc lines 380-425; bounded source caller and existing ball memory read/write reconciliation. Preserve non-ring poly_obj and XRAY overlay frontiers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Blindf_on",
+          "line": 1461,
+          "endLine": 1494,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "Blindf_off",
+          "line": 1495,
+          "endLine": 1538,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1461,
+        "to": 1538
+      },
+      "requiredFunctions": [
+        {
+          "name": "bc_order",
+          "line": 354,
+          "endLine": 379,
+          "declared": false,
+          "sourceFile": "ball.c",
+          "complete": false
+        },
+        {
+          "name": "set_bc",
+          "line": 380,
+          "endLine": 436,
+          "declared": false,
+          "sourceFile": "ball.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v29/v29-eyes-regain-sight": {
+          "session": "synthetic/v29/v29-eyes-regain-sight",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-eyes-regain-sight",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-eyes-regain-sight.session.json",
+          "recordingSha256": "aae73f89a8f19d19af64c8b8c583dce890065bb15bce207118e4075d926ebc3d",
+          "evaluationPath": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+        },
+        "synthetic/v29/v29-punished-blindfold": {
+          "session": "synthetic/v29/v29-punished-blindfold",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-punished-blindfold",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-punished-blindfold.session.json",
+          "recordingSha256": "c44264f9e21e2c19daf374479c3d38e34a7aaf8a48ffab03d7fc8e139da0381a",
+          "evaluationPath": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+        }
+      }
+    },
+    {
+      "id": "port-spell-skilled-storm-target-family-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port skilled storm target selection and canonical callback installation, then wire the existing skilled fireball and cone-of-cold arm",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v29/v29-firebrand-storm"
+      ],
+      "selectionReason": "The completed C144 Key case matches all 80 steps. The next independent saved v29 mismatch, Fire Brand storm, has 23 remaining screens at step 48; its target-selection family and callback contract do not overlap A150 or B150.",
+      "detail": "Port the whole four-function spell target family and whole getpos_sethilite. Bound spelleffects to the skilled fireball and cone-of-cold arm and reconcile existing getpos, apply, and read callback callers. Preserve existing artifact, explode, zap, and walk_path owners without broader source credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "spell_aim_step",
+          "line": 1607,
+          "endLine": 1618,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "can_center_spell_location",
+          "line": 1619,
+          "endLine": 1626,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "display_spell_target_positions",
+          "line": 1627,
+          "endLine": 1654,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "throwspell",
+          "line": 1655,
+          "endLine": 1706,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1607,
+        "to": 1706
+      },
+      "requiredFunctions": [
+        {
+          "name": "getpos_sethilite",
+          "line": 41,
+          "endLine": 71,
+          "declared": false,
+          "sourceFile": "getpos.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v29/v29-firebrand-storm": {
+          "session": "synthetic/v29/v29-firebrand-storm",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-firebrand-storm",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-firebrand-storm.session.json",
+          "recordingSha256": "b77591ee6ce3ef5455b6a78972ba87e52162c7be0d279eea2229d080edc0604a",
+          "evaluationPath": "challenges/evaluations/accepted-270a19f5678fcc7f7db9bb79b38a591d8013d3a3-v29.json",
+          "evaluationCommit": "270a19f5678fcc7f7db9bb79b38a591d8013d3a3"
+        }
       }
     }
   ]

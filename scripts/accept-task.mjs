@@ -9,6 +9,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { readCheckpointResult } from './checkpoint-results.mjs';
 import { BOOKKEEPING_FILES } from './checkpoint-reuse.mjs';
 import { summarizeLedger } from './worker-state.mjs';
+import { validateHistoricalEvaluation } from './worker-delivery.mjs';
 import { appendRow, generateNote, readRows, standing } from './score-log.mjs';
 import { challengeInputSnapshot, evaluationBatch, readChallengeBatches, validateEvaluation } from './challenge-results.mjs';
 import { recordEvaluation } from './score-challenges.mjs';
@@ -88,9 +89,16 @@ export function acceptTask(options, root = process.cwd()) {
     for (const line of dirty) {
         const path = line.slice(3);
         const stat = lstatSync(join(root, path), { throwIfNoEntry: false });
-        if (!allowed.has(path) || !stat?.isFile() || (stat.mode & 0o111)
+        const historical = !preparation && !allowed.has(path)
+            && /^challenges\/evaluations\/[a-z0-9][a-z0-9.-]*\.json$/u.test(path);
+        if ((!allowed.has(path) && !historical) || !stat?.isFile() || (stat.mode & 0o111)
             || !['??', ' M', 'M ', 'MM', 'A ', 'AM'].includes(line.slice(0, 2)))
             throw new Error(`uncommitted file outside closure: ${line}`);
+        if (historical) {
+            if (git('ls-tree', '-z', commit, '--', path))
+                throw new Error(`challenge evaluations are immutable: ${path}`);
+            validateHistoricalEvaluation(root, JSON.parse(readFileSync(join(root, path), 'utf8')), commit);
+        }
     }
     const evaluations = [];
     let goal;

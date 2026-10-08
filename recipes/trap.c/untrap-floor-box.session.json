@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first untrap recipe. Unsearched inputs fixed before C observation or JS comparison. Ordinary #untrap walks the floor pile, checks the hidden chest trap, and attempts disarm. C-only prompt correction: the trap-discovery line waits at More before Disarm it?, so acknowledge with space before answering the disarm query.",
+  "segments": [
+    {
+      "seed": 1442908,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442908,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " l\u0017unlocked trapped large box\n  de   #untrap\n>y y     ."
+    }
+  ]
+}

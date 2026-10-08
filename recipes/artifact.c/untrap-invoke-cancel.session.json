@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first untrap recipe. Unsearched seed and inputs chosen before C observation or JS comparison. Master Key invocation direction cancellation preserves the source artifact-age reset and no elapsed turn. C-only setup correction: the self-willed chaotic quest Key blasts and refuses the initial neutral Valkyrie. Use its source-permitted Rogue role and chaotic alignment; the C starting inventory leaves g for the wished Key. C-only direction correction: enter the direction immediately after the Key inventory letter; a space cancels getdir. The orc Rogue starting inventory assigns i, rather than human Rogue g, to the wished Key.",
+  "segments": [
+    {
+      "seed": 1442902,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442902,role:Rogue,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " l\u0017blessed Master Key of Thievery\n   #invoke\ni\u001b ."
+    }
+  ]
+}
