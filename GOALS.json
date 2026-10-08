@@ -211635,7 +211635,7 @@
     {
       "id": "port-wizcmds-wiz-show-seenv-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the wizard seen-vector text window",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -211649,8 +211649,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fd0c960c3088c7db9177d7fdac93295af563489a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_show_seenv",
@@ -211893,6 +211896,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fd0c960c3088c7db9177d7fdac93295af563489a",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
