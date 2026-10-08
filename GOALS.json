@@ -210856,7 +210856,7 @@
     {
       "id": "port-wizcmds-wiz-show-stats-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete wizard memory-statistics diagnostic and its consumed source accounting helpers",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -210870,8 +210870,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "size_obj",
@@ -211952,6 +211955,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
