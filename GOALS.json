@@ -196463,7 +196463,7 @@
     {
       "id": "fix-dig-treefruit-caller-v28-20261007",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire canonical fruit creation after cutting down a tree",
       "cFile": "dig.c",
       "sessions": [],
@@ -196475,8 +196475,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dig",
       "session": "synthetic/v28/v28-axe-tree-fruit",
       "step": 28,
@@ -196652,7 +196655,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-engrave-rloc-engr-v28-20261008",
@@ -197030,6 +197039,37 @@
           "recordingSha256": "e170d701d41f1a8c15b7323cf97c5d2c37a0aa98f9408483d76e83d6c79d0bda",
           "evaluationPath": "challenges/evaluations/accepted-63ae9f774b239bc0b3676ee4f8f0274d7f98f485-v28.json",
           "evaluationCommit": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485"
+        }
+      }
+    },
+    {
+      "id": "fix-engrave-owned-zapnodir-dispatch-v28-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore charged nondirectional wand effects before engraving text.",
+      "cFile": "engrave.c",
+      "sessions": [],
+      "selectionReason": "Highest-priority independent admitted v28 mismatch (28 remaining screens, step36): the completed investigation traces an obsolete skipped call to the already owned zapnodir dispatcher; independent from A141, A142, and B143 reservations.",
+      "detail": "engrave.c:579-599 calls zapnodir for all six NODIR wand types after charge, unpaid, and backfire handling. JS engrave.js skips it; restore the awaited canonical state and RNG call with no effect-owner changes or whole-file credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doengrave_sfx_item_WAN",
+      "session": "synthetic/v28/v28-engrave-create-monster",
+      "step": 36,
+      "syntheticProvenance": {
+        "synthetic/v28/v28-engrave-create-monster": {
+          "session": "synthetic/v28/v28-engrave-create-monster",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-engrave-create-monster",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-engrave-create-monster.session.json",
+          "recordingSha256": "3b019fd5d150b61ddae1d553028b2436c85986146b1d3475b4939dbca283b464",
+          "evaluationPath": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+          "evaluationCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83"
         }
       }
     }

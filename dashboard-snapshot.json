@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T02:11:45.134Z",
+  "capturedAt": "2026-10-08T02:22:40.132Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25750,12 +25750,69 @@
         "type": "accepted",
         "at": "2026-10-08T02:11:31.145Z",
         "task": "C139"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C139-28226461",
+        "type": "published",
+        "at": "2026-10-08T02:12:18.088Z",
+        "task": "C139",
+        "commit": "28226461a61560046f176fcdc43868307055254d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A141-44f17fe4",
+        "type": "integrating",
+        "at": "2026-10-08T02:13:42.669Z",
+        "task": "A141",
+        "integration": "44f17fe441ece513f929f5a76e3024aa0c759d83"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A141-run-37716923499",
+        "type": "validated",
+        "at": "2026-10-08T02:19:48.704Z",
+        "task": "A141",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-244bb55aa69e3eb38649350016bed3bea6d49e90",
+        "type": "ready",
+        "at": "2026-10-08T02:19:58.633Z",
+        "task": "A142",
+        "delivery": "244bb55aa69e3eb38649350016bed3bea6d49e90"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A141-44f17fe441ece513f929f5a76e3024aa0c759d83-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T02:20:24.713Z",
+        "task": "A141"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A142-244bb55a",
+        "type": "received",
+        "at": "2026-10-08T02:20:39.286Z",
+        "task": "A142",
+        "delivery": "244bb55aa69e3eb38649350016bed3bea6d49e90"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C140-db7851fa",
+        "type": "assign",
+        "at": "2026-10-08T02:22:27.785Z",
+        "task": "C140",
+        "worker": "C",
+        "goal": "fix-engrave-owned-zapnodir-dispatch-v28-20261008",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "bfb4598e1eb21336a7d6c3a88afc69d7863ac92f",
-    "measuredAt": "2026-10-08T02:10:57.224Z",
+    "executionCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+    "measuredAt": "2026-10-08T02:17:50.448Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
