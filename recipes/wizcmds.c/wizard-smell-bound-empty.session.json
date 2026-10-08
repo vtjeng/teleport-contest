@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizcmds.c:wiz_smell route. Configured V key with a count; target an adjacent empty square and cancel, exercising ECMD cancellation without time. New fixed seed/clock/role and inputs chosen before comparison.",
+  "segments": [
+    {
+      "seed": 14228013,
+      "datetime": "20530709151617",
+      "nethackrc": "OPTIONS=name:Smellbound-empty,role:Ranger,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,!tips,!verbose\nBINDINGS=V:wizsmell\n",
+      "moves": " 2V  l.  \u001b"
+    }
+  ]
+}

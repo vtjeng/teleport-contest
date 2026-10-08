@@ -15,6 +15,25 @@ import { resetGame } from '../js/gstate.js';
 import { make_stoned } from '../js/potion.js';
 import { wiz_detect, wiz_intrinsic } from '../js/wizcmds.js';
 
+test('wiz_smell checks olfaction before any targeting input', async () => {
+    const source = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
+    const start = source.indexOf('wiz_smell(void)');
+    const end = source.indexOf('wiz_intrinsic(void)', start);
+    assert.match(source.slice(start, end),
+        /if \(!olfaction\(gy\.youmonst\.data\)\)[\s\S]*?return ECMD_OK;[\s\S]*?getpos\(&cc, TRUE, "a monster"\)/u);
+    const { wiz_smell } = await import('../js/wizcmds.js');
+    assert.equal(typeof wiz_smell, 'function');
+    const { monst_globals_init, PM_PAPER_GOLEM } = await import('../js/monsters.js');
+    const state = resetGame();
+    monst_globals_init(state);
+    state.u = { ux: 10, uy: 5 }; // An interior square; no targeting should run.
+    state.youmonst = { data: state.mons[PM_PAPER_GOLEM] }; // C golems lack olfaction.
+    const messages = [];
+    assert.equal(await wiz_smell(state, { message: async text => messages.push(text) }), ECMD_OK);
+    assert.deepEqual(messages,
+        ['You are incapable of detecting odors in your present form.']);
+});
+
 test('wiz_detect awaits findit and discards its count like the C caller',
     async () => {
         const source = readFileSync(
@@ -213,4 +232,93 @@ test('make_stoned unlinks only its delayed-killer record when cured', async () =
     assert.equal(state.u.uprops[STONED].intrinsic & TIMEOUT, 0);
     assert.equal(state.killer.next.id, 77);
     assert.equal(state.killer.next.next, null);
+});
+
+async function smellTestGame() {
+    const { runSegment } = await import('../js/jsmain.js');
+    await runSegment({
+        seed: 14228021, // Independent startup for live map/input owner checks.
+        datetime: '20530709151617',
+        nethackrc: 'OPTIONS=name:SmellUnit,role:Barbarian,race:human,gender:female,align:chaotic\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!tips,!verbose\n',
+        moves: ' ',
+    });
+    const { game } = await import('../js/gstate.js');
+    const { clearTtyMessageWindow } = await import('../js/tty_message.js');
+    clearTtyMessageWindow(game);
+    // Disable automatic description to isolate the command's own messages;
+    // independent recordings separately cover getpos's normal description.
+    game.iflags.autodescribe = false;
+    return game;
+}
+
+function queueSmellKeys(state, keys) {
+    for (const key of keys) state.nhDisplay.pushKey(key.charCodeAt(0));
+}
+
+test('wiz_smell selects the steed before the hero and loops until cancel', async () => {
+    const { wiz_smell } = await import('../js/wizcmds.js');
+    const { newMonster } = await import('../js/monst.js');
+    const { PM_PONY } = await import('../js/monsters.js');
+    const { ECMD_CANCEL } = await import('../js/const.js');
+    const state = await smellTestGame();
+    const messages = [];
+    state.u.usteed = newMonster({ data: state.mons[PM_PONY], mnum: PM_PONY });
+    // Two selections of the unchanged hero square exercise coordinate reuse,
+    // each smelling the pony rather than the Barbarian's body odor.
+    queueSmellKeys(state, '..\x1b');
+    const moves = state.moves;
+    assert.equal(await wiz_smell(state, {
+        message: async text => messages.push(text),
+    }), ECMD_CANCEL);
+    assert.deepEqual(messages, [
+        'You can move the cursor to a monster that you want to smell.',
+        'Pick a monster to smell.',
+        'You detect an odor reminiscent of a stable.',
+        'Pick a monster to smell.',
+        'You detect an odor reminiscent of a stable.',
+        'Pick a monster to smell.',
+    ]);
+    assert.equal(state.moves, moves, 'the cancelled command spends no time');
+});
+
+test('wiz_smell marks an unseen monster and clears the stale marker after removal', async () => {
+    const { wiz_smell } = await import('../js/wizcmds.js');
+    const { newMonster, place_monster, remove_monster } = await import('../js/monst.js');
+    const { PM_JACKAL } = await import('../js/monsters.js');
+    const { ROOM, ECMD_CANCEL } = await import('../js/const.js');
+    const { glyph_at, glyph_is_invisible, newsym } = await import('../js/display.js');
+    const state = await smellTestGame();
+    // Select a free adjacent floor square using the same direction keys as
+    // getpos; the case concerns invisible memory rather than terrain bounds.
+    const [key, dx, dy] = [
+        ['l', 1, 0], ['h', -1, 0], ['j', 0, 1], ['k', 0, -1],
+    ].find(([, dx, dy]) => state.level.at(state.u.ux + dx, state.u.uy + dy).typ === ROOM
+        && !state.level.monsters[state.u.ux + dx][state.u.uy + dy]);
+    const x = state.u.ux + dx, y = state.u.uy + dy;
+    const monster = newMonster({ data: state.mons[PM_JACKAL], mnum: PM_JACKAL,
+        minvis: true, mhp: 4, mhpmax: 4 }); // A living invisible dog-class target.
+    place_monster(monster, x, y, state);
+    newsym(x, y, state);
+    const before = glyph_at(x, y, state);
+    const messages = [];
+    queueSmellKeys(state, `${key}.\x1b`);
+    assert.equal(await wiz_smell(state, { message: async text => {
+        messages.push(text);
+        if (text === 'You notice a dog smell.')
+            assert.equal(glyph_at(x, y, state), before,
+                'C captures the glyph before odor output and maps afterward');
+    } }), ECMD_CANCEL);
+    assert.ok(messages.includes('You notice a dog smell.'));
+    assert.equal(glyph_is_invisible(glyph_at(x, y, state)), true);
+    assert.equal(glyph_is_invisible(state.level.at(x, y).remembered_glyph.glyph), true);
+    remove_monster(x, y, state);
+    queueSmellKeys(state, `${key}.\x1b`);
+    const emptyMessages = [];
+    assert.equal(await wiz_smell(state, {
+        message: async text => emptyMessages.push(text),
+    }), ECMD_CANCEL);
+    assert.ok(emptyMessages.includes("You don't smell any monster there."));
+    assert.equal(glyph_is_invisible(glyph_at(x, y, state)), false);
+    assert.equal(glyph_is_invisible(state.level.at(x, y).remembered_glyph.glyph), false);
 });
