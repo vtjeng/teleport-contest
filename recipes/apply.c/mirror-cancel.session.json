@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first boundary outside the reflected-Medusa kill: cancel getdir before the beam. apply.c:1028-1029 returns ECMD_CANCEL without setting stoned, killing or advancing a turn.",
+  "segments": [
+    {
+      "seed": 14928013,
+      "datetime": "20660819143700",
+      "nethackrc": "OPTIONS=name:Mirrorcancel,role:Ranger,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " \u0017uncursed mirror\n\u0007peaceful Medusa\nyag\u001b:"
+    }
+  ]
+}
