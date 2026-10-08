@@ -2,11 +2,12 @@
 // Orchestrator only, after source and per-case regression review.
 // Consume saved validation; never merge, replay a corpus, publish, or dispatch workers.
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { readCheckpointResult } from './checkpoint-results.mjs';
+import { BOOKKEEPING_FILES } from './checkpoint-reuse.mjs';
 import { summarizeLedger } from './worker-state.mjs';
 import { appendRow, generateNote, readRows, standing } from './score-log.mjs';
 import { challengeInputSnapshot, evaluationBatch, readChallengeBatches, validateEvaluation } from './challenge-results.mjs';
@@ -79,12 +80,18 @@ export function acceptTask(options, root = process.cwd()) {
     const preparation = task.kind === 'challenge-preparation';
     const batches = preparation ? [] : readChallengeBatches(root);
     const evaluationPath = batch => `challenges/evaluations/accepted-${commit}-${batch}.json`;
-    // Resuming may leave only these closure records dirty. Never accept untested code.
+    // Permit checkpoint-excluded bookkeeping reports and current closure evaluations.
+    // The allowlist does not validate every report's contents. Never accept untested code.
     const allowed = new Set(preparation ? []
-        : ['GOALS.json', 'SCORE.tsv', ...batches.map(entry => evaluationPath(entry.batch))]);
+        : [...BOOKKEEPING_FILES, ...batches.map(entry => evaluationPath(entry.batch))]);
     const dirty = git('status', '--porcelain', '--untracked-files=all').split('\n').filter(Boolean);
-    for (const line of dirty)
-        if (!allowed.has(line.slice(3))) throw new Error(`uncommitted file outside closure: ${line}`);
+    for (const line of dirty) {
+        const path = line.slice(3);
+        const stat = lstatSync(join(root, path), { throwIfNoEntry: false });
+        if (!allowed.has(path) || !stat?.isFile() || (stat.mode & 0o111)
+            || !['??', ' M', 'M ', 'MM', 'A ', 'AM'].includes(line.slice(0, 2)))
+            throw new Error(`uncommitted file outside closure: ${line}`);
+    }
     const evaluations = [];
     let goal;
     if (!preparation) {
