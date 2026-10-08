@@ -219385,7 +219385,7 @@
     {
       "id": "fix-pager-whatis-hallucination-menu-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Show the source whatis menu during hallucination.",
       "cFile": "pager.c",
       "sessions": [],
@@ -219397,8 +219397,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "do_look",
       "session": "synthetic/v32/v32-hallucinatory-whatis",
       "step": 44,
@@ -219585,6 +219588,263 @@
                 ],
                 "dependencies": []
               }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-pray-petrification-cure-caller-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Wire canonical make_stoned at the prayer petrification cure",
+      "cFile": "pray.c",
+      "sessions": [],
+      "selectionReason": "Seed continuation from immutable A174 advances menu search to step 44. The bounded prayer caller is independent of active reservations and reuses an existing canonical potion owner.",
+      "detail": "C pray.c line 383 calls make_stoned with zero timeout, the limber message, zero killer format, and null killer. JavaScript records a stale source gap. Await the canonical owner at this source point; preserve timer bits, delayed killer cleanup, message and status updates, and zero RNG order.",
+      "openedAt": "61bd63de881788c8fa7e0638842f5504c21c2722",
+      "openStanding": {
+        "sha": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "fix_worst_trouble",
+      "session": "synthetic/v32/v32-prayer-stoning",
+      "step": 44,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-prayer-stoning": {
+          "session": "synthetic/v32/v32-prayer-stoning",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-prayer-stoning",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-prayer-stoning.session.json",
+          "recordingSha256": "cdf294f0b9b89768eb8b8cc10930ee641e6d39b4303e1f10d2d995c7bd03402e",
+          "evaluationPath": "challenges/evaluations/accepted-59881684f1ce7cc1c9bcb7cc144e8a8fb005c360-v32.json",
+          "evaluationCommit": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360"
+        }
+      },
+      "activeStanding": {
+        "sha": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-prayer-stoning",
+          "session": "synthetic/v32/v32-prayer-stoning",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-prayer-stoning.session.json",
+          "recordingPath": "challenges/cases/v32/v32-prayer-stoning.session.json",
+          "recordingSha256": "cdf294f0b9b89768eb8b8cc10930ee641e6d39b4303e1f10d2d995c7bd03402e",
+          "recipe": "challenges/cases/v32/v32-prayer-stoning.recipe.session.json",
+          "recipeSha256": "67907fa1d3a036e88684d9468c741328d8a5ee19d338bfd3911da5ba703c1a5d",
+          "replayInputSha256": "869273d1c84c52729b5848b411f5b25b60a25f1ceb06e5866b1ff27a7ce9f9ea",
+          "evaluationPath": "challenges/evaluations/accepted-59881684f1ce7cc1c9bcb7cc144e8a8fb005c360-v32.json",
+          "evaluationCommit": "59881684f1ce7cc1c9bcb7cc144e8a8fb005c360",
+          "evaluationArtifact": "challenges/evaluations/accepted-59881684f1ce7cc1c9bcb7cc144e8a8fb005c360-v32.json",
+          "evaluationUtc": "2026-10-08T23:08:51.934Z",
+          "remainingScreens": 19,
+          "recordedSteps": 63,
+          "previousScreensMatched": 44,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 44,
+              "total": 63
+            },
+            "rng": {
+              "matched": 2580,
+              "total": 2580
+            },
+            "cursors": {
+              "matched": 63,
+              "total": 63
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 44,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 44,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 32,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 44,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-prayer-stoning.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-prayer-stoning",
+              "session": "synthetic/v32/v32-prayer-stoning",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingPath": "challenges/cases/v32/v32-prayer-stoning.session.json",
+              "recording": "challenges/cases/v32/v32-prayer-stoning.session.json",
+              "recordingSha256": "cdf294f0b9b89768eb8b8cc10930ee641e6d39b4303e1f10d2d995c7bd03402e",
+              "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+              "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+              "remainingScreens": 19,
+              "recordedSteps": 63,
+              "passed": false,
+              "metrics": {
+                "screens": {
+                  "matched": 44,
+                  "total": 63
+                },
+                "rng": {
+                  "matched": 2580,
+                  "total": 2580
+                },
+                "cursors": {
+                  "matched": 63,
+                  "total": 63
+                }
+              },
+              "error": null,
+              "firstMismatch": {
+                "kind": "screen",
+                "step": 44,
+                "row": 0,
+                "column": 32,
+                "cCell": {
+                  "ch": "Y",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": " ",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "step": 44,
+              "kind": "screen",
+              "sourceFile": "pray.c",
+              "function": "fix_worst_trouble",
+              "status": "complete",
+              "commit": "71278af457d6e487fe1034a63dad31e41c273c2d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-prayer-stoning",
+                "session": "synthetic/v32/v32-prayer-stoning",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-prayer-stoning.session.json",
+                "recording": "challenges/cases/v32/v32-prayer-stoning.session.json",
+                "recordingSha256": "cdf294f0b9b89768eb8b8cc10930ee641e6d39b4303e1f10d2d995c7bd03402e",
+                "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+                "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+                "remainingScreens": 19,
+                "recordedSteps": 63,
+                "passed": false,
+                "metrics": {
+                  "screens": {
+                    "matched": 44,
+                    "total": 63
+                  },
+                  "rng": {
+                    "matched": 2580,
+                    "total": 2580
+                  },
+                  "cursors": {
+                    "matched": 63,
+                    "total": 63
+                  }
+                },
+                "error": null,
+                "firstMismatch": {
+                  "kind": "screen",
+                  "step": 44,
+                  "row": 0,
+                  "column": 32,
+                  "cCell": {
+                    "ch": "Y",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "jsCell": {
+                    "ch": " ",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "step": 44,
+                "kind": "screen",
+                "sourceFile": "pray.c",
+                "function": "fix_worst_trouble"
+              },
+              "summary": "Prayer fixes petrification through make_stoned in C. JavaScript retains a stale note_unported at that caller, omitting the limber message, timeout clear and delayed-killer cleanup.",
+              "source": {
+                "file": "pray.c",
+                "branch": "Successful prayer reaches pleased with TROUBLE_STONED as the worst major trouble; fix_worst_trouble must clear the existing petrification timeout.",
+                "functions": [
+                  "fix_worst_trouble"
+                ],
+                "callers": [
+                  "cmd.c prayer command -> pray.c:dopray -> delayed prayer_done -> pleased1071–1156 -> fix_worst_trouble383"
+                ],
+                "dependencies": [
+                  "Reuse canonical potion.c:make_stoned222–240 in js/potion.js; source void call, no consumed placeholder or new owner required.",
+                  "make_stoned preserves non-timeout intrinsic bits, marks disp.botl, prints the transition message, and deallocates the existing delayed killer.",
+                  "Bounded caller fix only; other fix_worst_trouble arms, whole prayer/potion ownership and display behavior are excluded."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Worker observation at 71278af457d6e487fe1034a63dad31e41c273c2d:44/63 observable screens match,19 remain, all2580 RNG and63 cursors match. First difference is step44 row0 column32, C Y versus JS blank. Artifact .cache/A175/current-case.json; observable-cell comparison uses frozen diffCell as diff-fresh does. Saved accepted evaluation provenance remains 8ad9b29d189e31d080528420f7c973012a25f0c1, where the earlier menu issue had31 remaining; this count is the later worker-branch observation.",
+                "C pray.c383 calls make_stoned(0L, \"You feel more limber.\", 0, (char *)0). JS pray.js1265 instead records note_unported(\"potion.c make_stoned\"). C potion.c222–240 and JS potion.js560–580 already implement the canonical property/message/killer transition.",
+                "Read complete fix_worst_trouble372–600 and pleased1071–1156 source caller loop; awaiting the existing make_stoned call preserves message and subsequent trouble scan order. The whole helper is not claimed.",
+                "Prior diagnosis preserved in Git report f46541a90a7ed6d8159b467a3a40369e84436e76: Menu search getlin repaints the map over an active menu. C keeps the physical menu while flushing only dirty gbuf cells; JS clears and rebuilds the full screen at the prompt flush. A174 fixes that boundary; its owned independent MENU_SEARCH recordings match. No further getlin/display change is needed for step44.",
+                "Validation plan: fail-first source-pinned cure regression with timeout/high intrinsic bits/delayed killer and zero RNG; selected prayer replay; independent C-first debug intrinsic setup followed by prayer, role variation, and no-stoning outside boundary. Reuse canonical make_stoned without extending its ownership."
+              ]
             }
           }
         }

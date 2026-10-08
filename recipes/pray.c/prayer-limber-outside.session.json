@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first prayer route. New seed/clock/role inputs fixed before JS comparison. Debug intrinsic menu sets timed petrification for pray.c:fix_worst_trouble383 -> make_stoned cure; outside variation prays with no stoning and must not print limber feedback. C-only pager/force-success acknowledgments may be corrected before comparison. C-only observations confirm cure at the first post-prayer pager; final inputs wait twice after the prayer instead of sending unused space commands.",
+  "segments": [
+    {
+      "seed": 17571071,
+      "datetime": "20671109101327",
+      "nethackrc": "OPTIONS=name:Limber17571071,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #pray\ny y .."
+    }
+  ]
+}
