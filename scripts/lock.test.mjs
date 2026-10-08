@@ -6,6 +6,8 @@ import {
     A_CON,
     A_DEX,
     A_STR,
+    AUTOUNLOCK_KICK,
+    CQ_CANNED,
     DOOR,
     D_BROKEN,
     D_CLOSED,
@@ -230,8 +232,7 @@ test('a failed pull exercises Strength before it prints', async () => {
 // C ref: lock.c:855-896. A mask without D_CLOSED never reaches the roll: the
 // switch names the door and the function returns. Only the default arm is
 // reachable from a walk, because monmove.c closed_door() admits D_LOCKED and
-// D_CLOSED alone; the other three arrive through the unported `#open` command
-// and are pinned here because no recording can reach them.
+// D_CLOSED alone; the other three arrive through the explicit open command.
 test('a door that is not closed is named instead of pulled at', async () => {
     const cases = [
         // The live arm. Its message is what a hero walking into a locked door
@@ -281,6 +282,38 @@ test('doopen_indir rejects a substitution it would never read', async () => {
         () => doopen_indir(x, y, game, { messsage: () => {} }),
         /does not read env\.messsage/u,
     );
+});
+
+// lock.c:862-890 compares the complete mask. Even the unusual broken/open
+// plus trap masks use default's locked flag; the mounted guard suppresses
+// ynq and leaves the command queue untouched.
+test('the complete default mask takes autounlock without mounted kicking', async () => {
+    for (const mask of [D_BROKEN | D_TRAPPED, D_ISOPEN | D_TRAPPED]) {
+        const { x, y, door } = await closedDoorBesideHero();
+        door.flags = door.doormask = mask;
+        game.flags.autounlock = AUTOUNLOCK_KICK;
+        game.u.usteed = {};
+        game.u.dz = 1;
+        const events = [];
+        await doopen_indir(x, y, game, scriptedPull(events, 0));
+        assert.deepEqual(events, ['message(This door is locked.)']);
+        assert.equal(game.u.dz, 0, 'C resets dz before the mounted guard');
+        assert.equal(door.doormask, mask);
+        assert.equal(game.command_queue[CQ_CANNED].length, 0);
+    }
+});
+
+test('doopen_indir preserves source trap and canned-command order', () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/lock.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/lock.js', import.meta.url), 'utf8');
+    const source = c.slice(c.indexOf('doopen_indir(coordxy'), c.indexOf('staticfn boolean', c.indexOf('doopen_indir(coordxy')));
+    const port = js.slice(js.indexOf('export async function doopen_indir'), js.indexOf('// C ref: lock.c stumble_on_door_mimic'));
+    assert.match(source, /b_trapped\("door", FINGER\);\s*door->doormask = D_NODOOR/u);
+    assert.match(port, /await b_trapped\('door', FINGER[^;]+;\s*setDoorMask\(door, D_NODOOR\)/u);
+    assert.match(source, /cmdq_add_ec\(CQ_CANNED, dokick\);\s*cmdq_add_dir/u);
+    assert.match(port, /cmdq_add_ec\(CQ_CANNED, ext_func_tab_from_func\('dokick'\), state\);\s*cmdq_add_dir/u);
+    assert.ok(port.indexOf("await yn_function('Kick it?', 'ynq', 'q', true") > port.indexOf('if (unlocktool)'));
+    assert.ok(port.indexOf('feel_newsym(cc.x, cc.y, state)') < port.indexOf('recalc_block_point(cc.x, cc.y, state)'));
 });
 
 // --- doopen() command-path tests ---
