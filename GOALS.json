@@ -215440,16 +215440,20 @@
     {
       "id": "port-wizcmds-migrate-monsters-family-v31-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port wizard monster migration and its sorted pending-destination list",
       "cFile": "wizcmds.c",
       "sessions": [
         "synthetic/v31/v31-migrating-monsters"
       ],
-      "selectionReason": "C151 birth statistics seed is solved; select the independent unreserved admitted v31-migrating-monsters diagnostic missing wiz_migrate_mons at step14. Complete investigation identifies whole comparator/list/command family, distinct from active wizard statistics and corpse RNG scopes.",
+      "selectionReason": "The admitted v31 migrating-monsters case reaches the missing wizard migration command and its pending-destination list.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "8e0e9010ccc4e12b22bdffa04919a4e44aba0877",
+      "openStanding": {
+        "sha": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -215495,7 +215499,159 @@
           "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
           "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-migrating-monsters",
+          "session": "synthetic/v31/v31-migrating-monsters",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-migrating-monsters.session.json",
+          "recordingPath": "challenges/cases/v31/v31-migrating-monsters.session.json",
+          "recordingSha256": "e5e173f7971ac81ba79eae5034bb420132cf6a6f3073644aba4c0d90876f0ded",
+          "recipe": "challenges/cases/v31/v31-migrating-monsters.recipe.session.json",
+          "recipeSha256": "f8d3d5d3f9e0871e313f30d0b7b2e081f72130119fbb15b8d36a83088115ea8c",
+          "replayInputSha256": "542dd42979b518bc6809e2397b7e2ca5fe550143ade984b9fdf014d2dcfe2bcf",
+          "evaluationPath": "challenges/evaluations/accepted-86e7e4196de994d52bfa413ac89fdb28afd3bd84-v31.json",
+          "evaluationCommit": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+          "evaluationArtifact": "challenges/evaluations/accepted-86e7e4196de994d52bfa413ac89fdb28afd3bd84-v31.json",
+          "evaluationUtc": "2026-10-08T21:32:28.601Z",
+          "remainingScreens": 38,
+          "recordedSteps": 52,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 14,
+              "total": 52
+            },
+            "rng": {
+              "matched": 2072,
+              "total": 2121
+            },
+            "cursors": {
+              "matched": 14,
+              "total": 52
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_migrate_mons() for the extended command 'migratemons' is not ported",
+            "step": 14
+          },
+          "step": 14,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_migrate_mons",
+          "message": "unsupported hero command: wiz_migrate_mons() for the extended command 'migratemons' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-migrating-monsters.json",
+            "result": {
+              "session": "synthetic/v31/v31-migrating-monsters",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-migrating-monsters",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "e5e173f7971ac81ba79eae5034bb420132cf6a6f3073644aba4c0d90876f0ded",
+              "evaluationPath": "challenges/evaluations/accepted-3a956a911cc52a3104f718e1eb4d76d2c854af32-v31.json",
+              "evaluationCommit": "3a956a911cc52a3104f718e1eb4d76d2c854af32",
+              "remainingScreens": 38,
+              "recordedSteps": 52,
+              "status": "complete",
+              "commit": "d2d8c8867b2a91456d4fa3b344d0d74b22791061",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-migrating-monsters",
+                "session": "synthetic/v31/v31-migrating-monsters",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-migrating-monsters.session.json",
+                "recordingPath": "challenges/cases/v31/v31-migrating-monsters.session.json",
+                "recordingSha256": "e5e173f7971ac81ba79eae5034bb420132cf6a6f3073644aba4c0d90876f0ded",
+                "recipe": "challenges/cases/v31/v31-migrating-monsters.recipe.session.json",
+                "recipeSha256": "f8d3d5d3f9e0871e313f30d0b7b2e081f72130119fbb15b8d36a83088115ea8c",
+                "replayInputSha256": "e7850f5c1c8000281b72f35fa845c6d857cf0befe66e8f3e0c7216bf6a3439b3",
+                "evaluationPath": "challenges/evaluations/accepted-3a956a911cc52a3104f718e1eb4d76d2c854af32-v31.json",
+                "evaluationArtifact": "challenges/evaluations/accepted-3a956a911cc52a3104f718e1eb4d76d2c854af32-v31.json",
+                "evaluationCommit": "3a956a911cc52a3104f718e1eb4d76d2c854af32",
+                "evaluationUtc": "2026-10-08T18:41:01.014Z",
+                "metrics": {
+                  "screens": {
+                    "matched": 14,
+                    "total": 52
+                  },
+                  "rng": {
+                    "matched": 2072,
+                    "total": 2121
+                  },
+                  "cursors": {
+                    "matched": 14,
+                    "total": 52
+                  }
+                },
+                "remainingScreens": 38,
+                "recordedSteps": 52,
+                "passed": false,
+                "error": null,
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_migrate_mons() for the extended command 'migratemons' is not ported",
+                  "step": 14
+                },
+                "step": 14,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "cFile": "wizcmds.c",
+                "function": "wiz_migrate_mons"
+              },
+              "summary": "The wizard migratemons row is admitted by the command decoder but its owner and dispatcher arm are absent. Port the whole wizard migration command with its list and stable destination/id comparator, reusing existing creation, migration, naming and text-window owners.",
+              "source": {
+                "file": "wizcmds.c",
+                "functions": [
+                  "migrsort_cmp",
+                  "list_migrating_mons",
+                  "wiz_migrate_mons"
+                ],
+                "branch": "Debug #migratemons chooses stronghold-to-valley, next-depth or bottom no-destination; list groups pending monsters by current/next/other destinations and optionally renders a sorted window. DEBUG_MIGRATING_MONS accepts a count, clamps it, creates random monsters for positive counts or migrates existing fmon for negative counts, temporarily enabling generation and restoring debug_mongen.",
+                "callers": [
+                  "cmd.c1769-1770 extcmdlist migratemons -> wiz_migrate_mons through doextcmd/rhack",
+                  "wizcmds.c1892 wiz_migrate_mons -> list_migrating_mons",
+                  "wizcmds.c1585 list_migrating_mons -> qsort migrsort_cmp"
+                ],
+                "dependencies": [
+                  "Existing returned rndmonst, makemon_runtime, dungeon depth/get_level/ledger_no/Is_botlevel, minimal_monnam and canonical input/text owners are present and inspected; reuse their source-matched active routes.",
+                  "Existing discarded-return dog.c:migrate_to_level owner is reused; preserve its explicit leashed/shopkeeper/long-worm/disguised/stuck/Wizard-tower/light dependency limits and do not claim whole migration/makemon/window/naming completion.",
+                  "Bounded cmd.js import plus distinct wiz_migrate_mons switch arm under wizard-monster-migration-dispatch; no whole accepted doextcmd ownership. A164 statistics helpers/dispatch and B163 make_corpse remain separate."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current challenges/evaluations/accepted-3a956a911cc52a3104f718e1eb4d76d2c854af32-v31.json at 3a956a911cc52a3104f718e1eb4d76d2c854af32 has 14/52 screens,2072/2121 RNG,14/52 cursors. Focused .cache/C152-before.json at clean accepted merge d2d8c886 confirms no earlier divergence and exact unsupported wiz_migrate_mons refusal at segment0 step14 newline. C expects No monsters currently migrating.--More--. Manifest corpus digest feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57, recording digest e5e173f7971ac81ba79eae5034bb420132cf6a6f3073644aba4c0d90876f0ded; recording and recipe preserved.",
+                "Whole source units are wizcmds.c migrsort_cmp1485-1505, list_migrating_mons1506-1615, and nonadjacent wiz_migrate_mons1873-1933. The comparator is pure and orders signed destination dnum, then dlevel, then unsigned m_id using comparisons rather than overflowing subtraction. Source-pinned tests must pin all comparisons and equal-id zero.",
+                "list_migrating_mons counts current first, next second, else other, emits either empty feedback or source plural counts, builds c/n/o choices and ESC suffix for empty categories, uses canonical yn_function default q, and emits None for an empty non-q category. Selected arrays are always sorted, including current/next. Rows reuse minimal_monnam(FALSE), remove only the literal <0,0> substring, append given names, include destination only for other/all, and append exact-coordinate metadata only for MIGR_EXACT_XY. Await source NHW_TEXT display/dismiss; no RNG here.",
+                "wiz_migrate_mons chooses valley from stronghold, otherwise get_level(depth+1), or zero destination at bottom. Source config.h620-621 enables DEBUG_MIGRATING_MONS under recorder DEBUG. Save debug_mongen before listing; initialize input, return ECMD_OK on ESC/empty, use atoi prefix/sign semantics, negative means migrate existing fmon, clamp counts to (COLNO-1)*ROWNO. Set debug_mongen FALSE only after valid count handling; for each positive count call rndmonst before makemon(ptr,0,0,MM_NOMSG), then migrate a non-null monster to next ledger/MIGR_RANDOM. Negative loop rereads fmon each iteration. Restore generation flag after loop; command has no time use beyond its source callbacks.",
+                "Whole source/caller search finds only cmd.c1770 direct command entry, wizcmds.c1892 list call, and wizcmds.c1585 comparator callback. JS has none of these three declarations or the dispatch arm. Existing minimal_monnam is whole-source credited in port-do_name-seed4500 and preserves valid species/name branches. Current makemon_runtime/rndmonst and dog migration bodies were read; retain named owner frontiers instead of inventing operations or claiming their completion.",
+                "Production evidence plan: selected admitted positive-two/next-list route through step51; independently chosen debug negative-existing-monster path and canceled/empty/nonnumeric count paths with source prompt/list observations, plus ordinary wizard-mode exclusion and a bottom-destination blocked/frontier variation if needed. Pin list current/next/other/all/empty choices, exact coordinates, named monsters, preservation of m_id ordering, numeric clamp and generation restoration with source tests. No game edits or new C recordings occurred during this investigation."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-wizcmds-wiz-telekinesis-v31-20261008",
