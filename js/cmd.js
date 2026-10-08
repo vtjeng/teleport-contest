@@ -210,7 +210,6 @@ import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import {
     doeat,
     morehungry,
-    UnsupportedHungerTransitionError,
 } from './eat.js';
 import {
     can_reach_floor,
@@ -2863,9 +2862,6 @@ export function failClosedCommandRefusals() {
         // set_wear() raises it too, from moveloop_preamble() rather than from
         // a command, which is the raiser the startup reader above converts.
         UnsupportedWearError,
-        // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
-        // and done_eating() and lesshungry() call it from doeat().
-        UnsupportedHungerTransitionError,
         // read.c doread() raises this after getobj() returns an object and
         // before pickup_prev or any reading effect changes state. Cancellation
         // completes normally, so only selected objects reach this refusal.

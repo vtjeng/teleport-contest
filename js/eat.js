@@ -1,6 +1,6 @@
 // The #eat command, the hunger clock, and the food helpers that object
 // creation and naming share.
-// C refs: src/eat.c is_edible(), gethungry(), newuhs(), eat_brains(), nonrotting_corpse(),
+// C refs: src/eat.c is_edible(), gethungry(), newuhs(), unfaint(), eat_brains(), nonrotting_corpse(),
 //         vegan(), vegetarian(), tin_variety(), set_tin_variety(),
 //         tin_details(), opentin(), Popeye(), eat_ok(), floorfood(), doeat(),
 //         and vomit().
@@ -90,6 +90,8 @@ import {
     REGENERATION,
     ROTTEN_TIN,
     SATIATED,
+    STARVED,
+    STARVING,
     SEE_INVIS,
     SHOCK_RES,
     SICK,
@@ -162,7 +164,7 @@ import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { heroDeaf, livelog_printf, verbalize, youHear } from './pline.js';
 import {
-    check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
+    HeroDeathPlanningError, check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
 import { dist2, lcase, s_suffix } from './hacklib.js';
 import {
     INVLET_BASIC, addinv_nomerge, carrying, feel_cockatrice, freeinv, getobj, hands_obj, obj_extract_self, obj_here, stackobj, useup, useupall, useupf, will_feel_cockatrice, } from './invent.js';
@@ -411,16 +413,6 @@ function preflightNutritionRing(ring, state) {
     }
 }
 
-// Which statuses newuhs() can be asked to move to. It carries the whole of
-// eat.c newuhs() (3361-3513) except the FAINTING arm, which needs
-// is_fainted(), stop_occupation(), incr_itimeout(HDeaf), nomul() with
-// afternmv, selftouch(), done(STARVING) and the rn2(20 - uhunger/10) draw that
-// picks between fainting and starving. hungerStatus() answers only the five
-// values below FAINTED, so FAINTED and STARVED cannot arrive here.
-function supportedHungerTransition(newStatus) {
-    return newStatus !== FAINTING;
-}
-
 // The operations eat.c reaches through globals -- pline(), end_running() and
 // bot() -- and this port injects, because the elapsed-turn caller substitutes
 // silent versions of all three when it dry-runs a turn on a cloned state.
@@ -431,18 +423,6 @@ function requireEatOperation(env, name) {
     if (typeof operation !== 'function')
         throw new TypeError(`eat.c requires ${name}`);
     return operation;
-}
-
-// Raised by gethungry()'s preflight and by newuhs() itself. newuhs() is shared:
-// gethungry() calls it from the turn loop, and done_eating() and lesshungry()
-// call it from doeat(), so this class reaches the caller down both paths and
-// js/allmain.js and js/cmd.js each convert it at their own seam.
-export class UnsupportedHungerTransitionError extends Error {
-    constructor(reason) {
-        super(`the hunger clock reached ${reason}`);
-        this.name = 'UnsupportedHungerTransitionError';
-        this.reason = reason;
-    }
 }
 
 // C ref: eat.c is_edible() (91-121). This is a pure predicate: it reads the
@@ -508,11 +488,6 @@ export function preflightGetHungry(state = game, env = {}) {
         throw new Error('gethungry requires initialized hero form');
     }
 
-    if (u.uhs === FAINTED || hungerStatus(u.uhunger) !== u.uhs) {
-        throw new UnsupportedHungerTransitionError(
-            'unported hunger-status transition',
-        );
-    }
     // Either ring can be selected by rn2(20). Validate both definitions
     // before that draw so malformed admitted state cannot consume RNG.
     preflightNutritionRing(state.uleft, state);
@@ -546,14 +521,15 @@ export function preflightGetHungry(state = game, env = {}) {
     const evenLoss = ordinaryLoss + hungerLoss + conflictLoss + accessoryLoss;
     // An Unaware hero pays `ordinaryLoss` only when rn2(10) comes up 0, so
     // this over-states the loss for nine turns in ten. That is the safe
-    // direction: it is an upper bound on what the turn can spend, and its only
-    // job is to reject a turn whose worst case reaches an unported status.
+    // direction: the upper bound identifies hunger effects that must run live
+    // before planning the remaining upkeep from their result.
     const maximumReachableLoss = Math.max(oddLoss, evenLoss);
     const earliestStatus = hungerStatus(
         u.uhunger - maximumReachableLoss,
     );
     const mayChangeStatus = earliestStatus !== u.uhs;
-    const supported = supportedHungerTransition(earliestStatus);
+    const requiresLiveState = earliestStatus === FAINTING
+        || (mayChangeStatus && (u.umonnum !== u.umonster ? u.mh : u.uhp) < 1);
     // newuhs()'s `newhs >= WEAK && u.uhs < WEAK` arm writes ATEMP(A_STR), and
     // its WEAK message reads the role and the race. Widening `<` to `<=` here
     // is equivalent for every well-formed state: it only adds the case where
@@ -573,23 +549,12 @@ export function preflightGetHungry(state = game, env = {}) {
     // that decides whether the transition happens. Every transition newuhs()
     // takes rewrites the status line; only its HUNGRY and WEAK arms print a
     // message and end a run.
-    if (mayChangeStatus && supported) {
+    if (mayChangeStatus) {
         requireEatOperation(env, 'statusRefresh');
         if (earliestStatus === HUNGRY || earliestStatus === WEAK) {
             requireEatOperation(env, 'message');
             requireEatOperation(env, 'endRunning');
         }
-    }
-
-    // Use only costs reachable from the current form, properties, burden, and
-    // equipment so harmless low-loss ticks are not rejected before their
-    // source draw. gethungry() only spends nutrition, so every status the
-    // rn2(20) branches can land on lies between u.uhs and earliestStatus, and
-    // newuhs() owns all of them unless the worst case is FAINTING.
-    if (mayChangeStatus && !supported) {
-        throw new UnsupportedHungerTransitionError(
-            'unported hunger-status transition',
-        );
     }
 
     return {
@@ -598,6 +563,7 @@ export function preflightGetHungry(state = game, env = {}) {
         hungerLoss,
         ordinaryLoss,
         regenerationLoss,
+        requiresLiveState,
         skipped: false,
         slowDigestion,
         unaware,
@@ -605,8 +571,7 @@ export function preflightGetHungry(state = game, env = {}) {
 }
 
 // C ref: eat.c gethungry() and its live newuhs(TRUE) consumer. This owns the
-// nutrition decision for an alert hero down to the WEAK status. Fainting and
-// death remain fail-closed before any elapsed-turn mutation.
+// nutrition decision and calls the shared hunger-status owner in source order.
 export async function gethungry(state = game, env = {}) {
     const plan = preflightGetHungry(state, env);
     if (plan.skipped) return 0;
@@ -669,14 +634,7 @@ export async function gethungry(state = game, env = {}) {
         }
     }
 
-    const nextNutrition = u.uhunger - nutritionLoss;
-    const nextStatus = hungerStatus(nextNutrition);
-    if (nextStatus !== u.uhs && !supportedHungerTransition(nextStatus)) {
-        throw new UnsupportedHungerTransitionError(
-            'unported hunger-status transition',
-        );
-    }
-    u.uhunger = nextNutrition;
+    u.uhunger -= nutritionLoss;
     await newuhs(true, state, env);
     return nutritionLoss;
 }
@@ -1454,10 +1412,10 @@ function foodword(otmp, state) {
 
 // C ref: eat.c Hear_again() (1800-1809). The ga.afternmv callback after
 // rotten-food fainting.  50% chance to clear timed deafness; always returns 0.
-async function Hear_again(state) {
+async function Hear_again(state, env = {}) {
     /* Chance of deafness going away while fainted/sleeping/etc. */
-    if (!rn2(2)) {
-        await make_deaf(0, false, state);
+    if (!(env.random?.rn2 ?? rn2)(2)) {
+        await make_deaf(0, false, state, env);
         state.disp ??= {};
         state.disp.botl = true;
     }
@@ -1780,7 +1738,18 @@ export async function maybe_finished_meal(stopping, state = game, env = {}) {
     return false;
 }
 
-// C ref: eat.c newuhs() (3361-3510). Recomputes the hunger status from the
+// C ref: eat.c unfaint() (3336-3344), invoked by hack.c unmul().
+export async function unfaint(state = game, env = {}) {
+    await Hear_again(state, env);
+    if (state.u.uhs > FAINTING) state.u.uhs = FAINTING;
+    const { stop_occupation } = await import('./allmain.js');
+    await stop_occupation(state, env);
+    state.disp ??= {};
+    state.disp.botl = true;
+    return 0;
+}
+
+// C ref: eat.c newuhs() (3362-3513). Recomputes the hunger status from the
 // hero's nutrition and comments on it.
 //
 // Two hunger statuses are in play while a meal runs, which is what C's
@@ -1816,13 +1785,43 @@ export async function newuhs(incr, state = game, env = {}) {
     }
 
     if (newhs === FAINTING) {
-        // The fainting and starvation arms need is_fainted(), stop_occupation(),
-        // incr_itimeout(HDeaf), nomul() with afternmv, selftouch() and
-        // done(STARVING), and the rn2(20 - uhunger/10) draw that picks between
-        // them.
-        throw new UnsupportedHungerTransitionError(
-            'newuhs() fainting or starvation',
-        );
+        const hungerTens = Math.sign(u.uhunger)
+            * Math.trunc((Math.abs(u.uhunger) + 5) / 10);
+        if (is_fainted(state)) newhs = FAINTED;
+        const random = env.random ?? { rn2 };
+        if (u.uhs <= WEAK || random.rn2(20 - hungerTens) >= 19) {
+            if (!is_fainted(state) && (state.multi ?? 0) >= 0) {
+                const duration = 10 - hungerTens;
+                const { stop_occupation } = await import('./allmain.js');
+                await stop_occupation(state, env);
+                await requireEatOperation(env, 'message')('You faint from lack of food.', state);
+                incr_itimeout(hungerProperty(state, DEAF), duration);
+                state.disp ??= {};
+                state.disp.botl = true;
+                nomul(-duration, state);
+                state.multi_reason = 'fainted from lack of food';
+                state.nomovemsg = 'You regain consciousness.';
+                state.afternmv = unfaint;
+                newhs = FAINTED;
+                if (!Levitation(state)) note_unported('trap.c selftouch');
+            }
+        } else if (u.uhunger < -(100 + 10 * acurr(state, A_CON))) {
+            u.uhs = STARVED;
+            state.disp ??= {};
+            state.disp.botl = true;
+            await requireEatOperation(env, 'statusRefresh')(state);
+            await requireEatOperation(env, 'message')('You die from starvation.', state);
+            state.killer ??= {};
+            state.killer.format = KILLED_BY;
+            state.killer.name = 'starvation';
+            if (env.planning) {
+                const boundary = new HeroDeathPlanningError('starvation', KILLED_BY);
+                boundary.how = STARVING;
+                throw boundary;
+            }
+            await done(STARVING, state, env);
+            return;
+        }
     }
 
     if (newhs !== u.uhs) {
@@ -1841,25 +1840,29 @@ export async function newuhs(incr, state = game, env = {}) {
                 'endRunning',
             );
             await message(hungerTransitionMessage(newhs, incr, state), state);
-            // C ref: `if (incr && go.occupation
-            //          && (go.occupation != eatfood
-            //              && go.occupation != opentin)) stop_occupation();`.
-            // eatfood is the only occupation this port installs and C's own
-            // condition excludes it, so the call cannot happen. It is also
-            // unreachable from here for a second reason: the arm above returns
-            // early while eatfood is running, so a meal never gets this far.
+            if (incr && state.go?.occupation
+                && state.go.occupation !== eatfood && state.go.occupation !== opentin) {
+                const { stop_occupation } = await import('./allmain.js');
+                await stop_occupation(state, env);
+            }
             stopRunning(state);
         }
         u.uhs = newhs;
         state.disp ??= {};
         state.disp.botl = true;
         await requireEatOperation(env, 'statusRefresh')(state);
-        if (u.uhp < 1) {
-            // C prints "You die from hunger and exhaustion." and calls
-            // done(STARVING).
-            throw new UnsupportedHungerTransitionError(
-                'newuhs() death from hunger and exhaustion',
-            );
+        if ((u.umonnum !== u.umonster ? u.mh : u.uhp) < 1) {
+            await requireEatOperation(env, 'message')('You die from hunger and exhaustion.', state);
+            state.killer ??= {};
+            state.killer.format = KILLED_BY;
+            state.killer.name = 'exhaustion';
+            if (env.planning) {
+                const boundary = new HeroDeathPlanningError('exhaustion', KILLED_BY);
+                boundary.how = STARVING;
+                throw boundary;
+            }
+            await done(STARVING, state, env);
+            return;
         }
     }
 }

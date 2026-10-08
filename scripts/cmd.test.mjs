@@ -29,7 +29,6 @@ import {
     UnsupportedHeroCommandBranchBoundaryError,
 } from '../js/cmd.js';
 import {
-    UnsupportedHungerTransitionError,
 } from '../js/eat.js';
 import { getobj } from '../js/invent.js';
 import { itemactions } from '../js/iactions.js';
@@ -5068,15 +5067,9 @@ test('a blind search feels adjacent squares at the `s` key', async () => {
     assert.equal(game.context.pendingCommand, undefined);
 });
 
-test('eat hunger transition stops convert at the command seam', () => {
-    // js/cmd.js runEatCommand() wraps doeat() in failClosedCommand(), and
-    // js/jsmain.js breaks a segment only for the three boundary classes, so a
-    // class doeat() can raise that the wrapper does not list escapes as a hard
-    // failure and discards the segment's matching prefix instead of stopping
-    // on it. UnsupportedHungerTransitionError comes from newuhs(), which
-    // done_eating() and lesshungry() both call on the doeat() path.
-    const converted = failClosedCommandRefusals();
-    assert.ok(converted.includes(UnsupportedHungerTransitionError));
+test('ported hunger transitions no longer register a command refusal', () => {
+    assert.equal(failClosedCommandRefusals().some(
+        (type) => type.name === 'UnsupportedHungerTransitionError'), false);
 });
 
 // The '>' handler routes dodown() through failClosedCommand() (js/cmd.js), and
