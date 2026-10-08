@@ -219602,7 +219602,7 @@
     {
       "id": "fix-pray-petrification-cure-caller-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire canonical make_stoned at the prayer petrification cure",
       "cFile": "pray.c",
       "sessions": [],
@@ -219614,8 +219614,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e07a3433218418185470f93e6ed7061c6e1982cb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "fix_worst_trouble",
       "session": "synthetic/v32/v32-prayer-stoning",
       "step": 44,
@@ -219848,7 +219851,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e07a3433218418185470f93e6ed7061c6e1982cb",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
