@@ -196959,7 +196959,7 @@
     {
       "id": "port-dig-buried-ball-to-freedom-v28-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port buried-ball freedom release and wire its production callers",
       "cFile": "dig.c",
       "sessions": [
@@ -196973,15 +196973,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "buried_ball_to_freedom",
           "line": 1958,
           "endLine": 1983,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -197166,7 +197169,80 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "buried_ball_to_freedom",
+            "implementation": "js/dig.js",
+            "symbol": "buried_ball_to_freedom",
+            "sourceReview": "Read complete dig.c1958-1979; the generated context1958-1983 includes the following comment, not another source function. Preserve hero-coordinate capture and consumed buried_ball result, no-ball no-op, OBJ_BURIED extraction, same-object floor placement, stackobj, awaited reset_utrap(TRUE), selected-coordinate engraving deletion and one destination redraw. Rust-metal stop_timer is compiled out under #if0 in the reference source; no substitute timer call is added. Verify the entire existing consumed buried_ball1885-1930 against js/dig.js: exact-coordinate priority, squared-radius<=8, nearest selection, first-on-ties, trap eligibility and caller coordinate mutation; tests pin each result, without new finder completion credit. Canonical mkobj.c:obj_extract_self OBJ_BURIED transition, place_object floor indexes and objectGenerationEnv, invent.c:stackobj and trap.c:reset_utrap are reused. Heavy iron balls are nonmergeable in objects.h1624-1627, so source stackobj does not need an unported merge return. reset_utrap(TRUE) completes before engraving deletion/redraw, including resumed flight in the fog-cloud recording. All five direct C caller sites now await the source helper; their messages, caller reset, openit result and inventory ordering are retained. Removed all five freedom note_unported placeholders. No new discarded-result dependency remains in the selected function; no whole caller, buried_ball_to_punishment, punish, trapmove or other owner completion is claimed.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_remove_curse",
+                "source": "read.c1601: await freedom before the clasp message and update_inventory."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_bell",
+                "source": "apply.c1283: blessed charged Bell awaits freedom before res=1 and consumed openit result."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c522: TROUBLE_PUNISHED prints chain-disappears, then awaits freedom instead of unpunish for TT_BURIEDBALL."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c982: wall-pass message, awaited freedom, then preserve the caller reset_utrap(TRUE)."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c997: amorphous/whirly/unsolid slip-free message precedes awaited freedom."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig-buried-ball.test.mjs",
+              "scripts/bury.test.mjs",
+              "scripts/read-command.test.mjs",
+              "scripts/apply-bell.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/buried-ball-freedom-scroll.session.json",
+              "recordings/dig.c/buried-ball-freedom-scroll-variation.session.json",
+              "recordings/dig.c/buried-ball-freedom-bell.session.json",
+              "recordings/dig.c/buried-ball-freedom-wallpass.session.json",
+              "recordings/dig.c/buried-ball-freedom-unsolid.session.json",
+              "recordings/dig.c/buried-ball-freedom-prayer.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-buried-ball-release",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 95,
+                "source": "read.c:seffect_remove_curse1601 calls dig.c:buried_ball_to_freedom before clasp output; subsequent movement exposes trap reset and floor ball state."
+              }
+            ],
+            "checkedAt": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec"
+          }
+        ],
+        "entryPointReview": "The selected range is helper-only, so entryPoints is empty under validation rules. All active production caller families are enumerated above and independently exercised: remove-curse command (uncursed and blessed inventory variation), blessed charged Bell application, prayer minor-trouble repair, controlled wall-pass xorn polymorph, and controlled unsolid fog-cloud polymorph. The admitted v28 source range82-95 also verifies remove curse and released movement. scripts/run-buried-ball-freedom.mjs captures the actual buried object before release and proves that all six production plays restore the same o_id/object to both floor indexes, clear the trap counter, and leave no punishment ball or chain attached. No compile-inactive caller is omitted. The source Rust timer branch is #if0 and inactive.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-wizcmds-wiz-smell-v28-20261007",
@@ -197511,6 +197587,59 @@
           "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
           "evaluationPath": "challenges/evaluations/accepted-b22bc2ea4e12eae1d608b975449d792a2213b945-v28.json",
           "evaluationCommit": "b22bc2ea4e12eae1d608b975449d792a2213b945"
+        }
+      }
+    },
+    {
+      "id": "port-rumors-outoracle-v28-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port major Oracle consultation selection and text output",
+      "cFile": "rumors.c",
+      "sessions": [
+        "synthetic/v28/v28-oracle-major-consultation"
+      ],
+      "selectionReason": "synthetic/v28/v28-oracle-major-consultation remains7/57 screens unmatched at b22bc2ea4e12eae1d608b975449d792a2213b945; the completed investigation traces step50 to omitted whole rumors.c:outoracle, its initializer, and persistent remaining-offset state. Independent of A Vlad/A142 and C140.",
+      "detail": "Port whole outoracle640-694 and init_oracles577-595, replace the discarded gap with an awaited doconsult caller, generate makedefs Oracle data, and reconcile only the Oracle-state save/restore fields. Preserve rnd(count-1), swap-last/decrement before the blocking window, cheapskate special behavior and post-window exercise/XP. Keep broader save/restore/shutdown and couldnt_open_file diagnostics as named outside-credit boundaries.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "outoracle",
+          "line": 640,
+          "endLine": 695,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 640,
+        "to": 695
+      },
+      "requiredFunctions": [
+        {
+          "name": "init_oracles",
+          "line": 577,
+          "endLine": 597,
+          "declared": false,
+          "sourceFile": "rumors.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v28/v28-oracle-major-consultation": {
+          "session": "synthetic/v28/v28-oracle-major-consultation",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-oracle-major-consultation",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-oracle-major-consultation.session.json",
+          "recordingSha256": "4ebefa5859b9bf667ff711a1634c5afbfddf8f8e6243c0404576e398751f76b2",
+          "evaluationPath": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
+          "evaluationCommit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec"
         }
       }
     }
