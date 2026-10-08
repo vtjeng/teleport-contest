@@ -1,9 +1,11 @@
 // glyphs.js -- Glyph-ID expansion and glyph-map customizations.
 // C refs: glyphs.c glyphrep_to_custom_map_entries(), glyph_find_core(),
-// parse_id(), add/apply/purge/shuffle_customizations(); utf8map.c unicode_val().
+// parse_id(), glyph_to_cmap(), add/apply/purge/shuffle_customizations();
+// utf8map.c unicode_val().
 
 import {
     H_UTF8,
+    MAXEXPCHARS,
     NH_BASIC_COLOR,
     PRIMARYSET,
     ROGUESET,
@@ -28,6 +30,7 @@ import {
     GLYPH_DETECT_FEM_OFF,
     GLYPH_DETECT_MALE_OFF,
     GLYPH_EXPLODE_OFF,
+    GLYPH_EXPLODE_FROSTY_OFF,
     GLYPH_MON_FEM_OFF,
     GLYPH_MON_MALE_OFF,
     GLYPH_OBJ_OFF,
@@ -49,6 +52,33 @@ import {
     SYM_OFF_W,
     SYM_OFF_X,
 } from './symbol_data.js';
+
+import {
+    MAXPCHARS, S_stone, S_vwall, S_trwall, S_ndoor, S_altar, S_grave,
+    S_digbeam, S_goodpos, S_vbeam, S_sw_tl, S_expl_tl, S_expl_br,
+} from './symbols.js';
+
+// C ref: glyphs.c glyph_to_cmap() (199-231). The five adjacent wall
+// ranges share cmap indices; altar variants likewise share S_altar.
+export function glyph_to_cmap(glyph) {
+    if (glyph === GLYPH_CMAP_STONE_OFF) return S_stone;
+    if (glyph >= GLYPH_CMAP_MAIN_OFF && glyph < GLYPH_CMAP_A_OFF)
+        return ((glyph - GLYPH_CMAP_MAIN_OFF) % (S_trwall - S_vwall + 1)) + S_vwall;
+    if (glyph >= GLYPH_CMAP_A_OFF && glyph < GLYPH_ALTAR_OFF)
+        return glyph - GLYPH_CMAP_A_OFF + S_ndoor;
+    if (glyph >= GLYPH_ALTAR_OFF && glyph < GLYPH_CMAP_B_OFF) return S_altar;
+    if (glyph >= GLYPH_CMAP_B_OFF && glyph < GLYPH_ZAP_OFF)
+        return glyph - GLYPH_CMAP_B_OFF + S_grave;
+    if (glyph >= GLYPH_CMAP_C_OFF && glyph < GLYPH_CMAP_C_OFF + S_goodpos - S_digbeam + 1)
+        return glyph - GLYPH_CMAP_C_OFF + S_digbeam;
+    if (glyph >= GLYPH_ZAP_OFF && glyph < GLYPH_CMAP_C_OFF)
+        return ((glyph - GLYPH_ZAP_OFF) % 4) + S_vbeam;
+    if (glyph >= GLYPH_SWALLOW_OFF && glyph < GLYPH_SWALLOW_OFF + (NUMMONS << 3))
+        return ((glyph - GLYPH_SWALLOW_OFF) & 7) + S_sw_tl;
+    if (glyph >= GLYPH_EXPLODE_OFF && glyph < GLYPH_EXPLODE_FROSTY_OFF + MAXEXPCHARS)
+        return ((glyph - GLYPH_EXPLODE_OFF) % (S_expl_br - S_expl_tl + 1)) + S_expl_tl;
+    return MAXPCHARS; // C's legal defsyms fencepost for every other glyph.
+}
 
 const MONSTER_GLYPH_OFFSETS = Object.freeze([
     GLYPH_MON_MALE_OFF,

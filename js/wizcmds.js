@@ -9,6 +9,9 @@ import { timer_stats } from './timeout.js';
 import { region_stats } from './region.js';
 import { size_wseg } from './worm.js';
 import { FIRST_OBJECT, NUM_OBJECTS, MAXOCLASSES, OBJ_NAME } from './objects.js';
+import { MAX_GLYPH } from './glyph_offsets.js';
+import { NUMMONS } from './monsters.js';
+import { MAXPCHARS, S_vbeam, S_rslant } from './symbols.js';
 import { memoryLayout } from './wizcmds_data.js';
 import {
     ACID_RES,
@@ -123,6 +126,7 @@ import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { makewish } from './zap.js';
 import { canspotmon, docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
+    glyph_is_cmap, glyph_is_cmap_zap, glyph_to_cmap, glyph_to_mon, glyph_is_object, glyph_to_obj, NO_GLYPH,
     map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
 import { do_mapping, findit } from './detect.js';
 import { overview_stats, In_W_tower, on_level, print_dungeon } from './dungeon.js';
@@ -1009,6 +1013,41 @@ export async function wiz_show_stats(state = game, env = {}) {
         { text: memory_stats_line('  Grand total', objects.count + monsters.count + overview.count + misc.count,
             objects.size + monsters.size + overview.size + misc.size) });
     // show_borlandc_stats is excluded by the Linux recorder's build guard.
+    await (env.window ?? displayTtyTextWindow)(state, rows);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_display_macros() (1705-1774). Fixed macro ranges
+// are checked in source order; report each issue after a single header.
+export async function wiz_display_macros(state = game, env = {}) {
+    const rows = [];
+    let trouble = 0;
+    function issue(text) {
+        if (!trouble++) rows.push({ text: 'Display macro issues:' });
+        rows.push({ text });
+    }
+    for (let glyph = 0; glyph < MAX_GLYPH; glyph++) {
+        if (glyph_is_cmap(glyph)) {
+            const value = glyph_to_cmap(glyph);
+            if (value === NO_GLYPH)
+                issue(`glyph_is_cmap() / glyph_to_cmap(glyph=${glyph}) sync failure, returned NO_GLYPH (${value})`);
+            if (glyph_is_cmap_zap(glyph) && !(value >= S_vbeam && value <= S_rslant))
+                issue(`glyph_is_cmap_zap(glyph=${glyph}) returned non-zap cmap ${value}`);
+            if (!(value >= 0 && value < MAXPCHARS + 1))
+                issue(`glyph_to_cmap(glyph=${glyph}) returns ${value} exceeds defsyms[${MAXPCHARS + 1}] bounds (MAX_GLYPH = ${MAX_GLYPH})`);
+        }
+        if (glyph_is_monster(glyph)) {
+            const value = glyph_to_mon(glyph);
+            if (value < 0 || value >= NUMMONS)
+                issue(`glyph_to_mon(glyph=${glyph}) returns ${value} exceeds mons[${NUMMONS}] bounds`);
+        }
+        if (glyph_is_object(glyph)) {
+            const value = glyph_to_obj(glyph);
+            if (value < 0 || value > NUM_OBJECTS)
+                issue(`glyph_to_obj(glyph=${glyph}) returns ${value} exceeds objects[${NUM_OBJECTS}] bounds`);
+        }
+    }
+    if (!trouble) rows.push({ text: 'No display macro issues detected.' });
     await (env.window ?? displayTtyTextWindow)(state, rows);
     return ECMD_OK;
 }
