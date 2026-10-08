@@ -320,6 +320,20 @@ export function resolveEventCommits(root, input) {
     return event;
 }
 
+export function validateHistoricalEvaluation(root, report, tested) {
+    validateEvaluation(report);
+    check(isAncestor(root, report.sha, tested),
+        'challenge evaluation must identify tested history');
+    const batch = report.batch ?? 'v1';
+    const manifestPath = batch === 'v1' ? 'challenges/manifest.json' : `challenges/manifests/${batch}.json`;
+    check((report.manifestPath ?? 'challenges/manifest.json') === manifestPath,
+        'challenge evaluation path differs from its batch');
+    const manifest = json(root, report.sha, manifestPath);
+    check(corpusDigest(manifest.cases) === report.manifestSha256,
+        'challenge evaluation membership differs from its source manifest');
+    return report;
+}
+
 function verifyPublicationChanges(root, tested, published) {
     // Keep checkpoint reuse conservative. Publication alone permits checked
     // reports written after closure; the original tested commit stays intact.
@@ -361,20 +375,10 @@ function verifyPublicationChanges(root, tested, published) {
             }
         } else {
             check(!git(root, 'ls-tree', '-z', tested, '--', path), `challenge evaluations are immutable: ${path}`);
-            validateEvaluation(report);
-            check(isAncestor(root, report.sha, tested),
-                `challenge evaluation must identify tested history: ${path}`);
-            const batch = report.batch ?? 'v1';
-            check(/^v[1-9][0-9]*$/u.test(batch), `invalid challenge batch: ${path}`);
-            const manifestPath = batch === 'v1' ? 'challenges/manifest.json' : `challenges/manifests/${batch}.json`;
-            check((report.manifestPath ?? 'challenges/manifest.json') === manifestPath,
-                `challenge evaluation path differs from its batch: ${path}`);
             // A report may describe an intermediate candidate, not the final one.
             // Publication preserves that history; acceptance separately requires
             // complete evaluations whose SHA and inputs match its exact candidate.
-            const manifest = json(root, report.sha, manifestPath);
-            check(corpusDigest(manifest.cases) === report.manifestSha256,
-                `challenge evaluation membership differs from its source manifest: ${path}`);
+            validateHistoricalEvaluation(root, report, tested);
         }
     }
 }

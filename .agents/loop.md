@@ -263,12 +263,14 @@ separately from other goals.
    records before the push. It captures worker activity through acceptance;
    the publication event enters the next snapshot. Push accepted work to main
    without asking again, then
-   record `published` after the push succeeds. Discover relevant CI run IDs for
-   the published commit and keep pending commits and run IDs in the untracked
-   `.cache/loop-ci-pending.json`; a commit with no run yet stays pending for
-   discovery. At each handoff and before another push, make a one-shot status
-   check for pending runs, then continue the merge queue while CI runs. Remove
-   an entry only after all its relevant runs pass. Do not block the next
+   record `published` after the push succeeds. Run
+   `node scripts/check-published-ci.mjs --commit <full-published-sha> --task <id>`
+   to register the commit and check publication CI once. The helper keeps
+   pending commits and known incomplete run IDs in `.cache/loop-ci-pending.json`, including
+   commits whose runs have not appeared. At each handoff and before another
+   push, run `node scripts/check-published-ci.mjs` and continue the merge queue
+   while CI runs. The helper removes an entry only after all relevant runs pass.
+   Do not block the next
    delivery with `gh run watch`. Reconcile the pending list after a restart
    against published commits in the worker-state ledger and their CI runs. If
    CI fails, finish an active checkpoint, then investigate and validate a

@@ -99,7 +99,12 @@ the experiment agent may import its separately authorized pilot evidence.
 Preserve first results and do not add cases to the frozen manifest. A new
 challenge batch gets a new versioned manifest and its own evaluation history.
 Compare gains and losses only on unchanged cases with the same scorer and
-denominators. Dashboard builds read saved evidence; they do not run challenge
+denominators. Use
+`node scripts/compare-challenge-evaluations.mjs <baseline-sha> <candidate-sha> <baseline-directory> <candidate-directory>`
+with full measured SHAs and saved evaluation directories. Select an accepted
+baseline explicitly. Review the reported regressions, error changes, and
+missing or incomparable evidence before acceptance; the command does not
+replay games or record scores. Dashboard builds read saved evidence; they do not run challenge
 evaluations. A failed or older measurement retains its failure status or
 measured commit age. Synthetic failures have their own implementation queue;
 they never enter the fixed mismatch queue or its score denominator. Publish

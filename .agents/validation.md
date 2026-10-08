@@ -104,6 +104,9 @@ competition holdout is outside this workspace.
   must name an ancestor of the tested commit and match that source commit's
   manifest. Publishing history does not make it current acceptance evidence:
   acceptance still requires evaluations of the exact candidate and inputs.
+  New historical evaluations may remain uncommitted during implementation
+  acceptance after the same history and manifest checks; they do not replace
+  the candidate's required evidence. Existing evaluation files remain immutable.
   This does not change checkpoint caching
   or authorize changes to code, tests, recipes, recordings, or challenge inputs.
 - Use the tested commit's shared summary and its `artifacts` directory. Its
