@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent Valkyrie chickatrice tinning; bare hands trigger fatal mistake, urgent petrification and debug death cancellation before homemade tin conversion.",
+  "segments": [
+    {
+      "seed": 81726517,
+      "datetime": "20350312101739",
+      "nethackrc": "OPTIONS=name:TinningStone,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,pettype:none,showexp,time\n",
+      "moves": "\u0017uncursed tinning kit\n\u0017chickatrice corpse\nafyn                "
+    }
+  ]
+}

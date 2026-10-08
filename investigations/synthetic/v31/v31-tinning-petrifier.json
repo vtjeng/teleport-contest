@@ -128,7 +128,8 @@
     "C recording segment0step45 emits fatal mistake,47 urgent petrification,48 Die? [yn](n),49 wizard recovery and homemade tin feedback,50 survival message. Preserve the pending More before the death prompt and continue tinning only after done returns.",
     "Read complete trap.c:instapetrify3844-3855 and existing js/trap.js354-376. Its canonical helper has the required awaited urgent/death path, including no-output planning error and stone-golem short circuit. All other instapetrify callers remain named gaps; no broader trap/end source completion is proposed.",
     "Read source/JS floorfood tin-only subset, tinnable, production TINNING_KIT dispatch and existing scripts/apply-tinning-kit.test.mjs ordinary floor/inventory/Rider fixtures. Existing ordinary recipes provide independent entry witnesses; add a different-role C-first bare-handed tinning witness and cheap gloves/resistance or stone-golem variation.",
-    "Live reservations exclude A166/A167 wizard diagnostics, C152 migration and submitted B164 invent container display/zap probing. apply.c:use_tinning_kit and tinning-petrification caller contract are independent."
+    "Live reservations exclude A166/A167 wizard diagnostics, C152 migration and submitted B164 invent container display/zap probing. apply.c:use_tinning_kit and tinning-petrification caller contract are independent.",
+    "Representative blind-floor-touch variation recipes/apply.c/tinning-blind-floor-touch-blocked.session.json diverges atboundary70 despite all2398 RNG matching. invent.c:feel_cockatrice4343-4361 calls instapetrify after its fatal warning, while JS still records that discarded-result gap. This earlier floorfood path remains outside selected use_tinning_kit and is preserved as a blocked recipe."
   ],
   "proposal": {
     "goalId": "port-apply-use-tinning-kit-v31-20261008",
@@ -157,9 +158,7 @@
       "recordings/apply.c/",
       ".cache/"
     ],
-    "dependencies": [
-      "74e61dc29d4121756dc449665b3cc7ae0a87b3a2 pending ancestor delivery until accepted"
-    ],
+    "dependencies": [],
     "runtimeEvidencePlan": [
       "Admitted segment0steps45-60 for fatal tinning/death recovery and subsequent homemade tin completion.",
       "Independent different-role C-first bare-handed tinning plus cheap gloves/resistance or stone-golem variation; completely matching recordings.",
