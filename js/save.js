@@ -51,6 +51,7 @@ import { vfsWriteFile } from './storage.js';
 import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
 import { save_waterlevel } from './mkmaze.js';
+import { save_oracles } from './rumors.js';
 
 // ── Level-local timer and light source capture ──
 //
@@ -322,7 +323,7 @@ function safeStringify(value) {
 // and related subsystems. Non-serializable values (functions, display
 // handles) are excluded by safeStringify's replacer.
 function serializeGameState(state) {
-    return {
+    const snapshot = {
         // C ref: savegamestate() fields in save.c:265-333 order
         moves: state.moves,
         hero_seq: state.hero_seq,
@@ -392,6 +393,9 @@ function serializeGameState(state) {
         fixedDatetime: state.fixedDatetime,
         recorderIsDst: state.recorderIsDst,
     };
+    // save.c savegamestate():321 saves Oracle count/offsets after artifacts.
+    save_oracles(snapshot, state);
+    return snapshot;
 }
 
 // Serialize iflags, excluding display handles and functions that cannot
