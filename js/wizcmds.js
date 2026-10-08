@@ -130,6 +130,29 @@ import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { nonliving, olfaction } from './mondata.js';
 
+// C ref: wizcmds.c wiz_show_seenv() (576-617). Each map cell occupies two
+// columns; C narrows a full-width crop by one cell to avoid an 80-byte row.
+export async function wiz_show_seenv(state = game, env = {}) {
+    let startx = Math.max(1, state.u.ux - Math.trunc(COLNO / 4));
+    const stopx = Math.min(startx + Math.trunc(COLNO / 2), COLNO);
+    if (stopx - startx === Math.trunc(COLNO / 2)) startx++;
+    const lines = [];
+    for (let y = 0; y < ROWNO; y++) {
+        let row = '';
+        for (let x = startx; x < stopx; x++) {
+            if (u_at(x, y, state)) {
+                row += '@@';
+            } else {
+                const v = state.level.at(x, y).seenv & 0xff;
+                row += v === 0 ? '  ' : v.toString(16).padStart(2, '0');
+            }
+        }
+        lines.push({ text: row.replace(/ +$/u, '') });
+    }
+    await (env.window ?? displayTtyTextWindow)(state, lines);
+    return ECMD_OK;
+}
+
 // C ref: wizcmds.c wiz_show_vision() (621-653). The text-window wrapper
 // owns create/putstr/display/destroy; read the current vision bits directly
 // and await its blocking dismissal before returning the command result.

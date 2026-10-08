@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizcmds.c:wiz_show_seenv witness: blindfold retains previously seen vectors while blocking new sight; repeat after a turn and dismiss the text window. Seed, clock, role and actions fixed before C recording or JS comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 16040012,
+      "datetime": "20521018131500",
+      "nethackrc": "OPTIONS=name:Seenv16040012,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  \u0017uncursed blindfold\n  Pe#wizseenv\n .#wizseenv\n "
+    }
+  ]
+}
