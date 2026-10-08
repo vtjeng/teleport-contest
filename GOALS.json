@@ -201918,21 +201918,21 @@
           "line": 2167,
           "endLine": 2293,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dump_map",
           "line": 2294,
           "endLine": 2355,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "reveal_terrain",
           "line": 2356,
           "endLine": 2419,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -202139,7 +202139,147 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "reveal_terrain_getglyph",
+            "implementation": "js/detect.js",
+            "symbol": "reveal_terrain_getglyph",
+            "sourceReview": "Read complete detect.c2167-2288 and source display.h glyph predicates/producers and covers_traps. Port every TER_FULL/TER_TRP/TER_OBJ/TER_MON arm: hero_memory/cansee visibility, full temporary seenv restore, displayed vs remembered glyph, swallowed hero species with display RNG, monster/warning/swallow stripping, covered-water/lava trap substitution, gas-region/trap/unexplored precedence, remembered topology and furniture mimics, copied-cell wall state recalculation/restore, and darkroom/litcorr normalization. Source condition and call order retained. Impure: C temporarily writes level cells and swallowed/hallucinated monster presentation may draw display RNG. Every consumed callee already has a canonical implementation: back_to_glyph, visible_region_at, glyph_at, mon_to_glyph, trap_to_glyph, m_at, xy_set_wall_state and glyph predicate macros; inspected these owners and used their source-shaped state/return representation rather than inventing values. No new dependency owner or incomplete consumed result. Removed subset refusal.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "reveal_terrain",
+                "source": "detect.c2381, all active cmd.c:doterrain choices1-4 through rhack/doextcmd."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "dump_map",
+                "source": "detect.c2323 inactive DUMPLOG loop; end.c584 is excluded by the minimal recorder config. No active caller wiring is invented."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/terrain-projection.test.mjs",
+              "scripts/terrain-command.test.mjs",
+              "scripts/detect.test.mjs",
+              "scripts/cmd-span.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/getpos-show-valid.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/terrain-objects-emerald.session.json",
+              "recordings/detect.c/terrain-objects-ruby.session.json",
+              "recordings/detect.c/terrain-known-traps.session.json",
+              "recordings/detect.c/terrain-full-map.session.json",
+              "recordings/detect.c/terrain-known-map.session.json",
+              "recordings/detect.c/terrain-full-map-stunned.session.json"
+            ],
+            "sourceFile": "detect.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-terrain-projection-objects",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 38,
+                "source": "cmd.c:doterrain1176 -> detect.c:reveal_terrain2356-2413 -> reveal_terrain_getglyph2167-2288; #terrain choice3 shows traps and objects, then browse_map/getpos returns and map_redisplay restores the live map. The complete39-screen recording is exact, including the prefix and final wait."
+              }
+            ],
+            "checkedAt": "c47103d03b4b03a9eb63321cca93fc5a402aa7fc"
+          },
+          {
+            "name": "dump_map",
+            "implementation": "js/detect.js",
+            "symbol": "dump_map",
+            "sourceReview": "Read complete detect.c2294-2349 in definition order between the selected helpers. Preserve mask TER_MAP|TER_TRP|TER_OBJ|TER_MON, arboreal default snapshot, y-outer/x-inner traversal, reveal_terrain_getglyph then map_glyphinfo, ttychar row buffer, last nonblank trimming, leading blank suppression, internal blank-row loop and single trailing blank. C putstr return is discarded at each output site; inactive windows.c:putstr is recorded with note_unported and no replacement output. Canonical map_glyphinfo.ch corresponds to glyphinfo.ttychar. No source end.c or shutdown completion credit.",
+            "callers": [],
+            "pure": false,
+            "tests": [
+              "scripts/terrain-projection.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "detect.c",
+            "inactiveReason": "detect.c2292 #ifdef DUMPLOG and end.c546-584 dump_everything caller are compile-time inactive. upstream/include/config.h669 comments out #define DUMPLOG; sys/unix/hints/linux-minimal does not enable it, and the patched recorder include/config.h also leaves it disabled. The independent private recorder uses this minimal build. DUMPLOG_CORE support for message history does not activate DUMPLOG. The source-pinned focused test verifies exclusion and complete traversal/blank-row markers. No active end.c caller or recording is required.",
+            "checkedAt": "c47103d03b4b03a9eb63321cca93fc5a402aa7fc"
+          },
+          {
+            "name": "reveal_terrain",
+            "implementation": "js/detect.js",
+            "symbol": "reveal_terrain",
+            "sourceReview": "Read whole detect.c2356-2413, unconstrain_map69-81, browse_map94-106, map_redisplay87-92, and cmd.c:doterrain1098-1189. Match full impairment override and exact youprop.h intrinsic-only Stunned/Confusion/Hallucination plus intrinsic/extrinsic hallucination resistance. Snapshot swallowed/default_sym before unconstrain; await docrt only when constrained, compute default glyph afterward; project x-outer/y-inner, flush cursor, construct every source descriptor combination, pline before browse_map with TER_MAP OR, then map_redisplay. Restore pending More/getpos and transient display contracts through canonical owners; no injected substitute and no removed-boundary swallow. Whole selected units only; cmd.c choices1-4 are bounded caller reconciliation, no whole doterrain credit. Existing map_redisplay retains display.c:under_ground as a discarded-result limitation; ordinary under_water and docrt owners stay canonical.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doterrain",
+                "source": "cmd.c1170/1173/1176/1179 choices1-4 supply TER_MAP, MAP|TRP, MAP|TRP|OBJ, MAP|FULL in source order. Existing rhack terrain arm and extended #terrain dispatch reach awaited runTerrainCommand -> doterrain. ECMD_OK spends no turn."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/terrain-projection.test.mjs",
+              "scripts/terrain-command.test.mjs",
+              "scripts/detect.test.mjs",
+              "scripts/cmd-span.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/getpos-show-valid.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/terrain-objects-emerald.session.json",
+              "recordings/detect.c/terrain-objects-ruby.session.json",
+              "recordings/detect.c/terrain-known-traps.session.json",
+              "recordings/detect.c/terrain-full-map.session.json",
+              "recordings/detect.c/terrain-known-map.session.json",
+              "recordings/detect.c/terrain-disoriented.session.json",
+              "recordings/detect.c/terrain-full-map-stunned.session.json"
+            ],
+            "sourceFile": "detect.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-terrain-projection-objects",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 38,
+                "source": "cmd.c:doterrain1176 -> detect.c:reveal_terrain2356-2413 -> reveal_terrain_getglyph2167-2288; #terrain choice3 shows traps and objects, then browse_map/getpos returns and map_redisplay restores the live map. The complete39-screen recording is exact, including the prefix and final wait."
+              }
+            ],
+            "checkedAt": "c47103d03b4b03a9eb63321cca93fc5a402aa7fc"
+          }
+        ],
+        "entryPointReview": "The sole active command family is cmd.c:doterrain choices1-4, reached by DEL and extended #terrain. Independent C-first recipes cover known map, known traps with a revealed pit, known objects with two gem colors, full map, Stunned rejection and full-map Stunned override. Admitted extended #terrain choice3 independently supplies source-traced step32-38 evidence. DUMPLOG is excluded in both helper and end.c caller; its impure output sites are explicitly discarded gaps and its source behavior is pinned in tests. This selected range adds no monster/action/startup entry. TER_MON/swallowed monster selection only has the inactive dump caller in this build; its complete helper branch is translated with the canonical mon_to_glyph display RNG. No source completion credit for unrelated wizard choices5/6, docrt, browse_map, unconstrain_map, map_redisplay or doterrain.",
+        "entryPoints": [
+          {
+            "name": "terrain command choices1-4",
+            "functions": [
+              "reveal_terrain_getglyph",
+              "reveal_terrain"
+            ],
+            "recordings": [
+              "recordings/detect.c/terrain-objects-emerald.session.json",
+              "recordings/detect.c/terrain-objects-ruby.session.json",
+              "recordings/detect.c/terrain-known-traps.session.json",
+              "recordings/detect.c/terrain-full-map.session.json",
+              "recordings/detect.c/terrain-known-map.session.json",
+              "recordings/detect.c/terrain-disoriented.session.json",
+              "recordings/detect.c/terrain-full-map-stunned.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-terrain-projection-objects",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 38,
+                "source": "cmd.c:doterrain1176 -> detect.c:reveal_terrain2356-2413 -> reveal_terrain_getglyph2167-2288; #terrain choice3 shows traps and objects, then browse_map/getpos returns and map_redisplay restores the live map. The complete39-screen recording is exact, including the prefix and final wait."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-apply-use-mirror-medusa-v28-20261008",
