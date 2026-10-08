@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked source limit: win/tty/getline.c Ctrl-P -> wintty.c:tty_doprev_message history owner is unported. Getlin inread cleanup is verified by a focused abort test; this recipe does not establish history completion.",
+  "segments": [
+    {
+      "seed": 17471067,
+      "datetime": "20640519102133",
+      "nethackrc": "OPTIONS=name:PromptCancel,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizintrinsic\n:\u0010"
+    }
+  ]
+}
