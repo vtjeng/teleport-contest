@@ -24,11 +24,11 @@ import {
     DUST,
     EXT_ENCUMBER,
     FAST,
+    FAINTED,
     FLYING,
     FROMOUTSIDE,
     G_GENOD,
     HOLE,
-    HUNGER,
     HVY_ENCUMBER,
     HUNGRY,
     HALLUC,
@@ -1689,46 +1689,45 @@ test('polymorph timeout isolates live callbacks and preserves the capacity snaps
     }
 });
 
-test('fainting boundaries stop before any elapsed-turn mutation',
-    async () => {
-    const cases = [
-        { nutrition: 1, hungerProperty: false },
-        { nutrition: 2, hungerProperty: true },
-    ];
-    for (const hungerCase of cases) {
-        const replay = await runSegment({
-            seed: 2026072301,
-            datetime: '20260723120000',
-            nethackrc: 'OPTIONS=name:HungerBoundary,role:Healer,'
-                + 'race:human,gender:female,align:neutral,!legacy,'
-                + '!tutorial,!splash_screen,pettype:none,!acoustics',
-            moves: '',
-        });
-        for (const column of game.level.monsters) column.fill(null);
-        game.level.monlist = null;
-        game.u.uhunger = hungerCase.nutrition;
-        game.u.uhs = WEAK;
-        game.u.uprops[HUNGER] = {
-            intrinsic: hungerCase.hungerProperty ? FROMOUTSIDE : 0,
-            extrinsic: 0,
-        };
-        game.context.move = 1;
-        const before = completeSecondTurnSnapshot(game, replay);
+test('hunger planning hands off before faint effects without changing live state or RNG', async () => {
+    const { preflightSimpleMonsterActions } = await import('../js/unported_monster_actions.js');
+    const replay = await runSegment({
+        seed: 15840111, datetime: '20520418110000',
+        nethackrc: 'OPTIONS=name:PlannedFaint,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.u.uhunger = 1; // Worst reachable ordinary loss crosses zero.
+    game.u.uhs = WEAK;
+    game.u.umovement = NORMAL_SPEED;
+    game.context.seer_turn = 100000; // Unrelated periodic map work stays outside this turn.
+    const before = completeSecondTurnSnapshot(game, replay);
+    const plan = await preflightSimpleMonsterActions(game, {
+        advanceRound: (subject, random) => finishElapsedTurn(subject, random, { planning: true }),
+    });
+    assert.equal(plan.beforeHunger, true);
+    assert.equal(plan.beforeUnmul, false, 'no faint duration was installed on the clone');
+    assert.deepEqual(completeSecondTurnSnapshot(game, replay), before);
+});
 
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                moveloop_core(),
-                (error) => error instanceof UnsupportedTurnBoundaryError
-                    && error.reason
-                        === 'unported hunger-status transition',
-                `nutrition ${hungerCase.nutrition}, attempt ${attempt + 1}`,
-            );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, replay),
-                before,
-            );
-        }
-    }
+test('elapsed hunger reaches source fainting and the live wakeup tail', async () => {
+    await runSegment({
+        seed: 2026072301, datetime: '20260723120000',
+        nethackrc: 'OPTIONS=name:HungerBoundary,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.u.uhunger = 1; // One ordinary nutrition tick reaches FAINTING.
+    game.u.uhs = WEAK;
+    game.context.move = 1;
+    game.context.seer_turn = 100000; // Keep unrelated clairvoyance cadence outside this turn.
+    game.nhDisplay.pushKey(' '.charCodeAt(0)); // Acknowledge the source fainting message.
+    await moveloop_core();
+    assert.equal(game.u.uhs, FAINTED);
+    assert.equal(game.multi, -8, 'this starter needs two upkeep allocations, spending two faint turns');
+    assert.equal(game.afternmv.name, 'unfaint');
 });
 
 test('retained hero movement skips upkeep that C does not reach', async () => {

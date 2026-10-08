@@ -59,7 +59,6 @@ import {
     W_TOOL,
 } from '../js/const.js';
 import {
-    UnsupportedHungerTransitionError,
     adj_victual_nutrition,
     consume_oeaten,
     doeat,
@@ -71,7 +70,7 @@ import {
     obj_nutrition,
     zero_victual,
 } from '../js/eat.js';
-import { inv_cnt, rounddiv } from '../js/hack.js';
+import { HeroDeathPlanningError, inv_cnt, rounddiv } from '../js/hack.js';
 import { useup } from '../js/invent.js';
 import {
     APPLE,
@@ -408,20 +407,13 @@ test('newuhs announces the hunger status it settles on', async () => {
         assert.deepEqual(messages, [expected], `${uhunger} from ${uhs}`);
     }
 
-    // Nutrition at or below zero is the fainting and starvation arm.
-    const faint = state();
-    faint.u.uhunger = 0;
-    await assert.rejects(
-        () => newuhs(false, faint, newuhsEnv()),
-        UnsupportedHungerTransitionError,
-    );
-    // A hero already dead of exhaustion stops rather than calling done().
+    // Starvation/exhaustion planning identifies the live done() handoff.
     const dying = state();
     dying.u.uhunger = 1200;
     dying.u.uhp = 0;
     await assert.rejects(
-        () => newuhs(false, dying, newuhsEnv()),
-        UnsupportedHungerTransitionError,
+        () => newuhs(false, dying, { ...newuhsEnv(), planning: true }),
+        HeroDeathPlanningError,
     );
     assert.equal(dying.u.uhs, SATIATED);
     // One hit point is alive: C tests `< 1`.
