@@ -197002,7 +197002,7 @@
     {
       "id": "port-wizcmds-wiz-smell-v28-20261007",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the wizard smell selection command and its dispatchers",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -197010,8 +197010,12 @@
       ],
       "selectionReason": "The admitted v28 wizard-smell case retains ten screens after A141; source tracing identifies the missing whole wizcmds.c wiz_smell command and its dispatch path.",
       "detail": "Port whole wiz_smell with selection, olfaction, steed, monster, invisible-marker, and return-code behavior, then reconcile bounded doextcmd and rhack production dispatch without claiming those callers complete.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "dc82cfe1cf21f603f3b4204ec16dd3cd8a9d41f0",
+      "openStanding": {
+        "sha": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -197040,7 +197044,136 @@
           "evaluationPath": "challenges/evaluations/accepted-63ae9f774b239bc0b3676ee4f8f0274d7f98f485-v28.json",
           "evaluationCommit": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-wiz-smell-self",
+          "session": "synthetic/v28/v28-wiz-smell-self",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-wiz-smell-self.session.json",
+          "recordingPath": "challenges/cases/v28/v28-wiz-smell-self.session.json",
+          "recordingSha256": "e170d701d41f1a8c15b7323cf97c5d2c37a0aa98f9408483d76e83d6c79d0bda",
+          "recipe": "challenges/cases/v28/v28-wiz-smell-self.recipe.session.json",
+          "recipeSha256": "842468d5642083a338d69edc6c02591a3e33805c6d063d80c277bb0b9dfe0273",
+          "replayInputSha256": "8e23ebc037ab3ead275e4ef09265377f1fcb07dccb786d14e0b5addf5ab50592",
+          "evaluationPath": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+          "evaluationCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+          "evaluationArtifact": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+          "evaluationUtc": "2026-10-08T02:16:22.579Z",
+          "remainingScreens": 10,
+          "recordedSteps": 21,
+          "previousScreensMatched": 11,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 11,
+              "total": 21
+            },
+            "rng": {
+              "matched": 2705,
+              "total": 2719
+            },
+            "cursors": {
+              "matched": 11,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_smell() for the extended command 'wizsmell' is not ported",
+            "step": 11
+          },
+          "step": 11,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_smell",
+          "message": "unsupported hero command: wiz_smell() for the extended command 'wizsmell' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-wiz-smell-self.json",
+            "result": {
+              "session": "synthetic/v28/v28-wiz-smell-self",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-wiz-smell-self",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-wiz-smell-self.session.json",
+              "recordingSha256": "e170d701d41f1a8c15b7323cf97c5d2c37a0aa98f9408483d76e83d6c79d0bda",
+              "evaluationPath": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+              "evaluationCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+              "recordedSteps": 21,
+              "remainingScreens": 10,
+              "step": 11,
+              "kind": "stop",
+              "sourceFile": "wizcmds.c",
+              "function": "wiz_smell",
+              "message": "wiz_smell() for the extended command 'wizsmell' is not ported",
+              "status": "complete",
+              "commit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+              "mismatch": {
+                "session": "synthetic/v28/v28-wiz-smell-self",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-wiz-smell-self",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recordingPath": "challenges/cases/v28/v28-wiz-smell-self.session.json",
+                "recordingSha256": "e170d701d41f1a8c15b7323cf97c5d2c37a0aa98f9408483d76e83d6c79d0bda",
+                "evaluationPath": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+                "evaluationCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+                "recordedSteps": 21,
+                "remainingScreens": 10,
+                "step": 11,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_smell",
+                "message": "wiz_smell() for the extended command 'wizsmell' is not ported"
+              },
+              "goalKind": "file-port",
+              "summary": "The wizard smell command has no implementation or command dispatcher arm. C enters wiz_smell before its first explanatory message, then loops through getpos, self/steed/monster smell selection, and invisible-marker repair. Existing canonical usmellmon and map helpers provide its required return paths.",
+              "source": {
+                "file": "wizcmds.c",
+                "functions": [
+                  "wiz_smell"
+                ],
+                "branch": "Wizard/debug #wizsmell command is selected and accepted by C cmd.c extcmdlist1994–1995. Human hero has olfaction; C prints its introductory message and enters repeated forced getpos selection. JS doextcmd lacks wiz_smell and throws before C step11 output.",
+                "callers": [
+                  "cmd.c:extcmdlist1994–1995 -> doextcmd -> wiz_smell; IFBURIED|AUTOCOMPLETE|WIZMODECMD, no movement/menu prefix flags",
+                  "cmd.c:rhack direct configured binding -> same wiz_smell row and ECMD result handling; repeat/queued extended commands share source dispatcher"
+                ],
+                "dependencies": [
+                  "Consumed olfaction(mondata.c; js/mondata.js), getpos(getpos.c; js/getpos.js), u_at/m_at, glyph_at/display glyph tests, body_part(polyself.c; js/polyself.js), and usmellmon(mon.c; js/mon.js) exist and were inspected; no placeholder return needed.",
+                  "Read whole mon.c:usmellmon5796–5914 and JS6962–7074: canonical specific/class odor and olfaction branches match; await its boolean before fallback message. Its historical completion remains reusable, without new whole mon.c credit.",
+                  "Discarded map_invisible/unmap_invisible are existing canonical live map operations. Preserve glyph capture before odor messages and map/unmap order; command runs on live state and must preserve getpos cc between iterations."
+                ]
+              },
+              "evidence": [
+                ".cache/A142/smell-replay.json/log at immutable worker541cea0 reproduces first stop segment0 step11 key newline: UnsupportedHeroCommandBoundaryError at js/cmd.js5294 default doextcmd; no JS screen or cursor for that step. 21 C boundaries versus11 JS; saved accepted0f20 evaluation records exact10 remaining screens. Source branch precedes any later monster movement RNG.",
+                "Read complete wizcmds.c:wiz_smell885–939 (planner whole source unit885–948). At899 prints You can move the cursor..., at901 Pick a monster..., at902 forced getpos. ans<0 or cc.x<0 returns ECMD_CANCEL; failed olfaction returns ECMD_OK without elapsed time. The infinite loop deliberately retains cc for each getpos call.",
+                "Admitted C step11 intro message;12 Pick message;13 getpos tip;14 getpos help/cursor;15 self-sniff arm message;16 no-odor fallback and next Pick message;17/18 second target selection;19 escape;20 ordinary wait resumes elapsed turns. The human Valkyrie has no recognized class/species odor, so usmellmon returns FALSE and C says You seem to not give off any smell.",
+                "Whole function scope includes incapable form; hero with/without steed; adjacent monster or no monster; recognized/unrecognized smell; glyph_is_monster -> map_invisible and glyph_is_invisible -> unmap_invisible. Do not implement only the selected self branch. JS current wizcmds.js has no wiz_smell; cmd.js doextcmd default refuses its generated C command row.",
+                "Proposed source: wizcmds.c:wiz_smell885–948 plus bounded cmd.c:doextcmd/rhack caller reconciliation and contract:wizard-smell-selection. Exact paths js/wizcmds.js, js/cmd.js, scripts/wizcmds.test.mjs, scripts/cmd-span.test.mjs, scripts/run-wizard-smell.mjs, recipes/wizcmds.c/, recordings/wizcmds.c/, cache. Audit direct custom key binding in ADMITTED_COMMANDS as well as typed # and queued/repeat row dispatch.",
+                "Independent C-first coverage plan: Barbarian self/body odor (recognized), non-olfaction polymorph guard (no targeting/time), and empty-square selection/cancel. Use independently selected role/seed/clock; selected admitted case covers unrecognized self odor and repeated getpos. Source-pinned/state tests cover steed priority, invisible-marker repair, and ECMD result gates; add runtime or named blocked routes for reachable impure entry paths lacking evidence. No C games recorded, source changed, corpus scanned, or aggregate checks run in this investigation.",
+                "A141 and B141/B142 reservations do not overlap this command function or state contract. A141 remains immutable; a claim awaits canonical investigation/goal queueing and current accepted-main task boundary."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "fix-engrave-owned-zapnodir-dispatch-v28-20261008",
