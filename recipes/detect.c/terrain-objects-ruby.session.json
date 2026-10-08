@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap ruby object-class variation of the independent known-objects projection. Independent unsearched seed.",
+  "segments": [
+    {
+      "seed": 1482902,
+      "datetime": "20520809111213",
+      "nethackrc": "OPTIONS=name:TerrainWitness,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   \u0017uncursed ruby\ndec    \u001b."
+    }
+  ]
+}

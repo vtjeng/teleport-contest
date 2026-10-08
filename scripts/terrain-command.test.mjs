@@ -42,15 +42,18 @@ test('DEL browses TER_MAP and restores the live map without time', async () => {
     assert.ok(game.level.at(game.u.ux, game.u.uy).disp_glyph);
 });
 
-test('a non-default terrain choice remains fail-closed', async () => {
+test('known traps terrain choice browses and restores without time', async () => {
     let boundary = null;
     await runSegment({
         seed: 1789,
         datetime: '20001018090000',
         nethackrc: 'OPTIONS=name:TerrainChoice,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\n',
-        moves: '   \x7fb',
+        moves: '   \x7fb    ',
     }, {
         onBoundary: (error) => { boundary = error; },
     });
-    assert.match(boundary?.reason ?? '', /terrain menu choice 2/u);
+    assert.equal(boundary, null);
+    assert.equal(game.iflags.terrainmode, 0);
+    assert.equal(game.context.move, 0);
+    assert.equal(game.nhDisplay.topMessage, 'Done.');
 });

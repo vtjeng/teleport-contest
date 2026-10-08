@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap mask variation of the independent seed1482904 full-map witness: choice a uses only TER_MAP and shows the known terrain. Retain seed/setup so the projection mask is the only difference.",
+  "segments": [
+    {
+      "seed": 1482904,
+      "datetime": "20520809111213",
+      "nethackrc": "OPTIONS=name:TerrainWitness,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   a    \u001b."
+    }
+  ]
+}

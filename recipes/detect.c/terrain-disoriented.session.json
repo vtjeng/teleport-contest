@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Stunned intrinsic selected by source menu f blocks known projection with the C disorientation message. Inputs chosen before JS comparison.",
+  "segments": [
+    {
+      "seed": 1482905,
+      "datetime": "20520809111213",
+      "nethackrc": "OPTIONS=name:TerrainWitness,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   #wizintrinsic\nf\n c   "
+    }
+  ]
+}
