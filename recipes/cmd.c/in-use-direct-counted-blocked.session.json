@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Outside-limit caller probe: a numeric count before the direct tools-in-use command reaches the existing cmd.c:parse nonmovement-count boundary before rhack dispatch. This task corrects only uncounted direct seetools/seeall callers; preserve the count frontier without whole parse/rhack credit.",
+  "segments": [{
+    "seed": 17032033,
+    "datetime": "20490719140217",
+    "nethackrc": "OPTIONS=name:InUseCount,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+    "moves": "  2(  ."
+  }]
+}
