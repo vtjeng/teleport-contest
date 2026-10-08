@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside-limit source witness: wizcmds.c:makemap_remove_mons -> dog.c:keepdogs(TRUE) retains a nearby pet while replacing the map; current makemap_prepost records the discarded teardown helper gap. No pet-transfer completion credit.",
+  "segments": [
+    {
+      "seed": 1464604,
+      "datetime": "20520707101500",
+      "nethackrc": "OPTIONS=name:Remap1464604,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:dog,!acoustics,!autopickup\n",
+      "moves": "   .#wizmakemap\n   ."
+    }
+  ]
+}

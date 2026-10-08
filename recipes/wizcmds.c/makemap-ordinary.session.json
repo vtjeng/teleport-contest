@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizcmds.c:wiz_makemap command witness; inputs fixed before C recording or JavaScript comparison. Wizard command replaces a map while retaining carried inventory.",
+  "segments": [
+    {
+      "seed": 1464601,
+      "datetime": "20520707101500",
+      "nethackrc": "OPTIONS=name:Remap1464601,role:Wizard,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   .#wizmakemap\n   ."
+    }
+  ]
+}

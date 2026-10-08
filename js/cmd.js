@@ -374,7 +374,7 @@ import {
 } from './polyself.js';
 import {
     wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_smell,
-    wiz_level_tele, wiz_map, wiz_polyself, wiz_wish, wiz_where,
+    wiz_level_tele, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where,
 } from './wizcmds.js';
 import {
     dozap,
@@ -5253,6 +5253,8 @@ async function doextcmd(key, state) {
         return await runGenesisCommand(key, state);
     case 'wiz_map':
         return await runMapCommand(key, state);
+    case 'wiz_makemap':
+        return await wiz_makemap(state);
     case 'wiz_detect':
         return await runDetectCommand(key, state);
     case 'wiz_where':
@@ -5609,6 +5611,16 @@ export async function rhack(key, state = game) {
             const res = await failClosedCommand(
                 key, state, () => doorganize(state),
             );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        // C end.c fuzzer_savelife() queues this function after repeated
+        // debug deaths; rhack invokes the queued row without another prompt.
+        if (queuedExtcmdEntry?.ef_funct === 'wiz_makemap') {
+            const res = await wiz_makemap(state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
