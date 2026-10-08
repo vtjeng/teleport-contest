@@ -33,6 +33,7 @@ import {
     GLIB,
     HALLUC,
     INFRAVISION,
+    OBJ_INVENT,
     INVIS,
     INTRINSIC,
     JUMPING,
@@ -2000,23 +2001,15 @@ test('the branches accessory_or_armor_on cannot run name themselves',
         ),
         refusal(UnsupportedWearError, 'remove_worn_item()'),
     );
-    // dragon_armor_handling() has arms for eight of the ten colours; grey
-    // and silver take `default: break;` (do_wear.c:807-808, 881-882) and are
-    // admitted through the narrowed guard. Gold dragon scale mail represents
-    // the eight colours whose arms are not yet ported; it is refused above
-    // setworn() so the suit never reaches a slot.
-    await assert.rejects(
-        () => accessory_or_armor_on(
-            armor(GOLD_DRAGON_SCALE_MAIL, { dknown: 1 }), game,
-        ),
-        refusal(UnsupportedWearError,
-            `Armor_on() for otyp ${GOLD_DRAGON_SCALE_MAIL}`),
-    );
-    assert.equal(game.uarm ?? null, null,
-        'gold DSM refusal left the slot empty');
-    assert.equal(game.multi ?? 0, 0, 'gold DSM refusal left multi at 0');
-    assert.equal(game.uarms ?? null, null,
-        'every refusal left the slot empty');
+    // Gold now follows C's W_ARM callback selection rather than a refusal.
+    // Light starts only after objects[].oc_delay helpless turns complete.
+    const gold=armor(GOLD_DRAGON_SCALE_MAIL,{dknown:1});
+    assert.equal(await accessory_or_armor_on(gold,game),ECMD_TIME);
+    assert.equal(game.uarm,gold);
+    assert.equal(game.multi,-game.objects[GOLD_DRAGON_SCALE_MAIL].oc_delay);
+    assert.equal(game.afternmv,Armor_on);
+    assert.equal(Boolean(gold.lamplit),false,'dressing has not run its callback yet');
+    assert.equal(game.uarms ?? null,null,'the shield refusal left its slot empty');
 });
 
 test('Armor_on answers for an empty suit slot', async () => {
@@ -2288,31 +2281,26 @@ test('planning armor callbacks use injected message and redraw operations',
     assert.equal(takePendingTopLine(), '');
 });
 
-test('dragon_armor_handling GOLD arm reaches the artifact-light boundary',
+test('dragon_armor_handling GOLD restoring arm suppresses hallucination speech before light',
     async () => {
-    // do_wear.c:846-851. The GOLD arm now completes its hallucination
-    // handling; the later artifact-light operation remains the explicit
-    // boundary in Armor_on().
+    // do_wear.c:846-851 suppresses hallucination speech while restoring.
+    // Armor_on:898-903 still lights the suit and prints its sighted feedback.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
 
     const suit = armor(GOLD_DRAGON_SCALE_MAIL, {
-        dknown: 1, known: false, owornmask: W_ARM,
+        dknown: 1, known: false, owornmask: W_ARM, where: OBJ_INVENT,
     });
     game.uarm = suit;
-    // The source passes `talk = !program_state.restoring`; an active
-    // hallucination makes the distinction observable even though Armor_on()
-    // then reaches its separate artifact-light boundary.
+    // The source passes talk=!restoring for hallucination, then checks Blind
+    // separately for the light message.
     game.u.uprops[HALLUC].intrinsic = TIMEOUT;
     game.program_state.restoring = 1;
-    await assert.rejects(() => Armor_on(game), (err) => {
-        assert.equal(err.name, 'UnsupportedWearError');
-        assert.match(err.message,
-            /Armor_on\(\) artifact_light/);
-        return true;
-    });
-    assert.equal(takePendingTopLine(), '',
-        'restoring suppresses gold armor hallucination speech');
+    const messages=[];
+    assert.equal(await Armor_on(game,{message:async text=>messages.push(text)}),0);
+    assert.equal(suit.lamplit,true);
+    assert.deepEqual(messages,['Your gold dragon scale mail begins to shine brilliantly!']);
+    assert.equal(takePendingTopLine(),'','no hallucination speech reaches the TTY');
     game.uarm = null;
 });
 
