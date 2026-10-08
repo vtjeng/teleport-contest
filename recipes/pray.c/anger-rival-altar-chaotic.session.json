@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first rival altar offering: levelchange raises hero level, fresh newt offerings exercise pray.c offer_different_alignment_altar and minion.c summon_minion(talk TRUE). C prompts determined inventory selections before JS comparison. Cheap variation: chaotic altar selects a demon instead of a lawful minion.",
+  "segments": [
+    {
+      "seed": 15029016,
+      "datetime": "20671021154900",
+      "nethackrc": "OPTIONS=name:Rival,role:Healer,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " #levelchange\n30\n                                   h\u0017chaotic altar\n\u0017newt corpse\n#offer\nk      \u0017chaotic altar\n\u0017newt corpse\n#offer\nl      \u0017chaotic altar\n\u0017newt corpse\n#offer\nm      \u0017chaotic altar\n\u0017newt corpse\n#offer\nn      \u0017chaotic altar\n\u0017newt corpse\n#offer\no      \u0017chaotic altar\n\u0017newt corpse\n#offer\np      \u0017chaotic altar\n\u0017newt corpse\n#offer\nq      \u0017chaotic altar\n\u0017newt corpse\n#offer\nr      \u0017chaotic altar\n\u0017newt corpse\n#offer\ns      \u0017chaotic altar\n\u0017newt corpse\n#offer\nt      \u0017chaotic altar\n\u0017newt corpse\n#offer\nu      \u0017chaotic altar\n\u0017newt corpse\n#offer\nv      \u0017chaotic altar\n\u0017newt corpse\n#offer\nw      \u0017chaotic altar\n\u0017newt corpse\n#offer\nx      \u0017chaotic altar\n\u0017newt corpse\n#offer\ny      \u0017chaotic altar\n\u0017newt corpse\n#offer\nz        \u0017chaotic altar\n\u0017newt corpse\n#offer\nA    : "
+    }
+  ]
+}

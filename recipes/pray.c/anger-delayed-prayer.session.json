@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pray.c anger source route. New seed/clock, starting role and source-valid debug wishes; C setup is inspected before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 15029013,
+      "datetime": "20671021154900",
+      "nethackrc": "OPTIONS=name:Wrathprayer,role:Ranger,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none\n",
+      "moves": " #pray\ny     #pray\ny         :"
+    }
+  ]
+}
