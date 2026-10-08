@@ -12,8 +12,9 @@
 // order. Shop billing and town-watch callback calls retain named discarded
 // gaps. Floor-object kicks share whole kick_object(), really_kick_object(),
 // and ghitm() with gold throwing.
-// Object shipping below ports drop_to(), ship_object(), otransit_msg(), and
-// down_gate(), shared by hero drops, throws, and monster missile settlement.
+// Object shipping below ports drop_to(), impact_drop(), ship_object(),
+// otransit_msg(), and down_gate(), shared by hero drops, throws, and monster
+// missile settlement.
 
 import { acurrstr, exercise, acurr, adjalign } from './attrib.js';
 import { isok } from './cmd_isok.js';
@@ -80,7 +81,9 @@ import {
     MIGR_STAIRS_UP,
     MIGR_LADDER_UP,
     MIGR_SSTAIRS,
+    MIGR_WITH_HERO,
     P_MARTIAL_ARTS,
+    PL_NSIZ,
     P_NONE,
     RIGHT_SIDE,
     ROOM,
@@ -127,7 +130,7 @@ import {
 } from './monmove.js';
 import {
     killed, m_in_air, maybe_mnexto, maybe_unhide_at, seemimic, setmangry,
-    wake_nearby, wake_nearto, wakeup,
+    angry_guards, wake_nearby, wake_nearto, wakeup,
 } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
@@ -166,7 +169,7 @@ import {
     costly_spot, inside_shop, is_unpaid, picked_container, shop_keeper,
     stolen_value,
 } from './shk.js';
-import { shkname } from './shknam.js';
+import { shkname, Shknam } from './shknam.js';
 import { stairway_at } from './stairs.js';
 import { remove_worn_item } from './steal.js';
 import {
@@ -1551,6 +1554,106 @@ export async function container_impact_dmg(obj, x, y, rawEnv = {}) {
     }
 }
 
+// C ref: dokick.c impact_drop() (1511-1622). The missile itself remains at
+// its caller's disposal; other floor objects move to the migration chain.
+export async function impact_drop(missile, x, y, dlev, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (!state.level.objects[x]?.[y]) return;
+    const env = objectGenerationEnv({ ...rawEnv, state, hooks: {
+        recalcBlockPoint: (bx, by, objectEnv) =>
+            recalc_block_point(bx, by, objectEnv.state),
+        ...rawEnv.hooks,
+    } });
+    const random = { rn2, ...(rawEnv.random ?? {}) };
+    const message = rawEnv.message ?? ttyPline;
+    let toloc = down_gate(x, y, state);
+    const cc = {};
+    drop_to(cc, toloc, x, y, state);
+    if (!cc.y) return;
+    if (dlev) {
+        toloc = MIGR_WITH_HERO;
+        cc.y = dlev;
+    }
+
+    const costly = costly_spot(x, y, state);
+    let price = 0, debit = 0, robbed = 0;
+    let angry = false, keeper = null;
+    if (costly) {
+        keeper = shop_keeper(in_rooms(x, y, SHOPBASE, state)[0] ?? 0, state);
+        if (keeper) {
+            debit = keeper.mextra.eshk.debit;
+            robbed = keeper.mextra.eshk.robbed;
+            angry = !keeper.mpeaceful;
+        }
+    }
+
+    const isrock = missile && missile.otyp === ROCK;
+    let oct = 0, dct = 0;
+    for (let obj = state.level.objects[x][y]; obj;) {
+        const next = obj.nexthere;
+        if (obj !== missile) {
+            oct += obj.quan;
+            if (obj !== state.uball && obj !== state.uchain
+                && !(isrock && obj.otyp === BOULDER)
+                && !random.rn2(obj.otyp === BOULDER ? 30 : 3)) {
+                obj_extract_self(obj, env);
+                if (costly) {
+                    price += await stolen_value(obj, x, y,
+                        costly_spot(state.u.ux, state.u.uy, state)
+                            && state.u.urooms.includes(
+                                in_rooms(x, y, SHOPBASE, state)[0] ?? 0,
+                            ), true, state);
+                    if (Has_contents(obj)) picked_container(obj);
+                    if (obj.oclass !== COIN_CLASS) obj.no_charge = 0;
+                }
+                add_to_migration(obj, state);
+                obj.ox = cc.x;
+                obj.oy = cc.y;
+                obj.owornmask = toloc;
+                dct += obj.quan;
+            }
+        }
+        obj = next;
+    }
+
+    if (dct && cansee(x, y, state)) {
+        const what = dct === 1 ? 'object falls' : 'objects fall';
+        if (missile) {
+            await message(`From the impact, ${dct === oct ? 'the ' : dct === 1 ? 'an' : ''}other ${what}.`, state, rawEnv);
+        } else if (oct === dct) {
+            await message(`${dct === 1 ? 'The' : 'All the'} adjacent ${what} ${state.gg.gate_str}.`, state, rawEnv);
+        } else {
+            await message(`${dct === 1 ? 'One of the' : 'Some of the'} adjacent ${dct === 1 ? 'objects falls' : what} ${state.gg.gate_str}.`, state, rawEnv);
+        }
+    }
+
+    if (costly && keeper && price) {
+        const shop = keeper.mextra.eshk;
+        if (shop.robbed > robbed) {
+            await message(`You removed ${price} ${currency(price, state)} worth of goods!`, state, rawEnv);
+            if (cansee(keeper.mx, keeper.my, state)) {
+                if (!shop.customer) shop.customer = state.plname.slice(0, PL_NSIZ);
+                if (angry) {
+                    await message(`${Shknam(keeper, state, rawEnv)} is infuriated!`, state, rawEnv);
+                } else {
+                    await message(`"${state.plname}, you are a thief!"`, state, rawEnv);
+                }
+            } else {
+                const heard = youHear('a scream, "Thief!"', state);
+                if (heard) await message(heard, state, rawEnv);
+            }
+            // C discards this void helper; its pursuit state remains unported.
+            note_unported('shk.c hot_pursuit');
+            await angry_guards(false, env);
+            return;
+        }
+        if (shop.debit > debit) {
+            const amount = shop.debit - debit;
+            await message(`You owe ${shkname(keeper, state, rawEnv)} ${amount} ${currency(amount, state)} for goods lost.`, state, rawEnv);
+        }
+    }
+}
+
 // C ref: dokick.c ship_object() (1639-1765). The caller holds a free object;
 // TRUE means this function consumed it or moved it to the migration chain.
 export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
@@ -1578,14 +1681,14 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
     const impact = n !== 0;
     const trap = t_at(x, y, state);
     if (obj.otyp === BOULDER && trap && is_hole(trap.ttyp)) {
-        if (impact) note_unported('dokick.c impact_drop');
+        if (impact) await impact_drop(obj, x, y, 0, env);
         return false;
     }
     if (cansee(x, y, state))
         await otransit_msg(obj, nodrop, chainthere, n, { ...env, state });
     if (nodrop) {
         if (impact) {
-            note_unported('dokick.c impact_drop');
+            await impact_drop(obj, x, y, 0, env);
             maybe_unhide_at(x, y, state, env);
         }
         return false;
@@ -1620,7 +1723,7 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
     obj.owornmask = toloc;
     if (obj.otyp === BOULDER) obj.otrapped = 0;
     if (impact) {
-        note_unported('dokick.c impact_drop');
+        await impact_drop(obj, x, y, 0, env);
         if (!env.planning) newsym(x, y);
     }
     return true;

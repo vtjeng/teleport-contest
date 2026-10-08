@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first off-hero hole entry: leave a ration south of startup, levitate, return north and one west then break four-charge digging wand adjacent to ration. C-first observation and strict frozen comparison retained in .cache/B145; production impact_drop is reached through the source caller, with no synthetic input copy.",
+  "segments": [
+    {
+      "seed": 1464501,
+      "datetime": "20520707101500",
+      "nethackrc": "OPTIONS=name:ImpactProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": "   .\u0017blessed potion of levitation\n\u0017uncursed wand of digging (0:4)\n jddqf    khagy          "
+    }
+  ]
+}

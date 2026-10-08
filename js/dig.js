@@ -128,6 +128,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
+import { impact_drop } from './dokick.js';
 import { objectGenerationEnv } from './object_generation.js';
 // js/hack.js imports dig_typ(); both crossings occur only inside function
 // bodies, so the source-owned in_town() remains safe across the cycle.
@@ -1325,7 +1326,7 @@ export async function furniture_handled(
 
 // C ref: dig.c digactualhole() (640-829). BY_YOU is youmonst and
 // BY_OBJECT is null: the broken wand is still the hero's responsibility.
-// Discarded shop, altar, buried-ball and floor-impact calls retain named gaps.
+// Discarded shop and altar calls retain named gaps.
 export async function digactualhole(
     x, y, madeby, trapType, state = game, rawEnv = {},
 ) {
@@ -1427,7 +1428,7 @@ export async function digactualhole(
             wontFall = true;
         }
         if (state.u.ustuck || wontFall) {
-            if (newObjects) note_unported('dokick.c impact_drop');
+            if (newObjects) await impact_drop(null, x, y, 0, env);
             if (oldObjects !== newObjects) {
                 const { pickup } = await import('./pickup.js');
                 await pickup(1, state);
@@ -1443,7 +1444,7 @@ export async function digactualhole(
         }
     } else {
         if (shopdoor && herosFault) note_unported('shk.c pay_for_damage');
-        if (newObjects) note_unported('dokick.c impact_drop');
+        if (newObjects) await impact_drop(null, x, y, 0, env);
         if (monster) {
             if (!grounded(monster.data, state)
                 || (monster.wormno && count_wsegs(monster, state) > 5)
