@@ -197519,14 +197519,18 @@
     {
       "id": "fix-engrave-owned-zapnodir-dispatch-v28-20261008",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Restore charged nondirectional wand effects before engraving text.",
       "cFile": "engrave.c",
       "sessions": [],
       "selectionReason": "Highest-priority independent admitted v28 mismatch (28 remaining screens, step36): the completed investigation traces an obsolete skipped call to the already owned zapnodir dispatcher; independent from A141, A142, and B143 reservations.",
       "detail": "engrave.c:579-599 calls zapnodir for all six NODIR wand types after charge, unpaid, and backfire handling. JS engrave.js skips it; restore the awaited canonical state and RNG call with no effect-owner changes or whole-file credit.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c8a2c700483a1080a35d88e7b351048d6b01cb0d",
+      "openStanding": {
+        "sha": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "doengrave_sfx_item_WAN",
@@ -197545,7 +197549,256 @@
           "evaluationPath": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
           "evaluationCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-engrave-create-monster",
+          "session": "synthetic/v28/v28-engrave-create-monster",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-engrave-create-monster.session.json",
+          "recordingPath": "challenges/cases/v28/v28-engrave-create-monster.session.json",
+          "recordingSha256": "3b019fd5d150b61ddae1d553028b2436c85986146b1d3475b4939dbca283b464",
+          "recipe": "challenges/cases/v28/v28-engrave-create-monster.recipe.session.json",
+          "recipeSha256": "818c575684269a5099d87cbffd5ef149b84fca1db4524b7a358691bc6b4ec4a5",
+          "replayInputSha256": "c5ee7256620ce38e535b6e0f5978c6c86e29531c21cc618cd567faa3b19a2cff",
+          "evaluationPath": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
+          "evaluationCommit": "5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec",
+          "evaluationArtifact": "challenges/evaluations/accepted-5a0b8ca06a3a9ee5bece790f36bd49b64e7e9dec-v28.json",
+          "evaluationUtc": "2026-10-08T02:42:22.412Z",
+          "remainingScreens": 28,
+          "recordedSteps": 64,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 64
+            },
+            "rng": {
+              "matched": 2350,
+              "total": 2427
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 64
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 36,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "e"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2350,
+              "cEntry": "rn2(23)=15",
+              "cCaller": "zapnodir(zap.c:2571)",
+              "jsEntry": "rn2(25)=9",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "e"
+              },
+              "stepIndex": 36
+            },
+            "cursor": {
+              "index": 36,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "e"
+              },
+              "cCursor": [
+                29,
+                0,
+                1
+              ],
+              "jsCursor": [
+                49,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 36,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "zapnodir",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 2571,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-engrave-create-monster.json",
+            "result": {
+              "session": "synthetic/v28/v28-engrave-create-monster",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-engrave-create-monster",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingSha256": "3b019fd5d150b61ddae1d553028b2436c85986146b1d3475b4939dbca283b464",
+              "evaluationPath": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+              "evaluationCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+              "remainingScreens": 28,
+              "recordedSteps": 64,
+              "status": "complete",
+              "commit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-engrave-create-monster",
+                "session": "synthetic/v28/v28-engrave-create-monster",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recording": "challenges/cases/v28/v28-engrave-create-monster.session.json",
+                "recordingPath": "challenges/cases/v28/v28-engrave-create-monster.session.json",
+                "recordingSha256": "3b019fd5d150b61ddae1d553028b2436c85986146b1d3475b4939dbca283b464",
+                "recipe": "challenges/cases/v28/v28-engrave-create-monster.recipe.session.json",
+                "recipeSha256": "818c575684269a5099d87cbffd5ef149b84fca1db4524b7a358691bc6b4ec4a5",
+                "evaluationPath": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+                "evaluationCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
+                "evaluationArtifact": "challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json",
+                "evaluationUtc": "2026-10-08T02:16:22.579Z",
+                "remainingScreens": 28,
+                "recordedSteps": 64,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 64
+                  },
+                  "rng": {
+                    "matched": 2350,
+                    "total": 2427
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 64
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 36,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "e"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2350,
+                    "cEntry": "rn2(23)=15",
+                    "cCaller": "zapnodir(zap.c:2571)",
+                    "jsEntry": "rn2(25)=9",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "e"
+                    },
+                    "stepIndex": 36
+                  },
+                  "cursor": {
+                    "index": 36,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "e"
+                    },
+                    "cCursor": [
+                      29,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      49,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 36,
+                "kind": "rng-screen-cursor",
+                "sourceFile": "zap.c",
+                "function": "zapnodir",
+                "message": "C rn2(23)=15 at zapnodir(zap.c:2571) and Create what kind of monster prompt; JS rn2(25)=9 and engraving prompt."
+              },
+              "summary": "Charged nondirectional wand engraving still skips the now-owned awaited zapnodir dispatch. At step 36 C rolls rn2(23)=15 and prompts for a monster; JavaScript instead prompts for engraving text. Restore the source call for all six NODIR wand types, retaining charge/backfire/effect/discovery/engraving order.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "doengrave_sfx_item has a WAND_CLASS object with successful zappable(), no cursed backfire, then doengrave_sfx_item_WAN selects WAN_LIGHT, WAN_SECRET_DOOR_DETECTION, WAN_STASIS, WAN_CREATE_MONSTER, WAN_WISHING or WAN_ENLIGHTENMENT.",
+                "functions": [
+                  "doengrave_sfx_item_WAN"
+                ],
+                "callers": [
+                  "cmd.c engraving command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN, after zappable/check_unpaid/backfire in engrave.c:793-812."
+                ],
+                "dependencies": [
+                  "zap.c:zapnodir is already source-owned in js/zap.js:5944-6008; call it with awaited existing state/RNG, leave owner read-only.",
+                  "makemon.c:create_critters is already the consumed-return owner behind zapnodir and preserves the wizard create_particular prompt; no new source port required.",
+                  "Existing light/findit/stasis/makewish/enlightenment/discovery owners remain read-only; no delivery dependency or reservation overlap with A141/A142/B143."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Upstream source gitlink 16ff59115315917b93185d026aeefea06db9b0f4: engrave.c:579-599 defines the six NODIR wand cases and unconditionally calls zapnodir(de->otmp) before returning to the text path. engrave.c:793-812 first consumes the charge, runs unpaid/backfire handling, records zapwand and evaluates floor reachability. js/engrave.js:552-565 already preserves that ordering.",
+                "js/engrave.js:382-401 has an obsolete narrower-port comment and note_unported('zap.c zapnodir') for every NODIR arm. The canonical awaited js/zap.js:5944-6008 now owns all corresponding effects and shared discovery tail. Restore this caller; do not duplicate effects, synthesize RNG, or edit js/zap.js.",
+                "Original annotation zap.c:zapnodir identifies the missing call's first draw, not a defect in its current body. C zap.c:2571 draws rn2(23)=15 then create_critters consumes visibility; makemon.c create_critters prompts for peaceful lichen in wizard mode. C step36 says Create what kind of monster?, step52 creates the lichen, step53 identifies wand of create monster, step54 finally asks engraving text. JS skips creation, reads peaceful lichen as text, and draws engraving corruption rn2(25)=9 instead.",
+                "Fresh single-case replay at 44f17fe441ece513f929f5a76e3024aa0c759d83: node scripts/scan-sessions.mjs --json --synthetic v28/v28-engrave-create-monster. Diagnostic .cache/C140-v28-engrave-create-monster-scan.json preserves first RNG/screen/cursor mismatch step36 and the explicit zap.c zapnodir gap; no refusal or runner error, all64 input boundaries emitted. Recorder files were not modified and no C recording was run.",
+                "Committed saved evaluation challenges/evaluations/accepted-44f17fe441ece513f929f5a76e3024aa0c759d83-v28.json, sha 44f17fe441ece513f929f5a76e3024aa0c759d83, raw SHA256 166e3ec3524e1e5eb2f60e1aa059c8ffee4c017436150f008562435a720e4dcd: 36/64 screens, 2350/2427 RNG, 40/64 cursors. Hosted C139 checkpoint /home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/bfb4598e1eb21336a7d6c3a88afc69d7863ac92f/run-hosted-ToBLZ6/synthetic/ci-v28.json has the same case measurements. git diff --stat 44f17fe441ece513f929f5a76e3024aa0c759d83 bfb4598e1eb21336a7d6c3a88afc69d7863ac92f -- js produced no difference; current merged tracked tree has the accepted source.",
+                "Historical evidence in GOALS retains doengrave_sfx_item_WAN completion with the explicit discarded zapnodir gap. Later closed goal port-zap-zapnodir-synthetic-v11-20260928 records the complete owner and existing z/spell callers. This is a bounded caller restoration, not whole engrave.c or zap.c completion; preserve historical evidence and report any other retained engraving gaps precisely.",
+                "Proposed implementation checks: fail-first focused E-command/caller assertion pins awaiting effect before text, state and source RNG forwarding, discovery/charges and canceled text; independent C-first matrix exercises all six charged NODIR engraving arms with cheap role/vision/selection variations and an empty wand just outside admission. Reuse admitted segment0 steps0-63 for create-monster entry. No recorded source evidence is added by this investigation.",
+                "Related current saved v28 cases do not identify this same missing dispatch: the former teleport-engraving defect has accepted rloc_engr support; wand backfire, floor migration, buried-ball, tree-fruit, mirror, Oracle, throne and wizard commands have distinct source scopes. Highest remaining-screen independent row is this28-screen case; queued tree fruit19, active wizard smell10 and buried-ball freedom3 are excluded."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-sit-special-throne-effect-v28-20261007",
