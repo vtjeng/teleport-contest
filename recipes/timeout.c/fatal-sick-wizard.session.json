@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent fatal sickness variation. Bounded port-only search 1542106..1542110 selected the first seed reaching death rather than food-poisoning recovery. C-first recording will verify the source fatal arm.",
+  "segments": [
+    {
+      "seed": 1542106,
+      "datetime": "20421108122100",
+      "nethackrc": "OPTIONS=name:FatalExpiry,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\nOPTIONS=playmode:debug\n",
+      "moves": "#wizintrinsic\n1e\n .            n   ."
+    }
+  ]
+}

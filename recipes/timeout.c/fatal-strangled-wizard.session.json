@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent timeout.c fatal expiry through wizard intrinsic selection. Seed 1542103, role Wizard, clock 20421108122100 and one-turn countdown were chosen before C recording. d selects the fatal property; spaces dismiss death output and n declines death.",
+  "segments": [
+    {
+      "seed": 1542103,
+      "datetime": "20421108122100",
+      "nethackrc": "OPTIONS=name:FatalExpiry,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\nOPTIONS=playmode:debug\n",
+      "moves": "#wizintrinsic\n1d\n .            n   ."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent timeout.c:slimed_to_death worn life-saving amulet branch. Seed 1542121 and setup selected before C recording. Wish inventory selection verified in a setup-only port replay; fatal path will be checked against C.",
+  "segments": [
+    {
+      "seed": 1542121,
+      "datetime": "20421108122100",
+      "nethackrc": "OPTIONS=name:FatalBranch,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\nOPTIONS=playmode:debug\n",
+      "moves": " .\u0017amulet of life saving\nWo#wizintrinsic\n1c\n .        ."
+    }
+  ]
+}
