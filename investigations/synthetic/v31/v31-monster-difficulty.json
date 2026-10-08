@@ -68,7 +68,7 @@
       "cmd.c1985-1986 extcmdlist wizmondiff -> doextcmd/rhack"
     ],
     "dependencies": [
-      "Existing complete mondata.c:mstrength 428\u2013497 and its mstrength_ranged_attk 502\u2013514, audited against js/mondata.js and source-pinned scripts/mondata-pure.test.mjs",
+      "Existing complete mondata.c:mstrength 428\u2013497 and its mstrength_ranged_attk 501\u2013512, audited against js/mondata.js and source-pinned scripts/mondata-pure.test.mjs",
       "Canonical initialized per-game state.mons with mlet-zero sentinel, neutral pmnames and hardcoded difficulty",
       "Existing TTY text-window lifecycle"
     ]
