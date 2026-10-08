@@ -204949,7 +204949,7 @@
     {
       "id": "port-spell-skilled-storm-target-family-v29-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port skilled storm target selection and canonical callback installation, then wire the existing skilled fireball and cone-of-cold arm",
       "cFile": "spell.c",
       "sessions": [
@@ -204963,36 +204963,39 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "spell_aim_step",
           "line": 1607,
           "endLine": 1618,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "can_center_spell_location",
           "line": 1619,
           "endLine": 1626,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "display_spell_target_positions",
           "line": 1627,
           "endLine": 1654,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "throwspell",
           "line": 1655,
           "endLine": 1706,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -205004,9 +205007,9 @@
           "name": "getpos_sethilite",
           "line": 41,
           "endLine": 71,
-          "declared": false,
+          "declared": true,
           "sourceFile": "getpos.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -205181,7 +205184,421 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "spell_aim_step",
+            "implementation": "js/spell.js",
+            "symbol": "spell_aim_step",
+            "sourceReview": "spell.c1605–1615: whole pure callback, isok before terrain lookup, ZAP_POS predicate before open-door fallback, unchanged boolean return. rm.h ZAP_POS uses typ>=POOL and therefore also permits closed DOOR; test pins that source result. Canonical dothrow.c walk_path consumes the callback return; no RNG, message, or mutation.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "throwspell",
+                "source": "spell.c1697 walk_path callback; dothrow.c656–735 source line walking consumes its result"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/storm-spell.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-firebrand-storm",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 70,
+                "source": "artifact.c arti_invoke -> invoke_storm_spell -> spell.c spelleffects skilled FIREBALL -> throwspell -> getpos_sethilite/getpos -> walk_path/spell_aim_step -> source storm RNG/explode loop through the final recorded boundary."
+              }
+            ],
+            "checkedAt": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833"
+          },
+          {
+            "name": "can_center_spell_location",
+            "implementation": "js/spell.js",
+            "symbol": "can_center_spell_location",
+            "sourceReview": "spell.c1618–1624: whole pure predicate, Chebyshev distance>10 before isok/cansee/non-stone-wall in short-circuit order. No RNG, output, or mutation. Tests pin distance10/11, diagonal10, unseen terrain and closed-door versus stone.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "display_spell_target_positions",
+                "source": "spell.c1644 valid target predicate"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "throwspell",
+                "source": "spell.c1672 getpos_sethilite validity callback, consumed by getpos.c102–115 selection scan"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/storm-spell.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "spell.c",
+            "synthetic": [],
+            "checkedAt": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833"
+          },
+          {
+            "name": "display_spell_target_positions",
+            "implementation": "js/spell.js",
+            "symbol": "display_spell_target_positions",
+            "sourceReview": "spell.c1626–1651: whole on/off callback, canonical tmp_at beam setup with the existing glyph-presentation record contract; dx outer then dy inner over -10..10, skip hero, call whole validity helper, await each tmp_at; DISP_END on FALSE. No invented draw/output. Marker recordings execute both TRUE and FALSE through the live $ dispatcher.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "throwspell",
+                "source": "spell.c1671 installs callback through getpos_sethilite"
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c67–92/SHOWVALID invokes callback TRUE/FALSE in source order"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/storm-spell.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/storm-fire-markers.session.json",
+              "recordings/spell.c/storm-trained-wizcast-cancel.session.json",
+              "recordings/spell.c/storm-trained-docast-cancel.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [],
+            "checkedAt": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833"
+          },
+          {
+            "name": "throwspell",
+            "implementation": "js/spell.js",
+            "symbol": "throwspell",
+            "sourceReview": "spell.c1654–1702: whole source function. Preserve underwater/water-level refusal before prompt, callback installation, consumed getpos cancellation, clear message, distance limit before swallowed branch, awaited WIS exercise then dx/dy zero with dz unchanged, exact short-circuit unseen-target/m_at/canspotmon/stone check, canonical consumed walk_path callback and absolute dx/dy publication. Removed old skilled storm refusal and reused existing zapyourself/explode/spell_damage_bonus/losehp owners in bounded spelleffects1420–1452 caller. Storm loop draws rnd8+1 and both rnd3 offsets even after the last blast; final death returns only when canonical gameover says C done cannot return. No new skipped callee or replacement RNG/state.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c1422 skilled FIREBALL/CONE_OF_COLD consumed throwspell result; active docast820–826, dowizcast787–817, and artifact.c invoke_storm_spell feed this existing dispatcher"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/storm-spell.test.mjs",
+              "scripts/spell.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/storm-fire-cancel.session.json",
+              "recordings/spell.c/storm-fire-markers.session.json",
+              "recordings/spell.c/storm-cold-target.session.json",
+              "recordings/spell.c/storm-fire-self.session.json",
+              "recordings/spell.c/storm-fire-distance-ten.session.json",
+              "recordings/spell.c/storm-fire-distance-eleven.session.json",
+              "recordings/spell.c/storm-trained-wizcast-cancel.session.json",
+              "recordings/spell.c/storm-trained-docast-cancel.session.json"
+            ],
+            "sourceFile": "spell.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-firebrand-storm",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 70,
+                "source": "artifact.c arti_invoke -> invoke_storm_spell -> spell.c spelleffects skilled FIREBALL -> throwspell -> getpos_sethilite/getpos -> walk_path/spell_aim_step -> source storm RNG/explode loop through the final recorded boundary."
+              }
+            ],
+            "checkedAt": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833"
+          },
+          {
+            "name": "getpos_sethilite",
+            "implementation": "js/getpos.js",
+            "symbol": "getpos_sethilite",
+            "sourceReview": "getpos.c40–63: whole setter. Capture old callback and map-frame color; derive bgcolors default, reset persistent mode only when valid callback changes; scan old validity before callback publication and new validity afterward; publish HI_ZAP/NO_COLOR, force union of selected squares in x-then-y order only on callback/color change. Reuse existing coordinate selection/newsym_force dirty-glyph and HUP cursor adapters; no new source-helper credit. Remove borrowed getpos-entry callback setup/redraw and local mode. Bounded source call seams: SHOWVALID old FALSE, increment modulo2/3, setter, new TRUE; refresh removes symbol overlay before docrt and reinstalls background callbacks afterward; exit clears message, resets gg coordinates, setter(NULL,NULL), then restores directions. C exit has no callback(FALSE), so remove that invented operation and pin NULL cleanup. All five apply/read direct installers now await canonical setter with stable function identity. Existing pole/grapple/cloud highlight callbacks narrowly forward map_glyphinfo(cmap_to_glyph(...),state) instead of raw numeric glyphs, with no display/target-helper completion credit. Correction: NULL callbacks clear the existing pending HUP map-cursor handoff while preserving old-selection force-newsyms. The handoff belongs to the currently installed chooser; getpos.c1164 clears its callbacks and a later callback-free getpos entry850–854 must not inherit its old selection cursor. Source-pinned regression fails before the correction and both independent #jump-cancel -> callback-free teleport variations match afterward.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "throwspell",
+                "source": "spell.c1671–1672"
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c85 SHOWVALID setter and1164 exit setter"
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos_refresh",
+                "source": "getpos.c764 background-refresh setter"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "jump",
+                "source": "apply.c2062"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_pole",
+                "source": "apply.c3464"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c3757"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_fire",
+                "source": "read.c1898 blessed fire installer"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "do_stinking_cloud",
+                "source": "read.c3090"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/storm-spell.test.mjs",
+              "scripts/getpos-show-valid.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/storm-fire-cancel.session.json",
+              "recordings/spell.c/storm-fire-markers.session.json",
+              "recordings/spell.c/storm-cold-target.session.json",
+              "recordings/spell.c/storm-fire-self.session.json",
+              "recordings/spell.c/storm-fire-distance-ten.session.json",
+              "recordings/spell.c/storm-fire-distance-eleven.session.json",
+              "recordings/spell.c/storm-trained-wizcast-cancel.session.json",
+              "recordings/spell.c/storm-trained-docast-cancel.session.json",
+              "recordings/apply.c/storm-callback-jump-cancel.session.json",
+              "recordings/apply.c/use-pole-knight-cancel-independent.session.json",
+              "recordings/apply.c/grappling-hook-valid-marker-independent-b55.session.json",
+              "recordings/read.c/read-fire-blessed-highlight.session.json",
+              "recordings/read.c/storm-callback-cloud-cancel.session.json",
+              "recordings/getpos.c/storm-background-refresh-cancel.session.json",
+              "recordings/getpos.c/target-jump-then-teleport-male.session.json",
+              "recordings/getpos.c/target-jump-then-teleport-female.session.json"
+            ],
+            "sourceFile": "getpos.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-firebrand-storm",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 70,
+                "source": "artifact.c arti_invoke -> invoke_storm_spell -> spell.c spelleffects skilled FIREBALL -> throwspell -> getpos_sethilite/getpos -> walk_path/spell_aim_step -> source storm RNG/explode loop through the final recorded boundary."
+              }
+            ],
+            "checkedAt": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833"
+          }
+        ],
+        "entryPointReview": "Whole source comparison enumerated one direct throwspell caller, spell.c spelleffects1422, reached by ordinary learned #cast/docast, forced #wizcast/dowizcast, and Fire Brand/Frost Brand artifact invocation. Independent recordings cover all three dispatch routes, both spell types, positive storms, marker TRUE/FALSE, self-centered explosion, Escape, distance10 invalid lock and distance11 dissipation. The self-centered case exercises explode at hero coordinates; it does not establish the separate swallowed dx=dy=dz=0 zapyourself branch. Source-pinned comparisons retain underwater, water-level and swallow behavior without inventing a recorded reachability claim for those rare branches. getpos_sethilite has six external direct installers (spell plus jump/polearm/grapple/blessed-fire/cloud) and three internal call sites (SHOWVALID, background refresh, NULL exit); every active site has matching production evidence below. There are no inactive build-conditional callers in this selected scope. The existing helper-only spell_aim_step/can_center predicates are pure and source-pinned. Bounded spelleffects/getpos/apply/read/glyph-presentation seams carry no whole caller-owner credit; unrelated unsupported casting/getpos branches remain outside this claim. Existing inherited jump-knight-basic and jump-knight-hurtle-step recordings consume their inputs at startup More and do not reach jump; inherited stinking-cloud-blessed-east-independent-b35 does not reach the target chooser. Those recordings were preserved and replaced by independently designed valid caller evidence. The existing pole recipe historical name says cancel but its actual recorded route selects empty terrain; evidence uses the actual route. read-fire-blessed-highlight ends later at an explosion pager; the setter, marker and NULL-exit entries have already executed and the complete recorded range matches. Correction evidence includes two new independent Knight male/female jump-cancel to callback-free teleport routes with !verbose, which exposes the pending cursor lifetime. The reported hosted OVERREAD is the checkOverReads conjunction of existing discarded gaps, normal end-of-input exhaustion and cursor mismatch; it was not shifted input, RNG or screen data.",
+        "entryPoints": [
+          {
+            "name": "artifact Fire Brand skilled storm target selection",
+            "functions": [
+              "throwspell",
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/spell.c/storm-fire-cancel.session.json",
+              "recordings/spell.c/storm-fire-markers.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-firebrand-storm",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 70,
+                "source": "artifact.c arti_invoke -> invoke_storm_spell -> spell.c spelleffects skilled FIREBALL -> throwspell -> getpos_sethilite/getpos -> walk_path/spell_aim_step -> source storm RNG/explode loop through the final recorded boundary."
+              }
+            ]
+          },
+          {
+            "name": "artifact Frost Brand skilled storm target selection",
+            "functions": [
+              "throwspell",
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/spell.c/storm-cold-target.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "trained wizard #wizcast fireball target selection and markers",
+            "functions": [
+              "throwspell",
+              "display_spell_target_positions",
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/spell.c/storm-trained-wizcast-cancel.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "ordinary learned #cast fireball target selection and markers",
+            "functions": [
+              "throwspell",
+              "display_spell_target_positions",
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/spell.c/storm-trained-docast-cancel.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "target SHOWVALID symbol on/off",
+            "functions": [
+              "display_spell_target_positions",
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/spell.c/storm-fire-markers.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "target background Ctrl-R refresh",
+            "functions": [
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/getpos.c/storm-background-refresh-cancel.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "target NULL exit and direction restoration",
+            "functions": [
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/spell.c/storm-fire-cancel.session.json",
+              "recordings/apply.c/storm-callback-jump-cancel.session.json",
+              "recordings/apply.c/use-pole-knight-cancel-independent.session.json",
+              "recordings/apply.c/grappling-hook-valid-marker-independent-b55.session.json",
+              "recordings/read.c/read-fire-blessed-highlight.session.json",
+              "recordings/read.c/storm-callback-cloud-cancel.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "jump target installer",
+            "functions": [
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/apply.c/storm-callback-jump-cancel.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "polearm target installer and marker callback",
+            "functions": [
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/apply.c/use-pole-knight-cancel-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "grappling hook target installer and marker callback",
+            "functions": [
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/apply.c/grappling-hook-valid-marker-independent-b55.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "blessed fire scroll target installer and marker callback",
+            "functions": [
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/read.c/read-fire-blessed-highlight.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "stinking cloud target installer and marker callback",
+            "functions": [
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/read.c/storm-callback-cloud-cancel.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "completed jump chooser followed by callback-free teleport chooser",
+            "functions": [
+              {
+                "sourceFile": "getpos.c",
+                "name": "getpos_sethilite"
+              }
+            ],
+            "recordings": [
+              "recordings/getpos.c/target-jump-then-teleport-male.session.json",
+              "recordings/getpos.c/target-jump-then-teleport-female.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e7f2d850cf8c634ab0c0d6f74cf03d39e78cc833",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-eat-cpostfx-polymorph-caller-v29-20261008",
