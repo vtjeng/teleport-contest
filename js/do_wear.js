@@ -386,6 +386,7 @@ import {
     xnameFresh,
     vtense,
     yname,
+    Yname2,
     erosion_matters,
 } from './objnam.js';
 import {
@@ -1547,7 +1548,7 @@ async function on_msg(otmp, state) {
 // and silver dragon armor have no extra effect, taking the default break.
 // All dragon armor status arms are shared by the ordinary and polymorph
 // takeoff owners.  The gold arm uses make_hallucinated() on both transitions;
-// Armor_on() still keeps its separate artifact-light boundary.
+// Armor_on() lights gold armor after these effects.
 async function dragon_armor_handling(
     otmp, puton, on_purpose, state, rawEnv = {},
 ) {
@@ -1648,25 +1649,10 @@ async function dragon_armor_handling(
     }
 }
 
-// C ref: do_wear.c Armor_on() (886-906), the ga.afternmv callback
-// accessory_or_armor_on() installs for the suit slot. The leather jacket is
-// the one suit objects.h gives an oc_delay of 0, so it alone reaches this
-// through unmul("") on the turn the 'W' is typed; every other suit spends
-// three to five helpless turns first and arrives through allmain.c
-// moveloop_core() instead.
-//
-// dragon_armor_handling() is a no-op for grey and silver dragon armor (they
-// take `default: break;`). artifact_light() answers TRUE only for gold
-// dragon scales and mail, so the begin_burn block is dead for every other
-// suit.
-//
-// The `known` write is the whole of what the callback does for non-dragon
-// suits. C's comment at do_wear.c:2366-2372 says why it waits until here
-// rather than running beside setworn(): a nymph who steals the suit
-// mid-donning must leave the hero ignorant of its enchantment. As with
-// Shield_on() below, only a suit the game creates after startup witnesses
-// the write, because mkobj.c mksobj() (864) leaves obj->known 0 for armor
-// where u_init.c ini_inv_adjust_obj() (1215-1216) sets it to 1.
+// C ref: do_wear.c Armor_on() (887-906). Dressing invokes this callback
+// after the suit reaches W_ARM, immediately for a leather jacket and through
+// unmul() after every other suit's delay. set_wear() also uses it at startup.
+// Reveal enchantment only here: interrupted dressing must not identify a suit.
 async function Armor_on(state, rawEnv = {}) {
     const env = wearOperationEnv(rawEnv);
     if (!state.uarm) /* no known instances of !uarm here but play it safe */
@@ -1680,13 +1666,16 @@ async function Armor_on(state, rawEnv = {}) {
     /* gold DSM requires extra handling since it emits light when worn;
        do that after the special armor handling */
     if (artifact_light(state.uarm) && !state.uarm.lamplit) {
-        // begin_burn() and arti_light_description() are not yet ported for
-        // this call site. artifact_light() answers TRUE only for gold dragon
-        // scales/mail (otyp 102, 112) when worn as W_ARM, so this block is
-        // dead for every other suit.
-        throw new UnsupportedWearError(
-            `Armor_on() artifact_light for otyp ${state.uarm.otyp}`,
-        );
+        const { begin_burn } = await import('./timeout.js');
+        const { objectGenerationEnv } = await import('./object_generation.js');
+        const { arti_light_description } = await import('./light.js');
+        begin_burn(state.uarm, false, objectGenerationEnv({ ...env, state }));
+        if (!heroIsBlind(state)) {
+            await env.message(
+                `${Yname2(state.uarm, state, env)} ${otense(state.uarm, 'begin', state)} to shine ${arti_light_description(state.uarm, state)}!`,
+                state, env,
+            );
+        }
     }
     return 0;
 }
@@ -3769,15 +3758,6 @@ async function accessory_or_armor_on(obj, state = game) {
 
         switch (mask) {
         case W_ARM:
-            // dragon_armor_handling() has an arm for eight of the ten
-            // colors; grey and silver take its default break and are
-            // admitted. Seven colored put-on arms are ported. Gold is
-            // refused above setworn() because it needs make_hallucinated.
-            if (obj.otyp === GOLD_DRAGON_SCALES
-                || obj.otyp === GOLD_DRAGON_SCALE_MAIL)
-                throw new UnsupportedWearError(
-                    `Armor_on() for otyp ${obj.otyp}`,
-                );
             afternmv = Armor_on;
             break;
         case W_ARMC:
