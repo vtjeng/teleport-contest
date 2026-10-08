@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first inert-trap drop: new seed/clock; create a pit beneath the hero, then drop uncursed dagger. Verify trapped state and source floor/altar ordering before JS comparison. C established a failed staircase-pit setup and an unseen-pit down-command miss; final inputs move off stairs, wish a pit, leave and reenter it before dropping. Barbarian/ordinary dagger/dry pit floor varies object and altar state; C prints ordinary drop.",
+  "segments": [
+    {
+      "seed": 16932012,
+      "datetime": "20490617140123",
+      "nethackrc": "OPTIONS=name:TrapDrop,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " h\u0017pit\n  hl  \u0017uncursed dagger\n   de    ."
+    }
+  ]
+}

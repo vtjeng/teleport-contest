@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T21:50:59.288Z",
+  "capturedAt": "2026-10-08T22:03:42.979Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -67659,12 +67659,185 @@
         "type": "accepted",
         "at": "2026-10-08T21:50:37.717Z",
         "task": "C152"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C154-fatal-timeout-20261008",
+        "type": "implement",
+        "at": "2026-10-08T21:51:08.664Z",
+        "task": "C154",
+        "goal": "port-timeout-fatal-expiry-family-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C154-fatal-timeout-active-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:51:10.065Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C152-published-b3175ccbfd3999885a239206fd5c3a388da1ef76",
+        "type": "published",
+        "at": "2026-10-08T21:51:27.498Z",
+        "task": "C152",
+        "commit": "b3175ccbfd3999885a239206fd5c3a388da1ef76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A175-prayer-cure-20261008",
+        "type": "implement",
+        "at": "2026-10-08T21:52:26.690Z",
+        "task": "A175",
+        "goal": "fix-pray-petrification-cure-caller-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B174-final-validation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:53:39.035Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Validating and submitting the hallucinatory whatis menu correction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-605cff1c490577c38e761d12257d8ae61d2d4c77",
+        "type": "ready",
+        "at": "2026-10-08T21:54:47.055Z",
+        "task": "B174",
+        "delivery": "605cff1c490577c38e761d12257d8ae61d2d4c77"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A172-integrating-ab29afa9c189495b317c57344fa9c9536fd03649",
+        "type": "integrating",
+        "at": "2026-10-08T21:54:50.371Z",
+        "task": "A172",
+        "integration": "ab29afa9c189495b317c57344fa9c9536fd03649"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B175-pool-paper-drop-20261008",
+        "type": "assign",
+        "at": "2026-10-08T21:56:27.455Z",
+        "task": "B175",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B175-pool-paper-drop-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:56:28.572Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating paper-object pool floor effects."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B169-received-e0bbc19f",
+        "type": "received",
+        "at": "2026-10-08T21:57:15.371Z",
+        "task": "B169",
+        "delivery": "e0bbc19fb4137f4c9aba1f6e04519784d43a1d45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B169-review-e0bbc19f",
+        "type": "activity",
+        "at": "2026-10-08T21:57:17.957Z",
+        "task": "B169",
+        "phase": "review",
+        "reason": "Verify the immutable dropx delivery, source scope, saved checks, and inert-trap admission evidence while the current hosted checkpoint runs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-134255d313816fede867602f00a1d4da2b5d0a6a",
+        "type": "ready",
+        "at": "2026-10-08T21:57:23.517Z",
+        "task": "A175",
+        "delivery": "134255d313816fede867602f00a1d4da2b5d0a6a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A176-death-touch-134255d3",
+        "type": "assign",
+        "at": "2026-10-08T21:58:22.351Z",
+        "task": "A176",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A176-death-touch-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:58:23.677Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A172-validated-ab29afa9",
+        "type": "validated",
+        "at": "2026-10-08T21:59:52.722Z",
+        "task": "A172",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B175-B169-dropx-owner-20261008",
+        "type": "park",
+        "at": "2026-10-08T22:01:09.130Z",
+        "task": "B175"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A176-touch-family-20261008",
+        "type": "implement",
+        "at": "2026-10-08T22:01:22.200Z",
+        "task": "A176",
+        "goal": "port-mcastu-touch-of-death-family-v32-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B176-coordinate-monster-list-20261008",
+        "type": "assign",
+        "at": "2026-10-08T22:01:55.144Z",
+        "task": "B176",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B176-coordinate-monster-list-20261008",
+        "type": "turn",
+        "at": "2026-10-08T22:01:56.397Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating coordinate modes in monster listings."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5ddc04fbf1be3557e72902cb924768b352e983a0",
+        "type": "ready",
+        "at": "2026-10-08T22:02:24.611Z",
+        "task": "C154",
+        "delivery": "5ddc04fbf1be3557e72902cb924768b352e983a0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A172-ab29afa9c189495b317c57344fa9c9536fd03649-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T22:02:58.790Z",
+        "task": "A172"
       }
     ]
   },
   "development": {
-    "executionCommit": "e0af258f80b5a632caf9419b124b7f4046d63e78",
-    "measuredAt": "2026-10-08T21:47:07.279Z",
+    "executionCommit": "ab29afa9c189495b317c57344fa9c9536fd03649",
+    "measuredAt": "2026-10-08T21:59:11.202Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
