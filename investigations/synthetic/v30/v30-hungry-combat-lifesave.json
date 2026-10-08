@@ -83,7 +83,7 @@
   },
   "evidence": [
     "Read whole monmove.c:m_move1715-2075 and m_move_aggress2088-2117 plus existing JS counterparts. Source2023 enters aggression;2097 initial mattackm,2104 counterattack gates rn2(4) then rn2(NORMAL_SPEED),2111 reverse mattackm; keep all results/order unchanged.",
-    "mhitm.c:pre_mm_attack41-72 redraws and marks combatants; hitmm644-739 and missmm76-96 print or enter noises. js/mhitm.js requires message even when neither combatant is visible, so adding only output conditionals cannot repair the caller.",
+    "mhitm.c:pre_mm_attack41-72 redraws and marks combatants; hitmm644-732 and missmm76-96 print or enter noises. js/mhitm.js requires message even when neither combatant is visible, so adding only output conditionals cannot repair the caller.",
     "Saved assigned replay .cache/A155/v30-hunger-faint-replay.json:812 existing screens/cursors all equal C,8738 RNG prefix equal before uncommitted planned attack is discarded. First uncaptured boundary812, moves399; C boundary812 logs rnd(20),mdamagem and counterattack draws from m_move_aggress.",
     "Assigned companion .cache/A155/v30-hungry-combat-lifesave-replay.json:904 existing screens/cursors equal C,16594 RNG prefix equal; missmm throws at the identical m_move_aggress source route. Group both; names do not establish a hunger defect.",
     "Bounded implementation: moveSimpleOrdinary supplies env.message, env.redraw, env.markInvisible using planning no-ops or caller operations/canonical live defaults. Source-pinned fail-first hit/miss and clone-isolation tests, both admitted full cases, independent C-first ordinary monster collision variation, plus named unrelated attack frontiers."
