@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap C-first variation: same pool landing path with blank paper. trap.c:water_damage still checks Luck before the blank-paper return; changing only the scroll class branch removes blanking. Independent C inventory observation established o, while n was the starting magic marker; the wrong-letter probe is retained only in .cache.",
+  "segments": [
+    {
+      "seed": 17532012,
+      "datetime": "20531120122534",
+      "nethackrc": "OPTIONS=name:PoolProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#polyself\nair elemental\n          \u0017uncursed scroll of blank paper\nl\u0017pool\ndo."
+    }
+  ]
+}
