@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T13:26:12.864Z",
+  "capturedAt": "2026-10-08T13:34:11.746Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -27953,12 +27953,59 @@
         "task": "A157",
         "worker": "A2",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A156-dc56f238-20261008",
+        "type": "published",
+        "at": "2026-10-08T13:27:07.295Z",
+        "task": "A156",
+        "commit": "dc56f23876f9613acd55544058ce447a0f587555"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B158-fafedb80-20261008",
+        "type": "received",
+        "at": "2026-10-08T13:27:52.202Z",
+        "task": "B158",
+        "delivery": "fafedb80ff51649cd2c827462cb51f7786496180"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B158-33535eaf-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T13:28:08.829Z",
+        "task": "B158",
+        "integration": "33535eaf8c4470bb139505f6a68b77a327f93cc0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A157-zombify-mon-14528e96",
+        "type": "implement",
+        "at": "2026-10-08T13:29:09.244Z",
+        "task": "A157",
+        "goal": "port-do-zombify-mon-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B158-33535eaf8c4470bb139505f6a68b77a327f93cc0-validated",
+        "type": "validated",
+        "at": "2026-10-08T13:32:48.758Z",
+        "task": "B158",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B158-33535eaf8c4470bb139505f6a68b77a327f93cc0-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T13:32:49.855Z",
+        "task": "B158"
       }
     ]
   },
   "development": {
-    "executionCommit": "0172abf7af9d21f1fb6da3289c532b49ffda3a78",
-    "measuredAt": "2026-10-08T13:21:53.765Z",
+    "executionCommit": "33535eaf8c4470bb139505f6a68b77a327f93cc0",
+    "measuredAt": "2026-10-08T13:32:08.096Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
