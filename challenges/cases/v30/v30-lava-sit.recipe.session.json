@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first mission: sit.c:dosit lava branch/trap.c:lava_effects. Wear water walking boots, create lava offstairs, sit. C reachability observation: Lava burns hero through sitting damage branch. Seed and clock selected before any JS comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15530012,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:Probe15530012,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed water walking boots\nWe     ll\u0017lava\n#sit\n    n    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first mission: pickup.c:doloot_core2202-2209/reverse_loot2350-2430. Healer carries gold, quaff confusion, use #loot repeatedly. C reachability observation: Reverse-loot old-loot or gold contribution/drop rather than ordinary container prompt. Seed and clock selected before any JS comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15530001,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:Probe15530001,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017200 gold pieces\n\u0017uncursed potion of confusion\nqe    #loot\n   #loot\n   #loot\n   #loot\n   "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first mission: pickup.c:lift_object/pickup_object. Drop a large wished stack then manually pick it up with a burden response. C reachability observation: Burden confirmation appears and quantity is lifted/refused. Seed and clock selected before any JS comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15530002,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:Probe15530002,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017100 uncursed daggers\nde,ey   "
+    }
+  ]
+}

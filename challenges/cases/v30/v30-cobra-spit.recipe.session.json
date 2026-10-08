@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first mission: polyself.c:dospit1450-1480/dothrow.c:throwit. Become cobra, spit at peaceful monster in visible room. C reachability observation: Venom launched and blinding/acid effects on selected target. Seed and clock selected before any JS comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15530010,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:Probe15530010,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#polyself\ncobra\n       \u0007peaceful lichen\n#monster\nl      ."
+    }
+  ]
+}

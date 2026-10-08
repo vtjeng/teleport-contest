@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first extension: wizcmds.c:wiz_show_wmodes657-689. Explore two nearby squares and invoke #wmode; no terrain projection choice.. Expected C observation: Whole level wall orientation digits, room dots, corridors and hero marker in text window.. Fixed input chosen before extension JS comparison, without seed search.",
+  "segments": [
+    {
+      "seed": 15530024,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:WallProbe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".ll#wmode\n    "
+    }
+  ]
+}
