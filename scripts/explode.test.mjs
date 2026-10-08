@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { HeroDeathPlanningError } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import {
     adtyp_to_expltype,
@@ -35,6 +36,9 @@ import {
 } from '../js/monsters.js';
 import {
     ANTIMAGIC,
+    BURNING,
+    DIED,
+    WEB,
     EXPL_MAGICAL,
     EXPL_FIERY,
     HI_ZAP,
@@ -62,6 +66,7 @@ import {
     PM_KNIGHT,
     PM_CAVE_DWELLER,
     PM_HILL_GIANT,
+    PM_IRON_GOLEM,
 } from '../js/monsters.js';
 import {
     BOULDER,
@@ -1085,4 +1090,68 @@ test('role reduction leaves non-wand and monster damage unchanged', async () => 
     assert.match(js, /destroy_items\(state\.youmonst, adtyp, dam,/u);
     assert.match(c, /i = dam \* dam;/u);
     assert.match(js, /let noise = dam \* dam;/u);
+});
+
+// C explode.c forwards elemental floor effects before ugolemeffects, and
+// uses BURNING only for AD_FIRE at done(). These fixtures isolate the seams.
+test('planned elemental floor and golem effects keep clone RNG and terminal ownership', async () => {
+    await runSegment({ seed: 7710146, datetime: '20360214031700',
+        nethackrc: 'OPTIONS=name:BlastClone,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
+        moves: '' }); // Independent initialization; no production turns before the fixture.
+    game.invent = null;
+    for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarmg', 'uarms', 'uarmf', 'uarmu']) game[slot] = null;
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.u.umonnum = PM_IRON_GOLEM; // polyself.c:ugolemeffects heals this form from fire.
+    game.youmonst.data = game.mons[PM_IRON_GOLEM];
+    game.u.mh = 10; game.u.mhmax = 30; // Six fire damage heals below the form cap.
+    game.u.uprops[FIRE_RES].intrinsic = 1; // The source explosion mask shields HP damage.
+    game.context.mon_moving = true;
+    const web = { tx: game.u.ux, ty: game.u.uy, ttyp: WEB, tseen: true };
+    game.level.traps = [web]; // zap_over_floor's visible fire branch removes this web.
+    const planned = planningState(game);
+    const screen = game.nhDisplay.serialize();
+    const rngBefore = getRngLog().length;
+    const draws = [];
+    const lines = [];
+    await explode(planned.u.ux, planned.u.uy, -21, 6, MON_EXPLODE, EXPL_FIERY, planned, {
+        planning: true,
+        message: async line => lines.push(line),
+        random: { rn2: bound => { draws.push(bound); return 1; } },
+    });
+    assert.equal(planned.level.traps.length, 0);
+    assert.equal(game.level.traps[0], web);
+    assert.equal(planned.u.mh, 16); // The canonical golem helper heals by the full fire damage.
+    assert.equal(game.u.mh, 10);
+    assert.deepEqual(draws, [5, 5]); // burnarmor/destroy_items draw; exercise skips physical stats while polymorphed.
+    assert.ok(lines.includes('Strangely, you feel better than before.'));
+    assert.equal(getRngLog().length, rngBefore);
+    assert.equal(game.nhDisplay.serialize(), screen);
+});
+
+test('fatal planned explosion uses source death constants without a live done call', async () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/explode.c', import.meta.url), 'utf8');
+    assert.match(c, /done\(\(adtyp == AD_FIRE\) \? BURNING : DIED\)/);
+    for (const [type, how] of [[-21, BURNING], [-22, DIED]]) {
+        await runSegment({ seed: 7710147, datetime: '20360214031800',
+            nethackrc: 'OPTIONS=name:FatalClone,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
+            moves: '' }); // Same ordinary initialization; type selects only source fire/cold.
+        game.invent = null;
+        for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarmg', 'uarms', 'uarmf', 'uarmu']) game[slot] = null;
+        for (const column of game.level.monsters) column.fill(null);
+        game.u.uhp = 1; // Two points of source blast damage are lethal.
+        game.context.mon_moving = true;
+        const planned = planningState(game);
+        const screen = game.nhDisplay.serialize();
+        const readKey = game.nhDisplay.readKey;
+        game.nhDisplay.readKey = () => { throw new Error('planned done reads live terminal'); };
+        try {
+            await assert.rejects(explode(planned.u.ux, planned.u.uy, type, 2,
+                MON_EXPLODE, EXPL_FIERY, planned, {
+                    planning: true, message: async () => {}, random: { rn2: () => 1 },
+                }), error => error instanceof HeroDeathPlanningError && error.how === how);
+        } finally { game.nhDisplay.readKey = readKey; }
+        assert.equal(game.u.uhp, 1);
+        assert.equal(game.nhDisplay.serialize(), screen);
+    }
 });
