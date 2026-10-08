@@ -369,15 +369,12 @@ function verifyPublicationChanges(root, tested, published) {
             const manifestPath = batch === 'v1' ? 'challenges/manifest.json' : `challenges/manifests/${batch}.json`;
             check((report.manifestPath ?? 'challenges/manifest.json') === manifestPath,
                 `challenge evaluation path differs from its batch: ${path}`);
-            const manifest = json(root, tested, manifestPath);
+            // A report may describe an intermediate candidate, not the final one.
+            // Publication preserves that history; acceptance separately requires
+            // complete evaluations whose SHA and inputs match its exact candidate.
+            const manifest = json(root, report.sha, manifestPath);
             check(corpusDigest(manifest.cases) === report.manifestSha256,
-                `challenge evaluation membership differs from the tested manifest: ${path}`);
-            const inputs = ['js', 'frozen', 'package.json', 'package-lock.json',
-                'scripts/challenge-results.mjs', 'scripts/score-challenges.mjs',
-                'scripts/scoring-workspace.mjs', manifestPath,
-                ...manifest.cases.flatMap(entry => [entry.recipe, entry.recording])];
-            check(!git(root, 'diff', '--name-only', '--no-renames', report.sha, tested, '--', ...inputs),
-                `challenge evaluation inputs changed after measurement: ${path}`);
+                `challenge evaluation membership differs from its source manifest: ${path}`);
         }
     }
 }

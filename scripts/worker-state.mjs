@@ -62,7 +62,8 @@ match the accepted commit. sync-main performs a safe local fast-forward only;
 it does not push. No command starts, interrupts or resumes an agent process.
 Publication may include checked investigation JSON and newly added challenge
 evaluations after the tested commit. Source commits must be in tested history;
-evaluations must name that tested commit and match its challenge manifest.
+evaluations must match their named source commit's challenge manifest.
+Historical evaluations are publishable records, not current acceptance evidence.
 Reports must be regular non-executable files. Other input changes need validation.
 This publication allowance does not broaden checkpoint reuse or rewrite receipts.
 

@@ -100,8 +100,11 @@ competition holdout is outside this workspace.
 - Finish closure commands at the tested HEAD before committing report-only
   updates. The worker tracker's publication check permits regular JSON
   investigation files and newly added challenge evaluations after acceptance.
-  It checks their format and source commits; challenge evaluations must match
-  the tested commit and its manifest. This does not change checkpoint caching
+  It checks their format and source commits; historical challenge evaluations
+  must name an ancestor of the tested commit and match that source commit's
+  manifest. Publishing history does not make it current acceptance evidence:
+  acceptance still requires evaluations of the exact candidate and inputs.
+  This does not change checkpoint caching
   or authorize changes to code, tests, recipes, recordings, or challenge inputs.
 - Use the tested commit's shared summary and its `artifacts` directory. Its
   development figures replace a separate score-development run for that
