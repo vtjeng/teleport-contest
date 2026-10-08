@@ -134,7 +134,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { stop_occupation } from './allmain.js';
-import { placebc, unplacebc } from './ball.js';
+import { ballfall, placebc, unplacebc } from './ball.js';
 import {
     acurr, adjattrib, exercise, minuhpmax, poisoned, setuhpmax,
 } from './attrib.js';
@@ -1599,12 +1599,9 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                     env,
                 );
             }
-            // ball.c's three calls have no JavaScript ballfall counterpart;
-            // preserve source order while recording only the missing middle
-            // operation; all three calls have discarded return values.
             if (Punished(state) && !carried(state.uball)) {
                 unplacebc(state);
-                note_unported('ball.c ballfall after pit');
+                await ballfall(state, env);
                 await placebc(state);
             }
             if (!conjPit) note_unported('trap.c selftouch');
