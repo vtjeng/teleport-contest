@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "B145 independently preselected C-first prefix; inspect directions and inventory before JavaScript comparison. C-first observation and strict frozen comparison retained in .cache/B145; production impact_drop is reached through the source caller, with no synthetic input copy.",
+  "segments": [
+    {
+      "seed": 1464503,
+      "datetime": "20520707101500",
+      "nethackrc": "OPTIONS=name:ImpactProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": "   .\u0006\u0014  lllllllllllllllllllllllllllllllllllllllllljjjjjjj.dd\u00172 uncursed apples\n ...de      "
+    }
+  ]
+}
