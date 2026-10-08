@@ -215500,7 +215500,7 @@
     {
       "id": "port-wizcmds-wiz-telekinesis-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the wizard telekinesis target loop and command dispatcher",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -215515,15 +215515,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_telekinesis",
           "line": 494,
           "endLine": 533,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -215831,6 +215834,553 @@
                 "Source required return audit opens canonical getpos/getdir implementations and existing visible/coordinate predicates. Monster movement and hero movement calls are discarded by C and already source-backed owners. Retain their known downstream frontiers explicitly; no new injected movement stub, RNG or output stands in for them.",
                 "Independent C-first role/seed/date variations should create a visible peaceful creature, select/direction/cancel and verify actual coordinates/stun/movement, plus hero self selection, invalid empty square and direction cancellation. Normal-play refusal is outside wizard boundary. Related selector-unfinished case is the same function and can be reserved/replayed after implementation transition. Exclude whole cmd/getpos/dothrow/trap/movement ownership."
               ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_telekinesis",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_telekinesis",
+            "sourceReview": "Read whole wizcmds.c494–528 (35 lines, closing brace checked directly). Initialize cc to hero once; announce before do-while. Force TRUE getpos consumes answer before x<1, preserving coordinate between calls. Assign m_at before canspotmon; OR hero-square test admits an existing hidden monster pointer without clearing it. getdir false cancels before movement. Existing canonical mhurtle receives target, dx/dy and fixed6; then !DEADMONSTER hp>=1 and canspotmon guard coordinate refresh in that order. Hero-only path calls existing hurtle(...,6,FALSE), then copies updated hero position. UTOTYPE_NONE is zero; any deferred level transition terminates with ECMD_OK. No invented RNG, output or state effects. Canonical consumed getpos/getdir and m_at/canspotmon/u_at bodies inspected; normal keyboard targeting/direction/cancellation behavior is source-backed. Existing void mhurtle/hurtle source owners and callback/trap paths inspected, called in awaited source order, with no new ownership credit. Unit fixture operation overrides only exercise control-flow branches; production defaults always call canonical owners. No unported result or injected placeholder consumed in selected function.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c1996–1997 extcmdlist wiztelekinesis IFBURIED|AUTOCOMPLETE|WIZMODECMD reaches existing rhack/doextcmd and newly awaited helper arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-telekinesis.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/getpos-show-valid.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/extended-command-prompt.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-telekinesis-newt.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-giant.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-hero.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-cancel.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-telekinesis-monster",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 39,
+                "source": "cmd.c1996–1997 extcmdlist -> doextcmd -> wizcmds.c:wiz_telekinesis494–528. Announcement, getpos tip/selection, direction, mhurtle, next selection coordinate and Escape cancellation."
+              }
+            ],
+            "checkedAt": "2f52799b8e966edcf64b8a93efcfabe527adb0e6"
+          }
+        ],
+        "entryPointReview": "One active command entry: wizard #wiztelekinesis. Admitted monster case covers target selection, movement, coordinate refresh and cancellation; same-source unfinished selector case matches its complete43 boundaries but establishes no completed movement beyond its recorded pending input. Independent recipes were planned/recorded C-first: Priest newt hurtle with coordinate change, elf Ranger huge stone giant wake/stun/zero movement and does-not-budge message, Tourist hero hurtle north until wall collision, Wizard hero direction cancellation. Runtime runner asserts movement/stun/movement0, map input restoration and no command turn. Monk normal-play recipe pins wizard admission refusal. C-only giant correction acknowledges More before Escape cancels next selector. Alternate dead/hidden target refresh, invalid empty square, negative answer/x-zero cancel, monster on hero square and deferred-level exit branches are source-pinned control-flow tests; no independent rare death or migration claim.",
+        "entryPoints": [
+          {
+            "name": "wizard #wiztelekinesis",
+            "functions": [
+              "wiz_telekinesis"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-telekinesis-newt.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-giant.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-hero.session.json",
+              "recordings/wizcmds.c/wizard-telekinesis-cancel.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-telekinesis-monster",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 39,
+                "source": "cmd.c1996–1997 extcmdlist -> doextcmd -> wizcmds.c:wiz_telekinesis494–528. Announcement, getpos tip/selection, direction, mhurtle, next selection coordinate and Escape cancellation."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-wizcmds-terrain-internals-v31-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Show wizard internal terrain codes and their encoding legend",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-terrain-code-legend",
+        "synthetic/v31/v31-terrain-internal-codes"
+      ],
+      "selectionReason": "B165 tinning seed is exact. Independent admitted v31 terrain legend and internal-code cases retain 19 screens each. The paired wizcmds.c functions share cmd.c doterrain choices 5 and 6 and the canonical terrain code table; other active wizard scopes are excluded.",
+      "detail": "",
+      "openedAt": "779cbf03a05122d9a90b91e83d850e6423d43edb",
+      "openStanding": {
+        "sha": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_map_levltyp",
+          "line": 693,
+          "endLine": 840,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "wiz_levltyp_legend",
+          "line": 841,
+          "endLine": 884,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 693,
+        "to": 884
+      },
+      "syntheticProvenance": {
+        "synthetic/v31/v31-terrain-code-legend": {
+          "session": "synthetic/v31/v31-terrain-code-legend",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-terrain-code-legend",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-terrain-code-legend.session.json",
+          "recordingSha256": "e3edeca8d923c25afb328e55f845d8439456b6202b6372d0a40c9ef3f40a8058",
+          "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+          "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6"
+        },
+        "synthetic/v31/v31-terrain-internal-codes": {
+          "session": "synthetic/v31/v31-terrain-internal-codes",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-terrain-internal-codes",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-terrain-internal-codes.session.json",
+          "recordingSha256": "055f57915b6d53278a59f174448030604bfcbae264f5688d08591ebfb60bc31c",
+          "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+          "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6"
+        }
+      },
+      "activeStanding": {
+        "sha": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-terrain-code-legend",
+          "session": "synthetic/v31/v31-terrain-code-legend",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-terrain-code-legend.session.json",
+          "recordingPath": "challenges/cases/v31/v31-terrain-code-legend.session.json",
+          "recordingSha256": "e3edeca8d923c25afb328e55f845d8439456b6202b6372d0a40c9ef3f40a8058",
+          "recipe": "challenges/cases/v31/v31-terrain-code-legend.recipe.session.json",
+          "recipeSha256": "3652cc27a1d8c5aed1422e18cc52be460f2c6be53f0d3cc49912732f77825736",
+          "replayInputSha256": "7e92633cc02ae35d062a9d4d2478122bf2026bdc3b73afc93f10391de96c0793",
+          "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+          "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+          "evaluationArtifact": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+          "evaluationUtc": "2026-10-08T20:50:02.970Z",
+          "remainingScreens": 19,
+          "recordedSteps": 30,
+          "previousScreensMatched": 11,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 11,
+              "total": 30
+            },
+            "rng": {
+              "matched": 2526,
+              "total": 2526
+            },
+            "cursors": {
+              "matched": 11,
+              "total": 30
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: terrain menu choice 6 is not ported",
+            "step": 11
+          },
+          "step": 11,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: terrain menu choice 6 is not ported",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-terrain-code-legend.json",
+            "result": {
+              "session": "synthetic/v31/v31-terrain-code-legend",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-terrain-code-legend",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "e3edeca8d923c25afb328e55f845d8439456b6202b6372d0a40c9ef3f40a8058",
+              "evaluationPath": "challenges/evaluations/accepted-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-v31.json",
+              "evaluationCommit": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+              "remainingScreens": 19,
+              "recordedSteps": 30,
+              "status": "complete",
+              "commit": "f6dbbdf9e53c6200bd4151e47c2f31bb0a0350a4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-terrain-code-legend",
+                "session": "synthetic/v31/v31-terrain-code-legend",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-terrain-code-legend.session.json",
+                "recordingPath": "challenges/cases/v31/v31-terrain-code-legend.session.json",
+                "recordingSha256": "e3edeca8d923c25afb328e55f845d8439456b6202b6372d0a40c9ef3f40a8058",
+                "recipe": "challenges/cases/v31/v31-terrain-code-legend.recipe.session.json",
+                "recipeSha256": "3652cc27a1d8c5aed1422e18cc52be460f2c6be53f0d3cc49912732f77825736",
+                "replayInputSha256": "2b9b36d4565562353240545434382d2cf4286947fa33ecc671d1be8ec6bae3de",
+                "evaluationPath": "challenges/evaluations/accepted-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-v31.json",
+                "evaluationCommit": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+                "evaluationArtifact": "challenges/evaluations/accepted-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-v31.json",
+                "evaluationUtc": "2026-10-08T20:13:38.624Z",
+                "remainingScreens": 19,
+                "recordedSteps": 30,
+                "previousScreensMatched": 11,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 11,
+                    "total": 30
+                  },
+                  "rng": {
+                    "matched": 2526,
+                    "total": 2526
+                  },
+                  "cursors": {
+                    "matched": 11,
+                    "total": 30
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: terrain menu choice 6 is not ported",
+                  "step": 11
+                },
+                "step": 11,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: terrain menu choice 6 is not ported",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Wizard terrain menu choices5/6 omit the internal terrain map and encoding legend. cmd.c:doterrain calls whole wiz_map_levltyp and wiz_levltyp_legend; JS throws UnsupportedSearchError for both choices. Port the paired wizcmds.c source functions, await the two existing caller arms, and expose/reuse the existing canonical cmd.c levltyp table. Preserve raw terrain traversal, source feature/branch suffix order, base-36 pairing and blocking text-window lifecycle.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "wizcmds.c",
+                "functions": [
+                  "wiz_map_levltyp",
+                  "wiz_levltyp_legend"
+                ],
+                "branch": "Debug #terrain menu selects internal levl[][] type codes (choice5) or their legend (choice6). Normal/explore menu visibility remains unchanged. Both source functions return void and display a blocking NHW_TEXT window without spending a turn.",
+                "callers": [
+                  "cmd.c:doterrain1181-1186 is the sole active caller family for both functions; choices5/6 only appear for wizard mode. Existing JS doterrain retains normal subsets1-4 and currently refuses5/6. Interactive and canned command dispatch already converge on doterrain."
+                ],
+                "dependencies": [
+                  "cmd.c:levltyp1072-1086 is already represented by private LEVLTYP_NAMES in js/cmd.js, including unreachable/undiggable and empty padding entries. Export/reuse that single canonical array; retain existing levltyp_to_name MAX_TYPE result bounds.",
+                  "hack.c:may_dig923-930 and existing state-aware js/hack.js helper match the source undiggable-stone/tree wall_info condition. No consumed callee gap.",
+                  "dungeon.c:Is_special1448-1459, On_W_tower_level1914-1920 and Invocation_lev2017-2022 have whole source-shaped JS owners. Existing special-level linked topology is represented by canonical specialLevels; use the returned special proto/flags, dungeon flags and final-level arithmetic unchanged.",
+                  "include/dungeon.h branch macros Is_knox/In_sokoban/In_endgame and Sokoban property: compare the canonical level coordinates/branch ids in source order, including dungeon0 before mines/sokoban/quest/ludios/gehennom/vlad/endgame/fallback name stripping. No random owner is needed.",
+                  "drawing.c:defsyms source defaults for fountain/sink are already generated in symbol_data.js DEFAULT_PRIMARY_SYMBOLS and symbols.js S_fountain/S_sink. Reuse compiled-in defaults, even when active graphics differs.",
+                  "Canonical tty_menu.js displayTtyTextWindow owns NHW_TEXT create/putstr/display(TRUE)/destroy. Preserve row0 blank top line in tty, x=1..COLNO-1, column0 corruption marker, map-width suffix truncation, and awaited dismissal before ECMD_OK. No new window/display owner credit."
+                ]
+              },
+              "evidence": [
+                "Most recent tracked accepted-B165 v31 evaluation retains11/30screens and11/30cursors for this case with all2526RNG matched. Refreshed selected replay at f6dbbdf9 reproduces the same19remaining screens (.cache/B166/frozen-refreshed.log, bounded run recorded there).",
+                "Read admitted recipe before JS: #terrain sixth option requests a static paired encoding legend. Upstream cmd.c1185 calls wiz_levltyp_legend; JS cmd.js3205-3208 throws terrain menu choice6 is not ported, caught by its fail-closed command wrapper. No RNG mismatch or alternative first source cause.",
+                "Read complete wizcmds.c:wiz_map_levltyp693-835 and wiz_levltyp_legend841-877 at16ff59115315917b93185d026aeefea06db9b0f4. Legend uses last=SIZE(levltyp)&~1, left/right halves, %-28s columns, digit/lowercase/uppercase codes and * for unreachable. These helpers do not exist in JS.",
+                "Read complete source and JS doterrain1098-1189. Retain menu preselection/cancellation/no-time handling and normal/explore subsets; replace only the two wizard refusals with awaited source calls. No direct #extended-command entries exist for these void helpers.",
+                "Adjacent admitted internal-code case points to the same caller family and missing map helper,19remaining screens, all2745RNG matched in the same tracked evaluation. Selected map source has complete existing consumed dependencies; coherent whole paired range is dependency-ready. Claim its companion session before further case diagnosis or report writing.",
+                "Checked live reservations and coordinated with worker A: A167 display-macro/glyph_to_cmap and A168 monster-difficulty scopes do not own these terrain functions or doterrain caller. C152 migration and queued B165 apply/tinning remain excluded. Source functions are independent despite shared cmd.js/wizcmds.js paths."
+              ],
+              "proposal": {
+                "goalId": "port-wizcmds-terrain-internals-v31-20261008",
+                "summary": "Show wizard internal terrain codes and their encoding legend.",
+                "selectionReason": "B165 tinning seed is exact. Independent admitted v31 terrain legend and internal-code cases retain19screens each. Whole paired wizcmds.c functions share the cmd.c doterrain choices5/6 caller and canonical terrain code table; wizard display/difficulty and migration reservations are excluded.",
+                "sourceUnits": [
+                  {
+                    "file": "wizcmds.c",
+                    "name": "wiz_map_levltyp",
+                    "start": 693,
+                    "end": 835
+                  },
+                  {
+                    "file": "wizcmds.c",
+                    "name": "wiz_levltyp_legend",
+                    "start": 841,
+                    "end": 877
+                  }
+                ],
+                "reservations": [
+                  "session:synthetic/v31/v31-terrain-code-legend",
+                  "session:synthetic/v31/v31-terrain-internal-codes",
+                  "source:wizcmds.c:wiz_map_levltyp",
+                  "source:wizcmds.c:wiz_levltyp_legend",
+                  "source:cmd.c:doterrain",
+                  "contract:terrain-type-code-descriptions",
+                  "contract:wizard-terrain-internals-dispatch"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v31/v31-terrain-code-legend.json",
+                  "investigations/synthetic/v31/v31-terrain-internal-codes.json",
+                  "js/wizcmds.js",
+                  "js/cmd.js",
+                  "scripts/wiz-terrain.test.mjs",
+                  "scripts/terrain-projection.test.mjs",
+                  "scripts/cmd-span.test.mjs",
+                  "scripts/cmd.test.mjs",
+                  "scripts/run-wiz-terrain.mjs",
+                  "recipes/wizcmds.c/",
+                  "recordings/wizcmds.c/",
+                  ".cache/"
+                ],
+                "dependencies": [],
+                "runtimeEvidencePlan": [
+                  "Admitted legend segment0steps11-29, with exact table pairing and blocking text-window dismissal; admitted internal-code segment0steps11-29 for raw levl dump and branch/features suffix.",
+                  "Independent C-first wizard map/legend command sequence in another role and cheap deeper-level or graphics option variation; separate normal-mode menu witness pins non-wizard access boundary.",
+                  "Source-pinned raw codes0-9,a-z,A onwards, undiggable stone and illegalcolumn0 !; full description flag/branch order and byte truncation; legend last-even pairing and canonical table parity.",
+                  "Minimal export/rename of existing cmd.c levltyp table keeps one canonical array; do not duplicate or newly copy the fixed table. No whole doterrain, window, dungeon or glyph owner credit."
+                ]
+              }
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-terrain-internal-codes",
+          "session": "synthetic/v31/v31-terrain-internal-codes",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-terrain-internal-codes.session.json",
+          "recordingPath": "challenges/cases/v31/v31-terrain-internal-codes.session.json",
+          "recordingSha256": "055f57915b6d53278a59f174448030604bfcbae264f5688d08591ebfb60bc31c",
+          "recipe": "challenges/cases/v31/v31-terrain-internal-codes.recipe.session.json",
+          "recipeSha256": "986a2746a3a1ac543579863f41b6f841bbdc3691e5c18b32891fa0ab9fe0ceff",
+          "replayInputSha256": "7e92633cc02ae35d062a9d4d2478122bf2026bdc3b73afc93f10391de96c0793",
+          "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+          "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+          "evaluationArtifact": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v31.json",
+          "evaluationUtc": "2026-10-08T20:50:02.970Z",
+          "remainingScreens": 19,
+          "recordedSteps": 30,
+          "previousScreensMatched": 11,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 11,
+              "total": 30
+            },
+            "rng": {
+              "matched": 2745,
+              "total": 2745
+            },
+            "cursors": {
+              "matched": 11,
+              "total": 30
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: terrain menu choice 5 is not ported",
+            "step": 11
+          },
+          "step": 11,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: terrain menu choice 5 is not ported",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-terrain-internal-codes.json",
+            "result": {
+              "session": "synthetic/v31/v31-terrain-internal-codes",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-terrain-internal-codes",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "055f57915b6d53278a59f174448030604bfcbae264f5688d08591ebfb60bc31c",
+              "evaluationPath": "challenges/evaluations/accepted-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-v31.json",
+              "evaluationCommit": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+              "remainingScreens": 19,
+              "recordedSteps": 30,
+              "status": "complete",
+              "commit": "f6dbbdf9e53c6200bd4151e47c2f31bb0a0350a4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-terrain-internal-codes",
+                "session": "synthetic/v31/v31-terrain-internal-codes",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-terrain-internal-codes.session.json",
+                "recordingPath": "challenges/cases/v31/v31-terrain-internal-codes.session.json",
+                "recordingSha256": "055f57915b6d53278a59f174448030604bfcbae264f5688d08591ebfb60bc31c",
+                "recipe": "challenges/cases/v31/v31-terrain-internal-codes.recipe.session.json",
+                "recipeSha256": "986a2746a3a1ac543579863f41b6f841bbdc3691e5c18b32891fa0ab9fe0ceff",
+                "replayInputSha256": "2b9b36d4565562353240545434382d2cf4286947fa33ecc671d1be8ec6bae3de",
+                "evaluationPath": "challenges/evaluations/accepted-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-v31.json",
+                "evaluationCommit": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+                "evaluationArtifact": "challenges/evaluations/accepted-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-v31.json",
+                "evaluationUtc": "2026-10-08T20:13:38.624Z",
+                "remainingScreens": 19,
+                "recordedSteps": 30,
+                "previousScreensMatched": 11,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 11,
+                    "total": 30
+                  },
+                  "rng": {
+                    "matched": 2745,
+                    "total": 2745
+                  },
+                  "cursors": {
+                    "matched": 11,
+                    "total": 30
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: terrain menu choice 5 is not ported",
+                  "step": 11
+                },
+                "step": 11,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: terrain menu choice 5 is not ported",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Wizard terrain internal-code choice5 omits the complete raw levl[][] type display and source level-feature suffix. cmd.c:doterrain calls wizcmds.c:wiz_map_levltyp; JS refuses the wizard choice. Port the paired internal-map and encoding-legend source functions with the shared terrain menu caller, preserving full raw map traversal, diggability codes, branch/features and text-window acknowledgement.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "wizcmds.c",
+                "functions": [
+                  "wiz_map_levltyp",
+                  "wiz_levltyp_legend"
+                ],
+                "branch": "Debug #terrain menu selects internal levl[][] type codes (choice5) or their legend (choice6). Normal/explore menu visibility remains unchanged. Both source functions return void and display a blocking NHW_TEXT window without spending a turn.",
+                "callers": [
+                  "cmd.c:doterrain1181-1186 is the sole active caller family for both functions; choices5/6 only appear for wizard mode. Existing JS doterrain retains normal subsets1-4 and currently refuses5/6. Interactive and canned command dispatch already converge on doterrain."
+                ],
+                "dependencies": [
+                  "cmd.c:levltyp1072-1086 is already represented by private LEVLTYP_NAMES in js/cmd.js, including unreachable/undiggable and empty padding entries. Export/reuse that single canonical array; retain existing levltyp_to_name MAX_TYPE result bounds.",
+                  "hack.c:may_dig923-930 and existing state-aware js/hack.js helper match the source undiggable-stone/tree wall_info condition. No consumed callee gap.",
+                  "dungeon.c:Is_special1448-1459, On_W_tower_level1914-1920 and Invocation_lev2017-2022 have whole source-shaped JS owners. Existing special-level linked topology is represented by canonical specialLevels; use the returned special proto/flags, dungeon flags and final-level arithmetic unchanged.",
+                  "include/dungeon.h branch macros Is_knox/In_sokoban/In_endgame and Sokoban property: compare the canonical level coordinates/branch ids in source order, including dungeon0 before mines/sokoban/quest/ludios/gehennom/vlad/endgame/fallback name stripping. No random owner is needed.",
+                  "drawing.c:defsyms source defaults for fountain/sink are already generated in symbol_data.js DEFAULT_PRIMARY_SYMBOLS and symbols.js S_fountain/S_sink. Reuse compiled-in defaults, even when active graphics differs.",
+                  "Canonical tty_menu.js displayTtyTextWindow owns NHW_TEXT create/putstr/display(TRUE)/destroy. Preserve row0 blank top line in tty, x=1..COLNO-1, column0 corruption marker, map-width suffix truncation, and awaited dismissal before ECMD_OK. No new window/display owner credit."
+                ]
+              },
+              "evidence": [
+                "Tracked accepted-B165 v31 evaluation retains11/30screens and11/30cursors for internal codes with all2745RNG matched. Focused selected replay at current f6dbbdf9 lineage reproduces the same19remaining screens (.cache/B166/internal-before.log).",
+                "Admitted recipe selects #terrain fifth option. C source1182 calls wiz_map_levltyp, which draws tty blank top line then21 raw map rows and D:0,L:1 dungeon suffix. JS cmd.js3205-3208 refuses choice5 before entering any raw-map display owner.",
+                "Read complete wizcmds.c:wiz_map_levltyp693-835 and wiz_levltyp_legend841-877 at16ff59115315917b93185d026aeefea06db9b0f4. Legend uses last=SIZE(levltyp)&~1, left/right halves, %-28s columns, digit/lowercase/uppercase codes and * for unreachable. These helpers do not exist in JS.",
+                "Read complete source and JS doterrain1098-1189. Retain menu preselection/cancellation/no-time handling and normal/explore subsets; replace only the two wizard refusals with awaited source calls. No direct #extended-command entries exist for these void helpers.",
+                "Checked live reservations and coordinated with worker A: A167 display-macro/glyph_to_cmap and A168 monster-difficulty scopes do not own these terrain functions or doterrain caller. C152 migration and queued B165 apply/tinning remain excluded. Source functions are independent despite shared cmd.js/wizcmds.js paths."
+              ],
+              "proposal": {
+                "goalId": "port-wizcmds-terrain-internals-v31-20261008",
+                "summary": "Show wizard internal terrain codes and their encoding legend.",
+                "selectionReason": "B165 tinning seed is exact. Independent admitted v31 terrain legend and internal-code cases retain19screens each. Whole paired wizcmds.c functions share the cmd.c doterrain choices5/6 caller and canonical terrain code table; wizard display/difficulty and migration reservations are excluded.",
+                "sourceUnits": [
+                  {
+                    "file": "wizcmds.c",
+                    "name": "wiz_map_levltyp",
+                    "start": 693,
+                    "end": 835
+                  },
+                  {
+                    "file": "wizcmds.c",
+                    "name": "wiz_levltyp_legend",
+                    "start": 841,
+                    "end": 877
+                  }
+                ],
+                "reservations": [
+                  "session:synthetic/v31/v31-terrain-code-legend",
+                  "session:synthetic/v31/v31-terrain-internal-codes",
+                  "source:wizcmds.c:wiz_map_levltyp",
+                  "source:wizcmds.c:wiz_levltyp_legend",
+                  "source:cmd.c:doterrain",
+                  "contract:terrain-type-code-descriptions",
+                  "contract:wizard-terrain-internals-dispatch"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v31/v31-terrain-code-legend.json",
+                  "investigations/synthetic/v31/v31-terrain-internal-codes.json",
+                  "js/wizcmds.js",
+                  "js/cmd.js",
+                  "scripts/wiz-terrain.test.mjs",
+                  "scripts/terrain-projection.test.mjs",
+                  "scripts/cmd-span.test.mjs",
+                  "scripts/cmd.test.mjs",
+                  "scripts/run-wiz-terrain.mjs",
+                  "recipes/wizcmds.c/",
+                  "recordings/wizcmds.c/",
+                  ".cache/"
+                ],
+                "dependencies": [],
+                "runtimeEvidencePlan": [
+                  "Admitted legend segment0steps11-29, with exact table pairing and blocking text-window dismissal; admitted internal-code segment0steps11-29 for raw levl dump and branch/features suffix.",
+                  "Independent C-first wizard map/legend command sequence in another role and cheap deeper-level or graphics option variation; separate normal-mode menu witness pins non-wizard access boundary.",
+                  "Source-pinned raw codes0-9,a-z,A onwards, undiggable stone and illegalcolumn0 !; full description flag/branch order and byte truncation; legend last-even pairing and canonical table parity.",
+                  "Minimal export/rename of existing cmd.c levltyp table keeps one canonical array; do not duplicate or newly copy the fixed table. No whole doterrain, window, dungeon or glyph owner credit."
+                ]
+              }
             }
           }
         }

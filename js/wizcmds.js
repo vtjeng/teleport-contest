@@ -115,7 +115,9 @@ import { dmonsfree } from './makemon_create.js';
 import { AD_PHYS, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
 import { note_unported } from './unported.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
-import { cmd_from_func, getdir, levltyp, makemap_prepost, paranoid_query, yn_function } from './cmd.js';
+import {
+    cmd_from_func, getdir, levltyp, makemap_prepost, paranoid_query, yn_function,
+} from './cmd.js';
 import { hurtle, mhurtle } from './dothrow.js';
 import { display_inventory } from './invent.js';
 import {
