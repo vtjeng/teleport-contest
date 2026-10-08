@@ -4,6 +4,7 @@
 
 import {
     MAXTCHARS,
+    HI_ZAP,
     COLNO,
     GFILTER_NONE,
     GFILTER_VIEW,
@@ -111,6 +112,7 @@ import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { Invocation_lev } from './dungeon.js';
 import { tty_create_nhwindow, tty_curs } from './wintty.js';
 import { select_menu } from './windows.js';
+import { NO_COLOR } from './terminal.js';
 
 // C ref: getpos.c dxdy_to_dist_descr() (557-590).  This is shared by the
 // status window's held-by-monster line and the farlook helpers; keep the
@@ -174,54 +176,50 @@ function cursorAt(x, y, state) {
     tty_curs(wt.WIN_MAP, x, y, state);
 }
 
-// C refs: getpos.c getpos_sethilite() (41-63),
-// selvar.c selection_force_newsyms() (802-810), and display.c newsym_force()
-// (1863-1871).  The jump caller installs getpos_getvalid before entering
-// getpos().  C marks every valid square dirty when that callback changes, so
-// the first flush prints those cells and leaves the tty cursor immediately
-// after the last one in display.c's row-major flush order.  The browser owns a
-// complete grid rather than a gbuf range, so retain the same final cursor as a
-// pending map position while still using newsym() for each forced glyph.
-// C ref: getpos.c getpos_getvalids_selection() (102-115).  The selection
-// object itself is temporary; callers only need the coordinates it contains
-// while they force the corresponding map glyphs.
+// C getpos.c:getpos_getvalids_selection (102–115). The existing temporary
+// selection is represented by coordinates; validity callbacks keep C order.
 export async function getpos_getvalids_selection(valid, state = game) {
     if (typeof valid !== 'function') return [];
     const selected = [];
-    for (let x = 1; x < COLNO; ++x) {
-        for (let y = 0; y < ROWNO; ++y) {
-            if (!await valid(x, y, state)) continue;
-            selected.push({ x, y });
-        }
-    }
+    for (let x = 1; x < COLNO; ++x)
+        for (let y = 0; y < ROWNO; ++y)
+            if (await valid(x, y, state)) selected.push({x, y});
     return selected;
 }
 
-async function forceGetposSelectionRedraw(state) {
-    const valid = state.getpos_getvalid;
-    if (typeof valid !== 'function' || !state.level?.at) return null;
-
-    const selected = await getpos_getvalids_selection(valid, state);
-    for (const { x, y } of selected) {
-        newsym(x, y);
-        // newsym_force() calls newsym() and then sets gnew even when the
-        // glyph itself did not change.  JS newsym() uses the live game
-        // object, which is the state passed to production getpos().
-        const location = state.level.at(x, y);
-        if (location) location.gnew = 1;
+// C getpos.c:getpos_sethilite (41–63). Callback mode is global per game,
+// not local to one getpos loop. gw.wsettings owns C's map_frame_color.
+export async function getpos_sethilite(gp_hilitef, gp_getvalidf, state = game) {
+    const old_getvalid = state.getpos_getvalid ?? null;
+    state.gw ??= {};
+    state.gw.wsettings ??= {};
+    const old_map_frame_color = state.gw.wsettings.map_frame_color ?? NO_COLOR;
+    state.defaultHiliteState = state.iflags?.bgcolors ? 2 : 0;
+    state.getpos_hilite_state ??= 0;
+    if (gp_getvalidf !== old_getvalid)
+        state.getpos_hilite_state = state.defaultHiliteState;
+    const selected = await getpos_getvalids_selection(old_getvalid, state);
+    state.getpos_hilitefunc = gp_hilitef;
+    state.getpos_getvalid = gp_getvalidf;
+    selected.push(...await getpos_getvalids_selection(gp_getvalidf, state));
+    state.gw.wsettings.map_frame_color = state.getpos_hilite_state === 2
+        ? HI_ZAP : NO_COLOR;
+    if (state.getpos_getvalid !== old_getvalid
+        || state.gw.wsettings.map_frame_color !== old_map_frame_color) {
+        // C selection_force_newsyms iterates the union in x-then-y order.
+        const union = [...new Map(selected.map(({x,y})=>[x * ROWNO + y,{x,y}])).values()]
+            .sort((a,b)=>a.x-b.x || a.y-b.y);
+        let last = null;
+        for (const {x,y} of union) {
+            newsym(x,y);
+            const cell = state.level.at(x,y);
+            if (cell) cell.gnew = 1; // display.c:newsym_force's dirty glyph.
+            if (!last || y > last.y || (y === last.y && x > last.x)) last={x,y};
+        }
+        // Existing HUP cursor adapter: the recorder's map curs() is a no-op;
+        // a forced redraw leaves its cursor after the last row-major glyph.
+        state.getpos_forced_map_cursor = last;
     }
-
-    // C flush_glyph_buffer() scans rows, then columns. The recorder's HUP
-    // window port leaves curs() as a no-op, so if no later pline flushes with
-    // cursor_on_u, the selection redraw leaves the terminal cursor after the
-    // last dirty glyph. tty_print_glyph() advances one column past that cell.
-    let last = null;
-    for (const position of selected) {
-        if (!last || position.y > last.y
-            || (position.y === last.y && position.x > last.x))
-            last = position;
-    }
-    return last;
 }
 
 function sign(value) {
@@ -328,7 +326,13 @@ async function getpos_refresh(state = game) {
     // caller signature explicit for focused getpos tests.
     if (state !== game)
         throw new Error('getpos_refresh requires the module-level game');
+    if (state.getpos_hilitefunc && state.getpos_hilite_state === 1) {
+        await state.getpos_hilitefunc(false, state);
+        state.getpos_hilite_state = state.defaultHiliteState;
+    }
     await docrt();
+    if (state.getpos_hilitefunc && state.getpos_hilite_state === 2)
+        await getpos_sethilite(state.getpos_hilitefunc, state.getpos_getvalid, state);
 }
 
 // C ref: getpos.c getpos_help() (165-307). NHW_MENU text consumes the next
@@ -902,17 +906,12 @@ export async function getpos(ccp, force, goal, state = game) {
     const target = goal || 'desired location';
     let cx = ccp.x;
     let cy = ccp.y;
-    // C apply.c:jump() installs getpos_sethilite() before entering getpos();
-    // that callback installation marks changed valid squares dirty before
-    // getpos.c handles its tip and verbose pline. Let those messages consume
-    // the dirty selection in source order, with their cursor_on_u flush.
-    const forcedMapCursor = await forceGetposSelectionRedraw(state);
+    // C callers install the selection before entering getpos. A tip or
+    // verbose pline consumes its dirty glyphs in the same source order.
+    const forcedMapCursor = state.getpos_forced_map_cursor;
+    state.getpos_forced_map_cursor = null;
     let showGoalMessage = await handle_tip(TIP_GETPOS, state);
     let messageGiven = true;
-    // getpos_sethilite() in C keeps a callback and a three-state mode. The
-    // jump caller supplies the callback; the default starts with no visible
-    // good-position markers when background highlighting is disabled.
-    let hiliteState = state.iflags?.bgcolors ? 2 : 0;
     // Build the active special-key table before reading input, matching C's
     // pick_chars derivation immediately before the prompt starts.
     state.commandBindings ??= createCommandBindingModel(state);
@@ -1010,15 +1009,16 @@ export async function getpos(ccp, force, goal, state = game) {
             // callback only controls the optional valid-square highlights.
             if (key === hiliteKey) {
                 if (state.getpos_hilitefunc) {
-                    if (hiliteState === 1) {
+                    // C getpos_toggle_hilite_state: finish the old symbol
+                    // overlay, change mode, then publish through the setter.
+                    if (state.getpos_hilite_state === 1)
                         await state.getpos_hilitefunc(false, state);
-                        hiliteState = 0;
-                    } else if (!state.iflags?.bgcolors) {
-                        hiliteState = 1;
+                    state.getpos_hilite_state = ((state.getpos_hilite_state ?? 0) + 1)
+                        % (state.iflags?.bgcolors ? 3 : 2);
+                    await getpos_sethilite(state.getpos_hilitefunc,
+                        state.getpos_getvalid, state);
+                    if (state.getpos_hilite_state === 1)
                         await state.getpos_hilitefunc(true, state);
-                    } else {
-                        hiliteState = 0;
-                    }
                 }
                 showGoalMessage = true;
                 messageGiven = true;
@@ -1149,12 +1149,11 @@ export async function getpos(ccp, force, goal, state = game) {
             cursorAt(cx, cy, state);
         }
     } finally {
-        if (hiliteState === 1 && state.getpos_hilitefunc)
-            await state.getpos_hilitefunc(false, state);
         if (messageGiven)
             clearTtyMessageWindow(state);
         state.gg.getposx = 0;
         state.gg.getposy = 0;
+        await getpos_sethilite(null, null, state);
         state.u.dx = savedDirection.dx;
         state.u.dy = savedDirection.dy;
         state.u.dz = savedDirection.dz;
