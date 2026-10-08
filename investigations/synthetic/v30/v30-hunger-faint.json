@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v30/v30-hunger-faint",
+  "corpus": "synthetic",
+  "batch": "v30",
+  "caseId": "v30-hunger-faint",
+  "manifestPath": "challenges/manifests/v30.json",
+  "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+  "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+  "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+  "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+  "remainingScreens": 2532,
+  "recordedSteps": 2532,
+  "status": "complete",
+  "commit": "97e5495e85d2718a3bdca8f1ff74400dc4d6d0fb",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v30",
+    "caseId": "v30-hunger-faint",
+    "session": "synthetic/v30/v30-hunger-faint",
+    "manifestPath": "challenges/manifests/v30.json",
+    "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+    "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+    "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+    "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+    "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+    "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+    "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+    "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+    "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+    "evaluationArtifact": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+    "evaluationUtc": "2026-10-08T11:27:53.571Z",
+    "remainingScreens": 2532,
+    "recordedSteps": 2532,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "mattackm requires a message operation",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 2532
+      },
+      "rng": {
+        "matched": 0,
+        "total": 27304
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 2532
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: mattackm requires a message operation",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: mattackm requires a message operation",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Ordinary monster movement omits the message/redraw/invisible-marker operations required by canonical monster-versus-monster combat. The clone planning pass throws in hitmm before step812; companion hungry-combat-lifesave throws in missmm before step904 at the same caller. Bind the canonical planning/live operations at moveSimpleOrdinary without changing combat or hunger owners.",
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "monmove.c",
+    "branch": "Ordinary movement selects ALLOW_M or occupied remembered hero image, then m_move_aggress consumes mattackm and optional counterattack result.",
+    "functions": [
+      "m_move",
+      "m_move_aggress"
+    ],
+    "callers": [
+      "allmain.c moveloop_core -> mon.c movemon/movemon_singlemon -> monmove.c dochugw/dochug -> m_move:2023 -> m_move_aggress:2097/2120 -> mhitm.c mattackm -> hitmm/missmm",
+      "JS runSimpleMonsterAction -> moveSimpleOrdinary -> m_move -> m_move_aggress forwards an incomplete env in clone planning and live execution"
+    ],
+    "dependencies": [
+      "Reuse canonical mhitm.c:mattackm/hitmm/missmm/pre_mm_attack/mdamagem/passivemm; preserve state/random and consumed M_ATTK_* results.",
+      "Canonical ttyPline, newsym and map_invisible supplied only for live execution; planning must suppress all three to avoid display/map-memory writes. No whole m_move/m_move_aggress completion credit."
+    ]
+  },
+  "evidence": [
+    "Read whole monmove.c:m_move1715-2075 and m_move_aggress2088-2126 plus existing JS counterparts. Source2023 enters aggression;2097 initial mattackm,2112 counterattack gates rn2(4) then rn2(NORMAL_SPEED),2120 reverse mattackm; keep all results/order unchanged.",
+    "mhitm.c:pre_mm_attack595-639 redraws and marks combatants; hitmm642-731 and missmm74-93 print or enter noises. js/mhitm.js requires message even when neither combatant is visible, so adding only output conditionals cannot repair the caller.",
+    "Saved assigned replay .cache/A155/v30-hunger-faint-replay.json:812 existing screens/cursors all equal C,8738 RNG prefix equal before uncommitted planned attack is discarded. First uncaptured boundary812, moves399; C boundary812 logs rnd(20),mdamagem and counterattack draws from m_move_aggress.",
+    "Assigned companion .cache/A155/v30-hungry-combat-lifesave-replay.json:904 existing screens/cursors equal C,16594 RNG prefix equal; missmm throws at the identical m_move_aggress source route. Group both; names do not establish a hunger defect.",
+    "Bounded implementation: moveSimpleOrdinary supplies env.message, env.redraw, env.markInvisible using planning no-ops or caller operations/canonical live defaults. Source-pinned fail-first hit/miss and clone-isolation tests, both admitted full cases, independent C-first ordinary monster collision variation, plus named unrelated attack frontiers."
+  ]
+}
