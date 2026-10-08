@@ -6,6 +6,7 @@
 // rloc_pos_ok(), stairway_find_forwiz(), rloc_to_core(), rloc_to_flag(),
 // rloc_to(), rloc(), control_mon_tele() and u_teleport_mon().
 
+import { buried_ball_to_punishment } from './dig.js';
 import {
     ALTAR,
     ANTIMAGIC,
@@ -1542,11 +1543,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
         );
     }
     if (u.utraptype === TT_BURIEDBALL) {
-        // dig.c buried_ball_to_punishment() is still outside this span. Keep
-        // its existing boundary before reading the live punishment objects.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'teleds() unearthing a buried ball',
-        );
+        await buried_ball_to_punishment(state);
     }
     let ball_active = Boolean(state.uball)
         && state.uball.where !== OBJ_FREE;
@@ -2041,13 +2038,9 @@ export async function level_tele(state = game) {
         }
     }
 
-    // Common tail (teleport.c:1301-1428). buried_ball_to_punishment() owns
-    // object extraction and punishment state, and remains an explicit gap.
+    // Common tail (teleport.c:1301-1428). Restore the ball before next_to_u.
     if (u.utrap && u.utraptype === TT_BURIEDBALL) {
-        note_unported('dig.c buried_ball_to_punishment');
-        throw new UnsupportedLevelChangeError(
-            'level_tele() with the hero tethered to a buried ball',
-        );
+        await buried_ball_to_punishment(state);
     }
     // teleport.c:1304 evaluates next_to_u() before checking force_dest, so the
     // companion scan still runs for controlled wizard destinations.

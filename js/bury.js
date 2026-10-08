@@ -7,18 +7,15 @@ import {
     TIMER_OBJECT,
     TT_BURIEDBALL,
 } from './const.js';
-import { del_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
     add_to_buried,
     obfree,
     obj_extract_self,
-    stackobj,
 } from './invent.js';
 import { is_rider } from './mondata.js';
 import {
     objectType,
-    place_object,
 } from './obj.js';
 import {
     AMULET_OF_YENDOR,
@@ -26,7 +23,6 @@ import {
     BOULDER,
     CANDELABRUM_OF_INVOCATION,
     CORPSE,
-    HEAVY_IRON_BALL,
     LEASH,
     POTION_CLASS,
     POT_OIL,
@@ -47,22 +43,12 @@ import { ttyPline } from './tty_message.js';
 import {
     end_burn,
     start_timer,
-    stop_timer,
 } from './timeout.js';
 import {
     is_ice,
 } from './dbridge.js';
 
 const SOURCE_RANDOM = Object.freeze({ rn1, rn2, rnd });
-
-export class UnsupportedBurialError extends Error {
-    constructor(operation, obj) {
-        super(`burial requires ${operation} for otyp ${obj?.otyp}`);
-        this.name = 'UnsupportedBurialError';
-        this.operation = operation;
-        this.otyp = obj?.otyp;
-    }
-}
 
 function burialEnvironment(rawEnv = {}, randomNames = ['rn2']) {
     const random = rawEnv.random ?? SOURCE_RANDOM;
@@ -194,58 +180,4 @@ export async function bury_an_obj(obj, rawEnv = {}) {
     }
     add_to_buried(obj, env);
     return { next, deallocated: false };
-}
-
-// C ref: dig.c unearth_objs(). A pit or hole exposes every buried object at
-// its square, cancels organic burial rot, returns each object to both floor
-// indexes, and then applies ordinary floor-stack merging.
-export function unearth_objs(x, y, rawEnv = {}) {
-    const env = {
-        ...rawEnv,
-        state: rawEnv.state ?? game,
-        hooks: rawEnv.hooks ?? {},
-    };
-    const { state } = env;
-    validateBuriedChain(state);
-
-    let buriedBall = null;
-    if (!state.u?.utrap || state.u.utraptype === TT_BURIEDBALL) {
-        for (let obj = state.level.buriedobjlist; obj; obj = obj.nobj) {
-            if (obj.otyp === HEAVY_IRON_BALL
-                && obj.ox === x && obj.oy === y) {
-                buriedBall = obj;
-                break;
-            }
-        }
-    }
-    const restorePunishment = buriedBall
-        && state.u?.utrap
-        && state.u.utraptype === TT_BURIEDBALL
-        ? (env.buriedBallToPunishment
-            ?? env.hooks.buriedBallToPunishment)
-        : null;
-    if (buriedBall && state.u?.utrap
-        && state.u.utraptype === TT_BURIEDBALL
-        && typeof restorePunishment !== 'function') {
-        throw new UnsupportedBurialError(
-            'buried_ball_to_punishment',
-            buriedBall,
-        );
-    }
-
-    for (let obj = state.level.buriedobjlist, next; obj; obj = next) {
-        next = obj.nobj;
-        if (obj.ox !== x || obj.oy !== y) continue;
-        if (obj === buriedBall && state.u?.utrap
-            && state.u.utraptype === TT_BURIEDBALL) {
-            restorePunishment(env);
-            continue;
-        }
-        obj_extract_self(obj, env);
-        if (obj.timed) stop_timer(ROT_ORGANIC, obj, state, env);
-        place_object(obj, x, y, env);
-        stackobj(obj, env);
-    }
-    del_engr_at(x, y, state);
-    env.hooks.newsym?.(x, y, env);
 }
