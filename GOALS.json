@@ -215496,6 +215496,62 @@
           "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b"
         }
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-telekinesis-v31-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the wizard telekinesis target loop and command dispatcher",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-telekinesis-monster",
+        "synthetic/v31/v31-telekinesis-selector-unfinished"
+      ],
+      "selectionReason": "Independent source-traced seed continuation after the completed wizard difficulty report; telekinesis is a whole 35-line source target loop with canonical return owners. The related unfinished-selector case uses the same function; active terrain and migration scopes are excluded.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_telekinesis",
+          "line": 494,
+          "endLine": 533,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 494,
+        "to": 533
+      },
+      "syntheticProvenance": {
+        "synthetic/v31/v31-telekinesis-monster": {
+          "session": "synthetic/v31/v31-telekinesis-monster",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-telekinesis-monster",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-telekinesis-monster.session.json",
+          "recordingSha256": "63756628680c41a6677541f20a4d570b5d786a9dfbaa35564202919dc91a48f0",
+          "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+          "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b"
+        },
+        "synthetic/v31/v31-telekinesis-selector-unfinished": {
+          "session": "synthetic/v31/v31-telekinesis-selector-unfinished",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-telekinesis-selector-unfinished",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-telekinesis-selector-unfinished.session.json",
+          "recordingSha256": "baa93bfa25142d15abce4807b8b0d663247e661df2308bd586f6493e9bc742aa",
+          "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+          "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b"
+        }
+      }
     }
   ]
 }
