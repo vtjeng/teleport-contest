@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Vlad grease/armed Knight witness, reusing worker A143 seed14328011 and clock20610709141723 after A144 admits ordinary dry THRONE floor drops. This input was chosen independently of the admitted challenge. C special_throne_effect6 sets Glib, and production allmain.c -> do_wear.c:glibr -> do.c:dropx drops the sword while preserving THRONE. The earlier source-owned blocked recipe remains unchanged in sit.c.",
+  "segments": [
+    {
+      "seed": 14328011,
+      "datetime": "20610709141723",
+      "nethackrc": "OPTIONS=name:ThroneGrease,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,!tips,!verbose\n",
+      "moves": " #levelchange\n25\n                                                                                          m\u0016>I\n                                   \u0017throne\n               #sit\n 6\n                         i "
+    }
+  ]
+}

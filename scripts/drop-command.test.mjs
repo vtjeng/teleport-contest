@@ -9,6 +9,7 @@ import {
     BURN,
     DUST,
     ENGRAVE,
+    FOUNTAIN,
     ECMD_FAIL,
     ECMD_TIME,
     GETOBJ_EXCLUDE,
@@ -23,6 +24,7 @@ import {
     POOL,
     ROOM,
     SINK,
+    THRONE,
     W_ARMS,
     W_WEP,
     W_SWAPWEP,
@@ -30,14 +32,17 @@ import {
     W_SADDLE,
 } from '../js/const.js';
 import {
-    UnsupportedDropError, _dropInternals, canletgo, dodrop, dropCommandEnv, preflight_dropx,
+    UnsupportedDropError, _dropInternals, canletgo, dodrop, dropCommandEnv, dropx, preflight_dropx,
 } from '../js/do.js';
 import { game } from '../js/gstate.js';
+import { glibr } from '../js/do_wear.js';
+import { planningState } from '../js/unported_monster_actions.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { addinv, any_obj_ok } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
+import { loadThroneDropRecipe, THRONE_DROP_CASES } from './run-throne-drop.mjs';
 import { getRngLog } from '../js/rng.js';
-import { mksobj, newObject } from '../js/obj.js';
+import { mksobj, newObject, remove_object } from '../js/obj.js';
 import { stairway_at } from '../js/stairs.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
@@ -1027,4 +1032,113 @@ test('forced drop admits the sole primary mask and retains other worn refusals',
     assert.throws(() => preflight_dropx(obj, dropCommandEnv(game)),
         error => error instanceof UnsupportedDropError
             && /worn or attached/u.test(error.message));
+});
+
+// do.c:dropx -> dropz -> flooreffects has no THRONE branch. A dry throne
+// returns FALSE and reaches the ordinary placement path without a new draw.
+test('a dry throne admits a carried object and a wielded weapon', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/do.c', import.meta.url), 'utf8');
+    const floorPath = source.slice(source.indexOf('\nflooreffects('), source.indexOf('/* obj is an object dropped on an altar */'));
+    assert.match(floorPath, /int ttyp = NO_TRAP, res = FALSE/u);
+    assert.doesNotMatch(floorPath, /THRONE/u);
+    assert.match(floorPath, /return res;/u);
+    for (const wielded of [false, true]) {
+        const state = await startedGame();
+        // Move off the upstairs so stairway admission cannot hide THRONE.
+        state.u.ux++;
+        const { ux, uy } = state.u;
+        assert.equal(stairway_at(ux, uy, state), null);
+        state.level.at(ux, uy).typ = THRONE;
+        const obj = wielded ? state.uwep
+            : addinv(mksobj(RUBY, false, false, { state }), { state });
+        const priorInventory = state.invent;
+        const rngBefore = getRngLog().length;
+        assert.doesNotThrow(() => preflight_dropx(obj, dropCommandEnv(state)));
+        assert.strictEqual(state.invent, priorInventory, 'preflight leaves inventory intact');
+        assert.equal(obj.where, OBJ_INVENT);
+        assert.equal(getRngLog().length, rngBefore);
+        assert.equal(await _dropInternals.drop(obj, state), ECMD_TIME);
+        assert.equal(obj.where, OBJ_FLOOR);
+        assert.equal(obj.ox, ux);
+        assert.equal(obj.oy, uy);
+        assert.ok(pileAt(state, ux, uy).includes(obj));
+        assert.ok(!letters(state).includes(obj.invlet));
+        if (wielded) assert.equal(state.uwep, null);
+        assert.equal(state.level.at(ux, uy).typ, THRONE);
+        assert.equal(getRngLog().length, rngBefore);
+    }
+});
+
+// allmain.c calls glibr before timeout, and do_wear.c clears uwep before
+// dropx. Use the canonical helper on the planning copy and the live state.
+test('slippery fingers drop onto a throne without changing the live planning source', async () => {
+    const state = await startedGame();
+    state.u.ux++; // A non-stairway square isolates the throne admission.
+    const { ux, uy } = state.u;
+    state.level.at(ux, uy).typ = THRONE;
+    const weapon = state.uwep;
+    const planned = planningState(state);
+    const plannedWeapon = planned.uwep;
+    const rngBefore = getRngLog().length;
+    const topLine = state._ttyToplines;
+    const silent = async () => {};
+    await glibr(planned, {
+        message: silent, canletgo,
+        dropx: obj => dropx(obj, {
+            state: planned,
+            hooks: { encumberMessage: silent, newsym: () => {},
+                extractExternalObject: remove_object },
+        }),
+    });
+    assert.equal(planned.uwep, null);
+    assert.equal(plannedWeapon.where, OBJ_FLOOR);
+    assert.ok(pileAt(planned, ux, uy).includes(plannedWeapon));
+    assert.strictEqual(state.uwep, weapon);
+    assert.equal(weapon.where, OBJ_INVENT);
+    assert.equal(state._ttyToplines, topLine);
+    assert.equal(getRngLog().length, rngBefore);
+    await glibr(state, {
+        canletgo, dropx: obj => dropx(obj, dropCommandEnv(state)),
+    });
+    assert.equal(state.uwep, null);
+    assert.equal(weapon.where, OBJ_FLOOR);
+    assert.ok(pileAt(state, ux, uy).includes(weapon));
+    assert.equal(state._ttyToplines, 'Your spear slips from your hand.');
+    assert.equal(getRngLog().length, rngBefore);
+});
+
+// The C-first recipes exercise command removal, an object-class variation,
+// and the production slippery-finger callback without recorded answers.
+test('throne drop recipes retain the command and elapsed-turn entry points', () => {
+    assert.deepEqual(THRONE_DROP_CASES.map(entry => entry.name), ['weapon', 'gem', 'glibr']);
+    for (const entry of THRONE_DROP_CASES) {
+        const recipe = loadThroneDropRecipe(entry.name);
+        assert.equal(recipe.version, 5); // Input-only recipe format.
+        assert.equal(recipe.segments.length, 1); // A fresh independent game per entry.
+        assert.ok(!Object.hasOwn(recipe.segments[0], 'steps'));
+        const moves = recipe.segments[0].moves;
+        assert.ok(moves.includes('throne\n'));
+        if (entry.name === 'glibr') assert.ok(moves.includes('#sit\n'));
+        else assert.ok(moves.startsWith(' h')); // C-established non-stair floor step.
+    }
+});
+
+// A144 admits only the ordinary dry throne path. A pit beneath it and
+// other furniture retain their separate source/admission boundaries.
+test('throne admission retains the trap and other-furniture frontiers', async () => {
+    for (const hazard of ['pit', 'fountain']) {
+        const state = await startedGame();
+        state.u.ux++; // Avoid the upstairs exception in terrain admission.
+        const { ux, uy } = state.u;
+        state.level.at(ux, uy).typ = hazard === 'pit' ? THRONE : FOUNTAIN;
+        if (hazard === 'pit') state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: false });
+        const obj = addinv(mksobj(RUBY, false, false, { state }), { state });
+        const rngBefore = getRngLog().length;
+        assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
+            error => error instanceof UnsupportedDropError
+                && /floor effects at a trap|non-ordinary terrain/u.test(error.message));
+        assert.equal(obj.where, OBJ_INVENT);
+        assert.ok(!pileAt(state, ux, uy).includes(obj));
+        assert.equal(getRngLog().length, rngBefore);
+    }
 });
