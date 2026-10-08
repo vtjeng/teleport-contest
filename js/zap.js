@@ -50,7 +50,7 @@ import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import {
     bot, cmap_to_glyph, flush_screen, glyph_is_invisible, glyph_is_monster, glyph_at, map_glyphinfo, map_invisible, glyph_is_warning, newsym, knowninvisible, obj_to_glyph, shieldeff, tmp_at, unmap_invisible, unmap_object, zapdir_to_glyph, } from './display.js';
 import {
-    christen_monst, hliquid, a_monnam, noit_Monnam, Monnam, mon_nam, monsterCommonName, rndmonnam, } from './do_name.js';
+    christen_monst, free_oname, hliquid, a_monnam, noit_Monnam, Monnam, mon_nam, monsterCommonName, rndmonnam, } from './do_name.js';
 import { get_mtraits } from './corpstat.js';
 import { eaten_stat, fix_petrification, vegetarian } from './eat.js';
 import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
@@ -86,6 +86,7 @@ import {
     obj_extract_self,
     delobj,
     delobj_core,
+    container_weight,
     mergedRuntime,
     sobj_at,
 } from './invent.js';
@@ -100,7 +101,7 @@ import {
     AD_ACID, AD_ANY, AD_COLD, AD_DGST, AD_DISN, AD_DRLI, AD_ELEC, AD_FIRE, AD_DRST, AD_MAGM, AD_RBRE, AD_SEDU, AD_SSEX, AD_WRAP, AT_ENGL, PM_CLAY_GOLEM, PM_CROCODILE, PM_FLESH_GOLEM, PM_GLASS_GOLEM, PM_GOLD_GOLEM, PM_IRON_GOLEM, PM_LEATHER_GOLEM, PM_PAPER_GOLEM, PM_ROPE_GOLEM, PM_SKELETON, PM_STONE_GOLEM, PM_STRAW_GOLEM, PM_WOOD_GOLEM, PM_DEATH, PM_DOPPELGANGER, PM_MONK, PM_KNIGHT, PM_HEALER, PM_GHOST, PM_PESTILENCE, PM_GREMLIN, PM_LONG_WORM, PM_ARCHEOLOGIST, G_NOCORPSE, G_UNIQ, NUMMONS, S_EEL, S_GOLEM, S_MIMIC, S_ZOMBIE, MZ_MEDIUM, } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
-import { del_engr_at, engr_at, make_engr_at } from './engrave.js';
+import { del_engr_at, engr_at, make_engr_at, rloc_engr } from './engrave.js';
 import { random_engraving } from './random_engraving.js';
 import {
     carried,
@@ -2775,9 +2776,8 @@ export async function break_statue(obj, state = game, random = { rn1 }, rawEnv =
     return true;
 }
 
-// C ref: zap.c cancel_item() (1239-1362). The void blank_novel() callee is
-// still an explicit source gap; timer returns and the surrounding object
-// mutations remain source ordered.
+// C ref: zap.c cancel_item() (1239-1362). Timer returns and the surrounding
+// object mutations remain source ordered.
 export async function cancel_item(obj, state = game, rawEnv = {}) {
     const otyp = obj.otyp;
     const alterationEnv = objectGenerationEnv({
@@ -2872,7 +2872,7 @@ export async function cancel_item(obj, state = game, rawEnv = {}) {
                 alterCost(COST_CANCEL);
                 obj.otyp = SPE_BLANK_PAPER;
                 if (otyp === SPE_NOVEL)
-                    note_unported('zap.c blank_novel');
+                    blank_novel(obj, alterationEnv);
             }
             break;
         case POTION_CLASS:
@@ -2898,6 +2898,16 @@ export async function cancel_item(obj, state = game, rawEnv = {}) {
     }
     await unbless(obj, alterationEnv);
     await uncurse(obj, alterationEnv);
+}
+
+// C ref: zap.c blank_novel() (1367-1376). The caller changes otyp first;
+// novelidx is the obj.h alias of corpsenm, and containers share this weight update.
+export function blank_novel(obj, env = {}) {
+    if (obj.otyp !== SPE_BLANK_PAPER)
+        throw new Error('blank_novel requires a blank spellbook');
+    obj.novelidx = 0;
+    free_oname(obj);
+    container_weight(obj, env);
 }
 
 // C ref: zap.c drain_item() (1382-1455). Drain one positive enchantment or
@@ -3787,8 +3797,8 @@ export async function bhitpile(wand, tx, ty, state = game,
 }
 
 // C ref: zap.c zap_map() (3625-3825). The WAN_PROBING arm maps terrain and
-// traps before it teaches the wand; the downward polymorph arm handles its
-// engraving. Other zap_map branches remain at their source boundaries.
+// traps before it teaches the wand; the downward polymorph and teleportation
+// arms handle engraving. Other zap_map branches remain at their source boundaries.
 export async function zap_map(
     x, y, wand, state = game,
     random = { rn2, rn2_on_display_rng }, rawEnv = {},
@@ -3864,23 +3874,31 @@ export async function zap_map(
         return undefined;
     }
 
-    if (wand?.otyp !== WAN_POLYMORPH && wand?.otyp !== SPE_POLYMORPH)
-        return undefined;
     if ((state.u?.dz ?? 0) <= 0) return undefined;
     const engraving = engr_at(x, y, state);
     if (!engraving || engraving.engr_type === HEADSTONE)
         return undefined;
-    del_engr_at(x, y, state);
-    const replacement = random_engraving({ ...rawEnv, state, random });
-    make_engr_at(
-        x,
-        y,
-        replacement.text,
-        replacement.pristine,
-        state.moves ?? 0,
-        0,
-        { ...rawEnv, state, random },
-    );
+    switch (wand?.otyp) {
+    case WAN_POLYMORPH:
+    case SPE_POLYMORPH: {
+        del_engr_at(x, y, state);
+        const replacement = random_engraving({ ...rawEnv, state, random });
+        make_engr_at(
+            x,
+            y,
+            replacement.text,
+            replacement.pristine,
+            state.moves ?? 0,
+            0,
+            { ...rawEnv, state, random },
+        );
+        break;
+    }
+    case WAN_TELEPORTATION:
+    case SPE_TELEPORT_AWAY:
+        rloc_engr(engraving, state, { ...rawEnv, random });
+        break;
+    }
     return undefined;
 }
 

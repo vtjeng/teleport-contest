@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first ordinary S_GIANT creation: wiz_genesis -> create_particular_creation -> makemon, source weapon/gem inventory and appearance. Seeds chosen before C/JS comparison; species varies cold/fire resistance and source monster level.",
+  "segments": [
+    {
+      "seed": 14028013,
+      "datetime": "20510509101112",
+      "nethackrc": "OPTIONS=name:GiantProbe,role:Barbarian,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0007fire giant\n"
+    }
+  ]
+}

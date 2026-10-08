@@ -170,6 +170,7 @@ import {
     is_unicorn,
     mindless,
     mon_learns_traps,
+    throws_rocks,
 } from './mondata.js';
 import { dochugw, set_apparxy } from './monmove.js';
 import {
@@ -1157,6 +1158,11 @@ function assertSupportedSpecies(species, env = {}) {
             && !beehiveSpecies
             && !barracksSpecies
             && !morgueSpecies
+            // C makemon has no species gate for ordinary true giants.
+            // Their S_GIANT weapon and gem arms already share the canonical
+            // lifecycle; unique quest nemeses retain their separate boundary.
+            && !(species.mlet === S_GIANT && is_giant(species)
+                && !(species.geno & G_UNIQ))
             && species.pmidx !== PM_DJINNI
             // read.c seffect_light() creates cancelled tame light monsters
             // at the hero's square while a confused scroll is read.
@@ -2997,13 +3003,16 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             if (!normalized._rndmonMklev && !runtimeExplicitRandomCall)
                 assertSupportedSpecies(ptr, normalized);
         } while (++attempts <= 50
-            && !goodpos(
-                x,
-                y,
-                newMonster({ data: ptr }),
-                gpflags,
-                normalized,
-            ));
+            && ((attempts === 1
+                && throws_rocks(ptr)
+                && In_sokoban(state.u.uz))
+                || !goodpos(
+                    x,
+                    y,
+                    newMonster({ data: ptr }),
+                    gpflags,
+                    normalized,
+                )));
     }
     const mndx = ptr.pmidx;
     let allowMinvent = !(mmflags & NO_MINVENT);

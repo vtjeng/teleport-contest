@@ -1,0 +1,873 @@
+{
+  "version": 1,
+  "batch": "v24",
+  "manifestPath": "challenges/manifests/v24.json",
+  "sha": "d6683ff41482c0da2412f4c019c8d581e668778a",
+  "utc": "2026-10-08T01:45:20.735Z",
+  "status": "complete",
+  "manifestSha256": "0da6ac7bcd1fd476603f1a8a4ddebde942fee0ef7781da6b006edf13689eaaee",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "3545a2318891ddd879cf215445d0347c9c65cef7af05b8b523ee53c9500da0b7",
+  "inputFiles": [
+    "challenges/cases/v24/v24-cobra-spits-venom.recipe.session.json",
+    "challenges/cases/v24/v24-cobra-spits-venom.session.json",
+    "challenges/cases/v24/v24-crystal-ball-overload.recipe.session.json",
+    "challenges/cases/v24/v24-crystal-ball-overload.session.json",
+    "challenges/cases/v24/v24-cursed-bell-opening-undead.recipe.session.json",
+    "challenges/cases/v24/v24-cursed-bell-opening-undead.session.json",
+    "challenges/cases/v24/v24-cursed-grease-slip.recipe.session.json",
+    "challenges/cases/v24/v24-cursed-grease-slip.session.json",
+    "challenges/cases/v24/v24-cursed-stethoscope.recipe.session.json",
+    "challenges/cases/v24/v24-cursed-stethoscope.session.json",
+    "challenges/cases/v24/v24-dragon-self-breath.recipe.session.json",
+    "challenges/cases/v24/v24-dragon-self-breath.session.json",
+    "challenges/cases/v24/v24-eat-custom-fruit.recipe.session.json",
+    "challenges/cases/v24/v24-eat-custom-fruit.session.json",
+    "challenges/cases/v24/v24-eat-fresh-egg.recipe.session.json",
+    "challenges/cases/v24/v24-eat-fresh-egg.session.json",
+    "challenges/cases/v24/v24-eat-meatball.recipe.session.json",
+    "challenges/cases/v24/v24-eat-meatball.session.json",
+    "challenges/cases/v24/v24-eat-pyrolisk-egg.recipe.session.json",
+    "challenges/cases/v24/v24-eat-pyrolisk-egg.session.json",
+    "challenges/cases/v24/v24-elf-eats-lembas.recipe.session.json",
+    "challenges/cases/v24/v24-elf-eats-lembas.session.json",
+    "challenges/cases/v24/v24-empty-bag-tricks.recipe.session.json",
+    "challenges/cases/v24/v24-empty-bag-tricks.session.json",
+    "challenges/cases/v24/v24-female-dragon-lays-egg.recipe.session.json",
+    "challenges/cases/v24/v24-female-dragon-lays-egg.session.json",
+    "challenges/cases/v24/v24-gelatinous-cube-eats-sack.recipe.session.json",
+    "challenges/cases/v24/v24-gelatinous-cube-eats-sack.session.json",
+    "challenges/cases/v24/v24-hallucinating-pear.recipe.session.json",
+    "challenges/cases/v24/v24-hallucinating-pear.session.json",
+    "challenges/cases/v24/v24-mind-flayer-blast.recipe.session.json",
+    "challenges/cases/v24/v24-mind-flayer-blast.session.json",
+    "challenges/cases/v24/v24-nymph-removes-punishment.recipe.session.json",
+    "challenges/cases/v24/v24-nymph-removes-punishment.session.json",
+    "challenges/cases/v24/v24-orc-eats-lembas.recipe.session.json",
+    "challenges/cases/v24/v24-orc-eats-lembas.session.json",
+    "challenges/cases/v24/v24-pyrolisk-gazes-hostile.recipe.session.json",
+    "challenges/cases/v24/v24-pyrolisk-gazes-hostile.session.json",
+    "challenges/cases/v24/v24-rust-monster-eats-dagger.recipe.session.json",
+    "challenges/cases/v24/v24-rust-monster-eats-dagger.session.json",
+    "challenges/cases/v24/v24-spider-web-over-pit.recipe.session.json",
+    "challenges/cases/v24/v24-spider-web-over-pit.session.json",
+    "challenges/cases/v24/v24-sunsword-blinding-ray.recipe.session.json",
+    "challenges/cases/v24/v24-sunsword-blinding-ray.session.json",
+    "challenges/cases/v24/v24-tip-horn-plenty.recipe.session.json",
+    "challenges/cases/v24/v24-tip-horn-plenty.session.json",
+    "challenges/cases/v24/v24-troll-corpse-revives-forced-wait.recipe.session.json",
+    "challenges/cases/v24/v24-troll-corpse-revives-forced-wait.session.json",
+    "challenges/cases/v24/v24-troll-corpse-revives.recipe.session.json",
+    "challenges/cases/v24/v24-troll-corpse-revives.session.json",
+    "challenges/cases/v24/v24-vampire-garlic-vomiting.recipe.session.json",
+    "challenges/cases/v24/v24-vampire-garlic-vomiting.session.json",
+    "challenges/cases/v24/v24-xorn-eats-protection-ring.recipe.session.json",
+    "challenges/cases/v24/v24-xorn-eats-protection-ring.session.json",
+    "challenges/manifests/v24.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v24-cobra-spits-venom",
+      "recordingSha256": "cb84109e4098ad83c1d65d102163f8af129a4bada97b4772a0a36b478e81679e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 43,
+          "total": 43
+        },
+        "rng": {
+          "matched": 2522,
+          "total": 2522
+        },
+        "cursors": {
+          "matched": 43,
+          "total": 43
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-crystal-ball-overload",
+      "recordingSha256": "b689f6024d92ed75fab6cfeb3c08be37ffa0b40fde220f57c3bd85b3248b8177",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 33
+        },
+        "rng": {
+          "matched": 3044,
+          "total": 3044
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-cursed-bell-opening-undead",
+      "recordingSha256": "e53dc3208412e3195a08d4c9cb624371915500fed0d4d6b6d43576a7ce48df5a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2362,
+          "total": 2362
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-cursed-grease-slip",
+      "recordingSha256": "4cc4d5faa4218f7eb3632e5186b9d6c6c80722dd3773e8aa0d11d781cf821efa",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2282,
+          "total": 2282
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-cursed-stethoscope",
+      "recordingSha256": "3d216b6a681c2e950ca072c18b5f2fbae323e0db801aaf3cf4082b140ca22f3c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 34
+        },
+        "rng": {
+          "matched": 2066,
+          "total": 2066
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-dragon-self-breath",
+      "recordingSha256": "0495a08884631590d5f782f4f25dc38386414a248e11b8f71b0ee951479c81dc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 71,
+          "total": 71
+        },
+        "rng": {
+          "matched": 2243,
+          "total": 2243
+        },
+        "cursors": {
+          "matched": 71,
+          "total": 71
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-eat-custom-fruit",
+      "recordingSha256": "cfdbab4bd9a95b7422c873f037454291b13f54abc03e8b7d963fa98e645a2c9e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 26,
+          "total": 26
+        },
+        "rng": {
+          "matched": 2696,
+          "total": 2696
+        },
+        "cursors": {
+          "matched": 26,
+          "total": 26
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-eat-fresh-egg",
+      "recordingSha256": "3b40a78c60bc0ccc684048ea94d22f16a1d3dd8009389f55053d792a36c8f222",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 21,
+          "total": 21
+        },
+        "rng": {
+          "matched": 2342,
+          "total": 2342
+        },
+        "cursors": {
+          "matched": 21,
+          "total": 21
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-eat-meatball",
+      "recordingSha256": "bcc468f011f048e9cd7f009fdcedc79331603ec67d49cf9ad4e3dc3a1b0ff086",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 26,
+          "total": 26
+        },
+        "rng": {
+          "matched": 2753,
+          "total": 2753
+        },
+        "cursors": {
+          "matched": 26,
+          "total": 26
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-eat-pyrolisk-egg",
+      "recordingSha256": "d740fef7e4236d8895adf3cc186996c3703822821d3cdbf922e427b432457365",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2540,
+          "total": 2540
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-elf-eats-lembas",
+      "recordingSha256": "5d969f2fdd710defc7f6753991c13aa02b82e39afffb599656581b4b91b3d481",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2754,
+          "total": 2754
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-empty-bag-tricks",
+      "recordingSha256": "ca2a493e9bef373cd89eb6f5ebba330d9a16df845464e6c9451c1bc8e60da9bc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2505,
+          "total": 2505
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-female-dragon-lays-egg",
+      "recordingSha256": "ce0552b4650b5739a2458123497150da74a461b095bcbbe3330292f6bbb618ba",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2812,
+          "total": 2812
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-gelatinous-cube-eats-sack",
+      "recordingSha256": "be41ff1dc571bb9d3fb11e378588c99964243a4c311fbef8d7efd275b0e491b3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 62,
+          "total": 62
+        },
+        "rng": {
+          "matched": 2202,
+          "total": 2202
+        },
+        "cursors": {
+          "matched": 62,
+          "total": 62
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-hallucinating-pear",
+      "recordingSha256": "d8d496ba5d72b069fbfc25c17aaf6f4863995f5f47455fe6712a36b02bee2450",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2589,
+          "total": 2589
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-mind-flayer-blast",
+      "recordingSha256": "5acbab26908fb5df4faeccbfccc6974ae28434bb94e3ff8d6f5a5e30a4d459d3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 112,
+          "total": 112
+        },
+        "rng": {
+          "matched": 2962,
+          "total": 2962
+        },
+        "cursors": {
+          "matched": 112,
+          "total": 112
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-nymph-removes-punishment",
+      "recordingSha256": "db9b18f1e16287905714eeba7fd3da0cce42693d24f0ad8a6c66bdb4a09b0041",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 86,
+          "total": 86
+        },
+        "rng": {
+          "matched": 6230,
+          "total": 6230
+        },
+        "cursors": {
+          "matched": 86,
+          "total": 86
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-orc-eats-lembas",
+      "recordingSha256": "383d9fea5967ffc077b10399bbcc90fb517cc78ab01d01b97eaafb8fcc867759",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2919,
+          "total": 2919
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-pyrolisk-gazes-hostile",
+      "recordingSha256": "61b18e7a3552a6db8d9b5be6a1d89012ffcec299d7dabe050ec59c4cea72587b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 82,
+          "total": 82
+        },
+        "rng": {
+          "matched": 2724,
+          "total": 2724
+        },
+        "cursors": {
+          "matched": 82,
+          "total": 82
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-rust-monster-eats-dagger",
+      "recordingSha256": "2836ae80f2c83087adcdfc6163adc8fe03e999503d120b87ef4abe43d31c69b6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 69,
+          "total": 69
+        },
+        "rng": {
+          "matched": 2737,
+          "total": 2737
+        },
+        "cursors": {
+          "matched": 69,
+          "total": 69
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-spider-web-over-pit",
+      "recordingSha256": "17d00ca69b326937d155b3c6ddb6a5b819cd0014903c06c9ceec2a3c15b27b59",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 57,
+          "total": 57
+        },
+        "rng": {
+          "matched": 2728,
+          "total": 2728
+        },
+        "cursors": {
+          "matched": 57,
+          "total": 57
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-sunsword-blinding-ray",
+      "recordingSha256": "1a73d328ae025daae35037c08b37ef2eb4ff76305768ba5255aae5bb779ee49d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 48,
+          "total": 48
+        },
+        "rng": {
+          "matched": 2871,
+          "total": 2871
+        },
+        "cursors": {
+          "matched": 48,
+          "total": 48
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-tip-horn-plenty",
+      "recordingSha256": "76cda43e5f8e0610dff110430e54510584d85eece1f6cbf7f2958f8637d73289",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 40
+        },
+        "rng": {
+          "matched": 2489,
+          "total": 2489
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-troll-corpse-revives",
+      "recordingSha256": "a080367621cd1eb0b184c7fa1ed89c4edf7a0ce4779fd64ec41d281d7a0fc6a3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 76,
+          "total": 76
+        },
+        "rng": {
+          "matched": 3128,
+          "total": 3128
+        },
+        "cursors": {
+          "matched": 76,
+          "total": 76
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-troll-corpse-revives-forced-wait",
+      "recordingSha256": "9b70f25e179f56fa49bf3c9bddb6a9a2af3dbf311976e2456e0a59ca8a968ae9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 165,
+          "total": 165
+        },
+        "rng": {
+          "matched": 3313,
+          "total": 3313
+        },
+        "cursors": {
+          "matched": 165,
+          "total": 165
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-vampire-garlic-vomiting",
+      "recordingSha256": "b02a468bf3fd28289e4a5005590f3789371b1ad4b0cd5f12af8b66ebdecb05e0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 63,
+          "total": 63
+        },
+        "rng": {
+          "matched": 3169,
+          "total": 3169
+        },
+        "cursors": {
+          "matched": 63,
+          "total": 63
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v24-xorn-eats-protection-ring",
+      "recordingSha256": "57d0942c122431b15df6c8de70e1645332b19bb54b03c5507a4a335254cbe711",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 66,
+          "total": 66
+        },
+        "rng": {
+          "matched": 2651,
+          "total": 2651
+        },
+        "cursors": {
+          "matched": 66,
+          "total": 66
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 27,
+      "total": 27
+    },
+    "screens": {
+      "matched": 1457,
+      "total": 1457
+    },
+    "rng": {
+      "matched": 75633,
+      "total": 75633
+    },
+    "cursors": {
+      "matched": 1457,
+      "total": 1457
+    }
+  }
+}

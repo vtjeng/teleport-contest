@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "corpus": "synthetic",
+  "batch": "v28",
+  "caseId": "v28-cursed-wand-backfire",
+  "manifestPath": "challenges/manifests/v28.json",
+  "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+  "recordingPath": "challenges/cases/v28/v28-cursed-wand-backfire.session.json",
+  "recordingSha256": "341e845cfc951e3dc1256bbb4b908c2e923568efff94fe539f8363267ec33c1e",
+  "recipeSha256": "3c98d211d5e3cd74cb180f47edd6cf6fbb041b8d927c5a43dafb4498a8f17752",
+  "evaluationPath": "challenges/evaluations/baseline-d85ffe22-v28.json",
+  "evaluationCommit": "d85ffe22270b7f1edb5d596a0dac747b0a76c25c",
+  "replayInputSha256": "76b929e50a5104c0c8146f9590bacc0df3c47056d180ead3614336b1ec55daec",
+  "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+  "replayCommit": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+  "session": "synthetic/v28/v28-cursed-wand-backfire",
+  "recording": "challenges/cases/v28/v28-cursed-wand-backfire.session.json",
+  "recordedSteps": 644,
+  "remainingScreens": 423,
+  "step": 221,
+  "kind": "stop",
+  "sourceFile": "makemon.c",
+  "function": "makemon",
+  "message": "unsupported initial-level monster creation: makemon() monster 173",
+  "status": "complete",
+  "commit": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+  "mismatch": {
+    "version": 1,
+    "corpus": "synthetic",
+    "batch": "v28",
+    "caseId": "v28-cursed-wand-backfire",
+    "manifestPath": "challenges/manifests/v28.json",
+    "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+    "recordingPath": "challenges/cases/v28/v28-cursed-wand-backfire.session.json",
+    "recordingSha256": "341e845cfc951e3dc1256bbb4b908c2e923568efff94fe539f8363267ec33c1e",
+    "recipeSha256": "3c98d211d5e3cd74cb180f47edd6cf6fbb041b8d927c5a43dafb4498a8f17752",
+    "evaluationPath": "challenges/evaluations/baseline-d85ffe22-v28.json",
+    "evaluationCommit": "d85ffe22270b7f1edb5d596a0dac747b0a76c25c",
+    "replayInputSha256": "76b929e50a5104c0c8146f9590bacc0df3c47056d180ead3614336b1ec55daec",
+    "diagnosticToolSha256": "01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82",
+    "replayCommit": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+    "session": "synthetic/v28/v28-cursed-wand-backfire",
+    "recording": "challenges/cases/v28/v28-cursed-wand-backfire.session.json",
+    "recordedSteps": 644,
+    "remainingScreens": 423,
+    "step": 221,
+    "kind": "stop",
+    "sourceFile": "makemon.c",
+    "function": "makemon",
+    "message": "unsupported initial-level monster creation: makemon() monster 173"
+  },
+  "goalKind": "divergence-fix",
+  "summary": "The first stop is runtime random frost-giant creation, before cursed-wand backfire. JS makemon adds a species allowlist absent from C and rejects an ordinary giant whose existing S_GIANT weapon and gem initialization paths are implemented.",
+  "source": {
+    "file": "makemon.c",
+    "functions": [
+      "makemon"
+    ],
+    "branch": "allmain.c maybe_generate_rnd_mon calls makemon(NULL,0,0,NO_MM_FLAGS) during an elapsed turn; rndmonst chooses PM_FROST_GIANT and the JavaScript-only species guard rejects it before goodpos and creation. Admit the source is_giant family through the existing lifecycle, preserving non-giant unsupported boundaries.",
+    "callers": [
+      "allmain.c:maybe_generate_rnd_mon -> makemon(NULL,0,0,NO_MM_FLAGS); js/allmain.js:maybe_generate_rnd_mon -> makemon_runtime -> makemon",
+      "makemon.c:m_initgrp -> makemon(ptr,x,y,mmflags); explicit C callers share the same species preflight"
+    ],
+    "dependencies": [
+      "makemon.c:m_initweap S_GIANT gates rn2(2), rn2(5), rn2(2), mongets",
+      "makemon.c:m_initinv S_GIANT is_giant gemstone count, rnd_class, mksobj, rn1, weight, mpickobj",
+      "Canonical newmonhp, peace_minded, set_malign, m_initgrp, m_dowear and runtime asynchronous appearance/planning continuation must remain unchanged."
+    ]
+  },
+  "evidence": [
+    "Selected-case current-base focused scan .cache/A140/selected-scan.json reproduces 221 screens then UnsupportedTurnBoundaryError wrapping makemon() monster 173; js/monsters.js identifies PM_FROST_GIANT=173. Evaluation has 221/644 screens and 3102/4614 RNG.",
+    "C makemon.c:1228-1247 random selector loops only on Sokoban rock-thrower and goodpos conditions; there is no finite species allowlist. js/makemon_create.js:2997-2998 calls assertSupportedSpecies before goodpos, and its predicate at1123-1222 excludes later true giants.",
+    "C makemon.c:180-185 and JS m_initweap S_GIANT1837-1858 already match boulder/weapon gates. C738-750 and JS2570-2595 already match every is_giant gem loop. Giant species have no extra makemon initialization switch arm, shapechanger, saddle, or light branch. Generic lifecycle/group/strategy owners remain authoritative.",
+    "scripts/makemon-create.test.mjs:5663-5703 pins the obsolete later-giant refusal and must retain non-giant ettin boundary while replacing true-giant expectations with source-derived lifecycle results. Task is a bounded admission divergence, with no whole makemon or initialization completion credit.",
+    "Independent C-first giant creation variations must validate lifecycle and cheap weapon/gem branches. Selected admitted range must pass through runtime random giant creation; subsequent unsupported species, movement, or cursed-wand backfire boundaries remain explicit limits."
+  ]
+}
