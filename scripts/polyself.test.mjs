@@ -473,6 +473,6 @@ test('polyself keeps the C early guards, selector, and final gate in order', () 
     assert.match(JS_FUNCTION, /name_to_monplus\(buf[\s\S]*name_to_monclass/u);
     assert.match(JS_FUNCTION, /rn1\(M\.SPECIAL_PM - M\.LOW_PM, M\.LOW_PM\)/u);
     assert.match(JS_FUNCTION, /were_beastie\(mntmp\)[\s\S]*counter_were/u);
-    assert.match(JS_FUNCTION, /await newman\(state\)[\s\S]*await polymon/u);
+    assert.match(JS_FUNCTION, /await newman\(state, env\)[\s\S]*await polymon/u);
     assert.doesNotMatch(JS_FUNCTION, /throw new UnsupportedPolyselfError/u);
 });
