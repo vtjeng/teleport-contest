@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first monster difficulty command. Roles/seeds/clocks fixed before any recording or JavaScript comparison. Traverse the live catalog and dismiss the complete discrepancy report twice.",
+  "segments": [
+    {
+      "seed": 16840062,
+      "datetime": "20571114124500",
+      "nethackrc": "OPTIONS=name:Difficulty16840062,role:Ranger,race:orc,gender:male,align:chaotic,playmode:debug,!debug_mongen,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  .#wizmondiff\n .#wizmondiff\n "
+    }
+  ]
+}

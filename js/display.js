@@ -168,7 +168,6 @@ import {
     object_class_symbol,
     optional_misc_symbol,
     symbol_at,
-    MAXPCHARS,
     SYM_OFF_O,
     SYM_OFF_P,
     SYM_OFF_W,
@@ -239,6 +238,8 @@ import {
     trap_to_defsym,
 } from './symbols.js';
 import { numeric_glyph_customization } from './glyphs.js';
+// Existing display callers share glyphs.c's canonical decoder.
+export { glyph_to_cmap } from './glyphs.js';
 import {
     GLYPH_ALTAR_OFF,
     GLYPH_BODY_OFF,
@@ -1735,38 +1736,6 @@ export function glyph_is_warning(glyph) {
 // map_glyphinfo()'s GLYPH_ZAP_OFF arm resolves.
 export function glyph_is_cmap_zap(glyph) {
     return glyph >= GLYPH_ZAP_OFF && glyph < (NUM_ZAP << 2) + GLYPH_ZAP_OFF;
-}
-
-/**
- * C ref: glyphs.c glyph_to_cmap() (199-231). The inverse of cmap_to_glyph(),
- * and lossy in the two places cmap_to_glyph() is lossy: every branch's walls
- * come back as the main dungeon's indices, and all five altars come back as
- * S_altar.
- *
- * C's swallow, explosion and zap arms are omitted. No ported path produces a
- * number in any of those three ranges -- reset_glyphmap()'s arms for them are
- * unported for the same reason -- so each would be an untested inverse of an
- * absent forward direction. They fall to C's own default instead, MAXPCHARS,
- * which is the fencepost entry defsyms[] carries for exactly this.
- */
-export function glyph_to_cmap(glyph) {
-    if (!glyph_is_cmap(glyph)) return MAXPCHARS;
-    if (glyph === GLYPH_CMAP_STONE_OFF) return S_stone;
-    if (glyph < GLYPH_CMAP_A_OFF) {
-        // The five wall ranges are adjacent and equally sized, so one
-        // remainder covers what C spells as five separate range tests.
-        return ((glyph - GLYPH_CMAP_MAIN_OFF) % ((S_trwall - S_vwall) + 1))
-            + S_vwall;
-    }
-    if (glyph < GLYPH_ALTAR_OFF) return (glyph - GLYPH_CMAP_A_OFF) + S_ndoor;
-    if (glyph < GLYPH_CMAP_B_OFF) return S_altar;
-    if (glyph < GLYPH_ZAP_OFF) return (glyph - GLYPH_CMAP_B_OFF) + S_grave;
-    // glyphs.c:1003-1004. The zap range holds four beam directions per
-    // zap type, so the remainder recovers the direction, discarding the
-    // type that zapdir_to_glyph() packed above it.
-    if (glyph < GLYPH_CMAP_C_OFF)
-        return ((glyph - GLYPH_ZAP_OFF) % 4) + S_vbeam;
-    return (glyph - GLYPH_CMAP_C_OFF) + S_digbeam;
 }
 
 // C refs: display.h GLYPH_TRAP_OFF, glyph_is_trap(), and glyph_to_trap().
