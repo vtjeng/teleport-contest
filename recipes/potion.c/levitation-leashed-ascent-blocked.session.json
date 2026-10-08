@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B151 C-first recipe. Outside limit: apply.c:next_to_u -> mleashed_next2u consumes unported mnexto on a leashed pet, after potion.c:peffect_levitation -> do.c:doup. No whole companion or level-transfer credit. Seed chosen before recording with no scan. C assigned the Healer leash to k, followed by potion l, before comparison. C showed the starting dog west of the hero (h); this correction targets the actual independent pet position.",
+  "segments": [
+    {
+      "seed": 84815117,
+      "datetime": "20320516102347",
+      "nethackrc": "OPTIONS=name:LevitationExtra,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017leash\nakh\u0017cursed potion of levitation\nql yn   ."
+    }
+  ]
+}
