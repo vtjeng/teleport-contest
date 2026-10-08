@@ -728,6 +728,12 @@ export async function wiz_kill(state = game, env = {}) {
                     state.killer.name = `${state.flags.female ? 'her' : 'his'} own player`;
                     state.killer.format = KILLED_BY;
                     await done(DIED, state);
+                    // end.c done() reaches the NORETURN really_done() path
+                    // after an accepted death. The JavaScript finalizer
+                    // returns only so the recorder can capture its final
+                    // screen, so do not resume dmonsfree() or command-result
+                    // handling after it.
+                    if (state.program_state?.gameover) return;
                 }
                 break;
             }
