@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T12:43:57.732Z",
+  "capturedAt": "2026-10-08T12:53:07.773Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -27866,6 +27866,37 @@
         "at": "2026-10-08T12:43:56.947Z",
         "task": "A156",
         "delivery": "5703ae110d1393221e8ae6eb15def5bdd935974b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A156-5703ae11-20261008",
+        "type": "received",
+        "at": "2026-10-08T12:44:18.177Z",
+        "task": "A156",
+        "delivery": "5703ae110d1393221e8ae6eb15def5bdd935974b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B157-c8f01572-20261008",
+        "type": "published",
+        "at": "2026-10-08T12:46:06.406Z",
+        "task": "B157",
+        "commit": "c8f015724704f697750bf58931fdb83c6318da9c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A156-5703ae11-levitation-audit-20261008",
+        "type": "feedback",
+        "at": "2026-10-08T12:51:36.307Z",
+        "task": "A156",
+        "delivery": "5703ae110d1393221e8ae6eb15def5bdd935974b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A156-audit-5703ae11",
+        "type": "resume",
+        "at": "2026-10-08T12:52:54.215Z",
+        "task": "A156"
       }
     ]
   },
