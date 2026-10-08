@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T02:22:40.132Z",
+  "capturedAt": "2026-10-08T02:35:59.271Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25807,12 +25807,85 @@
         "worker": "C",
         "goal": "fix-engrave-owned-zapnodir-dispatch-v28-20261008",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A141-dc82cfe1",
+        "type": "published",
+        "at": "2026-10-08T02:23:11.842Z",
+        "task": "A141",
+        "commit": "dc82cfe1cf21f603f3b4204ec16dd3cd8a9d41f0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7581437615345671501a47ebeb866517b6739431",
+        "type": "ready",
+        "at": "2026-10-08T02:23:14.875Z",
+        "task": "B143",
+        "delivery": "7581437615345671501a47ebeb866517b6739431"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B143-75814376",
+        "type": "received",
+        "at": "2026-10-08T02:23:32.153Z",
+        "task": "B143",
+        "delivery": "7581437615345671501a47ebeb866517b6739431"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A142-b22bc2ea",
+        "type": "integrating",
+        "at": "2026-10-08T02:24:59.927Z",
+        "task": "A142",
+        "integration": "b22bc2ea4e12eae1d608b975449d792a2213b945"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A142-b22bc2ea",
+        "type": "validated",
+        "at": "2026-10-08T02:33:29.421Z",
+        "task": "A142",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A142-b22bc2ea4e12eae1d608b975449d792a2213b945-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T02:34:00.713Z",
+        "task": "A142"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c9c3c5890d4f48b0a82b3d4d7ee2ab07fb0bd0a6",
+        "type": "ready",
+        "at": "2026-10-08T02:35:00.592Z",
+        "task": "C140",
+        "delivery": "c9c3c5890d4f48b0a82b3d4d7ee2ab07fb0bd0a6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C140-c9c3c589",
+        "type": "received",
+        "at": "2026-10-08T02:35:21.691Z",
+        "task": "C140",
+        "delivery": "c9c3c5890d4f48b0a82b3d4d7ee2ab07fb0bd0a6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A143-244bb55a",
+        "type": "assign",
+        "at": "2026-10-08T02:35:48.441Z",
+        "task": "A143",
+        "worker": "A2",
+        "goal": "port-sit-special-throne-effect-v28-20261007",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "44f17fe441ece513f929f5a76e3024aa0c759d83",
-    "measuredAt": "2026-10-08T02:17:50.448Z",
+    "executionCommit": "b22bc2ea4e12eae1d608b975449d792a2213b945",
+    "measuredAt": "2026-10-08T02:30:25.751Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
