@@ -219602,7 +219602,7 @@
     {
       "id": "fix-pray-petrification-cure-caller-v32-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire canonical make_stoned at the prayer petrification cure",
       "cFile": "pray.c",
       "sessions": [],
@@ -219614,8 +219614,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e07a3433218418185470f93e6ed7061c6e1982cb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "fix_worst_trouble",
       "session": "synthetic/v32/v32-prayer-stoning",
       "step": 44,
@@ -219844,6 +219847,271 @@
                 "Read complete fix_worst_trouble372–600 and pleased1071–1156 source caller loop; awaiting the existing make_stoned call preserves message and subsequent trouble scan order. The whole helper is not claimed.",
                 "Prior diagnosis preserved in Git report f46541a90a7ed6d8159b467a3a40369e84436e76: Menu search getlin repaints the map over an active menu. C keeps the physical menu while flushing only dirty gbuf cells; JS clears and rebuilds the full screen at the prompt flush. A174 fixes that boundary; its owned independent MENU_SEARCH recordings match. No further getlin/display change is needed for step44.",
                 "Validation plan: fail-first source-pinned cure regression with timeout/high intrinsic bits/delayed killer and zero RNG; selected prayer replay; independent C-first debug intrinsic setup followed by prayer, role variation, and no-stoning outside boundary. Reuse canonical make_stoned without extending its ownership."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e07a3433218418185470f93e6ed7061c6e1982cb",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-timeout-fatal-expiry-family-v32-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port fatal timeout death and green slime expiry",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v32/v32-pestilence-touch"
+      ],
+      "selectionReason": "The admitted Pestilence case reaches fatal sickness at step 93, where JavaScript skips done_timeout and loses the source death prompt, life-saving state, and later RNG order. Completing the shared fatal timeout family closes all active callers coherently.",
+      "detail": "Port whole timeout.c slimed_to_death and done_timeout in source order. Wire bounded nh_timeout STONED, SICK, STRANGLED, and SLIMED expiry callers plus the existing live-state handoff. Preserve delayed killers, I_SPECIAL disclosure, survival-only cleanup, temporary green-slime ungenocide, light removal, and genocide follow-up while retaining named downstream owner frontiers.",
+      "openedAt": "4f188f017ded0b3800cb3528c62c995edc2ff65f",
+      "openStanding": {
+        "sha": "e07a3433218418185470f93e6ed7061c6e1982cb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "slimed_to_death",
+          "line": 457,
+          "endLine": 533,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 457,
+        "to": 533
+      },
+      "requiredFunctions": [
+        {
+          "name": "done_timeout",
+          "line": 575,
+          "endLine": 587,
+          "declared": false,
+          "sourceFile": "timeout.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v32/v32-pestilence-touch": {
+          "session": "synthetic/v32/v32-pestilence-touch",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-pestilence-touch",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-pestilence-touch.session.json",
+          "recordingSha256": "a0a0ffde30bee6cb3ef90979dc6b00e265e8b584e3aefc53d0a07aede7f8646e",
+          "evaluationPath": "challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json",
+          "evaluationCommit": "e07a3433218418185470f93e6ed7061c6e1982cb"
+        }
+      },
+      "activeStanding": {
+        "sha": "e07a3433218418185470f93e6ed7061c6e1982cb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-pestilence-touch",
+          "session": "synthetic/v32/v32-pestilence-touch",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-pestilence-touch.session.json",
+          "recordingPath": "challenges/cases/v32/v32-pestilence-touch.session.json",
+          "recordingSha256": "a0a0ffde30bee6cb3ef90979dc6b00e265e8b584e3aefc53d0a07aede7f8646e",
+          "recipe": "challenges/cases/v32/v32-pestilence-touch.recipe.session.json",
+          "recipeSha256": "a96e1ea666f1a5f5b9a5acb108c63d34bb6340afc134d0538f5465150a3bac8d",
+          "replayInputSha256": "a55302e37cf5e9c2a776b96e2d28d98bb3b4c63780c20e3d0865a0629d3a6e79",
+          "evaluationPath": "challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json",
+          "evaluationCommit": "e07a3433218418185470f93e6ed7061c6e1982cb",
+          "evaluationArtifact": "challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json",
+          "evaluationUtc": "2026-10-08T23:20:48.844Z",
+          "remainingScreens": 73,
+          "recordedSteps": 166,
+          "previousScreensMatched": 93,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 93,
+              "total": 166
+            },
+            "rng": {
+              "matched": 2363,
+              "total": 2684
+            },
+            "cursors": {
+              "matched": 103,
+              "total": 166
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 93,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 93,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 26,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2355,
+              "cEntry": "rn2(8)=6",
+              "cCaller": "confdir(cmd.c:4304)",
+              "jsEntry": "rn2(5)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 99,
+                "key": "n"
+              },
+              "stepIndex": 99
+            },
+            "cursor": {
+              "index": 93,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 93,
+                "key": " "
+              },
+              "cCursor": [
+                34,
+                0,
+                1
+              ],
+              "jsCursor": [
+                49,
+                15,
+                1
+              ]
+            }
+          },
+          "step": 93,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-pestilence-touch.json",
+            "result": {
+              "session": "synthetic/v32/v32-pestilence-touch",
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-pestilence-touch",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingSha256": "a0a0ffde30bee6cb3ef90979dc6b00e265e8b584e3aefc53d0a07aede7f8646e",
+              "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v32.json",
+              "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+              "remainingScreens": 73,
+              "recordedSteps": 166,
+              "status": "complete",
+              "commit": "4ce850151fcf2a4325842636b1fdb0976505571c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-pestilence-touch",
+                "session": "synthetic/v32/v32-pestilence-touch",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recording": "challenges/cases/v32/v32-pestilence-touch.session.json",
+                "recordingPath": "challenges/cases/v32/v32-pestilence-touch.session.json",
+                "recordingSha256": "a0a0ffde30bee6cb3ef90979dc6b00e265e8b584e3aefc53d0a07aede7f8646e",
+                "recipe": "challenges/cases/v32/v32-pestilence-touch.recipe.session.json",
+                "recipeSha256": "a96e1ea666f1a5f5b9a5acb108c63d34bb6340afc134d0538f5465150a3bac8d",
+                "evaluationPath": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v32.json",
+                "evaluationArtifact": "challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v32.json",
+                "evaluationCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
+                "evaluationUtc": "2026-10-08T20:50:17.876Z",
+                "metrics": {
+                  "screens": {
+                    "matched": 93,
+                    "total": 166
+                  },
+                  "rng": {
+                    "matched": 2363,
+                    "total": 2684
+                  },
+                  "cursors": {
+                    "matched": 103,
+                    "total": 166
+                  }
+                },
+                "remainingScreens": 73,
+                "recordedSteps": 166,
+                "passed": false,
+                "error": null,
+                "firstMismatch": {
+                  "kind": "screen",
+                  "step": 93,
+                  "message": "C fatal sickness death enters More/Die prompt; JS skips done_timeout"
+                },
+                "step": 93,
+                "kind": "screen",
+                "sourceFile": "timeout.c",
+                "function": "done_timeout",
+                "replayInputSha256": "403e5b1df15f083ff78cd5416512be414637b6cdc5118617e3c342e412839a72"
+              },
+              "summary": "Pestilence attack and shared disease already match through step92. Fatal SICK expiry prints death but skips unported timeout.c:done_timeout, losing source More/Die input and life-saving state. Port whole done_timeout plus whole slimed_to_death to close its fourth active caller, wiring bounded nh_timeout STONED/SICK/STRANGLED/SLIMED expiry and existing live handoff.",
+              "source": {
+                "file": "timeout.c",
+                "functions": [
+                  "slimed_to_death",
+                  "done_timeout"
+                ],
+                "branch": "Property intrinsic timeout reaches zero after the canonical decrement. Fatal SICK, STONED and STRANGLED call done_timeout; SLIMED invokes slimed_to_death which temporarily permits green slime polymorph and calls done_timeout, then may die again for genocided green slime.",
+                "callers": [
+                  "timeout.c684 nh_timeout STONED -> done_timeout(STONING,STONED)",
+                  "timeout.c722 nh_timeout fatal SICK -> done_timeout(POISONING,SICK)",
+                  "timeout.c894 nh_timeout STRANGLED -> done_timeout(DIED,STRANGLED)",
+                  "timeout.c687 nh_timeout SLIMED -> slimed_to_death(kptr) -> done_timeout(TURNED_SLIME,SLIMED) at495"
+                ],
+                "dependencies": [
+                  "Reuse existing end.c done and dealloc_killer; do not claim end owner completion. done returns only after life-saving in C; preserve I_SPECIAL through fatal final disclosure and clear only on source return, publishing disp.botl after survival.",
+                  "Reuse existing polymon, del_light_source, emits_light, Upolyd, G_GENOD flags, killer fields, upstart and urgent message owners. polymon return is discarded; retain its existing retouch_equipment/selftouch/dismount/other named owner frontiers without broadening that source task.",
+                  "Bounded timeout.js nh_timeout expiry call replacements only, no whole nh_timeout credit. Existing live-state handoff already recognizes SICK=1, STONED, STRANGLED; add source-required SLIMED=1 guard for new active death caller, keeping cloning silent.",
+                  "C153 raw-pointer diagnostic remains parked and disjoint; active A172 glyph diagnostic, A171 skills and B166/B167 terrain/weapon insight source reservations are independent."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved accepted A170 evaluation challenges/evaluations/accepted-2f52799b8e966edcf64b8a93efcfabe527adb0e6-v32.json at 2f52799b8e966edcf64b8a93efcfabe527adb0e6: 93/166 screens,2363/2684 RNG,103/166 cursors; remainingScreens73. Recording digest a0a0ffde30bee6cb3ef90979dc6b00e265e8b584e3aefc53d0a07aede7f8646e, recipe digest a96e1ea666f1a5f5b9a5acb108c63d34bb6340afc134d0538f5465150a3bac8d, admitted v32 corpus digest df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823. Current selected scan .cache/C154-before.json reproduces first screen/cursor step93 and later RNG mismatch step99 C confdir rn2(8) versus JS rn2(5), with no refusal.",
+                ".cache/C154-prefix-state.json retains focused replay/state artifacts through step100. C and JS agree step90 Pestilence fever/chills and step91-92 You feel much worse/Pestilence touch. Step93 C is You die from your illness.--More-- versus JS same text without More; step94 C Die? [yn] (n) versus JS Unknown command space; step95 C wizard death refusal/survival versus JS another unknown command. This localizes missing fatal-timeout call before subsequent directional RNG drift, not an AD_PEST owner defect.",
+                "Read whole timeout.c575-585: capture intrinsic pointer, set I_SPECIAL for final disclosure, call done(how), then only the life-saved return clears I_SPECIAL and sets disp.botl. JS has no done_timeout declaration; decrement_property_timeouts has exact source gaps at STONED1444/SICK1487/STRANGLED1640. Canonical end.done already implements wizard/explore Die prompt, amulet life-saving, real disclosure and savelife state reset.",
+                "Global source search establishes four active done_timeout call sites: nh_timeout STONED684, SICK722, STRANGLED894, and slimed_to_death495. Close the fourth entry with whole slimed_to_death457-519 rather than omit it from completion evidence. Source helper handles already-green-slime no-op and dealloc, delayed/default killer, light removal, temporary green-slime ungenocide around polymon, restoration, fatal slime done_timeout, then restored genocide fatal message and done(GENOCIDED) with wizard/amulet text branches.",
+                "Current nh_timeout_requires_live_state already includes fatal SICK1 and all active STONED/STRANGLED, so their done call must execute live; add SLIMED1 before new polymorph/death callback. Existing allmain beforeTimeout/afterTimeout machinery can be reused without owner edits or credit. Source-pinned tests must prove I_SPECIAL visible during awaited done, survival-only clear/botl, death NORETURN sentinel, killers and slime vitals restoration/order, and planning silence/live admission.",
+                "Evidence plan: assigned admitted sickness range, independent C-first wizard sickness expiry with refusal and real amulet life-saving, stoning and strangulation expiry, and sliming via supported intrinsic route/cheap role variation. Include genocided-slime follow-up if bounded existing owners admit it; preserve exact blocked recipes for other owner frontiers. No game edits, central mutations, C recordings or aggregate scans during this diagnosis."
               ]
             }
           }

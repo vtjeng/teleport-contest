@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent luminous-form variation for timeout.c:slimed_to_death. Debug #polyself creates a yellow-light hero first; a one-turn slime countdown reaches the source light deletion before the green-slime polymon and death. Seed1542124 was selected before recording.",
+  "segments": [
+    {
+      "seed": 1542124,
+      "datetime": "20421108122100",
+      "nethackrc": "OPTIONS=name:FatalExpiry,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\nOPTIONS=playmode:debug\n",
+      "moves": "#polyself\nyellow light\n   #wizintrinsic\n1c\n .            n   ."
+    }
+  ]
+}
