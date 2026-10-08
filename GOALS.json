@@ -208456,6 +208456,52 @@
           "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270"
         }
       }
+    },
+    {
+      "id": "fix-monmove-ordinary-combat-operations-v30-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Bind canonical monster-combat operations at the ordinary movement adapter",
+      "cFile": "monmove.c",
+      "sessions": [
+        "synthetic/v30/v30-hunger-faint",
+        "synthetic/v30/v30-hungry-combat-lifesave"
+      ],
+      "selectionReason": "The two largest admitted v30 failures share the same source-traced ordinary movement seam: moveSimpleOrdinary forwards an incomplete environment to m_move_aggress and mattackm. This scope is independent of C147 Armor_on and B156 v31 preparation. Refer to both investigations/synthetic/v30 hunger reports.",
+      "detail": "Bind the canonical message, redraw, and invisible-marker operations at moveSimpleOrdinary for planning and live execution while preserving m_move, m_move_aggress, mattackm, combat state, RNG, and consumed return results. This bounded divergence receives no whole-source completion credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "m_move",
+      "session": "synthetic/v30/v30-hunger-faint",
+      "step": 812,
+      "syntheticProvenance": {
+        "synthetic/v30/v30-hunger-faint": {
+          "session": "synthetic/v30/v30-hunger-faint",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+          "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270"
+        },
+        "synthetic/v30/v30-hungry-combat-lifesave": {
+          "session": "synthetic/v30/v30-hungry-combat-lifesave",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hungry-combat-lifesave",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-hungry-combat-lifesave.session.json",
+          "recordingSha256": "43722eab6dd1d49de1215e62b3b7d06270e9ef25cab50805bd140ff7533ed25d",
+          "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+          "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270"
+        }
+      }
     }
   ]
 }
