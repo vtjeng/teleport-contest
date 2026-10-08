@@ -8,6 +8,7 @@
 // hero_seq. Display reconstruction (docrt, bot) and the welcome-back
 // message follow in the caller (jsmain.js).
 
+import { rest_region_capacity } from './region.js';
 import {
     COLNO,
     COULD_SEE,
@@ -152,6 +153,7 @@ export async function dorestore(state = game) {
 
     // Level and dungeon state
     state.level = snapshot.level;
+    rest_region_capacity(state.level);
     state.dungeon_topology = snapshot.dungeon_topology;
     state.n_dgns = snapshot.n_dgns;
     state.dungeons = snapshot.dungeons;
@@ -491,6 +493,7 @@ export async function getlev(ledger, state = game) {
 
     // Restore the level, stairs, engravings, smeq, updest, dndest.
     state.level = snapshot.level;
+    rest_region_capacity(state.level);
     state.stairs = snapshot.stairs;
     state.head_engr = snapshot.head_engr;
     if (snapshot.smeq) state.smeq = snapshot.smeq;

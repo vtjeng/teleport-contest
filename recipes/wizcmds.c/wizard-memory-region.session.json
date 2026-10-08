@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first memory statistics variation: cursed poison cloud centered two cells east allocates region capacity without enveloping the hero. Inspect immediately, wait for expiration, then inspect retained allocation capacity. The input uses the C-observed wished scroll slot o.",
+  "segments": [
+    {
+      "seed": 16440023,
+      "datetime": "20530615103000",
+      "nethackrc": "OPTIONS=name:Memory16440023,role:Wizard,race:orc,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .\u0017cursed scroll of stinking cloud\nro    ll.#stats\n  30.#stats\n  "
+    }
+  ]
+}

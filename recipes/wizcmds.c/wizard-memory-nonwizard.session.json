@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first outside-limit witness: ordinary playmode must reject the wizard-only #stats command before entering wiz_show_stats; whole doextcmd admission ownership is unchanged.",
+  "segments": [
+    {
+      "seed": 16440025,
+      "datetime": "20530615140000",
+      "nethackrc": "OPTIONS=name:Memory16440025,role:Healer,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .#stats\n"
+    }
+  ]
+}

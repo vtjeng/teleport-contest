@@ -2,6 +2,7 @@
 // C ref: src/dungeon.c init_dungeons() and its loader/placement helpers.
 // Data ref: dat/dungeon.lua, translated in dungeon_data.js.
 
+import { memoryLayout } from './wizcmds_data.js';
 import { game } from './gstate.js';
 import { isok } from './cmd_isok.js';
 import { rn2, rnd } from './rng.js';
@@ -2672,4 +2673,26 @@ export function init_dungeons(
     init_castle_tune(state, random);
     fixup_level_locations(state, roleFilecode);
     return state;
+}
+
+// C ref: dungeon.c overview_stats() (2761-2801). Existing mapseen and
+// cemetery representations retain C traversal order; each emitted row
+// contributes to the caller's cumulative output parameters.
+export function overview_stats(rows, format, totals, state = game) {
+    let ocount = 0, osize = 0, bcount = 0, bsize = 0, acount = 0, asize = 0;
+    for (const mapseen of state.svm?.mapseenchn ?? []) {
+        ocount++; osize += memoryLayout.mapseen;
+        for (const entry of cemeteryEntries(mapseen.final_resting_place)) {
+            void entry;
+            bcount++; bsize += memoryLayout.cemetery;
+        }
+        if (mapseen.custom_lth) {
+            acount++; asize += mapseen.custom_lth + 1;
+        }
+    }
+    rows.push({ text: format(`general, size ${memoryLayout.mapseen}`, ocount, osize) });
+    if (bcount) rows.push({ text: format(`cemetery, size ${memoryLayout.cemetery}`, bcount, bsize) });
+    if (acount) rows.push({ text: format('annotations, text', acount, asize) });
+    totals.count += ocount + bcount + acount;
+    totals.size += osize + bsize + asize;
 }

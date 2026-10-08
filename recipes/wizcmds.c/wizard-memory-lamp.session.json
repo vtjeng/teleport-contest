@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first memory accounting witness: named lit lamp adds object extra, timer and light allocations; starting dog adds mextra/edog. Newly chosen seed/role/clock and fixed source actions before comparison.",
+  "segments": [
+    {
+      "seed": 16440022,
+      "datetime": "20530614124500",
+      "nethackrc": "OPTIONS=name:Memory16440022,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .\u0017blessed lit oil lamp named Beacon\n#stats\n  .#stats\n  "
+    }
+  ]
+}

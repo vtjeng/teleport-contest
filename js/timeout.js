@@ -6,6 +6,7 @@
 // verify every draw without replacing the queue representation. stop_timer()
 // and obj_stop_timers() also accept cleanup integration through `{ hooks }`.
 
+import { memoryLayout } from './wizcmds_data.js';
 import {
     ACCESSIBLE,
     ACID_RES,
@@ -2636,4 +2637,14 @@ export function start_corpse_timeout(body, env = {}) {
         when = random.rn1(15, 5);
     }
     start_timer(when, TIMER_OBJECT, action, body, state);
+}
+
+// C ref: timeout.c:2735-2745. Return the source header/count/size output parameters.
+export function timer_stats(headerFormat, state = game) {
+    let count = 0, size = 0;
+    for (let entry = state.gt?.timer_base; entry; entry = entry.next) {
+        count++;
+        size += memoryLayout.timer_element;
+    }
+    return { header: headerFormat.replace('%ld', String(memoryLayout.timer_element)), count, size };
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-affecting variation of the independent remote-cloud witness: retain its map and wished-scroll slot, but teleport to level 2 and back before #stats. C rest_regions restores capacity to serialized live counts rather than the original ten slots. This isolates restoration from cloud setup.",
+  "segments": [
+    {
+      "seed": 16440023,
+      "datetime": "20530615103000",
+      "nethackrc": "OPTIONS=name:Memory16440023,role:Wizard,race:orc,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .\u0017cursed scroll of stinking cloud\nro    ll.\u00162\n\u00161\n#stats\n  "
+    }
+  ]
+}

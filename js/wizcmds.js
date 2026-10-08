@@ -3,6 +3,12 @@
 // wiz_level_tele(), wiz_wish(), wiz_identify(), wiz_polyself(),
 // wiz_intrinsic(), wiz_kill(), and wiz_makemap(), among the rows cmd.c dispatches here.
 
+import { engr_stats } from './engrave.js';
+import { light_stats } from './light.js';
+import { timer_stats } from './timeout.js';
+import { region_stats } from './region.js';
+import { size_wseg } from './worm.js';
+import { memoryLayout } from './wizcmds_data.js';
 import {
     ACID_RES,
     ARTICLE_A, ARTICLE_THE, ARTICLE_YOUR,
@@ -117,7 +123,7 @@ import { makewish } from './zap.js';
 import { canspotmon, docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
     map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
 import { do_mapping, findit } from './detect.js';
-import { In_W_tower, on_level, print_dungeon } from './dungeon.js';
+import { overview_stats, In_W_tower, on_level, print_dungeon } from './dungeon.js';
 import { mklev } from './mklev.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
@@ -831,5 +837,154 @@ export async function wiz_kill(state = game, env = {}) {
 // C ref: wizcmds.c wiz_rumor_check() (1102-1106). cmd.c gates wizard mode.
 export async function wiz_rumor_check(state = game, env = {}) {
     await rumor_check(state, env);
+    return ECMD_OK;
+}
+
+// C refs: wizcmds.c statistics family (1117-1399, 1616-1697).
+// The row array replaces the source NHW_TEXT winid; mutable totals hold C's
+// count/size output parameters. Counts describe C allocations, not JS memory.
+export function memory_stats_line(label, count, size) {
+    return label.padEnd(27) + '  ' + String(count).padStart(4)
+        + '  ' + String(size).padStart(6);
+}
+function stringAllocation(text) {
+    return new TextEncoder().encode(text).length + 1;
+}
+export function size_obj(obj, state = game) {
+    let size = memoryLayout.obj;
+    if (obj.oextra) {
+        const extra = obj.oextra;
+        size += memoryLayout.oextra;
+        if (extra.oname != null) size += stringAllocation(extra.oname);
+        if (extra.omonst) size += size_monst(extra.omonst, false, state);
+        if (extra.omailcmd != null) size += stringAllocation(extra.omailcmd);
+    }
+    return size;
+}
+export function count_obj(chain, totals, top, recurse, state = game) {
+    let count = 0, size = 0;
+    for (let obj = chain; obj; obj = obj.nobj) {
+        if (top) { count++; size += size_obj(obj, state); }
+        if (recurse && obj.cobj) count_obj(obj.cobj, totals, true, true, state);
+    }
+    totals.count += count; totals.size += size;
+}
+function statsRow(rows, label, subtotal, totals, force = false) {
+    if (subtotal.count || subtotal.size || force) {
+        totals.count += subtotal.count; totals.size += subtotal.size;
+        rows.push({ text: memory_stats_line(label, subtotal.count, subtotal.size) });
+    }
+}
+export function obj_chain(rows, label, chain, force, totals, state = game) {
+    const subtotal = { count: 0, size: 0 };
+    count_obj(chain, subtotal, true, false, state);
+    statsRow(rows, label, subtotal, totals, force);
+}
+export function mon_invent_chain(rows, label, chain, totals, state = game) {
+    const subtotal = { count: 0, size: 0 };
+    for (let mon = chain; mon; mon = mon.nmon)
+        count_obj(mon.minvent, subtotal, true, false, state);
+    statsRow(rows, label, subtotal, totals);
+}
+export function contained_stats(rows, label, totals, state = game) {
+    const subtotal = { count: 0, size: 0 };
+    for (const chain of [state.invent, state.level?.objlist,
+        state.level?.buriedobjlist, state.gm?.migrating_objs])
+        count_obj(chain, subtotal, false, true, state);
+    for (const chain of [state.level?.monlist, state.gm?.migrating_mons])
+        for (let mon = chain; mon; mon = mon.nmon)
+            count_obj(mon.minvent, subtotal, false, true, state);
+    statsRow(rows, label, subtotal, totals);
+}
+export function size_monst(monster, incl_wsegs, state = game) {
+    let size = memoryLayout.monst;
+    if (monster.wormno && incl_wsegs) size += size_wseg(monster, state);
+    if (monster.mextra) {
+        const extra = monster.mextra;
+        size += memoryLayout.mextra;
+        if (extra.mgivenname != null) size += stringAllocation(extra.mgivenname);
+        for (const field of ['egd', 'epri', 'eshk', 'emin', 'edog', 'ebones'])
+            if (extra[field]) size += memoryLayout[field];
+    }
+    return size;
+}
+export function mon_chain(rows, label, chain, force, totals, state = game) {
+    const subtotal = { count: 0, size: 0 };
+    const incl_wsegs = label.toLowerCase() === 'fmon';
+    for (let mon = chain; mon; mon = mon.nmon) {
+        subtotal.count++; subtotal.size += size_monst(mon, incl_wsegs, state);
+    }
+    statsRow(rows, label, subtotal, totals, force);
+}
+export function misc_stats(rows, totals, state = game) {
+    const traps = state.level?.traps ?? [];
+    statsRow(rows, `traps, size ${memoryLayout.trap}`,
+        { count: traps.length, size: traps.length * memoryLayout.trap }, totals, true);
+    const engr = engr_stats('engravings, size %ld+text', state);
+    statsRow(rows, engr.header, engr, totals, true);
+    const lights = light_stats('light sources, size %ld', state);
+    statsRow(rows, lights.header, lights, totals);
+    const timers = timer_stats('timers, size %ld', state);
+    statsRow(rows, timers.header, timers, totals);
+    let count = 0, size = 0;
+    for (let record = state.level?.damagelist; record; record = record.next) {
+        count++; size += memoryLayout.damage;
+    }
+    statsRow(rows, `shop damage, size ${memoryLayout.damage}`, { count, size }, totals);
+    const regions = region_stats('regions, size %ld+%ld*rect+N', state);
+    statsRow(rows, regions.header, regions, totals);
+    count = size = 0;
+    for (let killer = state.killer?.next; killer; killer = killer.next) {
+        count++; size += memoryLayout.kinfo;
+    }
+    statsRow(rows, `delayed killer${count === 1 ? '' : 's'}, size ${memoryLayout.kinfo}`, { count, size }, totals);
+    count = size = 0;
+    const bones = state.level?.bonesinfo;
+    if (Array.isArray(bones)) {
+        count = bones.length; size = count * memoryLayout.cemetery;
+    } else for (let record = bones; record; record = record.next) {
+        count++; size += memoryLayout.cemetery;
+    }
+    statsRow(rows, `bones history, size ${memoryLayout.cemetery}`, { count, size }, totals);
+    count = size = 0;
+    for (const obj of state.objects ?? []) if (obj?.oc_uname != null) {
+        count++; size += stringAllocation(obj.oc_uname);
+    }
+    statsRow(rows, 'object type names, text', { count, size }, totals);
+}
+export async function wiz_show_stats(state = game, env = {}) {
+    const rows = [{ text: 'Current memory statistics:' },
+        { text: '                             count  bytes' },
+        { text: `  Objects, base size ${memoryLayout.obj}` }];
+    const objects = { count: 0, size: 0 };
+    obj_chain(rows, 'invent', state.invent, true, objects, state);
+    obj_chain(rows, 'fobj', state.level?.objlist, true, objects, state);
+    obj_chain(rows, 'buried', state.level?.buriedobjlist, false, objects, state);
+    obj_chain(rows, 'migrating obj', state.gm?.migrating_objs, false, objects, state);
+    obj_chain(rows, 'billobjs', state.gb?.billobjs, false, objects, state);
+    mon_invent_chain(rows, 'minvent', state.level?.monlist, objects, state);
+    mon_invent_chain(rows, 'migrating minvent', state.gm?.migrating_mons, objects, state);
+    contained_stats(rows, 'contained', objects, state);
+    const separator = '---------------------------  ----- -------';
+    rows.push({ text: separator }, { text: memory_stats_line('  Obj total', objects.count, objects.size) },
+        { text: '' }, { text: `  Monsters, base size ${memoryLayout.monst}` });
+    const monsters = { count: 0, size: 0 };
+    mon_chain(rows, 'fmon', state.level?.monlist, true, monsters, state);
+    mon_chain(rows, 'migrating', state.gm?.migrating_mons, false, monsters, state);
+    if (state.gm?.mydogs) mon_chain(rows, 'mydogs', state.gm.mydogs, false, monsters, state);
+    rows.push({ text: separator }, { text: memory_stats_line('  Mon total', monsters.count, monsters.size) },
+        { text: '' }, { text: '  Overview' });
+    const overview = { count: 0, size: 0 };
+    overview_stats(rows, memory_stats_line, overview, state);
+    rows.push({ text: separator }, { text: memory_stats_line('  Over total', overview.count, overview.size) },
+        { text: '' }, { text: '  Miscellaneous' });
+    const misc = { count: 0, size: 0 };
+    misc_stats(rows, misc, state);
+    rows.push({ text: separator }, { text: memory_stats_line('  Misc total', misc.count, misc.size) },
+        { text: '' }, { text: separator },
+        { text: memory_stats_line('  Grand total', objects.count + monsters.count + overview.count + misc.count,
+            objects.size + monsters.size + overview.size + misc.size) });
+    // show_borlandc_stats is excluded by the Linux recorder's build guard.
+    await (env.window ?? displayTtyTextWindow)(state, rows);
     return ECMD_OK;
 }
