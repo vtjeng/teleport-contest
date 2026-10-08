@@ -1164,10 +1164,19 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
 // has identified one potion of oil is never asked to name another. That is why
 // potion.c potionbreathe()'s tail is silent for a starting inventory, whose
 // types u_init.c ini_inv_use_obj() discovered as it handed them over.
-export async function trycall(obj, state = game) {
+export async function trycall(obj, state = game, env = {}) {
     const type = objectType(obj, state);
-    if (!type.oc_name_known && !type.oc_uname)
+    if (!type.oc_name_known && !type.oc_uname) {
+        // docall() returns before output/input for an unseen object. A
+        // planning clone otherwise stops before its flush_screen/getlin so
+        // the live pass can replay every source-earlier message and draw.
+        if (env.planning && obj.dknown) {
+            if (typeof env.requestPlanningInput !== 'function')
+                throw new TypeError('planned trycall requires an input handoff');
+            return env.requestPlanningInput('do.c trycall');
+        }
         await docall(obj, state);
+    }
 }
 
 // C ref: do.c teleport_sink() (459-493). It tries up to 200 room squares in
