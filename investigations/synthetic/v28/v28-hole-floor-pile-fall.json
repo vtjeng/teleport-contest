@@ -1,0 +1,102 @@
+{
+  "session": "synthetic/v28/v28-hole-floor-pile-fall",
+  "corpus": "synthetic",
+  "batch": "v28",
+  "caseId": "v28-hole-floor-pile-fall",
+  "remainingScreens": 7,
+  "recordedSteps": 42,
+  "manifestPath": "challenges/manifests/v28.json",
+  "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+  "recordingPath": "challenges/cases/v28/v28-hole-floor-pile-fall.session.json",
+  "recordingSha256": "5708cb979b63bc5897b36ee2cf137efeef62aebc96cb6a687948915eed963737",
+  "evaluationPath": "challenges/evaluations/accepted-12ef8612de6f2bb2114e3735f82559f4ddb22cd4-v28.json",
+  "evaluationCommit": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4",
+  "status": "complete",
+  "commit": "7559dee61dab0ef0bfef072ae4da5981051e6255",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v28",
+    "caseId": "v28-hole-floor-pile-fall",
+    "session": "synthetic/v28/v28-hole-floor-pile-fall",
+    "manifestPath": "challenges/manifests/v28.json",
+    "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+    "recording": "challenges/cases/v28/v28-hole-floor-pile-fall.session.json",
+    "recordingPath": "challenges/cases/v28/v28-hole-floor-pile-fall.session.json",
+    "recordingSha256": "5708cb979b63bc5897b36ee2cf137efeef62aebc96cb6a687948915eed963737",
+    "recipe": "challenges/cases/v28/v28-hole-floor-pile-fall.recipe.session.json",
+    "recipeSha256": "0cf33bbb405ad6d886a776b85a2f7e923c7f5afec07779d3e3b275e89e7e85fb",
+    "evaluationPath": "challenges/evaluations/accepted-12ef8612de6f2bb2114e3735f82559f4ddb22cd4-v28.json",
+    "evaluationCommit": "12ef8612de6f2bb2114e3735f82559f4ddb22cd4",
+    "evaluationUtc": "2026-10-08T03:18:38.892Z",
+    "remainingScreens": 7,
+    "recordedSteps": 42,
+    "metrics": {
+      "screens": {
+        "matched": 35,
+        "total": 42
+      },
+      "rng": {
+        "matched": 2218,
+        "total": 4382
+      },
+      "cursors": {
+        "matched": 35,
+        "total": 42
+      }
+    },
+    "passed": false,
+    "error": null,
+    "step": 34,
+    "kind": "rng",
+    "firstMismatch": {
+      "index": 2026,
+      "cEntry": "rn2(3)=0",
+      "cCaller": "getbones(bones.c:645)",
+      "jsEntry": "rn2(5)=0",
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 34,
+        "key": ">"
+      }
+    },
+    "sourceFile": "dokick.c",
+    "function": "impact_drop",
+    "message": "Missing impact_drop before level departure changes subsequent generation RNG."
+  },
+  "summary": "Whole dokick.c:impact_drop is missing. A ration left on the hero square is considered for falling through the newly dug hole before goto_level saves the source level. Omitting its rn2(3) shifts destination generation; port the whole pile/migration/billing function and reconcile all seven direct source calls. Successful object delivery below remains a separate named obj_delivery gap.",
+  "source": {
+    "file": "dokick.c",
+    "branch": "Nonempty floor pile at a recognized downward gate with a valid destination; skip missile and attached ball/chain, use rn2(30) for boulders or rn2(3) otherwise, then transfer chosen objects before visible impact and shop-debt messages.",
+    "functions": [
+      "impact_drop"
+    ],
+    "callers": [
+      "do.c:goto_level:1612-1613 falling entry before check_special_room/level saving; js/do.js:2655-2660 records a discarded gap",
+      "dig.c:digactualhole:772-773 hero held or wont_fall; js/dig.js:1430 discarded gap",
+      "dig.c:digactualhole:798-799 off-hero hole; js/dig.js:1446 discarded gap",
+      "trap.c:fall_through:649 dont_fall entry; js/trap.js:668-671 discarded gap",
+      "dokick.c:ship_object:1680 boulder over a hole; js/dokick.js:1581 discarded gap",
+      "dokick.c:ship_object:1689 missile stays at gate; js/dokick.js:1588 discarded gap",
+      "dokick.c:ship_object:1762 missile migrated then impacts remaining pile; js/dokick.js:1623 discarded gap"
+    ],
+    "dependencies": [
+      "dokick.c:down_gate:1943-1975 and drop_to:1473-1506 consumed destination helpers already exist in js/dokick.js; preserve gate_str lookup, special stronghold/endgame/bottom/quest destinations and dlev override order",
+      "mkobj.c:obj_extract_self and add_to_migration canonical owners in js/obj.js:3122; preserve floor nexthere iteration and gm.migrating_objs identity/from-level fields",
+      "shk.c:costly_spot, shop_keeper, stolen_value:3754-3891, currency, shkname/Shknam plus hack.c:in_rooms and vision.c:cansee have existing canonical implementations; stolen_value is consumed and must be audited/reused rather than skipped",
+      "shk.c:picked_container:3085-3100 exists and recursively clears nested noncoin no_charge",
+      "shk.c:hot_pursuit has no implementation and remains an explicitly named discarded void dependency; mon.c:angry_guards exists, its result is discarded",
+      "dokick.c:obj_delivery:1770-1857 is an outside-limit downstream discarded void gap in js/do.js:3129, not a return dependency of impact_drop; successful migration/arrival probes must retain this frontier",
+      "ship_object source caller families: hero drop/tipping(do.c), hero thrown projectile(dothrow.c), kicked object settlement(zap.c bhit), monster missiles(mthrowu.c); trap.c rolling-boulder caller remains outside-limit where its production arm is incomplete"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current saved evaluation challenges/evaluations/accepted-12ef8612de6f2bb2114e3735f82559f4ddb22cd4-v28.json at 12ef8612de6f2bb2114e3735f82559f4ddb22cd4: screens/cursors 35/42, RNG2218/4382, 7 unmatched screens; recipe challenges/cases/v28/v28-hole-floor-pile-fall.recipe.session.json SHA2560cf33bbb405ad6d886a776b85a2f7e923c7f5afec07779d3e3b275e89e7e85fb; recording challenges/cases/v28/v28-hole-floor-pile-fall.session.json SHA2565708cb979b63bc5897b36ee2cf137efeef62aebc96cb6a687948915eed963737.",
+    "Frozen single-case worker replay at 7559dee61dab0ef0bfef072ae4da5981051e6255, bounded run-hHIpMu, .cache/v28-hole-floor-pile-fall/replay.json: no refusal, first numerical RNG mismatch segment0 step34 (C getbones rn2(3)=0 versus JS makelevel rn2(5)=0); first screen/cursor mismatch step35. This worker observation does not replace saved main totals.",
+    "Recorded step34 begins exercise rn2(19)=14; hole_destination rn2(4)=0,1; impact_drop(dokick.c1569) rn2(3)=1; getbones rn2(3)=0. JS skips impact_drop; its getbones draw consumes the omitted value1 and the next comparison diverges. C skips migration on that roll, so the selected case does not require implementing obj_delivery.",
+    "C dokick.c:1511-1622 whole function: resolve destination before dlev override; snapshot shop debit/robbed/peacefulness before silent billing; save nexthere before extraction; count quantities including protected objects; rock-caused boulder skip consumes no draw; obj_extract_self then stolen_value/picked_container/no_charge then add_to_migration/coordinates/owornmask; message only when something fell and square is visible; preserve literal singular impact text and shop notification order.",
+    "Search rg 'impact_drop\\(' nethack-c/upstream/src js found seven source calls and no JS implementation. Each existing live call records note_unported. Source scope is one whole function with awaited bounded caller replacements in js/dokick.js, js/do.js, js/dig.js, js/trap.js; no whole caller credit.",
+    "Runtime plan: admitted falling-hole range through step41 covers goto_level; independently designed levitating/held digging and off-hero digging cover both digactualhole sites, nonfalling trapdoor covers fall_through, and gate pile drops/throws/kicks plus a monster-missile variation cover shared ship_object. Choose successful migration while hero stays on original level to observe impact without unported arrival; retain a successful-arrival recipe blocked by obj_delivery and a shop-theft probe blocked by hot_pursuit if those downstream limits prevent a fully matching recording.",
+    "Reservation check .cache/v28-hole-floor-pile-fall/status-after-B144.json: no impact_drop/floor-object migration owner is reserved. A144 owns do.c:dropx and edits shared js/do.js, so goto_level-only edit requires explicit coordination. C141 owns wiz_flip_level/flip_level and its vision publication contract. B144 is accepted; no next implementation claim before the central queue/assignment gate."
+  ]
+}
