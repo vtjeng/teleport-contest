@@ -8,8 +8,8 @@
   "recordingPath": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
   "recording": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
   "recordingSha256": "89ca7ed7d46082455ff5539d946974a08a8ea196f3100035ae30e2c250fc4fcc",
-  "evaluationPath": "challenges/evaluations/accepted-ab29afa9c189495b317c57344fa9c9536fd03649-v32.json",
-  "evaluationCommit": "ab29afa9c189495b317c57344fa9c9536fd03649",
+  "evaluationPath": "challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json",
+  "evaluationCommit": "e07a3433218418185470f93e6ed7061c6e1982cb",
   "remainingScreens": 1,
   "recordedSteps": 69,
   "passed": false,
@@ -39,7 +39,7 @@
     "jsSource": "allmain.js lycanthropy-change gate"
   },
   "status": "complete",
-  "commit": "5b3752fa3ae1388b97e26c36ecb790c8c3c6237c",
+  "commit": "5a4bce88d5df2907f8d2d1161f9747f84c9bd683",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v32",
@@ -50,8 +50,8 @@
     "recordingPath": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
     "recording": "challenges/cases/v32/v32-prayer-lycanthropy.session.json",
     "recordingSha256": "89ca7ed7d46082455ff5539d946974a08a8ea196f3100035ae30e2c250fc4fcc",
-    "evaluationPath": "challenges/evaluations/accepted-ab29afa9c189495b317c57344fa9c9536fd03649-v32.json",
-    "evaluationCommit": "ab29afa9c189495b317c57344fa9c9536fd03649",
+    "evaluationPath": "challenges/evaluations/accepted-e07a3433218418185470f93e6ed7061c6e1982cb-v32.json",
+    "evaluationCommit": "e07a3433218418185470f93e6ed7061c6e1982cb",
     "remainingScreens": 1,
     "recordedSteps": 69,
     "passed": false,
@@ -81,12 +81,13 @@
       "jsSource": "allmain.js lycanthropy-change gate"
     }
   },
-  "summary": "Protected prayer incorrectly performs delayed lycanthropy RNG: C allmain307–340 suppresses teleport and polymorph/lycanthropy while uinvulnerable, whereas JS suppresses only teleport. First extra draw at51 precedes the separate missing purification at52 (pray515 -> were.c:you_unwere), whose prayer caller remains reserved by A175.",
+  "summary": "Invulnerable prayer incorrectly consumes delayed lycanthropy RNG at51 because the C allmain protection envelope is missing around delayed changes. A second defect at52 omits the whole were.c:you_unwere purification helper and its pray.c caller.",
   "source": {
     "file": "allmain.c",
     "branch": "Human hero acquired lycanthropy from werewolf tin and is invulnerable during three-turn successful prayer; POLYMORPH or ismnum(ulycn) must not evaluate random change or pending-change validity/dispatch inside the C !uinvulnerable block.",
     "functions": [
-      "moveloop_core"
+      "moveloop_core",
+      "were.c:you_unwere"
     ],
     "callers": [
       "js/jsmain.js runSegment -> js/allmain.js moveloop_core -> advanceElapsedTurn -> finishElapsedTurnAfterTimeout -> currently unguarded delayed-change block",
@@ -94,19 +95,23 @@
     ],
     "dependencies": [
       "Existing canonical property checks, night, ismnum, Upolyd, stop_occupation, polyself and you_were are reused; bounded guard requires no new return-valued helper.",
-      "Next independent screen owner: pray.c fix_worst_trouble515 -> whole were.c you_unwere213–229 (currently absent). Existing set_ulycn and canonical monster_nearby/paranoid_query/rehumanize supply consumed/source operations; caller reconciliation must include eat2515,potion735/754/2087,timeout645,mhitm1142 and pray515. A175 reserves fix_worst_trouble until acceptance.",
+      "Next independent screen owner: pray.c fix_worst_trouble515 -> whole were.c you_unwere213–228 (currently absent). Existing set_ulycn and canonical monster_nearby/paranoid_query/rehumanize supply consumed/source operations; caller reconciliation must include eat2515,potion735/754/2087,timeout645,mhitm1142 and pray515.",
       "Existing source-discarded teleport.c tele and dog.c check_leash gaps remain outside the bounded protection guard task."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Authoritative accepted-ab29 v32 evaluation records1 remaining screen (68/69),2609/2652RNG and69/69cursors. Focused replay at5b3752fa: .cache/A177/selected.json; no input boundary refusal; first RNG difference2609 at zero-based51, first screen52 row0col32 C Y versus JS space.",
+    "Authoritative accepted-e07a v32 evaluation records1 remaining screen (68/69),2609/2652RNG and69/69cursors. Focused replay at5a4bce88: .cache/A177/selected-after-A175.json; no input boundary refusal; first RNG difference2609 at zero-based51, first screen52 row0col32 C Y versus JS space.",
     "C allmain307 opens !u.uinvulnerable and closes340 after pending-change invalidation322–324, polymorph/lycanthropy RNG325–329 and change dispatch330–339. JS allmain1001 guards teleport only; its delayed-change block1031–1063 has no invulnerability condition. Extra rn2(80) is the daytime lycanthropy gate, not the engraving gate or incorrect Dexterity.",
     "Read source state setup: immutable case eats blessed werewolf tin, cpostfx -> canonical set_ulycn sets species21; hero remains human. Protected prayer p_type3 sets uinvulnerable during nominal three turns. C next calls engraving rn2(40+16*3)=rn2(88); JS first spends forbidden lycanthropy rn2(80), displacing subsequent draws.",
     "Read-only same-session boundary probes .cache/A177/state.log (run-Lcm8qf): Dexterity16 at35,43,50,51,52/end69; umonnum332 human; ulycn21 remains unchanged after missing purification. This rejects an attrib.c/initial Dexterity cause. No challenge modification or C re-recording.",
     "Actionable bounded first-owner task: restore one source-order !uinvulnerable envelope around both teleport and delayed-change checks/dispatch in js/allmain.js; reserve source:allmain.c:moveloop_core + contract:invulnerable-delayed-transformation. Tests scripts/allmain-turn.test.mjs and scripts/pray.test.mjs; independent recipes/recordings allmain.c plus fresh runner if live state inspected. Do not claim whole moveloop_core, tele, polyself, or you_were completion. Preserve pending mvl_change while protected, no RNG/messages/stopOccupation/form state changes; normal unprotected path remains ordered.",
     "Source-pinned tests must cover protected POLYMORPH and human lycanthropy, pending changes that would otherwise clear (inactive polymorph or cured ulycn), UNCHANGING, negative multi and normal unprotected daytime/night change bounds. Assert exact draw absence/order, clone-owned mvl_change and no live callbacks. Independent runtime: wizard prayer under controlled lycanthropy acquired from independently chosen tin/role/date, variation with polymorph intrinsic, and unprotected outside turn; derive keys from C before JS comparison.",
-    "Next screen frontier is separate: C pray515 calls you_unwere(TRUE), were213–229 emits purified then set_ulycn(NON_PM), checks Unchanging/were form/nearby monster/control confirmation and rehumanize or rn1(200,200) fallback. JS pray1386 retains note_unported and were.js has no you_unwere definition. Full source helper scope/callers needed; no bounded message-only substitute. A175 prayer reservation prevents implementation now.",
-    "The selected C case reaches purification at52, prints You feel purified, then ends with ordinary unknown-space commands. This report does not establish that the allmain guard alone makes the full selected case match; it diagnoses the first source defect and retains the downstream missing whole helper. No implementation edits or new passing recordings."
+    "Next screen frontier is separate: C pray515 calls you_unwere(TRUE), were213–228 emits purified then set_ulycn(NON_PM), checks Unchanging/were form/nearby monster/control confirmation and rehumanize or rn1(200,200) fallback. JS pray1386 retains note_unported and were.js has no you_unwere definition. Full source helper scope/callers needed; no bounded message-only substitute.",
+    "The selected C case reaches purification at52, prints You feel purified, then ends with ordinary unknown-space commands. This report does not establish that the allmain guard alone makes the full selected case match; it diagnoses the first source defect and retains the downstream missing whole helper. No implementation edits or new passing recordings.",
+    "Complete dependency/caller audit after the earlier stoning caller fix: were.c:you_unwere213–228 consumes monster_nearby and paranoid_query results, both existing canonical owners. is_were/hero condition macros are source-pinned pure helpers; set_ulycn -> set_uasmon and rehumanize are canonical. Preserve existing rehumanize discarded retouch_equipment/selftouch gaps; no substitute state or RNG. Control is computed before purification; purified feedback precedes set_ulycn(NON_PM); short-circuit Unchanging/were/nearby/control query before rehumanize; remaining were form with zero mtimedone draws rn1(200,200) exactly once.",
+    "Every active helper caller must be wired in the same source port: eat.c:fpostfx2515(true), potion.c:peffect_water735(false)/754(true), potion.c:potionbreathe2087(false), pray.c:fix_worst_trouble515(true), timeout.c:nh_timeout645(false), mhitm.c:mon_poly1142(false). Current JS retains a named you_unwere gap at all seven sites; no hidden implementation exists in were.js. Bounded caller credit only.",
+    "Planning adapter dependency: timeout.js nh_timeout_requires_live_state currently excludes were forms at mtimedone1 because it skipped this helper. The now-executable were expiry must hand off live before confirmation/form output, alongside ordinary rehumanize. Only the mtimedone call/classifier branch needs reconciliation; timeout fatal helper ownership is excluded. mon_poly already defers planning input, while peffect_water/potionbreathe must forward their canonical random/message/planning environment and defer only a genuinely reached controlled query.",
+    "Expanded independent validation plan: prayer under human lycanthropy; wolfsbane purification after food-derived lycanthropy; blessed water purification and chaotic beast holy-water reversion; blessed-water vapor while in matching were form; timed beast expiry; mon_poly natural-urge reversion from genetic engineer. Each active entry requires a matching admitted range or independent C-first recipe/cheap variation, with exact blockers retained if surrounding source cannot execute. Pure helper and mocked-order tests cannot stand in for runtime callers."
   ]
 }
