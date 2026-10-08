@@ -282,6 +282,7 @@ import {
 } from './invent.js';
 import {
     doattributes,
+    doborn,
     doconduct,
     do_gamelog,
     dogenocided,
@@ -374,7 +375,7 @@ import {
     dopoly, doremove, dospinweb, dospit, dosummon,
 } from './polyself.js';
 import {
-    wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision,
+    wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision, wiz_show_stats,
     wiz_level_tele, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check,
 } from './wizcmds.js';
 import {
@@ -5268,8 +5269,12 @@ async function doextcmd(key, state) {
         return await runKillCommand(key, state);
     case 'wiz_rumor_check':
         return await wiz_rumor_check(state);
+    case 'doborn':
+        return await doborn(state);
     case 'wiz_smell':
         return await runSmellCommand(key, state);
+    case 'wiz_show_stats':
+        return await wiz_show_stats(state);
     case 'wiz_show_seenv':
         return await wiz_show_seenv(state);
     case 'wiz_show_vision':
