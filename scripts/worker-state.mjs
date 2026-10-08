@@ -62,7 +62,8 @@ match the accepted commit. sync-main performs a safe local fast-forward only;
 it does not push. No command starts, interrupts or resumes an agent process.
 Publication may include checked investigation JSON and newly added challenge
 evaluations after the tested commit. Source commits must be in tested history;
-evaluations must name that tested commit and match its challenge manifest.
+evaluations must match their named source commit's challenge manifest.
+Historical evaluations are publishable records, not current acceptance evidence.
 Reports must be regular non-executable files. Other input changes need validation.
 This publication allowance does not broaden checkpoint reuse or rewrite receipts.
 
@@ -89,7 +90,9 @@ actual completion observations into turn events; saved state is not proof of
 liveness. Feedback waits for a safe task boundary. resume refuses to mix two
 working tasks on one worker. preflight reads committed files, reports omissions,
 direct-importer/changed/source-pinned tests and every prior checkpoint failure.
-Its success is not a test pass or a source review; run the listed tests and lint.
+Its success is not a test pass or a source review. The focusedTests list helps
+select checks for integration edits or failures; it does not require repeating
+worker checks before the combined hosted checkpoint. Review saved check logs.
 
 Reservations use exact keys: source:<file.c>:<function>, source:<file.lua>,
 contract:<shared-state-name>, challenge-batch:<vN>, or session:<session-id>.

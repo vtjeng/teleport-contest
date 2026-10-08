@@ -8,6 +8,7 @@ import { runSegment } from '../js/jsmain.js';
 import { challengePath, readChallengeBatches } from './challenge-results.mjs';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';
+import { verifyWithPrefixReceipt } from './synthetic-prefix-receipt.mjs';
 
 function storageHandle() {
     const entries = new Map();
@@ -28,10 +29,30 @@ function citedRanges(evidence) {
 
 /** Verify exact C/JS parity through every cited replay boundary at this checkout. */
 export async function verifySyntheticRanges(evidence, {
-    root = PROJECT_ROOT, replaySegment = runSegment,
+    root = PROJECT_ROOT, replaySegment = runSegment, reuse = true,
 } = {}) {
     const ranges = citedRanges(evidence);
     if (!ranges.length) return [];
+    // Normalize citations before loading the corpus so a receipt skips that work too.
+    const boundaries = new Map();
+    for (const range of ranges) {
+        if (!Number.isSafeInteger(range.segment) || range.segment < 0
+            || !Number.isSafeInteger(range.throughStep) || range.throughStep < 0)
+            throw new Error('synthetic evidence step is outside the recording');
+        const key = `${range.batch}/${range.caseId}`;
+        const old = boundaries.get(key);
+        if (!old || range.segment > old.segment
+            || (range.segment === old.segment && range.throughStep > old.throughStep))
+            boundaries.set(key, { case: key, segment: range.segment, throughStep: range.throughStep });
+    }
+    const expected = [...boundaries.values()].sort((a, b) => a.case.localeCompare(b.case));
+    // Injected replay functions are test fixtures, never reusable production evidence.
+    if (reuse && root === PROJECT_ROOT && replaySegment === runSegment) {
+        await verifyWithPrefixReceipt(root, expected, async () => {
+            await verifySyntheticRanges(evidence, { root, replaySegment, reuse: false });
+        });
+        return expected;
+    }
     const batches = new Map(readChallengeBatches(root).map(batch => [batch.batch, batch]));
     const cases = new Map();
     for (const range of ranges) {
@@ -56,32 +77,34 @@ export async function verifySyntheticRanges(evidence, {
         const farthest = caseRanges.reduce((latest, range) =>
             range.segment > latest.segment || (range.segment === latest.segment
                 && range.throughStep > latest.throughStep) ? range : latest);
-        const storage = storageHandle();
-        for (let index = 0; index <= farthest.segment; index++) {
-            const segment = recording.segments[index];
-            const steps = index === farthest.segment
-                ? segment.steps.slice(0, farthest.throughStep + 1) : segment.steps;
-            const moves = steps.slice(1).map(step => step.key ?? '').join('');
-            if (!steps.length || (index !== farthest.segment && moves !== segment.moves))
-                throw new Error(`synthetic evidence has invalid recorded inputs: ${key} segment ${index}`);
-            let boundary;
-            let game;
-            try {
-                game = await replaySegment({ seed: segment.seed, datetime: segment.datetime,
-                    nethackrc: segment.nethackrc, moves, storage },
-                { onBoundary(error) { boundary ??= error; } });
-            } catch (error) {
-                throw new Error(`synthetic evidence stopped at ${key} segment ${index}: ${error.message}`);
-            }
-            const comparison = compareSessionOutputs({ version: 5,
-                segments: [{ ...segment, steps, moves }] }, {
-                rng: game.getRngLog?.() ?? [], screens: game.getScreens?.() ?? [],
-                cursors: game.getCursors?.() ?? [],
-            });
-            if (boundary || comparison.error || comparison.segmentMismatch
-                || comparison.rngMismatch || comparison.screenMismatch
-                || comparison.cursorMismatch) {
-                throw new Error(`synthetic evidence diverges at ${key} segment ${index} through step ${steps.length - 1}`);
+        {
+            const storage = storageHandle();
+            for (let index = 0; index <= farthest.segment; index++) {
+                const segment = recording.segments[index];
+                const steps = index === farthest.segment
+                    ? segment.steps.slice(0, farthest.throughStep + 1) : segment.steps;
+                const moves = steps.slice(1).map(step => step.key ?? '').join('');
+                if (!steps.length || (index !== farthest.segment && moves !== segment.moves))
+                    throw new Error(`synthetic evidence has invalid recorded inputs: ${key} segment ${index}`);
+                let boundary;
+                let game;
+                try {
+                    game = await replaySegment({ seed: segment.seed, datetime: segment.datetime,
+                        nethackrc: segment.nethackrc, moves, storage },
+                    { onBoundary(error) { boundary ??= error; } });
+                } catch (error) {
+                    throw new Error(`synthetic evidence stopped at ${key} segment ${index}: ${error.message}`);
+                }
+                const comparison = compareSessionOutputs({ version: 5,
+                    segments: [{ ...segment, steps, moves }] }, {
+                    rng: game.getRngLog?.() ?? [], screens: game.getScreens?.() ?? [],
+                    cursors: game.getCursors?.() ?? [],
+                });
+                if (boundary || comparison.error || comparison.segmentMismatch
+                    || comparison.rngMismatch || comparison.screenMismatch
+                    || comparison.cursorMismatch) {
+                    throw new Error(`synthetic evidence diverges at ${key} segment ${index} through step ${steps.length - 1}`);
+                }
             }
         }
         verified.push({ case: key, segment: farthest.segment, throughStep: farthest.throughStep });
