@@ -714,6 +714,13 @@ test('publication cannot substitute a different manifest for an evaluation batch
     assert.throws(f.publish, /batch|manifest|evaluation/i);
 });
 
+test('publication requires an explicit manifest path for a later batch', t => {
+    const f = reportPublication(t, false, 'v2'); // Later batches cannot use the legacy v1 default.
+    const { manifestPath: _manifestPath, ...evaluation } = f.evaluation;
+    f.save('challenges/evaluations/v2-baseline.json', evaluation);
+    assert.throws(f.publish, /evaluation path differs from its batch/u);
+});
+
 function syntheticInvestigation(f) {
     const session = 'synthetic/v2/sample';
     return { ...f.investigation, session, corpus: 'synthetic', batch: 'v2', caseId: 'sample',

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first digging caller of cnv_trap_obj: a downward wand of digging disarms and buries the bear trap before excavating the hole; uses the bounded existing digactualhole owner without new dig credit.",
+  "segments": [
+    {
+      "seed": 1442903,
+      "datetime": "20580409103011",
+      "nethackrc": "OPTIONS=name:Untrap1442903,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\n",
+      "moves": " j\u0017trapped bear trap\n  \u0006\u0017wand of digging\n  zg>       ."
+    }
+  ]
+}

@@ -290,7 +290,8 @@ import {
     AD_DGST, AT_ENGL,
 } from './monsters.js';
 import { m_at } from './monst.js';
-import { observe_object } from './o_init.js';
+import { discover_object, observe_object } from './o_init.js';
+import { drag_ball, move_bc } from './ball.js';
 import {
     mksobj,
     carried,
@@ -2315,7 +2316,7 @@ function u_wield_art(art, state) {
 
 // C ref: trap.c dountrap() (5248-5254). Entry point for the #untrap command.
 export async function dountrap(state = game) {
-    if (!could_untrap(true, false, state))
+    if (!await could_untrap(true, false, state))
         return ECMD_OK;
 
     return (await untrap(false, 0, 0, null, state)) ? ECMD_TIME : ECMD_OK;
@@ -2323,7 +2324,7 @@ export async function dountrap(state = game) {
 
 // C ref: trap.c could_untrap() (5257-5284). Preliminary checks for dountrap();
 // also used for autounlock.
-export function could_untrap(verbosely, check_floor, state = game) {
+export async function could_untrap(verbosely, check_floor, state = game) {
     const u = state.u;
     let buf = '';
 
@@ -2342,7 +2343,7 @@ export function could_untrap(verbosely, check_floor, state = game) {
         buf = `You can't reach the ${surface(u.ux, u.uy, state)}.`;
     }
     if (buf) {
-        if (verbosely) ttyPline(buf, state);
+        if (verbosely) await ttyPline(buf, state);
         return 0;
     }
     return 1;
@@ -2450,10 +2451,16 @@ async function move_into_trap(ttmp, state = game) {
     const x = ttmp.tx;
     const y = ttmp.ty;
 
+    // C output pointers preserve the ball/chain destination through the
+    // hero move. drag_ball is evaluated only after test_move succeeds.
+    const bc = { value: 0 };
+    const bx = { value: 0 }, by = { value: 0 };
+    const cx = { value: 0 }, cy = { value: 0 };
+    const unused = { value: false };
     if (await test_move(u.ux, u.uy, sgn(x - u.ux), sgn(y - u.uy),
         TEST_MOVE, state)
-        && !Punished(state) /* drag_ball from ball.c is not ported */
-    ) {
+        && (!Punished(state)
+            || await drag_ball(x, y, bc, bx, by, cx, cy, unused, true, state))) {
         /* move hero and update map */
         u.ux0 = u.ux;
         u.uy0 = u.uy;
@@ -2461,22 +2468,20 @@ async function move_into_trap(ttmp, state = game) {
         u.umoved = true;
         newsym(u.ux0, u.uy0);
         vision_recalc(1, { state });
-        note_unported('dog.c check_leash');
-        // C: if (Punished) move_bc(0, bc, bx, by, cx, cy);
-        // Punished is false here because of the guard above.
+        note_unported('apply.c check_leash');
+        if (Punished(state))
+            move_bc(0, bc.value, bx.value, by.value, cx.value, cy.value, state);
         ttmp.tseen = 0; /* hack for check_here() */
         state.iflags ??= {};
         state.iflags.failing_untrap = (state.iflags.failing_untrap ?? 0) + 1;
         await spoteffects(true, state); /* pickup() + dotrap() */
+        // A final death does not return in C; accepted life saving does.
+        if (state.program_state?.gameover) return;
         state.iflags.failing_untrap--;
         const ttmp2 = t_at(u.ux, u.uy, state);
         if (ttmp2) ttmp2.tseen = 1;
-        exercise(A_WIS, false, state);
+        await exercise(A_WIS, false, state);
     } else {
-        if (Punished(state)) {
-            // drag_ball() from ball.c is not ported; the hero does not move.
-            note_unported('ball.c drag_ball');
-        }
         await ttyPline(`Fortunately, you don't move ${into_vs_onto(ttmp.ttyp) ? 'into' : 'onto'} it.`, state);
     }
 }
@@ -2508,7 +2513,7 @@ async function try_disarm(ttmp, force_failure, state = game) {
              && (inv_weight(state) + weight_cap(state)
                  > WT_TOOMUCH_DIAGONAL))
             || bigmonst(state.youmonst?.data)) {
-            await ttyPline(`You are unable to reach the ${trapname(ttype)}!`, state);
+            await ttyPline(`You are unable to reach the ${trapname(ttype, false, state)}!`, state);
             return 0;
         }
     }
@@ -2517,7 +2522,7 @@ async function try_disarm(ttmp, force_failure, state = game) {
         if (u.usteed && P_SKILL(P_RIDING, state) < P_BASIC) {
             await rider_cant_reach(state);
         } else {
-            await ttyPline(`You are unable to reach the ${trapname(ttype)}!`, state);
+            await ttyPline(`You are unable to reach the ${trapname(ttype, false, state)}!`, state);
         }
         return 0;
     }
@@ -2528,7 +2533,7 @@ async function try_disarm(ttmp, force_failure, state = game) {
             await ttyPline('Whoops...', state);
             if (mtmp) { /* must be a trap that holds monsters */
                 if (ttype === BEAR_TRAP) {
-                    if (mtmp.mtame) abuse_dog(mtmp, state);
+                    if (mtmp.mtame) await abuse_dog(mtmp, state);
                     mtmp.mhp -= rnd(4);
                     if (mtmp.mhp < 1) /* DEADMONSTER */
                         await killed(mtmp, state);
@@ -2543,6 +2548,7 @@ async function try_disarm(ttmp, force_failure, state = game) {
                                 { state })) !== null)) {
                         await ttyPline("The web sticks to you.  You're caught too!", state);
                         await dotrap(ttmp2, NOWEBMSG, state);
+                        if (state.program_state?.gameover) return 1;
                         if (u.usteed && u.utrap) {
                             /* you, not steed, are trapped */
                             await dismount_steed(DISMOUNT_FELL, state);
@@ -2559,7 +2565,7 @@ async function try_disarm(ttmp, force_failure, state = game) {
         } else {
             const whose = ttmp.madeby_u ? 'Your' : under_u ? 'This' : 'That';
             const verb = (ttype === WEB) ? 'remove' : 'disarm';
-            await ttyPline(`${whose} ${trapname(ttype)} is difficult to ${verb}.`, state);
+            await ttyPline(`${whose} ${trapname(ttype, false, state)} is difficult to ${verb}.`, state);
         }
         return 1;
     }
@@ -2636,7 +2642,7 @@ async function disarm_landmine(ttmp, state = game) {
 
 // C ref: trap.c unsqueak_ok() (5606-5626). getobj callback for object to
 // disarm a squeaky board with.
-function unsqueak_ok(obj, state = game) {
+export function unsqueak_ok(obj, state = game) {
     if (!obj) return GETOBJ_EXCLUDE;
     if (obj.otyp === CAN_OF_GREASE) return GETOBJ_SUGGEST;
     if (obj.otyp === POT_OIL && obj.dknown
@@ -2664,8 +2670,8 @@ async function disarm_squeaky_board(ttmp, state = game) {
         consume_obj_charge(obj, true, { state });
     } else {
         await useup(obj, state); /* oil */
-        // C: makeknown(POT_OIL) => discover_object(POT_OIL, true, true, true).
-        note_unported('o_init.c makeknown via discover_object');
+        // C hack.h makeknown(): all three discovery flags are TRUE.
+        discover_object(POT_OIL, true, true, true, state);
     }
     await ttyPline('You repair the squeaky board.', state);
     deltrap(ttmp, state);
@@ -2732,11 +2738,9 @@ async function help_monster_out(mtmp, ttmp, state = game) {
 
         if (poly_when_stoned(state.youmonst?.data)
             && await polymon(PM_STONE_GOLEM, state)) {
-            // C: display_nhwindow(WIN_MESSAGE, FALSE). Not ported.
-            note_unported('window.c display_nhwindow');
+            await displayPendingTtyMessageWindow(state);
         } else {
-            // C: instapetrify(kbuf). Not ported.
-            note_unported('uhitm.c instapetrify');
+            await instapetrify(`trying to help ${an(mtmp_pmname)} out of a pit`, state);
             return 1;
         }
     }
@@ -2792,6 +2796,7 @@ async function disarm_box(box, force, confused, state = game) {
                        || rnd(75 + Math.trunc(level_difficulty(state) / 2))
                           > effective_ch)) {
             await chest_trap(box, FINGER, true, state);
+            if (state.program_state?.gameover) return;
             /* 'box' might be gone now */
         } else {
             await ttyPline('You disarm it!', state);
@@ -2800,7 +2805,7 @@ async function disarm_box(box, force, confused, state = game) {
             more_experienced(8, 0, state);
             await newexplevel(state, { message: ttyPline });
         }
-        exercise(A_DEX, true, state);
+        await exercise(A_DEX, true, state);
     } else {
         await ttyPline(`That ${xnameFresh(box, state)} was not trapped.`, state);
         box.tknown = 0;
@@ -2820,7 +2825,7 @@ async function untrap_box(box, force, confused, state = game) {
             await ttyPline(`There's a trap on ${the(xnameFresh(box, state))}.`, state);
         box.tknown = 1;
         observe_object(box, state);
-        if (!confused) exercise(A_WIS, true, state);
+        if (!confused) await exercise(A_WIS, true, state);
 
         if (await ynq('Disarm it?', state) === 'y')
             await disarm_box(box, force, confused, state);
@@ -2868,12 +2873,11 @@ export async function untrap(force, rx, ry, container, state = game) {
 
     ttmp = t_at(x, y, state);
     if (ttmp && !ttmp.tseen) ttmp = null;
-    const trapdescr = ttmp ? trapname(ttmp.ttyp) : null;
+    const trapdescr = ttmp ? trapname(ttmp.ttyp, false, state) : null;
     const here = (u.ux === x && u.uy === y);
 
     if (here) { /* are there one or more containers here? */
-        const objects_at = state.level?.at(x, y)?.objects ?? [];
-        for (const otmp of objects_at) {
+        for (let otmp = state.level.objects[x][y]; otmp; otmp = otmp.nexthere) {
             if (Is_box(otmp)) {
                 if (++boxcnt > 1) break;
             }
@@ -2885,7 +2889,7 @@ export async function untrap(force, rx, ry, container, state = game) {
         ; /* skip a bunch */
     } else if (!deal_with_floor_trap) {
         let the_trap = '';
-        if (ttmp) the_trap += `a ${trapdescr}`;
+        if (ttmp) the_trap += an(trapdescr);
         if (ttmp && boxcnt) the_trap += ' and ';
         if (boxcnt) the_trap += (boxcnt === 1) ? 'a container' : 'containers';
         const useplural = ((ttmp && boxcnt > 0) || boxcnt > 1);
@@ -2909,7 +2913,7 @@ export async function untrap(force, rx, ry, container, state = game) {
                     const containerDesc = (boxcnt === 1)
                         ? 'is a container' : 'are containers';
                     const verb = (ttmp.ttyp === WEB) ? 'Remove' : 'Disarm';
-                    const qbuf = `There ${containerDesc} and a ${trapdescr} here.  ${verb} ${the_trap}?`;
+                    const qbuf = `There ${containerDesc} and ${an(trapdescr)} here.  ${verb} ${the_trap}?`;
                     const answer = await ynq(qbuf, state);
                     if (answer === 'q') return 0;
                     if (answer === 'n') {
@@ -2929,7 +2933,7 @@ export async function untrap(force, rx, ry, container, state = game) {
                 if (mtmp
                     && (M_AP_TYPE(mtmp) === M_AP_FURNITURE
                         || M_AP_TYPE(mtmp) === M_AP_OBJECT)) {
-                    await stumble_onto_mimic(mtmp, state);
+                    await stumble_onto_mimic(mtmp, state, { state, pline: ttyPline });
                     return 1;
                 }
                 switch (ttmp.ttyp) {
@@ -2963,8 +2967,7 @@ export async function untrap(force, rx, ry, container, state = game) {
         } /* end if ttmp */
 
         if (boxcnt) {
-            const objects_at = state.level?.at(x, y)?.objects ?? [];
-            for (const otmp of objects_at) {
+            for (let otmp = state.level.objects[x][y]; otmp; otmp = otmp.nexthere) {
                 if (!Is_box(otmp)) continue;
                 let qbuf;
                 if (otmp.tknown && otmp.dknown) {
@@ -2989,7 +2992,7 @@ export async function untrap(force, rx, ry, container, state = game) {
             await ttyPline('There are no other chests or boxes here.', state);
         }
 
-        if (stumble_on_door_mimic(x, y, state))
+        if (await stumble_on_door_mimic(x, y, state))
             return 1;
     } /* deal_with_floor_trap */
 
@@ -3020,18 +3023,19 @@ export async function untrap(force, rx, ry, container, state = game) {
          && (force || (!confused && rn2(MAXULEV - u.ulevel + 11) < 10)))
         || (!force && confused && !rn2(3))) {
         await ttyPline('You find a trap on the door!', state);
-        exercise(A_WIS, true, state);
+        await exercise(A_WIS, true, state);
         if (await ynq('Disarm it?', state) !== 'y')
             return 1;
         if (doormask & D_TRAPPED) {
             const ch = 15 + (state.urole?.mnum === PM_ROGUE
                 ? u.ulevel * 3 : u.ulevel);
-            exercise(A_DEX, true, state);
+            await exercise(A_DEX, true, state);
             if (!force && (confused || Fumbling(state)
                            || rnd(75 + Math.trunc(level_difficulty(state) / 2))
                               > ch)) {
                 await ttyPline('You set it off!', state);
                 await b_trapped('door', FINGER, state);
+                if (state.program_state?.gameover) return 1;
                 loc.flags = D_NODOOR;
                 loc.doormask = D_NODOOR;
                 unblock_point(x, y, state);
@@ -3742,4 +3746,21 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
 
     obj.tknown = 1;
     return false;
+}
+
+// C ref: trap.c trap_ice_effects() (7175-7196). Melting ice releases a
+// trapped monster before converting a mine/bear trap or deleting another
+// destructible trap. The converted object is buried until melt_ice unearths it.
+export async function trap_ice_effects(x, y, ice_is_melting, state = game, env = {}) {
+    const trap = t_at(x, y, state);
+    if (trap && ice_is_melting) {
+        const mon = m_at(x, y, state);
+        if (mon?.mtrapped) mon.mtrapped = 0;
+        if (trap.ttyp === LANDMINE || trap.ttyp === BEAR_TRAP) {
+            const type = trap.ttyp === LANDMINE ? LAND_MINE : BEARTRAP;
+            await cnv_trap_obj(type, 1, trap, true, state, env);
+        } else if (!undestroyable_trap(trap.ttyp)) {
+            deltrap(trap, state);
+        }
+    }
 }
