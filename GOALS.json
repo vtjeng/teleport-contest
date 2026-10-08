@@ -218815,6 +218815,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-cmd-rhack-in-use-inventory-dispatch-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Dispatch direct tools-in-use and all-in-use inventory keys.",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v32/v32-crystal-ball-scry"
+      ],
+      "selectionReason": "Independent v32 continuation: the crystal-ball case reaches the admitted direct seetools command after its C impairment branch, and rhack omits the existing seetools and seeall handlers.",
+      "detail": "Bounded cmd.c rhack correction for direct seetools and seeall registered-command dispatch. Reuse canonical invent.c handlers and preserve their source ECMD_OK reset behavior; no whole rhack, doextcmd, inventory, or crystal-ball completion credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "rhack",
+      "session": "synthetic/v32/v32-crystal-ball-scry",
+      "step": 26,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-crystal-ball-scry": {
+          "session": "synthetic/v32/v32-crystal-ball-scry",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-crystal-ball-scry",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-crystal-ball-scry.session.json",
+          "recordingSha256": "eea1a6f74521c64593c550a8bf8332b89bc0777784bcdb65dc63d05cc5fd90d7",
+          "evaluationPath": "challenges/evaluations/accepted-f8eb15e4cc2b0df9b7e7335c1f624597ae0951e9-v32.json",
+          "evaluationCommit": "f8eb15e4cc2b0df9b7e7335c1f624597ae0951e9"
+        }
+      }
     }
   ]
 }
