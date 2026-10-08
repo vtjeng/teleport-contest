@@ -32,7 +32,7 @@
     "message": "unsupported hero move: held hero movement"
   },
   "status": "complete",
-  "commit": "da30432498c30c1cde6a3a9474e0d2ac22bb7215",
+  "commit": "63ae9f774b239bc0b3676ee4f8f0274d7f98f485",
   "mismatch": {
     "session": "synthetic/v28/v28-buried-ball-release",
     "corpus": "synthetic",
