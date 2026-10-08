@@ -69,6 +69,7 @@ import {
     LAST_PROP,
     LIGHT_HEADED,
     MAGICAL_BREATHING,
+    M_AP_NOTHING,
     M_AP_OBJECT,
     M_ATTK_AGR_DIED,
     M_ATTK_HIT,
@@ -2540,6 +2541,20 @@ async function eye_of_newt_buzz(state) {
     }
 }
 
+// C ref: eat.c eatmdone() (163-176). state.eatmbuf represents ge.eatmbuf;
+// cpostfx assigns the same message to gn.nomovemsg until unmul or cleanup.
+export function eatmdone(state = game) {
+    if (state.eatmbuf) {
+        if (state.nomovemsg === state.eatmbuf) state.nomovemsg = null;
+        state.eatmbuf = null;
+    }
+    if (state.youmonst.m_ap_type) {
+        state.youmonst.m_ap_type = M_AP_NOTHING;
+        newsym(state.u.ux, state.u.uy);
+    }
+    return 0;
+}
+
 // C ref: eat.c cpostfx() (1127-1319), called after completely consuming a
 // corpse. `state.eatmbuf` is the JS representation of C's ge.eatmbuf.
 async function cpostfx(pm, state, env = {}) {
@@ -2547,9 +2562,8 @@ async function cpostfx(pm, state, env = {}) {
     let catch_lycanthropy = NON_PM;
     let check_intrinsics = false;
 
-    // C calls eatmdone() and discards its integer result. That callback is
-    // still an explicit source gap; it owns the mimic-message cleanup.
-    if (state.eatmbuf) note_unported('eat.c eatmdone');
+    // C discards the result while releasing a stale mimic message.
+    if (state.eatmbuf) eatmdone(state);
 
     switch (pm) {
     case PM_WRAITH:
@@ -2660,7 +2674,7 @@ async function cpostfx(pm, state, env = {}) {
                 : `You now prefer mimicking ${subject} again.`;
             state.eatmbuf = ending;
             state.nomovemsg = ending;
-            state.afternmv = () => note_unported('eat.c eatmdone');
+            state.afternmv = eatmdone;
             state.youmonst.m_ap_type = M_AP_OBJECT;
             state.youmonst.mappearance = hallucinating ? ORANGE : GOLD_PIECE;
             newsym(state.u.ux, state.u.uy);

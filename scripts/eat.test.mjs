@@ -1140,3 +1140,40 @@ test('a completed royal-jelly meal runs C fpostfx through done_eating',
         // inputs after the completed meal.
         assert.equal(replay.getScreens().length, 42);
     });
+
+// eat.c163-176 clears the shared restoration message before clearing the
+// appearance, preserves an unrelated nomovemsg, and returns literal zero.
+test('eatmdone releases only its message and resets any active disguise', async () => {
+    const { eatmdone } = await import('../js/eat.js');
+    assert.equal(typeof eatmdone, 'function');
+    const { M_AP_NOTHING, M_AP_OBJECT } = await import('../js/const.js');
+    const { GOLD_PIECE } = await import('../js/objects.js');
+    const { resetGame } = await import('../js/gstate.js');
+    resetGame(); // No map exists: glyph repaint is covered by recorded play.
+    for (const matching of [true, false]) {
+        const state = { eatmbuf: 'restoration message',
+            nomovemsg: matching ? 'restoration message' : 'another action',
+            u: { ux: 5, uy: 5 }, // An interior cell; no map in this isolated fixture.
+            youmonst: { m_ap_type: M_AP_OBJECT, mappearance: GOLD_PIECE } };
+        assert.equal(eatmdone(state), 0); // C eatmdone's literal return value.
+        assert.equal(state.eatmbuf, null);
+        assert.equal(state.nomovemsg, matching ? null : 'another action');
+        assert.equal(state.youmonst.m_ap_type, M_AP_NOTHING);
+        assert.equal(state.youmonst.mappearance, GOLD_PIECE,
+            'C clears the appearance type, leaving mappearance unchanged');
+    }
+    const idle = { eatmbuf: null, nomovemsg: 'another action',
+        youmonst: { m_ap_type: M_AP_NOTHING } };
+    assert.equal(eatmdone(idle), 0);
+    assert.equal(idle.nomovemsg, 'another action');
+});
+
+test('eatmdone and both cpostfx sites preserve C buffer and redraw order', () => {
+    assert.match(EAT_C, /eatmdone\(void\)[\s\S]*gn\.nomovemsg == ge\.eatmbuf[\s\S]*ge\.eatmbuf = 0;[\s\S]*if \(U_AP_TYPE\)[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*newsym\(u\.ux, u\.uy\);[\s\S]*return 0;/u);
+    assert.match(EAT_JS, /export function eatmdone[\s\S]*state\.nomovemsg === state\.eatmbuf[\s\S]*state\.eatmbuf = null;[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*newsym\(state\.u\.ux, state\.u\.uy\);[\s\S]*return 0;/u);
+    assert.match(EAT_JS, /if \(state\.eatmbuf\) eatmdone\(state\);/u);
+    assert.match(EAT_JS, /state\.afternmv = eatmdone;/u);
+    assert.doesNotMatch(EAT_JS, /note_unported\('eat\.c eatmdone'\)/u);
+    assert.match(EAT_JS, /note_unported\('windows\.c display_nhwindow'\)/u,
+        'the separate blocking map-window owner remains outside this task');
+});
