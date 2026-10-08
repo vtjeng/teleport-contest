@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-07T23:46:50.488Z",
+  "capturedAt": "2026-10-07T23:57:35.522Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -25430,12 +25430,57 @@
         "type": "accepted",
         "at": "2026-10-07T23:45:47.698Z",
         "task": "C138"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C139-v29-preparation-20261007",
+        "type": "assign",
+        "at": "2026-10-07T23:49:23.265Z",
+        "task": "C139",
+        "worker": "C",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B141-blank-novel-v28-20261007",
+        "type": "assign",
+        "at": "2026-10-07T23:50:32.859Z",
+        "task": "B141",
+        "worker": "B",
+        "goal": "port-zap-blank-novel-v28-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C138-ae0a8b58",
+        "type": "published",
+        "at": "2026-10-07T23:51:17.123Z",
+        "task": "C138",
+        "commit": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A140-true-giant-ae0a8b58",
+        "type": "assign",
+        "at": "2026-10-07T23:52:49.265Z",
+        "task": "A140",
+        "worker": "A2",
+        "goal": "fix-makemon-true-giant-admission-v28-20261007",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-55483686b9b683ce6c3f236a2bc48664057b0170",
+        "type": "ready",
+        "at": "2026-10-07T23:57:30.148Z",
+        "task": "A140",
+        "delivery": "55483686b9b683ce6c3f236a2bc48664057b0170"
       }
     ]
   },
   "development": {
-    "executionCommit": "a0e69c73f2c28b9958fdc3f428e08cd48f35c8c7",
-    "measuredAt": "2026-10-07T23:45:18.749Z",
+    "executionCommit": "ae0a8b58a9c3354326a0f5524e02feaddfb2b40d",
+    "measuredAt": "2026-10-07T23:50:49.939Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
