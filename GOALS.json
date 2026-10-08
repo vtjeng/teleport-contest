@@ -208460,7 +208460,7 @@
     {
       "id": "fix-monmove-ordinary-combat-operations-v30-20261008",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Bind canonical monster-combat operations at the ordinary movement adapter",
       "cFile": "monmove.c",
       "sessions": [
@@ -208475,8 +208475,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "m_move",
       "session": "synthetic/v30/v30-hunger-faint",
       "step": 812,
@@ -208804,7 +208807,113 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "session": "synthetic/v30/v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+          "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+          "replayInputSha256": "a5b46f0172a3683180df6a2c92b0dac4af3222ab01893279961a6fda41f9d52e",
+          "evaluationPath": "challenges/evaluations/accepted-f20112b7f1cb65684279bf4ef72bca1116ffb725-v30.json",
+          "evaluationCommit": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+          "evaluationArtifact": "challenges/evaluations/accepted-f20112b7f1cb65684279bf4ef72bca1116ffb725-v30.json",
+          "evaluationUtc": "2026-10-08T12:05:09.140Z",
+          "remainingScreens": 1694,
+          "recordedSteps": 2532,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 838,
+              "total": 2532
+            },
+            "rng": {
+              "matched": 8989,
+              "total": 27304
+            },
+            "cursors": {
+              "matched": 838,
+              "total": 2532
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "elapsed-turn nh_timeout requires a ported timeout function, but zombify_mon() is due",
+            "step": 838
+          },
+          "step": 838,
+          "kind": "stop",
+          "sourceFile": "do.c",
+          "function": "zombify_mon",
+          "message": "elapsed-turn nh_timeout requires a ported timeout function, but zombify_mon() is due",
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v30/v30-hunger-faint.json",
+            "previousRemainingScreens": 2532
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-pickup-reverse-loot-confusion-v30-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete confused reverse looting and its source result gate",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v30/v30-confused-loot"
+      ],
+      "selectionReason": "Confused #loot stops before the source rn2(6) gate because reverse_loot is absent. Port whole pickup.c reverse_loot and wire the bounded doloot_core confusion caller from the completed v30 investigation.",
+      "detail": "Preserve old-inventory selection, exact fifths gold split, worn-item removal, ordinary floor drop, and throne treasury and exchequer branches. The broader doloot_core container and adjacent-looting body receives no completion credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "reverse_loot",
+          "line": 2350,
+          "endLine": 2430,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2350,
+        "to": 2430
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-confused-loot": {
+          "session": "synthetic/v30/v30-confused-loot",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-confused-loot",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-confused-loot.session.json",
+          "recordingSha256": "a51baafb5eca4aa25767c979aaa0bf4fbf720c12ece04239d63450a72b6b75c8",
+          "evaluationPath": "challenges/evaluations/accepted-f20112b7f1cb65684279bf4ef72bca1116ffb725-v30.json",
+          "evaluationCommit": "f20112b7f1cb65684279bf4ef72bca1116ffb725"
+        }
+      }
     }
   ]
 }
