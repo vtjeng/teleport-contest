@@ -215918,7 +215918,7 @@
     {
       "id": "port-wizcmds-terrain-internals-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Show wizard internal terrain codes and their encoding legend",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -215933,22 +215933,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "df3f88e14504c6bd2b05c427cee310320c4f74a8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_map_levltyp",
           "line": 693,
           "endLine": 840,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "wiz_levltyp_legend",
           "line": 841,
           "endLine": 884,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -216384,7 +216387,124 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_map_levltyp",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_map_levltyp",
+            "sourceReview": "Read complete wizcmds.c693-835 at submodule16ff59115315917b93185d026aeefea06db9b0f4. Preserve tty initial blank line, y-major/x1..COLNO-1 raw terrain traversal, STONE/may_dig short-circuit before base36 encoding, column0 invalid marker, exact special-level and level feature order, source default furniture symbols, Sokoban level.rules rather than branch macro, Invocation/Wizard tower checks, source branch priority, case-insensitive the-prefix stripping and COLNO-1 byte truncation. Source makes no RNG calls; output makes this function impure. Existing may_dig, Is_special, Invocation_lev, On_W_tower_level, on_level, strncmpi, truncateByteString and text-window dependencies inspected directly. State-scoped dungeon.h macros are translated at their source expressions; no new helper-owner credit. Source create/putstr/display(TRUE)/destroy maps to canonical awaited displayTtyTextWindow, without changing window ownership. Removed selected doterrain unsupported refusal; no swallowed refusal or invented RNG/output/state substitute. Only tty is supported by recorder and options.js; non-tty initial-blank condition is inactive in this reference environment.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doterrain",
+                "source": "cmd.c:doterrain1182 case5, sole source caller, reached by existing interactive #terrain and canned command dispatch; await the text window before ECMD_OK."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-terrain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-terrain-knight-independent.session.json",
+              "recordings/wizcmds.c/wizard-terrain-ranger-deep-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-terrain-internal-codes",
+                "segment": 0,
+                "fromStep": 11,
+                "throughStep": 29,
+                "source": "cmd.c doterrain1182 case5 -> wizcmds.c wiz_map_levltyp693-835 -> tty NHW_TEXT blocking display and dismissal"
+              }
+            ],
+            "checkedAt": "df3f88e14504c6bd2b05c427cee310320c4f74a8"
+          },
+          {
+            "name": "wiz_levltyp_legend",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_levltyp_legend",
+            "sourceReview": "Read complete wizcmds.c841-877 at submodule16ff59115315917b93185d026aeefea06db9b0f4. Preserve header and blank line, SIZE(levltyp)&~1 even bound, left/right half traversal, empty/unreachable and base36 code branches, exact space-dash and minimum28-column labels, flush/reset after right item, awaited display(TRUE) then destroy, and void result. Existing cmd.c canonical levltyp array is exported/renamed and reused; no duplicate fixed table. A source-pinned test compares every entry against upstream cmd.c. No RNG/game-state mutation, but output makes function impure. Removed selected doterrain unsupported refusal; no note_unported gap belongs to selected source unit.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doterrain",
+                "source": "cmd.c:doterrain1185 case6, sole source caller, reached by existing interactive #terrain and canned dispatch; await the text window before ECMD_OK."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-terrain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-terrain-knight-independent.session.json",
+              "recordings/wizcmds.c/wizard-terrain-ranger-deep-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-terrain-code-legend",
+                "segment": 0,
+                "fromStep": 11,
+                "throughStep": 29,
+                "source": "cmd.c doterrain1185 case6 -> wizcmds.c wiz_levltyp_legend841-877 -> tty NHW_TEXT blocking display and dismissal"
+              }
+            ],
+            "checkedAt": "df3f88e14504c6bd2b05c427cee310320c4f74a8"
+          }
+        ],
+        "entryPointReview": "Both selected functions are called only from cmd.c:doterrain cases5 and6, available only in wizard mode. Existing menu/interactive/canned dispatcher is retained; only the two function calls are reconciled. Each active choice is covered by its admitted v31 case and independently recorded Knight/default graphics and Ranger/DECgraphics/depth3 choices. The normal Valkyrie menu recipe independently tests the outside access limit: only three choices, invalid f remains in menu, ESC cancels. All selected source branches and consumed helper returns were compared directly; no broader cmd.c, dungeon.c, hack.c or tty window completion is claimed. Runtime metadata variation covers fountains and deeper dungeon description. Source-pinned constructed tests cover special levels and rare flags/branch categories without claiming those were all visited in the fresh recordings.",
+        "entryPoints": [
+          {
+            "name": "Wizard #terrain internal raw level codes, choice5",
+            "functions": [
+              "wiz_map_levltyp"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-terrain-knight-independent.session.json",
+              "recordings/wizcmds.c/wizard-terrain-ranger-deep-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-terrain-internal-codes",
+                "segment": 0,
+                "fromStep": 11,
+                "throughStep": 29,
+                "source": "cmd.c doterrain1182 case5 -> wizcmds.c wiz_map_levltyp693-835 -> tty NHW_TEXT blocking display and dismissal"
+              }
+            ]
+          },
+          {
+            "name": "Wizard #terrain code legend, choice6",
+            "functions": [
+              "wiz_levltyp_legend"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-terrain-knight-independent.session.json",
+              "recordings/wizcmds.c/wizard-terrain-ranger-deep-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-terrain-code-legend",
+                "segment": 0,
+                "fromStep": 11,
+                "throughStep": 29,
+                "source": "cmd.c doterrain1185 case6 -> wizcmds.c wiz_levltyp_legend841-877 -> tty NHW_TEXT blocking display and dismissal"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "df3f88e14504c6bd2b05c427cee310320c4f74a8",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
