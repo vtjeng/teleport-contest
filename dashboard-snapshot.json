@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T16:27:40.162Z",
+  "capturedAt": "2026-10-08T16:38:42.812Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -28546,12 +28546,93 @@
         "task": "C150",
         "worker": "C",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C149-687a86e4-20261008",
+        "type": "published",
+        "at": "2026-10-08T16:28:27.517Z",
+        "task": "C149",
+        "commit": "687a86e4fb55eae5e67d32247e3c48c28d1eed6e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B161-09539b32-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T16:28:57.600Z",
+        "task": "B161",
+        "integration": "09539b327ab3aab8460318bf341b081d64730dd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A159-v30-vision-display-6d0f3c11",
+        "type": "assign",
+        "at": "2026-10-08T16:30:24.061Z",
+        "task": "A159",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A159-wiz-show-vision-4f3dbe7d",
+        "type": "implement",
+        "at": "2026-10-08T16:32:46.762Z",
+        "task": "A159",
+        "goal": "port-wizcmds-wiz-show-vision-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B161-09539b327ab3aab8460318bf341b081d64730dd4-validated",
+        "type": "validated",
+        "at": "2026-10-08T16:33:58.667Z",
+        "task": "B161",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B161-09539b327ab3aab8460318bf341b081d64730dd4-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T16:33:59.935Z",
+        "task": "B161"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A158-morehungry-env-20261008",
+        "type": "feedback",
+        "at": "2026-10-08T16:35:04.407Z",
+        "task": "A158",
+        "delivery": "6d0f3c11abea1349838ad01bd392c2f0b59fcb23"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B162-memory-investigation-13cca732-20261008",
+        "type": "assign",
+        "at": "2026-10-08T16:36:28.457Z",
+        "task": "B162",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C150-saddle-visibility-20261008",
+        "type": "implement",
+        "at": "2026-10-08T16:37:04.195Z",
+        "task": "C150",
+        "goal": "fix-steed-saddle-pickup-visibility-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d5108aa213aa0a74392278a143d2bdc9b1aee752",
+        "type": "ready",
+        "at": "2026-10-08T16:38:39.049Z",
+        "task": "A159",
+        "delivery": "d5108aa213aa0a74392278a143d2bdc9b1aee752"
       }
     ]
   },
   "development": {
-    "executionCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
-    "measuredAt": "2026-10-08T16:23:18.504Z",
+    "executionCommit": "09539b327ab3aab8460318bf341b081d64730dd4",
+    "measuredAt": "2026-10-08T16:33:22.548Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -210802,6 +210802,187 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-steed-saddle-pickup-visibility-v30-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Use current monster visibility when identifying saddles acquired by monsters",
+      "cFile": "steed.c",
+      "sessions": [],
+      "selectionReason": "C149 rumor seed now matches; continue with unreserved v30-looted-saddle, whose wrong inherited saddle identification traces to steed.c put_saddle_on_mon visibility delegation. Investigation investigations/synthetic/v30/v30-looted-saddle.json. Existing display/steal/object owners are reused read-only.",
+      "detail": "C step9 says You take the saddle off of the pony.  i - a saddle.--More--; JS says i - an uncursed saddle. Cache .cache/C150-state-trace.json confirms known/dknown/bknown/rknown already true in startup pony inventory before the #loot prompt and remain true when transferred. The later naming is consistent with that wrong bknown; do not repair loot_mon or globally suppress uncursed names. allmain.c:809-818 orders vision_reset, then makedog, then docrt; vision.c:211-222 points viz_array at cleared could_see. dog.c:251-267 calls makemon(MM_EDOG|NO_MINVENT), creates/equips pony saddle, and calls initedog only at293. Thus mpickobj sees mtame==0 and no current IN_SIGHT/COULD_SEE bit at startup. steed.c:142-164 orders can_saddle/which_armor guard, fresh mksobj, fully_identify_obj, then mpickobj, then worn/leash/extrinsic state. steal.c:655-664 uses !mtame && !canseemon && monster!=u.ustuck to call unknow_object. mkobj.c:854-865 clears bknown/rknown/etc while keeping per-type known behavior. display.h:116-120 canseemon requires current cansee/infrared and mon_visible, not adjacency. js/steed.js:209-216 canSeeStartingPet default bypasses canonical vision with !Blind && !minvis, injected into mpickobj at280. Existing js/display.js:383 canseemon and js/obj.js:1533 unknow_object have the required predicates/state changes. Correct only the default visibility delegation, retain source-valid explicit special-level adapter and unchanged source order; no whole steed, steal, dog, vision or loot owner credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "put_saddle_on_mon",
+      "session": "synthetic/v30/v30-looted-saddle",
+      "step": 9,
+      "syntheticProvenance": {
+        "synthetic/v30/v30-looted-saddle": {
+          "session": "synthetic/v30/v30-looted-saddle",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-looted-saddle",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-looted-saddle.session.json",
+          "recordingSha256": "1b15b14f9a8c02f0aa8d76716b4cf7e5492832a28b37cf8c326e1e1fa24dac94",
+          "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+          "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af"
+        }
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-show-stats-v30-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete wizard memory-statistics diagnostic and its consumed source accounting helpers",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v30/v30-memory-statistics"
+      ],
+      "selectionReason": "The oldest unreserved actionable synthetic case has six remaining screens and stops before the existing stats extcmd row can invoke its missing C owner. Source tracing establishes a coherent diagnostic family with no gameplay RNG changes.",
+      "detail": "Port the contiguous wizcmds.c size_obj through misc_stats family, nonadjacent wiz_show_stats, and every consumed accounting helper. Generate the fixed C ABI size table from pinned headers. Add bounded region capacity state matching create, growth, clear, and restore behavior, plus only the stats dispatcher arm after A159 releases cmd.c:doextcmd. Preserve source traversal and row order, NHW_TEXT paging, retained allocation capacity, and ECMD_OK. Investigation: investigations/synthetic/v30/v30-memory-statistics.json. No whole cmd.c, region save/restore, or allocation producer credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "size_obj",
+          "line": 1117,
+          "endLine": 1134,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "count_obj",
+          "line": 1135,
+          "endLine": 1155,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "obj_chain",
+          "line": 1156,
+          "endLine": 1176,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "mon_invent_chain",
+          "line": 1177,
+          "endLine": 1198,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "contained_stats",
+          "line": 1199,
+          "endLine": 1227,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "size_monst",
+          "line": 1228,
+          "endLine": 1256,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "mon_chain",
+          "line": 1257,
+          "endLine": 1283,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "misc_stats",
+          "line": 1284,
+          "endLine": 1401,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1117,
+        "to": 1401
+      },
+      "requiredFunctions": [
+        {
+          "name": "wiz_show_stats",
+          "line": 1616,
+          "endLine": 1704,
+          "declared": false,
+          "sourceFile": "wizcmds.c",
+          "complete": false
+        },
+        {
+          "name": "overview_stats",
+          "line": 2761,
+          "endLine": 2810,
+          "declared": false,
+          "sourceFile": "dungeon.c",
+          "complete": false
+        },
+        {
+          "name": "engr_stats",
+          "line": 1626,
+          "endLine": 1644,
+          "declared": false,
+          "sourceFile": "engrave.c",
+          "complete": false
+        },
+        {
+          "name": "light_stats",
+          "line": 501,
+          "endLine": 516,
+          "declared": false,
+          "sourceFile": "light.c",
+          "complete": false
+        },
+        {
+          "name": "timer_stats",
+          "line": 2735,
+          "endLine": 2750,
+          "declared": false,
+          "sourceFile": "timeout.c",
+          "complete": false
+        },
+        {
+          "name": "region_stats",
+          "line": 899,
+          "endLine": 927,
+          "declared": false,
+          "sourceFile": "region.c",
+          "complete": false
+        },
+        {
+          "name": "size_wseg",
+          "line": 827,
+          "endLine": 835,
+          "declared": false,
+          "sourceFile": "worm.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v30/v30-memory-statistics": {
+          "session": "synthetic/v30/v30-memory-statistics",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-memory-statistics",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-memory-statistics.session.json",
+          "recordingSha256": "c7c4a1186f950f62bea581198a4aef1c7cba2c6189870267a7ccd882ab36cae6",
+          "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+          "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af"
+        }
+      }
     }
   ]
 }
