@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside-limit blocked recipe: dokick.c:obj_delivery remains unported: the successful impact_drop migration reaches the existing mklev.c initial-level monster creation migrating-object admission limit at step68 before objects can be delivered.",
+  "segments": [
+    {
+      "seed": 1464501,
+      "datetime": "20520707101500",
+      "nethackrc": "OPTIONS=name:ImpactProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": "   .\u0017blessed potion of levitation\n\u0017uncursed wand of digging\n jddzg>       "
+    }
+  ]
+}

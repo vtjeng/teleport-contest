@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Outside-limit blocked recipe: do.c:dropx preflight refuses shipping/floor effects at a trap before ship_object; the independently recorded thrown-boulder companion establishes the same ship_object boulder guard through hitfloor.",
+  "segments": [
+    {
+      "seed": 1464502,
+      "datetime": "20520707101500",
+      "nethackrc": "OPTIONS=name:ImpactProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,!safe_wait\n",
+      "moves": "   .h#polyself\nstone giant\n  dd\u0017trap door\nlh        \u0017uncursed boulder\n de          "
+    }
+  ]
+}

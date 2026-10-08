@@ -240,6 +240,7 @@ import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
+import { impact_drop } from './dokick.js';
 
 import {
     near_capacity, calc_capacity, check_capacity, inv_cnt, inv_weight, weight_cap,
@@ -665,10 +666,7 @@ export async function fall_through(td, ftflags, state = game) {
 
     if (dontFall) {
         await ttyPline(`You ${dontFall}`, state);
-        // C's impact_drop(NULL, ux, uy, 0) result is discarded. The helper is
-        // not ported, so preserve an explicit gap rather than inventing its
-        // object impacts.
-        note_unported('dokick.c impact_drop');
+        await impact_drop(null, u.ux, u.uy, 0, { state });
         if (!td) {
             await displayPendingTtyMessageWindow(state);
             await ttyPline('The opening under you closes up.', state);
