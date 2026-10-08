@@ -220589,6 +220589,63 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mcastu-touch-of-death-family-v32-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port Death touch and its monster spell caller family",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "synthetic/v32/v32-death-touch"
+      ],
+      "selectionReason": "A175 seed now entirely matches. Highest unreserved independent v32 case is death-touch with 55 screens; first RNG difference at step 106 is missing touch_of_death. Complete coherent C family with canonical consumed helpers; C154 timeout-expiry sources are disjoint.",
+      "detail": "Whole mcastu.c lines 323-408 family, including existing pure death formatter, and both production callers. Preserve exact RNG, HP, killer, message, and clone/live terminal order, retaining downstream owner limits.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "touch_of_death",
+          "line": 323,
+          "endLine": 357,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "death_inflicted_by",
+          "line": 358,
+          "endLine": 388,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "mcast_death_touch",
+          "line": 389,
+          "endLine": 410,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 323,
+        "to": 410
+      },
+      "syntheticProvenance": {
+        "synthetic/v32/v32-death-touch": {
+          "session": "synthetic/v32/v32-death-touch",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-death-touch",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-death-touch.session.json",
+          "recordingSha256": "fc467065cde4cf3309090a928b89dd116b21ec970cdb2a5cec9e4cf13beb9497",
+          "evaluationPath": "challenges/evaluations/accepted-1e473520110f60b4e3643c68dee6672850378ead-v32.json",
+          "evaluationCommit": "1e473520110f60b4e3643c68dee6672850378ead"
+        }
+      }
     }
   ]
 }
