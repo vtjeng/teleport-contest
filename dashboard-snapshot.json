@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T12:15:29.527Z",
+  "capturedAt": "2026-10-08T12:32:45.076Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -27754,12 +27754,68 @@
         "at": "2026-10-08T12:14:57.406Z",
         "task": "A156",
         "goal": "port-pickup-reverse-loot-confusion-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A155-6cf088f5-20261008",
+        "type": "published",
+        "at": "2026-10-08T12:17:31.080Z",
+        "task": "A155",
+        "commit": "6cf088f5a37778f02a5d16f1bcc70a330fff2ccd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ca056885aba6d3598ba5ac90b5b1d36752063fb7",
+        "type": "ready",
+        "at": "2026-10-08T12:20:23.482Z",
+        "task": "B157",
+        "delivery": "ca056885aba6d3598ba5ac90b5b1d36752063fb7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C147-858bbec2-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T12:21:00.996Z",
+        "task": "C147",
+        "integration": "858bbec21e0fe926f7207af4635b5919d833aebb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B157-ca056885-20261008",
+        "type": "received",
+        "at": "2026-10-08T12:21:40.344Z",
+        "task": "B157",
+        "delivery": "ca056885aba6d3598ba5ac90b5b1d36752063fb7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C147-858bbec21e0fe926f7207af4635b5919d833aebb-validated",
+        "type": "validated",
+        "at": "2026-10-08T12:26:43.564Z",
+        "task": "C147",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C147-858bbec21e0fe926f7207af4635b5919d833aebb-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T12:29:30.897Z",
+        "task": "C147"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C148-hide-ceiling-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T12:31:06.556Z",
+        "task": "C148",
+        "worker": "C",
+        "kind": "investigation"
       }
     ]
   },
   "development": {
-    "executionCommit": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
-    "measuredAt": "2026-10-08T12:06:23.425Z",
+    "executionCommit": "858bbec21e0fe926f7207af4635b5919d833aebb",
+    "measuredAt": "2026-10-08T12:26:01.727Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
