@@ -219036,6 +219036,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-getline-menu-search-physical-screen-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Preserve physical menu rows during getlin prompt flush.",
+      "cFile": "getline.c",
+      "sessions": [
+        "synthetic/v32/v32-prayer-stoning"
+      ],
+      "selectionReason": "After A173, the independent v32 prayer-stoning case first diverges in menu search at step 16: C preserves physical menu rows during the getlin prompt flush while JavaScript reconstructs the screen.",
+      "detail": "Bounded getline.c hooked_tty_getlin and display.c flush_screen contract correction for input-read counter lifetime and dirty-cell physical preservation. No whole getline, display, menu, renderer, or prayer completion credit.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "hooked_tty_getlin",
+      "session": "synthetic/v32/v32-prayer-stoning",
+      "step": 16,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-prayer-stoning": {
+          "session": "synthetic/v32/v32-prayer-stoning",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-prayer-stoning",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-prayer-stoning.session.json",
+          "recordingSha256": "cdf294f0b9b89768eb8b8cc10930ee641e6d39b4303e1f10d2d995c7bd03402e",
+          "evaluationPath": "challenges/evaluations/accepted-60af988e128cbb1c04a9c95a3c72d1e2c4a3b480-v32.json",
+          "evaluationCommit": "60af988e128cbb1c04a9c95a3c72d1e2c4a3b480"
+        }
+      }
     }
   ]
 }
