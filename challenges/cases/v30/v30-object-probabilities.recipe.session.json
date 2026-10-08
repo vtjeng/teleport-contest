@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first mission: wizcmds.c:wiz_objprobs1832+. Debug #wizobjprobs. C reachability observation: Object class probability menu and table. Seed and clock selected before any JS comparison, without a seed search.",
+  "segments": [
+    {
+      "seed": 15530023,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:Probe15530023,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizobjprobs\n    "
+    }
+  ]
+}

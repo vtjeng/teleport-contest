@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first mission: polyself.c:dobreathe1421-1447/zap.c:zhitu/trap.c:acid_damage4618+. Yellow dragon breathes at itself while wearing corrodible armor. C reachability observation: Acid beam/self-damage and armor corrosion source effects. Seed and clock selected before any JS comparison, without a seed search. C-only corrected variation: inventory selectors/pagers or level/energy state adjusted from the original C observation before JS comparison. Initial valid target miss remains preparation provenance for retention/overlap review. Source-revealed cheap final C route: exact next inventory letter or sufficient level-change/getpos continuations; no comparison-guided change.",
+  "segments": [
+    {
+      "seed": 15530009,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:Probe15530009,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n20\n                                   #polyself\nyellow dragon\n       #monster\n.       ."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first mission: pickup.c:tipcontainer3688-3870. Put ordinary objects in a cursed bag of holding and tip it. C reachability observation: Dumped contents/loss state and floor placement. Seed and clock selected before any JS comparison, without a seed search. Source C correction: valid target coordinates, sufficient energy and declined naming prompt, or canonical bag inventory selection; designed before JS comparison.",
+  "segments": [
+    {
+      "seed": 15530005,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:Probe15530005,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed bag of holding\n\u0017uncursed diamond\nafi*g\n\u001b#tip\nf-       "
+    }
+  ]
+}
