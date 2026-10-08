@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pickup.c reverse_loot -> do.c direct dropx/dropz levitation witness. 127 coins exercises partial contributions; ring e and confusion potion f confirmed in C-only setup, then wear left ring and quaff. No challenge input copy or seed search.",
+  "segments": [
+    {
+      "seed": 15640001,
+      "datetime": "20601202113401",
+      "nethackrc": "OPTIONS=name:ReverseFloat,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017uncursed ring of levitation\n\u0017127 gold pieces\n\u0017uncursed potion of confusion\nPel  qf  #loot\n  #loot\n  #loot\n  #loot\n  "
+    }
+  ]
+}

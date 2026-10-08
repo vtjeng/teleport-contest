@@ -12,8 +12,10 @@ import { runSegment } from '../js/jsmain.js';
 import { mksobj, place_object, weight } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { CHEST, GOLD_PIECE } from '../js/objects.js';
-import { OBJ_INVENT, ROOM, THRONE, T_LOOTED, W_QUIVER } from '../js/const.js';
+import { BLINDED, G_GENOD, LEVITATION, OBJ_INVENT, ROOM, THRONE, T_LOOTED, W_QUIVER } from '../js/const.js';
 import { rn2 } from '../js/rng.js';
+import { PM_BUGBEAR } from '../js/monsters.js';
+import { normal_obj_to_glyph } from '../js/display.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 
 async function stateForTest() {
@@ -67,7 +69,10 @@ test('reverse_loot contribution uses C positive integer division for all fifths'
         const state = await stateForTest();
         const gold = coins(state, 13);
         const ops = messagesAndDraws([2]);
-        ops.env.random.rnd = n => n === 5 ? fifth : 1;
+        const calls = [];
+        const draw = ops.env.random.rn2;
+        ops.env.random.rn2 = n => { calls.push(['rn2', n]); return draw(n); };
+        ops.env.random.rnd = n => { calls.push(['rnd', n]); return n === 5 ? fifth : 1; };
         const chest = mksobj(CHEST, false, false, {state});
         Object.assign(chest, {spe: 2, olocked: 1, cknown: 1});
         place_object(chest, state.u.ux + 1, state.u.uy, objectGenerationEnv({state}));
@@ -76,6 +81,10 @@ test('reverse_loot contribution uses C positive integer division for all fifths'
         const expected = Math.trunc((fifth * 13 + 4) / 5);
         assert.equal(chest.cobj.quan, expected);
         assert.equal(state.invent?.quan ?? 0, 13 - expected);
+        assert.deepEqual(calls, fifth < 5
+            ? [['rn2', 3], ['rnd', 5], ['rnd', 2]]
+            : [['rn2', 3], ['rnd', 5]],
+        'pickup.c draws one contribution rnd(5); only a split then draws next_ident rnd(2)');
         assert.equal(chest.cknown, 0);
         assert.equal(chest.owt, weight(chest, {state}));
         if (fifth === 5) assert.equal(chest.cobj, gold);
@@ -152,4 +161,78 @@ test('reverse_loot successful court creation transfers gold before setting thron
     assert.equal(gold.ocarry.minvent, gold);
     assert.equal(draws.at(-1), 10);
     assert.equal(messages.at(-1), 'The exchequer accepts your contribution.');
+});
+
+// pickup.c:2414 consumes makemon's null result after courtmon selected a
+// genocided bugbear. The fallback must not reach the successful creation gate.
+test('reverse_loot genocided court selection falls back to gold drop without looted update', async () => {
+    const state = await stateForTest();
+    const gold = coins(state, 1); // Full contribution avoids split-id draws.
+    const location = state.level.at(state.u.ux, state.u.uy);
+    Object.assign(location, {typ: THRONE, flags: 0});
+    state.mvitals[PM_BUGBEAR].mvflags |= G_GENOD;
+    const messages = [], calls = [], callers = [];
+    let threeCalls = 0;
+    const result = await pickup.reverse_loot(state, {
+        message: async text => messages.push(text),
+        random: {rn2: n => {
+            calls.push(['rn2', n]);
+            callers.push(new Error().stack.split('\n')[2]);
+            if (n === 3 && ++threeCalls <= 2) return threeCalls === 1 ? 1 : 0;
+            if (n === 60) return 50; // mkroom.c threshold45 selects bugbear directly.
+            return rn2(n);
+        }, rnd: n => { calls.push(['rnd', n]); callers.push(new Error().stack.split('\n')[2]); assert.equal(n, 5); return 5; }},
+    });
+    assert.equal(result, true);
+    assert.deepEqual(calls.slice(0, 4), [['rn2', 3], ['rnd', 5], ['rn2', 60], ['rn2', 3]]);
+    assert.equal(calls.filter(([name, n]) => name === 'rnd' && n === 5).length, 1);
+    // enexto's coordinate shuffle legitimately draws rn2(10) before the
+    // genocide check. Only reverse_loot's direct success gate is forbidden.
+    assert.ok(!calls.some(([name, n], i) => name === 'rn2' && n === 10
+        && callers[i].includes('reverse_loot')));
+    assert.deepEqual(messages, ['You drop a gold piece.']);
+    assert.equal(location.flags, 0);
+    assert.equal(state.invent, null);
+    assert.equal(state.level.objects[state.u.ux][state.u.uy], gold);
+    assert.ok(!gold.ocarry);
+});
+
+// Direct reverse_loot calls dropx unconditionally, unlike drop()'s
+// can_reach_floor/hitfloor dispatch. Blind+Levitation maps before newsym.
+test('reverse_loot direct drops accept levitation and map blind gold before redraw', async () => {
+    for (const throne of [false, true]) {
+        for (const blind of [false, true]) {
+            for (const fifth of [1, 5]) { // Partial and full contributions.
+                const state = await stateForTest();
+                const gold = coins(state, 13); // 13 gives nonintegral fifths before C rounding.
+                state.u.uprops[LEVITATION].intrinsic = 100;
+                if (blind) state.u.uprops[BLINDED].intrinsic = 100;
+                const location = state.level.at(state.u.ux, state.u.uy);
+                location.remembered_glyph = null;
+                if (throne) Object.assign(location, {typ: THRONE, flags: T_LOOTED});
+                const events = [], calls = [];
+                const expected = Math.trunc((fifth * 13 + 4) / 5);
+                await pickup.reverse_loot(state, {
+                    message: async text => events.push(text),
+                    random: {rn2: n => { calls.push(['rn2', n]); return 1; },
+                        rnd: n => { calls.push(['rnd', n]); return n === 5 ? fifth : 1; }},
+                    hooks: {newsym: () => {
+                        const dropped = state.level.objects[state.u.ux][state.u.uy];
+                        assert.equal(dropped.quan, expected);
+                        if (blind) assert.equal(location.remembered_glyph.glyph,
+                            normal_obj_to_glyph(dropped, state));
+                        events.push('newsym');
+                    }, encumberMessage: () => events.push('encumber')},
+                });
+                assert.deepEqual(calls, fifth < 5
+                    ? [['rn2', 3], ['rnd', 5], ['rnd', 2]]
+                    : [['rn2', 3], ['rnd', 5]]);
+                assert.equal(state.invent?.quan ?? 0, 13 - expected);
+                assert.equal(gold.quan, fifth < 5 ? 13 - expected : expected);
+                assert.deepEqual(events, throne
+                    ? [`You drop ${expected} gold pieces.`, 'newsym', 'encumber']
+                    : ['newsym', 'encumber', 'Ok, now there is loot here.']);
+            }
+        }
+    }
 });
