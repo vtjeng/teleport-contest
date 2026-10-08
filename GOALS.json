@@ -216505,6 +216505,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-weapon-menu-tab-columns-v31-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore source tab-separated ordinary and wizard skill menu rows",
+      "cFile": "weapon.c",
+      "sessions": [
+        "synthetic/v31/v31-skill-tab-columns"
+      ],
+      "selectionReason": "Independent source-traced skill-column divergence after telekinesis: valid menu_tab_sep reaches an obsolete refusal and the ordinary row lacks the source tab branch.",
+      "detail": "Reconcile weapon.c add_skills_to_menu lines 1278-1296 while preserving the existing menu byte-capture behavior; no whole-function completion claim.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "add_skills_to_menu",
+      "session": "synthetic/v31/v31-skill-tab-columns",
+      "step": 11,
+      "syntheticProvenance": {
+        "synthetic/v31/v31-skill-tab-columns": {
+          "session": "synthetic/v31/v31-skill-tab-columns",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-skill-tab-columns",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-skill-tab-columns.session.json",
+          "recordingSha256": "a397ae69d8a7f24083a4ceae577431b0ef7f174e7b3675c0451d7a4ef7e1bc93",
+          "evaluationPath": "challenges/evaluations/accepted-df3f88e14504c6bd2b05c427cee310320c4f74a8-v31.json",
+          "evaluationCommit": "df3f88e14504c6bd2b05c427cee310320c4f74a8"
+        }
+      }
     }
   ]
 }
