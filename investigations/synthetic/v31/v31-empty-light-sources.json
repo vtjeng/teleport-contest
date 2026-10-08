@@ -1,0 +1,81 @@
+{
+  "session": "synthetic/v31/v31-empty-light-sources",
+  "corpus": "synthetic",
+  "batch": "v31",
+  "caseId": "v31-empty-light-sources",
+  "manifestPath": "challenges/manifests/v31.json",
+  "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+  "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+  "evaluationPath": "challenges/evaluations/accepted-9261fc9e4e7cab87cc07b39f600948376f09dd86-v31.json",
+  "evaluationCommit": "9261fc9e4e7cab87cc07b39f600948376f09dd86",
+  "remainingScreens": 12,
+  "recordedSteps": 28,
+  "status": "complete",
+  "commit": "a1ca51b6c6b1cc91028c40da1da1eae0a998e6d4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v31",
+    "caseId": "v31-empty-light-sources",
+    "session": "synthetic/v31/v31-empty-light-sources",
+    "manifestPath": "challenges/manifests/v31.json",
+    "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+    "recordingPath": "challenges/cases/v31/v31-empty-light-sources.session.json",
+    "recording": "challenges/cases/v31/v31-empty-light-sources.session.json",
+    "recordingSha256": "8421bd1f71a617446262ad86bcd99f3e060ce8ebb2f5b97e5d97214434ea5f13",
+    "recipe": "challenges/cases/v31/v31-empty-light-sources.recipe.session.json",
+    "recipeSha256": "2e464fe140eefd4e19bd3ed0b983e149483a0c6f6ec34ee7ae97dfe6f350cf98",
+    "evaluationPath": "challenges/evaluations/accepted-9261fc9e4e7cab87cc07b39f600948376f09dd86-v31.json",
+    "evaluationCommit": "9261fc9e4e7cab87cc07b39f600948376f09dd86",
+    "evaluationUtc": "2026-10-08T19:46:26.653Z",
+    "remainingScreens": 12,
+    "recordedSteps": 28,
+    "passed": false,
+    "metrics": {
+      "screens": {
+        "matched": 16,
+        "total": 28
+      },
+      "rng": {
+        "matched": 2588,
+        "total": 2588
+      },
+      "cursors": {
+        "matched": 16,
+        "total": 28
+      }
+    },
+    "error": null,
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 16,
+      "message": "unsupported hero command: wiz_light_sources() for the extended command lightsources is not ported"
+    },
+    "step": 16,
+    "kind": "stop",
+    "sourceFile": "light.c",
+    "function": "wiz_light_sources"
+  },
+  "summary": "Wizard #lightsources stops at step 16 because light.c:wiz_light_sources and its dispatcher are absent. Empty-list header and dismissal are source-defined; whole-function completion additionally requires alloc.c:fmt_ptr, whose native allocation-address output is unavailable to JavaScript and prevents portable matching evidence for nonempty lists.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "light.c",
+    "branch": "Wizard debug command creates NHW_MENU, prints hero coordinates and blank line; empty gl.light_base prints <none>, otherwise traverses mobile lights with source fields, local/hero/migrating classification and formatted native pointer; display(FALSE) awaits dismissal before ECMD_OK.",
+    "functions": [
+      "wiz_light_sources"
+    ],
+    "callers": [
+      "cmd.c1756-1757 extcmdlist lightsources -> doextcmd/rhack"
+    ],
+    "dependencies": [
+      "Consumed alloc.c:fmt_ptr125-135 returns native allocation address via PTR_FMT %p (or %06lx). Existing private js/obj.js fmt_ptr is explicitly an object-id substitute and is not a source-equivalent address implementation.",
+      "light.c373 mon_is_local macro is mx > 0, distinct from timeout.c function; canonical gl.light_base and gy.youmonst identity.",
+      "Existing canonical TTY NHW_MENU text-window lifecycle"
+    ]
+  },
+  "evidence": [
+    "Accepted B164 9261fc9e4 v31 evaluation retains 16/28 screens/cursors and 2588/2588 RNG: 12 remaining. Claimed-case replay at a1ca51b6, .cache/A169/selected-before.log, bounded receipt run-YWfwBq, stops before step 16 on #lightsources newline. C shows hero coordinate header and <none>; JS extcmd registry is present but doextcmd lacks the arm.",
+    "Read whole light.c935-974. Source create error returns ECMD_OK; otherwise header coordinates width2, blank line, source-order linked-list traversal with x/y/range width2 and flags 0x%04x. Type object yields obj; monster first checks mx > 0, then identity against youmonst, else <m>; invalid type prints ???. Empty prints <none>. Await display(FALSE) and destroy in order; diagnostic makes no RNG calls or game-state changes.",
+    "Whole-function scope is wiz_light_sources plus its bounded command dispatcher and source-required alloc.c:fmt_ptr. alloc.c125-135 uses rotating static buffers to format the actual C pointer. Read patches and frozen comparison: rg found no fmt_ptr normalization or pointer-address substitution. js/obj.js3573-3582 instead prints stable object/monster ids, so reusing it would consume a placeholder result. Native address/ASLR output cannot be derived from canonical JavaScript game state; inventing a virtual address or copying recorded addresses would violate source-based porting.",
+    "Independent empty-list wizard/normal role variations can cover header, command gate and dismissal; a lit candle or luminous monster would reach nonempty rows and expose the unresolved pointer contract. The admitted manifest explicitly avoided lights because of ASLR output. Do not count an empty-list-only implementation as whole wiz_light_sources completion. A platform diagnostic-output policy or separately authorized partial delivery is required before implementing this blocked source task; no game edits made. Exclude light ownership, timer/vision producers and whole cmd/TTY credit."
+  ]
+}
