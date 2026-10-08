@@ -263,6 +263,7 @@ import { carrying, currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
 import {
     an, ansimpleoname, just_an, simple_typename, simpleonames, suit_simple_name, the,
+    shield_simple_name,
 } from './objnam.js';
 import { oc_to_str } from './options.js';
 import {
@@ -277,7 +278,6 @@ import {
     RIN_SUSTAIN_ABILITY,
     ROBE,
     SHIELD_OF_REFLECTION,
-    TOWEL,
     OBJ_NAME,
 } from './objects.js';
 import { fingers_or_gloves, stuck_ring } from './do_wear.js';
@@ -1007,8 +1007,8 @@ function characteristics_enlightenment(mode, final, state, lines) {
         one_characteristic(mode, final, attrindx, state, lines);
 }
 
-// C ref: insight.c weapon_insight(). What the hero wields and how skilled
-// they are with it.
+// C ref: insight.c weapon_insight() (1270-1465). What the hero wields and
+// how skilled they are with it.
 function weapon_insight(final, state, lines) {
     const uwep = state.uwep;
 
@@ -1018,14 +1018,11 @@ function weapon_insight(final, state, lines) {
     } else if (state.u.twoweap) {
         you_are(lines, final, 'wielding two weapons at once', '');
     } else {
+        let what = weapon_descr(uwep, state);
         if (uwep.otyp === SHIELD_OF_REFLECTION)
-            throw new UnsupportedEnlightenmentError('shield_simple_name()');
-        // obj.h defines is_wet_towel(o) as otyp == TOWEL && spe > 0, so a dry
-        // towel keeps the weapon_descr() result below. The stop above tests
-        // otyp alone because insight.c:1288 does the same for the shield.
-        if (uwep.otyp === TOWEL && uwep.spe > 0)
-            throw new UnsupportedEnlightenmentError('is_wet_towel()');
-        const what = weapon_descr(uwep, state);
+            what = shield_simple_name(uwep, state);
+        else if (is_wet_towel(uwep))
+            what = 'wet towel';
 
         you_are(lines, final,
             (['armor', 'food', 'venom'].includes(what.toLowerCase()))
