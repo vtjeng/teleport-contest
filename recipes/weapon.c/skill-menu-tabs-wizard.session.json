@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first weapon.c:add_skills_to_menu1278–1296 tab-column variation. Wizard Ranger declines advancement without practice and inspects practice-count columns with page input. Seeds/role/date/options and action routes chosen from source before JS comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 17160081,
+      "datetime": "20591216113000",
+      "nethackrc": "OPTIONS=name:Tabs171wizard,role:Ranger,race:elf,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,menu_tab_sep,!debug_mongen\n",
+      "moves": "  #enhance\nn>\u001b "
+    }
+  ]
+}
