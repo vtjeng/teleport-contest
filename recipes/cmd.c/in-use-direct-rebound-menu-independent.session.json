@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first rebound and request-menu caller variation: Monk with lit lamp; BINDINGS routes x to seetools and y to seeall. m prefixes force the existing menu owner, dismissed with Escape. New unsearched seed/clock, planned before JS comparison.",
+  "segments": [
+    {
+      "seed": 17032034,
+      "datetime": "20490719140217",
+      "nethackrc": "OPTIONS=name:InUseRebound,role:Monk,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\nBINDINGS=x:seetools,y:seeall\n",
+      "moves": "  \u0017lit oil lamp\n  mx\u001bmy\u001b."
+    }
+  ]
+}

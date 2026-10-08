@@ -68,7 +68,7 @@
     "dependencies": [
       "invent.c:doprtool4715-4734 and doprinuse4740-4757 are whole verified owners recorded in GOALS.json atcfc6097b. Read current C/JS: tool inventory traversal,52-letter bound, tool_being_used predicate, empty message or dispinv_with_action discarded return, ECMD_OK. doprinuse stops after first is_inuse and calls the same display with null selection. Reuse both canonical exports without new inventory completion credit.",
       "invent.c:tool_being_used4697-4711 is pure; W_TOOL|W_SADDLE takes priority, non-tools false, then wielded tool/lamplit/leashed-pet checks. Existing tested JS predicate and is_inuse/display owners match selected source paths. Menu time/More behavior stays in the existing inventory owner.",
-      "cmd.c:reset_cmd_vars/common ECMD_OK result handling and JS inventoryMenuHooks/failClosedCommand are existing shared owners. Add the same awaited no-time arms as seeweapon/seearmor/seerings/seeamulet, preserve negative multi and context reset, source repeat-queue and prefix behavior. A172 doextcmd custom-glyph edit is disjoint; worker A confirmed no rhack overlap."
+      "cmd.c:reset_cmd_vars/common ECMD_OK result handling and JS inventoryMenuHooks/failClosedCommand are existing shared owners. Add the same awaited no-time arms as seeweapon/seearmor/seerings/seeamulet, apply the source negative-multi command-queue reset flag while always clearing multi and context; retain repeat-queue and prefix behavior. A172 doextcmd custom-glyph edit is disjoint; worker A confirmed no rhack overlap."
     ]
   },
   "evidence": [
