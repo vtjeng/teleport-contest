@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T11:35:18.105Z",
+  "capturedAt": "2026-10-08T11:48:23.713Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -27602,12 +27602,76 @@
         "task": "A155",
         "worker": "A2",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A155-ordinary-combat-2173b9ec",
+        "type": "implement",
+        "at": "2026-10-08T11:38:16.966Z",
+        "task": "A155",
+        "goal": "fix-monmove-ordinary-combat-operations-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C147-armor-on-gold-light-20261008",
+        "type": "implement",
+        "at": "2026-10-08T11:39:36.334Z",
+        "task": "C147",
+        "goal": "port-do-wear-armor-on-gold-light-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-085cdd6bf443aa69dc75c1b41d39009a9e0d90bc",
+        "type": "ready",
+        "at": "2026-10-08T11:40:53.230Z",
+        "task": "B156",
+        "delivery": "085cdd6bf443aa69dc75c1b41d39009a9e0d90bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B156-085cdd6b-20261008",
+        "type": "received",
+        "at": "2026-10-08T11:41:28.338Z",
+        "task": "B156",
+        "delivery": "085cdd6bf443aa69dc75c1b41d39009a9e0d90bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B156-8d29354c-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T11:42:33.836Z",
+        "task": "B156",
+        "integration": "8d29354c722cd42ca9d484454355be2b9b6ba3b8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B156-8d29354c722cd42ca9d484454355be2b9b6ba3b8-validated",
+        "type": "validated",
+        "at": "2026-10-08T11:47:13.004Z",
+        "task": "B156",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B156-8d29354c722cd42ca9d484454355be2b9b6ba3b8-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T11:47:14.245Z",
+        "task": "B156"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B157-v32-49937383-20261008",
+        "type": "assign",
+        "at": "2026-10-08T11:48:04.096Z",
+        "task": "B157",
+        "worker": "B",
+        "kind": "challenge-preparation"
       }
     ]
   },
   "development": {
-    "executionCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
-    "measuredAt": "2026-10-08T11:29:12.834Z",
+    "executionCommit": "8d29354c722cd42ca9d484454355be2b9b6ba3b8",
+    "measuredAt": "2026-10-08T11:46:28.545Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
