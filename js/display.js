@@ -5946,6 +5946,10 @@ function _buildScreenOutput(cursorOnHero = true) {
     const savedCursor = !cursorOnHero && display.grid
         ? [display.cursorCol, display.cursorRow]
         : null;
+    // getline.c raises ttyDisplay->inread before custompline reaches this
+    // flush. C prints only dirty gbuf cells; a prompt must keep the physical
+    // menu or text window over every clean map cell.
+    const bufferedOnly = (display.inread ?? 0) > 0;
     const statusRows = game._renderedStatusLayouts ?? statusLayouts();
     // botl.c bot() leaves the physical status window untouched while
     // gb.bot_disabled is raised.  Keep those cells across the canonical
@@ -5967,9 +5971,9 @@ function _buildScreenOutput(cursorOnHero = true) {
                 skippedMessageCells[c] = { ...display.grid[0][c] };
             }
         }
-        display.clearScreen();
+        if (!bufferedOnly) display.clearScreen();
         // Message line
-        for (let c = 0; c < Math.min(msg.length, display.cols); c++) {
+        for (let c = 0; !bufferedOnly && c < Math.min(msg.length, display.cols); c++) {
             // Recorder patch 006 ignores signed high-bit TTY bytes after the
             // source cursor has advanced. tty_message.js represents each such
             // byte as NUL, so restore the physical cell which clearScreen()
@@ -5993,13 +5997,13 @@ function _buildScreenOutput(cursorOnHero = true) {
             const y = viewport.top + offset;
             for (let x = 1; x < COLNO; x++) {
                 const loc = game.level?.at(x, y);
-                if (!loc) continue;
+                if (!loc || (bufferedOnly && !loc.gnew)) continue;
                 const ch = browserGlyphs && loc.disp_browser_ch
                     ? loc.disp_browser_ch
                     : (loc.disp_decgfx
                         ? decMap[loc.disp_ch] || loc.disp_ch
                         : loc.disp_ch);
-                if (!ch || ch === ' ') continue;
+                if (!ch || (!bufferedOnly && ch === ' ')) continue;
                 display.setCell(
                     x - 1,
                     offset + 1,
@@ -6017,9 +6021,9 @@ function _buildScreenOutput(cursorOnHero = true) {
         // early with gb.bot_disabled.  Keep that suppression visible in the
         // rebuilt terminal: repainting the cached status layouts here would
         // put the covered status rows back underneath a getlin prompt.
-        if (game.gb?.bot_disabled !== true)
+        if (!bufferedOnly && game.gb?.bot_disabled !== true)
             writeStatusRows(display, statusRows);
-        else if (savedStatusCells) {
+        else if (!bufferedOnly && savedStatusCells) {
             const firstRow = display.rows - savedStatusCells.length;
             for (let row = 0; row < savedStatusCells.length; ++row) {
                 for (let column = 0; column < display.cols; ++column) {

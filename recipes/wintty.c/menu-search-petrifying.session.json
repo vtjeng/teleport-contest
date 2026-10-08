@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first MENU_SEARCH -> tty_getlin -> hooked_tty_getlin prompt flush. New seed/date/role before comparison; source intrinsic menu rows stay below the typed search prompt; commit toggled intrinsic and return to gameplay without invoking prayer.",
+  "segments": [
+    {
+      "seed": 17471031,
+      "datetime": "20640519102133",
+      "nethackrc": "OPTIONS=name:Promptpetrifying,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizintrinsic\n:petrifying\n\n   "
+    }
+  ]
+}
