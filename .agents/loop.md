@@ -165,7 +165,10 @@ Recheck later work affected by a correction. Other workers continue.
 Keep a task's reservations until it is accepted or parked. If a worker has
 already started a second task, accepting its first task releases only the
 first task's reservations. After an integration passes combined validation, notify every implementation worker of the accepted main SHA and have each merge it into its worktree at the next clean task boundary, before selecting new work, preserving pending work and submitted commits.
-Workers report the resulting HEAD and rerun focused checks affected by the merge; never rebase or amend submitted delivery commits.
+Workers report the resulting HEAD. Reuse accepted validation after a clean
+merge; run focused checks only for conflict resolutions or pending changes
+combined with accepted code that have not been tested together. Never rebase
+or amend submitted delivery commits.
 
 ## Integration and publication
 

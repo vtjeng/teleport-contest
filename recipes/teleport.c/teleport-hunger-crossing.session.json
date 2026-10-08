@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first teleport hunger-crossing witness. Fixed seed/date/role before C recording; repeated canonical dotelecmd costs100 nutrition and reaches newuhs HUNGRY/WEAK. Spaces acknowledge source messages; no JS-guided seed search.",
+  "segments": [
+    {
+      "seed": 15840221,
+      "datetime": "20521018120000",
+      "nethackrc": "OPTIONS=name:TeleportNutrition,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  \u0014  .  \u0014.  \u0014.  \u0014.  \u0014.  \u0014.  \u0014.  \u0014.  "
+    }
+  ]
+}

@@ -6325,7 +6325,11 @@ export async function rhack(key, state = game) {
                     resetCommandVars(state);
                     return;
                 }
-                await morehungry(100, state);
+                await morehungry(100, state, {
+                    message: ttyPline,
+                    statusRefresh: () => bot(),
+                    endRunning: (s) => end_running(true, s),
+                });
                 resetCommandVars(state);
                 // C ref: teleport.c dotelecmd() returns ECMD_TIME after
                 // dotele(TRUE) succeeds; rhack() restores context.move
@@ -6364,7 +6368,11 @@ export async function rhack(key, state = game) {
                     resetCommandVars(state);
                     return;
                 }
-                await morehungry(100, state);
+                await morehungry(100, state, {
+                    message: ttyPline,
+                    statusRefresh: () => bot(),
+                    endRunning: (s) => end_running(true, s),
+                });
                 resetCommandVars(state);
                 // C ref: dotele(FALSE) returns 1 after an intrinsic
                 // teleport, which dotelecmd() turns into ECMD_TIME.

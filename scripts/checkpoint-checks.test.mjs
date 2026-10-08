@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, rmSync } from 'node:fs';
-import { basename, dirname } from 'node:path';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
 
 import {
     checkpointCommands,
@@ -453,4 +454,24 @@ test('checkpoint runs keep distinct failure logs with their complete output', (t
                 `${name}: ${command} stdout\n${name}: ${command} stderr\n`);
         }
     }
+});
+
+test('hosted failure artifacts retain assertions outside the displayed tail', (t) => {
+    const artifact = mkdtempSync(join(tmpdir(), 'teleport-hosted-log-test-'));
+    t.after(() => rmSync(artifact, { recursive: true, force: true }));
+    const directory = join(artifact, 'tests-1'); // Match one uploaded stage directory.
+    // Put the diagnostic before more than the runner's twenty displayed tail lines.
+    const diagnostic = 'AssertionError: expected source-correct saddle knowledge';
+    const lines = Array.from({ length: 30 }, (_, index) => `following output ${index}`);
+    const displayed = [];
+    const { results, allPassed } = runCheckpointChecks([
+        { label: 'test shard 1/4', command: process.execPath, args: ['-e',
+            `console.log(${JSON.stringify(diagnostic)}); console.log(${JSON.stringify(lines.join('\n'))}); process.exit(1);`] },
+    ], { failureLogDirectory: directory, output: line => displayed.push(line) });
+    assert.equal(allPassed, false);
+    assert.ok(!displayed.join('\n').includes(diagnostic));
+    assert.equal(dirname(results[0].logPath), directory);
+    const retained = readFileSync(results[0].logPath, 'utf8');
+    assert.ok(retained.includes(diagnostic));
+    assert.ok(retained.includes(lines.at(-1)));
 });

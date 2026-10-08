@@ -1325,3 +1325,18 @@ test('Vlad ability shuffle draws for all abilities and has no throne-removal dra
     assert.match(special, /ability < A_MAX[\s\S]*?adjattrib\(ability, rn2\(5\) - 2, -1\)/u);
     assert.match(special, /seeems to be calling for help![\s\S]*?msummon\(NULL\);\s*msummon\(NULL\);\s*msummon\(NULL\);/u);
 });
+
+test('egg nutrition crossing HUNGRY uses the live dosit hunger operations', async () => {
+    const { HUNGRY, NOT_HUNGRY } = await import('../js/const.js');
+    await standOnStairs();
+    heroSquare().typ = ROOM;
+    game.u.umonnum = PM_QUEEN_BEE;
+    game.youmonst.data = game.mons[PM_QUEEN_BEE];
+    game.u.uhunger = 151; // Any positive source egg nutrition crosses HUNGRY.
+    game.u.uhs = NOT_HUNGRY;
+    game.u.mh = game.u.mhmax = 100; // Healthy active polymorph HP avoids exhaustion.
+    game.nhDisplay.pushKey(32); // Acknowledge the source hunger message after egg output.
+    assert.equal(await dosit(game), ECMD_TIME);
+    assert.equal(game.u.uhs, HUNGRY);
+    assert.equal(game.u.uhunger, 151 - game.objects[EGG].oc_nutrition);
+});

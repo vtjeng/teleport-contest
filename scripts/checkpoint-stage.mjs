@@ -3,7 +3,7 @@
 // acceptance archive: the local checkpoint remains authoritative until rollout.
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { checkpointGroups, checkpointSummary, requireCleanCheckpointTree,
@@ -113,7 +113,11 @@ export function runStage(group, output) {
     check(!existsSync(directory), `checkpoint stage already exists: ${directory}`);
     mkdirSync(directory, { recursive: true });
     const started = performance.now();
-    const { results, allPassed } = runCheckpointChecks(commands);
+    // The workflow uploads this directory even on failure. Keep complete logs
+    // beside the verdict instead of leaving them in an ephemeral /tmp path.
+    const { results, allPassed } = runCheckpointChecks(commands, { failureLogDirectory: directory });
+    for (const result of results) if (result.logPath)
+        result.logPath = relative(output, result.logPath);
     requireCleanCheckpointTree();
     check(head() === commit, 'HEAD changed during checkpoint stage');
     const artifacts = {};

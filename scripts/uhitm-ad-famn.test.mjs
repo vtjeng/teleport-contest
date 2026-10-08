@@ -249,3 +249,25 @@ test('fainted hero still exercises Constitution but skips morehungry', async () 
     assert.deepEqual(draws, [['rn2', 2]]);
     assert.equal(state.u.uhunger, hungerBefore);
 });
+
+test('Famine crossing HUNGRY fills the missing canonical endRunning operation', async () => {
+    const { HUNGRY, NOT_HUNGRY } = await import('../js/const.js');
+    const state = await startGame();
+    const messages = [], draws = [];
+    state.u.uhunger = 151; // Source minimum40-point drain crosses <=150.
+    state.u.uhs = NOT_HUNGRY;
+    state.context.run = 1;
+    state.u.aexe[A_CON] = 0; // Preserve the source Constitution exercise draw.
+    await mhitm_ad_famn(monster(state, PM_FAMINE), { adtyp: AD_FAMN }, state.youmonst,
+        { damage: 9, hitflags: 0, done: false }, state, {
+            random: { rn2: bound => { draws.push(['rn2', bound]); return 0; },
+                rn1: (bound, base) => { draws.push(['rn1', bound, base]); return base; } },
+            message: async text => messages.push(text), statusRefresh: () => {},
+            encumberMessage: () => {}, // This partial attack env omits only endRunning.
+        });
+    assert.equal(state.u.uhunger, 111);
+    assert.equal(state.u.uhs, HUNGRY);
+    assert.equal(state.context.run, 0);
+    assert.deepEqual(draws, [['rn2', 2], ['rn1', 40, 40]]);
+    assert.deepEqual(messages, ['Famine reaches out, and your body shrivels.', 'You feel hungry.']);
+});
