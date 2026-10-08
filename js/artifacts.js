@@ -225,14 +225,14 @@ import {
     is_demon, is_dlord, is_dprince, Resists_Elem,
     noncorporeal, nonliving, resists_drli, sticks,
 } from './mondata.js';
-import { In_hell, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeon.js';
+import { In_hell, depth, dunlevs_in_dungeon, find_hell, ledger_no, surface } from './dungeon.js';
 import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { do_blinding_ray } from './apply.js';
 import { glyph_at, glyph_is_trap, newsym, shieldeff, see_monsters } from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
 import { float_down, float_up, t_at, untrap } from './trap.js';
-import { level_tele } from './teleport.js';
+import { level_tele, u_teleport_mon } from './teleport.js';
 import { align_str, enlightenment } from './insight.js';
 import { carried, Is_dragon_armor, Is_dragon_mail, mksobj, objectType, weight } from './obj.js';
 import { obj_shuffle_range, observe_object } from './o_init.js';
@@ -2516,20 +2516,25 @@ async function invoke_create_ammo(obj, state) {
     return ECMD_TIME;
 }
 
-// C ref: artifact.c invoke_banish() (1962-2019).
-async function invoke_banish(obj, state) {
+// C ref: artifact.c invoke_banish() (1963-2019). C fmon is level.monlist;
+// migration unlinks that chain, so cache nmon before visiting each target.
+export async function invoke_banish(obj, state = game) {
     let nvanished = 0;
     let nstayed = 0;
     const u = state.u;
+    const dest = {};
+    find_hell(dest, state);
 
-    for (let mtmp = state.fmon; mtmp; mtmp = mtmp.nmon) {
+    let next;
+    for (let mtmp = state.level.monlist; mtmp; mtmp = next) {
         let chance = 1;
+        next = mtmp.nmon;
         if (mtmp.mhp < 1 || !isok(mtmp.mx, mtmp.my)) continue;
         if (!is_demon(mtmp.data) && mtmp.data?.mlet !== S_IMP) continue;
         if (!couldsee(mtmp.mx, mtmp.my, state)) continue;
         if (mtmp.data?.msound === MS_NEMESIS) continue;
 
-        if (In_quest(u.uz) && !state.quest_status?.killed_nemesis)
+        if (In_quest(u.uz) && !state.svq?.quest_status?.killed_nemesis)
             chance += 10;
         if (is_dprince(mtmp.data)) chance += 2;
         if (is_dlord(mtmp.data)) chance++;
@@ -2541,17 +2546,16 @@ async function invoke_banish(obj, state) {
             const inhell = In_hell(u.uz, state);
             if (!inhell) {
                 nvanished++;
-                // find_hell remains unported; retain its selected destination
-                // shape while handing the migration itself to mon.c's helper.
-                note_unported('dungeon.c find_hell');
-                const dest = {
-                    dnum: state.valley_level?.dnum ?? 0,
-                    dlevel: 0,
-                };
                 dest.dlevel = rn2(dunlevs_in_dungeon(dest, state));
-                await migrate_mon(mtmp, ledger_no(dest, state), MIGR_RANDOM, state);
+                if (mtmp.mleashed) {
+                    // C discards migrate_mon's result. Its leashed
+                    // migrate_to_level path still belongs to dog.c.
+                    note_unported('dog.c migrate_to_level leashed monster migration');
+                } else {
+                    await migrate_mon(mtmp, ledger_no(dest, state), MIGR_RANDOM, state);
+                }
             } else {
-                note_unported('teleport.c u_teleport_mon');
+                await u_teleport_mon(mtmp, false, { state });
             }
         } else {
             nstayed++;

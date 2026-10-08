@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v29.json",
   "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
   "recordingSha256": "cff84ed58b855357085e4e24d18ddb63c3c3bbd43813c3ef7373995b7ddc0a71",
-  "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
-  "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+  "evaluationPath": "challenges/evaluations/accepted-2a0173971a37c29e79ad85b6438561097d24ca76-v29.json",
+  "evaluationCommit": "2a0173971a37c29e79ad85b6438561097d24ca76",
   "remainingScreens": 19,
   "recordedSteps": 56,
   "status": "complete",
-  "commit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+  "commit": "995be01e3fc27c94a2eeb697b7c41cd7a7ed719d",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v29",
@@ -25,13 +25,13 @@
     "recipe": "challenges/cases/v29/v29-open-trapped-door.recipe.session.json",
     "recipeSha256": "f8b03763081194414293e07f307a823471277947ddcd41596e26fba49cd88b14",
     "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
-    "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
-    "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
-    "evaluationArtifact": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
-    "evaluationUtc": "2026-10-08T05:02:17.323Z",
+    "evaluationPath": "challenges/evaluations/accepted-2a0173971a37c29e79ad85b6438561097d24ca76-v29.json",
+    "evaluationCommit": "2a0173971a37c29e79ad85b6438561097d24ca76",
+    "evaluationArtifact": "challenges/evaluations/accepted-2a0173971a37c29e79ad85b6438561097d24ca76-v29.json",
+    "evaluationUtc": "2026-10-08T08:45:40.748Z",
     "remainingScreens": 19,
     "recordedSteps": 56,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 37,
     "regression": false,
     "passed": false,
     "error": null,
@@ -51,8 +51,8 @@
     },
     "firstMismatch": {
       "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: picking a lock requires D_TRAPPED door trap in doopen_indir()",
-      "step": 37
+      "step": 37,
+      "message": "unsupported hero command: an unported branch of this command: picking a lock requires D_TRAPPED door trap in doopen_indir()"
     },
     "step": 37,
     "kind": "stop",
@@ -63,29 +63,32 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The first mismatch is the trapped-door success arm of lock.c:doopen_indir(). At step 37, #open targets a closed D_TRAPPED door and C passes the strength roll; it calls b_trapped(\"door\", FINGER), sets the door to D_NODOOR, and refreshes vision. JavaScript throws before these effects. The existing b_trapped() port is available, but shop-door add_damage() remains unported. Whole-function scope also includes the separate AUTOUNLOCK_KICK branch that currently throws.",
+  "summary": "Opening the trapped closed door stops before canonical b_trapped at step 37. Complete lock.c:doopen_indir, including trapped-door damage/removal, source autokey-to-kick fallback and the queued kick prompt/direction. The consumed door-mimic helper is now canonical and awaited. Existing trap and command-queue owners can be reused; preserve source order and the no-time autoopen handoff.",
+  "goalKind": "file-port",
   "source": {
     "file": "lock.c",
-    "branch": "doopen_indir() targets a real closed door with D_TRAPPED after passing the hands, pit, mimic, and size checks, and rnl(20) is below (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3. The recorded #open command reaches this arm at step 37. The same whole function also contains an AUTOUNLOCK_KICK path for an already locked door when that flag is enabled.",
     "functions": [
-      "doopen_indir"
+      "doopen_indir() whole 780-921"
     ],
+    "branch": "Hands, adjacent target or explicit autoopen coordinates, loot/pit/mimic and impaired-direction gates; locked-door autounlock applies a key when present, otherwise may queue an unmounted kick; a successful closed-door roll invokes the trap before removing a trapped door and recalculating vision.",
     "callers": [
-      "lock.c:doopen() dispatches the #open command and calls doopen_indir(0, 0).",
-      "hack.c:test_move() calls doopen_indir(x, y) for automatic opening while walking into a closed door."
+      "lock.c:doopen773-776 -> doopen_indir(0,0), reached by cmd.c open command/extended command; JS cmd.js dispatch awaits doopen -> doopen_indir.",
+      "hack.c:test_move1099-1105 -> doopen_indir(x,y) for walking into a closed door under autoopen. JS hack.js2567 consumes ECMD_OK and canonical canned kick state to set door_opened before the next command, so no behavioral caller rewrite is required; replace the obsolete unsupported-kick comment."
     ],
     "dependencies": [
-      "trap.c:b_trapped() performs the trapped-door explosion; its JavaScript port is js/trap.js:b_trapped().",
-      "hack.c:in_rooms() determines whether the door is in a shop and therefore gates shop damage.",
-      "shk.c:add_damage() accounts for shop-door damage and is still unported; its return is discarded."
+      "Consumed nohands/container_at/get_adjacent_loc/closed_door/doloot/is_drawbridge_wall/update_mapseen_for/autokey/pick_lock/rnl/attribute/monster predicates have existing canonical owners and source-pinned tests. Read them and preserve return consumption; no invented substitute results.",
+      "lock.c:stumble_on_door_mimic759-769 is now awaited and calls canonical mhitu.c:stumble_onto_mimic; all three source callers are already awaited. No duplicate helper port or trap.c:untrap edit/credit is needed.",
+      "trap.c:b_trapped6694-6709 and JS trap.js3518 preserve rnd damage, wake, losehp, two exercise calls and make_stunned. Source discards its return; reuse the canonical async body and pass existing message/RNG operations.",
+      "cmd.c:cmdq_add_ec252-270/cmdq_add_dir298-316/ext_func_tab_from_func3016-3025 and yn_function5440-5532 are canonical. Queue the dokick table row then signed direction. The source ynq macro records answers in CQ_REPEAT, so invoke canonical yn_function with addcmdq TRUE, as pick_lock already does. Leave the separate partial forcelock ynq helper outside this whole doopen unit.",
+      "shk.c:add_damage is a source-discarded void call at lock.c911, with explicit existing gap markers; retain a named gap for shop damage bookkeeping. No whole shop, trap, movement, direction, kick, loot or mimic helper completion claim."
     ]
   },
-  "goalKind": "file-port",
   "evidence": [
-    "C source at nethack-c/upstream/src/lock.c:780-921 shows the entire doopen_indir() unit. Its success arm at lines 904-916 calls b_trapped(\"door\", FINGER) when D_TRAPPED is set, then changes the mask to D_NODOOR, conditionally calls add_damage() for a shop, and calls feel_newsym() and recalc_block_point().",
-    "Direct callers are nethack-c/upstream/src/lock.c:773-776 (doopen() for the #open command) and nethack-c/upstream/src/hack.c:1099-1101 (test_move() automatic opening).",
-    "At the examined commit, js/lock.js:1093 onward translates doopen_indir() but its D_TRAPPED arm throws UnsupportedLockError before the trap call and subsequent door/vision updates. The same function also has an existing AUTOUNLOCK_KICK throw in its locked-door branch. js/trap.js:3504 onward already implements b_trapped(); js/lock.js:582-590 uses it for a trapped door opened through pick_lock() and records the still-unported shop add_damage() side effect.",
-    "C source nethack-c/upstream/src/trap.c:6694-6709 defines b_trapped(): it draws rnd(5 + (level < 5 ? level : 2 + level / 2)), prints the explosion, applies damage and exercises, then stuns. On this level the recording logs rnd(6)=4 at trap.c:6697.",
-    "The assigned saved evaluation challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json reports the first mismatch for this case as a stop at step 37: the unported D_TRAPPED branch in doopen_indir(). The assigned recording challenges/cases/v29/v29-open-trapped-door.session.json shows the C action at step 37 logs rnl(20)=13 at lock.c:904, then rnd(6)=4 in b_trapped(), and displays “The door opens. KABOOM!! The door was booby-trapped! You stagger...”."
+    "Read complete upstream lock.c:doopen_indir780-921 and current JS lock.js1093-1260. The trapped success arm throws UnsupportedLockError before b_trapped instead of executing the source trap, D_NODOOR assignment and common feel_newsym/recalc_block_point tail.",
+    "Replay only this claimed immutable recording at examined995be01e: C/JS match37 of56 screens,2747 of2794 RNG calls,37 of56 cursors. First stop zero-basedstep37 key h; next C draw rnd(6)=4 in b_trapped(trap.c6697). Cache .cache/A152/replay.json retains complete prefix and error stack.",
+    "The same whole function has an independent source defect: JS nests APPLY_KEY separately from the C expression (flags APPLY_KEY && autokey!=NULL), so an absent key incorrectly suppresses the KICK fallback. It also refuses KICK instead of testing steed/ynq then appending canonical command and direction with ECMD_OK.",
+    "Read source hack.c1099-1105 and JS hack.js2567-2581: queued kick and no-time door_opened contract already match C. The comment describing a still-throwing owner must be reconciled without altering movement behavior.",
+    "Source-backed validation plan: selected trapped-door case plus independent C-first direct open and automatic walk-open, trapped/ordinary door and queued kick variations; cover source key priority and no-key fallback, mounted/negative/canceled kick prompt and source door-removal/vision order with focused tests. Preserve any concrete source blocker as a blocked recipe. Existing closed-door-autoopen tests assert obsolete KICK/trapped refusals and no-key suppression and must be updated.",
+    "Saved accepted2a017397 v29 still has19 exact remaining screens. Higher remaining Firebrand is reserved by C145; eyewear/punished-blindfold scope belongs to B150 and the chameleon-tin session to submitted A151. Door source scope is independent of those reservations."
   ]
 }

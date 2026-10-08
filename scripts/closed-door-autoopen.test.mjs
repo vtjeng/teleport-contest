@@ -22,6 +22,11 @@ import {
     D_ISOPEN,
     D_LOCKED,
     D_TRAPPED,
+    D_NODOOR,
+    CQ_CANNED,
+    CQ_REPEAT,
+    CMDQ_EXTCMD,
+    CMDQ_DIR,
     DO_MOVE,
     TEST_TRAP,
     TEST_TRAV,
@@ -39,7 +44,6 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { acurr } from '../js/attrib.js';
 import { test_move } from '../js/hack.js';
-import { UnsupportedLockError } from '../js/lock.js';
 import {
     loadAutoopenSuppressedRecipe,
     loadClosedDoorAutoopenRecipe,
@@ -124,8 +128,8 @@ test('every matrix segment starts beside a plain closed door', async () => {
         await runSegment({ ...segment, moves: '' });
         const door = game.level.at(game.u.ux + dx, game.u.uy + dy);
         assert.equal(door.typ, DOOR, `segment ${index} terrain`);
-        // Exactly D_CLOSED: a locked, trapped or broken door belongs to a
-        // different arm of doopen_indir() and is refused before the walk.
+        // This older matrix covers exactly D_CLOSED. The separate trap and
+        // autounlock witnesses cover the other source branches.
         assert.equal(door.flags, D_CLOSED, `segment ${index} mask`);
     }
 });
@@ -504,54 +508,44 @@ test('every locked segment stops at a door that stays locked', async () => {
     }
 });
 
-// requireAutoopenClosedDoor() gained three terms with the locked arm, and the
-// recorded matrix covers none of them: a fresh case can only show the states C
-// and the port agree on. Each case below installs the locked door the recipe
-// already provides and adds the single state that diverges, so it fails if and
-// only if its own term is removed.
-test('the locked arm exposes what doopen_indir cannot answer for', async () => {
+// Source lock.c:884-893 queues a kick without elapsed time; :908-912
+// fires the trap before removing the door and publishing its transparency.
+test('walking autoopen reaches trapped-door effects and queued kick', async () => {
     const base = loadLockedDoorRecipe().segments[0];
-    const walkNorth = commandKeyCode(base.moves[0]);
-    // A tool needs only the fields inventory_weight() reads; nothing on a
-    // refused path looks at the rest.
-    // Appended at the TAIL, not the head: prepending leaves the seam's loop
-    // unexercised, so a first-object-only implementation would pass.
-    const refusals = [
-        // lock.c:907's D_TRAPPED half fires b_trapped() and bills a shop, but
-        // only from the "known to be CLOSED" arm, so D_CLOSED is what makes it
-        // reachable. D_LOCKED | D_TRAPPED returns at lock.c:895 instead and is
-        // served, which the sibling test below pins.
-        ['trapped closed door', 'D_TRAPPED door trap in doopen_indir()',
-            (state, door) => {
-                door.flags = door.doormask = D_CLOSED | D_TRAPPED;
-            }],
-        // lock.c:884-893 needs AUTOUNLOCK_KICK and a live ynq() prompt.
-        ['autounlock kick',
-            'AUTOUNLOCK_KICK in doopen_indir()',
-            (state) => { state.flags.autounlock = AUTOUNLOCK_KICK; }],
-    ];
+    await runSegment({ ...base, moves: '' });
+    const door = game.level.at(game.u.ux, game.u.uy - 1);
+    door.flags = door.doormask = D_CLOSED | D_TRAPPED;
+    const hp = game.u.uhp;
+    const messages = [];
+    await test_move(game.u.ux, game.u.uy, 0, -1, DO_MOVE, game, {
+        message: async text => { messages.push(text); },
+        // Guaranteed successful open and two damage; exercise/wake draws
+        // retain their canonical bounds but do not select additional effects.
+        random: { rnl: () => 0, rnd: () => 2, rn2: () => 1 },
+    });
+    assert.equal(door.flags, D_NODOOR);
+    assert.equal(door.doormask, D_NODOOR);
+    assert.equal(game.u.uhp, hp - 2);
+    assert.equal(game.u.uprops[STUNNED].intrinsic, 2);
+    assert.ok(messages.some(text => text.includes('KABOOM!!')));
+    assert.equal(game.context.door_opened, true);
+    assert.equal(game.context.move, 0, 'walking pull spends no time');
 
-    for (const [label, reason, apply] of refusals) {
-        await runSegment({ ...base, moves: '' });
-        const door = game.level.at(game.u.ux, game.u.uy - 1);
-        assert.equal(door.flags, D_LOCKED, label);
-        apply(game, door);
-
-        await assert.rejects(
-            test_move(
-                game.u.ux,
-                game.u.uy,
-                0,
-                -1,
-                DO_MOVE,
-                game,
-                { message: async () => {}, random: { rnl: () => 0 } },
-            ),
-            (error) => error instanceof UnsupportedLockError
-                && error.branch === reason,
-            label,
-        );
-    }
+    await runSegment({ ...base, moves: '' });
+    game.flags.autounlock = AUTOUNLOCK_KICK;
+    // The previous locked-door line is still pending; dismiss it before
+    // answering C's canonical ynq prompt.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey('y'.charCodeAt(0));
+    await test_move(game.u.ux, game.u.uy, 0, -1, DO_MOVE, game,
+        { message: async () => {} });
+    const queue = game.command_queue[CQ_CANNED];
+    assert.equal(queue[0].typ, CMDQ_EXTCMD);
+    assert.equal(queue[0].ec_entry.ef_funct, 'dokick');
+    assert.deepEqual(queue[1], { typ: CMDQ_DIR, dx: 0, dy: -1, dz: 0 });
+    assert.equal(game.command_queue[CQ_REPEAT].at(-1).key, 'y'.charCodeAt(0));
+    assert.equal(game.context.door_opened, true);
+    assert.equal(game.context.move, 0, 'time waits for the canned kick');
 });
 
 test('combined autounlock bits keep apply-key before kick', async () => {
@@ -581,22 +575,25 @@ test('combined autounlock bits keep apply-key before kick', async () => {
         `expected autounlock prompt, got "${game._ttyPreviousMessage}"`,
     );
 
-    // C uses an else-if: with APPLY_KEY set, a missing tool does not fall
-    // through to AUTOUNLOCK_KICK. The locked door remains untouched.
+    // C combines APPLY_KEY and a non-NULL autokey in one condition. With
+    // no recognized tool, the KICK fallback still asks; declining leaves
+    // the locked door untouched and does not queue a kick.
     await runSegment({ ...base, moves: '' });
     game.flags.autounlock = combined;
     game.nhDisplay.pushKey(walkNorth);
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey('n'.charCodeAt(0));
     await moveloop_core();
     assert.equal(
         game.level.at(game.u.ux, game.u.uy - 1).flags,
         D_LOCKED,
-        'no recognized tool',
+        'no recognized tool and declined kick',
     );
+    assert.equal(game._ttyPreviousMessage, 'Kick it? [ynq] (q) ');
+    assert.equal(game.command_queue[CQ_CANNED].length, 0);
 });
 
-// The counterpart to the refusals above. Each term has to be narrow enough to
-// leave the ported case running, or the arm the fresh recordings cover would
-// disappear behind a guard the suite still reports as green.
+// Tools and autounlock bits that C does not use for this door leave it locked.
 test('the locked arm still runs for the states it owns', async () => {
     const locked = loadLockedDoorRecipe().segments[0];
     const closed = loadClosedDoorAutoopenRecipe()
@@ -613,7 +610,7 @@ test('the locked arm still runs for the states it owns', async () => {
         }],
         // lock.c:876 gates the tail on any nonzero mask, but UNTRAP and FORCE
         // have no door arm. A carried key still does nothing when APPLY_KEY is
-        // absent, which keeps the inventory refusal scoped to the active bit.
+        // absent, which keeps the tool lookup scoped to the active bit.
         ['no autounlock with a skeleton key', locked, 'k', (state) => {
             state.flags.autounlock = 0;
             state.invent = {
@@ -870,11 +867,9 @@ test('a suppressed pull repeats one of three results and moves nothing', async (
     assert.equal(exercised, 3);
 });
 
-// The early return at hack.c:1097 is what stops doopen_indir()'s refusals from
-// applying: with the pull suppressed C never calls that function, so a state
-// only it diverges on must leave the walk admitted. Placing the return below
-// those checks instead would refuse cases C answers.
-test('a suppressed pull drops the refusals doopen_indir owns', async () => {
+// The early return at hack.c:1097 suppresses the entire doopen_indir call,
+// including its trap effects and input-consuming autounlock branches.
+test('a suppressed pull skips doopen_indir effects and prompts', async () => {
     const base = loadAutoopenSuppressedRecipe().segments[0];
     const walkWest = commandKeyCode(base.moves[0]);
 
@@ -886,11 +881,9 @@ test('a suppressed pull drops the refusals doopen_indir owns', async () => {
         }],
         // lock.c:876-893's autounlock tail hangs off the message switch,
         // which only the pull reaches. These two set D_LOCKED as well: the
-        // seam runs its unlocking-tool and autounlock refusals only for a mask
-        // that is not plain D_CLOSED, so against the recipe's own door they
-        // would be admitted whether or not the early return existed, and could
-        // not fail. With D_LOCKED the refusals genuinely apply and the return
-        // is what drops them.
+        // tool and kick prompts apply only to a locked door. With D_LOCKED
+        // this fixture would need another input if the early return did not
+        // suppress the call.
         ['skeleton key', (state, door) => {
             door.flags = door.doormask = D_LOCKED;
             state.invent = {

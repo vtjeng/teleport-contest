@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first lock.c:doopen_indir witness. Seed 15229011 and fixed clock were chosen before C recording; C-only preview places a clear room square south of the hero. Source wall wish changes that room square into a wall; the source door wish then makes trapped closed door there, then the hero steps north and walks toward it. Autounlock none selects this source branch without a recognized key. No challenge inputs were copied.",
+  "segments": [
+    {
+      "seed": 15229011,
+      "datetime": "20700111111213",
+      "nethackrc": "OPTIONS=name:Door152,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen,time\nOPTIONS=autounlock:none\n",
+      "moves": "j\u0017wall\n\u0017trapped closed door\nkj.."
+    }
+  ]
+}

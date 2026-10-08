@@ -2565,10 +2565,9 @@ export async function test_move(
                     const openEnv = { message };
                     if (env.random) openEnv.random = env.random;
                     const result = await doopen_indir(x, y, state, openEnv);
-                    // cmdq_peek(CQ_CANNED) can contain a queued kick after
-                    // doopen_indir(). That lock.c AUTOUNLOCK_KICK arm remains
-                    // an owning-file dependency and throws there when reached;
-                    // ordinary open/locked-door results use this source arm.
+                    // hack.c:1099-1105 treats a queued kick as an opened
+                    // door handoff. The kick runs on the next command and
+                    // spends its own time; this walking pull spends none.
                     const queued = cmdq_peek(CQ_CANNED, state);
                     const queuedKick = result === ECMD_OK
                         && queued?.typ === CMDQ_EXTCMD

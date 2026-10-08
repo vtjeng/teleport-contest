@@ -204868,7 +204868,7 @@
     {
       "id": "port-do-wear-eyewear-blindness-v29-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port eyewear blindness and punishment glyph setup",
       "cFile": "do_wear.c",
       "sessions": [
@@ -204883,22 +204883,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Blindf_on",
           "line": 1461,
           "endLine": 1494,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "Blindf_off",
           "line": 1495,
           "endLine": 1538,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -204910,17 +204913,17 @@
           "name": "bc_order",
           "line": 354,
           "endLine": 379,
-          "declared": false,
+          "declared": true,
           "sourceFile": "ball.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "set_bc",
           "line": 380,
           "endLine": 436,
-          "declared": false,
+          "declared": true,
           "sourceFile": "ball.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -205259,7 +205262,532 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Blindf_on",
+            "implementation": "js/do_wear.js",
+            "symbol": "Blindf_on",
+            "sourceReview": "Read whole do_wear.c1461-1493 in definition order: snapshot Blind, discarded remove_worn_item(FALSE), setworn W_TOOL, on_msg; newly-blind flags.verbose feedback, Punished set_bc(0) before toggle; Eyes regained sight feedback, blind-from-birth conduct clear, common changed toggle. Uses canonical remove_worn_item/setworn/on_msg/heroIsBlind/toggle_blindness. All selected refused held-eyewear, punished-memory and regained-sight branches removed. UnsupportedAccessoryOnError has no remaining throw and was deleted with command registry/import cleanup. Required set_bc and its consumed bc_order implemented whole. No new RNG or substitute effects.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "accessory_or_armor_on",
+                "source": "do_wear.c2421, doputon P/#puton uses the existing awaited callback."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c4250, ordinary blindfold/towel/lenses apply uses existing awaited callback."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "set_wear",
+                "source": "do_wear.c1545, replaces selected gap with awaited Blindf_on in source slot order. allmain.c73 calls only newgame set_wear; u_init.c ini_inv_use_obj1254-1300 never assigns W_TOOL, so the optional initial Blindfold table203 is not a worn startup entry. Source-pinned target/startup-list tests cover this bounded callback. Non-ring poly_obj remains outside limit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/blindf-on.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/take-off-armor.test.mjs",
+              "scripts/apply.test.mjs",
+              "scripts/apply-stethoscope.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-held-towel.session.json",
+              "recordings/do_wear.c/eyewear-apply-blindfold.session.json",
+              "recordings/do_wear.c/eyewear-blind-punishment.session.json",
+              "recordings/do_wear.c/eyewear-punished-carried.session.json",
+              "recordings/do_wear.c/eyewear-eyes-regain-remove.session.json",
+              "recordings/do_wear.c/eyewear-born-blind-eyes.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-punished-blindfold",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 66,
+                "source": "cmd.c P/doputon -> do_wear.c:accessory_or_armor_on2421 -> Blindf_on1461-1493 -> ball.c:set_bc380-425/bc_order354-371; punished newly-blind message, canonical remembered glyph capture/restoration before toggle_blindness. Entire67-screen,2401-RNG replay matches."
+              }
+            ],
+            "checkedAt": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8"
+          },
+          {
+            "name": "Blindf_off",
+            "implementation": "js/do_wear.js",
+            "symbol": "Blindf_off",
+            "sourceReview": "Read whole do_wear.c1495-1535: snapshot Blind/nooffmsg; NULL resolves ublindf or discarded impossible diagnostic/return; clear takeoff W_TOOL mask, setworn(NULL, old mask), conditional off_msg; still-blind non-lenses feedback, Eyes sight-loss set_bc before toggle; consumed awaited gulp_blnd_check before regained-sight feedback; common toggle only on change. Read complete mhitu.c1273-1285 and matching JS gulp_blnd_check: !Blinded, swallowed, consumed attacktype_fordmg and can_blnd, uswldtim increment, discarded gulpmu result, Boolean outcome. Existing owners preserved with env forwarding. No selected UnsupportedTakeOffError throw remains. All C caller sites audited; production null argument skips usual off_msg. No broad takeoff/steal/polyself completion credit.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "armor_or_accessory_off",
+                "source": "do_wear.c1821 R/#remove existing awaited callback."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "do_takeoff",
+                "source": "do_wear.c2889 A/#takeoffall occupation callback awaited."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c4248 toggle-off is awaited."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_towel",
+                "source": "apply.c154-155 cursed towel pushes uncursed eyewear, Blindf_off then dropx. Approved bounded dropCommandEnv composition preserves source order and prevents missing newsym refusal; no whole use_towel credit."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "remove_worn_item",
+                "source": "steal.c273 W_TOOL forced removal existing awaited callback; water nymph theft recording reaches this arm."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "break_armor",
+                "source": "polyself.c1298 headless eyewear falls off, Blindf_off(NULL) then dropp. Independent brown-mold polymorph witness covers the nooffmsg arm after supporting has_head import and callback registry exposure are reconciled; no whole break_armor credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/blindf-on.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/take-off-armor.test.mjs",
+              "scripts/apply.test.mjs",
+              "scripts/apply-stethoscope.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/polyself.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-held-towel.session.json",
+              "recordings/do_wear.c/eyewear-apply-blindfold.session.json",
+              "recordings/do_wear.c/eyewear-eyes-regain-remove.session.json",
+              "recordings/do_wear.c/eyewear-born-blind-eyes.session.json",
+              "recordings/do_wear.c/eyewear-takeoffall.session.json",
+              "recordings/do_wear.c/eyewear-cursed-towel-removal.session.json",
+              "recordings/do_wear.c/eyewear-nymph-forced-removal.session.json",
+              "recordings/do_wear.c/eyewear-headless-polymorph.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [],
+            "checkedAt": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8"
+          },
+          {
+            "name": "bc_order",
+            "implementation": "js/ball.js",
+            "symbol": "bc_order",
+            "sourceReview": "Read whole ball.c354-371: different coordinates, carried ball or swallowed returns BCPOS_DIFFER; same floor pile nexthere traversal returns chain/ball order, final impossible diagnostic is discarded and explicitly note_unported before BCPOS_DIFFER. Not classified pure because C can output through impossible. Replaced partial bcOrder and removed speculative missing-ball/chain guard; Punished is caller precondition. Source-pinned table covers all guards, both pile orders and missing-pile diagnostic. Existing move_bc callers now use source name.",
+            "callers": [
+              {
+                "path": "js/ball.js",
+                "symbol": "set_bc",
+                "source": "ball.c384 consumes initial pile order before bc_felt/glyph setup."
+              },
+              {
+                "path": "js/ball.js",
+                "symbol": "move_bc",
+                "source": "ball.c509/525 consume reset/order when blind/sighted. Independent blind-punishment recipe includes h/l movement and canonical caches; no whole move_bc credit. ball.c:drop_ball886/954 remains already-unported caller owner and is recorded separately as frontier."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ball-memory.test.mjs",
+              "scripts/domove-ball.test.mjs",
+              "scripts/ball-fall.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-blind-punishment.session.json",
+              "recordings/do_wear.c/eyewear-punished-potion.session.json",
+              "recordings/do_wear.c/eyewear-punished-carried.session.json"
+            ],
+            "sourceFile": "ball.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-punished-blindfold",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 66,
+                "source": "cmd.c P/doputon -> do_wear.c:accessory_or_armor_on2421 -> Blindf_on1461-1493 -> ball.c:set_bc380-425/bc_order354-371; punished newly-blind message, canonical remembered glyph capture/restoration before toggle_blindness. Entire67-screen,2401-RNG replay matches."
+              }
+            ],
+            "checkedAt": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8"
+          },
+          {
+            "name": "set_bc",
+            "implementation": "js/ball.js",
+            "symbol": "set_bc",
+            "sourceReview": "Read whole ball.c380-425: consumed bc_order first, felt bitmask from carried status, already-blind/swallowed hero-memory return, chain then floor ball extraction, chain newsym/cglyph capture, different-coordinate chain replacement before ball capture/replacement, shared-coordinate equal caches and source pile order then redraw. C levl.glyph is canonical remembered_glyph.glyph; disp_glyph/glyph_at is transient and not this state. Source sentinel GLYPH_UNEXPLORED used for undefined memory. Read canonical remove_object/place_object/newsym/carried owners. Supporting existing placebc_core/unplacebc_core/move_bc memory reads/writes corrected to same single value; no whole owner credit. Live newsym and foreign/planning redraw contracts preserved. No substitute RNG/output/state. Tests verify pointer identities and nobj/nexthere stack order.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Blindf_on",
+                "source": "do_wear.c1476 newly blind while Punished calls set_bc(0) before toggle."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Blindf_off",
+                "source": "do_wear.c1523 Eyes sight-loss while Punished calls set_bc(0) before toggle."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "make_blinded",
+                "source": "potion.c309 newly-blind Punished calls set_bc(0) before intrinsic timeout write/vision toggle; replaces discarded gap."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "punish",
+                "source": "read.c3059 after placebc and before newsym calls set_bc(1) when source Blind. Replaced incomplete intrinsic-only guard with canonical heroIsBlind, includes worn blindfold."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ball-memory.test.mjs",
+              "scripts/domove-ball.test.mjs",
+              "scripts/ball-fall.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-blind-punishment.session.json",
+              "recordings/do_wear.c/eyewear-punished-potion.session.json",
+              "recordings/do_wear.c/eyewear-punished-carried.session.json"
+            ],
+            "sourceFile": "ball.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-punished-blindfold",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 66,
+                "source": "cmd.c P/doputon -> do_wear.c:accessory_or_armor_on2421 -> Blindf_on1461-1493 -> ball.c:set_bc380-425/bc_order354-371; punished newly-blind message, canonical remembered glyph capture/restoration before toggle_blindness. Entire67-screen,2401-RNG replay matches."
+              }
+            ],
+            "checkedAt": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8"
+          }
+        ],
+        "entryPointReview": "Trace P/#puton, apply, R/#remove, A/#takeoffall occupation, cursed towel, nymph remove_worn_item and headless break_armor into complete eyewear callbacks. Independent C-first inputs reach each active family; source-pinned bounded set_wear callback reflects startup-list/target order without inventing a starting worn blindfold (u_init optional object is not W_TOOL). Non-ring poly_obj producer is explicit frontier. set_bc is also wired in make_blinded and punish, each independently recorded; bc_order consumed by set_bc and existing move_bc is exercised by punished setup/movement. Existing unported drop_ball owner remains named frontier. All source unit output/state changes are impure, including bc_order diagnostic branch; no pure helper falsely classified.",
+        "entryPoints": [
+          {
+            "name": "P/#puton eyewear on",
+            "functions": [
+              "Blindf_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-held-towel.session.json",
+              "recordings/do_wear.c/eyewear-blind-punishment.session.json",
+              "recordings/do_wear.c/eyewear-punished-carried.session.json",
+              "recordings/do_wear.c/eyewear-eyes-regain-remove.session.json",
+              "recordings/do_wear.c/eyewear-born-blind-eyes.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-punished-blindfold",
+                "segment": 0,
+                "fromStep": 59,
+                "throughStep": 66,
+                "source": "cmd.c P/doputon -> do_wear.c:accessory_or_armor_on2421 -> Blindf_on1461-1493 -> ball.c:set_bc380-425/bc_order354-371; punished newly-blind message, canonical remembered glyph capture/restoration before toggle_blindness. Entire67-screen,2401-RNG replay matches."
+              }
+            ]
+          },
+          {
+            "name": "apply eyewear on/off",
+            "functions": [
+              "Blindf_on",
+              "Blindf_off"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-apply-blindfold.session.json"
+            ]
+          },
+          {
+            "name": "R/#remove eyewear off",
+            "functions": [
+              "Blindf_off"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-held-towel.session.json",
+              "recordings/do_wear.c/eyewear-eyes-regain-remove.session.json",
+              "recordings/do_wear.c/eyewear-born-blind-eyes.session.json"
+            ]
+          },
+          {
+            "name": "A/#takeoffall eyewear occupation",
+            "functions": [
+              "Blindf_off"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-takeoffall.session.json"
+            ]
+          },
+          {
+            "name": "cursed towel forces eyewear off/drop",
+            "functions": [
+              "Blindf_off"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-cursed-towel-removal.session.json"
+            ]
+          },
+          {
+            "name": "nymph theft forces eyewear off",
+            "functions": [
+              "Blindf_off"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-nymph-forced-removal.session.json"
+            ]
+          },
+          {
+            "name": "newly blind punished potion",
+            "functions": [
+              {
+                "sourceFile": "ball.c",
+                "name": "bc_order"
+              },
+              {
+                "sourceFile": "ball.c",
+                "name": "set_bc"
+              }
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-punished-potion.session.json"
+            ]
+          },
+          {
+            "name": "read punishment while already blind",
+            "functions": [
+              {
+                "sourceFile": "ball.c",
+                "name": "bc_order"
+              },
+              {
+                "sourceFile": "ball.c",
+                "name": "set_bc"
+              }
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-blind-punishment.session.json"
+            ]
+          },
+          {
+            "name": "wear blindfold while punished and carrying the ball",
+            "functions": [
+              "Blindf_on",
+              {
+                "sourceFile": "ball.c",
+                "name": "bc_order"
+              },
+              {
+                "sourceFile": "ball.c",
+                "name": "set_bc"
+              }
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-punished-carried.session.json"
+            ]
+          },
+          {
+            "name": "headless polymorph forces NULL eyewear off",
+            "functions": [
+              "Blindf_off"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/eyewear-headless-polymorph.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-eyes-regain-sight",
+          "session": "synthetic/v29/v29-eyes-regain-sight",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-eyes-regain-sight.session.json",
+          "recordingPath": "challenges/cases/v29/v29-eyes-regain-sight.session.json",
+          "recordingSha256": "aae73f89a8f19d19af64c8b8c583dce890065bb15bce207118e4075d926ebc3d",
+          "recipe": "challenges/cases/v29/v29-eyes-regain-sight.recipe.session.json",
+          "recipeSha256": "5eba307f81155a1e19b9629baee5c77254c09de6481adc94066704bca1ceb8a2",
+          "replayInputSha256": "a9b93908fa9900fa10eecac72b1862b150d4902e2c603467bc508e1306b95e7f",
+          "evaluationPath": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+          "evaluationCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+          "evaluationArtifact": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+          "evaluationUtc": "2026-10-08T09:46:03.134Z",
+          "remainingScreens": 6,
+          "recordedSteps": 81,
+          "previousScreensMatched": 75,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 75,
+              "total": 81
+            },
+            "rng": {
+              "matched": 2360,
+              "total": 2360
+            },
+            "cursors": {
+              "matched": 81,
+              "total": 81
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 75,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 75,
+                "key": "k"
+              },
+              "kind": "ch",
+              "row": 9,
+              "column": 43,
+              "cCell": {
+                "ch": "#",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 75,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-eyes-regain-sight.json",
+            "result": {
+              "session": "synthetic/v29/v29-eyes-regain-sight",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-eyes-regain-sight",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "aae73f89a8f19d19af64c8b8c583dce890065bb15bce207118e4075d926ebc3d",
+              "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+              "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+              "remainingScreens": 6,
+              "recordedSteps": 81,
+              "status": "complete",
+              "commit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-eyes-regain-sight",
+                "session": "synthetic/v29/v29-eyes-regain-sight",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-eyes-regain-sight.session.json",
+                "recordingPath": "challenges/cases/v29/v29-eyes-regain-sight.session.json",
+                "recordingSha256": "aae73f89a8f19d19af64c8b8c583dce890065bb15bce207118e4075d926ebc3d",
+                "recipe": "challenges/cases/v29/v29-eyes-regain-sight.recipe.session.json",
+                "recipeSha256": "5eba307f81155a1e19b9629baee5c77254c09de6481adc94066704bca1ceb8a2",
+                "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+                "evaluationPath": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+                "evaluationCommit": "8b31f4af8514f59efa2a37b307822b1a00bf6908",
+                "evaluationArtifact": "challenges/evaluations/accepted-8b31f4af8514f59efa2a37b307822b1a00bf6908-v29.json",
+                "evaluationUtc": "2026-10-08T08:02:48.939Z",
+                "remainingScreens": 6,
+                "recordedSteps": 81,
+                "previousScreensMatched": 75,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 75,
+                    "total": 81
+                  },
+                  "rng": {
+                    "matched": 2336,
+                    "total": 2360
+                  },
+                  "cursors": {
+                    "matched": 75,
+                    "total": 81
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: Blindf_on() regaining sight (Eyes of the Overworld)",
+                  "step": 75
+                },
+                "step": 75,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "Blindf_on",
+                "message": "unsupported hero command: an unported branch of this command: accessory on reached an unported branch: Blindf_on() regaining sight (Eyes of the Overworld)",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": null
+              },
+              "goalKind": "file-port",
+              "summary": "Wearing the Eyes while temporarily blind reaches do_wear.c:Blindf_on sight-restoration arm, which JavaScript refuses after installing W_TOOL/on_msg. Complete the whole Blindf_on/Blindf_off eyewear family and canonical set_bc/bc_order dependency; related punished-blindfold reaches the same missing ball/chain setup. Preserve canonical map memory rather than transient glyph buffer in its bounded ball consumers.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "Blindf_on1461-1493 snapshots already_blind before remove_worn_item/setworn/on_msg. Existing blindness is overridden by Eyes W_TOOL artifact intrinsic, making already_blind && !Blind true at step75. C sets changed, prints You can see (or first-life sight and clears u.uroleplay.blind), then toggle_blindness. The same whole function has Punished set_bc(0) when newly blind; Blindf_off1495-1535 has the matching Eyes sight-loss/set_bc arm and swallowed gulp_blnd_check consumed result.",
+                "functions": [
+                  "Blindf_on",
+                  "Blindf_off"
+                ],
+                "callers": [
+                  "do_wear.c:accessory_or_armor_on2421 reaches Blindf_on from P/#puton; armor_or_accessory_off1821 and removal chains reach Blindf_off from R/#remove and A/#takeoffall. Existing JS callers await these callbacks.",
+                  "apply.c:doapply4250 and4248 await on/off for BLINDFOLD/LENSES; existing js/apply.js4859-4865 routes both.",
+                  "do_wear.c:set_wear1545 must replace the existing Blindf_on gap; allmain.c73 new-game gear and zap.c:poly_obj1946-1948 are upstream routes, with non-ring poly_obj remaining the declared outside-limit producer."
+                ],
+                "dependencies": [
+                  "Required ball.c:bc_order354-371 returns stack order to set_bc and move_bc. Existing js/ball.js:bcOrder90 is incomplete (missing u.uswallow and discarded impossible gap) and uses a different source name; reconcile whole helper and direct callers. It calls impossible on an invalid missing pile, so do not assert source purity merely because ordinary branches only read.",
+                  "Whole ball.c:set_bc380-425 is absent. Source sets bc_order/bc_felt, uses hero memory when already blind/swallowed, otherwise removes chain and floor ball, calls newsym, captures underlying remembered glyphs, and restores source pile order/redraw. Canonical remove_object/place_object/newsym exist. C discards impossible result; note_unported with no fabricated output.",
+                  "set_bc direct callers: do_wear.c1476/1523 (on/off), potion.c:make_blinded309 (before set_itimeout/toggle), read.c:punish3059 after placebc before final newsym (already_blind1). Wire all bounded callers, and compare C Blind macro rather than only BLINDED property in read caller. No whole potion/read caller credit. Completing Blindf_on removes the last UnsupportedAccessoryOnError throws; delete its class plus the existing cmd.js import and failClosedErrorTypes registry entry, with no cmd.c completion credit.",
+                  "Supporting ball-memory contract: current placebc_core150 reads obsolete cell.glyph; unplacebc_core192/199 writes that obsolete field, while canonical rm.glyph representation is cell.remembered_glyph.{glyph}. move_bc358/359/375/390 reads live glyph_at although ball.c465/466/486/506 reads levl remembered glyph. Reconcile these exact reads/writes and current bcOrder sites without broad placebc/unplacebc/move_bc completion credit. Preserve logical integer u.bglyph/u.cglyph, pile identity and side-effect order.",
+                  "Existing remove_worn_item/setworn/artifact intrinsic/on_msg/off_msg/toggle_blindness/gulp_blnd_check source owners supply the rest. toggle_blindness2311 fully matches potion.c336-364, with source vision/see_monsters/Sting/inventory order; keep known vision.c XRAY hidden-corridor overlay frontier outside scope and preserve planning-clone display seams when wiring set_bc."
+                ]
+              },
+              "evidence": [
+                "Refreshed isolated worker replay .cache/B150/replay-accepted.log (bounded run-5uXGVv) confirms 75/81 screens/cursors and2336/2360 RNG on 763f3ebcc1aac6fb64b01ea7fc79d74f2c87a8d3. Exact refusal is Blindf_on regaining sight after step75 keyk. Next C draw rn2(5)=2 in distfleeck at step76 follows callback completion; it is not an RNG call to invent in eyewear.",
+                "C step75 displays You are now wearing ... Eyes of the Overworld with More; step76 displays You can see. Whole C1461-1493 declares changed true and calls toggle_blindness, whereas JS throws after setworn/on_msg before those effects. Source also requires permanent-blind conduct clear and held-eyewear removal; both existing guards must be deleted when ported.",
+                "Accepted B149 8b31f4af evaluation companion synthetic/v29/v29-punished-blindfold has7 remaining screens,67 steps, first stop60 set_bc(0) while Punished. Its source Blindf_on1476 is the same coherent family, not an unrelated bundled goal. C step60 shows worn blindfold, sight-loss and monster continuation; the missing set_bc is before toggle_blindness.",
+                "Full source/read audit establishes set_bc closure and all direct callers. bc_order consumed return forces complete helper; its swallowed and pile-order branches need source-pinned cases. Canonical map memory lives in js/game.js makeLocation and display.js remembered_glyph helpers; using transient glyph_at would preserve a source divergence after blindness begins.",
+                "Independent runtime plan: own-role Monk Eyes worn while temporarily blind, cheap blind-from-birth option, held blindfold/towel ordinary P; apply eyewear toggles; Eyes remove while original blindness remains; punished blindfold with ball on floor and carried variation; punished wizintrinsic blindness through make_blinded; already-blind scroll-of-punishment through punish. Freeze C-observed inventory/menu/pager inputs before JS comparison. Use live/display-isolated assertions for temporary floor extraction, pile stack preservation, integer cached memory and planner clone output.",
+                "Non-ring zap.c:poly_obj producer and hidden-corridor vision.c XRAY overlay remain named outside limits, with representative blocked recipes. No unrelated artifact touch, restore/startup dispatch or whole ball movement credit."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-spell-skilled-storm-target-family-v29-20261008",
@@ -206457,6 +206985,957 @@
         "rng": 792838
       },
       "parkedReason": "B150 is the oldest dependency-ready delivery and must integrate first; C146 implementation continues independently."
+    },
+    {
+      "id": "port-potion-peffect-levitation-v29-20261008",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port the whole levitation potion effect and restore cursed upstairs handling",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v29/v29-cursed-levitation-up"
+      ],
+      "selectionReason": "The oldest reserved v29 mismatch skips the source doup call for cursed levitation on an upstairs square.",
+      "detail": "Preserve peffect_levitation branch and common-tail ordering for quaff and spell callers; reuse the existing whole doup owner and retain companion-transfer and end-game limits outside this goal.",
+      "openedAt": "4112636a58689f078315daeb8408d36e0ec5f8c1",
+      "openStanding": {
+        "sha": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_levitation",
+          "line": 1165,
+          "endLine": 1223,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1165,
+        "to": 1223
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-cursed-levitation-up": {
+          "session": "synthetic/v29/v29-cursed-levitation-up",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-cursed-levitation-up",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-cursed-levitation-up.session.json",
+          "recordingSha256": "278cd887062d85c64c94eeb0048d5a486174e053c7fa04fd47727ac5d5859d8a",
+          "evaluationPath": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+          "evaluationCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8"
+        }
+      },
+      "activeStanding": {
+        "sha": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-cursed-levitation-up",
+          "session": "synthetic/v29/v29-cursed-levitation-up",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-cursed-levitation-up.session.json",
+          "recordingPath": "challenges/cases/v29/v29-cursed-levitation-up.session.json",
+          "recordingSha256": "278cd887062d85c64c94eeb0048d5a486174e053c7fa04fd47727ac5d5859d8a",
+          "recipe": "challenges/cases/v29/v29-cursed-levitation-up.recipe.session.json",
+          "recipeSha256": "b864707215606504baaf5c3b35d93c4a8b778c55828e7243ac1baf5e9695915b",
+          "replayInputSha256": "a9b93908fa9900fa10eecac72b1862b150d4902e2c603467bc508e1306b95e7f",
+          "evaluationPath": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+          "evaluationCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+          "evaluationArtifact": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+          "evaluationUtc": "2026-10-08T09:46:03.134Z",
+          "remainingScreens": 3,
+          "recordedSteps": 41,
+          "previousScreensMatched": 38,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 38,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2510,
+              "total": 2510
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "e"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 30,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "e"
+              },
+              "cCursor": [
+                38,
+                0,
+                1
+              ],
+              "jsCursor": [
+                22,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-cursed-levitation-up.json",
+            "result": {
+              "session": "synthetic/v29/v29-cursed-levitation-up",
+              "remainingScreens": 3,
+              "recordedSteps": 41,
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-cursed-levitation-up",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "278cd887062d85c64c94eeb0048d5a486174e053c7fa04fd47727ac5d5859d8a",
+              "evaluationPath": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+              "evaluationCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+              "status": "complete",
+              "commit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-cursed-levitation-up",
+                "session": "synthetic/v29/v29-cursed-levitation-up",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-cursed-levitation-up.session.json",
+                "recordingPath": "challenges/cases/v29/v29-cursed-levitation-up.session.json",
+                "recordingSha256": "278cd887062d85c64c94eeb0048d5a486174e053c7fa04fd47727ac5d5859d8a",
+                "recipe": "challenges/cases/v29/v29-cursed-levitation-up.recipe.session.json",
+                "recipeSha256": "b864707215606504baaf5c3b35d93c4a8b778c55828e7243ac1baf5e9695915b",
+                "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+                "evaluationPath": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+                "evaluationCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+                "evaluationArtifact": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+                "evaluationUtc": "2026-10-08T09:46:03.134Z",
+                "remainingScreens": 3,
+                "recordedSteps": 41,
+                "previousScreensMatched": 38,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 38,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2510,
+                    "total": 2510
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "e"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 30,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "e"
+                    },
+                    "cCursor": [
+                      38,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      22,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 32,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Cursed levitation on upstairs skips the existing doup() caller. The missing awaited call suppresses the More boundary and climb-out query while every RNG call still matches. Select whole potion.c:peffect_levitation, retaining the existing companion-transfer and end-game dependencies outside its completion credit.",
+              "source": {
+                "file": "potion.c",
+                "branch": "peffect_levitation receives a cursed object, BLevitation is clear, and stairway_at(u.ux,u.uy) returns an upward stairway. The function must call doup() and complete its input before setting gp.potion_nothing=0. At dungeon ledger1, doup asks whether to climb out; declining returns without traversing.",
+                "functions": [
+                  "peffect_levitation (whole potion.c1165-1221)"
+                ],
+                "callers": [
+                  "potion.c:peffects1404-1406 selects POT_LEVITATION/SPE_LEVITATION and calls peffect_levitation; js/potion.js2073-2075 already awaits its effect callback.",
+                  "potion.c:dodrink -> dopotion -> peffects is the q/#quaff runtime command family; js/cmd.js:runQuaffCommand -> js/potion.js:dodrink/dopotion/peffects reaches this same effect.",
+                  "spell.c:spelleffects1533-1545 routes SPE_LEVITATION through peffects(pseudo), with role_skill>=P_SKILLED setting pseudo->blessed first; js/spell.js1517-1523 already awaits this route."
+                ],
+                "dependencies": [
+                  "do.c:doup1298-1344 is present and historically verified by closed port-do-doup-synthetic-v1-20260925. Read current whole JS2399-2452 against C: exact stair lookup, move command, rooted/pit/stair/stuck-steed/held/capacity/ledger1 query/pet gates, at_ladder and prev_level order. Await this owner; its command result is discarded in C. No new whole doup credit.",
+                  "doup calls canonical y_n, u_rooted, climb_pit, stucksteed, u_stuck_cannot_go, near_capacity, ledger_no, next_to_u, prev_level. The selected admitted case declines before next_to_u/prev_level. Existing next_to_u rejects leashed-companion and steed transfer and remains an explicit outside-limit support frontier, not a new apply.c claim.",
+                  "potion effect consumes stairway_at/up, has_ceiling, hard_helmet and rnd bounds10/6/3, body_part/ceiling and Maybe_Half_Phys. has_ceiling is whole dungeon.c1690-1698/js/dungeon.js752-758 with source-pinned tests in scripts/monster-pit.test.mjs; hard_helmet is whole do_wear.c568-573/js/do_wear.js864-868 with source-pinned tests in scripts/wear-armor.test.mjs. No required missing result callee found.",
+                  "Existing set_itimeout/incr_itimeout, float_up, losehp, spoteffects and float_vs_flight owners carry the discarded effect/state calls. Whole polyself.c131-154 float_vs_flight and158-164 steed_vs_stealth retain their current single-location blocked-property writes. Broader owners are not selected. Preserve the non-returning source behavior if a ceiling death or accepted climb-out reaches done; no end.c completion credit."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current authoritative saved evaluation challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json measures38/41 screens,39/41 cursors and2510/2510 RNG. The immutable admitted recipe was planned independently in v29; its manifest sourceTrace already identifies this omitted doup call. Corpus digestbb2fc0ae is carried from the saved queue, not substituted with the raw manifest-file digest.",
+                "Fresh isolated replay of only this claimed case at examined commit7fd6fc56 reproduces the same first mismatch: segment0 step32 keye, screen row0 col30 C dash versus JS space, cursor C[38,0,1] versus JS[22,5,1], no RNG mismatch or boundary exception. .cache/B151/current-replay.log and current-comparison.json retain full diagnosis; bounded run-AjjXy3/receipt.json verifies command completion. No C game was recorded.",
+                "The C recording step32 prints You start to float in the air!--More--, step33 asks Beware, there will be no return! Still climb? with the source double space, and step34 prints You float gently to the stairs. C potion.c1195 calls (void)doup() before gp.potion_nothing=0 at1198. JS peffect_levitation1802-1804 instead calls note_unported(do.c doup); it never enters the existing owner/query, so the earlier message is not paged at the same input boundary. This is an omitted caller/state ordering effect, not a generic display defect.",
+                "Whole selected source review: potion.c1165-1221 snapshots effective/blocked Levitation, sets timeout1 before float_up, otherwise increments potion_nothing; cursed branch clears I_SPECIAL even when already levitating, respects blocked rise, attempts upstairs doup or consumes rnd(!helmet?10:!hard_helmet?6:3)/Maybe_Half_Phys before losehp, then resets potion_nothing. Blessed branch adds rn1(50,250) then I_SPECIAL; ordinary adds rn1(140,10). Common tail handles a levitating sink before float_vs_flight. JS already contains the corresponding branches except explicit doup gap; no whole peffect_levitation completion evidence exists in GOALS.json, so select its whole function as file-port rather than treating its declaration as completion.",
+                "Actionable minimal scope is whole potion.c:peffect_levitation with the existing peffects dispatch and a canonical awaited do.js:doup import/call. Preserve draw/order and doup result discard; remove the selected note_unported marker. No do.js, display, kick, door-opening, eyewear, or ball-memory code change is currently required. The source family has two active entry-point routes: quaffed potion and levitation spell; cited admitted quaff prefix can establish the stair query, and independent C-first potion plus spell variations must establish remaining effect entry points before completion. Cursed exit acceptance/leashed-companion variants should retain named outside-limit recipes if end/transfer owners block them.",
+                "Selection used saved A149 queue plus accepted-A151 measurements across all batches: every v1-v28 case is complete; v29-punished/eyes belong to queued B150, firebrand/display and legless-kick belong to C145/C146, and trapped door belongs to A152. The remaining oldest admitted unreserved case is cursed-levitation-up before demonbane-banish. Ledger assignment is investigation-only, and no game or central-record edits were made."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "A152 is the oldest dependency-ready delivery and must integrate first; B151 implementation continues independently."
+    },
+    {
+      "id": "port-lock-doopen-indir-whole-v29-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port whole directional door opening and preserve automatic-open command behavior",
+      "cFile": "lock.c",
+      "sessions": [
+        "synthetic/v29/v29-open-trapped-door"
+      ],
+      "selectionReason": "The oldest ready delivery resolves the v29 trapped-door mismatch in whole lock.c:doopen_indir and its existing test_move caller.",
+      "detail": "Preserve explicit and automatic open guards, trapped-door effects, autokey and canned-kick ordering; retain the source-discarded shop damage gap without broader helper credit.",
+      "openedAt": "47b27c21497425ff73c5e58eae35e0526a45a8bf",
+      "openStanding": {
+        "sha": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "doopen_indir",
+          "line": 780,
+          "endLine": 925,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 780,
+        "to": 925
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-open-trapped-door": {
+          "session": "synthetic/v29/v29-open-trapped-door",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-open-trapped-door",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-open-trapped-door.session.json",
+          "recordingSha256": "cff84ed58b855357085e4e24d18ddb63c3c3bbd43813c3ef7373995b7ddc0a71",
+          "evaluationPath": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+          "evaluationCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8"
+        }
+      },
+      "activeStanding": {
+        "sha": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-open-trapped-door",
+          "session": "synthetic/v29/v29-open-trapped-door",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-open-trapped-door.session.json",
+          "recordingPath": "challenges/cases/v29/v29-open-trapped-door.session.json",
+          "recordingSha256": "cff84ed58b855357085e4e24d18ddb63c3c3bbd43813c3ef7373995b7ddc0a71",
+          "recipe": "challenges/cases/v29/v29-open-trapped-door.recipe.session.json",
+          "recipeSha256": "f8b03763081194414293e07f307a823471277947ddcd41596e26fba49cd88b14",
+          "replayInputSha256": "a9b93908fa9900fa10eecac72b1862b150d4902e2c603467bc508e1306b95e7f",
+          "evaluationPath": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+          "evaluationCommit": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+          "evaluationArtifact": "challenges/evaluations/accepted-7fd6fc56bec3f59571bef99c466c6d95f54dffe8-v29.json",
+          "evaluationUtc": "2026-10-08T09:46:03.134Z",
+          "remainingScreens": 19,
+          "recordedSteps": 56,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 56
+            },
+            "rng": {
+              "matched": 2747,
+              "total": 2794
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 56
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: picking a lock requires D_TRAPPED door trap in doopen_indir()",
+            "step": 37
+          },
+          "step": 37,
+          "kind": "stop",
+          "sourceFile": "lock.c",
+          "function": "doopen_indir",
+          "message": "unsupported hero command: an unported branch of this command: picking a lock requires D_TRAPPED door trap in doopen_indir()",
+          "cFile": "lock.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-open-trapped-door.json",
+            "result": {
+              "session": "synthetic/v29/v29-open-trapped-door",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-open-trapped-door",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "cff84ed58b855357085e4e24d18ddb63c3c3bbd43813c3ef7373995b7ddc0a71",
+              "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+              "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+              "remainingScreens": 19,
+              "recordedSteps": 56,
+              "status": "complete",
+              "commit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-open-trapped-door",
+                "session": "synthetic/v29/v29-open-trapped-door",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-open-trapped-door.session.json",
+                "recordingPath": "challenges/cases/v29/v29-open-trapped-door.session.json",
+                "recordingSha256": "cff84ed58b855357085e4e24d18ddb63c3c3bbd43813c3ef7373995b7ddc0a71",
+                "recipe": "challenges/cases/v29/v29-open-trapped-door.recipe.session.json",
+                "recipeSha256": "f8b03763081194414293e07f307a823471277947ddcd41596e26fba49cd88b14",
+                "replayInputSha256": "e5f00e598a85ca13d8684094f15ff96b4fa92b3f2a1f80b1b65b10b36ca16403",
+                "evaluationPath": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationCommit": "9f590c88f193a980f8f819ebfad051a65f36faa0",
+                "evaluationArtifact": "challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json",
+                "evaluationUtc": "2026-10-08T05:02:17.323Z",
+                "remainingScreens": 19,
+                "recordedSteps": 56,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 56
+                  },
+                  "rng": {
+                    "matched": 2747,
+                    "total": 2794
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 56
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: picking a lock requires D_TRAPPED door trap in doopen_indir()",
+                  "step": 37
+                },
+                "step": 37,
+                "kind": "stop",
+                "sourceFile": "lock.c",
+                "function": "doopen_indir",
+                "message": "unsupported hero command: an unported branch of this command: picking a lock requires D_TRAPPED door trap in doopen_indir()",
+                "cFile": "lock.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the trapped-door success arm of lock.c:doopen_indir(). At step 37, #open targets a closed D_TRAPPED door and C passes the strength roll; it calls b_trapped(\"door\", FINGER), sets the door to D_NODOOR, and refreshes vision. JavaScript throws before these effects. The existing b_trapped() port is available, but shop-door add_damage() remains unported. Whole-function scope also includes the separate AUTOUNLOCK_KICK branch that currently throws.",
+              "source": {
+                "file": "lock.c",
+                "branch": "doopen_indir() targets a real closed door with D_TRAPPED after passing the hands, pit, mimic, and size checks, and rnl(20) is below (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3. The recorded #open command reaches this arm at step 37. The same whole function also contains an AUTOUNLOCK_KICK path for an already locked door when that flag is enabled.",
+                "functions": [
+                  "doopen_indir"
+                ],
+                "callers": [
+                  "lock.c:doopen() dispatches the #open command and calls doopen_indir(0, 0).",
+                  "hack.c:test_move() calls doopen_indir(x, y) for automatic opening while walking into a closed door."
+                ],
+                "dependencies": [
+                  "trap.c:b_trapped() performs the trapped-door explosion; its JavaScript port is js/trap.js:b_trapped().",
+                  "hack.c:in_rooms() determines whether the door is in a shop and therefore gates shop damage.",
+                  "shk.c:add_damage() accounts for shop-door damage and is still unported; its return is discarded."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C source at nethack-c/upstream/src/lock.c:780-921 shows the entire doopen_indir() unit. Its success arm at lines 904-916 calls b_trapped(\"door\", FINGER) when D_TRAPPED is set, then changes the mask to D_NODOOR, conditionally calls add_damage() for a shop, and calls feel_newsym() and recalc_block_point().",
+                "Direct callers are nethack-c/upstream/src/lock.c:773-776 (doopen() for the #open command) and nethack-c/upstream/src/hack.c:1099-1101 (test_move() automatic opening).",
+                "At the examined commit, js/lock.js:1093 onward translates doopen_indir() but its D_TRAPPED arm throws UnsupportedLockError before the trap call and subsequent door/vision updates. The same function also has an existing AUTOUNLOCK_KICK throw in its locked-door branch. js/trap.js:3504 onward already implements b_trapped(); js/lock.js:582-590 uses it for a trapped door opened through pick_lock() and records the still-unported shop add_damage() side effect.",
+                "C source nethack-c/upstream/src/trap.c:6694-6709 defines b_trapped(): it draws rnd(5 + (level < 5 ? level : 2 + level / 2)), prints the explosion, applies damage and exercises, then stuns. On this level the recording logs rnd(6)=4 at trap.c:6697.",
+                "The assigned saved evaluation challenges/evaluations/baseline-9f590c88f193a980f8f819ebfad051a65f36faa0-v29.json reports the first mismatch for this case as a stop at step 37: the unported D_TRAPPED branch in doopen_indir(). The assigned recording challenges/cases/v29/v29-open-trapped-door.session.json shows the C action at step 37 logs rnl(20)=13 at lock.c:904, then rnd(6)=4 in b_trapped(), and displays “The door opens. KABOOM!! The door was booby-trapped! You stagger...”."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doopen_indir",
+            "implementation": "js/lock.js",
+            "symbol": "doopen_indir",
+            "sourceReview": "Read complete lock.c:doopen_indir780-921. Preserve nohands and pit/container direction ordering, self/up/down doloot return, awaited accepted door-mimic return, Confusion/Stunned turn result, remembered-glyph/mapseen learning, drawbridge/non-door/container messages, whole-mask switch with its default locked flag, autokey short-circuit and pick_lock consumed result, mounted ynq suppression, canonical ynq repeat-answer recording, source-ordered extcmd+signed-direction canned kick returning ECMD_OK, verysmall refusal, integer folded-Strength threshold and rnl20, trap damage before D_NODOOR, feel_newsym then recalc_block_point, and failure exercise before message. Canonical consumed-return dependencies nohands/get_adjacent_loc/container_at/closed_door/doloot/stumble_on_door_mimic/property/drawbridge/mapseen/autokey/pick_lock/yn_function/ext_func_tab_from_func/verysmall/acurrstr/acurr/rnl/in_rooms reuse existing source owners. Read existing cmd queue/ynq helpers and whole autokey/pick_lock/b_trapped source/port; use the extcmd table row rather than a callback stand-in. Remove both D_TRAPPED and AUTOUNLOCK_KICK refusals and obsolete private switch helper; keep UnsupportedLockError for unrelated forcelock. Source-discarded shk.c:add_damage at C911 remains note_unported, without invented shop effects. No whole trap/mimic/cmd/hack/loot/shop credit.",
+            "callers": [
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen",
+                "source": "lock.c775 calls doopen_indir(0,0); cmd.c extcmdlist open row and rhack/doextcmd invoke doopen, whose return is consumed unchanged. Explicit o and #open witnesses match."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c1099-1105 awaits doopen_indir(x,y), consumes ECMD_OK and cmdq_peek canonical dokick row to hand the canned kick to the next command; otherwise reads !closed_door and sets context.move from position change. Existing runtime path reused; obsolete dependency comment corrected. Autoopen trap/ordinary/kick witnesses match."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock.test.mjs",
+              "scripts/closed-door-autoopen.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/command-queue.test.mjs",
+              "scripts/apply-lock-pick.test.mjs",
+              "scripts/lock-pick-lock.test.mjs",
+              "scripts/force-lock.test.mjs",
+              "scripts/diagonal-doorway.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-explicit-trap.session.json",
+              "recordings/lock.c/open-door-auto-trap.session.json",
+              "recordings/lock.c/open-door-auto-ordinary.session.json",
+              "recordings/lock.c/open-door-auto-kick.session.json",
+              "recordings/lock.c/open-door-explicit-extended.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-open-trapped-door",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 55,
+                "source": "cmd.c rhack open -> lock.c doopen773-776 -> doopen_indir780-921, successful trapped pull904-916 -> trap.c b_trapped6694-6709, then removed door and restored vision."
+              }
+            ],
+            "checkedAt": "9855f02407cdfd2171190f79fb09ffc5a2547679"
+          }
+        ],
+        "entryPointReview": "All active entries into the whole source function are wired: explicit open via rhack/doextcmd -> doopen; and automatic movement via hack.c:test_move. Independent C-first o, #open (!autoopen), plain/trapped walking and missing-key+kick witnesses match strictly, including the queued command execution. The selected admitted explicit trap range also matches through the final step55. Existing canonical doloot redirect, mimic, autokey and pick_lock callbacks are reused, covered by their source-pinned focused tests and accepted owner evidence; no new owner credit. Shop add_damage is a named discarded-void gap allowed by the source port rule.",
+        "entryPoints": [
+          {
+            "name": "explicit open command and extended open dispatcher",
+            "functions": [
+              "doopen_indir"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-explicit-trap.session.json",
+              "recordings/lock.c/open-door-explicit-extended.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-open-trapped-door",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 55,
+                "source": "cmd.c rhack open -> lock.c doopen773-776 -> doopen_indir780-921, successful trapped pull904-916 -> trap.c b_trapped6694-6709, then removed door and restored vision."
+              }
+            ]
+          },
+          {
+            "name": "walking automatic open",
+            "functions": [
+              "doopen_indir"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-auto-trap.session.json",
+              "recordings/lock.c/open-door-auto-ordinary.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "walking missing-key autounlock and canned kick",
+            "functions": [
+              "doopen_indir"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-auto-kick.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-artifact-invoke-banish-v29-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port complete Demonbane banishment and preserve canonical migration behavior",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v29/v29-demonbane-banish"
+      ],
+      "selectionReason": "A152 is accepted and A153 is the next dependency-ready implementation delivery.",
+      "detail": "The v29 case first diverges in artifact.c invoke_banish at step 44; the delivery ports the whole function and its active arti_invoke caller contract.",
+      "openedAt": "32b2a322e1c9caa86eb9cdf81487e1f9eca3ec47",
+      "openStanding": {
+        "sha": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2ce550233f2bed644fa87f907aacb1d43b3cd7de",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "invoke_banish",
+          "line": 1963,
+          "endLine": 2021,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1963,
+        "to": 2021
+      },
+      "syntheticProvenance": {
+        "synthetic/v29/v29-demonbane-banish": {
+          "session": "synthetic/v29/v29-demonbane-banish",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-demonbane-banish",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-demonbane-banish.session.json",
+          "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+          "evaluationPath": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+          "evaluationCommit": "9855f02407cdfd2171190f79fb09ffc5a2547679"
+        }
+      },
+      "activeStanding": {
+        "sha": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-demonbane-banish",
+          "session": "synthetic/v29/v29-demonbane-banish",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-demonbane-banish.session.json",
+          "recordingPath": "challenges/cases/v29/v29-demonbane-banish.session.json",
+          "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+          "recipe": "challenges/cases/v29/v29-demonbane-banish.recipe.session.json",
+          "recipeSha256": "d3535e0577a5325eb9fff5b271dd9b77dc621d36cdff3548aea766b11f543c26",
+          "replayInputSha256": "74e494a069b0f4dc4ceaf738b3622a2dd3e3acc913287eb87d02273ad2b10290",
+          "evaluationPath": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+          "evaluationCommit": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+          "evaluationArtifact": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+          "evaluationUtc": "2026-10-08T09:56:26.165Z",
+          "remainingScreens": 6,
+          "recordedSteps": 50,
+          "previousScreensMatched": 44,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 44,
+              "total": 50
+            },
+            "rng": {
+              "matched": 2384,
+              "total": 2392
+            },
+            "cursors": {
+              "matched": 50,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 44,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 44,
+                "key": "j"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2378,
+              "cEntry": "rn2(24)=20",
+              "cCaller": "invoke_banish(artifact.c:1996)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 44,
+                "key": "j"
+              },
+              "stepIndex": 44
+            },
+            "cursor": null
+          },
+          "step": 44,
+          "kind": "rng",
+          "sourceFile": "artifact.c",
+          "function": "invoke_banish",
+          "message": null,
+          "cFile": "artifact.c",
+          "luaFile": null,
+          "line": 1996,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-demonbane-banish.json",
+            "result": {
+              "session": "synthetic/v29/v29-demonbane-banish",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-demonbane-banish",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+              "evaluationPath": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+              "evaluationCommit": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+              "remainingScreens": 6,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-demonbane-banish",
+                "session": "synthetic/v29/v29-demonbane-banish",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recording": "challenges/cases/v29/v29-demonbane-banish.session.json",
+                "recordingPath": "challenges/cases/v29/v29-demonbane-banish.session.json",
+                "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+                "recipe": "challenges/cases/v29/v29-demonbane-banish.recipe.session.json",
+                "recipeSha256": "d3535e0577a5325eb9fff5b271dd9b77dc621d36cdff3548aea766b11f543c26",
+                "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+                "evaluationPath": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+                "evaluationCommit": "9855f02407cdfd2171190f79fb09ffc5a2547679",
+                "evaluationArtifact": "challenges/evaluations/accepted-9855f02407cdfd2171190f79fb09ffc5a2547679-v29.json",
+                "evaluationUtc": "2026-10-08T09:56:26.165Z",
+                "remainingScreens": 6,
+                "recordedSteps": 50,
+                "previousScreensMatched": 44,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 44,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 2384,
+                    "total": 2392
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 44,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 44,
+                      "key": "j"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2378,
+                    "cEntry": "rn2(24)=20",
+                    "cCaller": "invoke_banish(artifact.c:1996)",
+                    "jsEntry": "rn2(5)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 44,
+                      "key": "j"
+                    },
+                    "stepIndex": 44
+                  },
+                  "cursor": null
+                },
+                "step": 44,
+                "kind": "rng",
+                "sourceFile": "artifact.c",
+                "function": "invoke_banish",
+                "message": null,
+                "cFile": "artifact.c",
+                "luaFile": null,
+                "line": 1996
+              },
+              "summary": "Demonbane invocation skips the visible imp at step 44 because artifact.c:invoke_banish uses an absent state.fmon chain instead of canonical level.monlist. Complete the whole source unit with cached-next traversal, canonical find_hell destination and quest status, and existing migration/teleport owners. C next draws rn2(24) for Gehennom while JavaScript skips to monster upkeep.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "artifact.c",
+                "functions": [
+                  "invoke_banish() whole 1963-2019"
+                ],
+                "branch": "After doinvoke selects and retouches Demonbane and arti_invoke pays its cooldown, visit living on-map demons or imp-class monsters in potential sight, excluding nemeses. Clear sleep/tame/peaceful, apply Quest/prince/lord chance, migrate outside Hell or teleport within Hell, then report vanished/stayed counts.",
+                "callers": [
+                  "cmd.c #invoke dispatcher -> artifact.c:doinvoke1749-1759 -> arti_invoke2131-2232 -> BANISH case2167 -> invoke_banish1963-2019. JS cmd.js -> artifacts.js doinvoke/retouch_object/arti_invoke already await and consume this helper ECMD_TIME. Only invoke_banish implementation needs changing; no whole dispatcher, arti_invoke or retouch credit."
+                ],
+                "dependencies": [
+                  "C find_hell1970 mutates the consumed destination before the monster loop. Existing dungeon.js:find_hell606-609 and its source-pinned test match dungeon.c1949-1953; reuse instead of the stale gap/default destination inside the loop. Existing dunlevs_in_dungeon1332-1335 and ledger_no1376-1379 pin the RNG bound and target ledger.",
+                  "C mtmp2=mtmp->nmon1975 must precede all gates/migration. Canonical fmon lives at state.level.monlist, as mon.js get_iter_mons/iter_mons and migration lifecycle show. migrate_mon -> dog.js:migrate_to_level unlinks the live chain and repurposes nmon, so current mtmp=mtmp.nmon iteration is also invalid after fixing the head.",
+                  "Canonical Quest status is state.svq.quest_status, read by quest.js and monster generation. Use killed_nemesis from that source state instead of absent state.quest_status. Monster class/demon/prince/lord/sound/potential-sight/dead/offmap predicates and vtense are existing owners.",
+                  "mon.c:migrate_mon3843-3863 and teleport.c:u_teleport_mon2263-2304 are source-discarded return calls. Reuse existing async/lifecycle owners with the correct state/env. Remove stale u_teleport_mon gap; no new teleport/mon/dungeon function credit. Existing migration excludes leashed, shopkeeper, long-worm/disguised or stuck cases; preserve any reached concrete downstream frontier as a blocked recipe, with no fabricated effects.",
+                  "No overlap with B151 levitation, B150 eyewear/ball or C145 targeting contracts. C146 kick scope remains excluded. Shared artifacts.js contains disjoint invocation functions; do not edit C145 invoke_storm_spell or its callees."
+                ]
+              },
+              "evidence": [
+                "Current bounded replay .cache/A153/replay.json at examined ca99faab reproduces first zero-based step44 key j. Startup/object choice/cooldown RNG matches; C next rn2(24)=20 @ invoke_banish(artifact.c1996), JS rn2(5)=4 from monster upkeep. C screen begins The demon disappears in a cloud of brimstone; JS retains the invoke object prompt. Both produce50 cursors, but6 of50 screens remain unmatched in accepted9f7 evaluation.",
+                "Pre-invocation state probe .cache/A153/state-probe.json confirms state.fmon is absent; level.monlist contains the living peaceful imp-class monster at map35,13 in potential sight (viz bits3). It also contains a nonvisible non-demon monster, so visit/filter the real chain rather than treating missing state as no targets.",
+                "Read complete upstream artifact.c:invoke_banish1963-2019 and JS artifacts.js2520-2573. The skipped loop is the first cause. Source saves next before every branch, initializes find_hell outside the loop, uses svq.quest_status, and calls u_teleport_mon when Inhell. Current JS omits those contracts or substitutes a stale gap.",
+                "Read whole production doinvoke and arti_invoke BANISH dispatch. The selected object prompt and cooldown draws match before this helper, so neither wish generation nor object-letter selection is the cause. No changes to challenge seed/input/recording are required.",
+                "Read existing canonical dungeon find_hell/dunlevs/ledger, whole migrate_mon and migrate_to_level linkage, whole u_teleport_mon and couldsee. find_hell is already ported; do not create another destination helper or retain its placeholder. Teleport owner evidence in GOALS names banish as a previously skipped caller gap, which this source unit must reconcile.",
+                "Validation plan: fail-first source-pinned active-chain/cached-next/Quest/target-count tests; selected admitted step44 through49; independent C-first lawful Priest Demonbane invoke with a visible imp, plus multiple imp/demon variation to verify all targets survive unlinking order. Cover prince/lord/stayed summary and Hell relocation with focused source-derived cases or matching cheap C variations. If an exceptional migration or Hell setup blocks, retain its independently selected recipe and name the exact downstream source limit."
+              ],
+              "evidenceLimits": [
+                "The investigated selected case ends after the single ordinary outside-Hell invocation. It does not establish multi-target traversal, Quest chance, Hell relocation, or exceptional migration correctness; add independent evidence/source-pinned tests before claiming the whole unit."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "invoke_banish",
+            "implementation": "js/artifacts.js",
+            "symbol": "invoke_banish",
+            "sourceReview": "Read whole artifact.c:invoke_banish1963-2019. Initialize canonical find_hell out-parameter before the loop; walk C fmon at state.level.monlist and save nmon before all gates so migration unlinking cannot lose targets. Preserve DEADMONSTER/isok, demon-or-S_IMP, couldsee and MS_NEMESIS filter order. Use state.svq.quest_status.killed_nemesis for Quest+10, then prince+2 and lord+1; zero sleep/tame/peaceful before chance, skip chance RNG at1. Outside Hell increment nvanished and draw rn2(dunlevs_in_dungeon(dest)) including source dlevel0 possibility, then canonical ledger_no/migrate_mon; inside Hell await existing u_teleport_mon(mtmp,FALSE,{state}) without incrementing nvanished. Preserve stayed count, singular/plural and Most/Some/The wording, and unconditional ECMD_TIME. Reuse source-pinned dungeon.c find_hell/dunlevs/ledger and canonical monster/vision/name predicates; read whole migrate_mon/migrate_to_level and u_teleport_mon caller contracts. Remove absent-head/Quest state locations and stale find_hell/u_teleport_mon placeholders. The known leashed source-discarded migrate_mon call remains a bounded caller gap: after destination RNG, note_unported dog.c migrate_to_level leashed monster migration and skip only that unavailable call, without fabricating leash or migration effects. No whole arti_invoke/doinvoke/dungeon/mon/dog/teleport credit; no C145 storm function edits.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c2167 BANISH dispatch awaits invoke_banish and consumes its ECMD_TIME. cmd.c #invoke -> doinvoke1749-1759 -> getobj/retouch_object -> arti_invoke_cost cooldown -> arti_invoke BANISH; source guards and cooldown draws match before the selected divergence and all independent witnesses reach this production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/artifact-banish.test.mjs",
+              "scripts/artifact-invoke.test.mjs",
+              "scripts/artifacts.test.mjs",
+              "scripts/dungeon.test.mjs",
+              "scripts/teleport.test.mjs",
+              "scripts/mon-stone-migration.test.mjs"
+            ],
+            "recordings": [
+              "recordings/artifact.c/invoke-banish-imp.session.json",
+              "recordings/artifact.c/invoke-banish-pair.session.json",
+              "recordings/artifact.c/invoke-banish-hell.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-demonbane-banish",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 49,
+                "source": "cmd.c #invoke -> artifact.c doinvoke1749-1759 selects and retouches Demonbane -> arti_invoke2167 BANISH -> invoke_banish1963-2019 visits visible imp, consumes Gehennom destination draw, migrates then reports singular disappearance."
+              }
+            ],
+            "checkedAt": "2ce550233f2bed644fa87f907aacb1d43b3cd7de"
+          }
+        ],
+        "entryPointReview": "The one active caller is arti_invoke BANISH from the #invoke command. Selected v29 and independent single-imp evidence cover ordinary outside-Hell migration; independent two-imp-class species prove every target survives active-list unlinking and plural counts; independent numeric wizard level teleport reaches the source Inhell branch and canonical u_teleport_mon/rloc with no vanished-count message. Filters and rare lord/prince/Quest stayed branches are source-pinned in focused tests, including the canonical Quest status with a contradictory obsolete field. The independent leashed target is an explicit discarded-callee gap; preserve the blocked recipe and do not claim dog.c leashed migration completion.",
+        "entryPoints": [
+          {
+            "name": "Demonbane #invoke outside Hell",
+            "functions": [
+              "invoke_banish"
+            ],
+            "recordings": [
+              "recordings/artifact.c/invoke-banish-imp.session.json",
+              "recordings/artifact.c/invoke-banish-pair.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-demonbane-banish",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 49,
+                "source": "cmd.c #invoke -> artifact.c doinvoke1749-1759 selects and retouches Demonbane -> arti_invoke2167 BANISH -> invoke_banish1963-2019 visits visible imp, consumes Gehennom destination draw, migrates then reports singular disappearance."
+              }
+            ]
+          },
+          {
+            "name": "Demonbane #invoke within Hell",
+            "functions": [
+              "invoke_banish"
+            ],
+            "recordings": [
+              "recordings/artifact.c/invoke-banish-hell.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2ce550233f2bed644fa87f907aacb1d43b3cd7de",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
