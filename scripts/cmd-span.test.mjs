@@ -2,6 +2,7 @@
 // handler_rebind_keys through mcmd_addmenu().
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -403,3 +404,23 @@ test('remove_achievement compacts the zero-terminated achievement list', () => {
 });
 
 void game;
+
+test('wizard smell dispatch preserves the source row and no-time results', async () => {
+    const source = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
+    const jsSource = readFileSync('js/cmd.js', 'utf8');
+    const { ADMITTED_COMMANDS } = await import('../js/cmd.js');
+    // cmd.c's generated row has no default key; bind_key() may install one.
+    assert.match(source,
+        /"wizsmell", "smell monster",\s*wiz_smell, IFBURIED \| AUTOCOMPLETE \| WIZMODECMD, NULL/u);
+    assert.ok(ADMITTED_COMMANDS.includes('wizsmell'));
+    assert.match(jsSource, /case 'wiz_smell':\s*return await runSmellCommand\(key, state\);/u);
+    assert.match(jsSource,
+        /if \(command === 'wizsmell'\)[\s\S]*?ECMD_CANCEL \| ECMD_FAIL[\s\S]*?resetCommandVars\(state, state.multi < 0\)/u);
+    const wizardSource = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
+    const start = wizardSource.indexOf('wiz_smell(void)');
+    const smell = wizardSource.slice(start, wizardSource.indexOf('wiz_intrinsic(void)', start));
+    assert.match(smell, /if \(ans < 0 \|\| cc.x < 0\)[\s\S]*?return ECMD_CANCEL;/u);
+    assert.match(smell, /if \(!usmellmon\(mptr\)\)/u);
+    assert.match(smell, /glyph = glyph_at\(cc.x, cc.y\);[\s\S]*?usmellmon\(mptr\)[\s\S]*?map_invisible\(cc.x, cc.y\)/u);
+    assert.match(smell, /glyph_is_invisible\(glyph\)[\s\S]*?unmap_invisible\(cc.x, cc.y\)/u);
+});
