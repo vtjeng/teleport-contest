@@ -15,7 +15,7 @@ import {
     DETECT_MONSTERS, FAST, FREE_ACTION,
     FAINTED, FIRE_RES, FIXED_ABIL, FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
-    HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
+    HALLUC_RES, INVIS, IN_SIGHT, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
     OBJ_DELETED, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SICK, SLEEP_RES, WEAK, STRAT_APPEARMSG, STRAT_WAITFORU,
     KILLED_BY, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, SLIMED, STONED,
@@ -27,6 +27,7 @@ import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
 import { PM_GREEN_SLIME, PM_GRID_BUG } from '../js/monsters.js';
+import { newMonster } from '../js/monst.js';
 import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
 import { addinv } from '../js/invent.js';
@@ -2418,6 +2419,45 @@ test('planned potion naming hands input to the live pass before docall', async (
     assert.equal(game.nhDisplay.serialize(), screen);
     assert.equal(game.objects[obj.otyp].oc_uname, null);
     assert.deepEqual(game.svd.disco, disco);
+    assert.equal(planned.objects[obj.otyp].oc_uname, null);
+});
+
+test('planned distant potion hits hand naming input to the live pass', async () => {
+    await startedGame(14029002, 'PlannedPotionHit');
+    const obj = vaporPotion(POT_FRUIT_JUICE);
+    game.objects[obj.otyp].oc_name_known = 0;
+    game.objects[obj.otyp].oc_uname = null;
+    const liveScreen = game.nhDisplay.serialize();
+    const liveDisco = [...game.svd.disco];
+    const planned = planningState(game);
+    const x = planned.u.ux > 2 ? planned.u.ux - 2 : planned.u.ux + 2;
+    const y = planned.u.uy;
+    planned.viz_array[y][x] |= IN_SIGHT;
+    const target = newMonster({
+        data: planned.mons[PM_GRID_BUG],
+        mnum: PM_GRID_BUG,
+        mx: x,
+        my: y,
+        mhp: 4,
+        mhpmax: 4,
+    });
+    const marker = new Error('planned potionhit naming input');
+    const env = {
+        planning: true,
+        state: planned,
+        message: async () => {},
+        requestPlanningInput(operation) {
+            assert.equal(operation, 'do.c trycall');
+            throw marker;
+        },
+    };
+    await assert.rejects(
+        () => potionhit(target, { ...obj }, POTHIT_MONST_THROW, env),
+        error => error === marker,
+    );
+    assert.equal(game.nhDisplay.serialize(), liveScreen);
+    assert.equal(game.objects[obj.otyp].oc_uname, null);
+    assert.deepEqual(game.svd.disco, liveDisco);
     assert.equal(planned.objects[obj.otyp].oc_uname, null);
 });
 

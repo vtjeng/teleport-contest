@@ -170,6 +170,7 @@ import {
     is_unicorn,
     mindless,
     mon_learns_traps,
+    throws_rocks,
 } from './mondata.js';
 import { dochugw, set_apparxy } from './monmove.js';
 import {
@@ -3002,13 +3003,16 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             if (!normalized._rndmonMklev && !runtimeExplicitRandomCall)
                 assertSupportedSpecies(ptr, normalized);
         } while (++attempts <= 50
-            && !goodpos(
-                x,
-                y,
-                newMonster({ data: ptr }),
-                gpflags,
-                normalized,
-            ));
+            && ((attempts === 1
+                && throws_rocks(ptr)
+                && In_sokoban(state.u.uz))
+                || !goodpos(
+                    x,
+                    y,
+                    newMonster({ data: ptr }),
+                    gpflags,
+                    normalized,
+                )));
     }
     const mndx = ptr.pmidx;
     let allowMinvent = !(mmflags & NO_MINVENT);

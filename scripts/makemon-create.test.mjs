@@ -5762,6 +5762,48 @@ test('runtime random true giants use the source group and inventory lifecycle',
         }
     });
 
+test('Sokoban retries a first random rock thrower before placement', async () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    state.u.uz.dlevel = 20;
+    state.u.ulevel = 30;
+    leaveOnlyRandomSpecies(state, [PM_STONE_GIANT, PM_OGRE]);
+    // Keep the second candidate's creation tail focused on the selection rule.
+    state.mons[PM_OGRE] = {
+        ...state.mons[PM_OGRE],
+        geno: state.mons[PM_OGRE].geno & ~G_SGROUP,
+    };
+    const savedSokobanDnum = game.sokoban_dnum;
+    game.sokoban_dnum = state.u.uz.dnum;
+    let reservoirDraw = 0;
+    const random = recordingRandom({
+        rn2Result(bound) {
+            // First rndmonst retains the earlier stone giant. The retry's
+            // second reservoir draw replaces it with the later ogre.
+            const scripted = [0, bound - 1, 0, 0];
+            if (reservoirDraw < scripted.length)
+                return scripted[reservoirDraw++];
+            return Math.max(0, bound - 1);
+        },
+    });
+    try {
+        const monster = await makemon_runtime(null, MON_X, MON_Y, NO_MM_FLAGS, {
+            state,
+            random: random.random,
+            hooks: { newsym: () => {} },
+            message: async () => {},
+            norepMessage: async () => {},
+        });
+        assert.equal(monster.data, state.mons[PM_OGRE]);
+        assert.equal(reservoirDraw, 4,
+            'two complete rndmonst reservoir passes precede creation');
+        assert.equal(state.mvitals[PM_STONE_GIANT].born, 0);
+        assert.equal(state.mvitals[PM_OGRE].born, 1);
+    } finally {
+        game.sokoban_dnum = savedSokobanDnum;
+    }
+});
+
 test('minotaurs use their source inventory arm before generic giant items',
     () => {
         const state = initialLevelState();
