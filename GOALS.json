@@ -211928,8 +211928,8 @@
           "name": "doborn",
           "line": 3145,
           "endLine": 3186,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -212102,7 +212102,67 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doborn",
+            "implementation": "js/insight.js",
+            "symbol": "doborn",
+            "sourceReview": "Read whole insight.c3145-3182 and sole cmd.c1942-1943 extcmdlist caller. Translate LOW_PM..<NUMMONS declaration-order traversal; include nonzero born/died or any G_GONE; use exact masked equality E/G/X/blank, died before born, neutral pmname and printf minimum count/name widths. Source formats totals without putstr, so no totals row is emitted. Reuse canonical tty NHW_TEXT display/dismiss lifecycle with await; display_nhwindow(FALSE) still waits under the tty text-window owner. ECMD_OK uses no turn or RNG. No missing consumed-return dependency, discarded-call gap, obsolete guard or injected substitute remains. Generic missing-command refusal disappears only for this owned switch arm; all other dispatcher behavior retained.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c1942-1943 extcmdlist wizborn -> doextcmd source function dispatch; WIZMODECMD/IFBURIED gates are existing canonical owner"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight-doborn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/wizard-birth-startup.session.json",
+              "recordings/insight.c/wizard-birth-genocide.session.json"
+            ],
+            "sourceFile": "insight.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-birth-statistics",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 31,
+                "source": "cmd.c extcmdlist1942-1943 WIZMODECMD wizborn -> doextcmd/rhack -> insight.c doborn3145-3182 -> tty NHW_TEXT display and dismissal; admitted wizard genesis establishes the populated vitals table"
+              }
+            ],
+            "checkedAt": "f42e10748698cd956368f08453b4c4e10c743804"
+          }
+        ],
+        "entryPointReview": "rg doborn through upstream src finds exactly one function definition and cmd.c1943 extcmdlist caller. The sole active entry is debug #wizborn, owned by the canonical command decoder and wizard admission. No monster/planning callback or other command source site exists. Independent Knight default-pony startup and Wizard created/genocided lichen recordings exercise the real switch arm, repeated text windows and teardown. Ordinary Healer #wizborn is an explicit just-outside-WIZMODECMD variation: C rejects it before entering doborn; retain its matching recording but do not count it as active owner evidence. B162 statistics dispatch remains a distinct arm/contract, and no cmd.c whole-function completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "Debug #wizborn text diagnostic through the production extcmdlist row",
+            "functions": [
+              "doborn"
+            ],
+            "recordings": [
+              "recordings/insight.c/wizard-birth-startup.session.json",
+              "recordings/insight.c/wizard-birth-genocide.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-birth-statistics",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 31,
+                "source": "cmd.c extcmdlist1942-1943 WIZMODECMD wizborn -> doextcmd/rhack -> insight.c doborn3145-3182 -> tty NHW_TEXT display and dismissal; admitted wizard genesis establishes the populated vitals table"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
