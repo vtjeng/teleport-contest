@@ -91,7 +91,7 @@
       "hack.c:dopush:207",
       "display.c:unmap_invisible:391/show_mon_or_warn:490",
       "detect.c:clear_stale_map:326",
-      "mon.c:mondead:3171/xkilled:3359",
+      "mon.c:mondead:3171/monstone:3359",
       "potion.c:peffect_monster_detection:933",
       "zap.c:bhit:4041/4084"
     ],
