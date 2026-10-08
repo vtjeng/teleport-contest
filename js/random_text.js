@@ -25,6 +25,7 @@ import { the_unique_pm } from './objnam.js';
 import { verbalize } from './pline.js';
 import { RANDOM_TEXT_FILES } from './random_text_data.js';
 import { rn2 } from './rng.js';
+import { init_rumors } from './rumors.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -98,8 +99,9 @@ export function CapitalMon(word, state = game, env = {}) {
     return false;
 }
 
-// C ref: rumors.c get_rnd_line().  data is the complete encrypted file byte
-// string; startpos and endpos retain the generated file's byte offsets.
+// C ref: rumors.c get_rnd_line(). Offsets and the opened file's cursor
+// retain LP64 precision; only an in-file string index or the bounded RNG
+// argument becomes a Number. Failed stdio seeks/reads retain cursor/buffer.
 export function get_rnd_line(
     data,
     random,
@@ -107,35 +109,45 @@ export function get_rnd_line(
     endpos = 0,
     padlength = 0,
     bufferSize = BUFSZ,
+    file = { position: 0 },
 ) {
-    const ending = endpos || data.length;
-    const fileChunkSize = ending - startpos;
-    if (fileChunkSize < 1) return '';
+    const beginning = BigInt.asIntN(64, BigInt(startpos));
+    let ending = BigInt.asIntN(64, BigInt(endpos));
+    let buffer = ''; // C initializes the caller's output before any seek.
+    if (!ending) {
+        file.position = BigInt(data.length); // SEEK_END followed by ftell.
+        ending = file.position;
+    }
+    const fileChunkSize = ending - beginning;
+    if (fileChunkSize < 1n) return buffer;
     const rng = randomFunction(random);
-
-    let position = startpos;
+    const seek = (offset) => {
+        const position = BigInt.asIntN(64, offset);
+        if (position >= 0n) file.position = position;
+    };
+    const read = () => {
+        const position = BigInt(file.position);
+        if (position < 0n || position >= BigInt(data.length)) return false;
+        const line = readByteLine(data, Number(position), bufferSize);
+        if (!line) return false;
+        buffer = line.text;
+        file.position = BigInt(line.position);
+        return true;
+    };
     for (let trylimit = 10; trylimit > 0; --trylimit) {
-        const chunkOffset = rng(fileChunkSize);
-        const partial = readByteLine(data, startpos + chunkOffset, bufferSize);
-        position = partial?.position ?? data.length;
-        // strlen(partial) includes its newline.  This intentionally permits
-        // padlength+1 bytes, matching the source's long-line acceptance rule.
-        if (!padlength || (partial?.text.length ?? 0) <= padlength + 1) break;
+        // C asserts the positive chunk fits INT_MAX before calling rn2.
+        const chunkOffset = rng(Number(fileChunkSize));
+        seek(beginning + BigInt(chunkOffset));
+        read();
+        // strlen includes its newline; a failed read retains the buffer.
+        if (!padlength || buffer.length <= padlength + 1) break;
     }
-
-    let selected;
-    if (position >= ending) {
-        selected = readByteLine(data, startpos, bufferSize);
-    } else {
-        selected = readByteLine(data, position, bufferSize);
-        if (!selected) selected = readByteLine(data, startpos, bufferSize);
+    if (BigInt(file.position) >= ending || !read()) {
+        seek(beginning);
+        read();
     }
-    if (!selected) return '';
-
-    const newline = selected.text.indexOf('\n');
-    const encrypted = newline < 0
-        ? selected.text
-        : selected.text.slice(0, newline);
+    const newline = buffer.indexOf('\n');
+    const encrypted = newline < 0 ? buffer : buffer.slice(0, newline);
     let decrypted = xcrypt(encrypted);
     if (padlength) decrypted = decrypted.replace(/_+$/u, '');
     return decodeByteString(decrypted);
@@ -156,33 +168,7 @@ export function get_rnd_text(
     // before passing its current file offset to get_rnd_line().
     const comment = readByteLine(data, 0);
     const start = comment?.position ?? data.length;
-    return get_rnd_line(data, random, start, 0, padlength);
-}
-
-export function parseRumorHeader(data) {
-    const comment = readByteLine(data, 0);
-    const header = comment && readByteLine(data, comment.position);
-    if (!header) return null;
-    const match = header.text.match(
-        /^(\d+),(\d+),([0-9a-f]+);(\d+),(\d+),([0-9a-f]+);0,0,([0-9a-f]+)\n$/iu,
-    );
-    if (!match) return null;
-    const parsed = {
-        trueCount: Number(match[1]),
-        trueSize: Number(match[2]),
-        trueStart: Number.parseInt(match[3], 16),
-        falseCount: Number(match[4]),
-        falseSize: Number(match[5]),
-        falseStart: Number.parseInt(match[6], 16),
-        eof: Number.parseInt(match[7], 16),
-    };
-    parsed.trueEnd = parsed.trueStart + parsed.trueSize;
-    parsed.falseEnd = parsed.falseStart + parsed.falseSize;
-    if (parsed.trueSize < 1 || parsed.falseSize < 1
-        || parsed.trueEnd !== parsed.falseStart
-        || parsed.falseEnd !== parsed.eof
-        || parsed.eof > data.length) return null;
-    return parsed;
+    return get_rnd_line(data, random, start, 0, padlength, BUFSZ, { position: start });
 }
 
 // JS omits C's caller-owned output buffer.  The remaining arguments and all
@@ -194,13 +180,23 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
         random: rawEnv.random ?? { rn2 },
         state: rawEnv.state ?? game,
     };
+    const state = env.state;
+    state.gt ??= {};
+    state.gf ??= {};
+    state.gt.true_rumor_size ??= 0;
+    if (state.gt.true_rumor_size < 0) return '';
     const data = env.files[RUMORFILE];
     if (typeof data !== 'string') {
-        env.couldntOpenFile?.(RUMORFILE);
+        note_unported('rumors.c couldnt_open_file');
+        state.gt.true_rumor_size = -1;
         return '';
     }
-    const ranges = parseRumorHeader(data);
-    if (!ranges) return `Error reading "${RUMORFILE}".`;
+    const file = { data, position: 0 };
+    // C rumors.c:139-146 initializes the same offsets used by rumor_check.
+    if (state.gt.true_rumor_size === 0) {
+        init_rumors(file, state);
+        if (state.gt.true_rumor_size < 0) return `Error reading "${RUMORFILE}".`;
+    }
 
     const rng = randomFunction(env.random);
     let rumor = '';
@@ -213,13 +209,13 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
         switch (adjustedTruth) {
         case 2:
         case 1:
-            beginning = ranges.trueStart;
-            ending = ranges.trueEnd;
+            beginning = BigInt.asIntN(64, BigInt(state.gt.true_rumor_start));
+            ending = BigInt.asIntN(64, BigInt(state.gt.true_rumor_end));
             break;
         case 0:
         case -1:
-            beginning = ranges.falseStart;
-            ending = ranges.falseEnd;
+            beginning = BigInt.asIntN(64, BigInt(state.gf.false_rumor_start));
+            ending = BigInt.asIntN(64, BigInt(state.gf.false_rumor_end));
             break;
         default:
             env.impossible?.('strange truth value for rumor');
@@ -231,6 +227,8 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
             beginning,
             ending,
             MD_PAD_RUMORS,
+            BUFSZ,
+            file,
         );
 
         // Preserve `count++ < 50 && exclude_cookie && cookie`: count advances

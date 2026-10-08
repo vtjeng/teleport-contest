@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9187402,
+      "datetime": "20361108113500",
+      "moves": ".ei  #wizrumorcheck\n  #wizrumorcheck\n  ",
+      "nethackrc": "OPTIONS=name:CookieReader,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none,playmode:debug\n"
+    }
+  ],
+  "comment": "Independent C-first cache-init variation: Monk fortune cookie i verified from C inventory; repeat diagnostic to reuse offsets without RNG or turn use."
+}

@@ -190,3 +190,183 @@ test('source order and production persistence sites remain explicit', () => {
     assert.match(readFileSync(new URL('../js/save.js', import.meta.url), 'utf8'), /save_oracles\(snapshot, state\)/u);
     assert.match(readFileSync(new URL('../js/restore.js', import.meta.url), 'utf8'), /restore_artifacts\(snapshot, state\);\s*restore_oracles\(snapshot, state\);/u);
 });
+
+// C rumors.c:85-107, 196-303 and 308-408 own shared byte offsets and the
+// diagnostic's first/second/last records; no random selection is involved.
+function rumorState() {
+    return { gt: { true_rumor_size: 0 }, gf: { false_rumor_size: 0 } };
+}
+
+function textFile(lines) {
+    // '#' is makedefs' comment marker; each record uses xcrypt independently.
+    return '# generated\n' + lines.map(line => xcrypt(line) + '\n').join('');
+}
+
+test('init_rumors publishes source offsets and preserves sscanf acceptance', async () => {
+    const { init_rumors } = await import('../js/rumors.js');
+    const state = rumorState();
+    const file = { data: RANDOM_TEXT_FILES.rumors, position: 0 };
+    init_rumors(file, state);
+    assert.deepEqual(state.gt, {
+        true_rumor_size: 24924, true_rumor_start: 109, true_rumor_end: 25033,
+    }); // makedefs' true section at byte109 ends where false records begin.
+    assert.deepEqual(state.gf, {
+        false_rumor_size: 25762, false_rumor_start: 25033, false_rumor_end: 50795,
+    }); // makedefs' false section ends at the generated EOF.
+    const loose = rumorState();
+    init_rumors({ data: '# generated\n1,4,10;1,5,30;0,0,90 trailing', position: 0 }, loose);
+    // C checks only seven conversions and positive sizes; commented asserts
+    // do not reject disjoint offsets, trailing bytes or EOF beyond the file.
+    assert.equal(loose.gt.true_rumor_end, 0x10 + 4);
+    assert.equal(loose.gf.false_rumor_end, 0x30 + 5);
+    for (const header of ['bad', '1,0,10;1,5,30;0,0,90', '1,4,10;1,-1,30;0,0,90']) {
+        const rejected = rumorState();
+        const input = { data: '# generated\n' + header, position: 0 };
+        init_rumors(input, rejected);
+        assert.equal(rejected.gt.true_rumor_size, -1, 'C remembers rejected initialization');
+        assert.equal(input.closed, true, 'init_rumors closes on failure');
+    }
+    assert.match(source, /sscanf\(line, rumors_header[\s\S]*?== 7[\s\S]*?gt\.true_rumor_size > 0L[\s\S]*?gf\.false_rumor_size > 0L/u);
+});
+
+test('others_check pins one/two/three/four entry presentation and byte decoding', async () => {
+    const { others_check } = await import('../js/rumors.js');
+    const outputs = [
+        ['first_', '(no second entry)'],
+        ['first_', 'second_', '(only two entries)'],
+        ['first_', 'second_', 'third_'],
+        ['first_', 'second_', ' ...', 'last_'],
+    ]; // C's ellipsis starts above three, while padding remains visible.
+    for (let count = 1; count <= 4; count++) {
+        const input = ['first_', 'second_', 'third_', 'last_'].slice(0, count);
+        const win = { lines: null };
+        others_check('Catalog:', 'catalog', win, { files: { catalog: textFile(input) } });
+        assert.deepEqual(win.lines.map(line => line.text), ['', 'Catalog:', ...outputs[count - 1]]);
+    }
+    const nonAscii = { lines: null };
+    // The source file is a UTF-8 byte string; dlb offsets count these bytes.
+    others_check('Catalog:', 'catalog', nonAscii, {
+        files: { catalog: textFile(['caf\xc3\xa9_', 'second_']) },
+    });
+    assert.equal(nonAscii.lines[2].text, 'café_');
+    assert.match(source, /if \(entrycount > 3\)\s*putstr\(tmpwin, 0, " \.\.\."\)/u);
+});
+
+test('others_check preserves malformed and absent first-entry diagnostics', async () => {
+    const { others_check } = await import('../js/rumors.js');
+    for (const [data, expected] of [
+        ['', "error; can't read comment line"],
+        ['# generated\n', "can't read first non-comment line"],
+        ['# generated\n\n', 'first non-comment line is empty'],
+    ]) {
+        const win = { lines: null };
+        others_check('Catalog:', 'catalog', win, { files: { catalog: data } });
+        assert.deepEqual(win.lines.map(line => line.text), ['', 'Catalog:', `others_check("catalog"): ${expected}`]);
+    }
+    const malformed = { lines: null };
+    others_check('Catalog:', 'catalog', malformed, { files: { catalog: 'bad comment\n' } });
+    assert.deepEqual(malformed.lines.map(line => line.text), ['', 'Catalog:',
+        'others_check("catalog"): malformed; first line is not a comment line:',
+        '- first line, as is', 'bad comment', '- xcrypt of first line', xcrypt('bad comment')]);
+    const absent = { lines: null };
+    others_check('Catalog:', 'catalog', absent, { files: {} });
+    assert.equal(absent.lines, null, 'failed open does not create a window');
+    const tty = readFileSync(new URL('../nethack-c/upstream/win/tty/wintty.c', import.meta.url), 'utf8');
+    assert.match(tty, /if \(newid == MAXWIN\) \{\s*panic\("No window slots!"\);\s*\/\*NOTREACHED\*\/\s*return WIN_ERR;/u,
+        'reference tty cannot reach others_check recoverable window-failure arm');
+});
+
+test('rumor_check uses raw first/last padding, shared cache and awaited window', async () => {
+    const { rumor_check } = await import('../js/rumors.js');
+    const state = rumorState();
+    let release;
+    const pending = new Promise(resolve => { release = resolve; });
+    let lines;
+    let settled = false;
+    const call = rumor_check(state, {
+        window: (_state, actual) => { lines = actual.map(line => line.text); return pending; },
+        random: { rn2: () => assert.fail('diagnostic makes no RNG calls') },
+    }).then(() => { settled = true; });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(settled, false, 'display_nhwindow finishes before rumor_check returns');
+    assert.equal(lines.length, 24, 'source commentary pins two pages in a 24-row tty');
+    assert.equal(lines[0], 'T start=000109 (00006d), end=025033 (0061c9), size=024924 (00615c)');
+    assert.equal(lines[2], "T 000109 A blindfold can be very useful if you're telepathic._______");
+    assert.equal(lines[3], '         Zapping a wand of undead turning might bring your dog back to life.');
+    assert.equal(lines[5], '         You will encounter a tall, dark, and gruesome creature...__');
+    assert.equal(lines[23], 'yellow wight_______');
+    release();
+    await call;
+    const initialized = structuredClone(state);
+    // A cached check must not parse a changed header, matching gt/gf lifetime.
+    const files = { ...RANDOM_TEXT_FILES, rumors: RANDOM_TEXT_FILES.rumors.replace('#', '!') };
+    await rumor_check(state, { files, window: async () => {} });
+    assert.deepEqual(state, initialized);
+});
+
+test('rumor_check acknowledges inaccessible rumors before catalog output', async () => {
+    const { rumor_check } = await import('../js/rumors.js');
+    const state = rumorState();
+    const events = [];
+    await rumor_check(state, {
+        files: { ...RANDOM_TEXT_FILES, rumors: '# generated\nbad\n' },
+        message: async text => { events.push(text); },
+        displayMessage: async () => { events.push('ack'); },
+        window: async (_state, lines) => { events.push(lines[1].text); },
+    });
+    assert.deepEqual(events, ['rumors not accessible.', 'ack', 'Engravings:']);
+    assert.equal(state.gt.true_rumor_size, -1);
+    const missing = rumorState();
+    await rumor_check(missing, { files: {}, window: async () => assert.fail('no data means no text window') });
+    assert.equal(missing.gt.true_rumor_size, -1);
+    const firstMissing = rumorState();
+    const noMessage = [];
+    await rumor_check(firstMissing, { files: { ...RANDOM_TEXT_FILES, rumors: null },
+        message: async text => { noMessage.push(text); },
+        displayMessage: async () => { noMessage.push('ack'); }, window: async () => {} });
+    assert.deepEqual(noMessage, [], 'first open failure skips the unported discarded error owner');
+    const staleFiles = { ...RANDOM_TEXT_FILES,
+        get rumors() { assert.fail('negative cache guard precedes file access'); } };
+    await rumor_check(firstMissing, { files: staleFiles, message: async text => { noMessage.push(text); },
+        displayMessage: async () => { noMessage.push('ack'); }, window: async () => {} });
+    assert.deepEqual(noMessage, ['rumors not accessible.', 'ack']);
+});
+
+test('init_rumors scans signed hex tokens into LP64 unsigned offsets then casts ends', async () => {
+    const { init_rumors, rumor_check } = await import('../js/rumors.js');
+    const decl = readFileSync(new URL('../nethack-c/upstream/include/decl.h', import.meta.url), 'utf8');
+    assert.match(decl, /unsigned long true_rumor_start/u);
+    assert.match(decl, /unsigned long false_rumor_start/u);
+    assert.match(source, /"%d,%ld,%lx;%d,%ld,%lx;0,0,%lx\\n"/u);
+    assert.match(source, /gt\.true_rumor_end = \(long\) gt\.true_rumor_start \+ gt\.true_rumor_size/u);
+    assert.match(source, /gf\.false_rumor_end = \(long\) gf\.false_rumor_start \+ gf\.false_rumor_size/u);
+    // Review counterexample: scanf accepts -10 as hex -16, storing 2^64-16
+    // in unsigned long; the source casts it back to -16 before adding size4.
+    const header = '# generated\n1,4,-10;1,5,30;0,0,90\n';
+    const state = rumorState();
+    init_rumors({ data: header, position: 0 }, state);
+    assert.equal(state.gt.true_rumor_start, 0xfffffffffffffff0n);
+    assert.equal(state.gt.true_rumor_end, -12);
+    assert.equal(state.gf.false_rumor_start, 0x30);
+    assert.equal(state.gf.false_rumor_end, 0x30 + 5);
+    // Reuse cached offsets and a sufficiently long byte file so both source
+    // seeks/read loops have records; only the offset display is asserted here.
+    let output;
+    await rumor_check(state, { files: { rumors: header + textFile(['first', 'second', 'last']) },
+        window: async (_state, lines) => { output = lines.map(line => line.text); } });
+    assert.equal(output[0], 'T start=-00016 (fffffffffffffff0), end=-00012 (fffffffffffffff4), size=000004 (000004)');
+    assert.ok(output[2].startsWith('T 000000 '), 'failed negative seek leaves reopened cached cursor at zero');
+    const cold = rumorState();
+    await rumor_check(cold, { files: { rumors: header + textFile(['first', 'second', 'last']) },
+        window: async (_state, lines) => { output = lines.map(line => line.text); } });
+    assert.ok(output[2].startsWith('T ' + String(header.length).padStart(6, '0') + ' '),
+        'failed negative seek leaves cold init cursor after the two header lines');
+    const config = readFileSync(new URL('../nethack-c/upstream/include/config.h', import.meta.url), 'utf8');
+    const dlb = readFileSync(new URL('../nethack-c/upstream/include/dlb.h', import.meta.url), 'utf8');
+    assert.match(config, /\/\* #define DLB \*\//u);
+    assert.match(dlb, /#define dlb_fseek fseek/u);
+    const falseNegative = rumorState();
+    init_rumors({ data: '# generated\n1,4,10;1,5,-0X20;0,0,90\n', position: 0 }, falseNegative);
+    assert.equal(falseNegative.gf.false_rumor_start, 0xffffffffffffffe0n);
+    assert.equal(falseNegative.gf.false_rumor_end, -27); // Signed -32 plus size5.
+});
