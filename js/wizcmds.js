@@ -114,7 +114,8 @@ import { dmonsfree } from './makemon_create.js';
 import { AD_PHYS, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
 import { note_unported } from './unported.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
-import { cmd_from_func, makemap_prepost, paranoid_query, yn_function } from './cmd.js';
+import { cmd_from_func, getdir, makemap_prepost, paranoid_query, yn_function } from './cmd.js';
+import { hurtle, mhurtle } from './dothrow.js';
 import { display_inventory } from './invent.js';
 import {
     notice_mon_off, notice_mon_on, pooleffects,
@@ -727,6 +728,38 @@ export async function wiz_level_change(state = game) {
 // Unconditionally calls polyself(POLY_CONTROLLED) and returns ECMD_OK.
 export async function wiz_polyself(state = game) {
     await polyself(POLY_CONTROLLED, state);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_telekinesis() (494–528). The selection coordinate
+// survives each getpos call and follows a target only while it remains visible.
+export async function wiz_telekinesis(state = game, env = {}) {
+    const cc = { x: state.u.ux, y: state.u.uy };
+    await (env.message ?? ttyPline)('Pick a monster to hurtle.', state, env);
+    do {
+        const ans = await (env.getpos ?? getpos)(cc, true, 'a monster', state);
+        if (ans < 0 || cc.x < 1) return ECMD_CANCEL;
+        const monster = (env.m_at ?? m_at)(cc.x, cc.y, state);
+        if ((monster && (env.canspotmon ?? canspotmon)(monster, state))
+            || u_at(cc.x, cc.y, state)) {
+            if (!await (env.getdir ?? getdir)('which direction?', state))
+                return ECMD_CANCEL;
+            if (monster) {
+                await (env.mhurtle ?? mhurtle)(monster, state.u.dx, state.u.dy,
+                    6, { ...env, state });
+                if (monster.mhp >= 1
+                    && (env.canspotmon ?? canspotmon)(monster, state)) {
+                    cc.x = monster.mx;
+                    cc.y = monster.my;
+                }
+            } else {
+                await (env.hurtle ?? hurtle)(state.u.dx, state.u.dy, 6,
+                    false, state, env);
+                cc.x = state.u.ux;
+                cc.y = state.u.uy;
+            }
+        }
+    } while (!state.u.utotype); // you.h UTOTYPE_NONE is zero.
     return ECMD_OK;
 }
 

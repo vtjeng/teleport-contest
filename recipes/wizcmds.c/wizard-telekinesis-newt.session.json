@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source route for wizcmds.c:wiz_telekinesis494–528. Create visible peaceful newt, select it using source getpos monster cycle and hurtle east; cancel the next target loop. Seed/role/date/action route chosen before JS comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 17050071,
+      "datetime": "20581115113000",
+      "nethackrc": "OPTIONS=name:Witness170newt,role:Priest,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  \u0007peaceful newt\n#wiztelekinesis\n  m.l\u001b "
+    }
+  ]
+}
