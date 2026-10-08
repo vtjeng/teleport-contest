@@ -1387,8 +1387,10 @@ function Flying(state) {
 export function nh_timeout_requires_live_state(state = game) {
     const u = state.u;
     if (u.uinvulnerable) return false;
-    // Revival creates a monster, removes its corpse, and redraws the level.
-    // Run this timer live before planning the elapsed turn's monster tail.
+    // These callbacks can revive a monster and remove its corpse.
+    // ZOMBIFY_MON can also fall back to rot_corpse, removing the corpse and
+    // redrawing its square. Both effects must run live before planning the
+    // elapsed turn's monster tail.
     for (let timer = state.gt?.timer_base;
         timer && timer.timeout <= state.moves; timer = timer.next) {
         if (timer.kind === TIMER_OBJECT
