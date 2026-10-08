@@ -208417,7 +208417,7 @@
     {
       "id": "port-do-wear-armor-on-gold-light-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole Armor_on callback and gold-dragon light admission through the production wearing path",
       "cFile": "do_wear.c",
       "sessions": [
@@ -208431,15 +208431,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "858bbec21e0fe926f7207af4635b5919d833aebb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Armor_on",
           "line": 887,
           "endLine": 908,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -208615,7 +208618,114 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Armor_on",
+            "implementation": "js/do_wear.js",
+            "symbol": "Armor_on",
+            "sourceReview": "Whole do_wear.c:887–906 reviewed in C definition order; generated context range887–908 includes the following declaration boundary. Null suit returns0; unknown suit becomes known before update_inventory; already-known suit skips that update. Await dragon_armor_handling(uarm,TRUE,TRUE) before evaluating artifact_light and lamplit. Only an unlit worn light suit begins burn with FALSE, with existing owner registering lamplit/radius/source and updating inventory without fuel or burn timer. Blind is tested after begin_burn; sighted pline awaits Yname2(uarm), otense(begin), arti_light_description in C argument order. All paths return0. Existing dragon_armor_handling C798–884 was read whole: eight extra-effect colors, gray/silver default, gold make_hallucinated(!puton,!restoring,W_ARM), canonical returned owners and named yellow corpse owner retained without new credit. Existing timeout.c begin_burn, artifact.c artifact_light and light.c radius/description were source-audited. Reuse existing live inventory/light/naming/blindness owners and wearOperationEnv planning silence. Remove the two owned gold refusals together; no substitute RNG/output/light lifetime invented.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "accessory_or_armor_on",
+                "source": "do_wear.c:2377–2404 W_ARM callback assignment, followed by oc_delay nomul or immediate unmul; gold pre-setworn refusal removed without whole caller credit"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "set_wear",
+                "source": "do_wear.c:1555–1556 existing awaited Armor_on for startup/selected suit. allmain.c:73 -> moveloop_preamble.js set_wear startup is active and witnessed by each independent Caveman recording. Existing non-ring zap poly_obj producer frontier remains outside this task."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/armor-on.test.mjs",
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/armor-on-gold-mail-uncursed.session.json",
+              "recordings/do_wear.c/armor-on-gold-scales-blessed.session.json",
+              "recordings/do_wear.c/armor-on-gold-mail-cursed-blind.session.json",
+              "recordings/do_wear.c/armor-on-leather-jacket-immediate.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-gold-dragon-light",
+                "segment": 0,
+                "fromStep": 42,
+                "throughStep": 50,
+                "source": "cmd.c W/dowear -> do_wear.c accessory_or_armor_on:2377–2404 selects Armor_on and waits for delay; allmain.c moveloop_core -> hack.c unmul -> do_wear.c Armor_on:887–906 publishes known, dragon effects and begin_burn before visible shine feedback."
+              }
+            ],
+            "checkedAt": "858bbec21e0fe926f7207af4635b5919d833aebb"
+          }
+        ],
+        "entryPointReview": "Direct source callers are the Armor_on dressing callback installed by accessory_or_armor_on and the suit arm of set_wear. Allmain startup executes set_wear for ordinary starting gear; independent Caveman recordings witness the initial leather suit before its ordinary removal. W delayed gold mail, named #wear delayed gold scales and W immediate leather jacket have independent matching recordings. The set_wear target form remains wired to the same callback; its broader non-ring poly_obj producer is an existing explicit upstream frontier from prior eyewear/amulet work, and this task claims no set_wear/poly_obj completion. All owned gold refusal sites were found with rg and replaced with C behavior. No new pure helper introduced.",
+        "entryPoints": [
+          {
+            "name": "startup suit effects through allmain set_wear",
+            "functions": [
+              "Armor_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/armor-on-gold-mail-uncursed.session.json",
+              "recordings/do_wear.c/armor-on-gold-scales-blessed.session.json",
+              "recordings/do_wear.c/armor-on-gold-mail-cursed-blind.session.json",
+              "recordings/do_wear.c/armor-on-leather-jacket-immediate.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "W delayed gold suit dressing callback",
+            "functions": [
+              "Armor_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/armor-on-gold-mail-uncursed.session.json",
+              "recordings/do_wear.c/armor-on-gold-mail-cursed-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-gold-dragon-light",
+                "segment": 0,
+                "fromStep": 42,
+                "throughStep": 50,
+                "source": "cmd.c W/dowear -> do_wear.c accessory_or_armor_on:2377–2404 selects Armor_on and waits for delay; allmain.c moveloop_core -> hack.c unmul -> do_wear.c Armor_on:887–906 publishes known, dragon effects and begin_burn before visible shine feedback."
+              }
+            ]
+          },
+          {
+            "name": "named #wear delayed gold scales callback",
+            "functions": [
+              "Armor_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/armor-on-gold-scales-blessed.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "W immediate leather jacket callback",
+            "functions": [
+              "Armor_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/armor-on-leather-jacket-immediate.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "858bbec21e0fe926f7207af4635b5919d833aebb",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-monmove-ordinary-combat-operations-v30-20261008",
@@ -209035,7 +209145,7 @@
     {
       "id": "port-pickup-reverse-loot-confusion-v30-20261008",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port complete confused reverse looting and its source result gate",
       "cFile": "pickup.c",
       "sessions": [
@@ -209079,7 +209189,7 @@
         }
       },
       "activeStanding": {
-        "sha": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+        "sha": "858bbec21e0fe926f7207af4635b5919d833aebb",
         "screens": 11405,
         "rng": 792838
       },
