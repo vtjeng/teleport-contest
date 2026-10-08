@@ -216700,7 +216700,7 @@
     {
       "id": "port-insight-weapon-insight-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete weapon insight descriptions",
       "cFile": "insight.c",
       "sessions": [
@@ -216715,15 +216715,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "weapon_insight",
           "line": 1270,
           "endLine": 1467,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -217112,7 +217115,67 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "weapon_insight",
+            "implementation": "js/insight.js",
+            "symbol": "weapon_insight",
+            "sourceReview": "Read complete insight.c1270-1465 at16ff59115315917b93185d026aeefea06db9b0f4, including the entire existing skill comparison/enhancement tail. Preserve source no-weapon versus twoweap versus ordinary item order; first consume weapon_descr, then reflection shield_simple_name or is_wet_towel override; mass-noun armor/food/venom versus singular article/plural stack; weapon_type/P_NONE/ammo guard; all skill labels/have-or-are/tense handling; restricted two-weapon normalization; primary/secondary/twoskill order and equality cases; source comma-expression buf reset; source a1/a2/ab can_advance order and enhancement conjunctions. The complete tail already matches C and is retained, with existing source tests for it. Directly inspected complete consumed dependencies weapon_descr90-146, shield_simple_name5570-5593 active source, obj.h is_wet_towel256, empty_handed158-168, weapon_type1517-1529, skill_level_name1092-1122, skill_name1125-1128, can_advance1156-1170, their pure macro/accessor/naming dependencies and canonical JS owners. They require no new source expansion. No RNG call or game-state mutation occurs, but emitted enlightenment lines make this function impure. Deleted both selected UnsupportedEnlightenmentError throw sites and obsolete imports; other outside-function class uses remain. No injected return, swallowed refusal or invented RNG/output/state surrogate. No new whole helper/enlightenment/status/end credit.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "status_enlightenment",
+                "source": "insight.c1249 is the sole direct caller. Existing JS status_enlightenment invokes the completed private helper from every enlightenment mode. No dispatcher ownership change is needed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs",
+              "scripts/objnam.test.mjs",
+              "scripts/weapon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/weapon-insight-shield-knight-independent.session.json",
+              "recordings/insight.c/weapon-insight-wet-dry-wizard-independent.session.json",
+              "recordings/insight.c/enlightenment-wand-giant.session.json",
+              "recordings/insight.c/hiding-potion-enlightenment.session.json",
+              "recordings/insight.c/enlightenment-fountain.session.json",
+              "recordings/insight.c/enlightenment-artifact-giant.session.json",
+              "recordings/insight.c/enlightenment-quit-priestess.session.json",
+              "recordings/insight.c/attributes-enlightenment-final-disclosure.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-wielded-shield-insight",
+                "segment": 0,
+                "fromStep": 46,
+                "throughStep": 59,
+                "source": "cmd attributes/^X -> insight.c doattributes2017 -> enlightenment417 -> status_enlightenment1249 -> weapon_insight1270-1465 with reflection-shield description override1293"
+              },
+              {
+                "batch": "v31",
+                "caseId": "v31-wet-towel-insight",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 48,
+                "source": "cmd attributes/^X -> insight.c doattributes2017 -> enlightenment417 -> status_enlightenment1249 -> weapon_insight1270-1465 with is_wet_towel override1294-1295"
+              }
+            ],
+            "checkedAt": "86e7e4196de994d52bfa413ac89fdb28afd3bd84"
+          }
+        ],
+        "entryPointReview": "This selected unit is a private helper with one direct caller, status_enlightenment1249. enlightenment417 always emits that status section for BASIC and MAGIC modes, including final disclosure, so it introduces no new command or startup dispatcher. Existing source caller path is retained. Admitted and independently designed #attributes recordings establish shield/towel override execution. Refreshed existing recordings establish MAGIC-only wand, potion, fountain and artifact invocation plus final-alive/final-dead modes through the same helper. Only weapon_insight is claimed complete; broader enlightenment, command, potion, fountain, artifact and end functions retain their existing ownership and limitations. Source-pinned constructed assertions cover unseen shield dknown=false, stack plural and final tense; existing tests cover every skill comparison arm. Dry-towel follow-up is the passing outside boundary of the positive-spe override. No inactive source caller belongs to this helper; pure shield helper #if0 weight-name alternatives are documented as inactive upstream.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "86e7e4196de994d52bfa413ac89fdb28afd3bd84",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
