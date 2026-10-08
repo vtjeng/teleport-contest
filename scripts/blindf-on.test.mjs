@@ -11,9 +11,9 @@ import test from 'node:test';
 import {
     BLINDED,
     W_TOOL,
+    W_WEP,
 } from '../js/const.js';
 import {
-    UnsupportedAccessoryOnError,
     _doWearInternals,
 } from '../js/do_wear.js';
 import { game } from '../js/gstate.js';
@@ -72,20 +72,6 @@ function syntheticEyewear(otyp) {
     };
 }
 
-// Validator for assert.rejects(): pins both the error class and the branch
-// name it carries.
-function refusal(cls, branch) {
-    return (error) => {
-        assert.ok(error instanceof cls,
-            `expected ${cls.name}, got ${error?.constructor?.name}: `
-            + `${error?.message}`);
-        assert.ok(error.message.includes(branch),
-            `expected message naming ${JSON.stringify(branch)}, got `
-            + `${JSON.stringify(error?.message)}`);
-        return true;
-    };
-}
-
 // ---- blindfold common path ----
 
 test('Blindf_on with blindfold makes sighted hero blind', async () => {
@@ -132,20 +118,17 @@ test('Blindf_on with towel makes sighted hero blind', async () => {
         'hero is blind after putting on towel');
 });
 
-// ---- fail-closed: wielded blindfold ----
-
-test('Blindf_on refuses a wielded blindfold', async () => {
-    // do_wear.c:1466 remove_worn_item(otmp, FALSE). C code at steal.c:221
-    // returns early when owornmask is 0. A nonzero mask means the item is
-    // wielded; the full remove_worn_item path is not ported.
-    await initGame('blindfold');
-
+test('Blindf_on releases a wielded blindfold before wearing it', async () => {
+    // do_wear.c1466 calls canonical remove_worn_item before setworn(W_TOOL).
+    await initGame('blindfold', 1); // Dismiss on_msg before sight-loss feedback.
     const bf = syntheticEyewear(BLINDFOLD);
-    bf.owornmask = 0x00000100; // W_WEP -- wielded
-    await assert.rejects(
-        () => Blindf_on(bf, game),
-        refusal(UnsupportedAccessoryOnError, 'remove_worn_item'),
-    );
+    bf.owornmask = W_WEP;
+    game.uwep = bf;
+    await Blindf_on(bf, game);
+    assert.equal(game.uwep, null);
+    assert.equal(game.ublindf, bf);
+    assert.equal(bf.owornmask, W_TOOL);
+    assert.equal(heroIsBlind(game), true);
 });
 
 // ---- toggle_blindness effects ----

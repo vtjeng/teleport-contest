@@ -1553,7 +1553,9 @@ test('set_wear dispatches accessory callbacks and keeps only the named gaps',
     await setup(segment, WAIT);
 
     // recalc_telepat_range reads every occupied accessory's object type.
-    game.ublindf = { otyp: BLINDFOLD, owornmask: 0 };
+    game.ublindf = { otyp: BLINDFOLD, oclass: TOOL_CLASS, owornmask: 0,
+        quan: 1, dknown: true, known: true, spe: 0 };
+    game.nhDisplay.pushKey(0x20); // New eyewear on_msg precedes sight-loss feedback.
     const right = syntheticRing(RIN_INCREASE_ACCURACY, 2);
     right.owornmask = W_RINGR;
     game.uright = right;
@@ -1575,7 +1577,9 @@ test('set_wear dispatches accessory callbacks and keeps only the named gaps',
         'the left-ring callback ran');
     assert.equal(game.initial_don, false,
         'C clears initial_don after every set_wear invocation');
-    assert.ok(game.unported.has('do_wear.c Blindf_on'));
+    assert.equal(game.unported.has('do_wear.c Blindf_on'), false);
+    assert.equal(game.ublindf.owornmask & W_TOOL, W_TOOL,
+        'set_wear awaited the source eyewear callback');
     assert.equal(game.uamul, amulet);
     assert.equal(amulet.owornmask & W_AMUL, W_AMUL);
     assert.equal(game.unported.has('do_wear.c Amulet_on'), false);

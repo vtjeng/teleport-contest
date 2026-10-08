@@ -177,6 +177,7 @@ import {
 import { artifact_light, retouch_object, set_artifact_intrinsic, Stone_resistance } from './artifacts.js';
 import { obj_resists } from './bury.js';
 import { game } from './gstate.js';
+import { set_bc } from './ball.js';
 import { nomul, spoteffects, unmul } from './hack.js';
 import { strsubst, truncateByteString } from './hacklib.js';
 import { rescham, restartcham } from './mon.js';
@@ -1166,14 +1167,6 @@ export async function Ring_off(obj, state = game, env = {}) {
     await Ring_off_or_gone(obj, false, state, env);
 }
 
-// Raised where Blindf_on() reaches a branch this port has not translated.
-export class UnsupportedAccessoryOnError extends Error {
-    constructor(what) {
-        super(`accessory on reached an unported branch: ${what}`);
-        this.name = 'UnsupportedAccessoryOnError';
-    }
-}
-
 // C ref: do_wear.c Amulet_on() (963-1089). The amulet half of
 // accessory_or_armor_on() dispatches here after the "already wearing" check.
 // Calls setworn() itself and decides when to call on_msg().
@@ -1440,127 +1433,69 @@ export async function Amulet_off(state = game, env = {}) {
         discover_object(amul.otyp, true, true, true, state);
 }
 
-// C ref: do_wear.c Blindf_on() (1461-1492). The eyewear half of
-// accessory_or_armor_on() dispatches here once the lenses or blindfold passes
-// the "already wearing" checks. Calls setworn() and on_msg() itself, then
-// detects whether blindness status changed and calls toggle_blindness().
-//
-// Common path: sighted hero puts on a BLINDFOLD or TOWEL, becomes blind.
-//
-// Fail-closed items:
-// - set_bc(0): fires only when Punished. No ported session is punished while
-//   putting on a blindfold.
-// - The "regaining sight" branch (already_blind && !Blind): applies only to
-//   the Eyes of the Overworld artifact while already blind. This caller
-//   branch remains outside the current sighted artifact-wearing admission.
-async function Blindf_on(obj, state = game) {
+// C ref: do_wear.c Blindf_on() (1461-1493). Snapshot blindness before
+// releasing any held slot and installing W_TOOL; set_bc precedes the vision
+// rebuild when the newly worn item makes a punished hero blind.
+async function Blindf_on(obj, state = game, rawEnv = {}) {
     const already_blind = heroIsBlind(state);
+    let changed = false;
+    const env = wearOperationEnv(rawEnv);
 
-    // C ref: steal.c remove_worn_item() (213-290). When the blindfold has no
-    // worn mask it was never in a worn slot, so nothing to remove.
-    if (obj.owornmask) {
-        // The blindfold is wielded/alt-wielded/quivered. The full
-        // remove_worn_item path is not ported; throw fail-closed.
-        throw new UnsupportedAccessoryOnError(
-            'remove_worn_item() for wielded blindfold',
-        );
-    }
-
-    await setworn(obj, W_TOOL, setwornEnv(state));
+    await remove_worn_item(obj, false, state, env);
+    await setworn(obj, W_TOOL, setwornEnv(state, env));
     await on_msg(obj, state);
 
-    let changed = false;
-
     if (heroIsBlind(state) && !already_blind) {
-        // Hero just went blind from wearing the blindfold.
         changed = true;
         if (state.flags.verbose)
-            await ttyPline("You can't see any more.", state);
-        // C ref: do_wear.c:1475-1476. set_bc(0) sets the ball-and-chain
-        // display variables before the hero goes blind. Fires only when
-        // Punished.
-        if (state.uball) {
-            throw new UnsupportedAccessoryOnError(
-                'set_bc(0) while Punished',
-            );
-        }
+            await env.message("You can't see any more.", state);
+        if (state.uball) set_bc(0, state, env);
     } else if (already_blind && !heroIsBlind(state)) {
-        // Hero regained sight -- only the Eyes of the Overworld artifact does
-        // this. This blind Eyes caller branch remains outside the current
-        // sighted artifact-wearing admission.
-        throw new UnsupportedAccessoryOnError(
-            'Blindf_on() regaining sight (Eyes of the Overworld)',
-        );
+        changed = true;
+        if (state.u.uroleplay.blind) {
+            await env.message('For the first time in your life, you can see!', state);
+            state.u.uroleplay.blind = false;
+        } else {
+            await env.message('You can see!', state);
+        }
     }
-
-    if (changed) {
-        await toggle_blindness(state);
-    }
+    if (changed) await toggle_blindness(state, env);
 }
 
-// C ref: do_wear.c Blindf_off() (1495-1534). The take-off half of the
-// blindfold/lenses dispatch. armoroff_or_accessory_off() calls it when
-// obj == ublindf. Calls setworn() to clear the W_TOOL slot, off_msg(),
-// then detects whether blindness status changed and calls
-// toggle_blindness().
-//
-// Four branches on (Blind, was_blind):
-//   1. (!Blind &&  was_blind): hero regains sight. gulp_blnd_check() tests
-//      whether an engulfing monster re-blinds immediately; if not, prints
-//      "You can see again." and toggles. This is the common path for the
-//      seed5006 witness.
-//   2. ( Blind &&  was_blind): still blind after removal. Prints
-//      "still cannot see" for non-lenses items.
-//   3. ( Blind && !was_blind): lost sight on removal (Eyes of the Overworld).
-//      Prints "You can't see anything now!" and sets ball-and-chain if
-//      Punished. The blind Eyes caller branch remains outside the current
-//      sighted artifact-wearing admission.
-//   4. (!Blind && !was_blind): no change, no message.
-//
-// Fail-closed items:
-// - set_bc(0): fires only when Punished. No ported session is punished
-//   while removing a blindfold.
-// - The "losing sight" branch (Blind && !was_blind): applies only to the
-//   Eyes of the Overworld artifact; unreachable in the current port.
-export async function Blindf_off(otmp, state = game) {
+// C ref: do_wear.c Blindf_off() (1495-1535). The swallowed blindness
+// check consumes its result; sight loss on removing Eyes uses the same ball
+// memory setup as sight loss on putting on ordinary eyewear.
+export async function Blindf_off(otmp, state = game, rawEnv = {}) {
     const was_blind = heroIsBlind(state);
     let changed = false;
     const nooffmsg = !otmp;
+    const env = wearOperationEnv(rawEnv);
 
-    if (!otmp)
-        otmp = state.ublindf;
+    if (!otmp) otmp = state.ublindf;
     if (!otmp) {
-        throw new Error('Blindf_off without eyewear?');
+        note_unported('pline.c impossible');
+        return;
     }
-
     takeoffContext(state).mask &= ~W_TOOL;
-    await setworn(null, otmp.owornmask, setwornEnv(state));
-    if (!nooffmsg)
-        await off_msg(otmp, state);
+    await setworn(null, otmp.owornmask, setwornEnv(state, env));
+    if (!nooffmsg) await off_msg(otmp, state, env.message);
 
     if (heroIsBlind(state)) {
         if (was_blind) {
-            /* "still cannot see" makes no sense when removing lenses
-               since they can't have been the cause of your blindness */
             if (otmp.otyp !== LENSES)
-                await ttyPline('You still cannot see.', state);
+                await env.message('You still cannot see.', state);
         } else {
-            // Lost sight on removal -- only Eyes of the Overworld does this.
-            // This blind Eyes caller branch remains outside the current
-            // sighted artifact-wearing admission.
-            throw new UnsupportedTakeOffError(
-                'Blindf_off() lost sight (Eyes of the Overworld)',
-            );
+            changed = true;
+            await env.message("You can't see anything now!", state);
+            if (state.uball) set_bc(0, state, env);
         }
     } else if (was_blind) {
-        if (!await gulp_blnd_check(state)) {
+        if (!await gulp_blnd_check(state, env)) {
             changed = true;
-            await ttyPline('You can see again.', state);
+            await env.message('You can see again.', state);
         }
     }
-    if (changed) {
-        await toggle_blindness(state);
-    }
+    if (changed) await toggle_blindness(state, env);
 }
 
 // C ref: do_wear.c already_wearing2() (2017-2020). Eyewear "already wearing"
@@ -2759,7 +2694,7 @@ export async function set_wear(state = game, obj = null, rawEnv = {}) {
     state.initial_don = !obj;
     try {
         if (!obj ? state.ublindf : obj === state.ublindf)
-            note_unported('do_wear.c Blindf_on');
+            await Blindf_on(state.ublindf, state, env);
         if (!obj ? state.uright : obj === state.uright)
             await Ring_on(state.uright, state, env);
         if (!obj ? state.uleft : obj === state.uleft)
@@ -3603,8 +3538,8 @@ export async function armoroff(otmp, state = game) {
 
 // C ref: do_wear.c accessory_or_armor_on() (2208-2428), shared in C by
 // dowear('W') and doputon('P'). The armor half (2355-2404) is ported for all
-// seven slots; the accessory half (2239-2353) handles rings, with fail-closed
-// throws at Amulet_on() and Blindf_on() entry points.
+// seven slots; the accessory half (2239-2353) uses the source callbacks
+// after the command guards.
 //
 // objects.h decides which of the armor tail's two arms a piece takes: all nine
 // shields, all twelve cloaks, both shirts, the leather jacket among suits, and
