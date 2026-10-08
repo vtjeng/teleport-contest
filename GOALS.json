@@ -216696,6 +216696,62 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-insight-weapon-insight-v31-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete weapon insight descriptions",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v31/v31-wielded-shield-insight",
+        "synthetic/v31/v31-wet-towel-insight"
+      ],
+      "selectionReason": "The admitted v31 wielded-shield and wet-towel enlightenment cases reach missing source behavior in insight.c:weapon_insight.",
+      "detail": "Port the whole weapon_insight function through its skill comparison tail, preserving source item naming, reflection shield naming, wet towel naming, tense, and plural behavior.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "weapon_insight",
+          "line": 1270,
+          "endLine": 1467,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1270,
+        "to": 1467
+      },
+      "syntheticProvenance": {
+        "synthetic/v31/v31-wielded-shield-insight": {
+          "session": "synthetic/v31/v31-wielded-shield-insight",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-wielded-shield-insight",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-wielded-shield-insight.session.json",
+          "recordingSha256": "6ac74d92255d881ccfaccf272daab2f9be7047c8ac14f8ac643f590ea727481a",
+          "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v31.json",
+          "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1"
+        },
+        "synthetic/v31/v31-wet-towel-insight": {
+          "session": "synthetic/v31/v31-wet-towel-insight",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-wet-towel-insight",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-wet-towel-insight.session.json",
+          "recordingSha256": "cf7bd1edb42cc92fdc69777045f471aa8b9fc64556fcf007397b43e47bbac964",
+          "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v31.json",
+          "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1"
+        }
+      }
     }
   ]
 }
