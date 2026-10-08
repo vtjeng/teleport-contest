@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first complete object-probability table paging and dismissal: wizard level teleport to depth5 changes gem probabilities before printing, then repeat. Newly chosen source-affecting role, seed, clock and actions fixed before C recording or JS comparison.",
+  "segments": [
+    {
+      "seed": 16640042,
+      "datetime": "20550912124500",
+      "nethackrc": "OPTIONS=name:Objprobs16640042,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .\u00165\n#wizobjprobs\n                    .#wizobjprobs\n                    "
+    }
+  ]
+}
