@@ -210877,57 +210877,57 @@
           "name": "size_obj",
           "line": 1117,
           "endLine": 1134,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "count_obj",
           "line": 1135,
           "endLine": 1155,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "obj_chain",
           "line": 1156,
           "endLine": 1176,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "mon_invent_chain",
           "line": 1177,
           "endLine": 1198,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "contained_stats",
           "line": 1199,
           "endLine": 1227,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "size_monst",
           "line": 1228,
           "endLine": 1256,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "mon_chain",
           "line": 1257,
           "endLine": 1283,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "misc_stats",
           "line": 1284,
           "endLine": 1401,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -210939,57 +210939,57 @@
           "name": "wiz_show_stats",
           "line": 1616,
           "endLine": 1704,
-          "declared": false,
+          "declared": true,
           "sourceFile": "wizcmds.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "overview_stats",
           "line": 2761,
           "endLine": 2810,
-          "declared": false,
+          "declared": true,
           "sourceFile": "dungeon.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "engr_stats",
           "line": 1626,
           "endLine": 1644,
-          "declared": false,
+          "declared": true,
           "sourceFile": "engrave.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "light_stats",
           "line": 501,
           "endLine": 516,
-          "declared": false,
+          "declared": true,
           "sourceFile": "light.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "timer_stats",
           "line": 2735,
           "endLine": 2750,
-          "declared": false,
+          "declared": true,
           "sourceFile": "timeout.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "region_stats",
           "line": 899,
           "endLine": 927,
-          "declared": false,
+          "declared": true,
           "sourceFile": "region.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "size_wseg",
           "line": 827,
           "endLine": 835,
-          "declared": false,
+          "declared": true,
           "sourceFile": "worm.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -211431,7 +211431,528 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "size_obj",
+            "implementation": "js/wizcmds.js",
+            "symbol": "size_obj",
+            "sourceReview": "Whole wizcmds.c1117-1132. Base struct obj plus separately allocated oextra; nonnull ONAME/OMAILCMD include UTF-8 strlen+NUL, saved OMONST calls whole size_monst with incl_wsegs FALSE. Quantity does not multiply allocation size. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "count_obj",
+                "source": "wizcmds.c1144"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "count_obj",
+            "implementation": "js/wizcmds.js",
+            "symbol": "count_obj",
+            "sourceReview": "Whole wizcmds.c1135-1151. nobj traversal, independent top/recurse flags, recursive cobj accounting before accumulated local top-level count/size are added to caller output parameters. No game-state changes or RNG. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "count_obj",
+                "source": "wizcmds.c1147,1166,1188,1208-1221"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "obj_chain",
+                "source": "wizcmds.c1147,1166,1188,1208-1221"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "mon_invent_chain",
+                "source": "wizcmds.c1147,1166,1188,1208-1221"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "contained_stats",
+                "source": "wizcmds.c1147,1166,1188,1208-1221"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "obj_chain",
+            "implementation": "js/wizcmds.js",
+            "symbol": "obj_chain",
+            "sourceReview": "Whole wizcmds.c1156-1174. Nonrecursive top-level count_obj; force or nonzero count/size controls output and cumulative totals; exact %-27s %4ld %6ld minimum widths. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_show_stats",
+                "source": "wizcmds.c1637-1646"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-memory-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-memory-lamp.session.json",
+              "recordings/wizcmds.c/wizard-memory-region.session.json",
+              "recordings/wizcmds.c/wizard-memory-restored-region.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-memory-statistics",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 31,
+                "source": "cmd.c:extcmdlist stats -> doextcmd -> wizcmds.c:wiz_show_stats and object/monster/overview/misc accounting family; complete text paging/dismissal and ECMD_OK."
+              }
+            ],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "mon_invent_chain",
+            "implementation": "js/wizcmds.js",
+            "symbol": "mon_invent_chain",
+            "sourceReview": "Whole wizcmds.c1177-1196. nmon traversal counts each minvent top-level chain with no recursion; conditionally prints/adds exactly one subtotal. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_show_stats",
+                "source": "wizcmds.c1647-1650"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-memory-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-memory-lamp.session.json",
+              "recordings/wizcmds.c/wizard-memory-region.session.json",
+              "recordings/wizcmds.c/wizard-memory-restored-region.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-memory-statistics",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 31,
+                "source": "cmd.c:extcmdlist stats -> doextcmd -> wizcmds.c:wiz_show_stats and object/monster/overview/misc accounting family; complete text paging/dismissal and ECMD_OK."
+              }
+            ],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "contained_stats",
+            "implementation": "js/wizcmds.js",
+            "symbol": "contained_stats",
+            "sourceReview": "Whole wizcmds.c1199-1225. Recursive contents excluding parent nodes in invent, fobj, buriedobjlist, migrating_objs, fmon and migrating_mons inventories, in source order; conditional row and totals. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_show_stats",
+                "source": "wizcmds.c1651"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-memory-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-memory-lamp.session.json",
+              "recordings/wizcmds.c/wizard-memory-region.session.json",
+              "recordings/wizcmds.c/wizard-memory-restored-region.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-memory-statistics",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 31,
+                "source": "cmd.c:extcmdlist stats -> doextcmd -> wizcmds.c:wiz_show_stats and object/monster/overview/misc accounting family; complete text paging/dismissal and ECMD_OK."
+              }
+            ],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "size_monst",
+            "implementation": "js/wizcmds.js",
+            "symbol": "size_monst",
+            "sourceReview": "Whole wizcmds.c1228-1254. Base struct monst, consumed canonical size_wseg only when wormno and incl_wsegs; separately allocated mextra, nonnull given-name strlen+NUL and each egd/epri/eshk/emin/edog/ebones allocation. mcorpsenm is embedded, adds no bytes. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "size_obj",
+                "source": "wizcmds.c1126,1273"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "mon_chain",
+                "source": "wizcmds.c1126,1273"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "mon_chain",
+            "implementation": "js/wizcmds.js",
+            "symbol": "mon_chain",
+            "sourceReview": "Whole wizcmds.c1257-1281. Includes every nmon node without DEADMONSTER filtering. strcmpi label fmon alone includes worm segments; migrating/mydogs omit them. Conditional/forced row and cumulative totals. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_show_stats",
+                "source": "wizcmds.c1663-1670"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-memory-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-memory-lamp.session.json",
+              "recordings/wizcmds.c/wizard-memory-region.session.json",
+              "recordings/wizcmds.c/wizard-memory-restored-region.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-memory-statistics",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 31,
+                "source": "cmd.c:extcmdlist stats -> doextcmd -> wizcmds.c:wiz_show_stats and object/monster/overview/misc accounting family; complete text paging/dismissal and ECMD_OK."
+              }
+            ],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "misc_stats",
+            "implementation": "js/wizcmds.js",
+            "symbol": "misc_stats",
+            "sourceReview": "Whole wizcmds.c1284-1399. Source-order traps and engravings always output; lights, timers, shop damage, regions, delayed killers, bones history, object-type names conditional on nonzero subtotal. Complete consumed engr_stats/light_stats/timer_stats/region_stats reused. Canonical state.killer.next corresponds to svk.killer.next. Null pointer and allocated empty string distinguished. No RNG. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_show_stats",
+                "source": "wizcmds.c1688"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-memory-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-memory-lamp.session.json",
+              "recordings/wizcmds.c/wizard-memory-region.session.json",
+              "recordings/wizcmds.c/wizard-memory-restored-region.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-memory-statistics",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 31,
+                "source": "cmd.c:extcmdlist stats -> doextcmd -> wizcmds.c:wiz_show_stats and object/monster/overview/misc accounting family; complete text paging/dismissal and ECMD_OK."
+              }
+            ],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "wiz_show_stats",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_stats",
+            "sourceReview": "Whole wizcmds.c1616-1697. Header, objects, monsters including optional mydogs, overview, miscellaneous, grand totals in C order. Whole helper family and required owner functions consumed; canonical displayTtyTextWindow owns NHW_TEXT creation/paging/display(FALSE)/destroy and is awaited before ECMD_OK. Linux excludes __BORLANDC__&&!_WIN32 helper. No RNG/turn/game-state mutation. Dispatcher default refusal replaced with awaited canonical case; no placeholders/gaps remain. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c1876-1877 extcmdlist stats, existing rhack extended-command/queued command routes"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-memory-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-memory-lamp.session.json",
+              "recordings/wizcmds.c/wizard-memory-region.session.json",
+              "recordings/wizcmds.c/wizard-memory-restored-region.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-memory-statistics",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 31,
+                "source": "cmd.c:extcmdlist stats -> doextcmd -> wizcmds.c:wiz_show_stats and object/monster/overview/misc accounting family; complete text paging/dismissal and ECMD_OK."
+              }
+            ],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "overview_stats",
+            "implementation": "js/dungeon.js",
+            "symbol": "overview_stats",
+            "sourceReview": "Whole dungeon.c2761-2801. Source-order mapseenchn accounting of every mapseen, each final_resting_place cemetery record and allocated custom_lth+1 annotations. General row unconditional, cemetery/annotations conditional; add all three totals. Array representations are established canonical state, cemeteryEntries also accepts existing linked records. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_show_stats",
+                "source": "wizcmds.c1680"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-memory-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-memory-lamp.session.json",
+              "recordings/wizcmds.c/wizard-memory-region.session.json",
+              "recordings/wizcmds.c/wizard-memory-restored-region.session.json"
+            ],
+            "sourceFile": "dungeon.c",
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-memory-statistics",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 31,
+                "source": "cmd.c:extcmdlist stats -> doextcmd -> wizcmds.c:wiz_show_stats and object/monster/overview/misc accounting family; complete text paging/dismissal and ECMD_OK."
+              }
+            ],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "engr_stats",
+            "implementation": "js/engrave.js",
+            "symbol": "engr_stats",
+            "sourceReview": "Whole engrave.c1626-1640. Source header and zeroed count/size; head_engr/nxt_engr traversal adds sizeof(struct engr)+engr_alloc per node. Existing make_engr_at stores the source allocation bytes; no producer changes. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "misc_stats",
+                "source": "wizcmds.c1311"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "engrave.c",
+            "synthetic": [],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "light_stats",
+            "implementation": "js/light.js",
+            "symbol": "light_stats",
+            "sourceReview": "Whole light.c501-511. Source header and zeroed count/size; canonical gl.light_base/next traversal adds exactly sizeof(light_source) per node. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "misc_stats",
+                "source": "wizcmds.c1318"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "light.c",
+            "synthetic": [],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "timer_stats",
+            "implementation": "js/timeout.js",
+            "symbol": "timer_stats",
+            "sourceReview": "Whole timeout.c2735-2745. Source header and zeroed count/size; canonical gt.timer_base/next traversal adds exactly sizeof(timer_element) per node. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "misc_stats",
+                "source": "wizcmds.c1328"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "timeout.c",
+            "synthetic": [],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "region_stats",
+            "implementation": "js/region.js",
+            "symbol": "region_stats",
+            "sourceReview": "Whole region.c899-922. n_regions is current array length; max_regions is retained allocation capacity stored beside current level regions. Preserve C sizeof(NhRegion) in capacity term despite actual pointer-array allocation; add rect bytes, nonnull message strlen+NUL, and max_monst*sizeof(unsigned). Only allocation metadata reconciliation added to create/add/restoration callers; no whole producers or save/restore credit. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "misc_stats",
+                "source": "wizcmds.c1351"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "region.c",
+            "synthetic": [],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          },
+          {
+            "name": "size_wseg",
+            "implementation": "js/worm.js",
+            "symbol": "size_wseg",
+            "sourceReview": "Whole worm.c827-830. Return count_wsegs*generated sizeof(wseg). Consumed existing count_wsegs836-846 inspected: JS visible segments exclude the final hidden head, equivalent to C excluding wtails first node. No RNG/state mutation. Generated size constants are compiled from pinned upstream 16ff59115315917b93185d026aeefea06db9b0f4 LP64 headers and extracted worm.c declaration, with a --check source-output test; no runtime native code or filesystem dependencies.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "size_monst",
+                "source": "wizcmds.c1233"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizcmds-memory.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "worm.c",
+            "synthetic": [],
+            "checkedAt": "1de6a25e9e125a812173a56f88d2ecbda2314b15"
+          }
+        ],
+        "entryPointReview": "Only active entry is wizard #stats via existing cmd.c extcmdlist/rhack/doextcmd. Nonwizard flag admission is unchanged and independently matches its unknown-command refusal. __BORLANDC__&&!_WIN32 diagnostics are compile-time inactive on recorder Linux. All selected and required helper units execute through the same command; consumed pointer output parameters are represented by returned stat objects or mutable caller totals. No helper uses note_unported or injected accounting results. Independent ordinary Healer pet, Valkyrie named lit lamp, Orc Wizard cloud live/expired and leave/return variants cover source-affecting allocation and map restoration. Existing broad producers, save/restore/bones behavior and whole cmd dispatch receive no completion credit.",
+        "entryPoints": [
+          {
+            "name": "wizard #stats",
+            "functions": [
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "size_obj"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "count_obj"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "obj_chain"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "mon_invent_chain"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "contained_stats"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "size_monst"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "mon_chain"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "misc_stats"
+              },
+              {
+                "sourceFile": "wizcmds.c",
+                "name": "wiz_show_stats"
+              },
+              {
+                "sourceFile": "dungeon.c",
+                "name": "overview_stats"
+              },
+              {
+                "sourceFile": "engrave.c",
+                "name": "engr_stats"
+              },
+              {
+                "sourceFile": "light.c",
+                "name": "light_stats"
+              },
+              {
+                "sourceFile": "timeout.c",
+                "name": "timer_stats"
+              },
+              {
+                "sourceFile": "region.c",
+                "name": "region_stats"
+              },
+              {
+                "sourceFile": "worm.c",
+                "name": "size_wseg"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-memory-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-memory-lamp.session.json",
+              "recordings/wizcmds.c/wizard-memory-region.session.json",
+              "recordings/wizcmds.c/wizard-memory-restored-region.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-memory-statistics",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 31,
+                "source": "cmd.c:extcmdlist stats -> doextcmd -> wizcmds.c:wiz_show_stats and object/monster/overview/misc accounting family; complete text paging/dismissal and ECMD_OK."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "port-eat-newuhs-fainting-starvation-v30-20261008",
