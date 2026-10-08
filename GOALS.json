@@ -210370,7 +210370,7 @@
     {
       "id": "port-wizcmds-rumor-boundary-check-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Wizard rumor-boundary and text-catalog diagnostic",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -210384,8 +210384,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_rumor_check",
@@ -210792,6 +210795,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
