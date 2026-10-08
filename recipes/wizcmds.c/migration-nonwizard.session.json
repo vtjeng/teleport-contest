@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9248104,
+      "datetime": "20370312121700",
+      "nethackrc": "OPTIONS=name:MigrationProbe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none,!debug_mongen\n",
+      "moves": ".#migratemons\n"
+    }
+  ],
+  "comment": "Independent C-first migration input chosen before comparison; migration-nonwizard"
+}

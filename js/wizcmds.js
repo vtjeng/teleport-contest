@@ -100,7 +100,7 @@ import {
     WOUNDED_LEGS,
     WWALKING,
     XKILL_NOMSG,
-    has_mgivenname,
+    has_mgivenname, MGIVENNAME, MM_NOMSG, MIGR_RANDOM, MIGR_EXACT_XY,
     u_at,
 } from './const.js';
 import { losexp, pluslvl } from './exper.js';
@@ -110,8 +110,10 @@ import { create_particular } from './read.js';
 import { getlin, select_menu } from './windows.js';
 import { game } from './gstate.js';
 import { done } from './end.js';
-import { mon_nam, x_monnam } from './do_name.js';
-import { dmonsfree } from './makemon_create.js';
+import { minimal_monnam, mon_nam, x_monnam } from './do_name.js';
+import { dmonsfree, makemon_runtime } from './makemon_create.js';
+import { rndmonst } from './makemon.js';
+import { migrate_to_level } from './dog.js';
 import { AD_PHYS, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
 import { note_unported } from './unported.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
@@ -136,6 +138,7 @@ import { canspotmon, docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
     map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
 import { do_mapping, findit } from './detect.js';
 import { overview_stats, In_W_tower, on_level, print_dungeon,
+    depth, get_level, Is_botlevel, ledger_no,
     Is_special, Invocation_lev, On_W_tower_level } from './dungeon.js';
 import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
 import { S_fountain, S_sink } from './symbols.js';
@@ -1120,6 +1123,64 @@ export function misc_stats(rows, totals, state = game) {
     }
     statsRow(rows, 'object type names, text', { count, size }, totals);
 }
+// C ref: wizcmds.c migrsort_cmp (1485-1505). Destination coordinates are
+// signed integers; the unsigned monster ID tie-breaker uses comparisons.
+export function migrsort_cmp(m1, m2) {
+    if (m1.mux !== m2.mux) return m1.mux - m2.mux;
+    if (m1.muy !== m2.muy) return m1.muy - m2.muy;
+    return m1.m_id < m2.m_id ? -1 : Number(m1.m_id > m2.m_id);
+}
+
+// C ref: wizcmds.c list_migrating_mons (1506-1615). The canonical tty text
+// window owns create/putstr/display(FALSE)/destroy and its blocking dismissal.
+export async function list_migrating_mons(nextlevl, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const category = monster => monster.mux === state.u.uz.dnum
+        && monster.muy === state.u.uz.dlevel ? 'c'
+        : monster.mux === nextlevl.dnum && monster.muy === nextlevl.dlevel
+            ? 'n' : 'o';
+    const counts = { c: 0, n: 0, o: 0 };
+    for (let mon = state.gm.migrating_mons; mon; mon = mon.nmon)
+        counts[category(mon)]++;
+    const total = counts.c + counts.n + counts.o;
+    if (!total) {
+        await message('No monsters currently migrating.', state);
+        return;
+    }
+    await message(`${counts.c} mon${counts.c === 1 ? '' : 's'} pending for current level, ${counts.n} for next level, ${counts.o} for others.`, state);
+    let prompt = '', extra = '';
+    for (const c of ['c', 'n', 'o']) {
+        if (counts[c]) prompt += c;
+        else extra += c;
+    }
+    prompt += 'a q';
+    if (extra) prompt += `\x1b${extra}`;
+    const choice = String.fromCharCode(await (env.yn ?? yn_function)(
+        'List which?', prompt, 'q', true, state,
+    ));
+    const count = choice === 'a' ? total : counts[choice] ?? 0;
+    if (count > 0) {
+        const title = choice === 'a' ? 'All migrating monsters:'
+            : `Monster${count === 1 ? '' : 's'} migrating to ${choice === 'c' ? 'current level' : choice === 'n' ? 'next level' : "'other' levels"}:`;
+        const rows = [{ text: title }, { text: '' }];
+        const selected = [];
+        for (let mon = state.gm.migrating_mons; mon; mon = mon.nmon)
+            if (choice === 'a' || category(mon) === choice) selected.push(mon);
+        if (selected.length > 1) selected.sort(migrsort_cmp);
+        for (const mon of selected) {
+            let text = `  ${minimal_monnam(mon, false, state)}`.replace(' <0,0>', '');
+            if (has_mgivenname(mon)) text += ` named ${MGIVENNAME(mon)}`;
+            if (choice === 'o' || choice === 'a') text += ` to ${mon.mux}:${mon.muy}`;
+            if (mon.mtrack[0].x === MIGR_EXACT_XY)
+                text += ` at <${mon.mtrack[1].x},${mon.mtrack[1].y}>`;
+            rows.push({ text });
+        }
+        await (env.window ?? displayTtyTextWindow)(state, rows);
+    } else if (choice !== 'q') {
+        await message('None.', state);
+    }
+}
+
 export async function wiz_show_stats(state = game, env = {}) {
     const rows = [{ text: 'Current memory statistics:' },
         { text: '                             count  bytes' },
@@ -1253,5 +1314,51 @@ export async function wiz_objprobs(state = game, env = {}) {
         rows.push({ text: truncateByteString(row, BUFSZ - 1) });
     }
     await (env.window ?? displayTtyTextWindow)(state, rows);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_migrate_mons (1873-1933). DEBUG_MIGRATING_MONS is
+// enabled in the reference DEBUG build. Existing creation and migration
+// owners retain their species, leash, shopkeeper and worm admission limits.
+export async function wiz_migrate_mons(state = game, env = {}) {
+    const savedMongen = state.iflags.debug_mongen;
+    const destination = { dnum: 0, dlevel: 0 };
+    if (on_level(state.u.uz, state.stronghold_level)) {
+        Object.assign(destination, state.valley_level);
+    } else if (!Is_botlevel(state.u.uz, state)) {
+        get_level(destination, depth(state.u.uz, state) + 1, state);
+    }
+    await list_migrating_mons(destination, state, env);
+    let input = '';
+    if (destination.dnum || destination.dlevel)
+        input = await (env.getlin ?? getlin)('How many random monsters to migrate to next level? [0]', state);
+    else
+        await (env.message ?? ttyPline)("Can't get there from here.", state);
+    if (!input || input[0] === '\x1b') return ECMD_OK;
+    // atoi is strtol(..., 10) narrowed to int in the LP64 reference build:
+    // retain the decimal prefix, long saturation, and 32-bit signed result.
+    const prefix = /^[ \t\n\r\v\f]*([+-]?\d+)/u.exec(input);
+    let parsed = prefix ? BigInt(prefix[1]) : 0n;
+    const longMax = (1n << 63n) - 1n, longMin = -(1n << 63n);
+    if (parsed > longMax) parsed = longMax;
+    else if (parsed < longMin) parsed = longMin;
+    let count = Number(BigInt.asIntN(32, parsed));
+    const useRandom = count >= 0;
+    if (count < 0) count = (-count) | 0;
+    count = Math.min(Math.max(count, 0), (COLNO - 1) * ROWNO);
+    state.iflags.debug_mongen = false;
+    while (count > 0) {
+        let monster;
+        if (useRandom) {
+            const ptr = (env.rndmonst ?? rndmonst)({ ...env, state });
+            monster = await (env.makemon ?? makemon_runtime)(ptr, 0, 0, MM_NOMSG, { ...env, state });
+        } else {
+            monster = state.level.monlist;
+        }
+        if (monster)
+            (env.migrate ?? migrate_to_level)(monster, ledger_no(destination, state), MIGR_RANDOM, null, { ...env, state });
+        count--;
+    }
+    state.iflags.debug_mongen = savedMongen;
     return ECMD_OK;
 }
