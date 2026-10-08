@@ -211364,7 +211364,7 @@
     {
       "id": "port-wizcmds-wiz-show-vision-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the wizard vision text window",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -211378,8 +211378,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_show_vision",
@@ -211617,6 +211620,275 @@
                 "fromStep": 13,
                 "throughStep": 17,
                 "source": "cmd.c extcmdlist vision -> doextcmd -> wizcmds.c wiz_show_vision621–653; blocking NHW_TEXT displays canonical bits then input dismissal restores the map, ECMD_OK spends no turn."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-show-seenv-v30-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the wizard seen-vector text window",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v30/v30-seen-vectors"
+      ],
+      "selectionReason": "The current accepted v30-seen-vectors evaluation has five unmatched screens from the step-15 command refusal. investigations/synthetic/v30/v30-seen-vectors.json traces the missing behavior to whole wizcmds.c:wiz_show_seenv with the bounded cmd.c:doextcmd caller; its A159 dispatcher dependency is accepted.",
+      "detail": "",
+      "openedAt": "521b19bf2a1ff300ecbf852efa8bcd765b22760f",
+      "openStanding": {
+        "sha": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_show_seenv",
+          "line": 576,
+          "endLine": 620,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 576,
+        "to": 620
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-seen-vectors": {
+          "session": "synthetic/v30/v30-seen-vectors",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-seen-vectors",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-seen-vectors.session.json",
+          "recordingSha256": "72dddcff51242423e8fff5013b49ff5eda999ce181aabfcc5a1ff58654702120",
+          "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+          "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895"
+        }
+      },
+      "activeStanding": {
+        "sha": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-seen-vectors",
+          "session": "synthetic/v30/v30-seen-vectors",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-seen-vectors.session.json",
+          "recordingPath": "challenges/cases/v30/v30-seen-vectors.session.json",
+          "recordingSha256": "72dddcff51242423e8fff5013b49ff5eda999ce181aabfcc5a1ff58654702120",
+          "recipe": "challenges/cases/v30/v30-seen-vectors.recipe.session.json",
+          "recipeSha256": "ad7f8c8e9beda407ac6538ae3d1d1e8efb00f8489ec0137ca106748d1091e105",
+          "replayInputSha256": "8854fdd176221758d986d8949078f5642774dd95f6e0282491814f2bc600b35c",
+          "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+          "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+          "evaluationArtifact": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+          "evaluationUtc": "2026-10-08T17:55:25.491Z",
+          "remainingScreens": 5,
+          "recordedSteps": 20,
+          "previousScreensMatched": 15,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 15,
+              "total": 20
+            },
+            "rng": {
+              "matched": 2475,
+              "total": 2475
+            },
+            "cursors": {
+              "matched": 15,
+              "total": 20
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_show_seenv() for the extended command 'wizseenv' is not ported",
+            "step": 15
+          },
+          "step": 15,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_show_seenv",
+          "message": "unsupported hero command: wiz_show_seenv() for the extended command 'wizseenv' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-seen-vectors.json",
+            "result": {
+              "session": "synthetic/v30/v30-seen-vectors",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-seen-vectors",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "72dddcff51242423e8fff5013b49ff5eda999ce181aabfcc5a1ff58654702120",
+              "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+              "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+              "remainingScreens": 5,
+              "recordedSteps": 20,
+              "status": "complete",
+              "commit": "d5108aa213aa0a74392278a143d2bdc9b1aee752",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-seen-vectors",
+                "session": "synthetic/v30/v30-seen-vectors",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-seen-vectors.session.json",
+                "recordingPath": "challenges/cases/v30/v30-seen-vectors.session.json",
+                "recordingSha256": "72dddcff51242423e8fff5013b49ff5eda999ce181aabfcc5a1ff58654702120",
+                "recipe": "challenges/cases/v30/v30-seen-vectors.recipe.session.json",
+                "recipeSha256": "ad7f8c8e9beda407ac6538ae3d1d1e8efb00f8489ec0137ca106748d1091e105",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+                "evaluationCommit": "ae843893a0f02c2480f0ea10fc280b5c2fd9b895",
+                "evaluationArtifact": "challenges/evaluations/accepted-ae843893a0f02c2480f0ea10fc280b5c2fd9b895-v30.json",
+                "evaluationUtc": "2026-10-08T17:55:25.491Z",
+                "remainingScreens": 5,
+                "recordedSteps": 20,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 15,
+                    "total": 20
+                  },
+                  "rng": {
+                    "matched": 2475,
+                    "total": 2475
+                  },
+                  "cursors": {
+                    "matched": 15,
+                    "total": 20
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: wiz_show_seenv() for the extended command 'wizseenv' is not ported",
+                  "step": 15
+                },
+                "step": 15,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_show_seenv",
+                "message": "unsupported hero command: wiz_show_seenv() for the extended command 'wizseenv' is not ported",
+                "cFile": "wizcmds.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The #wizseenv dispatcher refuses the missing wizcmds.c:wiz_show_seenv command. The existing canonical per-cell seenv bytes already reproduce the C hex map at the first stop.",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Wizard #wizseenv after room movement; display two lowercase hex digits per seen-vector byte, centered around the hero and clipped at map edges.",
+                "functions": [
+                  "wiz_show_seenv"
+                ],
+                "callers": [
+                  "cmd.c:extcmdlist wizseenv row1990-1991 -> doextcmd -> rhack"
+                ],
+                "dependencies": [
+                  "Existing game.level.at(x,y).seenv owned by display/vision updates",
+                  "Existing u_at macro and COLNO/ROWNO constants",
+                  "Existing tty_menu.js:displayTtyTextWindow blocking NHW_TEXT lifecycle"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Bounded run-Drh1eP at d5108aa2 replays only this assigned session: 15/20 screens/cursors and all2475 RNG match. First missing screen is zero-based step15 newline at cmd.js:doextcmd5313, UnsupportedHeroCommandBoundaryError naming wiz_show_seenv. Artifacts .cache/A160/replay.json and replay.log.",
+                "C wizcmds.c:wiz_show_seenv576-617 creates NHW_TEXT, computes startx=max(1,ux-COLNO/4), stopx=min(startx+COLNO/2,COLNO), then increments startx only for a full COLNO/2 span to avoid an 80-byte row. Iterate all y0..ROWNO-1 and x in [startx,stopx); hero uses @@; other cells mask seenv with0xff, zero emits two spaces and nonzero uses lowercase %02x. Trim trailing spaces only, retain empty rows, display blocking, destroy and return ECMD_OK. No RNG or game-state writes.",
+                "At the stop hero74,5 crops x54..79. Applying the exact C formatting to the JS snapshot reproduces the C step15 rows: 1010...2040, 1818...ffc0, 1c1c...ffc1, 0c0c...@@81 and three0404...0201 rows, including sixteen leading spaces. The missing command is the first cause; no vision or seen-vector state fix is indicated. Source-derived rows are .cache/A160/source-rows.json.",
+                "Production caller search rg wiz_show_seenv upstream src/include and JS finds only the definition, extern.h3875, cmd.c1991 extcmdlist, and generated JS extcmdlist_data.js175. Add the bounded cmd.js:doextcmd import/branch; existing rhack consumes ECMD_OK and generated command registry already carries IFBURIED|AUTOCOMPLETE|WIZMODECMD.",
+                "Actionable whole-source scope is wizcmds.c:wiz_show_seenv with bounded cmd.c:doextcmd caller. Reserve source:wizcmds.c:wiz_show_seenv, source:cmd.c:doextcmd and contract:wizard-seenv-text-window; edit js/wizcmds.js/js/cmd.js, exact source-pinned tests and fresh runner, recipes/wizcmds.c and recordings/wizcmds.c. A159 owns another bounded doextcmd branch in the same worker; preserve its immutable delivery and declare its ancestor dependency.",
+                "No consumed-return unported dependency: existing text-window wrapper owns the C winid lifecycle and returns after dismissal; u_at and integer min/max are pure existing operations. Source-pinned tests must cover left/full/right cropping, byte masking/lowercase hex/zero/@@, row count/trailing trim and await-before-ECMD_OK. Independent C-first ordinary and blind variations should repeat the command after a turn and verify map restoration. Whole doextcmd/rhack, vision_recalc and text-window owners remain excluded."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_show_seenv",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_seenv",
+            "sourceReview": "Whole wizcmds.c576–617: source integer startx/stopx clamp and full-span adjustment; all y rows and half-open x crop; u_at overrides byte with @@, seenv &0xff before zero branch, lowercase zero-padded hex otherwise. Only trailing spaces removed, empty rows retained. Existing canonical displayTtyTextWindow owns create/putstr/display(TRUE)/destroy and is awaited before ECMD_OK. No RNG, turn or map-state changes; all source return dependencies are existing canonical operations. No gap or refusal remains for this command.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "C cmd.c1990–1991 extcmdlist wizseenv row points to wiz_show_seenv. Bounded JS case/import awaits the whole helper and returns its ECMD_OK. Existing generated registry, wizard/buried flags, rhack and text-window dispatch are reused unchanged. Source search finds no other production caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-seenv.test.mjs",
+              "scripts/wiz-vision.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-seenv-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-seenv-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-seen-vectors",
+                "segment": 0,
+                "fromStep": 15,
+                "throughStep": 19,
+                "source": "cmd.c extcmdlist wizseenv -> doextcmd -> wizcmds.c:wiz_show_seenv576–617; blocking NHW_TEXT shows the seen-vector bytes then dismissal restores the map and returns ECMD_OK."
+              }
+            ],
+            "checkedAt": "f93c4e5e3bebe7454755e07745e9e03d7f7e85a0"
+          }
+        ],
+        "entryPointReview": "Only active entry is wizard #wizseenv via extcmdlist/doextcmd. The admitted case reaches the right-clipped crop after room movement. Independent C-first Barbarian ordinary and Valkyrie blindfold variants display and dismiss two windows apiece: room movement changes seenv bytes, while the blind wait retains previously seen bytes. Source tests cover full-span left/center crops, right crop, hero excluded at ux1, masking/lowercase/zero/hero formatting and await/ECMD_OK order. Independent seeds/clocks and source routes were chosen before recording/JS comparison; both valid first recordings reached the mission without a seed search.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizseenv",
+            "functions": [
+              "wiz_show_seenv"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-seenv-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-seenv-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-seen-vectors",
+                "segment": 0,
+                "fromStep": 15,
+                "throughStep": 19,
+                "source": "cmd.c extcmdlist wizseenv -> doextcmd -> wizcmds.c:wiz_show_seenv576–617; blocking NHW_TEXT shows the seen-vector bytes then dismissal restores the map and returns ECMD_OK."
               }
             ]
           }
