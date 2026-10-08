@@ -214418,8 +214418,8 @@
           "name": "wiz_display_macros",
           "line": 1705,
           "endLine": 1781,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -214433,7 +214433,7 @@
           "endLine": 233,
           "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -214594,7 +214594,179 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_display_macros",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_display_macros",
+            "sourceReview": "Read whole wizcmds.c1704-1774 (function name/range1705-1774). Traverse glyph0..MAX_GLYPH-1; source cmap test/conversion, NO_GLYPH sentinel, zap S_vbeam..S_rslant bounds, IndexOk defsyms including its MAXPCHARS fencepost, then monster exclusive NUMMONS and object inclusive NUM_OBJECTS bound. Each failed test increments trouble after checking zero, emits one header before the first issue and preserves exact source text/order. Source failure branches express internally broken compiled macros; valid game options cannot produce those branches. All canonical macro ranges are checked by full traversal and exhaustive pure decoder tests; no invented game error state or injectable macro implementation is used. Existing display.h predicates and mon/object conversions are source-correct for consumed ranges. Required whole pure glyph_to_cmap is reconciled in its source module and published to existing callers. Canonical S_rslant alias is derived from the existing generated source symbol table in symbols.js; no duplicate source constant or state. C source macro IndexOk/hack.h1498-1499, sym.h173 defsyms[MAXPCHARS+1], display.h699-725/776-793/814-879/902-913 audited. Await canonical text lifecycle display(FALSE)/destroy and return ECMD_OK. No RNG or game state mutation. Missing dispatcher refusal replaced. No unported or injected substitute return is consumed.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c1956-1957 extcmdlist wizdispmacros under active DEBUG/development gate with IFBURIED|AUTOCOMPLETE|WIZMODECMD; existing generated registry/rhack input path dispatches new awaited arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-display-macros.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-display-macros-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-display-macros-ranger.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-display-macros",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 17,
+                "source": "cmd.c1956-1957 extcmdlist -> doextcmd -> wizcmds.c:wiz_display_macros1705-1774, including glyphs.c:glyph_to_cmap consumed cmap decoding. Diagnostic traverses every glyph and displays the success row at16, then dismisses/restores the map at17."
+              }
+            ],
+            "checkedAt": "4e28d4d9592308823c2ee2a33e6a2478185f4437"
+          },
+          {
+            "name": "glyph_to_cmap",
+            "implementation": "js/glyphs.js",
+            "symbol": "glyph_to_cmap",
+            "sourceReview": "Read whole glyphs.c199-231 plus every display.h range predicate and inverse macro it uses. Pure fixed-glyph arithmetic returns stone, five wall ranges, cmapA, altar variants, cmapB, cmapC, zap direction, swallow position and explosion position, then legal MAXPCHARS fencepost. Existing contiguous-wall modulo preserves all five source branch ranges. All disjoint branches retain source order and exact integer arithmetic. Restored formerly omitted swallow/explosion returns and removed the obsolete partial-helper comment/body from display.js. Function now lives with glyphs.c source ownership in glyphs.js; display.js re-exports it to preserve every existing active decoder caller. No C macro has RNG/state/output effects; exhaustive per-glyph source test covers every range, holes and out-of-range endpoints. Existing glyph_find_core inverse fanout uses generated source partitions rather than this forward decoder, and already covers all of the same source ranges; no surrounding customization implementation changed. Unported unrelated caller arms remain excluded as described in callerFrontiers.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_display_macros",
+                "source": "wizcmds.c1717 diagnostic consumes the cmap decoder; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c1059 glyph_is_cmap guard -> decoder; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "is_valid_travelpt",
+                "source": "hack.c1535 stone glyph check; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_fight_empty",
+                "source": "hack.c2307 empty attack surface explanation; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/startup_a11y.js",
+                "symbol": "collectLookaroundMessages",
+                "source": "cmd.c1347 dolookaround accessibility glyph classification; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "look_engrs",
+                "source": "pager.c2183 engraving glyph classification; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "lookatOrdinaryTerrain",
+                "source": "pager.c741 lookat terrain explanation; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dryup",
+                "source": "fountain.c226 cloud glyph visibility test; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_pole",
+                "source": "apply.c3555 remembered target terrain explanation; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "that_is_a_mimic",
+                "source": "uhitm.c6222 mimic glyph check; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "gloc_filter_classify_glyph",
+                "source": "getpos.c348 filter terrain classification; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs_interesting",
+                "source": "getpos.c452/472 location gathering; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "matchingCmapGlyph",
+                "source": "getpos.c1077/1087/1100 terrain-key matching in getpos; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "glyphIsGascloud",
+                "source": "detect.c2163 premap_detect macro classification; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "furniture_detect",
+                "source": "detect.c1102 furniture glyph detection; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wiz-display-macros.test.mjs",
+              "scripts/glyph-customization.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-display-macros-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-display-macros-ranger.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-display-macros",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 17,
+                "source": "cmd.c1956-1957 extcmdlist -> doextcmd -> wizcmds.c:wiz_display_macros1705-1774, including glyphs.c:glyph_to_cmap consumed cmap decoding. Diagnostic traverses every glyph and displays the success row at16, then dismisses/restores the map at17."
+              }
+            ],
+            "checkedAt": "4e28d4d9592308823c2ee2a33e6a2478185f4437"
+          }
+        ],
+        "entryPointReview": "Only new active impure entry is wizard #wizdispmacros under DEBUG/development command registry. Selected admitted command range16-17 and two independent newly chosen Healer/Ranger roles/seeds/clocks traverse the full compiled glyph space, display the success row, dismiss and repeat. Normal Tourist command admission is an independent outside-limit recording. Pure glyph_to_cmap requires exhaustive source-pinned tests; the diagnostic supplies a production consumed-return witness. Existing active JavaScript decoder call sites share the re-exported canonical owner. No ownership/completion credit for surrounding cmd/display/glyph customization callers.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizdispmacros",
+            "functions": [
+              "wiz_display_macros",
+              {
+                "sourceFile": "glyphs.c",
+                "name": "glyph_to_cmap"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-display-macros-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-display-macros-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-display-macros",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 17,
+                "source": "cmd.c1956-1957 extcmdlist -> doextcmd -> wizcmds.c:wiz_display_macros1705-1774, including glyphs.c:glyph_to_cmap consumed cmap decoding. Diagnostic traverses every glyph and displays the success row at16, then dismisses/restores the map at17."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
