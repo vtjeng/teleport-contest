@@ -216700,7 +216700,7 @@
     {
       "id": "port-insight-weapon-insight-v31-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete weapon insight descriptions",
       "cFile": "insight.c",
       "sessions": [
@@ -216709,8 +216709,12 @@
       ],
       "selectionReason": "The admitted v31 wielded-shield and wet-towel enlightenment cases reach missing source behavior in insight.c:weapon_insight.",
       "detail": "Port the whole weapon_insight function through its skill comparison tail, preserving source item naming, reflection shield naming, wet towel naming, tense, and plural behavior.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c1f304f6da2d89f88342786c84c44446fcd32077",
+      "openStanding": {
+        "sha": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -216751,7 +216755,364 @@
           "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v31.json",
           "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-wet-towel-insight",
+          "session": "synthetic/v31/v31-wet-towel-insight",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-wet-towel-insight.session.json",
+          "recordingPath": "challenges/cases/v31/v31-wet-towel-insight.session.json",
+          "recordingSha256": "cf7bd1edb42cc92fdc69777045f471aa8b9fc64556fcf007397b43e47bbac964",
+          "recipe": "challenges/cases/v31/v31-wet-towel-insight.recipe.session.json",
+          "recipeSha256": "27abcbc4015dbe04f7d895a64051c2d3d9fff00c61aa912e014074adffa2ef92",
+          "replayInputSha256": "34eebd2203f4b020397e2891734555bb8c8c3fff69881244972173ab9501f162",
+          "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v31.json",
+          "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+          "evaluationArtifact": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v31.json",
+          "evaluationUtc": "2026-10-08T21:20:18.545Z",
+          "remainingScreens": 14,
+          "recordedSteps": 49,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 49
+            },
+            "rng": {
+              "matched": 1773,
+              "total": 1773
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 49
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: the attributes window requires is_wet_towel()",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: the attributes window requires is_wet_towel()",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-wet-towel-insight.json",
+            "result": {
+              "session": "synthetic/v31/v31-wet-towel-insight",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-wet-towel-insight",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "cf7bd1edb42cc92fdc69777045f471aa8b9fc64556fcf007397b43e47bbac964",
+              "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+              "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+              "remainingScreens": 14,
+              "recordedSteps": 49,
+              "status": "complete",
+              "commit": "425659b723428a2b5f4b60642f139a96d171677f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-wet-towel-insight",
+                "session": "synthetic/v31/v31-wet-towel-insight",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-wet-towel-insight.session.json",
+                "recordingPath": "challenges/cases/v31/v31-wet-towel-insight.session.json",
+                "recordingSha256": "cf7bd1edb42cc92fdc69777045f471aa8b9fc64556fcf007397b43e47bbac964",
+                "recipe": "challenges/cases/v31/v31-wet-towel-insight.recipe.session.json",
+                "recipeSha256": "27abcbc4015dbe04f7d895a64051c2d3d9fff00c61aa912e014074adffa2ef92",
+                "replayInputSha256": "b46720adc2791318963a2e85ede4f613172c6b97b6de08f87c4ac16ed852d40f",
+                "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+                "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+                "evaluationUtc": "2026-10-08T20:27:01.083Z",
+                "remainingScreens": 14,
+                "recordedSteps": 49,
+                "previousScreensMatched": 35,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 49
+                  },
+                  "rng": {
+                    "matched": 1773,
+                    "total": 1773
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 49
+                  }
+                },
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "insight.c",
+                "function": "weapon_insight",
+                "line": 1294,
+                "message": "unsupported hero command: an unported branch of this command: the attributes window requires is_wet_towel()"
+              },
+              "summary": "Detailed attributes refuses a wielded wet towel instead of applying the source wet towel description override. Complete whole insight.c weapon_insight1270-1465 with source weapon_descr-before-override order, reflection shield naming, towel wetness and complete skill tail. Existing is_wet_towel and naming/skill dependencies are available; the sole status caller is already wired.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "weapon_insight"
+                ],
+                "branch": "Non-twoweapon hero wields TOWEL with positive spe during enlightenment. Source1294 calls obj.h:is_wet_towel after weapon_descr and reflection-shield branch, then replaces description with wet towel; dry spe0 retains ordinary towel.",
+                "callers": [
+                  "insight.c:status_enlightenment1249 is the sole direct caller, invoked by enlightenment417 for every mode. doattributes2017 is reached by cmd.c attributes/^X dispatcher; potion.c enlightenment710, zap.c2529 wand, fountain.c290 knowledge, artifact.c2163 invocation and end.c594/651 disclosure share the same status caller. JS status_enlightenment1438 already calls weapon_insight, so selected wiring requires no broader dispatch edit."
+                ],
+                "dependencies": [
+                  "objnam.c:shield_simple_name5570-5593 has complete active JS397-403: reflection dknown yields silver shield, otherwise smooth shield; other objects yield shield. Unconditional return branches are pure; #if0 weight-name alternatives are inactive and source-pinned tests already exist.",
+                  "obj.h:is_wet_towel256 has complete canonical js/obj.js1314: otyp TOWEL && spe>0. Reuse it instead of the existing UnsupportedEnlightenmentError refusal.",
+                  "weapon.c:weapon_descr90-146, skill_level_name1092-1122, skill_name1125-1128 and can_advance1156-1170 are implemented with source-pinned tests. Read their source and JS: object class/skill/weapon special cases, P_NAME, all skill labels and restriction/practice/slot checks are preserved. weapon_type1517-1529 and P_SKILL/P_MAX_SKILL/P_ADVANCE macros use the canonical startup_skills state; no shared owner changes needed.",
+                  "wield.c:empty_handed158-168 is complete and already verified; humanoid/gloves/no-hands wording retained. Existing an/makeplural/strcmpi/lcase output helpers retain consumed result contracts. The function emits menu lines and is impure, although it makes no RNG call and changes no game state.",
+                  "Every remaining weapon_insight branch was compared through source closing line1465, including different/same primary-secondary skills, restricted two-weapon normalization, have/are/tense messages, and a1/a2/ab enhancement calls in source order. The current JS contains this skill tail; no missing return-value callee forces a broader closure."
+                ]
+              },
+              "evidence": [
+                "Focused assigned-base scan run-XCxYjy at425659b72 reproduces35of49screens and first refusal boundary35: attributes window requires is_wet_towel(); all1773RNG and35cursors match accepted0416 evaluation.",
+                "Admitted input wishes an uncursed wet towel, wields it, then requests #attributes. C1290 evaluates weapon_descr before1294 wetness predicate and1295 wet towel override. JS1026-1027 throws instead; canonical obj.js:is_wet_towel already matches obj.h256.",
+                "Read whole insight.c1270-1465 and direct caller1249. The prepared candidate comment1268-1340 is incomplete: the complete source unit includes the two-weapon comparison/enhancement tail through1465. The proposed source range includes that tail.",
+                "Existing pure naming/skill dependencies are source-shaped and tested; objnam shield_simple_name and obj.h is_wet_towel require no additional owner module edits. The shared whole weapon_insight tail through1465 is included in both report scopes.",
+                "The reflection-shield companion has the same direct status_enlightenment caller and consumed dependency closure; its focused scan stops at46of60screens. Group both independently claimed sessions under the whole function before game edits.",
+                "The private insight helper reads existing skill owners and does not change the independently reserved migration, telekinesis, terrain or skill-menu functions. A coherent implementation can include the adjacent wet-towel branch under its companion session reservation."
+              ],
+              "proposal": {
+                "goalId": "port-insight-weapon-insight-v31-20261008",
+                "summary": "Complete wielded-item names and skill descriptions in enlightenment.",
+                "selectionReason": "B166 terrain sessions are exact. Independent v31 wielded-shield insight retains14screens; complete insight.c weapon_insight is missing its reflection-shield and wet-towel branches, and existing return-value naming/skill dependencies are implemented. Include the related wet-towel session only after claiming it atomically; no migration, telekinesis, terrain or skill-menu owner overlap.",
+                "sourceUnits": [
+                  {
+                    "file": "insight.c",
+                    "name": "weapon_insight",
+                    "start": 1270,
+                    "end": 1465
+                  }
+                ],
+                "reservations": [
+                  "session:synthetic/v31/v31-wielded-shield-insight",
+                  "session:synthetic/v31/v31-wet-towel-insight",
+                  "source:insight.c:weapon_insight",
+                  "contract:weapon-insight-description"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v31/v31-wielded-shield-insight.json",
+                  "investigations/synthetic/v31/v31-wet-towel-insight.json",
+                  "js/insight.js",
+                  "scripts/insight.test.mjs",
+                  "scripts/objnam.test.mjs",
+                  "scripts/weapon.test.mjs",
+                  "recipes/insight.c/",
+                  "recordings/insight.c/",
+                  ".cache/"
+                ],
+                "dependencies": [],
+                "runtimeEvidencePlan": [
+                  "Admitted shield range segment0steps46-59 through detailed attributes; independent C-first shield and cheap blind/unseen/different-role naming variation if reachable.",
+                  "After companion claim, admitted wet-towel range and independent wet/dry towel naming variation; source-pinned tests cover pure shield_simple_name dknown false/true and is_wet_towel spe0/>0.",
+                  "Whole function audit and focused tests cover no weapon, twoweap, stack/articles, mass-noun classes, every skill mode, restricted/same/different skill comparisons and enhancement eligibility ordering. Reuse source-confirmed existing enlightenment command, MAGIC-only wand/potion/fountain/artifact and final-disclosure recordings to establish shared status caller modes; no whole enlightenment or end.c credit."
+                ]
+              }
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-wielded-shield-insight",
+          "session": "synthetic/v31/v31-wielded-shield-insight",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-wielded-shield-insight.session.json",
+          "recordingPath": "challenges/cases/v31/v31-wielded-shield-insight.session.json",
+          "recordingSha256": "6ac74d92255d881ccfaccf272daab2f9be7047c8ac14f8ac643f590ea727481a",
+          "recipe": "challenges/cases/v31/v31-wielded-shield-insight.recipe.session.json",
+          "recipeSha256": "b8be2d3c3de4cb9aeb98e7ab380f88e5aaa5a161555ff94ff26363b3273e4515",
+          "replayInputSha256": "34eebd2203f4b020397e2891734555bb8c8c3fff69881244972173ab9501f162",
+          "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v31.json",
+          "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+          "evaluationArtifact": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v31.json",
+          "evaluationUtc": "2026-10-08T21:20:18.545Z",
+          "remainingScreens": 14,
+          "recordedSteps": 60,
+          "previousScreensMatched": 46,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 46,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2164,
+              "total": 2164
+            },
+            "cursors": {
+              "matched": 46,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: the attributes window requires shield_simple_name()",
+            "step": 46
+          },
+          "step": 46,
+          "kind": "stop",
+          "sourceFile": "objnam.c",
+          "function": "shield_simple_name",
+          "message": "unsupported hero command: an unported branch of this command: the attributes window requires shield_simple_name()",
+          "cFile": "objnam.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-wielded-shield-insight.json",
+            "result": {
+              "session": "synthetic/v31/v31-wielded-shield-insight",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-wielded-shield-insight",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "6ac74d92255d881ccfaccf272daab2f9be7047c8ac14f8ac643f590ea727481a",
+              "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+              "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+              "remainingScreens": 14,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "b033d5e4809f6f5cea1d739621017a552001c404",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-wielded-shield-insight",
+                "session": "synthetic/v31/v31-wielded-shield-insight",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-wielded-shield-insight.session.json",
+                "recordingPath": "challenges/cases/v31/v31-wielded-shield-insight.session.json",
+                "recordingSha256": "6ac74d92255d881ccfaccf272daab2f9be7047c8ac14f8ac643f590ea727481a",
+                "recipe": "challenges/cases/v31/v31-wielded-shield-insight.recipe.session.json",
+                "recipeSha256": "b8be2d3c3de4cb9aeb98e7ab380f88e5aaa5a161555ff94ff26363b3273e4515",
+                "replayInputSha256": "b46720adc2791318963a2e85ede4f613172c6b97b6de08f87c4ac16ed852d40f",
+                "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+                "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+                "evaluationUtc": "2026-10-08T20:27:01.083Z",
+                "remainingScreens": 14,
+                "recordedSteps": 60,
+                "previousScreensMatched": 46,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 46,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2164,
+                    "total": 2164
+                  },
+                  "cursors": {
+                    "matched": 46,
+                    "total": 60
+                  }
+                },
+                "step": 46,
+                "kind": "stop",
+                "sourceFile": "insight.c",
+                "function": "weapon_insight",
+                "line": 1293,
+                "message": "unsupported hero command: an unported branch of this command: the attributes window requires shield_simple_name()"
+              },
+              "summary": "Detailed attributes refuses a wielded reflection shield even though objnam.c shield_simple_name is already implemented. Complete whole insight.c weapon_insight1270-1465 by preserving weapon_descr first, then the source shield override and wet-towel override, followed by stack/article and complete skill/comparison output. The sole status_enlightenment caller is already wired. Existing naming, skill and pure macro dependencies are available; related wet-towel mismatch belongs to the same source unit.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "weapon_insight"
+                ],
+                "branch": "Non-twoweapon hero wields SHIELD_OF_REFLECTION during basic/magical/final enlightenment. Source calls weapon_descr before replacing what with shield_simple_name; adjacent is_wet_towel override belongs to the same whole function.",
+                "callers": [
+                  "insight.c:status_enlightenment1249 is the sole direct caller, invoked by enlightenment417 for every mode. doattributes2017 is reached by cmd.c attributes/^X dispatcher; potion.c enlightenment710, zap.c2529 wand, fountain.c290 knowledge, artifact.c2163 invocation and end.c594/651 disclosure share the same status caller. JS status_enlightenment1438 already calls weapon_insight, so selected wiring requires no broader dispatch edit."
+                ],
+                "dependencies": [
+                  "objnam.c:shield_simple_name5570-5593 has complete active JS397-403: reflection dknown yields silver shield, otherwise smooth shield; other objects yield shield. Unconditional return branches are pure; #if0 weight-name alternatives are inactive and source-pinned tests already exist.",
+                  "obj.h:is_wet_towel256 has complete canonical js/obj.js1314: otyp TOWEL && spe>0. Reuse it instead of the existing UnsupportedEnlightenmentError refusal.",
+                  "weapon.c:weapon_descr90-146, skill_level_name1092-1122, skill_name1125-1128 and can_advance1156-1170 are implemented with source-pinned tests. Read their source and JS: object class/skill/weapon special cases, P_NAME, all skill labels and restriction/practice/slot checks are preserved. weapon_type1517-1529 and P_SKILL/P_MAX_SKILL/P_ADVANCE macros use the canonical startup_skills state; no shared owner changes needed.",
+                  "wield.c:empty_handed158-168 is complete and already verified; humanoid/gloves/no-hands wording retained. Existing an/makeplural/strcmpi/lcase output helpers retain consumed result contracts. The function emits menu lines and is impure, although it makes no RNG call and changes no game state.",
+                  "Every remaining weapon_insight branch was compared through source closing line1465, including different/same primary-secondary skills, restricted two-weapon normalization, have/are/tense messages, and a1/a2/ab enhancement calls in source order. The current JS contains this skill tail; no missing return-value callee forces a broader closure."
+                ]
+              },
+              "evidence": [
+                "Focused assigned-base scan run-XHgBZq at b033d5e reports46 emitted screens of60, first boundary46: attributes window requires shield_simple_name(); all2164RNG and46cursors match accepted0416 evaluation. No game or challenge file was changed for diagnosis.",
+                "Admitted input wishes an uncursed shield of reflection, wields it, then requests #attributes. Read source and exact JS refusal at insight.js1021-1022; C1290 calls weapon_descr first and C1293 overrides what with shield_simple_name, while JS refuses before its weapon_descr call.",
+                "Read whole insight.c1270-1465 and direct caller1249. The prepared candidate comment1268-1340 is incomplete: the complete source unit includes the two-weapon comparison/enhancement tail through1465. The proposed source range includes that tail.",
+                "Existing objnam.test.mjs429-440 source-pins shield_simple_name silver/smooth alternatives; weapon.test.mjs846 onward pins weapon_descr special categories; can_advance has accepted whole-function evidence in port-weapon-enhance-seed4500. Verification does not grant new credit for those owners.",
+                "Source1294-1295 is the wet-towel companion override; existing scripts/insight.test.mjs dry/wet test still asserts UnsupportedEnlightenmentError for positive wetness and must be updated in the implementation. No companion case replay/report is performed before session ownership succeeds.",
+                "The private insight helper reads existing skill owners and does not change the independently reserved migration, telekinesis, terrain or skill-menu functions. A coherent implementation can include the adjacent wet-towel branch under its companion session reservation."
+              ],
+              "proposal": {
+                "goalId": "port-insight-weapon-insight-v31-20261008",
+                "summary": "Complete wielded-item names and skill descriptions in enlightenment.",
+                "selectionReason": "B166 terrain sessions are exact. Independent v31 wielded-shield insight retains14screens; complete insight.c weapon_insight is missing its reflection-shield and wet-towel branches, and existing return-value naming/skill dependencies are implemented. Include the related wet-towel session only after claiming it atomically; no migration, telekinesis, terrain or skill-menu owner overlap.",
+                "sourceUnits": [
+                  {
+                    "file": "insight.c",
+                    "name": "weapon_insight",
+                    "start": 1270,
+                    "end": 1465
+                  }
+                ],
+                "reservations": [
+                  "session:synthetic/v31/v31-wielded-shield-insight",
+                  "session:synthetic/v31/v31-wet-towel-insight",
+                  "source:insight.c:weapon_insight",
+                  "contract:weapon-insight-description"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v31/v31-wielded-shield-insight.json",
+                  "investigations/synthetic/v31/v31-wet-towel-insight.json",
+                  "js/insight.js",
+                  "scripts/insight.test.mjs",
+                  "scripts/objnam.test.mjs",
+                  "scripts/weapon.test.mjs",
+                  "recipes/insight.c/",
+                  "recordings/insight.c/",
+                  ".cache/"
+                ],
+                "dependencies": [],
+                "runtimeEvidencePlan": [
+                  "Admitted shield range segment0steps46-59 through detailed attributes; independent C-first shield and cheap blind/unseen/different-role naming variation if reachable.",
+                  "After companion claim, admitted wet-towel range and independent wet/dry towel naming variation; source-pinned tests cover pure shield_simple_name dknown false/true and is_wet_towel spe0/>0.",
+                  "Whole function audit and focused tests cover no weapon, twoweap, stack/articles, mass-noun classes, every skill mode, restricted/same/different skill comparisons and enhancement eligibility ordering. Reuse source-confirmed existing enlightenment command, MAGIC-only wand/potion/fountain/artifact and final-disclosure recordings to establish shared status caller modes; no whole enlightenment or end.c credit."
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
