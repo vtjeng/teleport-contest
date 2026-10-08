@@ -201249,7 +201249,7 @@
     {
       "id": "port-wizcmds-wiz-kill-v29-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wizard monster selection and kill command",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -201263,15 +201263,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_kill",
           "line": 243,
           "endLine": 352,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -201445,7 +201448,101 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_kill",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_kill",
+            "sourceReview": "Read complete wizcmds.c:243–352 and reconcile every branch in source order: preserved cursor and original level by value, saved verbose/autodescribe, first/next prompt, forced getpos and negative/x<1 guards, mounted ynq default q with addcmdq, Samurai seppuku or suicide with paranoid yes and original-gender uhis/KILLED_BY/DIED, swallowed next2u(distu<=2)/ustuck versus m_at, unmap_invisible before naming, tame/unseen articles/adjectives and suppression flags, hero xkilled(XKILL_NOMSG) versus m-prefix monkilled(NULL,AD_PHYS) inside mon_moving, utotype/on_level termination, unconditional dmonsfree and ECMD_OK. Existing death owners receive the full canonical RNG family so start_corpse_timeout retains the rnz wrapper log. The generic unsupported doextcmd fallback is replaced for this row; its error class remains in use by other command rows. Consumed-return helpers getpos, yn_function/ynq, paranoid_query, on_level, m_at, canspotmon, nonliving and x_monnam/mon_nam have canonical implementations; macro next2u is the source dist2<=2 expression and uhis reads flags.female. Audited existing getpos.js, cmd.js confirmation, display.js visibility/unmapping, mondata.js nonliving, do_name.js names, dungeon.js on_level, mon.js xkilled/monkilled/m_detach, makemon_create.js dmonsfree, end.js done. No whole-helper or cmd completion credit. Existing discarded-void downstream gaps remain explicit: mounted death through mon.c:m_detach2800–2801 cannot run steed.c:dismount_steed(DISMOUNT_GENERIC); swallowed fog-cloud setup records light.c:snuff_lit; gas-spore explosion records sounds.c:SoundAchievement. The blocked mounted-death recipe is excluded from passing recordings.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:493–517 invokes extcmdlist wizkill1967–1969 with its CMD_M_PREFIX/WIZMODECMD flags; JS now awaits runKillCommand -> wiz_kill."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:3727 and3810–3825 invoke the configured extcmd function and consume ECMD results. JS ADMITTED_COMMANDS now includes wizkill; counted no-time dispatch and m-prefix preserve normal reset_cmd_vars result behavior through runKillCommand."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd-span.test.mjs",
+              "scripts/extended-command-prompt.test.mjs",
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-kill-hero.session.json",
+              "recordings/wizcmds.c/wizard-kill-monster.session.json",
+              "recordings/wizcmds.c/wizard-kill-bound.session.json",
+              "recordings/wizcmds.c/wizard-kill-suicide.session.json",
+              "recordings/wizcmds.c/wizard-kill-mount.session.json",
+              "recordings/wizcmds.c/wizard-kill-swallowed.session.json",
+              "recordings/wizcmds.c/wizard-kill-multiple.session.json",
+              "recordings/wizcmds.c/wizard-kill-gas.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-quantum-mechanic-box",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 47,
+                "source": "cmd.c:doextcmd493–517 -> extcmdlist wizkill1967–1969 -> wizcmds.c:wiz_kill243–352. getpos selects the peaceful quantum mechanic; xkilled receives XKILL_NOMSG, builds corpse/timer and awards experience; the second target loop cancels and dmonsfree runs with ECMD_OK."
+              }
+            ],
+            "checkedAt": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008"
+          }
+        ],
+        "entryPointReview": "Whole source search finds wiz_kill only in cmd.c extcmdlist wizkill1967–1969. Active caller routes are typed doextcmd and configured-key rhack; both preserve WIZMODECMD and CMD_M_PREFIX from the existing row. Independent records cover typed normal hero credit, typed m-prefix nonliving destruction, configured counted Samurai suicide refusal/empty target, configured counted m-prefix gas-spore collateral death, repeated targets and immediate purge, ordinary female suicide/wizard recovery, mounted q/n dialogue, and swallowed target/release. No new source helpers are claimed. Level-changing trap termination and named/unseen-pet wording are source-reconciled with existing canonical helpers; the records do not claim those rare branches executed. Mounted kill remains blocked specifically on the existing discarded-void dismount helper, with a committed independent recipe; the wiz_kill mounted dialogue/target-selection branch itself has matching runtime evidence.",
+        "entryPoints": [
+          {
+            "name": "typed wizkill extended command, normal and m-prefix",
+            "functions": [
+              "wiz_kill"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-kill-hero.session.json",
+              "recordings/wizcmds.c/wizard-kill-monster.session.json",
+              "recordings/wizcmds.c/wizard-kill-suicide.session.json",
+              "recordings/wizcmds.c/wizard-kill-mount.session.json",
+              "recordings/wizcmds.c/wizard-kill-swallowed.session.json",
+              "recordings/wizcmds.c/wizard-kill-multiple.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-quantum-mechanic-box",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 47,
+                "source": "cmd.c:doextcmd493–517 -> extcmdlist wizkill1967–1969 -> wizcmds.c:wiz_kill243–352. getpos selects the peaceful quantum mechanic; xkilled receives XKILL_NOMSG, builds corpse/timer and awards experience; the second target loop cancels and dmonsfree runs with ECMD_OK."
+              }
+            ]
+          },
+          {
+            "name": "configured wizkill key with count, normal and m-prefix",
+            "functions": [
+              "wiz_kill"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-kill-bound.session.json",
+              "recordings/wizcmds.c/wizard-kill-gas.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-ball-ballfall-v28-20261008",
@@ -201544,6 +201641,37 @@
           "recordingSha256": "0c1c7929ab931001134d5b68730fbf76cfabd78cad10477b6d47118a68dfa08d",
           "evaluationPath": "challenges/evaluations/accepted-be1d7b43058b9973167448f8562c136850501400-v29.json",
           "evaluationCommit": "be1d7b43058b9973167448f8562c136850501400"
+        }
+      }
+    },
+    {
+      "id": "fix-apply-use-mirror-medusa-v28-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire canonical reflected Medusa petrification from use_mirror",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "A146 makes its v29 seed case exact. The refreshed v28 mirror investigation remains current at accepted 1d7f8aa4 with 7 unmatched screens; it traces the first divergence through apply.c:use_mirror's discarded killed() call, and its source and reflected-gaze state contracts are unreserved.",
+      "detail": "investigations/synthetic/v28/v28-mirror-medusa.json records the current manifest and recording digests, exact step-45 RNG divergence, source call chain, canonical killed/xkilled/monstone reuse, bounded caller scope, and independent validation plan.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_mirror",
+      "session": "synthetic/v28/v28-mirror-medusa",
+      "step": 45,
+      "syntheticProvenance": {
+        "synthetic/v28/v28-mirror-medusa": {
+          "session": "synthetic/v28/v28-mirror-medusa",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-mirror-medusa",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-mirror-medusa.session.json",
+          "recordingSha256": "76e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a",
+          "evaluationPath": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json",
+          "evaluationCommit": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008"
         }
       }
     }
