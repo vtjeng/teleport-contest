@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T10:14:58.627Z",
+  "capturedAt": "2026-10-08T10:23:47.901Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -27378,12 +27378,67 @@
         "type": "accepted",
         "at": "2026-10-08T10:14:46.918Z",
         "task": "A153"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A153-84f8bcc58",
+        "type": "published",
+        "at": "2026-10-08T10:15:34.795Z",
+        "task": "A153",
+        "commit": "84f8bcc5828dc09d022ddb5d20842fa2a8a967ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A154-xray-eebfa326",
+        "type": "implement",
+        "at": "2026-10-08T10:15:59.835Z",
+        "task": "A154",
+        "goal": "fix-vision-xray-overlay-v29-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ec4137eaf31b9c20b725b4f9a02a3e1aadcda08c",
+        "type": "ready",
+        "at": "2026-10-08T10:17:00.921Z",
+        "task": "C146",
+        "delivery": "ec4137eaf31b9c20b725b4f9a02a3e1aadcda08c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B151-7e71008bccf5e116384b2680966e5c876d955df9",
+        "type": "integrating",
+        "at": "2026-10-08T10:17:14.460Z",
+        "task": "B151",
+        "integration": "7e71008bccf5e116384b2680966e5c876d955df9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C146-ec4137eaf",
+        "type": "received",
+        "at": "2026-10-08T10:17:29.140Z",
+        "task": "C146",
+        "delivery": "ec4137eaf31b9c20b725b4f9a02a3e1aadcda08c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B151-7e71008bccf5e116384b2680966e5c876d955df9-validated",
+        "type": "validated",
+        "at": "2026-10-08T10:22:04.902Z",
+        "task": "B151",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B151-7e71008bccf5e116384b2680966e5c876d955df9-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T10:23:37.181Z",
+        "task": "B151"
       }
     ]
   },
   "development": {
-    "executionCommit": "2ce550233f2bed644fa87f907aacb1d43b3cd7de",
-    "measuredAt": "2026-10-08T10:12:16.095Z",
+    "executionCommit": "7e71008bccf5e116384b2680966e5c876d955df9",
+    "measuredAt": "2026-10-08T10:21:22.287Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

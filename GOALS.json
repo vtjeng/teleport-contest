@@ -206989,13 +206989,13 @@
     {
       "id": "port-potion-peffect-levitation-v29-20261008",
       "kind": "file-port",
-      "status": "parked",
+      "status": "closed",
       "summary": "Port the whole levitation potion effect and restore cursed upstairs handling",
       "cFile": "potion.c",
       "sessions": [
         "synthetic/v29/v29-cursed-levitation-up"
       ],
-      "selectionReason": "The oldest reserved v29 mismatch skips the source doup call for cursed levitation on an upstairs square.",
+      "selectionReason": "A153 is accepted and B151 is the next dependency-ready implementation delivery.",
       "detail": "Preserve peffect_levitation branch and common-tail ordering for quaff and spell callers; reuse the existing whole doup owner and retain companion-transfer and end-game limits outside this goal.",
       "openedAt": "4112636a58689f078315daeb8408d36e0ec5f8c1",
       "openStanding": {
@@ -207003,15 +207003,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7e71008bccf5e116384b2680966e5c876d955df9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_levitation",
           "line": 1165,
           "endLine": 1223,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -207033,7 +207036,7 @@
         }
       },
       "activeStanding": {
-        "sha": "7fd6fc56bec3f59571bef99c466c6d95f54dffe8",
+        "sha": "2ce550233f2bed644fa87f907aacb1d43b3cd7de",
         "screens": 11405,
         "rng": 792838
       },
@@ -207275,7 +207278,94 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "A152 is the oldest dependency-ready delivery and must integrate first; B151 implementation continues independently."
+      "parkedReason": "A152 is the oldest dependency-ready delivery and must integrate first; B151 implementation continues independently.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_levitation",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_levitation",
+            "sourceReview": "Read complete potion.c1165-1221 and compared all source branches in order: !Levitation&&!BLevitation sets timeout1 before awaited float_up; otherwise potion_nothing++; cursed clears I_SPECIAL even already levitating, blocked rise is empty, up-stair branch awaits existing doup and discards ECMD return before resetting potion_nothing, else ceiling damage rnd(10/6/3) followed by Maybe_Half_Phys/losehp and reset; blessed rn1(50,250) before I_SPECIAL, uncursed rn1(140,10), effective Levitation sink spoteffects(FALSE), then float_vs_flight. Replaced only selected do.c:doup note_unported; no injected operation/refusal or swallowed failure remains in this unit. No invented draw or display effect. Existing consumed stairway_at, has_ceiling, hard_helmet, body_part/ceiling and Maybe_Half_Phys owners verified. Read whole doup1298-1344, prev_level1518-1543, float_vs_flight131-164 and matching JS; no broad completion credit. Existing downstream companion transfer limits explicitly preserved.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c1404-1406 POT_LEVITATION/SPE_LEVITATION shared awaited effect; existing command quaff -> dodrink/dopotion and spell.c1533-1545 spelleffects -> peffects production routes verified."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/doup.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/monster-pit.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/levitation-cursed-upstairs.session.json",
+              "recordings/potion.c/levitation-cursed-ceiling.session.json",
+              "recordings/potion.c/levitation-blessed.session.json",
+              "recordings/potion.c/levitation-uncursed.session.json",
+              "recordings/potion.c/levitation-spell.session.json",
+              "recordings/potion.c/levitation-sink.session.json"
+            ],
+            "sourceFile": "potion.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-cursed-levitation-up",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 40,
+                "source": "cmd.c quaff -> potion.c:dodrink526-615/dopotion618-641/peffects1404-1406 -> peffect_levitation1165-1221 -> do.c:doup1298-1344. Cursed upstairs query, decline, potion_nothing reset, shared float_vs_flight tail, next-turn descent. Whole 41 boundaries/2510 RNG exact."
+              }
+            ],
+            "checkedAt": "7e71008bccf5e116384b2680966e5c876d955df9"
+          }
+        ],
+        "entryPointReview": "Only direct effect caller is potion.c:peffects POT_LEVITATION/SPE_LEVITATION. Active family1 quaff: cmd.c q/#quaff -> dodrink -> dopotion -> peffects; admitted cursed upstairs range plus independent cursed upstairs/ceiling, blessed/uncursed and sink recordings. Active family2 spell: cmd.c #wizcast -> spell.c:dowizcast -> spelleffects1533-1545 -> peffects SPE_LEVITATION; independent basic-skilled Wizard spell recording. Normal learned spell uses the same spelleffects dispatch; no extra effect call. end.c debug done_in_by callers make only POT_WATER/POT_RESTORE_ABILITY, never levitation. Other float_up callers belong to the existing owner, not this selected effect. No inactive source branches invented.",
+        "entryPoints": [
+          {
+            "name": "Quaff levitation potion",
+            "functions": [
+              "peffect_levitation"
+            ],
+            "recordings": [
+              "recordings/potion.c/levitation-cursed-upstairs.session.json",
+              "recordings/potion.c/levitation-cursed-ceiling.session.json",
+              "recordings/potion.c/levitation-blessed.session.json",
+              "recordings/potion.c/levitation-uncursed.session.json",
+              "recordings/potion.c/levitation-sink.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-cursed-levitation-up",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 40,
+                "source": "cmd.c quaff -> potion.c:dodrink526-615/dopotion618-641/peffects1404-1406 -> peffect_levitation1165-1221 -> do.c:doup1298-1344. Cursed upstairs query, decline, potion_nothing reset, shared float_vs_flight tail, next-turn descent. Whole 41 boundaries/2510 RNG exact."
+              }
+            ]
+          },
+          {
+            "name": "Cast levitation spell",
+            "functions": [
+              "peffect_levitation"
+            ],
+            "recordings": [
+              "recordings/potion.c/levitation-spell.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7e71008bccf5e116384b2680966e5c876d955df9",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-lock-doopen-indir-whole-v29-20261008",
