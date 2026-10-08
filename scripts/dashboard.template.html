@@ -547,6 +547,11 @@ canvas {
 .activity-bar.phase-integrating { --bar: var(--goal-divergence); }
 .activity-bar.phase-acceptance { --bar: var(--goal-in-progress); }
 .activity-bar.phase-publication { --bar: var(--ink-muted); }
+.activity-bar.phase-review, .activity-bar.phase-admission { --bar: var(--goal-divergence); }
+.activity-bar.phase-baseline { --bar: var(--goal-in-progress); }
+.activity-bar.phase-rework { --bar: var(--goal-file-port); background-image: repeating-linear-gradient(90deg, transparent 0 5px, var(--surface-chart) 5px 7px); }
+.activity-bar.phase-waiting { --bar: var(--goal-boundary); background-image: repeating-linear-gradient(135deg, transparent 0 3px, var(--surface-chart) 3px 5px); }
+.activity-bar.phase-unrecorded { background: transparent; border: 1px dashed var(--ink-muted); opacity: 0.55; box-sizing: border-box; }
 .activity-bar.selected, .activity-bar:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 2px; z-index: 1; }
 .activity-axis {
   height: 24px;
@@ -925,12 +930,12 @@ canvas {
   <p class="activity-pan-hint">Drag the timeline to move through time. Arrow keys work when the timeline is focused.</p>
   <div class="chart-wrap">
     <div class="activity-metrics" id="activityMetrics"></div>
-    <p class="activity-note">Assignment and wait bars for the same task share a row. Overlapping rows show deliveries waiting while other tasks proceed. Integration includes review and checks; exact validation-slot occupancy is not recorded here.</p>
+    <p class="activity-note">Solid bars show recorded stages, striped bars show reported waits or rework, and dashed bars mark unrecorded time—not proven idleness. Select a wait to inspect its reason and overlapping work. Review before merging and batch admission appear only when explicitly recorded.</p>
     <div class="legend" id="timelineLegend"></div>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <div class="activity-details">
       <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
-      <div class="activity-waits"><h4>Waits by length</h4><div id="activityWaitList"></div></div>
+      <div class="activity-waits"><h4>Waits and unrecorded time</h4><div id="activityWaitList"></div></div>
     </div>
   </div>
 </div>
@@ -1640,12 +1645,16 @@ document.getElementById('stats').innerHTML = [
   const taskById = new Map((activity.tasks || []).map(task => [task.id, task]));
   const phaseNames = { working: 'Assigned task', queued: 'Waiting for integration',
     integrating: 'Integration and checks', acceptance: 'Acceptance',
-    publication: 'Publication' };
+    publication: 'Publication', review: 'Review', rework: 'Rework',
+    admission: 'Batch admission', baseline: 'Batch baseline',
+    waiting: 'Reported wait', unrecorded: 'Unrecorded time' };
   document.getElementById('timelineLegend').innerHTML = Object.entries(phaseNames)
     .map(([phase, name]) => '<div class="legend-item"><div class="legend-swatch phase-' + phase
       + '" style="background:var(' + ({ working: '--goal-file-port', queued: '--goal-boundary',
         integrating: '--goal-divergence', acceptance: '--goal-in-progress',
-        publication: '--ink-muted' })[phase] + ')"></div>' + name + '</div>').join('');
+        publication: '--ink-muted', review: '--goal-divergence', rework: '--goal-file-port',
+        admission: '--goal-divergence', baseline: '--goal-in-progress',
+        waiting: '--goal-boundary', unrecorded: '--ink-muted' })[phase] + ')"></div>' + name + '</div>').join('');
   if (!segments.length) {
     container.textContent = 'No worker activity snapshot is available.';
     return;
@@ -1701,36 +1710,39 @@ document.getElementById('stats').innerHTML = [
     const sorted = [...values].sort((a, b) => a - b);
     return sorted[Math.ceil(fraction * sorted.length) - 1];
   };
-  const ongoing = segment => segment.end === activity.capturedAt
+  const ongoing = segment => segment.ongoing || segment.end === activity.capturedAt
     && taskById.get(segment.task)?.status === (segment.phase === 'queued' ? 'ready' : 'integrating');
   const metric = (label, value, detail) => '<div class="activity-metric"><div class="activity-metric-label">'
     + label + '</div><strong class="activity-metric-value">' + value
     + '</strong><div class="activity-metric-detail">' + detail + '</div></div>';
-  const name = segment => taskById.get(segment.task)?.label || segment.task;
+  const name = segment => taskById.get(segment.task)?.label || segment.label || segment.task;
+  const isWait = segment => ['queued', 'waiting', 'unrecorded'].includes(segment.phase);
   function describe(index) {
     const segment = segments[index];
     if (!segment) return;
     const task = taskById.get(segment.task);
     let context = '';
-    if (segment.phase === 'queued') {
-      const main = segments.filter(row => row.lane === 'Main' && overlap(row, segment) > 0)
+    if (isWait(segment)) {
+      const main = segments.filter(row => row.lane === 'Main' && !isWait(row) && overlap(row, segment) > 0)
         .sort((a, b) => overlap(b, segment) - overlap(a, segment));
-      const otherWork = segments.filter(row => row.phase === 'working'
+      const otherWork = segments.filter(row => ['working', 'rework'].includes(row.phase)
         && row.worker === segment.worker && row.task !== segment.task);
       const assigned = otherWork.reduce((sum, row) => sum + overlap(row, segment), 0);
-      context = '<p>' + (main.length
+      context = (segment.reason ? '<p>' + esc(segment.reason) + '</p>' : '') + '<p>' + (main.length
         ? 'Recorded Main stages overlapped this wait:'
         : 'No Main stage is recorded during this wait; its cause is unknown.') + '</p>'
         + (main.length ? '<ul>' + main.slice(0, 4).map(row => '<li>'
           + esc(name(row)) + ' · ' + phaseNames[row.phase] + ' · '
           + fmt(overlap(row, segment)) + '</li>').join('') + '</ul>' : '')
-        + '<p>' + (assigned ? 'Another task was assigned to this worker for '
+        + (segment.lane === 'Main' ? '<p>' + segments.filter(row => row.phase === 'queued'
+          && overlap(row, segment) > 0).length + ' deliveries were waiting during this interval.</p>'
+          : '<p>' + (assigned ? 'Another task was assigned to this worker for '
           + fmt(assigned) + ' of the wait.' : 'No other worker assignment is recorded during this wait.')
-        + ' Assignment does not measure active coding.</p>';
+        + ' Assignment does not measure active coding.</p>');
     } else if (segment.lane === 'Main') {
       const waiting = segments.filter(row => row.phase === 'queued' && overlap(row, segment) > 0);
       const waitMinutes = waiting.reduce((sum, row) => sum + overlap(row, segment), 0);
-      context = '<p>' + waiting.length + ' waiting '
+      context = (segment.reason ? '<p>' + esc(segment.reason) + '</p>' : '') + '<p>' + waiting.length + ' waiting '
         + (waiting.length === 1 ? 'delivery' : 'deliveries') + ' overlapped this stage'
         + (waiting.length ? ', totaling ' + fmt(waitMinutes) + ' of delivery wait time' : '')
         + '. Overlap alone does not establish why they waited.</p>';
@@ -1751,16 +1763,16 @@ document.getElementById('stats').innerHTML = [
     const completed = phase => shown.filter(({ segment }) => segment.phase === phase
       && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd
       && !ongoing(segment)).map(({ segment }) => duration(segment));
-    const waits = shown.filter(({ segment }) => segment.phase === 'queued'
+    const waits = shown.filter(({ segment }) => isWait(segment)
       && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd)
       .sort((a, b) => duration(b.segment) - duration(a.segment));
     const waitValues = completed('queued');
     const integrationValues = completed('integrating');
-    metrics.innerHTML = metric('Ready → Main', fmt(percentile(waitValues, .5)),
+    metrics.innerHTML = metric('Ready → integration', fmt(percentile(waitValues, .5)),
       fmt(percentile(waitValues, .9)) + ' p90 · ' + waitValues.length + ' completed waits')
       + metric('Integration and checks', fmt(percentile(integrationValues, .5)),
         fmt(percentile(integrationValues, .9)) + ' p90 · ' + integrationValues.length + ' completed stages')
-      + metric('Longest wait', waits.length ? fmt(duration(waits[0].segment)) : '—',
+      + metric('Longest wait / unrecorded interval', waits.length ? fmt(duration(waits[0].segment)) : '—',
         waits.length ? esc(name(waits[0].segment)) + ' · worker '
           + esc(waits[0].segment.worker) + (ongoing(waits[0].segment) ? ' · ongoing' : '')
           : 'No waits ended in this window');
@@ -1803,7 +1815,7 @@ document.getElementById('stats').innerHTML = [
     container.innerHTML = html;
     waitList.innerHTML = waits.length ? waits.map(({ segment, index }) =>
       '<button type="button" data-segment="' + index + '"><span><strong>'
-      + esc(name(segment)) + '</strong> <small>Worker ' + esc(segment.worker)
+      + esc(name(segment)) + '</strong> <small>' + esc(phaseNames[segment.phase])
       + '</small></span><span>' + fmt(duration(segment))
       + (ongoing(segment) ? ' · ongoing' : '') + '</span></button>').join('')
       : '<p class="activity-note">No handoff wait ended in this window.</p>';

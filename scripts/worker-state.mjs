@@ -35,6 +35,7 @@ by this command, not the caller. Required fields by type:
   connect: worker, handle (worker tests its connection to the shared inbox)
   connected: worker, handle (coordinator acknowledges that connection)
   turn: worker, state (active, idle or blocked), reason (text or null), processes
+        optional summary (public dashboard explanation; omit private paths and handles)
   coordinator: handle (string or null), processes (array of live handles)
   assign: task (unique id), worker, seed (string or null), base,
           reservations, allowedPaths; optional kind (implementation,
@@ -43,6 +44,8 @@ by this command, not the caller. Required fields by type:
   scope: task, reservations, allowedPaths (expand working scope; include old entries)
   implement: task, goal, reservations, allowedPaths (claim an investigation's source scope)
   received: task, delivery (exact SHA being acknowledged)
+  activity: task, phase (review, admission, baseline, waiting or done), reason (public)
+            records coordinator time only; does not change task/validation state
   feedback: task, delivery, reason (queued correction, not an interrupt)
   integrating: task, integration (exact combined SHA)
   validated: task, passed (boolean), checkpoint (absolute summary file)
@@ -55,7 +58,7 @@ by this command, not the caller. Required fields by type:
 Workers pass --file with the shared ledger path. They may connect, record their
 own turn, claim/expand/resume their own tasks and submit. They may park their own
 investigation when its cause belongs to another worker. All other event types
-are coordinator-only. Up to three persistent workers may hold live ownership.
+are coordinator-only. Up to four persistent workers may hold live ownership.
 Git resolves revisions and checks registration, assignment, candidate and
 checkpoint identity. Publication is recorded only after local and remote main
 match the accepted commit. sync-main performs a safe local fast-forward only;
@@ -130,12 +133,14 @@ const FIELDS = {
     implement: ['task', 'goal', 'reservations', 'allowedPaths'],
     ready: ['task', 'delivery', 'base', 'commits', 'paths', 'evidence', 'dependencies'],
     received: ['task', 'delivery'],
+    activity: ['task', 'phase', 'reason'],
     feedback: ['task', 'delivery', 'reason'],
     integrating: ['task', 'integration'],
     validated: ['task', 'passed', 'checkpoint'],
     accepted: ['task'], published: ['task', 'commit'], park: ['task', 'reason'], resume: ['task'],
 };
-const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'], published: ['supplementalCheckpoint'] };
+const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'], published: ['supplementalCheckpoint'],
+    turn: ['summary'] };
 
 function check(condition, message) {
     if (!condition) throw new Error(message);
@@ -229,8 +234,8 @@ function applyEvent(state, event, at) {
         identifier(event.worker, 'worker'); absolute(event.worktree, 'worktree');
         string(event.branch, 'branch'); sha(event.base, 'base'); string(event.handle, 'handle');
         check(!state.workers[event.worker], `worker ${event.worker} already exists`);
-        check(Object.values(state.workers).filter(w => w.handle !== null || w.processes.length).length < 3,
-            'at most three workers may have live ownership');
+        check(Object.values(state.workers).filter(w => w.handle !== null || w.processes.length).length < 4,
+            'at most four workers may have live ownership');
         check(!Object.values(state.workers).some(w => w.worktree === event.worktree || w.branch === event.branch || w.handle === event.handle),
             'worker worktree, branch and handle must each have one owner');
         state.workers[event.worker] = { worker: event.worker, worktree: event.worktree,
@@ -241,6 +246,7 @@ function applyEvent(state, event, at) {
         check(Object.hasOwn(state.workers, event.worker), 'unknown worker');
         const worker = state.workers[event.worker];
         if (type === 'turn') {
+            if (event.summary !== undefined) string(event.summary, 'public turn summary');
             check(['active', 'idle', 'blocked'].includes(event.state), 'turn state must be active, idle or blocked');
             list(event.processes, 'processes', string, true);
             if (event.reason !== null) string(event.reason, 'reason');
@@ -266,8 +272,8 @@ function applyEvent(state, event, at) {
         list(event.processes, 'processes', string, true);
         if (type === 'observe' && (event.handle !== null || event.processes.length)) {
             check(Object.values(state.workers).filter(w => w.worker !== event.worker
-                && (w.handle !== null || w.processes.length)).length < 3,
-            'at most three workers may have live ownership');
+                && (w.handle !== null || w.processes.length)).length < 4,
+            'at most four workers may have live ownership');
         }
         check(!Object.values(state.workers).some(w => w.worker !== event.worker && event.handle !== null && w.handle === event.handle), 'handle already belongs to another worker');
         if (type === 'observe' && state.workers[event.worker].handle !== event.handle) {
@@ -320,6 +326,20 @@ function applyEvent(state, event, at) {
     }
     const task = state.tasks[event.task];
     check(task, `unknown task: ${event.task}`);
+    if (type === 'activity') {
+        check(['review', 'admission', 'baseline', 'waiting', 'done'].includes(event.phase),
+            'activity phase must be review, admission, baseline, waiting or done');
+        string(event.reason, 'reason');
+        if (['admission', 'baseline'].includes(event.phase))
+            check(task.kind === 'challenge-preparation' && task.status === 'accepted',
+                'admission and baseline activity require accepted preparation');
+        // Observation only: never occupy/release the integration slot or authorize acceptance.
+        if (event.phase === 'done') delete task.activity;
+        else task.activity = { phase: event.phase, reason: event.reason, at };
+        return;
+    }
+    if (['integrating', 'feedback', 'validated', 'accepted', 'published', 'park'].includes(type))
+        delete task.activity;
     const requireStatus = (...statuses) => check(statuses.includes(task.status),
         `${type} requires ${statuses.join(' or ')} task; ${task.id} is ${task.status}`);
     const delivery = state.deliveries[task.deliveries.at(-1)];

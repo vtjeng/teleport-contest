@@ -27,10 +27,11 @@ concern. Give it the affected functions, authoritative source, existing
 evidence, and question to answer. This targeted check is not a formal audit.
 Neither targeted checks nor formal audits replace required runtime evidence.
 
-Reserve formal multi-agent audits for the user's request or a concrete
-cross-subsystem risk that a targeted review cannot resolve. State that risk
-before launching. The number of deliveries, functions touched, commits
-since the last audit, or changed lines does not independently trigger an audit.
+Run a formal multi-agent audit only with the user's explicit approval for
+that audit. Cross-subsystem scope, asynchronous callers, shared state, delivery
+count, and changed lines do not authorize one. Give a single reviewer the
+specific concern first; if it remains unresolved, explain it when requesting
+approval. Do not delay acceptance for optional test or comment improvements.
 
 Copyedit prose inline using the technical-writing rules. Run a multi-agent
 copyedit only when the user explicitly requests one. This project rule also
@@ -109,7 +110,7 @@ checkpoint.
 
 ## Running formal review passes
 
-- The orchestrator may launch a warranted pass without separate confirmation.
+- Obtain the user's explicit approval before launching a multi-agent pass.
 - Launch each pass by invoking its skill from the orchestrator only. Do not
   override the model or reasoning effort the skill selects unless the user
   asks.

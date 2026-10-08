@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const EVENT_TYPES = new Set([
   'assign', 'implement', 'ready', 'received', 'feedback', 'resume', 'park',
-  'integrating', 'validated', 'accepted', 'published',
+  'integrating', 'validated', 'accepted', 'published', 'activity', 'turn', 'register', 'observe',
 ]);
 
 export function activityFromLedger(ledger) {
@@ -29,6 +29,12 @@ export function activityFromLedger(ledger) {
       ...(event.integration ? { integration: event.integration } : {}),
       ...(event.commit ? { commit: event.commit } : {}),
       ...(event.passed !== undefined ? { passed: event.passed } : {}),
+      ...(event.phase ? { phase: event.phase } : {}),
+      ...(event.state ? { state: event.state } : {}),
+      ...(event.type === 'activity' ? { reason: event.reason } : {}),
+      ...(event.type === 'turn' && event.summary ? { reason: event.summary } : {}),
+      ...(['register', 'observe'].includes(event.type)
+        ? { live: event.handle !== null || Boolean(event.processes?.length) } : {}),
     })),
   };
 }

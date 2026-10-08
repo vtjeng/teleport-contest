@@ -560,7 +560,7 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
     }));
     data.activity = activityTimeline({ runId: 'loop-20260925', events }, at('11:15'));
     const rendered = renderDashboard(data);
-    assert.match(rendered.get('activityMetrics').innerHTML, /Ready → Main[\s\S]*30m[\s\S]*2 completed waits/u);
+    assert.match(rendered.get('activityMetrics').innerHTML, /Ready → integration[\s\S]*30m[\s\S]*2 completed waits/u);
     assert.match(rendered.get('activityWaitList').innerHTML, /A1[\s\S]*30m/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
     // Only the recorded workers A and B, plus Main, need lanes.
@@ -569,6 +569,13 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
         `activity-label">${lane}<\\/div><div class="activity-track"><div class="activity-bar[^>]*top:([^;]+);`, 'u'))?.[1];
     assert.equal(firstBarTop('A'), '6px');
     assert.equal(firstBarTop('B'), '6px');
+    // Unrecorded historical time may now rank first. Inspect the known A1 wait.
+    const waitIndex = data.activity.segments.findIndex(row => row.task === 'A1' && row.phase === 'queued');
+    rendered.get('timeline').listeners.pointerdown[0]({ button: 0, clientX: 100, pointerId: 2,
+        target: { classList: { contains: name => name === 'activity-bar' },
+            dataset: { segment: String(waitIndex) } } });
+    rendered.get('timeline').listeners.pointerup[0]({ type: 'pointerup', pointerId: 2,
+        target: rendered.get('timeline') });
     assert.match(rendered.get('timelineReadout').innerHTML, /Another task was assigned to this worker for 28m/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Recorded Main stages overlapped this wait/u);
     const mainIndex = data.activity.segments.findIndex(row => row.task === 'B1'
@@ -595,6 +602,30 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
     assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
 });
 
+test('activity view labels preparation and escapes public wait reasons', () => {
+    const data = sourceDashboardData();
+    // One preparation task supplies all new coordinator phases in a short window.
+    const at = minute => `2026-09-25T10:${String(minute).padStart(2, '0')}:00Z`;
+    data.activity = activityTimeline({ events: [
+        { type: 'assign', task: 'P1', worker: 'Prep', kind: 'challenge-preparation', at: at(0) },
+        { type: 'ready', task: 'P1', at: at(5) },
+        { type: 'activity', task: 'P1', phase: 'review', reason: 'Check C witnesses.', at: at(6) },
+        { type: 'integrating', task: 'P1', at: at(8) },
+        { type: 'validated', task: 'P1', passed: true, at: at(9) },
+        { type: 'accepted', task: 'P1', at: at(10) },
+        { type: 'published', task: 'P1', at: at(11) },
+        { type: 'turn', worker: 'Prep', state: 'blocked', reason: 'Await main <admission>.', at: at(12) },
+        { type: 'activity', task: 'P1', phase: 'admission', reason: 'Check hashes.', at: at(13) },
+        { type: 'activity', task: 'P1', phase: 'baseline', reason: 'First evaluation.', at: at(15) },
+    ] }, at(20));
+    const rendered = renderDashboard(data);
+    const html = rendered.get('timeline').innerHTML;
+    for (const phase of ['review', 'admission', 'baseline', 'waiting'])
+        assert.match(html, new RegExp(`phase-${phase}`, 'u'));
+    assert.match(html, /activity-label">Prep/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /Await main &lt;admission&gt;/u);
+});
+
 test('activity wait list contains every wait in the window', () => {
     const data = sourceDashboardData();
     data.activity = {
@@ -610,7 +641,7 @@ test('activity wait list contains every wait in the window', () => {
     };
     const rendered = renderDashboard(data);
     assert.equal((rendered.get('activityWaitList').innerHTML.match(/<button /gu) || []).length, 7);
-    assert.match(readFileSync(TEMPLATE, 'utf8'), /<h4>Waits by length<\/h4>/u);
+    assert.match(readFileSync(TEMPLATE, 'utf8'), /<h4>Waits and unrecorded time<\/h4>/u);
 });
 
 test('activity renders replacement workers and keeps each task on one row across views', () => {
