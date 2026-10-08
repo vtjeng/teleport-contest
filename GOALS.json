@@ -199202,6 +199202,80 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-dokick-impact-drop-v28-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port floor-pile impact migration and shop charges",
+      "cFile": "dokick.c",
+      "sessions": [
+        "synthetic/v28/v28-hole-floor-pile-fall"
+      ],
+      "selectionReason": "Seed continuation from B144 selects synthetic/v28/v28-hole-floor-pile-fall with seven remaining screens at accepted evaluation 12ef8612; impact_drop and its floor-object migration contract are unreserved. Coordinate the disjoint goto_level caller in shared js/do.js with accepted A144 dropx.",
+      "detail": "Port whole dokick.c impact_drop lines 1511-1622 and replace all seven direct discarded-gap caller sites with awaited source-order calls. Preserve obj_delivery and hot_pursuit as named outside-limit discarded-result gaps.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "impact_drop",
+          "line": 1511,
+          "endLine": 1638,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1511,
+        "to": 1638
+      },
+      "syntheticProvenance": {
+        "synthetic/v28/v28-hole-floor-pile-fall": {
+          "session": "synthetic/v28/v28-hole-floor-pile-fall",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-hole-floor-pile-fall",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-hole-floor-pile-fall.session.json",
+          "recordingSha256": "5708cb979b63bc5897b36ee2cf137efeef62aebc96cb6a687948915eed963737",
+          "evaluationPath": "challenges/evaluations/accepted-64eeb6b668c69fe3216f8c9a92abd98be0d499c7-v28.json",
+          "evaluationCommit": "64eeb6b668c69fe3216f8c9a92abd98be0d499c7"
+        }
+      }
+    },
+    {
+      "id": "fix-mhitu-explmu-elemental-caller-v28-20261007",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire the canonical elemental monster explosion through explmu and its planning environment",
+      "cFile": "mhitu.c",
+      "sessions": [],
+      "selectionReason": "Seed continuation after accepted A144 removes the throne-drop refusal; the first differing RNG is now the skipped elemental mon_explodes call at v28 Vlad step 88, with nine screens remaining.",
+      "detail": "C mhitu.c explmu calls explode.c mon_explodes after its separate first damage roll and hit message. JavaScript discards that call although the canonical helper exists. Reconcile the explmu caller plus bounded explode environment and planning death handoff while preserving the two damage draws and keeping unrelated vision ownership separate.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "explmu",
+      "session": "synthetic/v28/v28-vlad-special-throne",
+      "step": 88,
+      "syntheticProvenance": {
+        "synthetic/v28/v28-vlad-special-throne": {
+          "session": "synthetic/v28/v28-vlad-special-throne",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-vlad-special-throne",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-vlad-special-throne.session.json",
+          "recordingSha256": "efa15ee1e31c8fcc96b0caf1d48624f5407b2d70b5d6667a5078ee2a97574119",
+          "evaluationPath": "challenges/evaluations/accepted-64eeb6b668c69fe3216f8c9a92abd98be0d499c7-v28.json",
+          "evaluationCommit": "64eeb6b668c69fe3216f8c9a92abd98be0d499c7"
+        }
+      }
     }
   ]
 }
