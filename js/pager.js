@@ -321,20 +321,18 @@ function mon_to_glyph(monster, state) {
     return mnum + (monster?.female ? GLYPH_MON_FEM_OFF : GLYPH_MON_MALE_OFF);
 }
 
-function assertOrdinaryWhatisState(state) {
+function assertWhatisMenuState(state) {
     // pager.c do_look() admits blind heroes; blindness is handled by its
     // lookat()/description branches after the cursor has been selected.
     if (state.flags?.lootabc)
         throw new UnsupportedWhatisError('the lootabc menu');
     if (state.u?.uswallow)
         throw new UnsupportedWhatisError('a swallowed hero');
-    if (heroHallucinating(state))
-        throw new UnsupportedWhatisError('a hallucinating hero');
 }
 
 export function whatisMenuItems(state = game) {
-    assertOrdinaryWhatisState(state);
-    return [
+    assertWhatisMenuState(state);
+    const ordinaryChoices = [
         {
             value: '/',
             selector: '/',
@@ -353,6 +351,12 @@ export function whatisMenuItems(state = game) {
             groupSelector: 'n',
             label: 'something else (by symbol or name)',
         },
+    ];
+    // C ref: pager.c do_look() gates the separator and list choices, rather
+    // than the entire menu, on !u.uswallow && !Hallucination (1748).
+    if (heroHallucinating(state)) return ordinaryChoices;
+    return [
+        ...ordinaryChoices,
         { value: 'm', selector: 'm', label: 'nearby monsters' },
         { value: 'M', selector: 'M', label: 'all monsters shown on map' },
         { value: 'o', selector: 'o', label: 'nearby objects' },
@@ -390,6 +394,7 @@ export function whatisMenuItems(state = game) {
 
 function menuLines(state) {
     const items = whatisMenuItems(state);
+    if (heroHallucinating(state)) return items;
     return [...items.slice(0, 3), { text: '' }, ...items.slice(3)];
 }
 
@@ -1864,7 +1869,7 @@ export async function do_look(mode, clickCc = null, state = game) {
     const quick = mode === 1;
     if ((mode !== 0 && !quick) || clickCc)
         throw new UnsupportedWhatisError('click or queued look mode');
-    assertOrdinaryWhatisState(state);
+    assertWhatisMenuState(state);
 
     // C ref: pager.c do_look() sets i='y' for quick mode, bypassing the
     // #whatis selection menu and entering the screen-coordinate path.
@@ -1876,6 +1881,10 @@ export async function do_look(mode, clickCc = null, state = game) {
         overlay: state.iflags?.menu_overlay !== false,
     });
     if (choice === null) return ECMD_OK;
+    // The selection menu is available during Hallucination. The selected
+    // lookup and quick-look paths remain outside the current admission.
+    if (heroHallucinating(state))
+        throw new UnsupportedWhatisError('a hallucinating hero');
     if (choice === 'i') {
         let inventoryRepairLayout = null;
         const invlet = await display_inventory(null, true, state, {
