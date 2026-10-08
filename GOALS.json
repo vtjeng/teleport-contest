@@ -218285,6 +218285,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-do-dropx-inert-trap-admission-v32-20261008",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Admit ordinary drops over inert traps.",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v32/v32-altar-buc-drop"
+      ],
+      "selectionReason": "Seed continuation after independent v31 owners were claimed or native-pointer blocked; v32 altar drop has 16 unmatched screens and an independent dropx admission defect.",
+      "detail": "An obsolete dropx preflight rejects every trap before inventory extraction or altar handling. C reaches an ordinary dry-floor drop for this nonboulder dagger: the hero is already caught in the pit, so neither pit-edge nor shaft floor effects apply. doaltarobj already implements the black flash; this is a bounded trap-admission divergence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dropx",
+      "session": "synthetic/v32/v32-altar-buc-drop",
+      "step": 35,
+      "syntheticProvenance": {
+        "synthetic/v32/v32-altar-buc-drop": {
+          "session": "synthetic/v32/v32-altar-buc-drop",
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-altar-buc-drop",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recordingPath": "challenges/cases/v32/v32-altar-buc-drop.session.json",
+          "recordingSha256": "d460590aeabf0d672c99368d3c2a3d362aacec18e2ef0889a40eb0874868bed2",
+          "evaluationPath": "challenges/evaluations/accepted-ab29afa9c189495b317c57344fa9c9536fd03649-v32.json",
+          "evaluationCommit": "ab29afa9c189495b317c57344fa9c9536fd03649"
+        }
+      }
     }
   ]
 }
