@@ -41,8 +41,6 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import {
-    back_to_glyph,
-    glyph_is_cmap,
     map_background,
     map_object,
     map_trap,
@@ -79,6 +77,7 @@ import {
     create_maze,
     check_ransacked,
     fixup_special,
+    get_level_extends,
     is_solid,
     iswall,
     iswall_or_stone,
@@ -87,6 +86,7 @@ import {
     set_levltyp_lit,
 } from './mkmaze.js';
 import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
+import { flip_level_rnd } from './sp_lev.js';
 import {
     init_rect,
     rnd_rect,
@@ -287,13 +287,10 @@ import {
     AM_SPLEV_RANDOM,
     BOOL_RANDOM,
     CUSTOM_INVENT,
-    DB_DIR,
     DEFAULT_INVENT,
-    EGD,
     FEMALE,
     INVALID_TYPE,
     IS_DOORJOIN,
-    IS_DRAWBRIDGE,
     IS_TREE,
     LVLINIT_MAZE,
     LVLINIT_MAZEGRID,
@@ -325,7 +322,6 @@ import {
     str_lines_maxlen,
     stripdigits,
     strstri,
-    swapbits,
 } from './hacklib.js';
 import { create_drawbridge } from './dbridge.js';
 import { priestini } from './priest.js';
@@ -4312,7 +4308,7 @@ export async function lspo_finalize_level(args, env) {
     if (!state.level.flags.corrmaze)
         wallification(1, 0, COLNO - 1, ROWNO - 1);
 
-    flip_level_rnd(coder.allow_flips);
+    await flip_level_rnd(coder.allow_flips, false, state);
 
     count_level_features(state);
 
@@ -4658,7 +4654,7 @@ function createSpecialLevelApi(state) {
             // C ref: sp_lev.c flip_level_rnd(). Each allowed flip axis
             // consumes rn2(2). bigrm-12's "noflipy" clears bit 1, leaving
             // only the horizontal axis flip.
-            const flipCode = flip_level_rnd(coder.allow_flips);
+            await flip_level_rnd(coder.allow_flips, false, state);
             count_level_features(state);
 
             // C ref: sp_lev.c solidify_map(). Marks non-map STONE walls as
@@ -5144,370 +5140,6 @@ function mkmap(init_lev, state) {
         state.level.flags.is_maze_lev = false;
         state.level.flags.is_cavernous_lev = true;
     }
-}
-
-// C ref: sp_lev.c flip_dbridge_horizontal(). A drawbridge facing west now
-// faces east, and the reverse.
-function flip_dbridge_horizontal(lev) {
-    if (IS_DRAWBRIDGE(lev.typ)) {
-        if ((lev.flags & DB_DIR) === DB_WEST) {
-            lev.flags &= ~DB_WEST;
-            lev.flags |= DB_EAST;
-        } else if ((lev.flags & DB_DIR) === DB_EAST) {
-            lev.flags &= ~DB_EAST;
-            lev.flags |= DB_WEST;
-        }
-    }
-}
-
-// C ref: sp_lev.c flip_dbridge_vertical(). A drawbridge facing north now
-// faces south, and the reverse.
-function flip_dbridge_vertical(lev) {
-    if (IS_DRAWBRIDGE(lev.typ)) {
-        if ((lev.flags & DB_DIR) === DB_NORTH) {
-            lev.flags &= ~DB_NORTH;
-            lev.flags |= DB_SOUTH;
-        } else if ((lev.flags & DB_DIR) === DB_SOUTH) {
-            lev.flags &= ~DB_SOUTH;
-            lev.flags |= DB_NORTH;
-        }
-    }
-}
-
-// C ref: sp_lev.c flip_visuals(). For #wizfliplevel; not needed when
-// flipping during level creation. Updates the seen vector of every seen
-// square in the flip area and the glyph of remembered walls.
-function flip_visuals(flp, minx, miny, maxx, maxy, state = game) {
-    for (let y = miny; y <= maxy; ++y) {
-        for (let x = minx; x <= maxx; ++x) {
-            const lev = state.level.at(x, y);
-            let seenv = lev.seenv & 0xff;
-            /* locations which haven't been seen can be skipped */
-            if (seenv === 0)
-                continue;
-            /* flip <x,y>'s seen vector; not necessary for locations seen
-               from all directions (the whole level after magic mapping) */
-            if (seenv !== SVALL) {
-                /* SV2 SV1 SV0 *
-                 * SV3 -+- SV7 *
-                 * SV4 SV5 SV6 */
-                if (flp & 1) { /* swap top and bottom */
-                    seenv = swapbits(seenv, 2, 4);
-                    seenv = swapbits(seenv, 1, 5);
-                    seenv = swapbits(seenv, 0, 6);
-                }
-                if (flp & 2) { /* swap left and right */
-                    seenv = swapbits(seenv, 2, 0);
-                    seenv = swapbits(seenv, 3, 7);
-                    seenv = swapbits(seenv, 4, 6);
-                }
-                lev.seenv = seenv & 0xff;
-            }
-            /* if <x,y> is displayed as a wall, reset its display glyph so
-               that remembered, out of view T's and corners get flipped */
-            if ((IS_WALL(lev.typ) || lev.typ === SDOOR)
-                && glyph_is_cmap(lev.glyph))
-                lev.glyph = back_to_glyph(x, y, state);
-        }
-    }
-}
-
-// C ref: sp_lev.c flip_encoded_dir_bits(). Transposes an encoded direction
-// bit set (the xdir[]/ydir[] order) for a vertical (flp & 1) or horizontal
-// (flp & 2) flip.
-export function flip_encoded_dir_bits(flp, val) {
-    /* these depend on xdir[] and ydir[] order */
-    if (flp & 1) {
-        val = swapbits(val, 1, 7);
-        val = swapbits(val, 2, 6);
-        val = swapbits(val, 3, 5);
-    }
-    if (flp & 2) {
-        val = swapbits(val, 1, 3);
-        val = swapbits(val, 0, 4);
-        val = swapbits(val, 7, 5);
-    }
-
-    return val;
-}
-
-// C ref: sp_lev.c flip_vault_guard(). For #wizfliplevel; flips the guard's
-// egd data (its two goal squares and the fake corridor) within the flip
-// area. Not needed for level creation.
-export function flip_vault_guard(flp, grd, minx, miny, maxx, maxy) {
-    const FlipX = (val) => (maxx - val) + minx;
-    const FlipY = (val) => (maxy - val) + miny;
-    const inFlipArea = (x, y) => x >= minx && x <= maxx
-        && y >= miny && y <= maxy;
-    const egd = EGD(grd);
-
-    if (inFlipArea(egd.gdx, egd.gdy)) {
-        if (flp & 1)
-            egd.gdy = FlipY(egd.gdy);
-        if (flp & 2)
-            egd.gdx = FlipX(egd.gdx);
-    }
-    if (inFlipArea(egd.ogx, egd.ogy)) {
-        if (flp & 1)
-            egd.ogy = FlipY(egd.ogy);
-        if (flp & 2)
-            egd.ogx = FlipX(egd.ogx);
-    }
-    for (let i = egd.fcbeg; i < egd.fcend; ++i) {
-        const fx = egd.fakecorr[i].fx, fy = egd.fakecorr[i].fy;
-
-        if (inFlipArea(fx, fy)) {
-            if (flp & 1)
-                egd.fakecorr[i].fy = FlipY(fy);
-            if (flp & 2)
-                egd.fakecorr[i].fx = FlipX(fx);
-        }
-    }
-}
-
-// C ref: sp_lev.c flip_level() (533-922). Transposes the level horizontally
-// (flp & 2, left↔right) or vertically (flp & 1, top↔bottom) or both. Level
-// creation passes extras=false; #wizfliplevel (not ported) would pass true,
-// and only its vault-guard and visual updates are wired here: the hero,
-// ball and chain, migrating monsters, timers, travel and digging positions
-// stay unflipped.
-function flip_level(flp, extras = false) {
-    if ((flp & 3) === 0) return;
-
-    let { xmin: minx, xmax: maxx, ymin: miny, ymax: maxy } = get_level_extends();
-    if (miny < 0) miny = 0;
-    if (minx < 1) minx = 1;
-    if (maxx >= COLNO) maxx = COLNO - 1;
-    if (maxy >= ROWNO) maxy = ROWNO - 1;
-
-    const FlipX = (val) => (maxx - val) + minx;
-    const FlipY = (val) => (maxy - val) + miny;
-    const inFlipArea = (x, y) => x >= minx && x <= maxx && y >= miny && y <= maxy;
-
-    const level = game.level;
-
-    // C ref: sp_lev.c:587-592. Stairs and ladders.
-    for (let stway = game.stairs; stway; stway = stway.next) {
-        if (flp & 1) stway.sy = FlipY(stway.sy);
-        if (flp & 2) stway.sx = FlipX(stway.sx);
-    }
-
-    // C ref: sp_lev.c:594-616. Traps.
-    for (const trap of level.traps) {
-        if (!inFlipArea(trap.tx, trap.ty)) continue;
-        if (flp & 1) {
-            trap.ty = FlipY(trap.ty);
-            if (trap.ttyp === ROLLING_BOULDER_TRAP) {
-                trap.launch.y = FlipY(trap.launch.y);
-                trap.launch2.y = FlipY(trap.launch2.y);
-            } else if (is_pit(trap.ttyp) && trap.conjoined) {
-                trap.conjoined = flip_encoded_dir_bits(flp, trap.conjoined);
-            }
-        }
-        if (flp & 2) {
-            trap.tx = FlipX(trap.tx);
-            if (trap.ttyp === ROLLING_BOULDER_TRAP) {
-                trap.launch.x = FlipX(trap.launch.x);
-                trap.launch2.x = FlipX(trap.launch2.x);
-            } else if (is_pit(trap.ttyp) && trap.conjoined) {
-                trap.conjoined = flip_encoded_dir_bits(flp, trap.conjoined);
-            }
-        }
-    }
-
-    // C ref: sp_lev.c:618-626. Floor objects.
-    for (let otmp = level.objlist; otmp; otmp = otmp.nobj) {
-        if (!inFlipArea(otmp.ox, otmp.oy)) continue;
-        if (flp & 1) otmp.oy = FlipY(otmp.oy);
-        if (flp & 2) otmp.ox = FlipX(otmp.ox);
-    }
-
-    // C ref: sp_lev.c:628-636. Buried objects.
-    for (let otmp = level.buriedobjlist; otmp; otmp = otmp.nobj) {
-        if (!inFlipArea(otmp.ox, otmp.oy)) continue;
-        if (flp & 1) otmp.oy = FlipY(otmp.oy);
-        if (flp & 2) otmp.ox = FlipX(otmp.ox);
-    }
-
-    // C ref: sp_lev.c:638-673. Monsters.
-    for (let mtmp = level.monlist; mtmp; mtmp = mtmp.nmon) {
-        if (mtmp.isgd) {
-            if (extras) /* flip mtmp->mextra->egd */
-                flip_vault_guard(flp, mtmp, minx, miny, maxx, maxy);
-            if (mtmp.mx === 0) /* not on map so don't flip guard->mx,my */
-                continue;
-        }
-        /* skip the occasional earth elemental outside the flip area */
-        if (!inFlipArea(mtmp.mx, mtmp.my)) continue;
-        if (flp & 1) mtmp.my = FlipY(mtmp.my);
-        if (flp & 2) mtmp.mx = FlipX(mtmp.mx);
-        // C ref: sp_lev.c:654 Flip_coord(mtmp->mgoal)
-        if (mtmp.mgoal) {
-            if (flp & 1 && mtmp.mgoal.y !== undefined) mtmp.mgoal.y = FlipY(mtmp.mgoal.y);
-            if (flp & 2 && mtmp.mgoal.x !== undefined) mtmp.mgoal.x = FlipX(mtmp.mgoal.x);
-        }
-        // C ref: sp_lev.c:656-666. Priest/shopkeeper/worm special coords are
-        // not yet ported; skip for level creation.
-    }
-
-    // C ref: sp_lev.c:689-695. Engravings.
-    for (let etmp = game.head_engr; etmp; etmp = etmp.nxt_engr) {
-        if (flp & 1) etmp.engr_y = FlipY(etmp.engr_y);
-        if (flp & 2) etmp.engr_x = FlipX(etmp.engr_x);
-    }
-
-    // C ref: sp_lev.c:697-733. Level (teleport) regions, which
-    // levregion_add() stored and fixup_special() has not consumed yet. Both
-    // areas are mirrored, an absent exclusion's -1 corners included.
-    for (const lr of game.lregions) {
-        for (const area of [lr.inarea, lr.delarea]) {
-            if (flp & 1) {
-                area.y1 = FlipY(area.y1);
-                area.y2 = FlipY(area.y2);
-                if (area.y1 > area.y2) {
-                    const t = area.y1; area.y1 = area.y2; area.y2 = t;
-                }
-            }
-        }
-        for (const area of [lr.inarea, lr.delarea]) {
-            if (flp & 2) {
-                area.x1 = FlipX(area.x1);
-                area.x2 = FlipX(area.x2);
-                if (area.x1 > area.x2) {
-                    const t = area.x1; area.x1 = area.x2; area.x2 = t;
-                }
-            }
-        }
-    }
-
-    // C ref: sp_lev.c:735-762. Active regions (poison clouds, etc.).
-    for (const region of level.regions) {
-        const bb = region.bounding_box;
-        if (flp & 1) {
-            const t1 = FlipY(bb.ly), t2 = FlipY(bb.hy);
-            bb.ly = Math.min(t1, t2); bb.hy = Math.max(t1, t2);
-            for (const rect of region.rects) {
-                const r1 = FlipY(rect.ly), r2 = FlipY(rect.hy);
-                rect.ly = Math.min(r1, r2); rect.hy = Math.max(r1, r2);
-            }
-        }
-        if (flp & 2) {
-            const t1 = FlipX(bb.lx), t2 = FlipX(bb.hx);
-            bb.lx = Math.min(t1, t2); bb.hx = Math.max(t1, t2);
-            for (const rect of region.rects) {
-                const r1 = FlipX(rect.lx), r2 = FlipX(rect.hx);
-                rect.lx = Math.min(r1, r2); rect.hx = Math.max(r1, r2);
-            }
-        }
-    }
-
-    // C ref: sp_lev.c:764-811. Rooms and subrooms.
-    for (const sroom of level.rooms) {
-        if (sroom.hx < 0) break;
-        if (flp & 1) {
-            sroom.ly = FlipY(sroom.ly); sroom.hy = FlipY(sroom.hy);
-            if (sroom.ly > sroom.hy) { const t = sroom.ly; sroom.ly = sroom.hy; sroom.hy = t; }
-        }
-        if (flp & 2) {
-            sroom.lx = FlipX(sroom.lx); sroom.hx = FlipX(sroom.hx);
-            if (sroom.lx > sroom.hx) { const t = sroom.lx; sroom.lx = sroom.hx; sroom.hx = t; }
-        }
-        if (sroom.sbrooms) {
-            for (const sub of sroom.sbrooms) {
-                if (flp & 1) {
-                    sub.ly = FlipY(sub.ly); sub.hy = FlipY(sub.hy);
-                    if (sub.ly > sub.hy) { const t = sub.ly; sub.ly = sub.hy; sub.hy = t; }
-                }
-                if (flp & 2) {
-                    sub.lx = FlipX(sub.lx); sub.hx = FlipX(sub.hx);
-                    if (sub.lx > sub.hx) { const t = sub.lx; sub.lx = sub.hx; sub.hx = t; }
-                }
-            }
-        }
-    }
-
-    // C ref: sp_lev.c:813-816. Doors.
-    for (let i = 0; i < level.doorindex; i++) {
-        const door = level.doors[i];
-        if (flp & 1) door.y = FlipY(door.y);
-        if (flp & 2) door.x = FlipX(door.x);
-    }
-
-    // C ref: sp_lev.c:818-860. The map: swap terrain, object grid, and
-    // monster grid, turning drawbridges to face the other way first.
-    if (flp & 1) {
-        for (let x = minx; x <= maxx; x++) {
-            const half = miny + Math.trunc((maxy - miny + 1) / 2);
-            for (let y = miny; y < half; y++) {
-                const ny = FlipY(y);
-
-                flip_dbridge_vertical(level.locations[x][y]);
-                flip_dbridge_vertical(level.locations[x][ny]);
-
-                const trm = level.locations[x][y];
-                level.locations[x][y] = level.locations[x][ny];
-                level.locations[x][ny] = trm;
-                const otmp = level.objects[x][y];
-                level.objects[x][y] = level.objects[x][ny];
-                level.objects[x][ny] = otmp;
-                const mtmp = level.monsters[x][y];
-                level.monsters[x][y] = level.monsters[x][ny];
-                level.monsters[x][ny] = mtmp;
-            }
-        }
-    }
-    if (flp & 2) {
-        const half = minx + Math.trunc((maxx - minx + 1) / 2);
-        for (let x = minx; x < half; x++) {
-            for (let y = miny; y <= maxy; y++) {
-                const nx = FlipX(x);
-
-                flip_dbridge_horizontal(level.locations[x][y]);
-                flip_dbridge_horizontal(level.locations[nx][y]);
-
-                const trm = level.locations[x][y];
-                level.locations[x][y] = level.locations[nx][y];
-                level.locations[nx][y] = trm;
-                const otmp = level.objects[x][y];
-                level.objects[x][y] = level.objects[nx][y];
-                level.objects[nx][y] = otmp;
-                const mtmp = level.monsters[x][y];
-                level.monsters[x][y] = level.monsters[nx][y];
-                level.monsters[nx][y] = mtmp;
-            }
-        }
-    }
-
-    // C ref: sp_lev.c:877-896. Exclusion zones.
-    for (let ez = game.exclusion_zones; ez; ez = ez.next) {
-        if (flp & 1) {
-            ez.ly = FlipY(ez.ly); ez.hy = FlipY(ez.hy);
-            if (ez.ly > ez.hy) { const t = ez.ly; ez.ly = ez.hy; ez.hy = t; }
-        }
-        if (flp & 2) {
-            ez.lx = FlipX(ez.lx); ez.hx = FlipX(ez.hx);
-            if (ez.lx > ez.hx) { const t = ez.lx; ez.lx = ez.hx; ez.hx = t; }
-        }
-    }
-
-    // C ref: sp_lev.c:915. Recalculate wall junction types after the swap.
-    fix_wall_spines(1, 0, COLNO - 1, ROWNO - 1);
-    if (extras && flp) {
-        set_wall_state(game);
-        /* after wall_spines; flips seenv and wall joins */
-        flip_visuals(flp, minx, miny, maxx, maxy, game);
-    }
-}
-
-// C ref: sp_lev.c flip_level_rnd() (967-982). Each bit of flp enables one
-// axis; each enabled axis consumes rn2(2). When the combined result is
-// nonzero, flip_level() mirrors the map.
-function flip_level_rnd(flp) {
-    let c = 0;
-    if ((flp & 1) && rn2(2)) c |= 1;
-    if ((flp & 2) && rn2(2)) c |= 2;
-    if (c) flip_level(c);
-    return c;
 }
 
 // C ref: mkmaze.c walkfrom() (non-MICRO recursive version). Carves a
@@ -8284,44 +7916,6 @@ export function fill_ordinary_room(croom, bonusItems) {
 // ============================================================
 // Level finalize topology
 // ============================================================
-
-function get_level_extends() {
-    const map = game.level;
-    let xmin = 0, xmax = COLNO - 1, ymin = 0, ymax = ROWNO - 1;
-    let found = false, nonwall = false;
-    for (xmin = 0; !found && xmin <= COLNO - 1; xmin++) {
-        for (let y = 0; y <= ROWNO - 1; y++) {
-            const typ = map.at(xmin, y)?.typ ?? STONE;
-            if (typ !== STONE) { found = true; if (!IS_WALL(typ)) nonwall = true; }
-        }
-    }
-    xmin -= (nonwall || !game.level?.flags?.is_maze_lev) ? 2 : 1;
-    found = false; nonwall = false;
-    for (xmax = COLNO - 1; !found && xmax >= 0; xmax--) {
-        for (let y = 0; y <= ROWNO - 1; y++) {
-            const typ = map.at(xmax, y)?.typ ?? STONE;
-            if (typ !== STONE) { found = true; if (!IS_WALL(typ)) nonwall = true; }
-        }
-    }
-    xmax += (nonwall || !game.level?.flags?.is_maze_lev) ? 2 : 1;
-    found = false; nonwall = false;
-    for (ymin = 0; !found && ymin <= ROWNO - 1; ymin++) {
-        for (let x = xmin; x <= xmax; x++) {
-            const typ = map.at(x, ymin)?.typ ?? STONE;
-            if (typ !== STONE) { found = true; if (!IS_WALL(typ)) nonwall = true; }
-        }
-    }
-    ymin -= (nonwall || !game.level?.flags?.is_maze_lev) ? 2 : 1;
-    found = false; nonwall = false;
-    for (ymax = ROWNO - 1; !found && ymax >= 0; ymax--) {
-        for (let x = xmin; x <= xmax; x++) {
-            const typ = map.at(x, ymax)?.typ ?? STONE;
-            if (typ !== STONE) { found = true; if (!IS_WALL(typ)) nonwall = true; }
-        }
-    }
-    ymax += (nonwall || !game.level?.flags?.is_maze_lev) ? 2 : 1;
-    return { xmin, xmax, ymin, ymax };
-}
 
 function bound_digging() {
     const map = game.level;

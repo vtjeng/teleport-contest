@@ -136,6 +136,7 @@ import {
 import { initedog } from './dog.js';
 import { In_hell, on_level } from './dungeon.js';
 import { done, done_in_by } from './end.js';
+import { mon_explodes } from './explode.js';
 import { losexp, pluslvl } from './exper.js';
 import { game } from './gstate.js';
 import { losehp, nomul, showdamage, spoteffects } from './hack.js';
@@ -2671,9 +2672,15 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
     case M.AD_COLD:
     case M.AD_FIRE:
     case M.AD_ELEC:
-        // C's mon_explodes() result is discarded. Its full object-destruction
-        // and hero-damage path remains an explicit source boundary here.
-        note_unported('explode.c mon_explodes');
+        // C's second damage roll, attacker removal and blast belong to
+        // mon_explodes(). Only the live pass may enter terminal death input.
+        await mon_explodes(mtmp, mattk, state, {
+            ...rawEnv,
+            ...(rawEnv.planning ? {
+                planningDeath: (how = DIED) =>
+                    new MonsterDeathPlanningError(mtmp, how),
+            } : {}),
+        });
         if (mtmp.mhp > 0) killAgr = false;
         break;
     case M.AD_BLND:
@@ -2736,7 +2743,7 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
 
     if (notAffected) {
         await message('You seem unaffected by it.', state);
-        await ugolemeffects(mattk.adtyp, tmp, state);
+        await ugolemeffects(mattk.adtyp, tmp, state, rawEnv);
     }
     if (killAgr && mtmp.mhp > 0)
         await mondead(mtmp, state, rawEnv);

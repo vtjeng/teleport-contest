@@ -233,9 +233,8 @@ export function validateAuditMetrics(metrics, {
     fail('auditMetrics production resolutions exceed the overall resolution counts');
   }
 
-  // The hand-written half of readiness: three attestations recorded with the
-  // pass. .agents/review.md defines them; prepare --readiness supplies the
-  // machine half.
+  // Preserve optional attestations in historical records. New reviews use
+  // existing source and validation evidence instead.
   if (metrics.readiness !== undefined) {
     if (!metrics.readiness || typeof metrics.readiness !== 'object'
         || Array.isArray(metrics.readiness)) {

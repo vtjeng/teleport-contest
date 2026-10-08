@@ -219,11 +219,7 @@ export function does_block(x, y, _location = null, state = game) {
 // its cloned monster scan see a door it opened.
 function rebuildVisionPoint(x, y, state) {
     const affectedCurrentVision = Boolean(state.viz_array?.[y]?.[x]);
-    const oldVisionMin = state._viz_rmin;
-    const oldVisionMax = state._viz_rmax;
-    vision_reset(state);
-    state._viz_rmin = oldVisionMin;
-    state._viz_rmax = oldVisionMax;
+    rebuildTransparencyIndex(state);
     if (affectedCurrentVision) state.vision_full_recalc = 1;
 }
 
@@ -243,7 +239,7 @@ export function recalc_block_point(x, y, state = game) {
 }
 
 // C ref: vision_reset() — rebuild viz_clear and left/right ptrs
-export function vision_reset(state = game) {
+function rebuildTransparencyIndex(state) {
     const level = state.level;
     if (!level) return;
 
@@ -280,8 +276,18 @@ export function vision_reset(state = game) {
             viz_clear[y][i] = block ? 0 : 1;
         }
     }
+}
+
+// C vision_reset publishes readiness only after rebuilding its level index.
+export function vision_reset(state = game) {
+    if (!state.level) return;
+    rebuildTransparencyIndex(state);
     state._viz_rmin = null;
     state._viz_rmax = null;
+    // C vision.c:263-264 publishes the rebuilt obstruction map.
+    state.iflags ??= {};
+    state.iflags.vision_inited = true;
+    state.vision_full_recalc = 1;
 }
 
 // Bresenham quadrant path functions (C ref: vision.c q1-q4_path)

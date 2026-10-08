@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first A145 fatal elemental caller witness. Unsearched seed14528043/clock20640610142300, ordinary Wizard inventory and HP; two successive source-created flaming spheres with forced-rest m. The second explosion exercises terminal death and wizard recovery. C setup recorded before JS comparison. Space accepts the source default no at Die? and the recipe ends after canonical savelife recovery.",
+  "segments": [
+    {
+      "seed": 14528043,
+      "datetime": "20640610142300",
+      "nethackrc": "OPTIONS=name:SphereFire,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips,!debug_mongen\n",
+      "moves": " \u0007flaming sphere\nm.m.  \u0007flaming sphere\nm.m.      "
+    }
+  ]
+}

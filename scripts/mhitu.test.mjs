@@ -5,6 +5,9 @@ import test from 'node:test';
 import {
     A_STR,
     BEAR_TRAP,
+    BURNING,
+    UNCHANGING,
+    DIED,
     BLINDED,
     HALLUC,
     COLD_RES,
@@ -19,6 +22,7 @@ import {
     HALF_PHDAM,
     INVIS,
     M_ATTK_HIT,
+    M_ATTK_AGR_DIED,
     M_ATTK_MISS,
     LS_MONSTER,
     M_SEEN_ACID,
@@ -146,6 +150,9 @@ import {
     PM_SHRIEKER,
     PM_GRID_BUG,
     PM_FLOATING_EYE,
+    PM_FLAMING_SPHERE,
+    PM_FREEZING_SPHERE,
+    PM_SHOCKING_SPHERE,
     PM_HUMAN,
     PM_ICE_VORTEX,
     PM_JACKAL,
@@ -4331,4 +4338,107 @@ test('gulp_blnd_check runs gulpmu and keeps its source timer order',
     assert.equal(await gulp_blnd_check(game, rawEnv), false);
     assert.equal(game.u.uswldtim, 17);
     assert.equal(game.unported.has('mhitu.c gulpmu'), false);
+});
+
+// mhitu.c:explmu rolls tmp before hitmsg, then mon_explodes independently
+// rolls actual damage and removes the attacker before its visible blast.
+test('elemental explmu calls the canonical explosion after its first damage roll', async () => {
+    const cBody = MHITU_C.slice(MHITU_C.indexOf('explmu(\n    struct monst *mtmp,'), MHITU_C.indexOf('\n/* monster gazes at you */'));
+    assert.ok(cBody.indexOf('tmp = d(') < cBody.indexOf('mon_explodes(mtmp, mattk);'));
+    for (const species of [PM_FLAMING_SPHERE, PM_FREEZING_SPHERE, PM_SHOCKING_SPHERE]) {
+        const state = await meleeHero(MELEE_DATETIME, 'Wizard'); // Wizard has no starting elemental resistance.
+        state.invent = null; // Empty inventory isolates blast damage from item-destruction branches.
+        for (const slot of ['uwep', 'uswapwep', 'uquiver', 'uarm', 'uarmc', 'uarmf', 'uarmg', 'uarmh', 'uarms']) state[slot] = null;
+        state.context.mon_moving = true; // C marks the monster scan, making its hero blast active.
+        state.u.uhp = state.u.uhpmax = 200; // Keep even the maximum source 4d6 blast nonfatal.
+        const sphere = meleeAttacker(state, species, 1, 0);
+        const radius = emits_light(sphere.data);
+        if (radius) new_light_source(sphere.mx, sphere.my, radius, LS_MONSTER, sphere, state);
+        const attack = sphere.data.mattk[0];
+        const result = meleeEnv(state, [], { planning: true });
+        assert.equal(await explmu(sphere, attack, true, result.env), M_ATTK_AGR_DIED);
+        assert.deepEqual(result.bounds.slice(0, 2), [
+            'd(4,6)', 'd(4,6)', // monst.c gives each elemental sphere a 4d6 AT_EXPL attack.
+        ]);
+        assert.equal(sphere.mhp, 0);
+        assert.equal(state.level.monsters[sphere.mx][sphere.my], null);
+        assert.equal(state.u.uhp, 196); // The injected source lower-bound d(4,6) result is 4.
+        assert.ok(result.lines.includes('Boom!'));
+        assert.equal(state.killer.name, ''); // mon_explodes clears its temporary killer on return.
+    }
+});
+
+// A lethal clone must hand off before end.c:done paints the shared terminal
+// or reads input. Its signal preserves the attacker and the source death kind.
+test('elemental explosion planning preserves attacker and fire death reason', async () => {
+    for (const [species, how] of [[PM_FLAMING_SPHERE, BURNING], [PM_FREEZING_SPHERE, DIED]]) {
+        const state = await meleeHero(MELEE_DATETIME, 'Wizard'); // Wizard has no starting elemental resistance.
+        state.invent = null;
+        for (const slot of ['uwep', 'uswapwep', 'uquiver', 'uarm', 'uarmc', 'uarmf', 'uarmg', 'uarmh', 'uarms']) state[slot] = null;
+        state.context.mon_moving = true;
+        state.u.uhp = 1; // The canonical sphere minimum damage of 4 is lethal.
+        const sphere = meleeAttacker(state, species, 1, 0);
+        const radius = emits_light(sphere.data);
+        if (radius) new_light_source(sphere.mx, sphere.my, radius, LS_MONSTER, sphere, state);
+        const planned = planningState(state);
+        const plannedSphere = planned.level.monsters[sphere.mx][sphere.my];
+        const screen = state.nhDisplay.serialize();
+        const priorRead = state.nhDisplay.readKey;
+        state.nhDisplay.readKey = () => { throw new Error('planning read live input'); };
+        try {
+            await assert.rejects(() => explmu(plannedSphere, plannedSphere.data.mattk[0], true,
+                meleeEnv(planned, [], { planning: true }).env),
+                error => error instanceof MonsterDeathPlanningError
+                    && error.monsterId === sphere.m_id && error.how === how);
+        } finally { state.nhDisplay.readKey = priorRead; }
+        assert.equal(state.u.uhp, 1);
+        assert.equal(sphere.mhp, 10); // Only the planned attacker is detached.
+        assert.equal(state.nhDisplay.serialize(), screen);
+    }
+});
+
+// mhitu.c:explmu returns before its first roll for cancellation. An elemental
+// attack at an empty believed position still explodes at the attacker square.
+test('elemental explmu keeps cancellation and unfound-target source order', async () => {
+    const state = await meleeHero(MELEE_DATETIME, 'Wizard');
+    state.invent = null;
+    for (const slot of ['uwep', 'uarm', 'uarmc', 'uarmf', 'uarmg', 'uarmh', 'uarms']) state[slot] = null;
+    state.context.mon_moving = true;
+    state.u.uhp = state.u.uhpmax = 200; // Survive the source four-die sphere blast.
+    const sphere = meleeAttacker(state, PM_FLAMING_SPHERE, 1, 0, { mcan: true });
+    new_light_source(sphere.mx, sphere.my, emits_light(sphere.data), LS_MONSTER, sphere, state);
+    const result = meleeEnv(state, [], { planning: true });
+    assert.equal(await explmu(sphere, sphere.data.mattk[0], false, result.env), M_ATTK_MISS);
+    assert.deepEqual(result.bounds, []);
+    assert.deepEqual(result.lines, []);
+    assert.equal(sphere.mhp, 10);
+    sphere.mcan = false;
+    assert.equal(await explmu(sphere, sphere.data.mattk[0], false, result.env), M_ATTK_AGR_DIED);
+    assert.ok(result.lines[0].includes('explodes at a spot in thin air!'));
+    assert.equal(state.u.uhp, 196); // Location, rather than ufound, controls actual blast damage.
+});
+
+// C explode.c calls rehumanize before its ordinary done arm. polyself.c's
+// fatal unchanging reversion requires the same clone death handoff.
+test('elemental planning forwards the fatal form-reversion environment', async () => {
+    const state = await meleeHero(MELEE_DATETIME, 'Wizard');
+    state.invent = null;
+    for (const slot of ['uwep', 'uarm', 'uarmc', 'uarmf', 'uarmg', 'uarmh', 'uarms']) state[slot] = null;
+    state.context.mon_moving = true;
+    state.u.umonnum = PM_GRID_BUG; // A polymorphed form without fire resistance.
+    state.youmonst.data = state.mons[PM_GRID_BUG];
+    state.u.mh = 1; state.u.mhmax = 10; // The minimum sphere blast kills the form.
+    state.u.uprops[UNCHANGING].intrinsic = 1; // Source prevents reversion and reaches DIED.
+    const sphere = meleeAttacker(state, PM_FLAMING_SPHERE, 1, 0);
+    new_light_source(sphere.mx, sphere.my, emits_light(sphere.data), LS_MONSTER, sphere, state);
+    const planned = planningState(state);
+    const plannedSphere = planned.level.monsters[sphere.mx][sphere.my];
+    const screen = state.nhDisplay.serialize();
+    await assert.rejects(explmu(plannedSphere, plannedSphere.data.mattk[0], true,
+        meleeEnv(planned, [], { planning: true }).env),
+        error => error instanceof MonsterDeathPlanningError
+            && error.monsterId === sphere.m_id && error.how === DIED);
+    assert.equal(state.u.mh, 1);
+    assert.equal(sphere.mhp, 10);
+    assert.equal(state.nhDisplay.serialize(), screen);
 });
