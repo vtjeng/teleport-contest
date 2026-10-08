@@ -373,7 +373,7 @@ import {
     dopoly, doremove, dospinweb, dospit, dosummon,
 } from './polyself.js';
 import {
-    wiz_detect, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change,
+    wiz_detect, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_smell,
     wiz_level_tele, wiz_map, wiz_polyself, wiz_wish, wiz_where,
 } from './wizcmds.js';
 import {
@@ -1855,7 +1855,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'takeoff', 'takeoffall', 'remove', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
-    'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'fire', 'throw',
+    'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'wizsmell', 'fire', 'throw',
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
@@ -3509,6 +3509,12 @@ async function runDetectCommand(key, state) {
 // advance the game until its output is dismissed.
 async function runWhereCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_where(state));
+}
+
+// C ref: wizcmds.c wiz_smell(). Both olfaction failure (ECMD_OK) and
+// targeting cancellation (ECMD_CANCEL) spend no turn.
+async function runSmellCommand(key, state) {
+    return failClosedCommand(key, state, () => wiz_smell(state));
 }
 
 // C ref: wizcmds.c wiz_intrinsic(). Its menu and all selected property
@@ -5251,6 +5257,8 @@ async function doextcmd(key, state) {
         return await runDetectCommand(key, state);
     case 'wiz_where':
         return await runWhereCommand(key, state);
+    case 'wiz_smell':
+        return await runSmellCommand(key, state);
     case 'wiz_intrinsic':
         return await runIntrinsicCommand(key, state);
     case 'wiz_polyself':
@@ -5505,7 +5513,9 @@ export async function rhack(key, state = game) {
             );
         } else if (state.multi > 0 && command !== null && command !== 'pay'
             && command !== 'pickup' && command !== '#'
-            && !Object.hasOwn(MOVEMENT_INTENTS, command)) {
+            && !Object.hasOwn(MOVEMENT_INTENTS, command)
+            // wiz_smell's no-time result clears a count before any repeat.
+            && command !== 'wizsmell') {
             // `#` is the dispatch row for doextcmd(), not the selected
             // extended command. C dispatches it with gm.multi intact; the
             // selected handler (for example, wiz_genesis() using multi as its
@@ -6219,6 +6229,16 @@ export async function rhack(key, state = game) {
             // and reset_cmd_vars() is the whole of this arm.
             await runMapCommand(key, state);
             resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'wizsmell') {
+            // C rhack():3810-3825 consumes the handler's ECMD result for a
+            // configured key, exactly as the typed doextcmd row does.
+            const res = await runSmellCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
         if (command === 'wizintrinsic') {

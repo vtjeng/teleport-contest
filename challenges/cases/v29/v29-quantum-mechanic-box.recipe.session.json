@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v29 candidate: makemon.c:m_initinv PM_QUANTUM_MECHANIC -> pickup.c:observe_quantum_cat. Create actual quantum mechanic, kill with wizard kill, tip its spe=1 large box; verify cat observation. Fixed unsearched seed and independent clock; C-only setup corrections precede JS comparison. C-only correction from recorded inventory/pager/setup prerequisites before comparison; original attempts preserved.",
+  "segments": [
+    {
+      "seed": 1392908,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392908,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0007peaceful quantum mechanic\n#wizkill\n   k.    \u001b k   #tip\ny       ."
+    }
+  ]
+}

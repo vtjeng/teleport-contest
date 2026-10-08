@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v29 candidate: do.c:dosinkring RIN_POLYMORPH. Drop a polymorph ring into an actual sink; verify fixture transformation. Fixed unsearched seed and independent clock; C-only setup corrections precede JS comparison. C-only correction from recorded inventory/pager/setup prerequisites before comparison; original attempts preserved.",
+  "segments": [
+    {
+      "seed": 1392916,
+      "datetime": "20480506070809",
+      "nethackrc": "OPTIONS=name:Probe1392916,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".l\u0017sink\n\u0017uncursed ring of polymorph\ndf   \u001b\n ."
+    }
+  ]
+}

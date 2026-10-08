@@ -15,7 +15,7 @@ import {
     DETECT_MONSTERS, FAST, FREE_ACTION,
     FAINTED, FIRE_RES, FIXED_ABIL, FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
-    HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
+    HALLUC_RES, INVIS, IN_SIGHT, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
     OBJ_DELETED, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SICK, SLEEP_RES, WEAK, STRAT_APPEARMSG, STRAT_WAITFORU,
     KILLED_BY, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, SLIMED, STONED,
@@ -27,6 +27,7 @@ import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
 import { PM_GREEN_SLIME, PM_GRID_BUG } from '../js/monsters.js';
+import { newMonster } from '../js/monst.js';
 import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
 import { addinv } from '../js/invent.js';
@@ -2366,6 +2367,101 @@ test('an unidentified potion sends the naming tail to docall', async () => {
     game.nhDisplay.toplin = 0; // TOPLINE_EMPTY
     game.nhDisplay.pushKey(0x1b);
     await docall({ ...obj, dknown: true }, game);
+});
+
+test('planned potion naming hands input to the live pass before docall', async () => {
+    // Independent startup merely supplies canonical objects/discovery state.
+    // Fruit juice is a vapor no-op whose unknown type reaches C's naming tail.
+    await startedGame(14029001, 'PlannedPotionCall');
+    const source = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
+    const start = source.indexOf('trycall(struct obj *obj)');
+    const end = source.indexOf('/* Transforms the sink', start);
+    assert.ok(start > 0 && end > start);
+    assert.match(source.slice(start, end),
+        /!objects\[obj->otyp\]\.oc_name_known && !objects\[obj->otyp\]\.oc_uname/u);
+    const callSource = readFileSync('nethack-c/upstream/src/do_name.c', 'utf8');
+    const callStart = callSource.indexOf('docall(struct obj *obj)');
+    assert.match(callSource.slice(callStart, callStart + 450),
+        /if \(!obj->dknown\)\s*return;/u);
+    const obj = vaporPotion(POT_FRUIT_JUICE);
+    game.objects[obj.otyp].oc_name_known = 0;
+    game.objects[obj.otyp].oc_uname = null;
+    clearTopline();
+    game.nhDisplay.toplin = 0; // No old message needs acknowledgment.
+    const screen = game.nhDisplay.serialize();
+    const disco = [...game.svd.disco];
+    const marker = new Error('planned naming input');
+    const env = {
+        planning: true,
+        message: async () => {},
+        requestPlanningInput(operation) {
+            assert.equal(operation, 'do.c trycall');
+            throw marker;
+        },
+    };
+    const planned = planningState(game);
+    // Every gate before docall's getlin preserves C's suppression: already
+    // identified, already called, or unseen objects require no handoff.
+    for (const [known, called, seen] of [
+        [1, null, true], [0, 'fizzy', true], [0, null, false],
+    ]) {
+        planned.objects[obj.otyp].oc_name_known = known;
+        planned.objects[obj.otyp].oc_uname = called;
+        await trycall({ ...obj, dknown: seen }, planned, env);
+    }
+    planned.objects[obj.otyp].oc_name_known = 0;
+    planned.objects[obj.otyp].oc_uname = null;
+    await assert.rejects(() => trycall(obj, planned, env), e => e === marker);
+    const vapor = { ...obj, in_use: false };
+    await assert.rejects(() => potionbreathe(vapor, planned, env), e => e === marker);
+    assert.equal(vapor.in_use, false,
+        'potionbreathe restores its source in_use guard before naming');
+    assert.equal(game.nhDisplay.serialize(), screen);
+    assert.equal(game.objects[obj.otyp].oc_uname, null);
+    assert.deepEqual(game.svd.disco, disco);
+    assert.equal(planned.objects[obj.otyp].oc_uname, null);
+});
+
+test('planned distant potion hits hand naming input to the live pass', async () => {
+    await startedGame(14029002, 'PlannedPotionHit');
+    const obj = vaporPotion(POT_FRUIT_JUICE);
+    game.objects[obj.otyp].oc_name_known = 0;
+    game.objects[obj.otyp].oc_uname = null;
+    const liveScreen = game.nhDisplay.serialize();
+    const liveDisco = [...game.svd.disco];
+    const liveRngLength = getRngLog().length;
+    const planned = planningState(game);
+    const x = planned.u.ux > 2 ? planned.u.ux - 2 : planned.u.ux + 2;
+    const y = planned.u.uy;
+    planned.viz_array[y][x] |= IN_SIGHT;
+    const target = newMonster({
+        data: planned.mons[PM_GRID_BUG],
+        mnum: PM_GRID_BUG,
+        mx: x,
+        my: y,
+        mhp: 4,
+        mhpmax: 4,
+    });
+    const marker = new Error('planned potionhit naming input');
+    const env = {
+        planning: true,
+        state: planned,
+        message: async () => {},
+        random: { rn2: bound => Math.max(0, bound - 1) },
+        requestPlanningInput(operation) {
+            assert.equal(operation, 'do.c trycall');
+            throw marker;
+        },
+    };
+    await assert.rejects(
+        () => potionhit(target, { ...obj }, POTHIT_MONST_THROW, env),
+        error => error === marker,
+    );
+    assert.equal(game.nhDisplay.serialize(), liveScreen);
+    assert.equal(game.objects[obj.otyp].oc_uname, null);
+    assert.deepEqual(game.svd.disco, liveDisco);
+    assert.equal(getRngLog().length, liveRngLength);
+    assert.equal(planned.objects[obj.otyp].oc_uname, null);
 });
 
 test('a potion whose vapors are not seen prints nothing and is not learned',

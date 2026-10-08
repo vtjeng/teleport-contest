@@ -2831,7 +2831,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
     if (breathe) {
         await potionbreathe(obj, state, env);
     } else if (obj.dknown && cansee(tx, ty, state)) {
-        await trycall(obj, state);
+        await trycall(obj, state, env);
     }
 
     if (state.u.ushops?.[0] && obj.unpaid) {
@@ -3086,7 +3086,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
         // kn counts the arms whose message told the hero what the potion
         // was; every other arm offers the naming prompt instead.
         if (kn) await discover_object(obj.otyp, true, true, true, state, env);
-        else await trycall(obj, state);
+        else await trycall(obj, state, env);
     }
 }
 

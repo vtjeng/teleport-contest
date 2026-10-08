@@ -18452,5 +18452,60 @@
       "unverified": []
     },
     "recordedAt": "2026-10-07T09:34:50.453Z"
+  },
+  {
+    "kind": "review",
+    "head": "0f20a29cbe7f6c70692b156a02817310c5bfa0ec",
+    "auditedRange": "9d5a4e50685fd5101824c29e769d3a6cb3721740..0f20a29cbe7f6c70692b156a02817310c5bfa0ec",
+    "level": "full",
+    "areas": [
+      "objects",
+      "monsters",
+      "commands"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 2 raw, 2 deduplicated, 2 confirmed, 2 applied, 0 deferred, 0 rejected, 0 unverified. Five independent finders reviewed behavior, readability risk, test quality, end-to-end variable flow, and concurrency in an isolated committed worktree. The adjudicator confirmed the Sokoban retry defect and the missing direct potionhit planning test. The applied production fix mirrors the C first-attempt retry; strengthened tests pin every guard, the retry limit, environment propagation, and live-state isolation. Final readiness checkpoint, focused tests, lint, and quality health passed. No warnings or unverified findings remain.",
+    "auditMetrics": {
+      "wallTimeSeconds": 4200,
+      "counts": {
+        "raw": 2,
+        "deduplicated": 2,
+        "confirmed": 2,
+        "applied": 2,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 1,
+        "tests": 1,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "makemon omitted the first-candidate Sokoban retry for rock-throwing random monsters",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "rejections": [],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "The reviewed range covers makemon.c makemon random selection and ordinary true-giant admission, do.c trycall, and the bounded potion.c potionhit and potionbreathe environment handoff. Synthetic v28 case v28-cursed-wand-backfire executes the changed monster creation and naming flow through all 644 steps; two independent giant recordings and two independent potion recordings execute the supporting paths; source-pinned tests execute the Sokoban retry predicates and planning handoff.",
+        "sourceReview": "Five independent finders and an independent adjudicator traced makemon.c makemon, m_initweap and m_initinv; do.c trycall; do_name.c docall; and potion.c potionhit and potionbreathe against the changed JavaScript, including state, input, message, and PRNG order. Existing note_unported calls and Unsupported paths outside the changed control paths were listed as out of scope; none remains in place of touched behavior.",
+        "completeness": "No note_unported call in scope supplies a value consumed by C. The final prepared head passed the full checkpoint and quality health gate. The applied Sokoban fix is covered for the first rock thrower, later rock thrower, non-rock thrower, outside-Sokoban case, and 51st-candidate fallback; the potionhit planning test uses test-owned randomness and preserves live RNG, display, discovery, and naming state."
+      },
+      "optionalFinders": {
+        "concurrency": "Enabled because the range changes asynchronous planning and live-input handoff through potionhit, potionbreathe, trycall, and docall.",
+        "performance": "Disabled because the range adds no amplified work or cost beyond the C source behavior."
+      },
+      "warnings": [],
+      "unverified": []
+    },
+    "recordedAt": "2026-10-08T01:25:25.315Z"
   }
 ]

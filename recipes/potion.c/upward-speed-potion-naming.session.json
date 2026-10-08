@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first upward speed potion throw: the potion falls on the hero, reaching dothrow.c:toss_up -> potionhit(hero) -> potionbreathe -> trycall. Unknown unnamed type offers docall after source impact and vapor messages. Independent seed and clock chosen before comparison.",
+  "segments": [
+    {
+      "seed": 14029013,
+      "datetime": "20510604101112",
+      "nethackrc": "OPTIONS=name:NamingProbe,role:Barbarian,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0017potion of speed\nte<     \u001b"
+    }
+  ]
+}

@@ -5,6 +5,7 @@
 
 import {
     ACID_RES,
+    ARM,
     ADORNED,
     AGGRAVATE_MONSTER,
     ANTIMAGIC,
@@ -20,6 +21,7 @@ import {
     DISPLACED,
     DRAIN_RES,
     ECMD_OK,
+    ECMD_CANCEL,
     ENERGY_REGENERATION,
     FAST,
     FIRE_RES,
@@ -80,9 +82,10 @@ import {
     WARNING,
     WOUNDED_LEGS,
     WWALKING,
+    u_at,
 } from './const.js';
 import { losexp, pluslvl } from './exper.js';
-import { float_vs_flight, polyself } from './polyself.js';
+import { body_part, float_vs_flight, polyself } from './polyself.js';
 import { create_particular } from './read.js';
 import { getlin, select_menu } from './windows.js';
 import { game } from './gstate.js';
@@ -91,13 +94,14 @@ import { display_inventory } from './invent.js';
 import {
     notice_mon_off, notice_mon_on, pooleffects,
 } from './hack.js';
-import { rescham } from './mon.js';
+import { rescham, usmellmon } from './mon.js';
 import { mungspaces } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { makewish } from './zap.js';
-import { docrt, map_engraving, map_trap } from './display.js';
+import { docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
+    map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
 import { do_mapping, findit } from './detect.js';
 import { print_dungeon } from './dungeon.js';
 import {
@@ -108,6 +112,9 @@ import {
 import { rn2 } from './rng.js';
 import { vision_recalc } from './vision.js';
 import { PM_GRID_BUG } from './monsters.js';
+import { getpos } from './getpos.js';
+import { m_at } from './monst.js';
+import { olfaction } from './mondata.js';
 // C ref: wizcmds.c wiz_map() (176-198), the #wizmap command and its C('f')
 // binding. The temporary clearing of HConfusion and HHallucination keeps
 // detect.c do_mapping() in its ordinary, unconfused branch. The source walks
@@ -584,4 +591,43 @@ export async function wiz_level_change(state = game) {
 export async function wiz_polyself(state = game) {
     await polyself(POLY_CONTROLLED, state);
     return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_smell() (885-939). The same coordinate survives each
+// getpos call; selecting a square may repair its remembered invisible marker.
+export async function wiz_smell(state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const cc = { x: state.u.ux, y: state.u.uy };
+    if (!olfaction(state.youmonst.data)) {
+        await message('You are incapable of detecting odors in your present form.', state, env);
+        return ECMD_OK;
+    }
+    await message('You can move the cursor to a monster that you want to smell.', state, env);
+    while (true) {
+        await message('Pick a monster to smell.', state, env);
+        const ans = await getpos(cc, true, 'a monster', state);
+        if (ans < 0 || cc.x < 0) return ECMD_CANCEL;
+        let isYou = false;
+        let species;
+        if (u_at(cc.x, cc.y, state)) {
+            if (state.u.usteed) species = state.u.usteed.data;
+            else {
+                species = state.youmonst.data;
+                isYou = true;
+            }
+        } else {
+            species = m_at(cc.x, cc.y, state)?.data ?? null;
+        }
+        const glyph = glyph_at(cc.x, cc.y, state);
+        if (species) {
+            if (isYou)
+                await message(`You surreptitiously sniff under your ${body_part(ARM, state.youmonst)}.`, state, env);
+            if (!await usmellmon(species, { ...env, state, message }))
+                await message(`${isYou ? 'You seem' : 'That monster seems'} to not give off any smell.`, state, env);
+            if (!glyph_is_monster(glyph)) map_invisible(cc.x, cc.y, state);
+        } else {
+            await message("You don't smell any monster there.", state, env);
+            if (glyph_is_invisible(glyph)) unmap_invisible(cc.x, cc.y, state);
+        }
+    }
 }
