@@ -219862,7 +219862,7 @@
     {
       "id": "port-timeout-fatal-expiry-family-v32-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port fatal timeout death and green slime expiry",
       "cFile": "timeout.c",
       "sessions": [
@@ -219876,15 +219876,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e33607ad95e3679854ac2ad80df3e3852f127a5a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "slimed_to_death",
           "line": 457,
           "endLine": 533,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -219896,9 +219899,9 @@
           "name": "done_timeout",
           "line": 575,
           "endLine": 587,
-          "declared": false,
+          "declared": true,
           "sourceFile": "timeout.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -220116,7 +220119,149 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "slimed_to_death",
+            "implementation": "js/timeout.js",
+            "symbol": "slimed_to_death",
+            "sourceReview": "Read whole timeout.c457-519. Already-green-slime Upolyd/pointer test deallocates delayed killer and returns without death. Otherwise delayed nonempty killer format/name or exact default NO_KILLER_PREFIX is copied before unlink. Delete an emitting hero light through canonical light.c owner; save exact mvitals byte, clear only G_GENOD, await canonical polymon, restore exact byte, then await done_timeout. Source non-returning fatal boundaries are represented by canonical program_state.gameover checks, including any death during polymon. Life-saved genocide followup sets KILLED_BY/slimicide and awaits exact urgent Yes-you-do or Unfortunately message according to PLNMSG_OK_DONT_DIE, then canonical GENOCIDED done. No obsolete slimed_to_death gap, invented operation, RNG or swallowed refusal. All consumed dependencies exist; canonical polymon existing discarded gaps remain named separately, with no new owner credit.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "decrement_property_timeouts",
+                "source": "timeout.c687 nh_timeout case SLIMED calls slimed_to_death(kptr) after decrement and delayed-killer lookup; production live handoff before one-turn SLIMED expiry."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-fatal.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/fatal-slimed-wizard.session.json",
+              "recordings/timeout.c/fatal-slimed-tourist.session.json",
+              "recordings/timeout.c/fatal-slime-amulet.session.json",
+              "recordings/timeout.c/fatal-slimed-genocided.session.json",
+              "recordings/timeout.c/fatal-slimed-genocided-amulet.session.json",
+              "recordings/timeout.c/fatal-slimed-luminous.session.json"
+            ],
+            "sourceFile": "timeout.c",
+            "synthetic": [],
+            "checkedAt": "e33607ad95e3679854ac2ad80df3e3852f127a5a"
+          },
+          {
+            "name": "done_timeout",
+            "implementation": "js/timeout.js",
+            "symbol": "done_timeout",
+            "sourceReview": "Read whole timeout.c575-585 plus all four call sites. Retain the captured property object as intrinsic_p, set I_SPECIAL before canonical awaited end.c done(how), keep bit through all final disclosure/actual death, and only on life-saving return clear that bit and publish disp.botl. Canonical gameover means C done did not return. Wire STONED684 (with delayed/default killer), SICK722 (after source recovery branch, urgent message, delayed killer and unique-name format), STRANGLED894 (suffocation/strangulation before surviving amulet removal), and slimed_to_death495. Live callbacks remain awaited and planning production stops at existing beforeTimeout seam; add only SLIMED masked timeout1 to admission. No remaining done_timeout placeholders or invented RNG/state/output.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "decrement_property_timeouts",
+                "source": "timeout.c684 STONED -> done_timeout(STONING,STONED);722 SICK -> done_timeout(POISONING,SICK);894 STRANGLED -> done_timeout(DIED,STRANGLED)"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "slimed_to_death",
+                "source": "timeout.c495 -> done_timeout(TURNED_SLIME,SLIMED) after restored green-slime mvitals."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout-fatal.test.mjs",
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/fatal-sick-wizard.session.json",
+              "recordings/timeout.c/fatal-stoned-wizard.session.json",
+              "recordings/timeout.c/fatal-strangled-wizard.session.json",
+              "recordings/timeout.c/fatal-slimed-wizard.session.json",
+              "recordings/timeout.c/fatal-slimed-tourist.session.json",
+              "recordings/timeout.c/fatal-slime-amulet.session.json",
+              "recordings/timeout.c/fatal-slimed-genocided.session.json",
+              "recordings/timeout.c/fatal-slimed-genocided-amulet.session.json",
+              "recordings/timeout.c/fatal-slimed-luminous.session.json"
+            ],
+            "sourceFile": "timeout.c",
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-pestilence-touch",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 165,
+                "source": "Pestilence AD_PEST infection -> allmain.c moveloop_core once-per-turn upkeep -> timeout.c nh_timeout SICK case722 -> done_timeout(POISONING,SICK), end.c done wizard death query and savelife; repeated fatal sickness with matching continued monster/RNG tail."
+              }
+            ],
+            "checkedAt": "e33607ad95e3679854ac2ad80df3e3852f127a5a"
+          }
+        ],
+        "entryPointReview": "Source global search finds exactly three nh_timeout direct done_timeout calls and one slimed_to_death call, which owns the fourth done_timeout call. These are runtime once-per-turn callbacks via canonical allmain beforeTimeout/live replay/afterTimeout planning handoff. No command-only substitute or new dispatcher is introduced. Independent wizard intrinsic selection reaches each STONED/SICK/STRANGLED/SLIMED fatal arm; admitted Pestilence supplies natural SICK infection. Cheap Tourist variation changes polymorph inventory destruction. Real amulet, both green-slime genocide followup messages and luminous-form deletion are production recordings. Early already-green-slime branch is source-pinned directly because polymon normally cures infection before it can expire. All four active helper entries have matching runtime evidence.",
+        "entryPoints": [
+          {
+            "name": "fatal STONED expiry through nh_timeout",
+            "functions": [
+              "done_timeout"
+            ],
+            "recordings": [
+              "recordings/timeout.c/fatal-stoned-wizard.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "fatal SICK expiry through nh_timeout",
+            "functions": [
+              "done_timeout"
+            ],
+            "recordings": [
+              "recordings/timeout.c/fatal-sick-wizard.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v32",
+                "caseId": "v32-pestilence-touch",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 165,
+                "source": "Pestilence AD_PEST infection -> allmain.c moveloop_core once-per-turn upkeep -> timeout.c nh_timeout SICK case722 -> done_timeout(POISONING,SICK), end.c done wizard death query and savelife; repeated fatal sickness with matching continued monster/RNG tail."
+              }
+            ]
+          },
+          {
+            "name": "fatal STRANGLED expiry through nh_timeout",
+            "functions": [
+              "done_timeout"
+            ],
+            "recordings": [
+              "recordings/timeout.c/fatal-strangled-wizard.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "fatal SLIMED expiry through nh_timeout",
+            "functions": [
+              "slimed_to_death",
+              "done_timeout"
+            ],
+            "recordings": [
+              "recordings/timeout.c/fatal-slimed-wizard.session.json",
+              "recordings/timeout.c/fatal-slimed-tourist.session.json",
+              "recordings/timeout.c/fatal-slime-amulet.session.json",
+              "recordings/timeout.c/fatal-slimed-genocided.session.json",
+              "recordings/timeout.c/fatal-slimed-genocided-amulet.session.json",
+              "recordings/timeout.c/fatal-slimed-luminous.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e33607ad95e3679854ac2ad80df3e3852f127a5a",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
