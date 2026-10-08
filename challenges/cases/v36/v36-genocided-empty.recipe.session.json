@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: insight.c:dogenocided/list_genocided. Request genocided/extinct report before any genocide. Required C observation: No genocided species report distinct from monster birth statistics. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search.",
+  "segments": [
+    {
+      "seed": 16136044,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136044,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#genocided\n                "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: eat.c:tin_done -> cprefx. Open blessed cockatrice tin and eat meat without stone protection. Required C observation: Corpse-prefx petrification or debug fatal recovery. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search. C-only correction before own JS: C smell/open text pages precede Eat-it; dismiss three then yes and no-to-Die in debug. Further source/C-only correction before any JS: Exactly two More dismissals precede Eat-it yes; the extra third space previously selected the default no.",
+  "segments": [
+    {
+      "seed": 16136052,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136052,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed tin of cockatrice meat\nee  yn                                    "
+    }
+  ]
+}

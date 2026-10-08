@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: read.c:seffect_confuse_monster. Read normal confuse-monster scroll as human. Required C observation: Hands glow and touch-confusion charge. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search. C-only correction before own JS: C wish output assigns scroll f because ground object e was picked up.",
+  "segments": [
+    {
+      "seed": 16136057,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136057,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed scroll of confuse monster\nrf                "
+    }
+  ]
+}

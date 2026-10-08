@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B161 C-first mission: apply.c:use_stone touchstone arm. Rub blessed touchstone on wished ruby as Archeologist. Required C observation: Gem streak or true ruby identification. Fixed before own JavaScript comparison; C-only prompt/inventory correction permitted, no seed search. C-only correction before own JS: Use recorded touchstone e and ruby f as immediate object keys; remove cancellation separator.",
+  "segments": [
+    {
+      "seed": 16136055,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe16136055,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017blessed touchstone\n\u0017uncursed ruby\n#rub\nef                "
+    }
+  ]
+}
