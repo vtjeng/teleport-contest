@@ -1,0 +1,129 @@
+{
+  "session": "synthetic/v29/v29-demonbane-banish",
+  "corpus": "synthetic",
+  "batch": "v29",
+  "caseId": "v29-demonbane-banish",
+  "manifestPath": "challenges/manifests/v29.json",
+  "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+  "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+  "evaluationPath": "challenges/evaluations/accepted-9f7db41233cca4114fe040f41e72e0282fbe08b0-v29.json",
+  "evaluationCommit": "9f7db41233cca4114fe040f41e72e0282fbe08b0",
+  "remainingScreens": 6,
+  "recordedSteps": 50,
+  "status": "complete",
+  "commit": "ca99faab99ee032fe501f4cf32f8b7e55b4ddcaf",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v29",
+    "caseId": "v29-demonbane-banish",
+    "session": "synthetic/v29/v29-demonbane-banish",
+    "manifestPath": "challenges/manifests/v29.json",
+    "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+    "recording": "challenges/cases/v29/v29-demonbane-banish.session.json",
+    "recordingPath": "challenges/cases/v29/v29-demonbane-banish.session.json",
+    "recordingSha256": "08cfa08c69e673671f4f8ff893755861c74f0f3b51d37b5eb05c494ce6b3dd70",
+    "recipe": "challenges/cases/v29/v29-demonbane-banish.recipe.session.json",
+    "recipeSha256": "d3535e0577a5325eb9fff5b271dd9b77dc621d36cdff3548aea766b11f543c26",
+    "replayInputSha256": "3865bfa70706ac84f88c5d02b0e141e247b55ae3bf7a129b0a7a8b83e995245d",
+    "evaluationPath": "challenges/evaluations/accepted-9f7db41233cca4114fe040f41e72e0282fbe08b0-v29.json",
+    "evaluationCommit": "9f7db41233cca4114fe040f41e72e0282fbe08b0",
+    "evaluationArtifact": "challenges/evaluations/accepted-9f7db41233cca4114fe040f41e72e0282fbe08b0-v29.json",
+    "evaluationUtc": "2026-10-08T09:07:34.797Z",
+    "remainingScreens": 6,
+    "recordedSteps": 50,
+    "previousScreensMatched": 44,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 44,
+        "total": 50
+      },
+      "rng": {
+        "matched": 2384,
+        "total": 2392
+      },
+      "cursors": {
+        "matched": 50,
+        "total": 50
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 44,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 44,
+          "key": "j"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "W",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2378,
+        "cEntry": "rn2(24)=20",
+        "cCaller": "invoke_banish(artifact.c:1996)",
+        "jsEntry": "rn2(5)=4",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 44,
+          "key": "j"
+        },
+        "stepIndex": 44
+      },
+      "cursor": null
+    },
+    "step": 44,
+    "kind": "rng",
+    "sourceFile": "artifact.c",
+    "function": "invoke_banish",
+    "message": null,
+    "cFile": "artifact.c",
+    "luaFile": null,
+    "line": 1996
+  },
+  "summary": "Demonbane invocation skips the visible imp at step 44 because artifact.c:invoke_banish uses an absent state.fmon chain instead of canonical level.monlist. Complete the whole source unit with cached-next traversal, canonical find_hell destination and quest status, and existing migration/teleport owners. C next draws rn2(24) for Gehennom while JavaScript skips to monster upkeep.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "artifact.c",
+    "functions": [
+      "invoke_banish() whole 1963-2019"
+    ],
+    "branch": "After doinvoke selects and retouches Demonbane and arti_invoke pays its cooldown, visit living on-map demons or imp-class monsters in potential sight, excluding nemeses. Clear sleep/tame/peaceful, apply Quest/prince/lord chance, migrate outside Hell or teleport within Hell, then report vanished/stayed counts.",
+    "callers": [
+      "cmd.c #invoke dispatcher -> artifact.c:doinvoke1749-1759 -> arti_invoke2131-2232 -> BANISH case2167 -> invoke_banish1963-2019. JS cmd.js -> artifacts.js doinvoke/retouch_object/arti_invoke already await and consume this helper ECMD_TIME. Only invoke_banish implementation needs changing; no whole dispatcher, arti_invoke or retouch credit."
+    ],
+    "dependencies": [
+      "C find_hell1970 mutates the consumed destination before the monster loop. Existing dungeon.js:find_hell606-609 and its source-pinned test match dungeon.c1949-1953; reuse instead of the stale gap/default destination inside the loop. Existing dunlevs_in_dungeon1332-1335 and ledger_no1376-1379 pin the RNG bound and target ledger.",
+      "C mtmp2=mtmp->nmon1975 must precede all gates/migration. Canonical fmon lives at state.level.monlist, as mon.js get_iter_mons/iter_mons and migration lifecycle show. migrate_mon -> dog.js:migrate_to_level unlinks the live chain and repurposes nmon, so current mtmp=mtmp.nmon iteration is also invalid after fixing the head.",
+      "Canonical Quest status is state.svq.quest_status, read by quest.js and monster generation. Use killed_nemesis from that source state instead of absent state.quest_status. Monster class/demon/prince/lord/sound/potential-sight/dead/offmap predicates and vtense are existing owners.",
+      "mon.c:migrate_mon3843-3863 and teleport.c:u_teleport_mon2263-2304 are source-discarded return calls. Reuse existing async/lifecycle owners with the correct state/env. Remove stale u_teleport_mon gap; no new teleport/mon/dungeon function credit. Existing migration excludes leashed, shopkeeper, long-worm/disguised or stuck cases; preserve any reached concrete downstream frontier as a blocked recipe, with no fabricated effects.",
+      "No overlap with B151 levitation, B150 eyewear/ball or C145 targeting contracts. C146 kick scope remains excluded. Shared artifacts.js contains disjoint invocation functions; do not edit C145 invoke_storm_spell or its callees."
+    ]
+  },
+  "evidence": [
+    "Current bounded replay .cache/A153/replay.json at examined ca99faab reproduces first zero-based step44 key j. Startup/object choice/cooldown RNG matches; C next rn2(24)=20 @ invoke_banish(artifact.c1996), JS rn2(5)=4 from monster upkeep. C screen begins The demon disappears in a cloud of brimstone; JS retains the invoke object prompt. Both produce50 cursors, but6 of50 screens remain unmatched in accepted9f7 evaluation.",
+    "Pre-invocation state probe .cache/A153/state-probe.json confirms state.fmon is absent; level.monlist contains the living peaceful imp-class monster at map35,13 in potential sight (viz bits3). It also contains a nonvisible non-demon monster, so visit/filter the real chain rather than treating missing state as no targets.",
+    "Read complete upstream artifact.c:invoke_banish1963-2019 and JS artifacts.js2520-2573. The skipped loop is the first cause. Source saves next before every branch, initializes find_hell outside the loop, uses svq.quest_status, and calls u_teleport_mon when Inhell. Current JS omits those contracts or substitutes a stale gap.",
+    "Read whole production doinvoke and arti_invoke BANISH dispatch. The selected object prompt and cooldown draws match before this helper, so neither wish generation nor object-letter selection is the cause. No changes to challenge seed/input/recording are required.",
+    "Read existing canonical dungeon find_hell/dunlevs/ledger, whole migrate_mon and migrate_to_level linkage, whole u_teleport_mon and couldsee. find_hell is already ported; do not create another destination helper or retain its placeholder. Teleport owner evidence in GOALS names banish as a previously skipped caller gap, which this source unit must reconcile.",
+    "Validation plan: fail-first source-pinned active-chain/cached-next/Quest/target-count tests; selected admitted step44 through49; independent C-first lawful Priest Demonbane invoke with a visible imp, plus multiple imp/demon variation to verify all targets survive unlinking order. Cover prince/lord/stayed summary and Hell relocation with focused source-derived cases or matching cheap C variations. If an exceptional migration or Hell setup blocks, retain its independently selected recipe and name the exact downstream source limit."
+  ],
+  "evidenceLimits": [
+    "The investigated selected case ends after the single ordinary outside-Hell invocation. It does not establish multi-target traversal, Quest chance, Hell relocation, or exceptional migration correctness; add independent evidence/source-pinned tests before claiming the whole unit."
+  ]
+}
