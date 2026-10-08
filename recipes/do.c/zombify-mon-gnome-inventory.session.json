@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first do.c:zombify_mon timeout witness. Debug wish grammar zombifying sets the source zombie timer; ordinary controlled rests exercise production timeout dispatch, conversion and revival. Species/role variation changes corpse weight, location and zombie form. No challenge inputs copied.",
+  "segments": [
+    {
+      "seed": 15741002,
+      "datetime": "20510319101200",
+      "nethackrc": "OPTIONS=name:ZombieTimer,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u0017zombifying gnome corpse\n  m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   "
+    }
+  ]
+}

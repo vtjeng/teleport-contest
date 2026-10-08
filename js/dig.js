@@ -92,6 +92,10 @@ import {
     PIT,
     OBJ_AT,
     OBJ_FLOOR,
+    OBJ_INVENT,
+    OBJ_MINVENT,
+    OBJ_MIGRATING,
+    CXN_NO_PFX,
     POOL,
     ROOM,
     ROWNO,
@@ -154,10 +158,10 @@ import {
     set_occupation,
     xytodir,
 } from './cmd.js';
-import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj } from './invent.js';
+import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, update_inventory } from './invent.js';
 import { bury_an_obj } from './bury.js';
 import { punish } from './read.js';
-import { stop_timer } from './timeout.js';
+import { stop_timer, obj_stop_timers } from './timeout.js';
 import { costly_spot, shop_keeper, stolen_value } from './shk.js';
 import { shkname } from './shknam.js';
 import { grounded, hides_under, is_flyer, is_floater, is_watch } from './mondata.js';
@@ -220,9 +224,9 @@ import { unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { wield_tool, welded } from './wield.js';
 import { Can_dig_down, ceiling, depth, dunlevs_in_dungeon, get_level, ledger_no, on_level, surface } from './dungeon.js';
-import { abon, dbon, dmgval } from './weapon.js';
+import { abon, dbon, dmgval, setmnotwielded } from './weapon.js';
 import {
-    otense, simpleonames, the, xnameFresh, yname, yobjnam, Yobjnam2,
+    corpse_xname, otense, simpleonames, the, xnameFresh, yname, yobjnam, Yobjnam2,
 } from './objnam.js';
 import { altar_wrath, altarmask_at } from './pray.js';
 import { note_unported } from './unported.js';
@@ -2007,94 +2011,83 @@ function rotEnv(env) {
     return {
         ...env,
         state: env.state ?? game,
-        hooks: { extractExternalObject: remove_object, ...env.hooks },
+        hooks: {
+            extractExternalObject: remove_object,
+            stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
+                obj, hookEnv.state, hookEnv,
+            ),
+            ...env.hooks,
+        },
     };
 }
 
-// The reason dig.c rot_corpse() cannot yet run over `obj`, or null when it
-// can. js/timeout.js run_timers() asks this for every element of the due
-// prefix before it unlinks any of them, so an unported arm stops the turn
-// instead of leaving a half-drained queue behind.
-//
-// A missing newsym seam is a wiring error rather than an unported branch, so
-// it throws here -- still before any timer moves -- instead of becoming a
-// segment boundary. It is asked last, so a corpse that was never going to rot
-// yet still reports the arm it is waiting on.
+// Corpses cannot contain objects in valid play. The generic ROT_ORGANIC
+// container callback remains outside this corpse callback's ownership.
 export function unportedRotCorpseReason(obj, rawEnv = {}) {
     const env = rotEnv(rawEnv);
-    if (obj.where !== OBJ_FLOOR) {
-        // dig.c:2156-2174. OBJ_INVENT writes "Your <corpse> rots away" through
-        // corpse_xname() and can reach remove_worn_item() and
-        // stop_occupation(); OBJ_MINVENT can reach setmnotwielded(); and
-        // OBJ_MIGRATING clears owornmask for a corpse in transit between
-        // levels. None of the three has a caller in this port yet.
-        return `a corpse on the floor, but one is rotting at where=${obj.where}`;
-    }
-    if (Has_contents(obj)) {
-        // dig.c:2129-2136, rot_organic()'s contents loop, which buries each
-        // contained object with bury_an_obj(). Only a container reaches it.
+    if (Has_contents(obj))
         return 'a rotting corpse to hold nothing, but one holds an object';
-    }
-    if (obj.unpaid) {
-        // shk.c obfree() bills an unpaid object to the shopkeeper; js/invent.js
-        // stops at that seam rather than guessing a price.
-        return 'a rotting corpse nobody owes for, but one is unpaid';
-    }
-    if (u_at(obj.ox, obj.oy, env.state)
-        && env.state.u?.uundetected
-        && hides_under(env.state.youmonst?.data)) {
-        // dig.c:2183-2185's else-if arm, mon.c hideunder(&gy.youmonst). The
-        // port's hideunder() is monster-only and writes no u.uundetected.
-        return 'a rotting corpse not under the hidden hero, but one is';
-    }
-    if (typeof env.hooks.newsym !== 'function')
+    if (obj.where === OBJ_FLOOR && typeof env.hooks.newsym !== 'function')
         throw new TypeError('rot_corpse requires a newsym seam');
     return null;
 }
 
-// C ref: dig.c rot_organic() (2125-2140). "The organic material has rotted
-// away while buried." rot_corpse() below is its only ported caller, so the
-// contents loop C runs first is left out: unportedRotCorpseReason() refuses a
-// corpse that holds anything, and the ROT_ORGANIC row of timeout_funcs[] --
-// the other way in, for a buried non-corpse -- is unported.
-//
-// `timeout` is C's UNUSED second timeout_proc argument, kept so the function
-// reads as the timeout_funcs[] row it is.
+// C ref: dig.c rot_organic() (2125-2140), the contents-free corpse path.
+// ROT_ORGANIC's buried-container contents loop remains unported.
 export function rot_organic(arg, timeout, env) {
     obj_extract_self(arg, env);
     obfree(arg, null, env);
 }
 
-// C ref: dig.c rot_corpse() (2146-2189), its OBJ_FLOOR arm. "Called when a
-// corpse has rotted completely away." Writes no message and draws no random
-// number: the corpse leaves both floor indexes, is deallocated, and the square
-// is redrawn.
-//
-// C's hero half of the exposure test, `else if (u_at(x, y) && u.uundetected
-// && hides_under(gy.youmonst.data)) hideunder(&gy.youmonst)`, is not here.
-// unportedRotCorpseReason() refuses that square before run_timers() unlinks
-// the element, so the branch cannot be reached rather than silently skipped.
-export function rot_corpse(arg, timeout, rawEnv = {}) {
+// C ref: dig.c rot_corpse() (2146-2189). Preserve location-specific cleanup
+// before extraction/deallocation, then expose the cleared square or refresh
+// inventory. Timer dispatch and zombify_mon await the message/worn cleanup.
+export async function rot_corpse(arg, timeout, rawEnv = {}) {
     const env = rotEnv(rawEnv);
     const { state } = env;
     const obj = arg;
-    if (obj.where !== OBJ_FLOOR) {
-        throw new Error(
-            `rot_corpse: unported where=${obj.where}, expected floor`,
-        );
+    const onFloor = obj.where === OBJ_FLOOR;
+    const inInvent = obj.where === OBJ_INVENT;
+    let x = 0, y = 0;
+    if (onFloor) {
+        x = obj.ox;
+        y = obj.oy;
+    } else if (inInvent) {
+        if (state.flags.verbose) {
+            const cname = corpse_xname(obj, null, CXN_NO_PFX, state);
+            const wielded = obj === state.uwep;
+            const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+            await message('Your ' + (wielded ? 'wielded ' : '') + cname
+                + ' ' + otense(obj, 'rot', state) + ' away' + (wielded ? '!' : '.'));
+        }
+        if (obj.owornmask) {
+            const { remove_worn_item } = await import('./steal.js');
+            await remove_worn_item(obj, true, state, env);
+            const { stop_occupation } = await import('./allmain.js');
+            await stop_occupation(state, env);
+        }
+    } else if (obj.where === OBJ_MINVENT) {
+        if (obj.owornmask && obj === obj.ocarry.mw)
+            await setmnotwielded(obj.ocarry, obj, env);
+    } else if (obj.where === OBJ_MIGRATING) {
+        obj.owornmask = 0;
     }
-    const x = obj.ox;
-    const y = obj.oy;
-
     rot_organic(arg, timeout, env);
-
-    const mtmp = m_at(x, y, state);
-    /* "a hiding monster may be exposed" */
-    if (mtmp && !OBJ_AT(x, y, state) && mtmp.mundetected
-        && hides_under(mtmp.data)) {
-        mtmp.mundetected = 0;
+    if (onFloor) {
+        const mtmp = m_at(x, y, state);
+        if (mtmp && !OBJ_AT(x, y, state) && mtmp.mundetected
+            && hides_under(mtmp.data)) {
+            mtmp.mundetected = 0;
+        } else if (u_at(x, y, state) && state.u.uundetected
+            && hides_under(state.youmonst.data)) {
+            // mon.c hideunder's hero arm remains unported; C discards its
+            // result, so retain the named gap without consuming a substitute.
+            note_unported('mon.c hideunder hero concealment');
+        }
+        env.hooks.newsym(x, y, env);
+    } else if (inInvent) {
+        update_inventory(env);
     }
-    env.hooks.newsym(x, y, env);
 }
 
 // C ref: dig.c buried_ball() (1885-1930). Find a buried iron ball at or near

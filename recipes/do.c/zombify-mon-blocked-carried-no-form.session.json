@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent carried no-form corpse: dig.c rot_corpse prints the inventory rot message, extracts the corpse and updates inventory.",
+  "segments": [
+    {
+      "seed": 15741004,
+      "datetime": "20510319101300",
+      "nethackrc": "OPTIONS=name:ZombieFallback,role:Knight,race:human,gender:male,align:lawful,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": "\u0017zombifying lichen corpse\n  m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   m.   "
+    }
+  ]
+}
