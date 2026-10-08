@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "v37 v37-terrain-internal-codes: C-first route selects menu entry e from the recorded C #terrain menu, revealing internal base-36 levl[][] terrain codes.",
+  "segments": [
+    {
+      "seed": 37100807,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe37100807,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#terrain\ne"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "v37 v37-wizmap-after-monster-reset: C-first candidate: wizcmds.c:wiz_makemap / cmd.c:makemap_prepost. Seed reserved before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 37100401,
+      "datetime": "20390609110721",
+      "nethackrc": "OPTIONS=name:Probe37100401,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizgenesis\nnewt\n#wizmakemap\n"
+    }
+  ]
+}
