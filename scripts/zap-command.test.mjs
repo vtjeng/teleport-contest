@@ -1289,3 +1289,11 @@ test('every remaining zap refusal names an unported zap.c function',
         ],
     );
 });
+
+// zap.c:2252-2255 observes each child before its discarded menu result;
+// awaiting the canonical display owner preserves the subsequent zap tail.
+test('probing a container awaits the canonical inventory display', () => {
+    const source = readFileSync(new URL('../js/zap.js', import.meta.url), 'utf8');
+    assert.match(source, /for \(let item = obj\.cobj; item; item = item\.nobj\)\s+observe_object\(item, state\);\s+await display_cinventory\(obj, state\);/);
+    assert.equal(source.includes("note_unported('invent.c display_cinventory')"), false);
+});
