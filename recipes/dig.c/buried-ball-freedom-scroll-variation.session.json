@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dig.c:buried_ball_to_freedom witness; seed, clock and action family chosen before comparing JS. Blessed scroll variation reaches the same source release while visiting the inventory uncurse loop.",
+  "segments": [
+    {
+      "seed": 1430802,
+      "datetime": "20531118094713",
+      "nethackrc": "OPTIONS=name:FreeBall1430802,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  \u0017uncursed scroll of punishment\nrf    #wizbury\n  \u0017blessed scroll of remove curse\nrg        \u001b\nh."
+    }
+  ]
+}

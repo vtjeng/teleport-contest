@@ -51,6 +51,7 @@ import {
     MAGIC_PORTAL,
     IS_WALL,
     OBJ_DELETED,
+    OBJ_FLOOR,
     OBJ_INVENT,
     POOL,
     MOAT,
@@ -80,7 +81,7 @@ import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object, weight } from '../js/obj.js';
 import { sobj_at } from '../js/invent.js';
 import {
     PM_CAVE_SPIDER,
@@ -91,6 +92,7 @@ import {
 } from '../js/monsters.js';
 import {
     AXE,
+    APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF,
     BOULDER,
     CORPSE,
     DWARVISH_MATTOCK,
@@ -1001,6 +1003,60 @@ test('lateral digging breaks a secret door and finishes the occupation', async (
     assert.equal(state.context.digging.level.dlevel, -1);
     assert.equal(state.context.digging.quiet, false);
     assert.ok(messages.includes('You break through a secret door!'));
+});
+
+test('tree chopping wires the canonical fruit generator after clearing terrain', async () => {
+    const cSource = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
+    assert.match(cSource, /lev->typ = ROOM, lev->flags = 0;\s*if \(!rn2\(5\)\)\s*\(void\) rnd_treefruit_at\(dpx, dpy\);/u);
+    // mkobj.c treefruits[] definition order pins every selection, while the
+    // failed dig.c fruit gate must spend no generation or identifier draws.
+    const fruits = [APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF];
+    for (const selection of [-1, ...fruits.keys()]) {
+        const state = digCheckState();
+        const x = X + 1; // Adjacent tree satisfies next2u() without movement.
+        const y = Y;
+        state.uwep = { ...tool(AXE, state), spe: 0 };
+        state.context = { ident: 1, digging: {
+            down: false, pos: { x, y }, level: { ...state.u.uz },
+            effort: 100, quiet: false,
+        } }; // The next source effort increment finishes chopping.
+        state.level.at(x, y).typ = TREE;
+        state.level.at(x, y).flags = 1; // Old tree flags must clear before fruit.
+        const events = [];
+        const values = [0, selection < 0 ? 1 : 0, selection, 5];
+        const result = await dig(state, {
+            random: {
+                rn2(bound) {
+                    events.push(['rn2', bound]);
+                    if (events.length > 2)
+                        assert.equal(state.level.at(x, y).typ, ROOM);
+                    return values.shift();
+                },
+                rnd(bound) { events.push(['rnd', bound]); return 2; },
+            },
+            message: async text => events.push(['message', text]),
+        });
+        assert.equal(result, 0);
+        assert.equal(state.level.at(x, y).typ, ROOM);
+        assert.equal(state.level.at(x, y).flags, 0);
+        assert.equal(state.context.digging.level.dlevel, -1);
+        if (selection < 0) {
+            assert.equal(state.level.objlist, null);
+            assert.equal(state.context.ident, 1);
+            assert.deepEqual(events, [['rn2', 5], ['rn2', 5],
+                ['message', 'You cut down the tree.']]);
+        } else {
+            const fruit = sobj_at(fruits[selection], x, y, state);
+            assert.ok(fruit, 'canonical generation places the selected fruit');
+            assert.equal(fruit.where, OBJ_FLOOR);
+            assert.equal(fruit.o_id, 1);
+            assert.equal(fruit.quan, 1); // mksobj_init rn2(6)=5 avoids doubling.
+            assert.equal(fruit.owt, weight(fruit, { state }));
+            assert.equal(state.context.ident, 3); // next_ident adds rnd(2)=2.
+            assert.deepEqual(events, [['rn2', 5], ['rn2', 5], ['rn2', 5],
+                ['rnd', 2], ['rn2', 6], ['message', 'You cut down the tree.']]);
+        }
+    }
 });
 
 test('dig triggers a set trap with the C FORCETRAP flag', () => {

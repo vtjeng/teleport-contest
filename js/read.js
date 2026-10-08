@@ -9,6 +9,7 @@
 // recording their source gaps.
 // wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
+import { buried_ball_to_freedom } from './dig.js';
 import {
     A_WIS,
     A_CON,
@@ -1954,7 +1955,7 @@ export async function seffect_remove_curse(scroll, state = game, env = {}) {
     if (Boolean(state.uball) && !confused)
         unpunish(state, { ...env, random });
     if (state.u?.utrap && state.u.utraptype === TT_BURIEDBALL) {
-        note_unported('dig.c buried_ball_to_freedom');
+        await buried_ball_to_freedom(state, env);
         await ttyPline(
             `The clasp on your ${body_part(LEG, state.youmonst)} vanishes.`,
             state,

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wizcmds.c:wiz_smell route. Paper golem polymorph lacks olfaction; wizard smell must return ECMD_OK before targeting. New fixed seed/clock/role and inputs chosen before comparison.",
+  "segments": [
+    {
+      "seed": 14228017,
+      "datetime": "20530709151617",
+      "nethackrc": "OPTIONS=name:Smellgolem,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,!tips,!verbose\n",
+      "moves": " #polyself\npaper golem\n #wizsmell\n  "
+    }
+  ]
+}

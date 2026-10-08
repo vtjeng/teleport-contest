@@ -152,7 +152,7 @@ import {
     set_occupation,
     xytodir,
 } from './cmd.js';
-import { currency, delobj, obfree, obj_extract_self, sobj_at } from './invent.js';
+import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj } from './invent.js';
 import { bury_an_obj } from './bury.js';
 import { costly_spot, shop_keeper, stolen_value } from './shk.js';
 import { shkname } from './shknam.js';
@@ -187,6 +187,7 @@ import {
     obj_ice_effects,
     place_object,
     remove_object,
+    rnd_treefruit_at,
 } from './obj.js';
 import { cansee, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
 import { d, rn1, rn2, rn2_on_display_rng, rne, rnl, rnd, rnz } from './rng.js';
@@ -638,7 +639,9 @@ export async function dig(state = game, rawEnv = {}) {
                 digtext = 'You cut down the tree.';
                 setTerrain(location, ROOM);
                 if (!random.rn2(5))
-                    note_unported('mkobj.c rnd_treefruit_at');
+                    rnd_treefruit_at(x, y, objectGenerationEnv({
+                        ...rawEnv, state, random,
+                    }));
                 if (state.urace?.mnum === PM_ELF
                     || state.urole?.mnum === PM_RANGER) {
                     adjalign(-1, state);
@@ -2117,4 +2120,22 @@ export function buried_ball(cc, state = game) {
         cc.y = ball.oy;
     }
     return ball;
+}
+
+// C ref: dig.c buried_ball_to_freedom() (1958-1979). The finder may move
+// cc to a nearby ball: place, erase and redraw that square, not the hero's.
+// The #if 0 rust-metal timer in C is not part of the reference build.
+export async function buried_ball_to_freedom(state = game, rawEnv = {}) {
+    const cc = { x: state.u.ux, y: state.u.uy };
+    const ball = buried_ball(cc, state);
+    if (!ball) return;
+
+    const env = objectGenerationEnv({ ...rawEnv, state });
+    obj_extract_self(ball, env);
+    place_object(ball, cc.x, cc.y, env);
+    stackobj(ball, env);
+    await reset_utrap(true, state);
+    del_engr_at(cc.x, cc.y, state);
+    const redraw = rawEnv.newsym ?? rawEnv.redraw ?? newsym;
+    redraw(cc.x, cc.y, state);
 }
