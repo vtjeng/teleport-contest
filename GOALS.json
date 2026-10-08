@@ -217471,7 +217471,7 @@
     {
       "id": "port-wizcmds-wiz-custom-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wizard glyph customization diagnostics and ID cache",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -217485,22 +217485,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ab29afa9c189495b317c57344fa9c9536fd03649",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_custom",
           "line": 1934,
           "endLine": 1986,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "wizcustom_callback",
           "line": 1987,
           "endLine": 2030,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -217512,81 +217515,81 @@
           "name": "fill_glyphid_cache",
           "line": 303,
           "endLine": 333,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "init_glyph_cache",
           "line": 334,
           "endLine": 354,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "free_glyphid_cache",
           "line": 355,
           "endLine": 371,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "add_glyph_to_cache",
           "line": 372,
           "endLine": 394,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "find_glyph_in_cache",
           "line": 395,
           "endLine": 417,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "find_glyphid_in_cache_by_glyphnum",
           "line": 418,
           "endLine": 434,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "glyph_hash",
           "line": 435,
           "endLine": 451,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "glyphid_cache_status",
           "line": 452,
           "endLine": 457,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "wizcustom_glyphids",
           "line": 808,
           "endLine": 823,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "parse_id",
           "line": 824,
           "endLine": 1166,
-          "declared": false,
+          "declared": true,
           "sourceFile": "glyphs.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -217749,7 +217752,539 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_custom",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_custom",
+            "sourceReview": "Whole wizcmds.c1934–1984, closing brace verified. Wizard admission, conditional fill, standard heading, exact primary name/active/known_handling title, ordered enumeration, awaited PICK_NONE menu destruction, conditional free then docrt. Ordinary unavailable command and ECMD_OK retained. Source tty termcap init_hilite944 obtains colorcount from terminal Co; current recorder/backend capability is256, with supplied canonical field honored.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c wizard extended command table and dispatcher -> wiz_custom; awaited JS arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "wizcustom_callback",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wizcustom_callback",
+            "sourceReview": "Whole wizcmds.c1987–2027. Nonzero win and nonnull ID gates; raw Unicode pointer or nonzero customcolor row gate. Exact four-digit index, minimum44 ID, raw decimal-backslash byte/base color, minimum11 unsigned hex, minimum4 codepoint plus UTF8 decimal byte sequence, final BUFSZ-1 byte bound, value=glyph+1/ATR_NONE/NO_COLOR. Existing applied G_* customizations and symbol-owned S_* Unicode compose the source raw u field; CP437 browser presentation is excluded. Supporting raw accessor uses same reset_glyphmap resolver before custom presentation and handles full enum including piletop venom; no second glyph map or whole display credit.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "wizcustom_glyphids",
+                "source": "glyphs.c818 calls callback for every nonnull cached ID, including the empty venom string."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "fill_glyphid_cache",
+            "implementation": "js/glyphs.js",
+            "symbol": "fill_glyphid_cache",
+            "sourceReview": "Whole glyphs.c303–321: initialize absent table, zero find_struct, reserved pointer/restype=res_fill_cache, consume parse_id result, free failed cache. All active existing startup/named-set/wizard lifecycle adapters wired. No whole options/symbols caller credit.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_custom",
+                "source": "wizcmds.c1948–1949 fill before diagnostic menu."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "parseNethackrc",
+                "source": "options.c initoptions7154–7155 fill before configuration parsing."
+              },
+              {
+                "path": "js/symbols.js",
+                "symbol": "loadSymbolSet",
+                "source": "symbols.c do_symset1072–1074 wraps source read_sym_file."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "init_glyph_cache",
+            "implementation": "js/glyphs.js",
+            "symbol": "init_glyph_cache",
+            "sourceReview": "Whole glyphs.c334–352: power-of-two size at least2*MAX_GLYPH, lsize increment for each doubling, zero glyphnum/null ID per bucket; one gg.glyphid_cache record owns pointer,size,lsize.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "fill_glyphid_cache",
+                "source": "glyphs.c307–308 initializes table only when absent."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "free_glyphid_cache",
+            "implementation": "js/glyphs.js",
+            "symbol": "free_glyphid_cache",
+            "sourceReview": "Whole glyphs.c355–369: absent-cache no-op, free IDs/table via JS collection and null canonical pointer. Source order before redraw/apply remains explicit; no persistent duplicate pointer state.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_custom",
+                "source": "wizcmds.c1978–1979 frees after menu dismissal and before docrt."
+              },
+              {
+                "path": "js/glyphs.js",
+                "symbol": "fill_glyphid_cache",
+                "source": "glyphs.c316–319 frees after parse failure."
+              },
+              {
+                "path": "js/symbols.js",
+                "symbol": "loadSymbolSet",
+                "source": "symbols.c1076–1077 frees after successful or failed named symbol-file read."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "parseNethackrc",
+                "source": "options.c7377–7378 startup lifetime end."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "initoptions_finish",
+                "source": "options.c7377–7378 before apply_customizations."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "add_glyph_to_cache",
+            "implementation": "js/glyphs.js",
+            "symbol": "add_glyph_to_cache",
+            "sourceReview": "Whole glyphs.c372–392: unsigned hash, first masked bucket, odd second probe, first empty bucket insertion including nonnull empty ID, wrap termination and source full-table panic.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "parse_id",
+                "source": "glyphs.c1114–1115 fills in ascending glyph order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "find_glyph_in_cache",
+            "implementation": "js/glyphs.js",
+            "symbol": "find_glyph_in_cache",
+            "sourceReview": "Whole glyphs.c395–415: same double-hash probe, null bucket early miss, case-insensitive exact identifier returns glyphnum; wrap miss=-1. Reads cache only, no RNG/output/mutation, pure.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "parse_id",
+                "source": "glyphs.c876–886 uses cache and early-returns without clearing a prior result on miss."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "glyphs.c",
+            "synthetic": [],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "find_glyphid_in_cache_by_glyphnum",
+            "implementation": "js/glyphs.js",
+            "symbol": "find_glyphid_in_cache_by_glyphnum",
+            "sourceReview": "Whole glyphs.c418–432: absent table=>null; linear bucket scan, glyph number matches with nonnull ID (empty string is a valid pointer), return ID/null. Pure read only.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "wizcustom_glyphids",
+                "source": "glyphs.c816 obtains identifier before callback."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "glyphs.c",
+            "synthetic": [],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "glyph_hash",
+            "implementation": "js/glyphs.js",
+            "symbol": "glyph_hash",
+            "sourceReview": "Whole glyphs.c435–449: ASCII lowercase bytes, uint32 rotate-left1 and XOR in source order. Reference Linux signed char high bytes promote before XOR; NUL terminates. Pure.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "add_glyph_to_cache",
+                "source": "glyphs.c374 hash, mask and odd second probe."
+              },
+              {
+                "path": "js/glyphs.js",
+                "symbol": "find_glyph_in_cache",
+                "source": "glyphs.c397 identical hash/probe for lookup."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "glyphs.c",
+            "synthetic": [],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "glyphid_cache_status",
+            "implementation": "js/glyphs.js",
+            "symbol": "glyphid_cache_status",
+            "sourceReview": "Whole glyphs.c452–455: pointer nonnull test only, pure. Reuses one canonical cache owner.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_custom",
+                "source": "wizcmds.c1948 and1978 cache lifetime tests."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "parseNethackrc",
+                "source": "options.c initoptions7154/7377 status tests."
+              },
+              {
+                "path": "js/symbols.js",
+                "symbol": "loadSymbolSet",
+                "source": "symbols.c1072/1076 status tests."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "glyphs.c",
+            "synthetic": [],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "wizcustom_glyphids",
+            "implementation": "js/glyphs.js",
+            "symbol": "wizcustom_glyphids",
+            "sourceReview": "Whole glyphs.c808–821: absent cache no-op; ascending0..MAX_GLYPH-1, consume linear ID lookup, callback when pointer is nonnull even if empty text. Source callback supplied directly by caller, not an unported placeholder.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_custom",
+                "source": "wizcmds.c1967 enumeration before end/select menu."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          },
+          {
+            "name": "parse_id",
+            "implementation": "js/glyphs.js",
+            "symbol": "parse_id",
+            "sourceReview": "Whole glyphs.c824–1162, including dump/fill reserved pointer early failure, cache shortcut/miss preservation, generated G_* naming order/duplicates/unnamed skips/venom empty string, no-cache lookup, S_* cmap/object/monster class ranges and inclusive S_nothing fencepost, success/failure result fields and explicit dump output sink. Existing source-generated catalog and compiled C reference replace repeated fixed-name construction; all9578 dump lines match C exactly. Fill consumes real add_glyph_to_cache, lookup consumes real find_glyph_in_cache; no note_unported return or placeholder consumed. Native earlyarg stdout process adapter remains outside game interface, not filesystem game code. Identifier comparisons use canonical ASCII-only lcase, so Unicode Kelvin sign does not falsely alias ASCII k; source-pinned regressions cover both G_ and S_ spellings.",
+            "callers": [
+              {
+                "path": "js/glyphs.js",
+                "symbol": "fill_glyphid_cache",
+                "source": "glyphs.c315 consumes fill result and clears failed cache."
+              },
+              {
+                "path": "js/glyphs.js",
+                "symbol": "glyph_find",
+                "source": "glyphs.c241 glyph_find_core consumes parser success/type/val; existing combined fanout retained."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-custom.test.mjs",
+              "scripts/glyph-customization.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ],
+            "checkedAt": "ab29afa9c189495b317c57344fa9c9536fd03649"
+          }
+        ],
+        "entryPointReview": "Wizard #wizcustom is the command entry; default admitted range plus independent default/IBM/Unicode/class recipes cover actual command dispatch, row callbacks, menu dismissal, cache release and redraw. Configuration parsing/named symbol-file selection already produce source glyph customizations; bounded cache/parser lifecycle wiring is reached by the same independent named-set/configuration recipes. S_ant class variation exercises startup S_* lookup/fanout; G_* RGB variation and exact compiled dump test cover other parser modes. Ordinary-play source command registry refusal is outside-boundary runtime evidence; direct source test covers unavailable routine branch. Existing options.c optfn_symset do_handler, save.c freedynamicdata and earlyarg process dump owners have no implemented whole-source path here and remain named caller frontiers, with no completion credit; no new source stub is consumed. Native FILE* dump uses a supplied output sink, source-pinned against the compiled C catalog.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizcustom",
+            "functions": [
+              "wiz_custom",
+              "wizcustom_callback",
+              {
+                "sourceFile": "glyphs.c",
+                "name": "fill_glyphid_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "init_glyph_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "free_glyphid_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "add_glyph_to_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "find_glyph_in_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "find_glyphid_in_cache_by_glyphnum"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "glyph_hash"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "glyphid_cache_status"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "wizcustom_glyphids"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "parse_id"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-default.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-custom-glyphs",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c doextcmd -> wizcmds.c:wiz_custom1934–1984 -> glyph ID cache/parser/menu; default empty customization heading/title, source PICK_NONE dismissal, cache release/docrt."
+              }
+            ]
+          },
+          {
+            "name": "startup named symbol/glyph configuration",
+            "functions": [
+              {
+                "sourceFile": "glyphs.c",
+                "name": "fill_glyphid_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "init_glyph_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "free_glyphid_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "add_glyph_to_cache"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "parse_id"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "glyph_hash"
+              },
+              {
+                "sourceFile": "glyphs.c",
+                "name": "glyphid_cache_status"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-custom-glyphs-ibm.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-unicode.session.json",
+              "recordings/wizcmds.c/wizard-custom-glyphs-classes.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ab29afa9c189495b317c57344fa9c9536fd03649",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
