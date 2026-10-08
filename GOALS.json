@@ -214393,6 +214393,208 @@
         "rng": 792838
       },
       "parkedReason": "cinv_ansimpleoname remains unverified until a valid runtime path exercises safe_qbuf's impure alternate callback; the blocked alternate-name-shortening recipe preserves the remaining coverage work."
+    },
+    {
+      "id": "port-wizcmds-wiz-display-macros-v31-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the wizard display macro diagnostic and canonical glyph decoder",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-display-macros"
+      ],
+      "selectionReason": "The admitted v31 display-macros mismatch begins at the unhandled wizdispmacros command; wizcmds.c wiz_display_macros owns the diagnostic and consumes glyphs.c glyph_to_cmap, including swallow and explosion ranges omitted by the existing partial decoder.",
+      "detail": "",
+      "openedAt": "3716ad627c137f9cfd4abdba9c5e82d0b2df65e3",
+      "openStanding": {
+        "sha": "9261fc9e4e7cab87cc07b39f600948376f09dd86",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_display_macros",
+          "line": 1705,
+          "endLine": 1781,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1705,
+        "to": 1781
+      },
+      "requiredFunctions": [
+        {
+          "name": "glyph_to_cmap",
+          "line": 200,
+          "endLine": 233,
+          "declared": true,
+          "sourceFile": "glyphs.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v31/v31-display-macros": {
+          "session": "synthetic/v31/v31-display-macros",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-display-macros",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-display-macros.session.json",
+          "recordingSha256": "55752877eec2a02a347db200e70189f8778a8d692914c182f174c14c986a0fb0",
+          "evaluationPath": "challenges/evaluations/accepted-9261fc9e4e7cab87cc07b39f600948376f09dd86-v31.json",
+          "evaluationCommit": "9261fc9e4e7cab87cc07b39f600948376f09dd86"
+        }
+      },
+      "activeStanding": {
+        "sha": "9261fc9e4e7cab87cc07b39f600948376f09dd86",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-display-macros",
+          "session": "synthetic/v31/v31-display-macros",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-display-macros.session.json",
+          "recordingPath": "challenges/cases/v31/v31-display-macros.session.json",
+          "recordingSha256": "55752877eec2a02a347db200e70189f8778a8d692914c182f174c14c986a0fb0",
+          "recipe": "challenges/cases/v31/v31-display-macros.recipe.session.json",
+          "recipeSha256": "6945f0e39a9f573e826251c2d32ec97b339c2d9a19cdef9d524f1c6ba9c4f330",
+          "replayInputSha256": "06714d5d6f94de1bad835d5b70b1b22e34d45e5a167784b86e94ebb56d0766e9",
+          "evaluationPath": "challenges/evaluations/accepted-9261fc9e4e7cab87cc07b39f600948376f09dd86-v31.json",
+          "evaluationCommit": "9261fc9e4e7cab87cc07b39f600948376f09dd86",
+          "evaluationArtifact": "challenges/evaluations/accepted-9261fc9e4e7cab87cc07b39f600948376f09dd86-v31.json",
+          "evaluationUtc": "2026-10-08T19:46:26.653Z",
+          "remainingScreens": 8,
+          "recordedSteps": 24,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 24
+            },
+            "rng": {
+              "matched": 4526,
+              "total": 4526
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 24
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_display_macros() for the extended command 'wizdispmacros' is not ported",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_display_macros",
+          "message": "unsupported hero command: wiz_display_macros() for the extended command 'wizdispmacros' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-display-macros.json",
+            "result": {
+              "session": "synthetic/v31/v31-display-macros",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-display-macros",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "55752877eec2a02a347db200e70189f8778a8d692914c182f174c14c986a0fb0",
+              "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+              "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+              "remainingScreens": 8,
+              "recordedSteps": 24,
+              "status": "complete",
+              "commit": "864c4ffcdf07333d45c0f35e6c1d5b3ece677be1",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-display-macros",
+                "session": "synthetic/v31/v31-display-macros",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-display-macros.session.json",
+                "recordingPath": "challenges/cases/v31/v31-display-macros.session.json",
+                "recordingSha256": "55752877eec2a02a347db200e70189f8778a8d692914c182f174c14c986a0fb0",
+                "recipe": "challenges/cases/v31/v31-display-macros.recipe.session.json",
+                "recipeSha256": "6945f0e39a9f573e826251c2d32ec97b339c2d9a19cdef9d524f1c6ba9c4f330",
+                "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+                "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+                "evaluationUtc": "2026-10-08T19:09:55.598Z",
+                "remainingScreens": 8,
+                "recordedSteps": 24,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 24
+                  },
+                  "rng": {
+                    "matched": 4526,
+                    "total": 4526
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 24
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 16,
+                  "message": "unsupported hero command: wiz_display_macros() for the extended command 'wizdispmacros' is not ported"
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_display_macros",
+                "message": "unsupported hero command: wiz_display_macros() for the extended command 'wizdispmacros' is not ported"
+              },
+              "summary": "Wizard #wizdispmacros stops at step16 because its whole glyph-range diagnostic and dispatcher are absent. Port wiz_display_macros1705–1774 and reconcile the required pure glyph_to_cmap199–231 decoder, retaining canonical glyph constants, source bounds and text dismissal.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Debug/development wizard extended command enters diagnostic before any C macro failures; all glyphs from0 toMAX_GLYPH-1 are checked in source cmap,monster,object order.",
+                "functions": [
+                  "wiz_display_macros"
+                ],
+                "callers": [
+                  "cmd.c1956-1957 extcmdlist wizdispmacros -> doextcmd/rhack"
+                ],
+                "dependencies": [
+                  "glyphs.c:glyph_to_cmap199-231 required pure return dependency",
+                  "Existing display.h glyph_is_cmap/glyph_is_cmap_zap/glyph_is_monster/glyph_to_mon/glyph_is_object/glyph_to_obj macros and canonical symbol/glyph tables",
+                  "Existing TTY text-window lifecycle"
+                ]
+              },
+              "evidence": [
+                "Accepted f527447f v31 evaluation records16/24 screens/cursors and4526/4526 RNG; exact8 remaining. Current worker replay .cache/A167/selected-before.log stops at zero-based16 on newline of #wizdispmacros, with C next text No display macro issues detected. Command registry exists but js/cmd.js has no implementation arm.",
+                "Read whole wizcmds.c1705-1774. Traversal performs cmap conversion/sentinel check, zap-direction bounds, IndexOk(defsyms) including MAXPCHARS fencepost, then monster NUMMONS exclusive upper bound and object NUM_OBJECTS inclusive upper bound. First trouble increments from0 and emits one header; each issue preserves exact text and order; no trouble prints source success line. Await display(FALSE)/destroy and returnECMD_OK, no RNG.",
+                "Consumed return audit reads glyphs.c199-231, display.h699-725,776-793,814-879,902-913, hack.h1498-1499 and sym.h173. Existing predicates and mon/object conversions match all diagnostic input ranges. Existing js/display.js glyph_to_cmap matches the consumed cmap span but omits source swallow/explosion inverse arms outside that gate; complete/relocate this pure function to glyphs.js and retain canonical display.js imports/re-exports for existing callers. Its macro arithmetic is pure and can be pinned exhaustively from source ranges.",
+                "Scope is whole wizcmds.c:wiz_display_macros plus required whole pure glyphs.c:glyph_to_cmap, bounded cmd.c:doextcmd arm and decoder publication; no whole glyph producer, display rendering, glyph customization, cmd or other C caller credit. Existing cmapGlyphs fanout in glyphs.js is the source inverse search using generated partitions, equivalent to the C glyph_find_core conversion filter; no surrounding rewrite needed.",
+                "Only active impure entry is development/debug wizard #wizdispmacros (cmd.c1956-1957, same compile gate). Independently chosen roles/seeds/clocks will execute/dismiss diagnostic twice; ordinary play tests wizard admission. Exhaustive pure decoder source pins plus normal invariant success establish source macro ranges; diagnostic failure output corresponds to internally broken macros and cannot be produced by valid runtime options. No copied challenge recipe or seed search."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
