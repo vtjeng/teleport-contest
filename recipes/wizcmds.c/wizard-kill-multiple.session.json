@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first repeated-target wiz_kill route. Source-created peaceful lizard/newt and the initial fox occupy the map. getpos m cycles to the fox then lizard in this fixed C-observed setup, exercising two kills, coordinate reuse, and one final dead-list purge; no seed scan.",
+  "segments": [
+    {
+      "seed": 14629038,
+      "datetime": "20650716132800",
+      "nethackrc": "OPTIONS=name:Killmultiple,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!verbose,!debug_mongen,pettype:none\nBINDINGS=V:wizkill\n",
+      "moves": " \u0007peaceful lizard\n \u0007peaceful newt\n #wizkill\nm. m. \u001b "
+    }
+  ]
+}
