@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first getpos NULL-callback lifecycle variation: Knight cancels #jump then opens callback-free wizard teleport and cancels. Seeds1452921..1452922 chosen before replay; gender and terrain vary independently. !verbose removes the prompt pline that otherwise hides stale cursor publication.",
+  "segments": [
+    {
+      "seed": 1452922,
+      "datetime": "20590618124533",
+      "nethackrc": "OPTIONS=name:CallbackC145,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\nOPTIONS=!verbose\n",
+      "moves": " #jump\n   \u001b \u0014   \u001b    "
+    }
+  ]
+}
