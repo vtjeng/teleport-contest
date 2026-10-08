@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first wall-mode window witness: newly chosen role/seed/clock with fixed wait, command, dismissal, and repeat.",
+  "segments": [
+    {
+      "seed": 16540031,
+      "datetime": "20540711113000",
+      "nethackrc": "OPTIONS=name:Wmode16540031,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  .#wmode\n .#wmode\n "
+    }
+  ]
+}

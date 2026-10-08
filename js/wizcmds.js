@@ -8,6 +8,7 @@ import { light_stats } from './light.js';
 import { timer_stats } from './timeout.js';
 import { region_stats } from './region.js';
 import { size_wseg } from './worm.js';
+import { FIRST_OBJECT, NUM_OBJECTS, MAXOCLASSES, OBJ_NAME } from './objects.js';
 import { memoryLayout } from './wizcmds_data.js';
 import {
     ACID_RES,
@@ -20,7 +21,8 @@ import {
     BLND_RES,
     CLAIRVOYANT,
     COLD_RES,
-    COLNO, ROWNO, COULD_SEE, IN_SIGHT, TEMP_LIT,
+    COLNO, ROWNO, COULD_SEE, IN_SIGHT, TEMP_LIT, BUFSZ,
+    CORR, SDOOR, WM_MASK, IS_WALL, IS_ROOM, IS_DOOR,
     CONFUSION,
     CONFLICT,
     DEAF,
@@ -114,7 +116,7 @@ import {
     notice_mon_off, notice_mon_on, pooleffects,
 } from './hack.js';
 import { monkilled, rescham, usmellmon, xkilled } from './mon.js';
-import { dist2, mungspaces, upstart } from './hacklib.js';
+import { dist2, mungspaces, upstart, truncateByteString } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
@@ -135,6 +137,28 @@ import { vision_recalc } from './vision.js';
 import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { nonliving, olfaction } from './mondata.js';
+
+// C ref: wizcmds.c wiz_show_wmodes() (657-689). The canonical interface
+// in options.js is tty, matching the recorder's active WINDOWPORT(tty).
+// The existing text window owns create/putstr/display(TRUE)/destroy.
+export async function wiz_show_wmodes(state = game, env = {}) {
+    const lines = [{ text: '' }]; // Source tty-only blank top line.
+    for (let y = 0; y < ROWNO; y++) {
+        let row = '';
+        for (let x = 0; x < COLNO; x++) {
+            const location = state.level.at(x, y);
+            if (u_at(x, y, state)) row += '@';
+            else if (IS_WALL(location.typ) || location.typ === SDOOR)
+                row += String(location.wall_info & WM_MASK);
+            else if (location.typ === CORR) row += '#';
+            else if (IS_ROOM(location.typ) || IS_DOOR(location.typ)) row += '.';
+            else row += 'x';
+        }
+        lines.push({ text: row.slice(1) }); // Column zero is off screen; never trim rows.
+    }
+    await (env.window ?? displayTtyTextWindow)(state, lines);
+    return ECMD_OK;
+}
 
 // C ref: wizcmds.c wiz_show_seenv() (576-617). Each map cell occupies two
 // columns; C narrows a full-width crop by one cell to avoid an 80-byte row.
@@ -985,6 +1009,45 @@ export async function wiz_show_stats(state = game, env = {}) {
         { text: memory_stats_line('  Grand total', objects.count + monsters.count + overview.count + misc.count,
             objects.size + monsters.size + overview.size + misc.size) });
     // show_borlandc_stats is excluded by the Linux recorder's build guard.
+    await (env.window ?? displayTtyTextWindow)(state, rows);
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_objprobs() (1858-1862), float operands passed to
+// printf's %6.2f. Each source arithmetic operation rounds to float32 first;
+// printf then rounds the exact promoted value to nearest, ties to even.
+export function wiz_objprobs_percentage(probability, sum) {
+    const percentage = Math.fround(Math.fround(Math.fround(probability) * 100)
+        / Math.fround(sum));
+    if (Number.isNaN(percentage)) return '  -nan'; // Recorder's runtime 0.f/0.f sign.
+    if (!Number.isFinite(percentage)) return (percentage < 0 ? '-inf' : 'inf').padStart(6);
+    const scaled = Math.abs(percentage) * 100;
+    let hundredths = Math.floor(scaled);
+    const fraction = scaled - hundredths;
+    if (fraction > 0.5 || (fraction === 0.5 && hundredths % 2)) hundredths++;
+    const sign = percentage < 0 || Object.is(percentage, -0) ? '-' : '';
+    return (sign + Math.trunc(hundredths / 100) + '.'
+        + String(hundredths % 100).padStart(2, '0')).padStart(6);
+}
+
+// C ref: wizcmds.c wiz_objprobs() (1832-1868). Use initialized per-game
+// probabilities/names; unnamed catalog entries still contribute to sums.
+export async function wiz_objprobs(state = game, env = {}) {
+    const sums = Array(MAXOCLASSES).fill(0);
+    let oclass = state.objects[FIRST_OBJECT].oc_class;
+    for (let type = FIRST_OBJECT; type < NUM_OBJECTS; type++)
+        sums[state.objects[type].oc_class] += state.objects[type].oc_prob;
+    const rows = [];
+    for (let type = FIRST_OBJECT; type < NUM_OBJECTS; type++) {
+        const object = state.objects[type], name = OBJ_NAME(object, state);
+        if (name == null) continue;
+        if (object.oc_class !== oclass) rows.push({ text: '' });
+        oclass = object.oc_class;
+        const row = String(object.oc_prob).padStart(4) + ' / '
+            + String(sums[oclass]).padStart(4) + ' ('
+            + wiz_objprobs_percentage(object.oc_prob, sums[oclass]) + '%): ' + name;
+        rows.push({ text: truncateByteString(row, BUFSZ - 1) });
+    }
     await (env.window ?? displayTtyTextWindow)(state, rows);
     return ECMD_OK;
 }
