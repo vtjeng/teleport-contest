@@ -211385,8 +211385,8 @@
           "name": "wiz_show_vision",
           "line": 621,
           "endLine": 656,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -211559,7 +211559,69 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_show_vision",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_show_vision",
+            "sourceReview": "Whole wizcmds.c621–653: header source constants and empty row; y0..ROWNO-1, x1..COLNO-1; hero @ overrides canonical viz_array, zero is space else byte 0+v, remove only trailing spaces; retain empty rows. Existing displayTtyTextWindow represents create/putstr/display(TRUE)/destroy and is awaited before ECMD_OK. No source RNG, nutrition, turn or vision mutations. No missing consumed-return callee.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "C cmd.c1928–1929 extcmdlist vision points to wiz_show_vision; bounded JS case/import awaits complete helper and returns ECMD_OK. Existing WIZMODECMD gate, rhack/ECMD_OK and generated extcmd row are reused unchanged; upstream search has no other production call sites."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-vision.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-vision-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-vision-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-vision-display",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 17,
+                "source": "cmd.c extcmdlist vision -> doextcmd -> wizcmds.c wiz_show_vision621–653; blocking NHW_TEXT displays canonical bits then input dismissal restores the map, ECMD_OK spends no turn."
+              }
+            ],
+            "checkedAt": "eee0213825499b127cfda2990cedaacbe26ad277"
+          }
+        ],
+        "entryPointReview": "One command entry #vision. The admitted case reaches after movement and restores its map; independent Barbarian ordinary and Valkyrie blindfold cases reach the text window twice each and dismiss both. Blind variation reads COULD_SEE without IN_SIGHT, ordinary reads combined bits; synthetic data is unchanged and independent recipes use new source-selected states/seeds/clocks.",
+        "entryPoints": [
+          {
+            "name": "wizard #vision",
+            "functions": [
+              "wiz_show_vision"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-vision-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-vision-blind.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v30",
+                "caseId": "v30-vision-display",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 17,
+                "source": "cmd.c extcmdlist vision -> doextcmd -> wizcmds.c wiz_show_vision621–653; blocking NHW_TEXT displays canonical bits then input dismissal restores the map, ECMD_OK spends no turn."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
