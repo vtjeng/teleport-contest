@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: apply.c:use_stone cursed gem branch. Rub diamond on cursed touchstone. Required C observation: Chance of shattering gem, otherwise colored streak. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934009,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934009,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed touchstone\n\u0017diamond\naef                    "
+    }
+  ]
+}

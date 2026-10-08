@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B159 supplemental behavior: wizcmds.c:wiz_migrate_mons1873-1930 -> list_migrating_mons; List empty migrating chains without generating monsters. C observation target: Migration text window and/or zero-count input. Planned before comparison; no recipe altered in response to JS.",
+  "segments": [
+    {
+      "seed": 15934104,
+      "datetime": "20370405132057",
+      "nethackrc": "OPTIONS=name:Supplement15934104,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#migratemons\n        0\n              "
+    }
+  ]
+}

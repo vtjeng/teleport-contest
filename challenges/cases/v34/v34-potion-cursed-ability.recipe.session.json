@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: potion.c:peffect_gain_ability1030-1083. Quaff cursed gain-ability potion. Required C observation: Abilities decrease rather than improve. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934025,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934025,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017cursed potion of gain ability\nqe                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: do_name.c:do_oname. Name an individual ordinary dagger. Required C observation: Individual object oname changes without class name. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934032,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934032,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed dagger\n#name\nyeskyhook\n        i           "
+    }
+  ]
+}

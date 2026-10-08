@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B159 supplemental behavior: wizcmds.c:wiz_custom1934-1984; Show default glyph customization cache/list. C observation target: Glyph identifier heading and current colorcount metadata. Planned before comparison; no recipe altered in response to JS.",
+  "segments": [
+    {
+      "seed": 15934103,
+      "datetime": "20370405132057",
+      "nethackrc": "OPTIONS=name:Supplement15934103,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizcustom\n                         "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B159 C-first candidate: polyself.c:domindblast. Polymorph mind flayer then activate psychic blast near monster. Required C observation: Mental blast scans monsters and deals psychic damage. Fixed before JS comparisons; no seed search or recipe changes based on JS failures.",
+  "segments": [
+    {
+      "seed": 15934036,
+      "datetime": "20370404121956",
+      "nethackrc": "OPTIONS=name:Probe15934036,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".da      db      #polyself\nmind flayer\n        \u0007peaceful dwarf\n      #monster\n                        "
+    }
+  ]
+}

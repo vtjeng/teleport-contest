@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B159 supplemental behavior: polyself.c:dobreathe -> zap.c:ubreatheu/zhitu; High-level yellow dragon breathes downward onto stairs. C observation target: Acid breath beam shared effect with source inventory erosion. Planned before comparison; no recipe altered in response to JS.",
+  "segments": [
+    {
+      "seed": 15934119,
+      "datetime": "20370405132057",
+      "nethackrc": "OPTIONS=name:Supplement15934119,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n12\n                                             da      db      #polyself\nyellow dragon\n        #monster\n>                      "
+    }
+  ]
+}
