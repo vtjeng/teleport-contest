@@ -1623,11 +1623,6 @@ export function add_skills_to_menu(
     selectable = false,
     speedy = false,
 ) {
-    // The tab-separated column layout at :1294-1296 belongs to
-    // iflags.menu_tab_sep, whose options.c boolean handler is not ported.
-    if (state.iflags?.menu_tab_sep)
-        throw new UnsupportedWeaponSkillError('menu_tab_sep columns');
-
     const lines = [];
 
     /* Find the longest skill name. */
@@ -1674,7 +1669,9 @@ export function add_skills_to_menu(
                         + `${String(practice_needed_to_advance(
                             P_SKILL(i, state),
                         )).padStart(4)})`
-                : ` ${prefix} ${P_NAME(i, state).padEnd(longest)} [${level}]`;
+                : state.iflags?.menu_tab_sep
+                    ? ` ${prefix}${P_NAME(i, state)}\t[${level}]`
+                    : ` ${prefix} ${P_NAME(i, state).padEnd(longest)} [${level}]`;
 
             if (selectable && can_advance(i, speedy, state))
                 lines.push({ text, value: i + 1, label: text });

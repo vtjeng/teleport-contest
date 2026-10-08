@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T20:55:58.521Z",
+  "capturedAt": "2026-10-08T21:12:28.564Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -66957,12 +66957,186 @@
         "type": "accepted",
         "at": "2026-10-08T20:55:34.825Z",
         "task": "A170"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A170-734c50919-20261008",
+        "type": "published",
+        "at": "2026-10-08T20:56:32.548Z",
+        "task": "A170",
+        "commit": "734c50919f578ff245c45a6b03420518904e089c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c919743ed6a32ba24269ce80d4ec703f7d3063d4",
+        "type": "ready",
+        "at": "2026-10-08T20:58:01.503Z",
+        "task": "C152",
+        "delivery": "c919743ed6a32ba24269ce80d4ec703f7d3063d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B167-implementation-evidence-20261008",
+        "type": "turn",
+        "at": "2026-10-08T20:58:31.429Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B167 completes shield and wet-towel enlightenment descriptions with independent runtime evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C153-empty-lights-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T21:00:15.362Z",
+        "task": "C153",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C153-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:00:16.513Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B166-df3f88e1",
+        "type": "integrating",
+        "at": "2026-10-08T21:00:53.032Z",
+        "task": "B166",
+        "integration": "df3f88e14504c6bd2b05c427cee310320c4f74a8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A172-wizard-custom-glyphs-20261008",
+        "type": "implement",
+        "at": "2026-10-08T21:02:14.791Z",
+        "task": "A172",
+        "goal": "port-wizcmds-wiz-custom-v31-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A172-custom-implementation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:02:16.114Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C153-pointer-diagnostic-20261008",
+        "type": "park",
+        "at": "2026-10-08T21:02:41.656Z",
+        "task": "C153"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B166-wait-checkpoint-37843974426",
+        "type": "activity",
+        "at": "2026-10-08T21:03:24.851Z",
+        "task": "B166",
+        "phase": "waiting",
+        "reason": "Hosted checkpoint 37843974426 is queued for exact integration commit df3f88e14504c6bd2b05c427cee310320c4f74a8."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C154-pestilence-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T21:03:29.925Z",
+        "task": "C154",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C154-pestilence-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:03:31.038Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2ec681b75626a7d08859aff17d3e9590c57a552b",
+        "type": "ready",
+        "at": "2026-10-08T21:04:35.371Z",
+        "task": "B167",
+        "delivery": "2ec681b75626a7d08859aff17d3e9590c57a552b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B168-empty-lights-20261008",
+        "type": "assign",
+        "at": "2026-10-08T21:05:57.500Z",
+        "task": "B168",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B168-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:05:58.559Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B168 investigates the empty light-source diagnostic while B166 and B167 await integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B166-validated-df3f88e14504c6bd2b05c427cee310320c4f74a8",
+        "type": "validated",
+        "at": "2026-10-08T21:08:16.121Z",
+        "task": "B166",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B168-native-pointer-20261008",
+        "type": "park",
+        "at": "2026-10-08T21:08:45.647Z",
+        "task": "B168"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C154-report-complete-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:08:54.281Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C154 fatal-timeout investigation is complete and awaits coordinator source-task context; C152 migration delivery awaits integration. C153 is blocked on an unowned pointer-format contract."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B169-altar-drop-20261008",
+        "type": "assign",
+        "at": "2026-10-08T21:09:29.979Z",
+        "task": "B169",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B169-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T21:09:31.170Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B169 investigates altar drop behavior from the admitted v32 baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B166-df3f88e14504c6bd2b05c427cee310320c4f74a8-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T21:11:29.226Z",
+        "task": "B166"
       }
     ]
   },
   "development": {
-    "executionCommit": "2f52799b8e966edcf64b8a93efcfabe527adb0e6",
-    "measuredAt": "2026-10-08T20:51:51.074Z",
+    "executionCommit": "df3f88e14504c6bd2b05c427cee310320c4f74a8",
+    "measuredAt": "2026-10-08T21:06:38.044Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
