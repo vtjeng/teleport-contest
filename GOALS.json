@@ -218507,7 +218507,7 @@
     {
       "id": "port-display-unmap-object-engraving-v32-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete engraved-square map-memory restoration",
       "cFile": "display.c",
       "sessions": [
@@ -218515,8 +218515,12 @@
       ],
       "selectionReason": "Seed continuation after fully matching A172 custom glyph session: independent v32 forcefight engraving refusal is source-traced to whole display.c unmap_object; existing helpers and callers are canonical.",
       "detail": "Complete the engraving branch, exact remembered-room darkening compare, and obsolete refusal/caller cleanup. No whole hack, cmd, allmain, or show_mon_or_warn ownership.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "b2da796c637a8f4d30ed8f07f77ef6cf25d66240",
+      "openStanding": {
+        "sha": "02094146bef512055a829bb70fc3927ad70b441f",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -218545,7 +218549,181 @@
           "evaluationPath": "challenges/evaluations/accepted-02094146bef512055a829bb70fc3927ad70b441f-v32.json",
           "evaluationCommit": "02094146bef512055a829bb70fc3927ad70b441f"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "02094146bef512055a829bb70fc3927ad70b441f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v32",
+          "caseId": "v32-engraved-forcefight",
+          "session": "synthetic/v32/v32-engraved-forcefight",
+          "manifestPath": "challenges/manifests/v32.json",
+          "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+          "recording": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+          "recordingPath": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+          "recordingSha256": "d16ca10b3509219ccf002082af3363c458c17dd39950045485cca76bf66df61d",
+          "recipe": "challenges/cases/v32/v32-engraved-forcefight.recipe.session.json",
+          "recipeSha256": "3b493407fabeb06178d6522bd1afad2931e8fed86a4109d45a28cc0e10208c97",
+          "replayInputSha256": "66af79114d75d7fb93e2b422fe4d48476eb04b8ca317f346748ea3ec78c57088",
+          "evaluationPath": "challenges/evaluations/accepted-02094146bef512055a829bb70fc3927ad70b441f-v32.json",
+          "evaluationCommit": "02094146bef512055a829bb70fc3927ad70b441f",
+          "evaluationArtifact": "challenges/evaluations/accepted-02094146bef512055a829bb70fc3927ad70b441f-v32.json",
+          "evaluationUtc": "2026-10-08T22:20:59.449Z",
+          "remainingScreens": 12,
+          "recordedSteps": 26,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 14,
+              "total": 26
+            },
+            "rng": {
+              "matched": 2676,
+              "total": 2681
+            },
+            "cursors": {
+              "matched": 14,
+              "total": 26
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: forgetting a square that shows an engraving",
+            "step": 14
+          },
+          "step": 14,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: forgetting a square that shows an engraving",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v32/v32-engraved-forcefight.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v32",
+              "caseId": "v32-engraved-forcefight",
+              "session": "synthetic/v32/v32-engraved-forcefight",
+              "manifestPath": "challenges/manifests/v32.json",
+              "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+              "recordingPath": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+              "recording": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+              "recordingSha256": "d16ca10b3509219ccf002082af3363c458c17dd39950045485cca76bf66df61d",
+              "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+              "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+              "remainingScreens": 12,
+              "recordedSteps": 26,
+              "passed": false,
+              "metrics": {
+                "screens": {
+                  "matched": 14,
+                  "total": 26
+                },
+                "rng": {
+                  "matched": 2676,
+                  "total": 2681
+                },
+                "cursors": {
+                  "matched": 14,
+                  "total": 26
+                }
+              },
+              "error": null,
+              "firstMismatch": {
+                "kind": "stop",
+                "step": 14,
+                "message": "unsupported hero command: an unported branch of this command: forgetting a square that shows an engraving"
+              },
+              "step": 14,
+              "kind": "stop",
+              "sourceFile": "display.c",
+              "function": "unmap_object",
+              "status": "complete",
+              "commit": "3c29936cee0cf96ba5a61d3e0ca601aec50f2b6e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v32",
+                "caseId": "v32-engraved-forcefight",
+                "session": "synthetic/v32/v32-engraved-forcefight",
+                "manifestPath": "challenges/manifests/v32.json",
+                "manifestSha256": "df6e2f14178b27cede06d22bdc6cf04bc625bd4573322321e0dd367a44576823",
+                "recordingPath": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+                "recording": "challenges/cases/v32/v32-engraved-forcefight.session.json",
+                "recordingSha256": "d16ca10b3509219ccf002082af3363c458c17dd39950045485cca76bf66df61d",
+                "evaluationPath": "challenges/evaluations/accepted-8ad9b29d189e31d080528420f7c973012a25f0c1-v32.json",
+                "evaluationCommit": "8ad9b29d189e31d080528420f7c973012a25f0c1",
+                "remainingScreens": 12,
+                "recordedSteps": 26,
+                "passed": false,
+                "metrics": {
+                  "screens": {
+                    "matched": 14,
+                    "total": 26
+                  },
+                  "rng": {
+                    "matched": 2676,
+                    "total": 2681
+                  },
+                  "cursors": {
+                    "matched": 14,
+                    "total": 26
+                  }
+                },
+                "error": null,
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 14,
+                  "message": "unsupported hero command: an unported branch of this command: forgetting a square that shows an engraving"
+                },
+                "step": 14,
+                "kind": "stop",
+                "sourceFile": "display.c",
+                "function": "unmap_object"
+              },
+              "summary": "Force-fighting an empty engraved square stops in unmap_object instead of revealing a visible engraving and restoring its memory glyph. Complete the engraving arm and preserve the exact remembered-room glyph comparison before darkening.",
+              "source": {
+                "file": "display.c",
+                "branch": "hero_memory enabled; no uncovered seen trap; square seen previously; ROOM/CORR/ICE contains an uncovered engraving",
+                "functions": [
+                  "unmap_object"
+                ],
+                "callers": [
+                  "hack.c:domove_fight_empty:2280 (rhack movement with F prefix)",
+                  "hack.c:dopush:207",
+                  "display.c:unmap_invisible:391/show_mon_or_warn:490",
+                  "detect.c:clear_stale_map:326",
+                  "mon.c:mondead:3171/xkilled:3359",
+                  "potion.c:peffect_monster_detection:933",
+                  "zap.c:bhit:4041/4084"
+                ],
+                "dependencies": [
+                  "Existing engrave.c:engr_at, engrave.h:spot_shows_engravings and engraving_to_glyph",
+                  "Existing vision.c:cansee, trap.c:t_at, display.h:covers_traps",
+                  "Existing display.c:map_trap/map_engraving/map_background and canonical map-memory glyph owner"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Accepted A171 v32 evaluation measures 14/26 screens and cursors; .cache/A173/selected-before.json independently confirms segment0 step14 key l refusal at examined worker HEAD. No other sessions replayed.",
+                "C display.c409-438 returns only when hero_memory is disabled, selects uncovered known trap first, otherwise reveals an uncovered engraving when cansee and calls map_engraving(ep,0). It maps background only in the engraving else. Darkening requires !waslit AND remembered glyph==cmap_to_glyph(S_room) AND typ==ROOM. JS currently throws on engraving and substitutes typ==ROOM for the glyph comparison; that substitution is invalid once engraving mapping is restored.",
+                "JS display.js map_engraving3612-3622 already maps engraving_to_glyph and writes canonical location.remembered_glyph without drawing when show=0. cansee uses IN_SIGHT, so an out-of-sight unrevealed engraving must remain unrevealed but still gets its engraving memory glyph as in C. No placeholder return dependency is required.",
+                "All C direct callers were searched against current JS. They already call unmap_object with canonical state; show_mon_or_warn catches its only refusal and records a gap. Remove this obsolete catch, the error class, its cmd/allmain registry entries, and stale tests/commentary in the same source task. No whole caller or renderer/vision ownership credit.",
+                "Validation plan: fail-first forcefight/engraving memory tests pin revealed/unrevealed, trap priority, no-memory/no-seenv, ice/corridor/room, no drawing, and glyph-sensitive darkening; admitted step14 and full26-step replay; independent ordinary engraving forcefight primary/cheap variation plus representative non-engraving existing recordings. Helper-only source range has no new command dispatcher; existing callers remain canonical."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
