@@ -213132,6 +213132,259 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-mon-make-corpse-rnz-env-v30-20261008",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore the canonical corpse timer RNG wrapper through make_corpse object generation",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v30/v30-pyrolisk-gaze"
+      ],
+      "selectionReason": "B163 resolves synthetic/v30/v30-pyrolisk-gaze RNG index 2849 at step 103 after source tracing the omitted rnz(10) wrapper from mkobj.c start_corpse_timeout through mon.c make_corpse; its bounded RNG environment correction is independent of A165 wmode statistics and C152 migration work.",
+      "detail": "At segment 0 step 103, C logs rnz(10)=13 in mkobj.c start_corpse_timeout while JavaScript advances directly to the following draw. mon.c make_corpse supplies object creation with the caller RNG environment, but its default family omitted rnz. Add the canonical rnz wrapper while preserving explicit caller overrides. No whole make_corpse completion credit.",
+      "openedAt": "11d1b5f813f6cae1d9ae7c0ba99c2cbaa6c7a94f",
+      "openStanding": {
+        "sha": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "make_corpse",
+      "session": "synthetic/v30/v30-pyrolisk-gaze",
+      "step": 103,
+      "syntheticProvenance": {
+        "synthetic/v30/v30-pyrolisk-gaze": {
+          "session": "synthetic/v30/v30-pyrolisk-gaze",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-pyrolisk-gaze",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-pyrolisk-gaze.session.json",
+          "recordingSha256": "824ad884cf98efa1860e5fa2ea55e5aacc57b232987c36a375eb509e2dda7909",
+          "evaluationPath": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+          "evaluationCommit": "8a1c6bca0b99c51a199a18424976a9182a40d67f"
+        }
+      },
+      "activeStanding": {
+        "sha": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-pyrolisk-gaze",
+          "session": "synthetic/v30/v30-pyrolisk-gaze",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-pyrolisk-gaze.session.json",
+          "recordingPath": "challenges/cases/v30/v30-pyrolisk-gaze.session.json",
+          "recordingSha256": "824ad884cf98efa1860e5fa2ea55e5aacc57b232987c36a375eb509e2dda7909",
+          "recipe": "challenges/cases/v30/v30-pyrolisk-gaze.recipe.session.json",
+          "recipeSha256": "2f6eb32c9c6730c53f74e99a0580be66a55d6f0beb11d7ac697ecc1ef5411d69",
+          "replayInputSha256": "2cede40621feff134cd6dbeb094c12aa52a4b8ecfb214644f00bc43bef408de1",
+          "evaluationPath": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+          "evaluationCommit": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+          "evaluationArtifact": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+          "evaluationUtc": "2026-10-08T18:54:46.152Z",
+          "remainingScreens": 0,
+          "recordedSteps": 115,
+          "previousScreensMatched": 115,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 115,
+              "total": 115
+            },
+            "rng": {
+              "matched": 2849,
+              "total": 2866
+            },
+            "cursors": {
+              "matched": 115,
+              "total": 115
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2849,
+              "cEntry": "rnz(10)=13",
+              "cCaller": "start_corpse_timeout(mkobj.c:1413)",
+              "jsEntry": "rn2(12)=5",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 103,
+                "key": "y"
+              },
+              "stepIndex": 103
+            },
+            "cursor": null
+          },
+          "step": 103,
+          "kind": "rng",
+          "sourceFile": "mkobj.c",
+          "function": "start_corpse_timeout",
+          "message": null,
+          "cFile": "mkobj.c",
+          "luaFile": null,
+          "line": 1413,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-pyrolisk-gaze.json",
+            "result": {
+              "session": "synthetic/v30/v30-pyrolisk-gaze",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-pyrolisk-gaze",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "824ad884cf98efa1860e5fa2ea55e5aacc57b232987c36a375eb509e2dda7909",
+              "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+              "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+              "remainingScreens": 0,
+              "recordedSteps": 115,
+              "status": "complete",
+              "commit": "bd5b1d85694dec713333c7ca5c26df1eebf9fec8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-pyrolisk-gaze",
+                "session": "synthetic/v30/v30-pyrolisk-gaze",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-pyrolisk-gaze.session.json",
+                "recordingPath": "challenges/cases/v30/v30-pyrolisk-gaze.session.json",
+                "recordingSha256": "824ad884cf98efa1860e5fa2ea55e5aacc57b232987c36a375eb509e2dda7909",
+                "recipe": "challenges/cases/v30/v30-pyrolisk-gaze.recipe.session.json",
+                "recipeSha256": "2f6eb32c9c6730c53f74e99a0580be66a55d6f0beb11d7ac697ecc1ef5411d69",
+                "replayInputSha256": "8caab30cf246691d1a768ca957d2a6c4de6b50ca08ab6a6896399970610f17af",
+                "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+                "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+                "evaluationArtifact": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+                "evaluationUtc": "2026-10-08T16:21:35.676Z",
+                "remainingScreens": 0,
+                "recordedSteps": 115,
+                "previousScreensMatched": 115,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 115,
+                    "total": 115
+                  },
+                  "rng": {
+                    "matched": 2849,
+                    "total": 2866
+                  },
+                  "cursors": {
+                    "matched": 115,
+                    "total": 115
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2849,
+                    "cEntry": "rnz(10)=13",
+                    "cCaller": "start_corpse_timeout(mkobj.c:1413)",
+                    "jsEntry": "rn2(12)=5",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 103,
+                      "key": "y"
+                    },
+                    "stepIndex": 103
+                  },
+                  "cursor": null
+                },
+                "step": 103,
+                "kind": "rng",
+                "sourceFile": "mkobj.c",
+                "function": "start_corpse_timeout",
+                "message": null,
+                "cFile": "mkobj.c",
+                "luaFile": null,
+                "line": 1413
+              },
+              "summary": "All screens and cursors match, but ordinary corpse creation after a fiery gaze omits the recorder-visible rnz wrapper. js/mon.js:make_corpse builds an RNG environment without rnz; js/obj.js therefore synthesizes its arithmetic from logged component calls. C has 2866 RNG entries and JS has 2865; removing the single C rnz(10)=13 entry makes their entire logs identical. Complete the canonical default RNG family at make_corpse while preserving caller overrides.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "mon.c",
+                "functions": [
+                  "make_corpse"
+                ],
+                "branch": "polyself.c:dogaze AD_FIRE damages an eyed visible monster and kills it. mon.c:xkilled selects a corpse and make_corpse initializes it through mkcorpstat. No caller-supplied RNG environment is present on this ordinary killed route; the default make_corpse environment lacks rnz.",
+                "callers": [
+                  "polyself.c:dogaze 1715-1729 draws d(2,6), tests the inventory-destruction rn2(20) gate, applies damage and calls killed on death. js/polyself.js:dogaze 2566-2590 awaits killed(mtmp,state) with no injected death environment.",
+                  "mon.c:killed 3470-3473 calls xkilled(XKILL_GIVEMSG); xkilled 3618-3625 calls make_corpse after corpse_chance, and uses the resulting cadaver for its buried-corpse condition. js/mon.js:killed/xkilled forward the ordinary environment and xkilled 5997-6002 awaits make_corpse.",
+                  "mon.c:mondied 3251-3263 is make_corpse's other C caller; js/mon.js:mondied 5595-5604 forwards its caller environment. The shared make_corpse default correction applies to both families without rewriting their call sites."
+                ],
+                "dependencies": [
+                  "mkobj.c:mkcorpstat 2067-2118 calls mksobj/mksobj_at with CORPSTAT_INIT. mksobj 1204-1228 calls set_corpsenm, which calls start_corpse_timeout 1389-1431. That helper consumes rnd.c:rnz 214-229 before Rider/troll/zombie overrides. Existing JS owners are corpstat.js, obj.js and timeout.js; they already compute the same result and need no source expansion for this fix.",
+                  "js/obj.js:sourceRandom 592-618 uses injected rnz when supplied; otherwise it derives the same integer result from rn2(1000), rne(4), rn2(2), and omits the rnz wrapper log. js/rng.js:rnz 185-187 delegates to rnzFrom, whose final logResult records this wrapper after the same internal calls. Fix the missing canonical default at the caller rather than invent a log entry in the timeout owner.",
+                  "Preserve env.random overrides, including clone-specific rnz from createCoreRandom in rng.js:119-129. The planning dispatcher in unported_monster_actions.js obtains that complete family. A focused test must prove explicit rnz remains authoritative and planning calls do not consume live game.coreCtx.",
+                  "All required source functions have existing implementations; this is a bounded RNG environment divergence fix. No whole mon.c:make_corpse/xkilled, polyself.c:dogaze or mkobj.c:start_corpse_timeout completion credit is requested. No diagnostic command dispatcher or B162 memory-size helper changes are needed."
+                ]
+              },
+              "evidence": [
+                "Authoritative accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json reports screens115/115, cursors115/115 and RNG2849/2866. The first mismatch is segment0 step103 at index2849: C rnz(10)=13 @ start_corpse_timeout(mkobj.c:1413), JS rn2(12)=5. The matching screen count is zero remaining screens, not a passing session.",
+                "Focused selected-case scan at bd5b1d85694dec713333c7ca5c26df1eebf9fec8 reproduced the same mismatch with no refusal: bounded run-ATwgR2, .cache/B163/focused-scan.log. All115 screens were emitted. The source RNG call annotation locates the downstream timer but does not identify which caller lost its canonical RNG operation.",
+                "Read-only runtime comparison .cache/B163/rng-tail.mjs replayed the unchanged admitted recording in a fresh process and saved runtime-rng.json. It measured C2866 and JS2865 RNG entries; the logs become equal over their entire lengths after deleting only C index2849 rnz(10)=13. The preceding calls rn2(1000)=333, rn2(4)=1, rne(4)=1, rn2(2)=1 and every subsequent call agree. This rules out a missing entropy draw or a different integer timer value as the first cause.",
+                "The frozen runner fresh-process confirmation uses node frozen/ps_test_runner.mjs --worker-session=challenges/cases/v30/v30-pyrolisk-gaze.session.json; .cache/B163/frozen-confirmation.log preserves its RNG-only failure. No C game was recorded or altered during investigation.",
+                "Read whole upstream mon.c:make_corpse 564-940, polyself.c:dogaze 1642-1774, mkobj.c:mkcorpstat 2067-2118 and start_corpse_timeout 1389-1431, and rnd.c:rnz 214-229 at revision16ff59115315917b93185d026aeefea06db9b0f4. C callers use the global rnd.c wrapper directly. The default make_corpse JS family at mon.js5353 contains d,rn1,rn2,rnd,rne,rnl and merges env.random after those defaults, but omits rnz. mon.js RNG import at670 also omits rnz.",
+                "Counter-evidence: dogaze's inventory destruction/ignition environments also omit rnz, but its death call is killed(mtmp,state) with no such environment. The selected missing timer wrapper arises in make_corpse's own default object-generation family; adding rnz only to dogaze's inventory arms would not repair this trace.",
+                "Counter-evidence: wizcmds.js:wiz_kill already passes a complete default RNG family including rnz and then caller overrides. Its recorded deaths do not establish the ordinary no-injection killed path. Preserve that existing caller behavior and use it as an injected-family comparison in focused validation.",
+                "Live ledger source ownership was checked before diagnosis: A158 owns hunger and its explicit command callers, A159 owns wiz_show_vision/doextcmd, C150 owns put_saddle_on_mon, and B162 is parked on the statistics family. None owns mon.c:make_corpse or the proposed corpse-generation RNG contract."
+              ],
+              "proposal": {
+                "goalId": "fix-mon-make-corpse-rnz-env-v30-20261008",
+                "summary": "Preserve the canonical rnz operation in ordinary monster corpse creation.",
+                "selectionReason": "Seed continuation from B162 is parked on A159's dispatcher reservation. The unreserved admitted v30-pyrolisk-gaze case has an RNG-only mismatch with fully matching screens/cursors. Source tracing isolates a missing default RNG operation in mon.c:make_corpse, independent of the active hunger, wizard-display and saddle scopes.",
+                "detail": "At synthetic/v30/v30-pyrolisk-gaze segment0 step103, C RNG index2849 is rnz(10)=13 from mkobj.c:start_corpse_timeout; JS omits that wrapper after matching its component calls. The complete C/JS logs differ by exactly that entry. Restore the canonical default rnz in js/mon.js:make_corpse, retaining env.random precedence and clone RNG isolation. No whole source-function completion credit.",
+                "sourceUnits": [
+                  {
+                    "file": "mon.c",
+                    "name": "make_corpse",
+                    "start": 564,
+                    "end": 940
+                  }
+                ],
+                "reservations": [
+                  "session:synthetic/v30/v30-pyrolisk-gaze",
+                  "source:mon.c:make_corpse",
+                  "contract:corpse-generation-rng-environment"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v30/v30-pyrolisk-gaze.json",
+                  "js/mon.js",
+                  "scripts/mon-kill.test.mjs",
+                  "scripts/monster-objects.test.mjs",
+                  "scripts/run-corpse-rng.mjs",
+                  "recipes/mon.c/",
+                  "recordings/mon.c/",
+                  ".cache/"
+                ],
+                "dependencies": [],
+                "runtimeEvidencePlan": [
+                  "Compare the unchanged admitted case through segment0 steps103-114; require complete screens,cursors,RNG and fresh frozen-runner confirmation. This is the ordinary default killed->make_corpse entry.",
+                  "Add focused regressions for the default canonical family and explicit caller rnz override. Pin wrapper ordering relative to its internal calls and verify a complete clone-specific family retains its own context without live RNG leakage.",
+                  "If an independent recording is required for this bounded fix, choose a C-first different-role/seed pyrolisk gaze against a low-HP eyed monster and a cheap monster-species variation. Do not copy admitted recipe inputs. Keep any unrelated blocked or nonfatal C probe explicit. Existing ordinary melee/pet-death and wiz_kill recordings supply affected-caller regression checks."
+                ],
+                "implementationGate": "Report-only diagnosis; no game edits or source reservation claim yet. Central queue/context activation precedes implementation."
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
