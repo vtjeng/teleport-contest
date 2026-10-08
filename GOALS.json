@@ -209969,6 +209969,209 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-zombify-mon-v30-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port do.c zombify_mon and its bounded production callback wiring",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v30/v30-hunger-faint"
+      ],
+      "selectionReason": "Integrate the source-traced v30 hunger-faint ZOMBIFY_MON timer boundary.",
+      "detail": "Port the complete do.c:zombify_mon source body. Wire bounded timeout table and live-state dispatch plus the readobjnam raw corpse payload. Preserve metadata clearing, species conversion, revive or rot fallback order. Do not claim whole timeout.c, objnam.c, revive_mon, or rot_corpse completion; inherited no-form nonfloor and multiple-timer boundaries remain explicit.",
+      "openedAt": "6f56e0962df207f4c0917ceaaed6fc2ac2a95db4",
+      "openStanding": {
+        "sha": "a1df82820c435d7f43389d085f22171b1cb77623",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "zombify_mon",
+          "line": 2299,
+          "endLine": 2318,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2299,
+        "to": 2318
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-hunger-faint": {
+          "session": "synthetic/v30/v30-hunger-faint",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "evaluationPath": "challenges/evaluations/accepted-a148df01be4939c1a3da632df635b3ea4d6e5ec4-v30.json",
+          "evaluationCommit": "a148df01be4939c1a3da632df635b3ea4d6e5ec4"
+        }
+      },
+      "activeStanding": {
+        "sha": "a1df82820c435d7f43389d085f22171b1cb77623",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "session": "synthetic/v30/v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+          "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+          "replayInputSha256": "a48d2cc5a88cc466c0436f7685d8723696e45027b7862f917eba352077c42e1b",
+          "evaluationPath": "challenges/evaluations/accepted-a148df01be4939c1a3da632df635b3ea4d6e5ec4-v30.json",
+          "evaluationCommit": "a148df01be4939c1a3da632df635b3ea4d6e5ec4",
+          "evaluationArtifact": "challenges/evaluations/accepted-a148df01be4939c1a3da632df635b3ea4d6e5ec4-v30.json",
+          "evaluationUtc": "2026-10-08T14:16:03.385Z",
+          "remainingScreens": 1694,
+          "recordedSteps": 2532,
+          "previousScreensMatched": 838,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 838,
+              "total": 2532
+            },
+            "rng": {
+              "matched": 8989,
+              "total": 27304
+            },
+            "cursors": {
+              "matched": 838,
+              "total": 2532
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "elapsed-turn nh_timeout requires a ported timeout function, but zombify_mon() is due",
+            "step": 838
+          },
+          "step": 838,
+          "kind": "stop",
+          "sourceFile": "do.c",
+          "function": "zombify_mon",
+          "message": "elapsed-turn nh_timeout requires a ported timeout function, but zombify_mon() is due",
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-hunger-faint.json",
+            "result": {
+              "session": "synthetic/v30/v30-hunger-faint",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-hunger-faint",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+              "evaluationPath": "challenges/evaluations/accepted-0172abf7af9d21f1fb6da3289c532b49ffda3a78-v30.json",
+              "evaluationCommit": "0172abf7af9d21f1fb6da3289c532b49ffda3a78",
+              "remainingScreens": 1694,
+              "recordedSteps": 2532,
+              "status": "complete",
+              "commit": "55d192cad799b1c02a60ff59deed657bdf0febb3",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-hunger-faint",
+                "session": "synthetic/v30/v30-hunger-faint",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+                "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+                "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+                "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+                "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-0172abf7af9d21f1fb6da3289c532b49ffda3a78-v30.json",
+                "evaluationCommit": "0172abf7af9d21f1fb6da3289c532b49ffda3a78",
+                "evaluationArtifact": "challenges/evaluations/accepted-0172abf7af9d21f1fb6da3289c532b49ffda3a78-v30.json",
+                "evaluationUtc": "2026-10-08T13:20:24.258Z",
+                "remainingScreens": 1694,
+                "recordedSteps": 2532,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 838,
+                    "total": 2532
+                  },
+                  "rng": {
+                    "matched": 8989,
+                    "total": 27304
+                  },
+                  "cursors": {
+                    "matched": 838,
+                    "total": 2532
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 838,
+                  "message": "elapsed-turn nh_timeout requires a ported timeout function, but zombify_mon() is due"
+                },
+                "step": 838,
+                "kind": "stop",
+                "sourceFile": "do.c",
+                "function": "zombify_mon",
+                "message": "elapsed-turn nh_timeout requires a ported timeout function, but zombify_mon() is due",
+                "cFile": "do.c",
+                "luaFile": null,
+                "line": 2299
+              },
+              "summary": "The elapsed turn refuses a due zombie-revival timer because timeout_funcs lacks do.c:zombify_mon. Port the whole callback and register its timer dispatch, with live handoff before planning the newly created monster tail.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "do.c",
+                "branch": "A ZOMBIFY_MON corpse timer expires; the corpse species has a non-genocided zombie form, or falls back to rot_corpse otherwise.",
+                "functions": [
+                  "zombify_mon"
+                ],
+                "callers": [
+                  "allmain.c:moveloop_core -> timeout.c:nh_timeout -> run_timers:2237 -> timeout_funcs[ZOMBIFY_MON] -> do.c:zombify_mon2299-2317",
+                  "JS allmain elapsed-turn planner -> timeout.js unportedDueTimerReason stops before callback; register canonical do.js owner and include zombie timers in nh_timeout_requires_live_state.",
+                  "objnam.c:readobjnam5222-5225 debug zombifying wish starts the same production callback; JS must pass the canonical corpse object to start_timer, not the mutable obj_to_any wrapper."
+                ],
+                "dependencies": [
+                  "Reuse source-pinned mon.c:zombie_form consumed return and canonical mkobj.c:free_omid/free_omonst/set_corpsenm; revive_mon/revive_corpse and dig.c:rot_corpse own subsequent effects.",
+                  "No whole timeout/run_timers/nh_timeout/revive_mon completion credit. Existing free_omonst -> dealloc_mextra discarded void gap remains named; no fabricated replacement.",
+                  "Preserve timer unlink and timed-count decrement before callback, metadata clearing before set_corpsenm, and revive_mon or rot_corpse dispatch in source order. Live handoff avoids clone-only monster creation/map publication.",
+                  "Required set_corpsenm -> weight consumed eaten_stat result is wired to canonical eat.c owner. Positive conversion cancels all remaining corpse timers; no-form non-conversion paths retain bounded rot/nonfloor or multiple-timer admission limits."
+                ]
+              },
+              "evidence": [
+                "Accepted evaluation at0172abf7 records838/2532screens/cursors and8989/27304RNG. Assigned focused replay .cache/A157/replay.json reproduces missing callback before zero-based838, moves412; all838 captured screens/cursors and8989 RNG calls match C.",
+                "Read whole do.c:zombify_mon2299-2317: zombie_form; NON_PM/G_GENOD gate; clear omid then omonst; set_corpsenm; revive_mon with original timeout; otherwise rot_corpse. timeout.c1983 is the sole direct source caller through the enum callback table; timeout.c2237 dispatches arg and timeout after unlink/timed decrement.",
+                "Read existing complete zombie_form mapping, canonical set_corpsenm timer/nutrition/weight path, revive_mon/revive_corpse and rot_corpse owners. Scope is whole zombify_mon plus bounded timer table/live-handoff wiring; source-pinned metadata/genocide/no-form tests and fresh production human-zombie variation are required.",
+                "The old monmove message-operation diagnosis was resolved by accepted A155; it no longer explains the first boundary. Preserve independent ordinary combat evidence and do not widen into C148 mattacku hidden-hero scope.",
+                "Independent human-floor and gnome-inventory C-first witnesses exposed a malformed debug-wish TIMER_OBJECT payload in js/objnam_readobjnam.js2315. Existing JS timer dispatch receives raw corpse objects; C copies anything containing the corpse pointer. Supporting caller correction removes the wrapper and preserves ordinary ROT+ZOMB timers until set_corpsenm cancellation.",
+                "Runtime evidence plan includes a third lichen no-form floor fallback (no ordinary rot timer by mkobj.c:start_corpse_timeout), and explicit blocked carried-lichen/floor-newt recipes naming dig.c:rot_corpse nonfloor and timeout.c:run_timers non-conversion coexisting-timer boundaries. Whole zombify_mon completion is withheld until those inherited runtime paths are verified."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
