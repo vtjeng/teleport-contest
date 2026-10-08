@@ -130,7 +130,7 @@ import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { nonliving, olfaction } from './mondata.js';
 
-// C ref: wizcmds.c wiz_show_vision() (621-658). The text-window wrapper
+// C ref: wizcmds.c wiz_show_vision() (621-653). The text-window wrapper
 // owns create/putstr/display/destroy; read the current vision bits directly
 // and await its blocking dismissal before returning the command result.
 export async function wiz_show_vision(state = game, env = {}) {
