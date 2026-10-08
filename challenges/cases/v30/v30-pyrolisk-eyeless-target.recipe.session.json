@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first mission: polyself.c:dogaze1642-1770. Become pyrolisk, create visible peaceful lichen, use #monster. C reachability observation: Fiery gaze damages monster and checks inventory destruction. Seed and clock selected before any JS comparison, without a seed search. C-only corrected variation: inventory selectors/pagers or level/energy state adjusted from the original C observation before JS comparison. Initial valid target miss remains preparation provenance for retention/overlap review. Source-revealed cheap final C route: exact next inventory letter or sufficient level-change/getpos continuations; no comparison-guided change.",
+  "segments": [
+    {
+      "seed": 15530007,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:Probe15530007,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n20\n                                   #polyself\npyrolisk\n       \u0007peaceful lichen\n#monster\nyn     ."
+    }
+  ]
+}

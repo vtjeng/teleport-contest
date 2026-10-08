@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first mission: polyself.c:dosummon1624-1640/were.c:were_summon. Become werejackal, use #monster pack call. C reachability observation: Pack appears and monsters are tame companions. Seed and clock selected before any JS comparison, without a seed search. C-only corrected variation: inventory selectors/pagers or level/energy state adjusted from the original C observation before JS comparison. Initial valid target miss remains preparation provenance for retention/overlap review. Source-revealed cheap final C route: exact next inventory letter or sufficient level-change/getpos continuations; no comparison-guided change. C-source cheap route: eyed gaze target, tin prompt accepts after two More boundaries, force occupation continuation, valid role default pet, or Elbereth protective wait. No JS comparison. Source C correction: valid target coordinates, sufficient energy and declined naming prompt, or canonical bag inventory selection; designed before JS comparison.",
+  "segments": [
+    {
+      "seed": 15530008,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:Probe15530008,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#levelchange\n20\n                                   \u0017blessed tin of werejackal meat\nef  y           \u0017cursed potion of water\nqg        \n#monster\n        ."
+    }
+  ]
+}

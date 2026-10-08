@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B155 C-first extension: wizcmds.c:wiz_rumor_check1102-1106 -> rumors.c:rumor_check. Invoke wizard rumor boundary verification without reading a fortune cookie or oracle.. Expected C observation: Rumor file true/false section counts and first/last rumor boundary lines.. Fixed input chosen before extension JS comparison, without seed search.",
+  "segments": [
+    {
+      "seed": 15530025,
+      "datetime": "20330518101731",
+      "nethackrc": "OPTIONS=name:WallProbe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizrumorcheck\n           "
+    }
+  ]
+}
