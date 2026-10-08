@@ -2681,6 +2681,7 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
                     new MonsterDeathPlanningError(mtmp, how),
             } : {}),
         });
+        if (state.program_state?.gameover) return M_ATTK_AGR_DIED;
         if (mtmp.mhp > 0) killAgr = false;
         break;
     case M.AD_BLND:

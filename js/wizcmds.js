@@ -759,10 +759,12 @@ export async function wiz_kill(state = game, env = {}) {
             if (!state.iflags.menu_requested) {
                 await message(`You ${nonliving(mtmp.data) ? 'destroy' : 'kill'} ${Mn}!`, state, env);
                 await xkilled(mtmp, XKILL_NOMSG, state, killEnv);
+                if (state.program_state?.gameover) return;
             } else {
                 state.context.mon_moving = true;
                 await message(`${upstart(Mn)} is ${nonliving(mtmp.data) ? 'destroyed' : 'killed'}.`, state, env);
                 await monkilled(mtmp, null, AD_PHYS, state, killEnv);
+                if (state.program_state?.gameover) return;
                 state.context.mon_moving = false;
             }
             if (state.u.utotype || !on_level(state.u.uz, uarehere)) break;

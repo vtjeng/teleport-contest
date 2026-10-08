@@ -407,6 +407,56 @@ test('wiz_kill stops at accepted suicide before dead-monster cleanup', async () 
     assert.equal(state.iflags.purge_monsters, 1);
 });
 
+test('wiz_kill does not prompt again after a fatal gas-spore explosion',
+    async () => {
+        const { wiz_kill } = await import('../js/wizcmds.js');
+        const { newMonster, place_monster } = await import('../js/monst.js');
+        const { NON_PM, PM_GAS_SPORE } = await import('../js/monsters.js');
+        const { ROOM } = await import('../js/const.js');
+        const state = await smellTestGame();
+        const [key, dx, dy] = [
+            ['l', 1, 0], ['h', -1, 0], ['j', 0, 1], ['k', 0, -1],
+        ].find(([, offsetX, offsetY]) =>
+            state.level.at(state.u.ux + offsetX, state.u.uy + offsetY).typ === ROOM
+            && !state.level.monsters[state.u.ux + offsetX][state.u.uy + offsetY]);
+        const spore = newMonster({
+            data: state.mons[PM_GAS_SPORE],
+            mnum: PM_GAS_SPORE,
+            mx: state.u.ux + dx,
+            my: state.u.uy + dy,
+            mhp: 1,
+            mhpmax: 1,
+            cham: NON_PM,
+        });
+        place_monster(spore, spore.mx, spore.my, state);
+        spore.nmon = state.level.monlist;
+        state.level.monlist = spore;
+        state.wizard = false;
+        state.u.uhp = 1;
+        state.invent = null;
+        state.iflags.window_inited = false;
+        state.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+        state.flags.bones = false;
+        state.level.flags.deathdrops = true;
+        state.moves = Math.max(state.moves, 2);
+        const messages = [];
+        queueSmellKeys(state, `${key}.`);
+        state.nhDisplay.onEmptyQueue = () => '\x1b'.charCodeAt(0);
+
+        const result = await wiz_kill(state, {
+            message: async text => messages.push(text),
+        });
+        assert.equal(state.program_state.gameover, true, JSON.stringify({
+            result,
+            messages,
+            hp: state.u.uhp,
+            killer: state.killer,
+            sporeHp: spore.mhp,
+        }));
+        assert.equal(result, undefined);
+        assert.ok(!messages.includes('Next monster:'));
+    });
+
 test('wiz_kill follows the whole source control flow and caller contracts', () => {
     const source = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
     const start = source.indexOf('wiz_kill(void)');

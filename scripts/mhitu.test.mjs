@@ -15,6 +15,7 @@ import {
     CONFUSION,
     CQ_CANNED,
     DETECT_MONSTERS,
+    DISCLOSE_NO_WITHOUT_PROMPT,
     DISPLACED,
     FIRE_RES,
     FLYING,
@@ -4395,6 +4396,40 @@ test('elemental explosion planning preserves attacker and fire death reason', as
         assert.equal(sphere.mhp, 10); // Only the planned attacker is detached.
         assert.equal(state.nhDisplay.serialize(), screen);
     }
+});
+
+test('lethal elemental explmu stops every continuation after final death', async () => {
+    const state = await meleeHero(MELEE_DATETIME, 'Wizard');
+    state.invent = null;
+    for (const slot of ['uwep', 'uswapwep', 'uquiver', 'uarm', 'uarmc',
+        'uarmf', 'uarmg', 'uarmh', 'uarms']) state[slot] = null;
+    state.context.mon_moving = true;
+    state.u.uhp = 1;
+    state.iflags.window_inited = false;
+    state.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+    state.flags.bones = false;
+    state.moves = Math.max(state.moves, 2);
+
+    const sphere = meleeAttacker(state, PM_FLAMING_SPHERE, 1, 0);
+    const sleeper = meleeAttacker(state, PM_JACKAL, 4, 0, {
+        msleeping: true,
+    });
+    new_light_source(
+        sphere.mx, sphere.my, emits_light(sphere.data), LS_MONSTER, sphere, state,
+    );
+    const result = meleeEnv(state, []);
+
+    assert.equal(
+        await explmu(sphere, sphere.data.mattk[0], true, result.env),
+        M_ATTK_AGR_DIED,
+    );
+    assert.equal(state.program_state.gameover, true);
+    assert.equal(state.killer.name, "flaming sphere's explosion");
+    assert.equal(sleeper.msleeping, true,
+        'neither explosion nor explmu wakeups run after final death');
+    assert.deepEqual(result.bounds.slice(0, 2), ['d(4,6)', 'd(4,6)']);
+    assert.ok(!result.bounds.includes('rn2(2)'),
+        'post-death Strength exercise consumes no rn2 draw');
 });
 
 // mhitu.c:explmu returns before its first roll for cancellation. An elemental
