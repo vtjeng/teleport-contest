@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first whole rloc_engr witness. Fixed new seed/date and independently chosen text; create dust text before wishing a teleportation wand. Use the wand as engraving implement, acknowledge text relocation and finish new writing.",
+  "segments": [
+    {
+      "seed": 91420131,
+      "datetime": "21330518101500",
+      "nethackrc": "OPTIONS=name:Relocation,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  .E-\nHarbor\n.\u0017uncursed wand of teleportation\nEe  Shore\n  ."
+    }
+  ]
+}

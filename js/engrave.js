@@ -1,7 +1,7 @@
 // Engraving commands, creation, and erosion.
 // C ref: engrave.c cant_reach_floor(), doengrave(), disturb_grave(),
 // u_can_engrave(),
-// engrave(), make_engr_at(), wipe_engr_at(), wipeout_text(), and freehand().
+// engrave(), make_engr_at(), wipe_engr_at(), wipeout_text(), freehand(), and rloc_engr().
 
 import {
     ACCESSIBLE,
@@ -10,6 +10,7 @@ import {
     BURN,
     BUFSZ,
     CLOUD,
+    COLNO,
     CONFUSION,
     DUST,
     ECMD_FAIL,
@@ -30,6 +31,7 @@ import {
     NO_MM_FLAGS,
     P_BASIC,
     P_RIDING,
+    ROWNO,
     STUNNED,
     IS_AIR,
     IS_FOUNTAIN,
@@ -52,6 +54,7 @@ import { exercise_nonphysical } from './attrib.js';
 import { ART_FIRE_BRAND, is_art } from './artifacts.js';
 import { ceiling, on_level, surface, surface_typ } from './dungeon.js';
 import { game } from './gstate.js';
+import { newsym } from './display.js';
 import {
     decodeUtf8ByteString, encodeUtf8ByteString, xcrypt, } from './hacklib.js';
 import { nomul } from './hack.js';
@@ -80,6 +83,7 @@ import { welded } from './wield.js';
 import { bimanual } from './worn.js';
 import { livelog_printf } from './pline.js';
 import { dry_a_towel } from './weapon.js';
+import { goodpos } from './teleport.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -945,7 +949,7 @@ export async function doengrave(state = game, env = {}) {
             more_experienced(0, 10, state);
     }
     if (de.teleengr) {
-        note_unported('engrave.c rloc_engr');
+        rloc_engr(de.oep, state, env);
         de.oep.eread = false;
         de.oep.erevealed = false;
         de.disprefresh = true;
@@ -1392,4 +1396,20 @@ export function wipe_engr_at(x, y, count, magical = false, env = {}) {
     if (!engraving.engr_txt[0])
         del_engr_at(x, y, state);
     return engr_at(x, y, state);
+}
+
+// C ref: engrave.c rloc_engr() (1667-1681). The caller refreshes the old square;
+// relocation preserves the linked engraving and redraws only its new location.
+export function rloc_engr(ep, state = game, env = {}) {
+    const random = env.random ?? { rn2 };
+    let tx, ty, tryct = 200;
+    do {
+        if (--tryct < 0) return;
+        tx = random.rn2(COLNO - 3) + 2; // C rn1(n, base) is rn2(n) + base.
+        ty = random.rn2(ROWNO);
+    } while (engr_at(tx, ty, state)
+        || !goodpos(tx, ty, null, NO_MM_FLAGS, { ...env, state, random }));
+    ep.engr_x = tx;
+    ep.engr_y = ty;
+    (env.redraw ?? newsym)(tx, ty, state);
 }
