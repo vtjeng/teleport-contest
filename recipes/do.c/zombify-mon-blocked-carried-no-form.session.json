@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Blocked evidence limit: dig.c:rot_corpse OBJ_INVENT is not ported. This independent no-zombie-form debug wish keeps a lichen corpse carried; lichen has no ordinary ROT_CORPSE timer, so A157 preserves only the downstream nonfloor rot frontier rather than a coexisting-timer refusal.",
+  "comment": "Independent carried no-form corpse: dig.c rot_corpse prints the inventory rot message, extracts the corpse and updates inventory.",
   "segments": [
     {
       "seed": 15741004,

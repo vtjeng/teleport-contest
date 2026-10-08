@@ -243,10 +243,9 @@ test('run_timers stops rather than firing an unported timeout arm', async () => 
     const state = dungeonState();
     timeout_globals_init(state);
     state.moves = 100;
-    // A corpse in the hero's pack: do.c goto_level() carries inventory timers
-    // across the descent, and dig.c rot_corpse()'s OBJ_INVENT arm, which
-    // writes "Your <corpse> rots away", is not ported.
-    start_timer(5, TIMER_OBJECT, 1, { where: OBJ_INVENT, timed: 0 }, state);
+    // An unported ROT_ORGANIC callback remains a genuine arrival boundary;
+    // ROT_CORPSE's carried-object arm now runs its source cleanup.
+    start_timer(5, TIMER_OBJECT, 0, { where: OBJ_INVENT, timed: 0 }, state);
     // Scheduled for move 105, which is still ahead of the arrival turn.
     await run_timers(state, { newsym: () => {} });
     state.moves = 105;
@@ -261,7 +260,7 @@ test('run_timers stops rather than firing an unported timeout arm', async () => 
             site: "goto_level()'s run_timers()",
         }),
         (error) => error.message === "goto_level()'s run_timers() requires "
-            + 'a corpse on the floor, but one is rotting at where=3',
+            + 'a ported timeout function, but rot_organic() is due',
     );
 });
 

@@ -1064,12 +1064,12 @@ test('elapsed-turn timeout upkeep counts scalar and unhandled property clocks',
         assert.equal(state.u.uprops[0].intrinsic, 2);
         state.u.uprops[0].intrinsic = 0;
         state.gt.timer_base.timeout = 2;
-        // The timer above holds a bare `{ timed }` stand-in rather than a
-        // floor object, so run_timers() stops on dig.c rot_corpse()'s
-        // where test rather than firing. `where=undefined` is that stand-in.
+        // This scalar-clock fixture has no real object. Retain its final
+        // admission assertion at the genuinely unported organic callback.
+        state.gt.timer_base.func_index = ROT_ORGANIC;
         await assert.rejects(
             nh_timeout(state),
-            /a corpse on the floor, but one is rotting at where=undefined/u,
+            /a ported timeout function, but rot_organic\(\) is due/u,
         );
     });
 
@@ -1741,22 +1741,17 @@ test('run_timers refuses the whole due prefix before draining any of it', async 
     assert.deepEqual(queue(state).map((timer) => timer.tid), queueBefore);
 });
 
-test('run_timers refuses a due corpse that carries a second timer', async () => {
-    // remove_object() runs mkobj.c obj_timer_checks() for an object whose
-    // `timed` is still nonzero after the drain's decrement, and on ice that
-    // stops and restarts a timer -- a change to the very prefix the refusal
-    // walk read ahead. Admitting only a corpse holding its own timer alone
-    // keeps that walk sound.
+test('run_timers corpse deletion cancels the residual revival timer', async () => {
+    // C rereads the head after each callback. obfree stops the later timer;
+    // it must never invoke revival on the deallocated corpse.
     const state = rottingState();
     const corpse = rottingCorpse(state, 26, 6, 0);
     start_timer(50, TIMER_OBJECT, REVIVE_MON, corpse, state);
     assert.equal(corpse.timed, 2);
-
-    await assert.rejects(
-        run_timers(state, { newsym: () => {} }),
-        /the due object to hold only its own timer/u,
-    );
-    assert.equal(corpse.where, OBJ_FLOOR);
+    await run_timers(state, { newsym: () => {} });
+    assert.equal(corpse.where, OBJ_DELETED);
+    assert.equal(corpse.timed, 0);
+    assert.deepEqual(queue(state), []);
 });
 
 test('run_timers refuses an unsupported level timer kind', async () => {

@@ -578,7 +578,7 @@ export async function zombify_mon(body, timeout, rawEnv = {}) {
         set_corpsenm(body, zmon, env);
         await revive_mon(body, timeout, env);
     } else {
-        rot_corpse(body, timeout, env);
+        await rot_corpse(body, timeout, env);
     }
 }
 

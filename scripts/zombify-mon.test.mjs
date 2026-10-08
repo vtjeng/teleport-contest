@@ -2,11 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import * as doPort from '../js/do.js';
+import {rot_corpse} from '../js/dig.js';
 import {game} from '../js/gstate.js';
 import {runSegment} from '../js/jsmain.js';
 import {eaten_stat} from '../js/eat.js';
 import {CORPSE, LARGE_BOX} from '../js/objects.js';
-import {G_GENOD, OBJ_CONTAINED, OBJ_DELETED, OBJ_FREE, OBJ_INVENT, ROT_CORPSE,
+import {G_GENOD, W_WEP, OBJ_MIGRATING, OBJ_MINVENT, OBJ_CONTAINED, OBJ_DELETED, OBJ_FREE, OBJ_INVENT, ROT_CORPSE,
     TIMER_OBJECT, ZOMBIFY_MON} from '../js/const.js';
 import {PM_HUMAN, PM_HUMAN_ZOMBIE, PM_LICHEN} from '../js/monsters.js';
 import {newObject, place_object, weight} from '../js/obj.js';
@@ -80,4 +81,92 @@ test('no zombie form or a genocided zombie form dispatches canonical floor rot w
         assert.equal(state.gt.timer_base,null);
         assert.deepEqual(redrawn,[[state.u.ux,state.u.uy]]);
     }
+});
+
+// dig.c:2156-2174 prints before extraction; C run_timers decrements only the
+// firing timer, then obfree cancels every residual timer on the removed food.
+test('no-form carried corpse rots with its canonical message and inventory removal', async () => {
+    const state=await initializedState();
+    const body=newObject({otyp:CORPSE,oclass:state.objects[CORPSE].oc_class,
+        corpsenm:PM_LICHEN,quan:1,where:OBJ_INVENT});
+    state.invent=body;
+    state.flags.verbose=true;
+    start_timer(0,TIMER_OBJECT,ZOMBIFY_MON,body,state);
+    assert.equal(nh_timeout_requires_live_state(state),true);
+    const lines=[];
+    await run_timers(state,{message:async line=>lines.push(line),newsym:()=>assert.fail('inventory rot does not redraw the floor')});
+    assert.deepEqual(lines,['Your lichen corpse rots away.']);
+    assert.equal(state.invent,null);
+    assert.equal(body.where,OBJ_DELETED);
+    assert.equal(body.timed,0);
+});
+
+test('no-form fallback cancels residual corpse timers before the next queue head', async () => {
+    for(const delay of [0,50]) { // Due and future queue elements must both cancel.
+        const state=await initializedState();
+        const body=newObject({otyp:CORPSE,oclass:state.objects[CORPSE].oc_class,
+            corpsenm:PM_LICHEN,quan:1,where:OBJ_FREE});
+        place_object(body,state.u.ux,state.u.uy,{state});
+        // Another rot remains after the due zombie timer's decrement; deletion
+        // must cancel it through canonical obfree -> obj_stop_timers.
+        start_timer(delay,TIMER_OBJECT,ROT_CORPSE,body,state);
+        start_timer(0,TIMER_OBJECT,ZOMBIFY_MON,body,state);
+        await run_timers(state,{newsym:()=>{}});
+        assert.equal(body.where,OBJ_DELETED);
+        assert.equal(body.timed,0);
+        assert.equal(state.gt.timer_base,null);
+    }
+});
+
+// dig.c:2164-2174 distinguishes hero wear, monster weapons and migration
+// destination bits. Corpses can be wielded, so each worn cleanup is reachable.
+test('rot_corpse cleans hero weapon/occupation, monster weapon and migration flags', async () => {
+    for(const where of [OBJ_INVENT,OBJ_MINVENT,OBJ_MIGRATING]){
+        const state=await initializedState();
+        const body=newObject({otyp:CORPSE,oclass:state.objects[CORPSE].oc_class,
+            corpsenm:PM_LICHEN,quan:1,where,owornmask:W_WEP});
+        const lines=[];
+        if(where===OBJ_INVENT){
+            state.invent=body;
+            state.uwep=body;
+            state.go.occupation=()=>1;
+            state.go.occtxt='searching';
+            state.flags.verbose=true;
+        }else if(where===OBJ_MINVENT){
+            body.ocarry={minvent:body,mw:body};
+        }else{
+            state.gm ??= {};
+            state.gm.migrating_objs=body;
+        }
+        const carrier=body.ocarry;
+        await rot_corpse(body,state.moves,{state,message:async line=>lines.push(line)});
+        assert.equal(body.owornmask,0);
+        assert.equal(body.where,OBJ_DELETED);
+        if(where===OBJ_INVENT){
+            assert.equal(state.uwep,null);
+            assert.equal(state.go.occupation,null);
+            assert.deepEqual(lines,['Your wielded lichen corpse rots away!','You stop searching.']);
+        }else if(where===OBJ_MINVENT){
+            assert.equal(carrier.mw,null);
+            assert.equal(carrier.minvent,null);
+        }else{
+            assert.equal(state.gm.migrating_objs,null);
+        }
+    }
+});
+
+test('rot_corpse preserves C location cleanup and final redraw order',()=>{
+    const c=readFileSync('nethack-c/upstream/src/dig.c','utf8');
+    const source=c.slice(c.indexOf('rot_corpse(anything'),c.indexOf('#if 0',c.indexOf('rot_corpse(anything')));
+    assert.match(source,/corpse_xname[\s\S]*remove_worn_item[\s\S]*stop_occupation[\s\S]*setmnotwielded[\s\S]*owornmask = 0L[\s\S]*rot_organic[\s\S]*mundetected = 0[\s\S]*newsym[\s\S]*update_inventory/);
+});
+
+test('ordinary carried corpse rot runs live before the planned monster tail', async()=>{
+    const state=await initializedState();
+    const body=newObject({otyp:CORPSE,oclass:state.objects[CORPSE].oc_class,
+        corpsenm:PM_LICHEN,quan:1,where:OBJ_INVENT});
+    state.invent=body;
+    // A direct ROT_CORPSE expiry shares the new inventory cleanup entry.
+    start_timer(0,TIMER_OBJECT,ROT_CORPSE,body,state);
+    assert.equal(nh_timeout_requires_live_state(state),true);
 });
