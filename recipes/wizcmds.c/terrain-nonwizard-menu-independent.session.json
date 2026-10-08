@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Representative normal-mode boundary: terrain menu has only known-map subsets; the wizard internal-code and legend choices are absent. Attempt f then cancel without invoking a wizard helper.",
+  "segments": [
+    {
+      "seed": 81726617,
+      "datetime": "20400416123139",
+      "nethackrc": "OPTIONS=name:TerrainProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:normal\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,showexp,time\n",
+      "moves": ".#terrain\nf\u001b   "
+    }
+  ]
+}

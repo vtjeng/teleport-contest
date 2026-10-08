@@ -377,6 +377,7 @@ import {
 import {
     wiz_detect, wiz_flip_level, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change, wiz_kill, wiz_smell, wiz_show_seenv, wiz_show_vision, wiz_show_stats, wiz_show_wmodes, wiz_objprobs, wiz_display_macros, wiz_mon_diff,
     wiz_level_tele, wiz_makemap, wiz_map, wiz_polyself, wiz_wish, wiz_where, wiz_rumor_check,
+    wiz_map_levltyp, wiz_levltyp_legend,
 } from './wizcmds.js';
 import {
     dozap,
@@ -2363,7 +2364,8 @@ export async function enter_explore_mode(state = game) {
     return ECMD_OK;
 }
 
-const LEVLTYP_NAMES = Object.freeze([
+// C ref: cmd.c levltyp[MAX_TYPE + 2], also read by wizcmds.c diagnostics.
+export const levltyp = Object.freeze([
     'stone', 'vertical wall', 'horizontal wall', 'top-left corner wall',
     'top-right corner wall', 'bottom-left corner wall',
     'bottom-right corner wall', 'cross wall', 'tee-up wall', 'tee-down wall',
@@ -2375,9 +2377,9 @@ const LEVLTYP_NAMES = Object.freeze([
     'unreachable/undiggable', '',
 ]);
 
-// C ref: cmd.c levltyp_to_name() (1090-1193).
+// C ref: cmd.c levltyp_to_name() (1089-1095).
 export function levltyp_to_name(typ) {
-    return typ >= 0 && typ < MAX_TYPE ? LEVLTYP_NAMES[typ] : null;
+    return typ >= 0 && typ < MAX_TYPE ? levltyp[typ] : null;
 }
 
 function selectedPoint(selection, x, y) {
@@ -3144,8 +3146,7 @@ async function runSearchCommand(key, state) {
 }
 
 // C ref: cmd.c doterrain() (1098-1189). Choices 1-4 use the complete
-// detect.c terrain projection. Wizard internal codes and legend remain
-// separate source owners, so those menu choices retain their refusal.
+// detect.c terrain projection; choices 5-6 await the wizcmds.c text windows.
 async function runTerrainCommand(key, state) {
     return failClosedCommand(key, state, () => doterrain(state));
 }
@@ -3201,10 +3202,10 @@ export async function doterrain(state = game) {
     };
     if (which in subsets) {
         await reveal_terrain(subsets[which], state);
-    } else {
-        throw new UnsupportedSearchError(
-            `terrain menu choice ${which} is not ported`,
-        );
+    } else if (which === 5) {
+        await wiz_map_levltyp(state);
+    } else if (which === 6) {
+        await wiz_levltyp_legend(state);
     }
     return ECMD_OK;
 }

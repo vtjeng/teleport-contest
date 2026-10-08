@@ -81,6 +81,7 @@ import {
     SLIMED,
     SLOW_DIGESTION,
     STONED,
+    STONE,
     STONE_RES,
     STEALTH,
     STRANGLED,
@@ -114,13 +115,14 @@ import { dmonsfree } from './makemon_create.js';
 import { AD_PHYS, PM_GRID_BUG, PM_SAMURAI } from './monsters.js';
 import { note_unported } from './unported.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
-import { cmd_from_func, makemap_prepost, paranoid_query, yn_function } from './cmd.js';
+import { cmd_from_func, levltyp, makemap_prepost, paranoid_query, yn_function } from './cmd.js';
 import { display_inventory } from './invent.js';
 import {
     notice_mon_off, notice_mon_on, pooleffects,
+    may_dig,
 } from './hack.js';
 import { monkilled, rescham, usmellmon, xkilled } from './mon.js';
-import { dist2, mungspaces, upstart, truncateByteString } from './hacklib.js';
+import { dist2, mungspaces, strncmpi, upstart, truncateByteString } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
@@ -130,7 +132,10 @@ import { canspotmon, docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
     glyph_is_cmap, glyph_is_cmap_zap, glyph_to_cmap, glyph_to_mon, glyph_is_object, glyph_to_obj, NO_GLYPH,
     map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
 import { do_mapping, findit } from './detect.js';
-import { overview_stats, In_W_tower, on_level, print_dungeon } from './dungeon.js';
+import { overview_stats, In_W_tower, on_level, print_dungeon,
+    Is_special, Invocation_lev, On_W_tower_level } from './dungeon.js';
+import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
+import { S_fountain, S_sink } from './symbols.js';
 import { mklev } from './mklev.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
@@ -163,6 +168,105 @@ export async function wiz_show_wmodes(state = game, env = {}) {
     }
     await (env.window ?? displayTtyTextWindow)(state, lines);
     return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_map_levltyp() (693-835). The recorder and options.js
+// expose only tty, whose text window begins with a blank top line.
+export async function wiz_map_levltyp(state = game, env = {}) {
+    const lines = [{ text: '' }];
+    for (let y = 0; y < ROWNO; y++) {
+        let row = '';
+        for (let x = 1; x < COLNO; x++) {
+            const terrain = state.level.at(x, y).typ;
+            row += terrain === STONE && !may_dig(x, y, state) ? '*'
+                : String.fromCharCode(terrain < 10 ? '0'.charCodeAt(0) + terrain
+                    : terrain < 36 ? 'a'.charCodeAt(0) + terrain - 10
+                        : 'A'.charCodeAt(0) + terrain - 36);
+        }
+        if (state.level.at(0, y).typ !== STONE || may_dig(0, y, state))
+            row += '!';
+        lines.push({ text: row });
+    }
+
+    const level = state.u.uz;
+    const special = Is_special(level, state);
+    let dsc = `D:${level.dnum},L:${level.dlevel}`;
+    if (special) {
+        dsc += ` "${special.proto}"`;
+        if (special.flags.maze_like) dsc += ' mazelike';
+        if (special.flags.hellish) dsc += ' hellish';
+        if (special.flags.town) dsc += ' town';
+        if (special.flags.rogue_like) dsc += ' roguelike';
+    }
+    const flags = state.level.flags;
+    if (flags.nfountains)
+        dsc += ` ${String.fromCharCode(DEFAULT_PRIMARY_SYMBOLS[S_fountain])}:${flags.nfountains}`;
+    if (flags.nsinks)
+        dsc += ` ${String.fromCharCode(DEFAULT_PRIMARY_SYMBOLS[S_sink])}:${flags.nsinks}`;
+    if (flags.has_vault) dsc += ' vault';
+    if (flags.has_shop) dsc += ' shop';
+    if (flags.has_temple) dsc += ' temple';
+    if (flags.has_court) dsc += ' throne';
+    if (flags.has_zoo) dsc += ' zoo';
+    if (flags.has_morgue) dsc += ' morgue';
+    if (flags.has_barracks) dsc += ' barracks';
+    if (flags.has_beehive) dsc += ' hive';
+    if (flags.has_swamp) dsc += ' swamp';
+    if (flags.noteleport) dsc += ' noTport';
+    if (flags.hardfloor) dsc += ' noDig';
+    if (flags.nommap) dsc += ' noMMap';
+    if (!flags.hero_memory) dsc += ' noMem';
+    if (flags.shortsighted) dsc += ' shortsight';
+    if (flags.graveyard) dsc += ' graveyard';
+    if (flags.is_maze_lev) dsc += ' maze';
+    if (flags.is_cavernous_lev) dsc += ' cave';
+    if (flags.arboreal) dsc += ' tree';
+    if (flags.sokoban_rules) dsc += ' sokoban-rules';
+    if (Invocation_lev(level, state)) dsc += ' invoke';
+    if (On_W_tower_level(level, state)) dsc += ' tower';
+    // dungeon.h macros read this caller's topology, rather than the module
+    // singleton used by the historical const.js macro adapters.
+    const knox = state.knox_level;
+    if (level.dnum === 0) dsc += ' dungeon';
+    else if (level.dnum === state.mines_dnum) dsc += ' mines';
+    else if (level.dnum === state.sokoban_dnum) dsc += ' sokoban';
+    else if (level.dnum === state.quest_dnum) dsc += ' quest';
+    else if (knox && (knox.dnum || knox.dlevel) && on_level(level, knox))
+        dsc += ' ludios';
+    else if (level.dnum === 1) dsc += ' gehennom';
+    else if (level.dnum === state.tower_dnum) dsc += ' vlad';
+    else if (level.dnum === state.astral_level.dnum) dsc += ' endgame';
+    else {
+        let brname = state.dungeons[level.dnum].dname;
+        if (!brname) brname = 'unknown';
+        if (!strncmpi(brname, 'the ', 4)) brname = brname.slice(4);
+        dsc += ` ${brname}`;
+    }
+    lines.push({ text: truncateByteString(dsc, COLNO - 1) });
+    await (env.window ?? displayTtyTextWindow)(state, lines);
+}
+
+// C ref: wizcmds.c wiz_levltyp_legend() (841-877). Reuse cmd.c's canonical
+// levltyp array, including the unreachable label and odd-count padding.
+export async function wiz_levltyp_legend(state = game, env = {}) {
+    const lines = [{ text: '#terrain encodings:' }, { text: '' }];
+    const last = levltyp.length & ~1;
+    let buf = '';
+    for (let i = 0; i < last / 2; i++) {
+        for (let j = i; j < last; j += last / 2) {
+            const dsc = levltyp[j];
+            const code = !dsc ? ' ' : dsc.startsWith('unreachable') ? '*'
+                : String.fromCharCode(j < 10 ? '0'.charCodeAt(0) + j
+                    : j < 36 ? 'a'.charCodeAt(0) + j - 10
+                        : 'A'.charCodeAt(0) + j - 36);
+            buf += ` ${code} - ${dsc.padEnd(28)}`;
+            if (j > i) {
+                lines.push({ text: buf });
+                buf = '';
+            }
+        }
+    }
+    await (env.window ?? displayTtyTextWindow)(state, lines);
 }
 
 // C ref: wizcmds.c wiz_show_seenv() (576-617). Each map cell occupies two
