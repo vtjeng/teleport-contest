@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 extension planned from C before its JS comparison: light.c:wiz_light_sources935-974. Inspect mobile-light list with no active light source and without starting the carried unlit lamp. Required observation: Mobile light sources hero coordinates and <none>. Independent seed/clock fixed without a seed search.",
+  "segments": [
+    {
+      "seed": 15631100,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631100,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ". #lightsources\n           "
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "session": "synthetic/v30/v30-confused-loot",
+  "corpus": "synthetic",
+  "batch": "v30",
+  "caseId": "v30-confused-loot",
+  "manifestPath": "challenges/manifests/v30.json",
+  "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+  "recordingSha256": "a51baafb5eca4aa25767c979aaa0bf4fbf720c12ece04239d63450a72b6b75c8",
+  "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+  "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+  "remainingScreens": 31,
+  "recordedSteps": 91,
+  "status": "complete",
+  "commit": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v30",
+    "caseId": "v30-confused-loot",
+    "session": "synthetic/v30/v30-confused-loot",
+    "manifestPath": "challenges/manifests/v30.json",
+    "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+    "recording": "challenges/cases/v30/v30-confused-loot.session.json",
+    "recordingPath": "challenges/cases/v30/v30-confused-loot.session.json",
+    "recordingSha256": "a51baafb5eca4aa25767c979aaa0bf4fbf720c12ece04239d63450a72b6b75c8",
+    "recipe": "challenges/cases/v30/v30-confused-loot.recipe.session.json",
+    "recipeSha256": "c7190e628897f825a19ee7bbdedc0c01e8fc0807877bb1fc38060db8186a70c9",
+    "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+    "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+    "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+    "evaluationArtifact": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+    "evaluationUtc": "2026-10-08T11:27:53.571Z",
+    "remainingScreens": 31,
+    "recordedSteps": 91,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 60,
+        "total": 91
+      },
+      "rng": {
+        "matched": 2449,
+        "total": 2488
+      },
+      "cursors": {
+        "matched": 60,
+        "total": 91
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported pickup: doloot_core: confused looting",
+      "step": 60
+    },
+    "step": 60,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported pickup: doloot_core: confused looting",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Confused #loot stops before the source rn2(6) gate because reverse_loot is absent. Port whole pickup.c:reverse_loot2350-2426 and wire the bounded doloot_core2202-2209 confusion caller. Preserve old-inventory selection, exact fifths gold split, worn-item removal, ordinary floor drop and throne treasury/exchequer branches; no whole doloot_core credit.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "pickup.c",
+    "branch": "After capacity/nohands guards, Confusion: rn2(6) short-circuits reverse_loot boolean; a true helper returns ECMD_TIME, otherwise rn2(2) may waste a turn before normal loot.",
+    "functions": [
+      "reverse_loot"
+    ],
+    "callers": [
+      "cmd.c doextcmd/rhack -> pickup.c doloot2166-2174 -> doloot_core2203 consumes reverse_loot boolean. JS cmd.runLootCommand -> doloot -> doloot_core confusion guard3398-3425; dispatcher already forwards ECMD_* source result."
+    ],
+    "dependencies": [
+      "Consumed inv_cnt(TRUE) in old-loot loop: canonical js/hack.js counts inventory including coins; prinv discarded void is already source-owned js/invent.js.",
+      "Consumed splitobj for rnd(5) gold fifths: canonical js/obj.js preserves stack chain/split-id RNG and quantity; remove_worn_item is source-discarded canonical js/do_wear.js.",
+      "Consumed g_at after canonical dropx decides ordinary-floor message. freeinv,add_to_container,add_to_minv,boxlock are source-discarded canonical owners; source consumes weight to refresh treasury chest after add.",
+      "Throne no-coffers branch consumes courtmon -> makemon; courtmon504 uses canonical mkclass/random and mkroom.c783-806 exact thresholds. Reuse existing makemon creation owner and admission boundaries, never substitute a monster or return. No external reservation overlap with C147 Armor_on or A155 ordinary movement contracts."
+    ]
+  },
+  "evidence": [
+    "Current assigned-only replay .cache/A156/v30-confused-loot-replay.json at d486c9ee0529add6d09b1745482131779deef8fc retains60/91 screens/cursors and2449/2488 RNG; remainingScreens31 is unchanged from authoritative accepted-e2bd v30 evaluation. First unproduced boundary60 is Enter finishing #loot.",
+    "C step60: rn2(6)=1@doloot_core2203, rn2(3)=2@reverse_loot2357, rnd(5)=1@reverse_loot2371, then splitobj next_ident rnd(2). Gold contribution (rnd(5)*quan+4)/5 uses C integer division, splits if smaller, removes worn slot before dropx, then g_at prints Ok, now there is loot here. JS refuses before any of these calls.",
+    "Read whole pickup.c:doloot2166-2174,doloot_core2178-2346,reverse_loot2350-2426 and complete JS doloot_core3400 plus lootmon helper and doloot wrapper. Only helper is selected whole; the broader container/cockatrice/adjacent-looting body retains explicit exclusions and no completion credit.",
+    "reverse_loot old-loot arm2357-2365 uses n=inv_cnt(TRUE), decrements n once per object and rn2(n+1); coin arm2368-2383 selects first gold stack, computes rounded-up fifths, splits before remove_worn_item; non-throne2385-2390 drops then tests gold actually on floor.",
+    "Throne2392-2424 prioritizes first spe2 chest over nearest ordinary floor chest (strict distance tie); contribution calls freeinv/add_to_container, refreshes weight and clears cknown, then wizard-locks only if unlocked. No chest and not T_LOOTED consumes courtmon/makemon before transfer; only creation success gates rn2(10) looted update; otherwise name/drop fallback. Preserve every call/RNG/return order.",
+    "Actionable independent task: whole reverse_loot plus bounded doloot_core caller branch, source:pickup.c:reverse_loot/source:pickup.c:doloot_core and contract:confused-loot-inventory-placement. Initial allowed js/pickup.js, focused pickup/reverse-loot tests and fresh runner, recipes/pickup.c/,recordings/pickup.c/ and reports/cache. No active owner overlap; implementation remains unclaimed during A155 review.",
+    "Validation plan: admitted full selected ordinary coin-drop route; independent C-first inventory old-loot plus changed role/no-coins cheap variation; independent throne coffers/nearest chest lock and weight, throne no-chest court/exchequer and already-looted fallback. Source-pinned per-object draw sequence, contributions1..5 and totals, quivered gold removal, treasury priority/ties, returned boolean and exact ECMD_TIME/fallthrough. Name any concrete downstream creation/floor frontier as blocked evidence if a required runtime branch cannot match; no seeded replacements or fixture-only completion."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: zap.c:bhito2219/poly_obj1702+. Drop ordinary dagger then zap polymorph downward. Required C observation: Floor dagger becomes another object with source transform handling. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631009,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631009,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed wand of polymorph\n\u0017uncursed dagger\ndfze>       :   "
+    }
+  ]
+}

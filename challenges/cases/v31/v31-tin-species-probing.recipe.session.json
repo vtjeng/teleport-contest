@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: zap.c:bhito WAN_PROBING tin branch2256+. Drop unidentified tin and probe down. Required C observation: Probing identifies tin contents. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631028,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631028,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed wand of probing\n\u0017tin of spinach\ndfze>      :    "
+    }
+  ]
+}

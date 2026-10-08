@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: apply.c:use_royal_jelly3616-3682/timeout.c:kill_egg. Apply cursed royal jelly to killer bee egg. Required C observation: Egg becomes queen bee then cursed jelly kills fertility. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631012,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631012,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017killer bee egg\n\u0017cursed royal jelly\nafei          "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: potion.c:peffect_gain_level1083-1120. Level teleport to dungeon2 then drink cursed gain-level. Required C observation: Hero rises through ceiling or source failure clause. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631016,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631016,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u00162\n        \u0017cursed potion of gain level\nqe            "
+    }
+  ]
+}

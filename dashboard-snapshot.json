@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T11:35:18.105Z",
+  "capturedAt": "2026-10-08T12:15:29.527Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -27602,12 +27602,164 @@
         "task": "A155",
         "worker": "A2",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A155-ordinary-combat-2173b9ec",
+        "type": "implement",
+        "at": "2026-10-08T11:38:16.966Z",
+        "task": "A155",
+        "goal": "fix-monmove-ordinary-combat-operations-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C147-armor-on-gold-light-20261008",
+        "type": "implement",
+        "at": "2026-10-08T11:39:36.334Z",
+        "task": "C147",
+        "goal": "port-do-wear-armor-on-gold-light-v30-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-085cdd6bf443aa69dc75c1b41d39009a9e0d90bc",
+        "type": "ready",
+        "at": "2026-10-08T11:40:53.230Z",
+        "task": "B156",
+        "delivery": "085cdd6bf443aa69dc75c1b41d39009a9e0d90bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B156-085cdd6b-20261008",
+        "type": "received",
+        "at": "2026-10-08T11:41:28.338Z",
+        "task": "B156",
+        "delivery": "085cdd6bf443aa69dc75c1b41d39009a9e0d90bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B156-8d29354c-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T11:42:33.836Z",
+        "task": "B156",
+        "integration": "8d29354c722cd42ca9d484454355be2b9b6ba3b8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B156-8d29354c722cd42ca9d484454355be2b9b6ba3b8-validated",
+        "type": "validated",
+        "at": "2026-10-08T11:47:13.004Z",
+        "task": "B156",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B156-8d29354c722cd42ca9d484454355be2b9b6ba3b8-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T11:47:14.245Z",
+        "task": "B156"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B157-v32-49937383-20261008",
+        "type": "assign",
+        "at": "2026-10-08T11:48:04.096Z",
+        "task": "B157",
+        "worker": "B",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B156-6ed781f2-20261008",
+        "type": "published",
+        "at": "2026-10-08T11:48:47.219Z",
+        "task": "B156",
+        "commit": "6ed781f28d1f3a5d9930c53430f9b5a16a574733"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d486c9ee0529add6d09b1745482131779deef8fc",
+        "type": "ready",
+        "at": "2026-10-08T11:49:25.057Z",
+        "task": "A155",
+        "delivery": "d486c9ee0529add6d09b1745482131779deef8fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A155-d486c9ee-20261008",
+        "type": "received",
+        "at": "2026-10-08T11:50:04.041Z",
+        "task": "A155",
+        "delivery": "d486c9ee0529add6d09b1745482131779deef8fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A156-confused-loot-d486c9ee",
+        "type": "assign",
+        "at": "2026-10-08T11:50:41.381Z",
+        "task": "A156",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A155-2fdb70fb-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T11:50:49.765Z",
+        "task": "A155",
+        "integration": "2fdb70fbd241e6633eefb2463772472474022457"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7084aea49f0f330115d5a42afbfa87b6f5bf20c8",
+        "type": "ready",
+        "at": "2026-10-08T11:52:55.826Z",
+        "task": "C147",
+        "delivery": "7084aea49f0f330115d5a42afbfa87b6f5bf20c8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A155-f20112b7-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T12:04:27.792Z",
+        "task": "A155",
+        "integration": "f20112b7f1cb65684279bf4ef72bca1116ffb725"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C147-7084aea4-20261008",
+        "type": "received",
+        "at": "2026-10-08T12:04:51.789Z",
+        "task": "C147",
+        "delivery": "7084aea49f0f330115d5a42afbfa87b6f5bf20c8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A155-f20112b7f1cb65684279bf4ef72bca1116ffb725-validated",
+        "type": "validated",
+        "at": "2026-10-08T12:07:12.078Z",
+        "task": "A155",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A155-f20112b7f1cb65684279bf4ef72bca1116ffb725-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T12:09:14.707Z",
+        "task": "A155"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A156-reverse-loot-7f83c0c4",
+        "type": "implement",
+        "at": "2026-10-08T12:14:57.406Z",
+        "task": "A156",
+        "goal": "port-pickup-reverse-loot-confusion-v30-20261008"
       }
     ]
   },
   "development": {
-    "executionCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
-    "measuredAt": "2026-10-08T11:29:12.834Z",
+    "executionCommit": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+    "measuredAt": "2026-10-08T12:06:23.425Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

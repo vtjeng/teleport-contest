@@ -208417,7 +208417,7 @@
     {
       "id": "port-do-wear-armor-on-gold-light-v30-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port whole Armor_on callback and gold-dragon light admission through the production wearing path",
       "cFile": "do_wear.c",
       "sessions": [
@@ -208425,8 +208425,12 @@
       ],
       "selectionReason": "Assigned admitted v30 gold-dragon-light has 9 remaining screens at stop 42; source Armor_on and its gold wearing seam are independent of A mattackm and B v31 preparation. Existing dragon-effects, burn and light owners already implement the consumed dependencies. Refer to investigations/synthetic/v30/v30-gold-dragon-light.json for the whole source and caller trace.",
       "detail": "Whole Armor_on C886-906. Remove both gold-specific refusals in the already-owned accessory_or_armor_on callback selector; reuse existing dragon_armor_handling, artifact_light, begin_burn, arti_light_description, Yname2/otense/Blind/inventory owners. No whole accessory_or_armor_on/set_wear or supporting-owner credit. Preserve non-ring poly_obj producer as the existing upstream frontier; do not broaden it silently.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "6cf088f5a37778f02a5d16f1bcc70a330fff2ccd",
+      "openStanding": {
+        "sha": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -208455,7 +208459,790 @@
           "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
           "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270"
         }
+      },
+      "activeStanding": {
+        "sha": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-gold-dragon-light",
+          "session": "synthetic/v30/v30-gold-dragon-light",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-gold-dragon-light.session.json",
+          "recordingPath": "challenges/cases/v30/v30-gold-dragon-light.session.json",
+          "recordingSha256": "3aa2b974c419dc196b0709c36209fc5b6cc77f6fa3470305d7747d0f45ea7af4",
+          "recipe": "challenges/cases/v30/v30-gold-dragon-light.recipe.session.json",
+          "recipeSha256": "6512486e0078844f1e3e70a7ad65d445c0573bc905379d6466070627b93705c3",
+          "replayInputSha256": "a5b46f0172a3683180df6a2c92b0dac4af3222ab01893279961a6fda41f9d52e",
+          "evaluationPath": "challenges/evaluations/accepted-f20112b7f1cb65684279bf4ef72bca1116ffb725-v30.json",
+          "evaluationCommit": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+          "evaluationArtifact": "challenges/evaluations/accepted-f20112b7f1cb65684279bf4ef72bca1116ffb725-v30.json",
+          "evaluationUtc": "2026-10-08T12:05:09.140Z",
+          "remainingScreens": 9,
+          "recordedSteps": 51,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 51
+            },
+            "rng": {
+              "matched": 2566,
+              "total": 2603
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Armor_on() for otyp 102",
+            "step": 42
+          },
+          "step": 42,
+          "kind": "stop",
+          "sourceFile": "do_wear.c",
+          "function": "Armor_on",
+          "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Armor_on() for otyp 102",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-gold-dragon-light.json",
+            "result": {
+              "session": "synthetic/v30/v30-gold-dragon-light",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-gold-dragon-light",
+              "remainingScreens": 9,
+              "recordedSteps": 51,
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "3aa2b974c419dc196b0709c36209fc5b6cc77f6fa3470305d7747d0f45ea7af4",
+              "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+              "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+              "status": "complete",
+              "commit": "c9557d16efc45abeabe551036eee853a739babcd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-gold-dragon-light",
+                "session": "synthetic/v30/v30-gold-dragon-light",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-gold-dragon-light.session.json",
+                "recordingPath": "challenges/cases/v30/v30-gold-dragon-light.session.json",
+                "recordingSha256": "3aa2b974c419dc196b0709c36209fc5b6cc77f6fa3470305d7747d0f45ea7af4",
+                "recipe": "challenges/cases/v30/v30-gold-dragon-light.recipe.session.json",
+                "recipeSha256": "6512486e0078844f1e3e70a7ad65d445c0573bc905379d6466070627b93705c3",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+                "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+                "evaluationArtifact": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+                "evaluationUtc": "2026-10-08T11:27:53.571Z",
+                "remainingScreens": 9,
+                "recordedSteps": 51,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 2566,
+                    "total": 2603
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 51
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Armor_on() for otyp 102",
+                  "step": 42
+                },
+                "step": 42,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "Armor_on",
+                "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Armor_on() for otyp 102",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Wearing gold dragon scale mail is refused before setworn by accessory_or_armor_on; Armor_on also refuses its artifact-light tail. Port whole Armor_on and remove the redundant gold-only wearing guard, reusing existing dragon_armor_handling, begin_burn and arti_light_description owners in C order. The broader non-ring poly_obj producer remains a named frontier.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "W/#wear selects gold dragon scales or mail for W_ARM; delayed dressing completes through unmul -> Armor_on. After known/inventory publication and dragon effects, a worn artifact-light suit not already lit calls begin_burn(FALSE); sighted feedback follows light registration.",
+                "functions": [
+                  "Armor_on() whole do_wear.c:886–906"
+                ],
+                "callers": [
+                  "do_wear.c:2377–2404 accessory_or_armor_on selects ga.afternmv=Armor_on; zero-delay path calls hack.c unmul immediately and delayed path is allmain.c moveloop_core -> unmul",
+                  "do_wear.c:1555–1556 set_wear calls Armor_on for startup/selected suit; allmain.c:73 production startup set_wear is awaited by moveloop_preamble.js"
+                ],
+                "dependencies": [
+                  "Existing whole dragon_armor_handling handles all source colors, including awaited make_hallucinated gold resistance; retain its owner and credit",
+                  "Existing timeout.c begin_burn supports timer-free artifact_light, radius setup and inventory/object-light lifecycle; reuse canonical owner",
+                  "Existing light.c arti_light_description and artifact.c artifact_light supply consumed results; objnam.c Yname2/otense and Blind owner supply feedback",
+                  "Non-ring zap.c poly_obj:1946–1948 remains an existing explicit outside-limit producer before set_wear; no whole poly_obj/set_wear credit or new owner behavior"
+                ]
+              },
+              "evidence": [
+                "Authoritative accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json reports9 unmatched screens of51 at stop42. Recording digest3aa2b974c419dc196b0709c36209fc5b6cc77f6fa3470305d7747d0f45ea7af4 and admitted corpus digestbf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007 retained.",
+                "Focused scan at clean c9557d16 (.cache/C147-gold-dragon-before.json) reproduces42 emitted screens/51 recorded steps, no prior divergence, UnsupportedWearError Armor_on for otyp102 on object answerf. C step42 spends the dressing delay and ends at You finish your dressing maneuver.--More--; step43 prints Your gold dragon scale mail begins to shine brilliantly!.",
+                "C do_wear.c:887–906 null-checks uarm, sets known and update_inventory only if unknown, invokes dragon_armor_handling(TRUE,TRUE), then artifact_light&&!lamplit invokes begin_burn(FALSE) before conditional !Blind pline(Yname2,otense,arti_light_description). It returns0 on all branches.",
+                "JS do_wear.js accessory_or_armor_on W_ARM switch refuses gold scales/mail before setworn; its Armor_on contains a second obsolete refusal despite timeout.js begin_burn and light.js description being present. Remove both in the same task. Keep callback delay, inventory ownership and awaiting order unchanged.",
+                "Whole dragon_armor_handling C798–884/JS1551–1648 reviewed: all eight extra-effect colors implemented; gray/silver default; gold invokes make_hallucinated(!puton,!restoring,W_ARM). No required missing returned callee identified.",
+                "C timeout begin_burn existing owner registers artifact light without a burn timer, marks lamplit before radius evaluation, and light.c description uses radius4/3/2/1 -> radiantly/brilliantly/brightly/dimly. Reuse these owners and source-pinned BUC/blind/already-lit checks; do not invent lifetime/fuel RNG.",
+                "Direct Armor_on production entry is accessory_or_armor_on callback plus set_wear. Independent startup suit, immediate leather-jacket callback and delayed gold scales/mail C-first recordings can cover both direct entries. Prior B150/A151 evidence explicitly retains non-ring zap poly_obj as an upstream frontier, so broaden that producer only through a separate source task."
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "fix-monmove-ordinary-combat-operations-v30-20261008",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Bind canonical monster-combat operations at the ordinary movement adapter",
+      "cFile": "monmove.c",
+      "sessions": [
+        "synthetic/v30/v30-hunger-faint",
+        "synthetic/v30/v30-hungry-combat-lifesave"
+      ],
+      "selectionReason": "The two largest admitted v30 failures share the same source-traced ordinary movement seam: moveSimpleOrdinary forwards an incomplete environment to m_move_aggress and mattackm. This scope is independent of C147 Armor_on and B156 v31 preparation. Refer to both investigations/synthetic/v30 hunger reports.",
+      "detail": "Bind the canonical message, redraw, and invisible-marker operations at moveSimpleOrdinary for planning and live execution while preserving m_move, m_move_aggress, mattackm, combat state, RNG, and consumed return results. This bounded divergence receives no whole-source completion credit.",
+      "openedAt": "41d964959d2da46581fdc4a58339ee02160446df",
+      "openStanding": {
+        "sha": "cbbc3b885203d4daa7cfe827f3fc2f5562f2a591",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "m_move",
+      "session": "synthetic/v30/v30-hunger-faint",
+      "step": 812,
+      "syntheticProvenance": {
+        "synthetic/v30/v30-hunger-faint": {
+          "session": "synthetic/v30/v30-hunger-faint",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+          "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270"
+        },
+        "synthetic/v30/v30-hungry-combat-lifesave": {
+          "session": "synthetic/v30/v30-hungry-combat-lifesave",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hungry-combat-lifesave",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-hungry-combat-lifesave.session.json",
+          "recordingSha256": "43722eab6dd1d49de1215e62b3b7d06270e9ef25cab50805bd140ff7533ed25d",
+          "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+          "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270"
+        }
+      },
+      "activeStanding": {
+        "sha": "cbbc3b885203d4daa7cfe827f3fc2f5562f2a591",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hungry-combat-lifesave",
+          "session": "synthetic/v30/v30-hungry-combat-lifesave",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-hungry-combat-lifesave.session.json",
+          "recordingPath": "challenges/cases/v30/v30-hungry-combat-lifesave.session.json",
+          "recordingSha256": "43722eab6dd1d49de1215e62b3b7d06270e9ef25cab50805bd140ff7533ed25d",
+          "recipe": "challenges/cases/v30/v30-hungry-combat-lifesave.recipe.session.json",
+          "recipeSha256": "649734b3d2543e9fd6a132e4e124fe917b01f500ae8b8f94213a3189f9520f6c",
+          "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+          "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+          "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+          "evaluationArtifact": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+          "evaluationUtc": "2026-10-08T11:27:53.571Z",
+          "remainingScreens": 2826,
+          "recordedSteps": 2826,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": "mattackm requires a message operation",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 2826
+            },
+            "rng": {
+              "matched": 0,
+              "total": 44473
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 2826
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: mattackm requires a message operation",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: mattackm requires a message operation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-hungry-combat-lifesave.json",
+            "result": {
+              "session": "synthetic/v30/v30-hungry-combat-lifesave",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-hungry-combat-lifesave",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "43722eab6dd1d49de1215e62b3b7d06270e9ef25cab50805bd140ff7533ed25d",
+              "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+              "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+              "remainingScreens": 2826,
+              "recordedSteps": 2826,
+              "status": "complete",
+              "commit": "97e5495e85d2718a3bdca8f1ff74400dc4d6d0fb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-hungry-combat-lifesave",
+                "session": "synthetic/v30/v30-hungry-combat-lifesave",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-hungry-combat-lifesave.session.json",
+                "recordingPath": "challenges/cases/v30/v30-hungry-combat-lifesave.session.json",
+                "recordingSha256": "43722eab6dd1d49de1215e62b3b7d06270e9ef25cab50805bd140ff7533ed25d",
+                "recipe": "challenges/cases/v30/v30-hungry-combat-lifesave.recipe.session.json",
+                "recipeSha256": "649734b3d2543e9fd6a132e4e124fe917b01f500ae8b8f94213a3189f9520f6c",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+                "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+                "evaluationArtifact": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+                "evaluationUtc": "2026-10-08T11:27:53.571Z",
+                "remainingScreens": 2826,
+                "recordedSteps": 2826,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "mattackm requires a message operation",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 2826
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 44473
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 2826
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: mattackm requires a message operation",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: mattackm requires a message operation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Ordinary monster movement drops canonical combat message/redraw/invisible-marker operations; clone planning throws in missmm before boundary904. Same m_move_aggress caller as hunger-faint hitmm stop812; one bounded ordinary adapter reconciliation covers both.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "monmove.c",
+                "branch": "Ordinary movement selects ALLOW_M or occupied remembered hero image, then m_move_aggress consumes mattackm and optional counterattack result.",
+                "functions": [
+                  "m_move",
+                  "m_move_aggress"
+                ],
+                "callers": [
+                  "allmain.c moveloop_core -> mon.c movemon/movemon_singlemon -> monmove.c dochugw/dochug -> m_move:2023 -> m_move_aggress:2097/2111 -> mhitm.c mattackm -> hitmm/missmm",
+                  "JS runSimpleMonsterAction -> moveSimpleOrdinary -> m_move -> m_move_aggress forwards an incomplete env in clone planning and live execution"
+                ],
+                "dependencies": [
+                  "Reuse canonical mhitm.c:mattackm/hitmm/missmm/pre_mm_attack/mdamagem/passivemm; preserve state/random and consumed M_ATTK_* results.",
+                  "Canonical ttyPline, newsym and map_invisible supplied only for live execution; planning must suppress all three to avoid display/map-memory writes. No whole m_move/m_move_aggress completion credit."
+                ]
+              },
+              "evidence": [
+                "Read whole monmove.c:m_move1715-2075 and m_move_aggress2088-2117 plus existing JS counterparts. Source2023 enters aggression;2097 initial mattackm,2104 counterattack gates rn2(4) then rn2(NORMAL_SPEED),2111 reverse mattackm; keep all results/order unchanged.",
+                "mhitm.c:pre_mm_attack41-72 redraws and marks combatants; hitmm644-732 and missmm76-96 print or enter noises. js/mhitm.js requires message even when neither combatant is visible, so adding only output conditionals cannot repair the caller.",
+                "Saved assigned replay .cache/A155/v30-hunger-faint-replay.json:812 existing screens/cursors all equal C,8738 RNG prefix equal before uncommitted planned attack is discarded. First uncaptured boundary812, moves399; C boundary812 logs rnd(20),mdamagem and counterattack draws from m_move_aggress.",
+                "Assigned companion .cache/A155/v30-hungry-combat-lifesave-replay.json:904 existing screens/cursors equal C,16594 RNG prefix equal; missmm throws at the identical m_move_aggress source route. Group both; names do not establish a hunger defect.",
+                "Bounded implementation: moveSimpleOrdinary supplies env.message, env.redraw, env.markInvisible using planning no-ops or caller operations/canonical live defaults. Source-pinned fail-first hit/miss and clone-isolation tests, both admitted full cases, independent C-first ordinary monster collision variation, plus named unrelated attack frontiers."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "session": "synthetic/v30/v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+          "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+          "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+          "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+          "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+          "evaluationArtifact": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+          "evaluationUtc": "2026-10-08T11:27:53.571Z",
+          "remainingScreens": 2532,
+          "recordedSteps": 2532,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": "mattackm requires a message operation",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 2532
+            },
+            "rng": {
+              "matched": 0,
+              "total": 27304
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 2532
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: mattackm requires a message operation",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: mattackm requires a message operation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-hunger-faint.json",
+            "result": {
+              "session": "synthetic/v30/v30-hunger-faint",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-hunger-faint",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+              "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+              "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+              "remainingScreens": 2532,
+              "recordedSteps": 2532,
+              "status": "complete",
+              "commit": "97e5495e85d2718a3bdca8f1ff74400dc4d6d0fb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-hunger-faint",
+                "session": "synthetic/v30/v30-hunger-faint",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+                "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+                "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+                "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+                "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+                "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+                "evaluationArtifact": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+                "evaluationUtc": "2026-10-08T11:27:53.571Z",
+                "remainingScreens": 2532,
+                "recordedSteps": 2532,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "mattackm requires a message operation",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 2532
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 27304
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 2532
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: mattackm requires a message operation",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: mattackm requires a message operation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Ordinary monster movement omits the message/redraw/invisible-marker operations required by canonical monster-versus-monster combat. The clone planning pass throws in hitmm before step812; companion hungry-combat-lifesave throws in missmm before step904 at the same caller. Bind the canonical planning/live operations at moveSimpleOrdinary without changing combat or hunger owners.",
+              "goalKind": "divergence-fix",
+              "source": {
+                "file": "monmove.c",
+                "branch": "Ordinary movement selects ALLOW_M or occupied remembered hero image, then m_move_aggress consumes mattackm and optional counterattack result.",
+                "functions": [
+                  "m_move",
+                  "m_move_aggress"
+                ],
+                "callers": [
+                  "allmain.c moveloop_core -> mon.c movemon/movemon_singlemon -> monmove.c dochugw/dochug -> m_move:2023 -> m_move_aggress:2097/2111 -> mhitm.c mattackm -> hitmm/missmm",
+                  "JS runSimpleMonsterAction -> moveSimpleOrdinary -> m_move -> m_move_aggress forwards an incomplete env in clone planning and live execution"
+                ],
+                "dependencies": [
+                  "Reuse canonical mhitm.c:mattackm/hitmm/missmm/pre_mm_attack/mdamagem/passivemm; preserve state/random and consumed M_ATTK_* results.",
+                  "Canonical ttyPline, newsym and map_invisible supplied only for live execution; planning must suppress all three to avoid display/map-memory writes. No whole m_move/m_move_aggress completion credit."
+                ]
+              },
+              "evidence": [
+                "Read whole monmove.c:m_move1715-2075 and m_move_aggress2088-2117 plus existing JS counterparts. Source2023 enters aggression;2097 initial mattackm,2104 counterattack gates rn2(4) then rn2(NORMAL_SPEED),2111 reverse mattackm; keep all results/order unchanged.",
+                "mhitm.c:pre_mm_attack41-72 redraws and marks combatants; hitmm644-732 and missmm76-96 print or enter noises. js/mhitm.js requires message even when neither combatant is visible, so adding only output conditionals cannot repair the caller.",
+                "Saved assigned replay .cache/A155/v30-hunger-faint-replay.json:812 existing screens/cursors all equal C,8738 RNG prefix equal before uncommitted planned attack is discarded. First uncaptured boundary812, moves399; C boundary812 logs rnd(20),mdamagem and counterattack draws from m_move_aggress.",
+                "Assigned companion .cache/A155/v30-hungry-combat-lifesave-replay.json:904 existing screens/cursors equal C,16594 RNG prefix equal; missmm throws at the identical m_move_aggress source route. Group both; names do not establish a hunger defect.",
+                "Bounded implementation: moveSimpleOrdinary supplies env.message, env.redraw, env.markInvisible using planning no-ops or caller operations/canonical live defaults. Source-pinned fail-first hit/miss and clone-isolation tests, both admitted full cases, independent C-first ordinary monster collision variation, plus named unrelated attack frontiers."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-hunger-faint",
+          "session": "synthetic/v30/v30-hunger-faint",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingPath": "challenges/cases/v30/v30-hunger-faint.session.json",
+          "recordingSha256": "069348e0501d1d5433897c94608ddd8b0d9065d65495997a446e342cd1daac9b",
+          "recipe": "challenges/cases/v30/v30-hunger-faint.recipe.session.json",
+          "recipeSha256": "a16896b9ccf53913e9c67772be651a8a7e917136aff5de90f0b13a87d4300d5c",
+          "replayInputSha256": "a5b46f0172a3683180df6a2c92b0dac4af3222ab01893279961a6fda41f9d52e",
+          "evaluationPath": "challenges/evaluations/accepted-f20112b7f1cb65684279bf4ef72bca1116ffb725-v30.json",
+          "evaluationCommit": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+          "evaluationArtifact": "challenges/evaluations/accepted-f20112b7f1cb65684279bf4ef72bca1116ffb725-v30.json",
+          "evaluationUtc": "2026-10-08T12:05:09.140Z",
+          "remainingScreens": 1694,
+          "recordedSteps": 2532,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 838,
+              "total": 2532
+            },
+            "rng": {
+              "matched": 8989,
+              "total": 27304
+            },
+            "cursors": {
+              "matched": 838,
+              "total": 2532
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "elapsed-turn nh_timeout requires a ported timeout function, but zombify_mon() is due",
+            "step": 838
+          },
+          "step": 838,
+          "kind": "stop",
+          "sourceFile": "do.c",
+          "function": "zombify_mon",
+          "message": "elapsed-turn nh_timeout requires a ported timeout function, but zombify_mon() is due",
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v30/v30-hunger-faint.json",
+            "previousRemainingScreens": 2532
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+        "screens": 11405,
+        "rng": 792838
       }
+    },
+    {
+      "id": "port-pickup-reverse-loot-confusion-v30-20261008",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete confused reverse looting and its source result gate",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v30/v30-confused-loot"
+      ],
+      "selectionReason": "Confused #loot stops before the source rn2(6) gate because reverse_loot is absent. Port whole pickup.c reverse_loot and wire the bounded doloot_core confusion caller from the completed v30 investigation.",
+      "detail": "Preserve old-inventory selection, exact fifths gold split, worn-item removal, ordinary floor drop, and throne treasury and exchequer branches. The broader doloot_core container and adjacent-looting body receives no completion credit.",
+      "openedAt": "541a600f9427b934717eb07ea26329e80cebe4c0",
+      "openStanding": {
+        "sha": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "reverse_loot",
+          "line": 2350,
+          "endLine": 2430,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2350,
+        "to": 2430
+      },
+      "syntheticProvenance": {
+        "synthetic/v30/v30-confused-loot": {
+          "session": "synthetic/v30/v30-confused-loot",
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-confused-loot",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recordingPath": "challenges/cases/v30/v30-confused-loot.session.json",
+          "recordingSha256": "a51baafb5eca4aa25767c979aaa0bf4fbf720c12ece04239d63450a72b6b75c8",
+          "evaluationPath": "challenges/evaluations/accepted-f20112b7f1cb65684279bf4ef72bca1116ffb725-v30.json",
+          "evaluationCommit": "f20112b7f1cb65684279bf4ef72bca1116ffb725"
+        }
+      },
+      "activeStanding": {
+        "sha": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v30",
+          "caseId": "v30-confused-loot",
+          "session": "synthetic/v30/v30-confused-loot",
+          "manifestPath": "challenges/manifests/v30.json",
+          "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+          "recording": "challenges/cases/v30/v30-confused-loot.session.json",
+          "recordingPath": "challenges/cases/v30/v30-confused-loot.session.json",
+          "recordingSha256": "a51baafb5eca4aa25767c979aaa0bf4fbf720c12ece04239d63450a72b6b75c8",
+          "recipe": "challenges/cases/v30/v30-confused-loot.recipe.session.json",
+          "recipeSha256": "c7190e628897f825a19ee7bbdedc0c01e8fc0807877bb1fc38060db8186a70c9",
+          "replayInputSha256": "a5b46f0172a3683180df6a2c92b0dac4af3222ab01893279961a6fda41f9d52e",
+          "evaluationPath": "challenges/evaluations/accepted-f20112b7f1cb65684279bf4ef72bca1116ffb725-v30.json",
+          "evaluationCommit": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+          "evaluationArtifact": "challenges/evaluations/accepted-f20112b7f1cb65684279bf4ef72bca1116ffb725-v30.json",
+          "evaluationUtc": "2026-10-08T12:05:09.140Z",
+          "remainingScreens": 31,
+          "recordedSteps": 91,
+          "previousScreensMatched": 60,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 60,
+              "total": 91
+            },
+            "rng": {
+              "matched": 2449,
+              "total": 2488
+            },
+            "cursors": {
+              "matched": 60,
+              "total": 91
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported pickup: doloot_core: confused looting",
+            "step": 60
+          },
+          "step": 60,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: doloot_core: confused looting",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v30/v30-confused-loot.json",
+            "result": {
+              "session": "synthetic/v30/v30-confused-loot",
+              "corpus": "synthetic",
+              "batch": "v30",
+              "caseId": "v30-confused-loot",
+              "manifestPath": "challenges/manifests/v30.json",
+              "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+              "recordingSha256": "a51baafb5eca4aa25767c979aaa0bf4fbf720c12ece04239d63450a72b6b75c8",
+              "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+              "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+              "remainingScreens": 31,
+              "recordedSteps": 91,
+              "status": "complete",
+              "commit": "d486c9ee0529add6d09b1745482131779deef8fc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v30",
+                "caseId": "v30-confused-loot",
+                "session": "synthetic/v30/v30-confused-loot",
+                "manifestPath": "challenges/manifests/v30.json",
+                "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
+                "recording": "challenges/cases/v30/v30-confused-loot.session.json",
+                "recordingPath": "challenges/cases/v30/v30-confused-loot.session.json",
+                "recordingSha256": "a51baafb5eca4aa25767c979aaa0bf4fbf720c12ece04239d63450a72b6b75c8",
+                "recipe": "challenges/cases/v30/v30-confused-loot.recipe.session.json",
+                "recipeSha256": "c7190e628897f825a19ee7bbdedc0c01e8fc0807877bb1fc38060db8186a70c9",
+                "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
+                "evaluationPath": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+                "evaluationCommit": "e2bd11e4d854c94af711e9d5730256c018f17270",
+                "evaluationArtifact": "challenges/evaluations/accepted-e2bd11e4d854c94af711e9d5730256c018f17270-v30.json",
+                "evaluationUtc": "2026-10-08T11:27:53.571Z",
+                "remainingScreens": 31,
+                "recordedSteps": 91,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 60,
+                    "total": 91
+                  },
+                  "rng": {
+                    "matched": 2449,
+                    "total": 2488
+                  },
+                  "cursors": {
+                    "matched": 60,
+                    "total": 91
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported pickup: doloot_core: confused looting",
+                  "step": 60
+                },
+                "step": 60,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported pickup: doloot_core: confused looting",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Confused #loot stops before the source rn2(6) gate because reverse_loot is absent. Port whole pickup.c:reverse_loot2350-2426 and wire the bounded doloot_core2202-2209 confusion caller. Preserve old-inventory selection, exact fifths gold split, worn-item removal, ordinary floor drop and throne treasury/exchequer branches; no whole doloot_core credit.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "pickup.c",
+                "branch": "After capacity/nohands guards, Confusion: rn2(6) short-circuits reverse_loot boolean; a true helper returns ECMD_TIME, otherwise rn2(2) may waste a turn before normal loot.",
+                "functions": [
+                  "reverse_loot"
+                ],
+                "callers": [
+                  "cmd.c doextcmd/rhack -> pickup.c doloot2166-2174 -> doloot_core2203 consumes reverse_loot boolean. JS cmd.runLootCommand -> doloot -> doloot_core confusion guard3398-3425; dispatcher already forwards ECMD_* source result."
+                ],
+                "dependencies": [
+                  "Consumed inv_cnt(TRUE) in old-loot loop: canonical js/hack.js counts inventory including coins; prinv discarded void is already source-owned js/invent.js.",
+                  "Consumed splitobj for rnd(5) gold fifths: canonical js/obj.js preserves stack chain/split-id RNG and quantity; remove_worn_item is source-discarded canonical js/do_wear.js.",
+                  "Consumed g_at after canonical dropx decides ordinary-floor message. freeinv,add_to_container,add_to_minv,boxlock are source-discarded canonical owners; source consumes weight to refresh treasury chest after add.",
+                  "Throne no-coffers branch consumes courtmon -> makemon; courtmon504 uses canonical mkclass/random and mkroom.c783-806 exact thresholds. Reuse existing makemon creation owner and admission boundaries, never substitute a monster or return. No external reservation overlap with C147 Armor_on or A155 ordinary movement contracts."
+                ]
+              },
+              "evidence": [
+                "Current assigned-only replay .cache/A156/v30-confused-loot-replay.json at d486c9ee0529add6d09b1745482131779deef8fc retains60/91 screens/cursors and2449/2488 RNG; remainingScreens31 is unchanged from authoritative accepted-e2bd v30 evaluation. First unproduced boundary60 is Enter finishing #loot.",
+                "C step60: rn2(6)=1@doloot_core2203, rn2(3)=2@reverse_loot2357, rnd(5)=1@reverse_loot2371, then splitobj next_ident rnd(2). Gold contribution (rnd(5)*quan+4)/5 uses C integer division, splits if smaller, removes worn slot before dropx, then g_at prints Ok, now there is loot here. JS refuses before any of these calls.",
+                "Read whole pickup.c:doloot2166-2174,doloot_core2178-2346,reverse_loot2350-2426 and complete JS doloot_core3400 plus lootmon helper and doloot wrapper. Only helper is selected whole; the broader container/cockatrice/adjacent-looting body retains explicit exclusions and no completion credit.",
+                "reverse_loot old-loot arm2357-2365 uses n=inv_cnt(TRUE), decrements n once per object and rn2(n+1); coin arm2368-2383 selects first gold stack, computes rounded-up fifths, splits before remove_worn_item; non-throne2385-2390 drops then tests gold actually on floor.",
+                "Throne2392-2424 prioritizes first spe2 chest over nearest ordinary floor chest (strict distance tie); contribution calls freeinv/add_to_container, refreshes weight and clears cknown, then wizard-locks only if unlocked. No chest and not T_LOOTED consumes courtmon/makemon before transfer; only creation success gates rn2(10) looted update; otherwise name/drop fallback. Preserve every call/RNG/return order.",
+                "Actionable independent task: whole reverse_loot plus bounded doloot_core caller branch, source:pickup.c:reverse_loot/source:pickup.c:doloot_core and contract:confused-loot-inventory-placement. Initial allowed js/pickup.js, focused pickup/reverse-loot tests and fresh runner, recipes/pickup.c/,recordings/pickup.c/ and reports/cache. No active owner overlap; implementation remains unclaimed during A155 review.",
+                "Validation plan: admitted full selected ordinary coin-drop route; independent C-first inventory old-loot plus changed role/no-coins cheap variation; independent throne coffers/nearest chest lock and weight, throne no-chest court/exchequer and already-looted fallback. Source-pinned per-object draw sequence, contributions1..5 and totals, quivered gold removal, treasury priority/ties, returned boolean and exact ECMD_TIME/fallthrough. Name any concrete downstream creation/floor frontier as blocked evidence if a required runtime branch cannot match; no seeded replacements or fixture-only completion."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f20112b7f1cb65684279bf4ef72bca1116ffb725",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Temporarily serialized behind the earlier ready C147 Armor_on delivery; resume immediately after C147 acceptance."
     }
   ]
 }
