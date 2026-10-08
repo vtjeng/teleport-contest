@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-08T19:39:15.266Z",
+  "capturedAt": "2026-10-08T20:18:27.370Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -66444,12 +66444,266 @@
         "at": "2026-10-08T19:39:11.071Z",
         "task": "A167",
         "delivery": "73ca874db82e89244683ec1e83ad2fca03893db3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A166-5f55ecd02-20261008",
+        "type": "published",
+        "at": "2026-10-08T19:39:54.887Z",
+        "task": "A166",
+        "commit": "5f55ecd0263ff3016833bfaa04f7810935ccc5f4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A168-monster-difficulty-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T19:41:07.736Z",
+        "task": "A168",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A168-monster-difficulty-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T19:41:08.903Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B165-tinning-petrification-20261008",
+        "type": "implement",
+        "at": "2026-10-08T19:43:31.946Z",
+        "task": "B165",
+        "goal": "port-apply-use-tinning-kit-v31-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B164-9261fc9e-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T19:43:45.544Z",
+        "task": "B164",
+        "integration": "9261fc9e4e7cab87cc07b39f600948376f09dd86"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A168-monster-difficulty-20261008",
+        "type": "implement",
+        "at": "2026-10-08T19:45:11.601Z",
+        "task": "A168",
+        "goal": "port-wizcmds-wiz-mon-diff-v31-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B164-9261fc9e-20261008",
+        "type": "validated",
+        "at": "2026-10-08T19:48:29.396Z",
+        "task": "B164",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B164-9261fc9e4e7cab87cc07b39f600948376f09dd86-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T19:51:01.422Z",
+        "task": "B164"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B164-7140a8a2-20261008",
+        "type": "published",
+        "at": "2026-10-08T19:51:54.228Z",
+        "task": "B164",
+        "commit": "7140a8a2d20048177f41300cded66c905325179b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B165-final-validation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T19:52:55.704Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Validating tinning-kit petrification and corpse conversion."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d933a953f69c126f93e1a39633e7781bb1493f8e",
+        "type": "ready",
+        "at": "2026-10-08T19:53:46.960Z",
+        "task": "B165",
+        "delivery": "d933a953f69c126f93e1a39633e7781bb1493f8e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0823aa6693250d15d5da04c2c8d2a1614d9fc1dd",
+        "type": "ready",
+        "at": "2026-10-08T19:54:02.817Z",
+        "task": "A168",
+        "delivery": "0823aa6693250d15d5da04c2c8d2a1614d9fc1dd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B165-d933a953-20261008",
+        "type": "received",
+        "at": "2026-10-08T19:54:16.032Z",
+        "task": "B165",
+        "delivery": "d933a953f69c126f93e1a39633e7781bb1493f8e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A169-light-sources-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T19:55:11.142Z",
+        "task": "A169",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A169-light-sources-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T19:55:12.284Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating wizard light-source report; prior deliveries remain immutable."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B166-terrain-legend-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T19:55:57.408Z",
+        "task": "B166",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B166-investigation-active-20261008",
+        "type": "turn",
+        "at": "2026-10-08T19:55:58.519Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the terrain-code legend command and its display helper."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A169-native-pointer-evidence-20261008",
+        "type": "park",
+        "at": "2026-10-08T19:56:54.583Z",
+        "task": "A169"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A168-0823aa66-20261008",
+        "type": "received",
+        "at": "2026-10-08T19:57:12.127Z",
+        "task": "A168",
+        "delivery": "0823aa6693250d15d5da04c2c8d2a1614d9fc1dd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A170-telekinesis-investigation-20261008",
+        "type": "assign",
+        "at": "2026-10-08T19:57:31.168Z",
+        "task": "A170",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A170-telekinesis-investigation-20261008",
+        "type": "turn",
+        "at": "2026-10-08T19:57:32.619Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating telekinesis monster selection and source return dependencies."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A167-9d688c3a-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T19:57:40.276Z",
+        "task": "A167",
+        "integration": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A170-wizard-telekinesis-20261008",
+        "type": "implement",
+        "at": "2026-10-08T19:58:55.573Z",
+        "task": "A170",
+        "goal": "port-wizcmds-wiz-telekinesis-v31-20261008"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A167-validated-9d688c3a-20261008",
+        "type": "validated",
+        "at": "2026-10-08T20:03:12.331Z",
+        "task": "A167",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A167-9d688c3a63ebe0866f9d712ead2c4245af4a90ca-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T20:05:22.638Z",
+        "task": "A167"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A167-published-78698c5d-20261008",
+        "type": "published",
+        "at": "2026-10-08T20:06:30.934Z",
+        "task": "A167",
+        "commit": "78698c5d57812cef9461b5c4a9c36c4274bad4ae"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B165-review-start-20261008",
+        "type": "activity",
+        "at": "2026-10-08T20:06:47.276Z",
+        "task": "B165",
+        "phase": "review",
+        "reason": "Reviewing the immutable B165 tinning-kit delivery against accepted A167 main before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B165-integrating-4f7e4d0d-20261008",
+        "type": "integrating",
+        "at": "2026-10-08T20:11:22.982Z",
+        "task": "B165",
+        "integration": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A168-review-preview-start-20261008",
+        "type": "activity",
+        "at": "2026-10-08T20:12:06.518Z",
+        "task": "A168",
+        "phase": "review",
+        "reason": "Previewing the immutable A168 monster-difficulty delivery while the B165 hosted checkpoint runs."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B165-validated-4f7e4d0d-20261008",
+        "type": "validated",
+        "at": "2026-10-08T20:15:58.305Z",
+        "task": "B165",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B165-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-accepted",
+        "type": "accepted",
+        "at": "2026-10-08T20:18:07.591Z",
+        "task": "B165"
       }
     ]
   },
   "development": {
-    "executionCommit": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
-    "measuredAt": "2026-10-08T19:35:55.682Z",
+    "executionCommit": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+    "measuredAt": "2026-10-08T20:15:25.675Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

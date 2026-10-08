@@ -213946,7 +213946,7 @@
     {
       "id": "port-invent-display-cinventory-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port probed container inventory display and its source naming callbacks",
       "cFile": "invent.c",
       "sessions": [
@@ -214378,6 +214378,1050 @@
                 "fromStep": 48,
                 "throughStep": 62,
                 "source": "zap.c:dozap/weffects -> zap_updown downward WAN_PROBING -> bhitpile -> bhito2252-2255 -> invent.c:display_cinventory5446-5473 -> safe_qbuf/cinv_doname5391-5419 and query_objlist INVORDER_SORT/PICK_NONE; menu acknowledgement before staircase/probe continuation"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "9261fc9e4e7cab87cc07b39f600948376f09dd86",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "cinv_ansimpleoname remains unverified until a valid runtime path exercises safe_qbuf's impure alternate callback; the blocked alternate-name-shortening recipe preserves the remaining coverage work."
+    },
+    {
+      "id": "port-wizcmds-wiz-display-macros-v31-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the wizard display macro diagnostic and canonical glyph decoder",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-display-macros"
+      ],
+      "selectionReason": "The admitted v31 display-macros mismatch begins at the unhandled wizdispmacros command; wizcmds.c wiz_display_macros owns the diagnostic and consumes glyphs.c glyph_to_cmap, including swallow and explosion ranges omitted by the existing partial decoder.",
+      "detail": "",
+      "openedAt": "3716ad627c137f9cfd4abdba9c5e82d0b2df65e3",
+      "openStanding": {
+        "sha": "9261fc9e4e7cab87cc07b39f600948376f09dd86",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "wiz_display_macros",
+          "line": 1705,
+          "endLine": 1781,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1705,
+        "to": 1781
+      },
+      "requiredFunctions": [
+        {
+          "name": "glyph_to_cmap",
+          "line": 200,
+          "endLine": 233,
+          "declared": true,
+          "sourceFile": "glyphs.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v31/v31-display-macros": {
+          "session": "synthetic/v31/v31-display-macros",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-display-macros",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-display-macros.session.json",
+          "recordingSha256": "55752877eec2a02a347db200e70189f8778a8d692914c182f174c14c986a0fb0",
+          "evaluationPath": "challenges/evaluations/accepted-9261fc9e4e7cab87cc07b39f600948376f09dd86-v31.json",
+          "evaluationCommit": "9261fc9e4e7cab87cc07b39f600948376f09dd86"
+        }
+      },
+      "activeStanding": {
+        "sha": "9261fc9e4e7cab87cc07b39f600948376f09dd86",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-display-macros",
+          "session": "synthetic/v31/v31-display-macros",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-display-macros.session.json",
+          "recordingPath": "challenges/cases/v31/v31-display-macros.session.json",
+          "recordingSha256": "55752877eec2a02a347db200e70189f8778a8d692914c182f174c14c986a0fb0",
+          "recipe": "challenges/cases/v31/v31-display-macros.recipe.session.json",
+          "recipeSha256": "6945f0e39a9f573e826251c2d32ec97b339c2d9a19cdef9d524f1c6ba9c4f330",
+          "replayInputSha256": "06714d5d6f94de1bad835d5b70b1b22e34d45e5a167784b86e94ebb56d0766e9",
+          "evaluationPath": "challenges/evaluations/accepted-9261fc9e4e7cab87cc07b39f600948376f09dd86-v31.json",
+          "evaluationCommit": "9261fc9e4e7cab87cc07b39f600948376f09dd86",
+          "evaluationArtifact": "challenges/evaluations/accepted-9261fc9e4e7cab87cc07b39f600948376f09dd86-v31.json",
+          "evaluationUtc": "2026-10-08T19:46:26.653Z",
+          "remainingScreens": 8,
+          "recordedSteps": 24,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 24
+            },
+            "rng": {
+              "matched": 4526,
+              "total": 4526
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 24
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_display_macros() for the extended command 'wizdispmacros' is not ported",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_display_macros",
+          "message": "unsupported hero command: wiz_display_macros() for the extended command 'wizdispmacros' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-display-macros.json",
+            "result": {
+              "session": "synthetic/v31/v31-display-macros",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-display-macros",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "55752877eec2a02a347db200e70189f8778a8d692914c182f174c14c986a0fb0",
+              "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+              "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+              "remainingScreens": 8,
+              "recordedSteps": 24,
+              "status": "complete",
+              "commit": "864c4ffcdf07333d45c0f35e6c1d5b3ece677be1",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-display-macros",
+                "session": "synthetic/v31/v31-display-macros",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-display-macros.session.json",
+                "recordingPath": "challenges/cases/v31/v31-display-macros.session.json",
+                "recordingSha256": "55752877eec2a02a347db200e70189f8778a8d692914c182f174c14c986a0fb0",
+                "recipe": "challenges/cases/v31/v31-display-macros.recipe.session.json",
+                "recipeSha256": "6945f0e39a9f573e826251c2d32ec97b339c2d9a19cdef9d524f1c6ba9c4f330",
+                "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+                "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+                "evaluationUtc": "2026-10-08T19:09:55.598Z",
+                "remainingScreens": 8,
+                "recordedSteps": 24,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 24
+                  },
+                  "rng": {
+                    "matched": 4526,
+                    "total": 4526
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 24
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 16,
+                  "message": "unsupported hero command: wiz_display_macros() for the extended command 'wizdispmacros' is not ported"
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_display_macros",
+                "message": "unsupported hero command: wiz_display_macros() for the extended command 'wizdispmacros' is not ported"
+              },
+              "summary": "Wizard #wizdispmacros stops at step16 because its whole glyph-range diagnostic and dispatcher are absent. Port wiz_display_macros1705–1774 and reconcile the required pure glyph_to_cmap199–231 decoder, retaining canonical glyph constants, source bounds and text dismissal.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Debug/development wizard extended command enters diagnostic before any C macro failures; all glyphs from0 toMAX_GLYPH-1 are checked in source cmap,monster,object order.",
+                "functions": [
+                  "wiz_display_macros"
+                ],
+                "callers": [
+                  "cmd.c1956-1957 extcmdlist wizdispmacros -> doextcmd/rhack"
+                ],
+                "dependencies": [
+                  "glyphs.c:glyph_to_cmap199-231 required pure return dependency",
+                  "Existing display.h glyph_is_cmap/glyph_is_cmap_zap/glyph_is_monster/glyph_to_mon/glyph_is_object/glyph_to_obj macros and canonical symbol/glyph tables",
+                  "Existing TTY text-window lifecycle"
+                ]
+              },
+              "evidence": [
+                "Accepted f527447f v31 evaluation records16/24 screens/cursors and4526/4526 RNG; exact8 remaining. Current worker replay .cache/A167/selected-before.log stops at zero-based16 on newline of #wizdispmacros, with C next text No display macro issues detected. Command registry exists but js/cmd.js has no implementation arm.",
+                "Read whole wizcmds.c1705-1774. Traversal performs cmap conversion/sentinel check, zap-direction bounds, IndexOk(defsyms) including MAXPCHARS fencepost, then monster NUMMONS exclusive upper bound and object NUM_OBJECTS inclusive upper bound. First trouble increments from0 and emits one header; each issue preserves exact text and order; no trouble prints source success line. Await display(FALSE)/destroy and returnECMD_OK, no RNG.",
+                "Consumed return audit reads glyphs.c199-231, display.h699-725,776-793,814-879,902-913, hack.h1498-1499 and sym.h173. Existing predicates and mon/object conversions match all diagnostic input ranges. Existing js/display.js glyph_to_cmap matches the consumed cmap span but omits source swallow/explosion inverse arms outside that gate; complete/relocate this pure function to glyphs.js and retain canonical display.js imports/re-exports for existing callers. Its macro arithmetic is pure and can be pinned exhaustively from source ranges.",
+                "Scope is whole wizcmds.c:wiz_display_macros plus required whole pure glyphs.c:glyph_to_cmap, bounded cmd.c:doextcmd arm and decoder publication; no whole glyph producer, display rendering, glyph customization, cmd or other C caller credit. Existing cmapGlyphs fanout in glyphs.js is the source inverse search using generated partitions, equivalent to the C glyph_find_core conversion filter; no surrounding rewrite needed.",
+                "Only active impure entry is development/debug wizard #wizdispmacros (cmd.c1956-1957, same compile gate). Independently chosen roles/seeds/clocks will execute/dismiss diagnostic twice; ordinary play tests wizard admission. Exhaustive pure decoder source pins plus normal invariant success establish source macro ranges; diagnostic failure output corresponds to internally broken macros and cannot be produced by valid runtime options. No copied challenge recipe or seed search."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_display_macros",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_display_macros",
+            "sourceReview": "Read whole wizcmds.c1704-1774 (function name/range1705-1774). Traverse glyph0..MAX_GLYPH-1; source cmap test/conversion, NO_GLYPH sentinel, zap S_vbeam..S_rslant bounds, IndexOk defsyms including its MAXPCHARS fencepost, then monster exclusive NUMMONS and object inclusive NUM_OBJECTS bound. Each failed test increments trouble after checking zero, emits one header before the first issue and preserves exact source text/order. Source failure branches express internally broken compiled macros; valid game options cannot produce those branches. All canonical macro ranges are checked by full traversal and exhaustive pure decoder tests; no invented game error state or injectable macro implementation is used. Existing display.h predicates and mon/object conversions are source-correct for consumed ranges. Required whole pure glyph_to_cmap is reconciled in its source module and published to existing callers. Canonical S_rslant alias is derived from the existing generated source symbol table in symbols.js; no duplicate source constant or state. C source macro IndexOk/hack.h1498-1499, sym.h173 defsyms[MAXPCHARS+1], display.h699-725/776-793/814-879/902-913 audited. Await canonical text lifecycle display(FALSE)/destroy and return ECMD_OK. No RNG or game state mutation. Missing dispatcher refusal replaced. No unported or injected substitute return is consumed.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c1956-1957 extcmdlist wizdispmacros under active DEBUG/development gate with IFBURIED|AUTOCOMPLETE|WIZMODECMD; existing generated registry/rhack input path dispatches new awaited arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-display-macros.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-display-macros-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-display-macros-ranger.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-display-macros",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 17,
+                "source": "cmd.c1956-1957 extcmdlist -> doextcmd -> wizcmds.c:wiz_display_macros1705-1774, including glyphs.c:glyph_to_cmap consumed cmap decoding. Diagnostic traverses every glyph and displays the success row at16, then dismisses/restores the map at17."
+              }
+            ],
+            "checkedAt": "4e28d4d9592308823c2ee2a33e6a2478185f4437"
+          },
+          {
+            "name": "glyph_to_cmap",
+            "implementation": "js/glyphs.js",
+            "symbol": "glyph_to_cmap",
+            "sourceReview": "Read whole glyphs.c199-231 plus every display.h range predicate and inverse macro it uses. Pure fixed-glyph arithmetic returns stone, five wall ranges, cmapA, altar variants, cmapB, cmapC, zap direction, swallow position and explosion position, then legal MAXPCHARS fencepost. Existing contiguous-wall modulo preserves all five source branch ranges. All disjoint branches retain source order and exact integer arithmetic. Restored formerly omitted swallow/explosion returns and removed the obsolete partial-helper comment/body from display.js. Function now lives with glyphs.c source ownership in glyphs.js; display.js re-exports it to preserve every existing active decoder caller. No C macro has RNG/state/output effects; exhaustive per-glyph source test covers every range, holes and out-of-range endpoints. Existing glyph_find_core inverse fanout uses generated source partitions rather than this forward decoder, and already covers all of the same source ranges; no surrounding customization implementation changed. Unported unrelated caller arms remain excluded as described in callerFrontiers.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_display_macros",
+                "source": "wizcmds.c1717 diagnostic consumes the cmap decoder; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c1059 glyph_is_cmap guard -> decoder; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "is_valid_travelpt",
+                "source": "hack.c1535 stone glyph check; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_fight_empty",
+                "source": "hack.c2307 empty attack surface explanation; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/startup_a11y.js",
+                "symbol": "collectLookaroundMessages",
+                "source": "cmd.c1347 dolookaround accessibility glyph classification; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "look_engrs",
+                "source": "pager.c2183 engraving glyph classification; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "lookatOrdinaryTerrain",
+                "source": "pager.c741 lookat terrain explanation; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dryup",
+                "source": "fountain.c226 cloud glyph visibility test; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_pole",
+                "source": "apply.c3555 remembered target terrain explanation; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "that_is_a_mimic",
+                "source": "uhitm.c6222 mimic glyph check; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "gloc_filter_classify_glyph",
+                "source": "getpos.c348 filter terrain classification; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs_interesting",
+                "source": "getpos.c452/472 location gathering; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "matchingCmapGlyph",
+                "source": "getpos.c1077/1087/1100 terrain-key matching in getpos; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "glyphIsGascloud",
+                "source": "detect.c2163 premap_detect macro classification; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "furniture_detect",
+                "source": "detect.c1102 furniture glyph detection; existing display.js export now delegates to the same canonical glyphs.js source owner."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wiz-display-macros.test.mjs",
+              "scripts/glyph-customization.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-display-macros-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-display-macros-ranger.session.json"
+            ],
+            "sourceFile": "glyphs.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-display-macros",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 17,
+                "source": "cmd.c1956-1957 extcmdlist -> doextcmd -> wizcmds.c:wiz_display_macros1705-1774, including glyphs.c:glyph_to_cmap consumed cmap decoding. Diagnostic traverses every glyph and displays the success row at16, then dismisses/restores the map at17."
+              }
+            ],
+            "checkedAt": "4e28d4d9592308823c2ee2a33e6a2478185f4437"
+          }
+        ],
+        "entryPointReview": "Only new active impure entry is wizard #wizdispmacros under DEBUG/development command registry. Selected admitted command range16-17 and two independent newly chosen Healer/Ranger roles/seeds/clocks traverse the full compiled glyph space, display the success row, dismiss and repeat. Normal Tourist command admission is an independent outside-limit recording. Pure glyph_to_cmap requires exhaustive source-pinned tests; the diagnostic supplies a production consumed-return witness. Existing active JavaScript decoder call sites share the re-exported canonical owner. No ownership/completion credit for surrounding cmd/display/glyph customization callers.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizdispmacros",
+            "functions": [
+              "wiz_display_macros",
+              {
+                "sourceFile": "glyphs.c",
+                "name": "glyph_to_cmap"
+              }
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-display-macros-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-display-macros-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-display-macros",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 17,
+                "source": "cmd.c1956-1957 extcmdlist -> doextcmd -> wizcmds.c:wiz_display_macros1705-1774, including glyphs.c:glyph_to_cmap consumed cmap decoding. Diagnostic traverses every glyph and displays the success row at16, then dismisses/restores the map at17."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-use-tinning-kit-v31-20261008",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port whole tinning-kit conversion and petrification ordering",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v31/v31-tinning-petrifier"
+      ],
+      "selectionReason": "The oldest selectable v31 tinning mismatch reaches apply.c use_tinning_kit at step 47, where JavaScript omits the canonical petrification transition before continuing conversion.",
+      "detail": "Port apply.c use_tinning_kit lines 2177-2258 and verify its existing doapply TINNING_KIT caller. Await the existing trap.c instapetrify support without claiming source completion for that helper; preserve the earlier blind floor-touch blocker in invent.c feel_cockatrice.",
+      "openedAt": "9d8bbd4fd78201f260f82e7ff8a41e76cd1b21fb",
+      "openStanding": {
+        "sha": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "use_tinning_kit",
+          "line": 2177,
+          "endLine": 2258,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2177,
+        "to": 2258
+      },
+      "syntheticProvenance": {
+        "synthetic/v31/v31-tinning-petrifier": {
+          "session": "synthetic/v31/v31-tinning-petrifier",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-tinning-petrifier",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-tinning-petrifier.session.json",
+          "recordingSha256": "b9729b789cae6000ccfac8a30839e7eac09f33f32f471f6fd73756058966709b",
+          "evaluationPath": "challenges/evaluations/accepted-9d688c3a63ebe0866f9d712ead2c4245af4a90ca-v31.json",
+          "evaluationCommit": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca"
+        }
+      },
+      "activeStanding": {
+        "sha": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-tinning-petrifier",
+          "session": "synthetic/v31/v31-tinning-petrifier",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-tinning-petrifier.session.json",
+          "recordingPath": "challenges/cases/v31/v31-tinning-petrifier.session.json",
+          "recordingSha256": "b9729b789cae6000ccfac8a30839e7eac09f33f32f471f6fd73756058966709b",
+          "recipe": "challenges/cases/v31/v31-tinning-petrifier.recipe.session.json",
+          "recipeSha256": "fca05f0493bdf46e333b94456a8ff0dce190f7343d239b3418363e33d66f30dd",
+          "replayInputSha256": "3ed3f827a4cc989b104b6a97f75fe13740a8821925102b8aaea39454713ca3a4",
+          "evaluationPath": "challenges/evaluations/accepted-9d688c3a63ebe0866f9d712ead2c4245af4a90ca-v31.json",
+          "evaluationCommit": "9d688c3a63ebe0866f9d712ead2c4245af4a90ca",
+          "evaluationArtifact": "challenges/evaluations/accepted-9d688c3a63ebe0866f9d712ead2c4245af4a90ca-v31.json",
+          "evaluationUtc": "2026-10-08T20:00:05.686Z",
+          "remainingScreens": 4,
+          "recordedSteps": 61,
+          "previousScreensMatched": 57,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 57,
+              "total": 61
+            },
+            "rng": {
+              "matched": 2336,
+              "total": 2336
+            },
+            "cursors": {
+              "matched": 58,
+              "total": 61
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 47,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "g",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 47,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": " "
+              },
+              "cCursor": [
+                28,
+                0,
+                1
+              ],
+              "jsCursor": [
+                41,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 47,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-tinning-petrifier.json",
+            "result": {
+              "session": "synthetic/v31/v31-tinning-petrifier",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-tinning-petrifier",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "b9729b789cae6000ccfac8a30839e7eac09f33f32f471f6fd73756058966709b",
+              "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+              "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+              "remainingScreens": 4,
+              "recordedSteps": 61,
+              "status": "complete",
+              "commit": "74e61dc29d4121756dc449665b3cc7ae0a87b3a2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-tinning-petrifier",
+                "session": "synthetic/v31/v31-tinning-petrifier",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recording": "challenges/cases/v31/v31-tinning-petrifier.session.json",
+                "recordingPath": "challenges/cases/v31/v31-tinning-petrifier.session.json",
+                "recordingSha256": "b9729b789cae6000ccfac8a30839e7eac09f33f32f471f6fd73756058966709b",
+                "recipe": "challenges/cases/v31/v31-tinning-petrifier.recipe.session.json",
+                "recipeSha256": "fca05f0493bdf46e333b94456a8ff0dce190f7343d239b3418363e33d66f30dd",
+                "replayInputSha256": "2b9b36d4565562353240545434382d2cf4286947fa33ecc671d1be8ec6bae3de",
+                "evaluationPath": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+                "evaluationCommit": "f527447fdb1afd5f533fd6451b9bb0788cfa8fc3",
+                "evaluationArtifact": "challenges/evaluations/accepted-f527447fdb1afd5f533fd6451b9bb0788cfa8fc3-v31.json",
+                "evaluationUtc": "2026-10-08T19:09:55.598Z",
+                "remainingScreens": 4,
+                "recordedSteps": 61,
+                "previousScreensMatched": 57,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 57,
+                    "total": 61
+                  },
+                  "rng": {
+                    "matched": 2336,
+                    "total": 2336
+                  },
+                  "cursors": {
+                    "matched": 58,
+                    "total": 61
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 47,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "g",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 47,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      28,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      41,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 47,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Bare-handed tinning of a petrifying corpse skips trap.c:instapetrify after the fatal-mistake message. C waits for urgent petrification and wizard death recovery before consuming the kit charge and making the tin; JavaScript records an incorrectly attributed polyself.c gap and proceeds immediately. Complete the existing apply.c:use_tinning_kit source unit and await the canonical trap.js helper with the exact killer string. Keep the broader instapetrify owner and its other callers explicitly incomplete, without new completion credit.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "use_tinning_kit"
+                ],
+                "branch": "A positive-charge tinning kit selects an uneaten cockatrice or chickatrice corpse, the hero lacks stone resistance and gloves, and use_tinning_kit calls instapetrify before Rider handling, nutrition validation, charge consumption, or tin creation. poly_when_stoned uses an empty killer string; other forms use trying to tin <article corpse name> without gloves.",
+                "callers": [
+                  "apply.c:doapply4295, TINNING_KIT case; sole production caller. js/apply.js:doapply already awaits use_tinning_kit and returns ECMD_TIME after it finishes."
+                ],
+                "dependencies": [
+                  "eat.c:floorfood3579-3733 and apply.c:tinnable2167-2174: existing tin corpse-selection subset reads canonical floor/inventory objects, excludes partly eaten and zero-nutrition corpses, and uses existing getobj/yn_function. Blind floor corpse touching calls the independently incomplete invent.c:feel_cockatrice before the selected tinning helper branch; retain that outside-limit frontier.",
+                  "trap.c:instapetrify3844-3855 is already translated as bounded incomplete support in js/trap.js:357. It handles resistance, consumed poly_when_stoned/polymon(PM_STONE_GOLEM), urgent message, killer, planning death and live done(STONING). Reuse it at this discarded-result call site; do not claim whole helper or wire its broader older callers. Existing B140 source evidence verifies the consumed polymon and done owners for this subset.",
+                  "do.c:revive_corpse returns the Rider revival success and is a verified canonical dependency. Preserve consumed result and Rider message before returning without charge consumption.",
+                  "mkobj.c:mksobj(TIN,FALSE,FALSE), weight and eat.c:set_tin_variety: existing object construction/nutrition owners; preserve kit blessed/cursed, known, weight and homemade variety order.",
+                  "invent.c:consume_obj_charge/useup/useupf/hold_another_object, shop room/keeper/voice and canonical object lifecycle hooks: existing owners. Preserve charge before creation, shop speech before corpse destruction, and hold_another_object after destruction; no broad shop completion claim."
+                ]
+              },
+              "evidence": [
+                "Tracked accepted-f527 v31 evaluation measures57/61 screens,58/61 cursors and2336/2336 RNG. First substantive mismatch segment0step47: C You turn to stone...--More--, JS tin inventory feedback. The preceding fatal-mistake message matches.",
+                "Focused selected replay at74e61dc2 reproduced57/61 screens,58/61 cursors, all2336 RNG (.cache/B165/frozen-before.log, bounded run-iMMa7J). This is a missing awaited death/message boundary, not a random-call divergence.",
+                "Read complete upstream apply.c:use_tinning_kit2177-2258 at16ff59115315917b93185d026aeefea06db9b0f4 and existing js/apply.js1567-1688. JS omits kbuf construction and substitutes note_unported(polyself.c instapetrify) at1604 for C instapetrify(kbuf) at2208.",
+                "C recording segment0step45 emits fatal mistake,47 urgent petrification,48 Die? [yn](n),49 wizard recovery and homemade tin feedback,50 survival message. Preserve the pending More before the death prompt and continue tinning only after done returns.",
+                "Read complete trap.c:instapetrify3844-3855 and existing js/trap.js354-376. Its canonical helper has the required awaited urgent/death path, including no-output planning error and stone-golem short circuit. All other instapetrify callers remain named gaps; no broader trap/end source completion is proposed.",
+                "Read source/JS floorfood tin-only subset, tinnable, production TINNING_KIT dispatch and existing scripts/apply-tinning-kit.test.mjs ordinary floor/inventory/Rider fixtures. Existing ordinary recipes provide independent entry witnesses; add a different-role C-first bare-handed tinning witness and cheap gloves/resistance or stone-golem variation.",
+                "Live reservations exclude A166/A167 wizard diagnostics, C152 migration and submitted B164 invent container display/zap probing. apply.c:use_tinning_kit and tinning-petrification caller contract are independent."
+              ],
+              "proposal": {
+                "goalId": "port-apply-use-tinning-kit-v31-20261008",
+                "summary": "Complete tinning-kit petrification and corpse conversion ordering.",
+                "selectionReason": "B164 selected container case is exact on the worker branch. Independent admitted v31-tinning-petrifier retains four unmatched screens at accepted f527. Source trace identifies the omitted tinning-kit petrification caller, independent of wizard diagnostics, migration and queued container display.",
+                "sourceUnits": [
+                  {
+                    "file": "apply.c",
+                    "name": "use_tinning_kit",
+                    "start": 2177,
+                    "end": 2258
+                  }
+                ],
+                "reservations": [
+                  "session:synthetic/v31/v31-tinning-petrifier",
+                  "source:apply.c:use_tinning_kit",
+                  "contract:tinning-petrifying-corpse-death-order"
+                ],
+                "allowedPaths": [
+                  "investigations/synthetic/v31/v31-tinning-petrifier.json",
+                  "js/apply.js",
+                  "scripts/apply-tinning-kit.test.mjs",
+                  "scripts/apply.test.mjs",
+                  "scripts/run-tinning-kit.mjs",
+                  "recipes/apply.c/",
+                  "recordings/apply.c/",
+                  ".cache/"
+                ],
+                "dependencies": [
+                  "74e61dc29d4121756dc449665b3cc7ae0a87b3a2 pending ancestor delivery until accepted"
+                ],
+                "runtimeEvidencePlan": [
+                  "Admitted segment0steps45-60 for fatal tinning/death recovery and subsequent homemade tin completion.",
+                  "Independent different-role C-first bare-handed tinning plus cheap gloves/resistance or stone-golem variation; completely matching recordings.",
+                  "Refresh existing ordinary floor/inventory and Rider tinning recordings/tests; source-pin exact empty/fatal killer string, no charge before death or after Rider return, and planning/live helper contract.",
+                  "Retain blind floor-touch and broader instapetrify callers as outside-limit gaps, without completion credit."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_tinning_kit",
+            "implementation": "js/apply.js",
+            "symbol": "use_tinning_kit",
+            "sourceReview": "Read whole apply.c2177-2258 at16ff59115315917b93185d026aeefea06db9b0f4; compared every branch and source order with existing JS. Preserve exhausted kit, floorfood NULL, partly eaten guard, species lookup, touch_petrifies/resistance/gloves order, poly_when_stoned empty killer versus exact trying-to-tin fatal killer, awaited instapetrify before Rider/zero nutrition/charge/creation, consumed revive_corpse success, shop voice before useup/useupf, and hold_another_object after corpse destruction. Exact kit curse/bless/weight/known/homemade assignments retained. Added state argument to poly_when_stoned for the caller-owned genocided-form check. Supporting instapetrify remains incomplete/no-credit, but its existing consumed polymon and live done dependencies have accepted source evidence. Its returned discarded-void invocation is awaited; a gameover return preserves C really_done NORETURN after actual death without changing wizard recovery. Removed obsolete wrong-owner polyself.c instapetrify gap. No new refusal or RNG/message surrogate. Existing pline.c impossible gap remains at impossible TIN allocation failure; no selected source branch consumes that gap result.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c4295 TINNING_KIT, sole production caller; already awaited and retains ECMD_TIME. cmd apply command dispatch reaches it directly."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-tinning-kit.test.mjs",
+              "scripts/apply.test.mjs",
+              "scripts/do-wear-wielding-corpse.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/tinning-petrifier-valkyrie-independent.session.json",
+              "recordings/apply.c/tinning-petrifier-gloves-independent.session.json",
+              "recordings/apply.c/tinning-iron-golem-independent.session.json",
+              "recordings/apply.c/tinning-kit-lichen-floor-independent.session.json",
+              "recordings/apply.c/tinning-kit-newt-independent.session.json",
+              "recordings/do.c/b123-rider-tinning-floor.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-tinning-petrifier",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 60,
+                "source": "cmd.c rhack apply -> apply.c:doapply4295 TINNING_KIT -> use_tinning_kit2177-2258 -> supporting trap.c:instapetrify3844-3855 -> end.c:done(STONING) wizard recovery; then charge, tin creation, corpse consumption and inventory feedback"
+              }
+            ],
+            "checkedAt": "42700761d73b8e722222858972e81e96905bb0f1"
+          }
+        ],
+        "entryPointReview": "Only source entry is apply.c:doapply TINNING_KIT. Admitted bare-handed cockatrice range and independent Valkyrie chickatrice recording cover fatal warning, urgent More, debug death recovery and continuation. Independent gloves variation covers protected inventory corpse conversion; independent iron-golem variation covers empty killer string and consumed polymon(PM_STONE_GOLEM) result before conversion. Existing ordinary inventory/floor and Rider floor recordings were refreshed individually. Branch tests cover exhausted kit, charge retained before recovery and Rider return. No startup/Lua/compile-inactive entry belongs to this helper. Blind floor touching is a prior floorfood -> invent.c:feel_cockatrice path and remains outside selected helper: the independently tested blocked recipe diverges at its discarded instapetrify call before use_tinning_kit receives a corpse. Broader trap.c:instapetrify callers remain named existing gaps, without whole helper/end credit.",
+        "entryPoints": [
+          {
+            "name": "Apply a tinning kit to a selected floor or inventory corpse",
+            "functions": [
+              "use_tinning_kit"
+            ],
+            "recordings": [
+              "recordings/apply.c/tinning-petrifier-valkyrie-independent.session.json",
+              "recordings/apply.c/tinning-petrifier-gloves-independent.session.json",
+              "recordings/apply.c/tinning-iron-golem-independent.session.json",
+              "recordings/apply.c/tinning-kit-lichen-floor-independent.session.json",
+              "recordings/apply.c/tinning-kit-newt-independent.session.json",
+              "recordings/do.c/b123-rider-tinning-floor.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-tinning-petrifier",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 60,
+                "source": "cmd.c rhack apply -> apply.c:doapply4295 TINNING_KIT -> use_tinning_kit2177-2258 -> supporting trap.c:instapetrify3844-3855 -> end.c:done(STONING) wizard recovery; then charge, tin creation, corpse consumption and inventory feedback"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-mon-diff-v31-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the wizard monster difficulty diagnostic",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-monster-difficulty"
+      ],
+      "selectionReason": "The admitted v31 monster-difficulty case retains 17 unmatched screens at the missing wizard diagnostic; its whole wiz_mon_diff function and bounded dispatcher are independent of the accepted tinning-kit work.",
+      "detail": "Port wizcmds.c wiz_mon_diff lines 1790-1828 and its cmd.c doextcmd wizmondiff arm. Reuse the already verified mondata.c mstrength implementation without additional source credit; preserve canonical table traversal, signed formatting, level cap, text dismissal, and ECMD_OK.",
+      "openedAt": "a5780512f48fd7719e77f79b221a9ffa388a48ae",
+      "openStanding": {
+        "sha": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_mon_diff",
+          "line": 1790,
+          "endLine": 1831,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1790,
+        "to": 1831
+      },
+      "syntheticProvenance": {
+        "synthetic/v31/v31-monster-difficulty": {
+          "session": "synthetic/v31/v31-monster-difficulty",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-monster-difficulty",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-monster-difficulty.session.json",
+          "recordingSha256": "2fce722aa186af7f49d37629a69915e7ec917264049d5b2c44939b3c91e93ca3",
+          "evaluationPath": "challenges/evaluations/accepted-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-v31.json",
+          "evaluationCommit": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d"
+        }
+      },
+      "activeStanding": {
+        "sha": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-monster-difficulty",
+          "session": "synthetic/v31/v31-monster-difficulty",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-monster-difficulty.session.json",
+          "recordingPath": "challenges/cases/v31/v31-monster-difficulty.session.json",
+          "recordingSha256": "2fce722aa186af7f49d37629a69915e7ec917264049d5b2c44939b3c91e93ca3",
+          "recipe": "challenges/cases/v31/v31-monster-difficulty.recipe.session.json",
+          "recipeSha256": "55e1bdb477647dc9d82302f5b5dbc1ffe7cac27d5beb0b76a018350d86369b6c",
+          "replayInputSha256": "1a898c9237f901ce6efb8b499738980546784a2bccc44c9cce78dece01a01855",
+          "evaluationPath": "challenges/evaluations/accepted-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-v31.json",
+          "evaluationCommit": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d",
+          "evaluationArtifact": "challenges/evaluations/accepted-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-v31.json",
+          "evaluationUtc": "2026-10-08T20:13:38.624Z",
+          "remainingScreens": 17,
+          "recordedSteps": 30,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 30
+            },
+            "rng": {
+              "matched": 2128,
+              "total": 2128
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 30
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_mon_diff() for the extended command 'wizmondiff' is not ported",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_mon_diff",
+          "message": "unsupported hero command: wiz_mon_diff() for the extended command 'wizmondiff' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-monster-difficulty.json",
+            "result": {
+              "session": "synthetic/v31/v31-monster-difficulty",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-monster-difficulty",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "2fce722aa186af7f49d37629a69915e7ec917264049d5b2c44939b3c91e93ca3",
+              "evaluationPath": "challenges/evaluations/accepted-3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d-v31.json",
+              "evaluationCommit": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+              "remainingScreens": 17,
+              "recordedSteps": 30,
+              "status": "complete",
+              "commit": "c3b649a8f59b7dcb9ebbaaf03e4e652dec7836ae",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-monster-difficulty",
+                "session": "synthetic/v31/v31-monster-difficulty",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recordingPath": "challenges/cases/v31/v31-monster-difficulty.session.json",
+                "recording": "challenges/cases/v31/v31-monster-difficulty.session.json",
+                "recordingSha256": "2fce722aa186af7f49d37629a69915e7ec917264049d5b2c44939b3c91e93ca3",
+                "recipe": "challenges/cases/v31/v31-monster-difficulty.recipe.session.json",
+                "recipeSha256": "55e1bdb477647dc9d82302f5b5dbc1ffe7cac27d5beb0b76a018350d86369b6c",
+                "evaluationPath": "challenges/evaluations/accepted-3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d-v31.json",
+                "evaluationCommit": "3c3b11a2a52a7977287d7ef72e2a5b64b78a5e0d",
+                "evaluationUtc": "2026-10-08T19:34:26.947Z",
+                "remainingScreens": 17,
+                "recordedSteps": 30,
+                "passed": false,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 30
+                  },
+                  "rng": {
+                    "matched": 2128,
+                    "total": 2128
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 30
+                  }
+                },
+                "error": null,
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 13,
+                  "message": "unsupported hero command: wiz_mon_diff() for the extended command 'wizmondiff' is not ported"
+                },
+                "step": 13,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_mon_diff",
+                "message": "unsupported hero command: wiz_mon_diff() for the extended command 'wizmondiff' is not ported"
+              },
+              "summary": "Wizard #wizmondiff stops at step 13 because the whole monster difficulty report and dispatcher are absent. Port wiz_mon_diff 1790–1828, using the existing source-correct mstrength return, live canonical monster table, signed discrepancies and blocking text dismissal.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Debug/development wizard command traverses mons until mlet is zero, compares calculated/hardcoded difficulty and prints only discrepancies; current C cleric and wizard rows differ by -1.",
+                "functions": [
+                  "wiz_mon_diff"
+                ],
+                "callers": [
+                  "cmd.c1985-1986 extcmdlist wizmondiff -> doextcmd/rhack"
+                ],
+                "dependencies": [
+                  "Existing complete mondata.c:mstrength 428–497 and its mstrength_ranged_attk 501–512, audited against js/mondata.js and source-pinned scripts/mondata-pure.test.mjs",
+                  "Canonical initialized per-game state.mons with mlet-zero sentinel, neutral pmnames and hardcoded difficulty",
+                  "Existing TTY text-window lifecycle"
+                ]
+              },
+              "evidence": [
+                "Accepted 3c3b11a2 v31 evaluation records 13/30 screens/cursors and 2128/2128 RNG: 17 remaining. Current claimed-session replay .cache/A168/selected-before.log stops at zero-based step 13, on newline of #wizmondiff. C then displays a header and cleric/wizard rows with calculated 13, hardcoded 12 and delta -1; JS registry exists but doextcmd lacks the helper arm.",
+                "Read whole wizcmds.c1790–1828. Each source species is processed in table order until mlet-zero sentinel. Consume mstrength, subtract calculated from hardcoded; emit header only before first discrepancy, clamp displayed mlevel above 50, retain neutral name minimum width18, index width3, level/difficulty width2 and explicit signed delta; truncate Snprintf to BUFSZ-1. No discrepancies prints the source success line. Await display(FALSE)/destroy before ECMD_OK; no RNG or game state mutation.",
+                "Read complete mondata.c mstrength and mstrength_ranged_attk plus JS equivalents. Group/ranged/ac/speed/attack/special damage/name adjustments and integer divisions match source, with existing source-pinned per-species sweep including known cleric/wizard discrepancies. These return dependencies are already complete source implementations; no stub, unsupported refusal or injected accounting substitute is consumed, and no ownership edit/extra completion credit is needed.",
+                "Scope is whole wizcmds.c:wiz_mon_diff plus its bounded cmd.c:doextcmd arm. Exclude whole cmd, monster catalog generation, strength owner, TTY renderer and B164/C152 scopes. New independent roles/seeds/clocks will invoke/dismiss twice and verify canonical live table results; ordinary-play rejection is the outside-limit witness. Constructed source tests cover sentinel stop, no discrepancy, positive/negative deltas and named-demon displayed-level cap, which the current unchanged valid catalog does not reach as a discrepancy."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_mon_diff",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_mon_diff",
+            "sourceReview": "Read whole wizcmds.c 1789–1828, function range 1790–1828 (39 lines; source parser includes the next return-type declaration, so closing brace checked directly). Loop starts mons[0] and stops at mlet-zero sentinel, including its independent cnt increment. Consume calculated mstrength before reading hardcoded difficulty, subtract calculated from hardcoded and print only nonzero discrepancies. First trouble emits one header. Displayed level above 50 is capped, neutral pmname uses source minimum width 18, index width 3, level/calculated/hardcoded width 2 and explicit signed delta; Snprintf byte capacity BUFSZ-1 preserved. Name/data formatting only reads live canonical state.mons and uses existing C-derived constants, not copied catalog/accounting state. No-discrepancy branch and cap/positive-delta branches are source-pinned constructed tests; unchanged valid catalog has only cleric/wizard discrepancies, so those alternate catalog branches lack ordinary runtime inputs. Existing complete mstrength and mstrength_ranged_attk implementations read in full against mondata.c 428–497/501–512: group/ranged/ac/speed/attack/special damage/name branches and integer divisions match source, with existing source-pinned formula/per-species tests. No dependency placeholder or unported result consumed, no ownership/extra completion credit for strength or catalog producers. Canonical TTY lifecycle handles create/putstr/display(FALSE)/destroy and is awaited before ECMD_OK. No RNG, game/map mutation or command-turn change. Missing dispatcher refusal replaced; no allowed unported call remains in the selected function.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c 1985–1986 wizmondiff extcmdlist under active DEBUG/development gate, IFBURIED|AUTOCOMPLETE|WIZMODECMD; existing generated registry and rhack extended-command input path reaches the new awaited arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-mon-diff.test.mjs",
+              "scripts/mondata-pure.test.mjs",
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-mon-diff-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-mon-diff-ranger.session.json"
+            ],
+            "sourceFile": "wizcmds.c",
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-monster-difficulty",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 14,
+                "source": "cmd.c 1985–1986 extcmdlist -> doextcmd -> wizcmds.c:wiz_mon_diff 1790–1828. Full canonical monster table traversal displays discrepancy rows at step 13, then dismisses/restores the map at step 14."
+              }
+            ],
+            "checkedAt": "588cece8f183f5957b9f46c06dbcdaf3c02f2fd0"
+          }
+        ],
+        "entryPointReview": "Only active impure entry is wizard #wizmondiff via source development registry/doextcmd/rhack. Admitted step range 13–14 covers full traversal, both source cleric/wizard discrepancies and dismissal. Independent C-first Priest and orc Ranger roles/seeds/clocks invoke and dismiss twice, verifying canonical table discrepancies and ECMD_OK/map restoration. Nonwizard Monk records ordinary-play admission refusal. Constructed source tests cover the empty/matching catalog, sentinel stopping, positive delta, named-demon displayed-level cap and long-name buffer limit; these alternate catalogs are not reachable via ordinary options. No whole dispatcher/catalog/strength/renderer ownership claim.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizmondiff",
+            "functions": [
+              "wiz_mon_diff"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-mon-diff-ordinary.session.json",
+              "recordings/wizcmds.c/wizard-mon-diff-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v31",
+                "caseId": "v31-monster-difficulty",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 14,
+                "source": "cmd.c 1985–1986 extcmdlist -> doextcmd -> wizcmds.c:wiz_mon_diff 1790–1828. Full canonical monster table traversal displays discrepancy rows at step 13, then dismisses/restores the map at step 14."
               }
             ]
           }
