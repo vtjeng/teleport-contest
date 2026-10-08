@@ -14,6 +14,7 @@ import {
     BLND_RES,
     CLAIRVOYANT,
     COLD_RES,
+    COLNO, ROWNO, COULD_SEE, IN_SIGHT, TEMP_LIT,
     CONFUSION,
     CONFLICT,
     DEAF,
@@ -111,6 +112,7 @@ import { dist2, mungspaces, upstart } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
+import { displayTtyTextWindow } from './tty_menu.js';
 import { makewish } from './zap.js';
 import { canspotmon, docrt, glyph_at, glyph_is_invisible, glyph_is_monster,
     map_engraving, map_invisible, map_trap, unmap_invisible } from './display.js';
@@ -127,6 +129,31 @@ import { vision_recalc } from './vision.js';
 import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { nonliving, olfaction } from './mondata.js';
+
+// C ref: wizcmds.c wiz_show_vision() (621-658). The text-window wrapper
+// owns create/putstr/display/destroy; read the current vision bits directly
+// and await its blocking dismissal before returning the command result.
+export async function wiz_show_vision(state = game, env = {}) {
+    const lines = [
+        { text: `Flags: 0x${COULD_SEE.toString(16)} could see, 0x${IN_SIGHT.toString(16)} in sight, 0x${TEMP_LIT.toString(16)} temp lit` },
+        { text: '' },
+    ];
+    for (let y = 0; y < ROWNO; y++) {
+        let row = '';
+        for (let x = 1; x < COLNO; x++) {
+            if (u_at(x, y, state)) {
+                row += '@';
+            } else {
+                const v = state.viz_array[y][x];
+                row += v === 0 ? ' ' : String.fromCharCode('0'.charCodeAt(0) + v);
+            }
+        }
+        lines.push({ text: row.replace(/ +$/u, '') });
+    }
+    await (env.window ?? displayTtyTextWindow)(state, lines);
+    return ECMD_OK;
+}
+
 // C ref: wizcmds.c wiz_makemap() (156-173). Keep the original tower flag
 // across teardown, generation and arrival; goto_level's entry effects do not
 // belong to replacement levels. The existing pre/post owner records its gaps.
