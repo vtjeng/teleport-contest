@@ -72,7 +72,7 @@
   },
   "evidence": [
     "Focused scan .cache/B174/scan.json at2f8487a04 reproduces44/63screens, refusal atsegment0step44 /: unsupported whatis a hallucinating hero. Saved accepted-8ad9 evaluation gives19remaining, all2761RNG matched,44/63cursors. No prior silent divergence.",
-    "Read complete C do_look1673-1961, menu block1726-1804 and all choice dispatch after it. Source never refuses the entire menu for Hallucination. Existing JS assertOrdinaryWhatisState throws before select_menu, and whatisMenuItems always adds the unavailable eight supplemental rows; menuLines also always inserts a separator.",
+    "Read complete C do_look1673-1963, menu block1726-1804 and all choice dispatch after it. Source never refuses the entire menu for Hallucination. Existing JS assertOrdinaryWhatisState throws before select_menu, and whatisMenuItems always adds the unavailable eight supplemental rows; menuLines also always inserts a separator.",
     "Admitted recipe quaffs independent potion and then submits /m. C Hallucination suppresses m choice; subsequent acknowledgements cancel the menu and restore map. The prepared mission misses monster-list target and does not establish active hallucinated lookup/monster-description behavior. No downstream description owner should be inferred from its original comment.",
     "Independent runtime evidence should exercise typed #whatis and help-menu whatis under Hallucination with invalid suppressed-list selector/Escape, plus cheap ordinary or HALLUC_RES row variation. Keep a committed blocked recipe choosing an actual map lookup while hallucinating; name the unported source branch, without treating that recording as passing.",
     "Live ledger reserves A174 prayer session, A173 display map memory, A172 doextcmd, C154 Rider and C152 migration. pager.c do_look/menu contract is unowned. Proposed correction changes only pager menu logic, with no shared cmd/display/getline edit."
@@ -88,7 +88,7 @@
         "file": "pager.c",
         "name": "do_look",
         "start": 1673,
-        "end": 1961
+        "end": 1963
       }
     ],
     "completionCredit": "Bounded do_look menu admission/row-selection correction only; no whole do_look, description, lookat, quick lookup or display credit.",
