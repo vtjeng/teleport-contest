@@ -215176,7 +215176,7 @@
     {
       "id": "port-wizcmds-wiz-mon-diff-v31-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the wizard monster difficulty diagnostic",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -215190,8 +215190,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_mon_diff",
@@ -215426,7 +215429,412 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+        "screens": 11405,
+        "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-migrate-monsters-family-v31-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard monster migration and its sorted pending-destination list",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-migrating-monsters"
+      ],
+      "selectionReason": "C151 birth statistics seed is solved; select the independent unreserved admitted v31-migrating-monsters diagnostic missing wiz_migrate_mons at step14. Complete investigation identifies whole comparator/list/command family, distinct from active wizard statistics and corpse RNG scopes.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "migrsort_cmp",
+          "line": 1485,
+          "endLine": 1505,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "list_migrating_mons",
+          "line": 1506,
+          "endLine": 1615,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1485,
+        "to": 1615
+      },
+      "requiredFunctions": [
+        {
+          "name": "wiz_migrate_mons",
+          "line": 1873,
+          "endLine": 1933,
+          "declared": false,
+          "sourceFile": "wizcmds.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v31/v31-migrating-monsters": {
+          "session": "synthetic/v31/v31-migrating-monsters",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-migrating-monsters",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-migrating-monsters.session.json",
+          "recordingSha256": "e5e173f7971ac81ba79eae5034bb420132cf6a6f3073644aba4c0d90876f0ded",
+          "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+          "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b"
+        }
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-telekinesis-v31-20261008",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the wizard telekinesis target loop and command dispatcher",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-telekinesis-monster",
+        "synthetic/v31/v31-telekinesis-selector-unfinished"
+      ],
+      "selectionReason": "Independent source-traced seed continuation after the completed wizard difficulty report; telekinesis is a whole 35-line source target loop with canonical return owners. The related unfinished-selector case uses the same function; active terrain and migration scopes are excluded.",
+      "detail": "",
+      "openedAt": "8ba92fca062045023816c7e4f3f5e4f162e77098",
+      "openStanding": {
+        "sha": "2ee4e709490102a8f75961a4e186cdfe34951bbc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_telekinesis",
+          "line": 494,
+          "endLine": 533,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 494,
+        "to": 533
+      },
+      "syntheticProvenance": {
+        "synthetic/v31/v31-telekinesis-monster": {
+          "session": "synthetic/v31/v31-telekinesis-monster",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-telekinesis-monster",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-telekinesis-monster.session.json",
+          "recordingSha256": "63756628680c41a6677541f20a4d570b5d786a9dfbaa35564202919dc91a48f0",
+          "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+          "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b"
+        },
+        "synthetic/v31/v31-telekinesis-selector-unfinished": {
+          "session": "synthetic/v31/v31-telekinesis-selector-unfinished",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-telekinesis-selector-unfinished",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-telekinesis-selector-unfinished.session.json",
+          "recordingSha256": "baa93bfa25142d15abce4807b8b0d663247e661df2308bd586f6493e9bc742aa",
+          "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+          "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b"
+        }
+      },
+      "activeStanding": {
+        "sha": "2ee4e709490102a8f75961a4e186cdfe34951bbc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-telekinesis-monster",
+          "session": "synthetic/v31/v31-telekinesis-monster",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-telekinesis-monster.session.json",
+          "recordingPath": "challenges/cases/v31/v31-telekinesis-monster.session.json",
+          "recordingSha256": "63756628680c41a6677541f20a4d570b5d786a9dfbaa35564202919dc91a48f0",
+          "recipe": "challenges/cases/v31/v31-telekinesis-monster.recipe.session.json",
+          "recipeSha256": "9f79465be027939e3e5be3eacec9a454d3596bc2e26f3b037ea33e3ec46491e2",
+          "replayInputSha256": "d58ff966587a691c9a1f2de7b5b58b3a0b022b84c3fd77913d290efc63cf0b71",
+          "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+          "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+          "evaluationArtifact": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+          "evaluationUtc": "2026-10-08T20:27:01.083Z",
+          "remainingScreens": 14,
+          "recordedSteps": 46,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 46
+            },
+            "rng": {
+              "matched": 2494,
+              "total": 2494
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 46
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_telekinesis() for the extended command 'wiztelekinesis' is not ported",
+            "step": 32
+          },
+          "step": 32,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_telekinesis",
+          "message": "unsupported hero command: wiz_telekinesis() for the extended command 'wiztelekinesis' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-telekinesis-monster.json",
+            "result": {
+              "session": "synthetic/v31/v31-telekinesis-monster",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-telekinesis-monster",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "63756628680c41a6677541f20a4d570b5d786a9dfbaa35564202919dc91a48f0",
+              "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+              "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+              "remainingScreens": 14,
+              "recordedSteps": 46,
+              "status": "complete",
+              "commit": "cf19e6829331d552ce6fdecdca839b236f24ebef",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-telekinesis-monster",
+                "session": "synthetic/v31/v31-telekinesis-monster",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recordingPath": "challenges/cases/v31/v31-telekinesis-monster.session.json",
+                "recording": "challenges/cases/v31/v31-telekinesis-monster.session.json",
+                "recordingSha256": "63756628680c41a6677541f20a4d570b5d786a9dfbaa35564202919dc91a48f0",
+                "recipe": "challenges/cases/v31/v31-telekinesis-monster.recipe.session.json",
+                "recipeSha256": "9f79465be027939e3e5be3eacec9a454d3596bc2e26f3b037ea33e3ec46491e2",
+                "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+                "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+                "evaluationUtc": "2026-10-08T20:27:01.083Z",
+                "remainingScreens": 14,
+                "recordedSteps": 46,
+                "passed": false,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 46
+                  },
+                  "rng": {
+                    "matched": 2494,
+                    "total": 2494
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 46
+                  }
+                },
+                "error": null,
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 32,
+                  "message": "unsupported hero command: wiz_telekinesis() is not ported"
+                },
+                "step": 32,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_telekinesis"
+              },
+              "summary": "Wizard #wiztelekinesis stops at step 32 before Pick a monster to hurtle. Port whole wizcmds.c:wiz_telekinesis494–528 and its bounded dispatcher, consuming canonical getpos/getdir and preserving repeat selection, visible-target/hero gates, hurtle order and deferred-level termination.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Debug wizard target loop accepts visible monsters or hero square, consumes direction, hurtles six squares, then refreshes selection coordinates only when the target is alive/visible; continues until deferred utotype level change or cancellation.",
+                "functions": [
+                  "wiz_telekinesis"
+                ],
+                "callers": [
+                  "cmd.c1996–1997 extcmdlist wiztelekinesis -> doextcmd/rhack"
+                ],
+                "dependencies": [
+                  "Existing getpos.c:getpos and cmd.c:getdir canonical return owners; ordinary keyboard selection/direction/cancellation implemented, inherited unsupported mouse/redraw boundaries remain independent owners.",
+                  "Existing m_at/canspotmon/u_at and DEADMONSTER pure predicates; use live target identity and hp.",
+                  "Source-discarded dothrow.c:mhurtle and hurtle are existing canonical implementations with monster-step/trap/liquid and hero-step handlers; preserve their awaited side effects, no completion credit for these owners."
+                ]
+              },
+              "evidence": [
+                "Accepted B164 9261fc9e evaluation records 32/46 screens/cursors and full RNG; 14 remaining. Focused claimed-case replay .cache/A170/selected-before.log, receipt run-5hwLQE, confirms missing dispatcher stop on newline at step 32. C emits announcement before getpos, selects peaceful newt and consumes direction through steps 35–37; JS never reaches selection.",
+                "Read whole wizcmds.c494–528 (closing brace528; following RESTORE_WARNING begins530). Initialize cc to hero, announce once, do-while getpos(force TRUE, a monster), cancel for answer<0 or x<1. Assign m_at before canspotmon, but hero-square acceptance does not erase a captured mount/monster pointer. getdir false cancels. Monster void mhurtle(...,6) precedes alive/canspotmon recentering; otherwise void hurtle(...,6,FALSE) precedes hero recentering. UTOTYPE_NONE comparison ends loop only on deferred level change, returning ECMD_OK; no turn or custom RNG.",
+                "Source required return audit opens canonical getpos/getdir implementations and existing visible/coordinate predicates. Monster movement and hero movement calls are discarded by C and already source-backed owners. Retain their known downstream frontiers explicitly; no new injected movement stub, RNG or output stands in for them.",
+                "Independent C-first role/seed/date variations should create a visible peaceful creature, select/direction/cancel and verify actual coordinates/stun/movement, plus hero self selection, invalid empty square and direction cancellation. Normal-play refusal is outside wizard boundary. Related selector-unfinished case is the same function and can be reserved/replayed after implementation transition. Exclude whole cmd/getpos/dothrow/trap/movement ownership."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-telekinesis-selector-unfinished",
+          "session": "synthetic/v31/v31-telekinesis-selector-unfinished",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recording": "challenges/cases/v31/v31-telekinesis-selector-unfinished.session.json",
+          "recordingPath": "challenges/cases/v31/v31-telekinesis-selector-unfinished.session.json",
+          "recordingSha256": "baa93bfa25142d15abce4807b8b0d663247e661df2308bd586f6493e9bc742aa",
+          "recipe": "challenges/cases/v31/v31-telekinesis-selector-unfinished.recipe.session.json",
+          "recipeSha256": "e32118e6002278045d1e0f1691c66575d450c42307c74c3d6f46dabf3c934f8b",
+          "replayInputSha256": "d58ff966587a691c9a1f2de7b5b58b3a0b022b84c3fd77913d290efc63cf0b71",
+          "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+          "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+          "evaluationArtifact": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+          "evaluationUtc": "2026-10-08T20:27:01.083Z",
+          "remainingScreens": 11,
+          "recordedSteps": 43,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 43
+            },
+            "rng": {
+              "matched": 2494,
+              "total": 2494
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 43
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: wiz_telekinesis() for the extended command 'wiztelekinesis' is not ported",
+            "step": 32
+          },
+          "step": 32,
+          "kind": "stop",
+          "sourceFile": "wizcmds.c",
+          "function": "wiz_telekinesis",
+          "message": "unsupported hero command: wiz_telekinesis() for the extended command 'wiztelekinesis' is not ported",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v31/v31-telekinesis-selector-unfinished.json",
+            "result": {
+              "session": "synthetic/v31/v31-telekinesis-selector-unfinished",
+              "corpus": "synthetic",
+              "batch": "v31",
+              "caseId": "v31-telekinesis-selector-unfinished",
+              "manifestPath": "challenges/manifests/v31.json",
+              "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+              "recordingSha256": "baa93bfa25142d15abce4807b8b0d663247e661df2308bd586f6493e9bc742aa",
+              "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+              "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+              "remainingScreens": 11,
+              "recordedSteps": 43,
+              "status": "complete",
+              "commit": "cf19e6829331d552ce6fdecdca839b236f24ebef",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v31",
+                "caseId": "v31-telekinesis-selector-unfinished",
+                "session": "synthetic/v31/v31-telekinesis-selector-unfinished",
+                "manifestPath": "challenges/manifests/v31.json",
+                "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+                "recordingPath": "challenges/cases/v31/v31-telekinesis-selector-unfinished.session.json",
+                "recording": "challenges/cases/v31/v31-telekinesis-selector-unfinished.session.json",
+                "recordingSha256": "baa93bfa25142d15abce4807b8b0d663247e661df2308bd586f6493e9bc742aa",
+                "recipe": "challenges/cases/v31/v31-telekinesis-selector-unfinished.recipe.session.json",
+                "recipeSha256": "e32118e6002278045d1e0f1691c66575d450c42307c74c3d6f46dabf3c934f8b",
+                "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+                "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+                "evaluationUtc": "2026-10-08T20:27:01.083Z",
+                "remainingScreens": 11,
+                "recordedSteps": 43,
+                "passed": false,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 43
+                  },
+                  "rng": {
+                    "matched": 2494,
+                    "total": 2494
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 43
+                  }
+                },
+                "error": null,
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 32,
+                  "message": "unsupported hero command: wiz_telekinesis() is not ported"
+                },
+                "step": 32,
+                "kind": "stop",
+                "sourceFile": "wizcmds.c",
+                "function": "wiz_telekinesis"
+              },
+              "summary": "Unfinished wizard telekinesis selector stops at step 32 before the announcement. It shares whole wiz_telekinesis494–528 with the completed monster witness; canonical target-loop wiring restores all 43 recorded boundaries, including hero selection and pending input without inventing a direction.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "wizcmds.c",
+                "branch": "Debug wizard target loop accepts visible monsters or hero square, consumes direction, hurtles six squares, then refreshes selection coordinates only when the target is alive/visible; continues until deferred utotype level change or cancellation.",
+                "functions": [
+                  "wiz_telekinesis"
+                ],
+                "callers": [
+                  "cmd.c1996–1997 extcmdlist wiztelekinesis -> doextcmd/rhack"
+                ],
+                "dependencies": [
+                  "Existing getpos.c:getpos and cmd.c:getdir canonical return owners; ordinary keyboard selection/direction/cancellation implemented, inherited unsupported mouse/redraw boundaries remain independent owners.",
+                  "Existing m_at/canspotmon/u_at and DEADMONSTER pure predicates; use live target identity and hp.",
+                  "Source-discarded dothrow.c:mhurtle and hurtle are existing canonical implementations with monster-step/trap/liquid and hero-step handlers; preserve their awaited side effects, no completion credit for these owners."
+                ]
+              },
+              "evidence": [
+                "Accepted evaluation preserves 11 unmatched screens (32/43); current owned replay .cache/A170/selector.log matches all 43 screens/cursors without a refusal after the whole helper and dispatcher were wired. The recorded input ends during a getpos/getdir boundary; it is evidence for selection, not successful hurtle or command completion.",
+                "Read whole wizcmds.c494–528 (closing brace528; following RESTORE_WARNING begins530). Initialize cc to hero, announce once, do-while getpos(force TRUE, a monster), cancel for answer<0 or x<1. Assign m_at before canspotmon, but hero-square acceptance does not erase a captured mount/monster pointer. getdir false cancels. Monster void mhurtle(...,6) precedes alive/canspotmon recentering; otherwise void hurtle(...,6,FALSE) precedes hero recentering. UTOTYPE_NONE comparison ends loop only on deferred level change, returning ECMD_OK; no turn or custom RNG.",
+                "Source required return audit opens canonical getpos/getdir implementations and existing visible/coordinate predicates. Monster movement and hero movement calls are discarded by C and already source-backed owners. Retain their known downstream frontiers explicitly; no new injected movement stub, RNG or output stands in for them.",
+                "Independent C-first role/seed/date variations should create a visible peaceful creature, select/direction/cancel and verify actual coordinates/stun/movement, plus hero self selection, invalid empty square and direction cancellation. Normal-play refusal is outside wizard boundary. Related selector-unfinished case is the same function and can be reserved/replayed after implementation transition. Exclude whole cmd/getpos/dothrow/trap/movement ownership."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
