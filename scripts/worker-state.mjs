@@ -89,7 +89,9 @@ actual completion observations into turn events; saved state is not proof of
 liveness. Feedback waits for a safe task boundary. resume refuses to mix two
 working tasks on one worker. preflight reads committed files, reports omissions,
 direct-importer/changed/source-pinned tests and every prior checkpoint failure.
-Its success is not a test pass or a source review; run the listed tests and lint.
+Its success is not a test pass or a source review. The focusedTests list helps
+select checks for integration edits or failures; it does not require repeating
+worker checks before the combined hosted checkpoint. Review saved check logs.
 
 Reservations use exact keys: source:<file.c>:<function>, source:<file.lua>,
 contract:<shared-state-name>, challenge-batch:<vN>, or session:<session-id>.

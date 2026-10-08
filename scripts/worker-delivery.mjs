@@ -524,10 +524,10 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
         issues, focusedTests: [...focused].sort(), previousFailures,
         manualReview: task.kind === 'challenge-preparation'
             ? ['Verify the mission plan was fixed before inspecting JavaScript results.',
-                'Rerun the independent C replays and compare every committed case with its manifest hashes.',
+                'Verify saved independent C replay results and committed manifest hashes; rerun only for changed inputs or missing or suspect evidence.',
                 'Keep the manifest outside admitted manifests until the batch admission gate passes.']
             : ['Compare whole source and production caller paths.',
                 'Verify cited synthetic ranges reach the claimed source paths and replay through their last cited steps.',
                 'Verify new recordings reach uncovered entry points and inputs were independently chosen.',
-                'Address every previous failure, then run affected focused tests and lint before checkpoint.'] };
+                'Address previous failures; run local checks for integration edits, conflicts or suspect evidence. Use the combined hosted checkpoint for full validation.'] };
 }
