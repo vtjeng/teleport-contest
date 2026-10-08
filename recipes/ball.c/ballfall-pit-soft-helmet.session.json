@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first ballfall recipe; unsearched seed chosen before C observation or JavaScript comparison. Soft-helmet and spiked-pit variation: fedora does not reduce impact damage and verbose feedback names the helmet. C-only setup correction: a leading space acknowledges the tty startup More prompt; a leading period did not, so the first intended wish was never entered. C-only setup correction: trap wishing creates the pit but does not trigger it. Step away and return to enter the known trap; y answers any move confirmation.",
+  "segments": [
+    {
+      "seed": 1432804,
+      "datetime": "20551204112213",
+      "nethackrc": "OPTIONS=name:Ball1432804,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017uncursed scroll of punishment\nre    \u0017uncursed fedora\nWf      ll\u0017spiked pit trap\nhly         ."
+    }
+  ]
+}

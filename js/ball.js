@@ -1,9 +1,10 @@
 // ball.js -- punishment ball and chain movement.
-// C refs: ball.c ballrelease() (23-39), placebc_core() (120-145),
+// C refs: ball.c ballrelease() (23-39), ballfall() (43-67), placebc_core() (120-145),
 // unplacebc_core() (147-190), placebc()/unplacebc() (193-219),
 // move_bc() (437-552), drag_ball() (560-830), and drag_down() (986-1031).
-// These helpers are used by dothrow.c hurtle_step() while a jumping hero is
-// punished. The pointers in drag_ball() are represented by `{ value }` cells.
+// The movement helpers are used by dothrow.c hurtle_step() while a jumping
+// hero is punished. The pointers in drag_ball() are represented by `{ value }`
+// cells.
 
 import {
     A_STR,
@@ -18,6 +19,7 @@ import {
     POOL,
     SLT_ENCUMBER,
     HALF_PHDAM,
+    HEAD,
     Is_waterlevel,
     KILLED_BY_AN,
     NO_KILLER_PREFIX,
@@ -60,9 +62,11 @@ import {
 import { find_mac } from './worn.js';
 import { hmon } from './uhitm.js';
 import { miss } from './zap.js';
-import { otense, xnameFresh, yname } from './objnam.js';
+import { otense, xnameFresh, yname, Yname2 } from './objnam.js';
+import { body_part } from './polyself.js';
+import { hard_helmet } from './do_wear.js';
 import { encumber_msg } from './pickup.js';
-import { rn2, rnd } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { setnotworn, setuqwep, setuswapwep } from './worn.js';
 import { setuwep, welded } from './wield.js';
@@ -215,6 +219,38 @@ export async function ballrelease(showmsg, state = game) {
     if (state.uquiver === ball) setuqwep(null, { state });
     await freeinv(ball, { state });
     await encumber_msg(state);
+}
+
+// C ref: ball.c ballfall() (43-67). Compute the hit before releasing a
+// carried ball; a helmet replaces damage only after its full random roll.
+export async function ballfall(state = game, rawEnv = {}) {
+    const ball = state.uball;
+    if (!ball || (carried(ball) && welded(ball, state, rawEnv))) return;
+
+    const random = { rn1, rn2, ...(rawEnv.random ?? {}) };
+    const getsHit = (ball.ox !== state.u.ux || ball.oy !== state.u.uy)
+        && (state.uwep === ball ? false : Boolean(random.rn2(5)));
+    await ballrelease(true, state);
+    if (getsHit) {
+        let damage = random.rn1(7, 25);
+        const message = rawEnv.message ?? (rawEnv.planning ? async () => {} : ttyPline);
+        await message(`The iron ball falls on your ${body_part(HEAD, state.youmonst)}.`, state);
+        if (state.uarmh) {
+            if (hard_helmet(state.uarmh, state)) {
+                await message('Fortunately, you are wearing a hard helmet.', state);
+                damage = 3;
+            } else if (state.flags?.verbose) {
+                await message(`${Yname2(state.uarmh, state, rawEnv)} does not protect you.`, state);
+            }
+        }
+        await losehp(
+            maybeHalfPhysical(damage, state),
+            'crunched in the head by an iron ball',
+            NO_KILLER_PREFIX,
+            state,
+            rawEnv,
+        );
+    }
 }
 
 async function litter(state) {

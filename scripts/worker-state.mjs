@@ -37,10 +37,11 @@ by this command, not the caller. Required fields by type:
   turn: worker, state (active, idle or blocked), reason (text or null), processes
   coordinator: handle (string or null), processes (array of live handles)
   assign: task (unique id), worker, seed (string or null), base,
-          reservations, allowedPaths; optional kind (implementation or
-          challenge-preparation), goal (required for implementation), and
+          reservations, allowedPaths; optional kind (implementation,
+          investigation or challenge-preparation), goal (required for implementation), and
           span (accepted for historical tasks)
   scope: task, reservations, allowedPaths (expand working scope; include old entries)
+  implement: task, goal, reservations, allowedPaths (claim an investigation's source scope)
   received: task, delivery (exact SHA being acknowledged)
   feedback: task, delivery, reason (queued correction, not an interrupt)
   integrating: task, integration (exact combined SHA)
@@ -52,7 +53,8 @@ by this command, not the caller. Required fields by type:
   resume: task
 
 Workers pass --file with the shared ledger path. They may connect, record their
-own turn, claim/expand/resume their own tasks and submit. All other event types
+own turn, claim/expand/resume their own tasks and submit. They may park their own
+investigation when its cause belongs to another worker. All other event types
 are coordinator-only. Up to three persistent workers may hold live ownership.
 Git resolves revisions and checks registration, assignment, candidate and
 checkpoint identity. Publication is recorded only after local and remote main
@@ -90,8 +92,12 @@ direct-importer/changed/source-pinned tests and every prior checkpoint failure.
 Its success is not a test pass or a source review; run the listed tests and lint.
 
 Reservations use exact keys: source:<file.c>:<function>, source:<file.lua>,
-contract:<shared-state-name>, or challenge-batch:<vN>. Use the same key for the
-same source, contract, or prepared batch.
+contract:<shared-state-name>, challenge-batch:<vN>, or session:<session-id>.
+Use the same key for the same source, contract, prepared batch, or session.
+An investigation starts with exactly its session reservation and allowedPaths
+["investigations/<session-id>.json", ".cache/"], without a goal or span.
+Before editing game code, implement retains those entries and adds a goal,
+source reservations and implementation paths. Conflicts leave the claim unchanged.
 assign and resume reject another worker's reservations. ready frees the worker
 to start another task but keeps that delivery's reservations through acceptance.
 Parking releases only that task's active reservations. A batch identity cannot
@@ -118,6 +124,7 @@ const FIELDS = {
     coordinator: ['handle', 'processes'],
     assign: ['task', 'worker', 'seed', 'base', 'reservations', 'allowedPaths'],
     scope: ['task', 'reservations', 'allowedPaths'],
+    implement: ['task', 'goal', 'reservations', 'allowedPaths'],
     ready: ['task', 'delivery', 'base', 'commits', 'paths', 'evidence', 'dependencies'],
     received: ['task', 'delivery'],
     feedback: ['task', 'delivery', 'reason'],
@@ -151,8 +158,8 @@ function list(value, name, validate = string, empty = false) {
     check(new Set(value).size === value.length, `${name} contains duplicates`);
 }
 function sourceReservation(value) {
-    check(typeof value === 'string' && /^(?:source:[A-Za-z0-9_-]+\.c:[A-Za-z_][A-Za-z0-9_]*|source:[A-Za-z0-9_-]+\.lua|contract:[A-Za-z0-9_.:-]+|challenge-batch:v(?:[2-9]|[1-9][0-9]+))$/u.test(value),
-        'reservation must use source:<file.c>:<function>, source:<file.lua>, contract:<name>, or challenge-batch:<vN>');
+    check(typeof value === 'string' && /^(?:source:[A-Za-z0-9_-]+\.c:[A-Za-z_][A-Za-z0-9_]*|source:[A-Za-z0-9_-]+\.lua|contract:[A-Za-z0-9_.:-]+|challenge-batch:v(?:[2-9]|[1-9][0-9]+)|session:(?:(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*|synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*))$/u.test(value),
+        'reservation must use source:<file.c>:<function>, source:<file.lua>, contract:<name>, challenge-batch:<vN>, or session:<session-id>');
     check(!value.includes('..') && !value.includes('//'), 'reservation must use a canonical source path');
 }
 function repoPath(value, name) {
@@ -274,13 +281,21 @@ function applyEvent(state, event, at) {
         check(Object.hasOwn(state.workers, event.worker), 'unknown worker');
         check(!Object.hasOwn(state.tasks, event.task), 'task already exists');
         sha(event.base, 'base');
-        check(event.kind === undefined || ['implementation', 'challenge-preparation'].includes(event.kind),
-            'task kind must be implementation or challenge-preparation');
+        check(event.kind === undefined || ['implementation', 'challenge-preparation', 'investigation'].includes(event.kind),
+            'task kind must be implementation, investigation, or challenge-preparation');
         if (event.span !== undefined) string(event.span, 'span');
         if (event.seed !== null) string(event.seed, 'seed');
         list(event.reservations, 'reservations', sourceReservation);
         list(event.allowedPaths, 'allowedPaths', repoPath);
-        if (event.kind === 'challenge-preparation') {
+        if (event.kind === 'investigation') {
+            string(event.seed, 'investigation session');
+            check(event.goal === undefined && event.span === undefined,
+                'investigation does not yet have a source goal');
+            check(isDeepStrictEqual(event.reservations, [`session:${event.seed}`]),
+                'investigation must reserve exactly its session');
+            check(isDeepStrictEqual(event.allowedPaths, [`investigations/${event.seed}.json`, '.cache/']),
+                'investigation may write only its session report and private cache');
+        } else if (event.kind === 'challenge-preparation') {
             check(event.reservations.length === 1 && /^challenge-batch:v(?:[2-9]|[1-9][0-9]+)$/u.test(event.reservations[0]),
                 'challenge preparation must reserve exactly one future batch');
             check(event.goal === undefined, 'challenge preparation does not open a GOALS.json goal');
@@ -305,8 +320,25 @@ function applyEvent(state, event, at) {
     const requireStatus = (...statuses) => check(statuses.includes(task.status),
         `${type} requires ${statuses.join(' or ')} task; ${task.id} is ${task.status}`);
     const delivery = state.deliveries[task.deliveries.at(-1)];
-    if (type === 'scope') {
+    if (type === 'implement') {
         requireStatus('working');
+        check(task.kind === 'investigation', 'implement requires an investigation task');
+        string(event.goal, 'goal');
+        list(event.reservations, 'reservations', sourceReservation);
+        list(event.allowedPaths, 'allowedPaths', repoPath);
+        check(event.reservations.includes(`session:${task.seed}`)
+            && event.reservations.some(key => key.startsWith('source:'))
+            && event.reservations.every(key => !key.startsWith('challenge-batch:')),
+        'implementation must retain its session and reserve source scope');
+        check(task.allowedPaths.every(path => event.allowedPaths.includes(path)),
+            'implementation must retain its investigation report and cache paths');
+        checkOwnership(state, { ...task, reservations: event.reservations });
+        Object.assign(task, { kind: 'implementation', goal: event.goal,
+            reservations: [...event.reservations], allowedPaths: [...event.allowedPaths],
+            scopedAt: at });
+    } else if (type === 'scope') {
+        requireStatus('working');
+        check(task.kind !== 'investigation', 'claim source scope with implement before expanding an investigation');
         list(event.reservations, 'reservations', sourceReservation);
         list(event.allowedPaths, 'allowedPaths', repoPath);
         if (task.kind === 'challenge-preparation') {
@@ -321,6 +353,7 @@ function applyEvent(state, event, at) {
         Object.assign(task, { reservations: [...event.reservations], allowedPaths: [...event.allowedPaths], scopeUpdatedAt: at });
     } else if (type === 'ready') {
         requireStatus('working');
+        check(task.kind !== 'investigation', 'claim implementation scope before submitting a delivery');
         sha(event.delivery, 'delivery'); sha(event.base, 'base');
         check(!Object.hasOwn(state.deliveries, event.delivery), 'delivery SHA already exists; corrections need a new SHA');
         list(event.commits, 'commits', sha); list(event.paths, 'paths', repoPath);
@@ -437,8 +470,10 @@ export function nextActions(state) {
 }
 
 function authorizeWorker(state, root, event) {
-    check(event && ['assign', 'scope', 'ready', 'connect', 'turn', 'resume'].includes(event.type),
+    check(event && ['assign', 'scope', 'implement', 'ready', 'connect', 'turn', 'resume', 'park'].includes(event.type),
         'only coordinator may record this event');
+    if (event.type === 'park') check(state.tasks[event.task]?.kind === 'investigation',
+        'only coordinator may park implementation or preparation tasks');
     const workerId = event.worker ?? state.tasks[event.task]?.worker;
     const worker = state.workers[workerId];
     check(worker && worker.worktree === root, 'event does not belong to this registered worker worktree');

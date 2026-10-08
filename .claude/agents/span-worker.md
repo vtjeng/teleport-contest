@@ -7,7 +7,8 @@ description: Persistent NetHack implementation worker in an assigned worktree. C
 
 Read these sources:
 
-- `.cache/task-context.json`: the current task's goal ID, C or Lua source file, source units,
+- `.cache/task-context.json`, once source scope is known: the current task's
+  goal ID, C or Lua source file, source units,
   source line ranges, line count, JavaScript file, and the sessions whose
   first mismatch the goal addresses. The orchestrator prepares the initial
   context; you prepare subsequent contexts using the `goal-log.mjs` planner's
@@ -22,7 +23,9 @@ Read these sources:
 - `.agents/loop.md`: the orchestrator's scheduling and acceptance procedures
 - `.agents/selection.md`: source scope, reservations and seed continuation
 
-Use the orchestrator's selected mismatch entry for the initial work and your
+For an unresolved session, start from its saved queue entry and findings;
+prepare the source context after diagnosis. Use the orchestrator's selected
+mismatch entry for the initial work and your
 source-traced selection under `.agents/selection.md` for subsequent tasks.
 Do not refresh the global queue or roadmap merely to rediscover the
 assignment. Before any write, verify `pwd`, `git rev-parse --show-toplevel`,
@@ -51,8 +54,8 @@ This restriction overrides the AGENTS.md reading row that names it.
 ## Scope
 
 You are a persistent worker in one assigned worktree. Own one implementation
-task at a time: the source it ports, the code and tests it changes, the
-recipes and recordings it adds, and its immutable delivery commits. Run
+task at a time, including its investigation: the source it ports, the code and
+tests it changes, the recipes and recordings it adds, and its immutable delivery commits. Run
 focused tests, `npm run lint`, and required fresh differentials before
 handoff. Do not push or perform a central merge. Run a full checkpoint only
 if the orchestrator explicitly grants that validation slot. The orchestrator
@@ -98,10 +101,34 @@ Use the orchestrator's absolute shared-ledger path with
 syntax. Record your connection, turn state, task, scope changes, and delivery
 as they happen; do not edit the ledger JSON by hand.
 
-Before editing, claim the task with an `assign` event through `event --json`.
+Before investigating an unresolved session, claim it with an `assign` event
+using `kind: "investigation"`, its canonical session ID as `seed`, exactly
+`session:<session-id>` as the reservation, and
+`["investigations/<session-id>.json", ".cache/"]` as `allowedPaths`. Omit
+`goal` and `span`. Use the saved queue entry and verify its source claims;
+write the investigation using `.agents/selection.md`, "Investigation cache".
+Do not edit game code while the task is an investigation.
+
+Once the cause is source-traced, write `.cache/task-context.json` using the
+schema of the exported `taskContext()` in `scripts/goal-log.mjs` and its
+source-order rules. Choose a new goal ID and include the selected sessions
+and their saved provenance. Do not run the `task-context` CLI for an unqueued
+goal or edit `GOALS.json`; central goal creation happens at integration. Then
+record an `implement` event with its goal ID, complete source reservations,
+and allowed paths, retaining the session reservation and investigation paths.
+This atomically claims source scope without waiting for a central goal or an
+acknowledgement. If another worker owns the cause, send it the findings and
+report path, park your investigation with the reason, and claim independent
+work. Ask the orchestrator only when ownership or a shared contract needs a
+decision. Commit the investigation separately before the code so the
+orchestrator can import it before goal selection; include both in the delivery.
+
+For an already diagnosed task, claim it with an `assign` event through
+`event --json`.
 The command checks ownership and records the claim atomically. If another
-worker owns the scope, choose independent work. Reserve the functions and
-shared-state contracts you need; do not reserve whole files indefinitely.
+worker owns the scope, choose independent work. Reserve the selected session,
+functions and shared-state contracts you need; do not reserve whole files
+indefinitely.
 Ask the orchestrator before changing another worker's reserved function or
 a shared contract. Update your allowed paths and reservations with a `scope`
 event before expanding your edits.

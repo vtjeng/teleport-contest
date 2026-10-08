@@ -201249,7 +201249,7 @@
     {
       "id": "port-wizcmds-wiz-kill-v29-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wizard monster selection and kill command",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -201263,15 +201263,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_kill",
           "line": 243,
           "endLine": 352,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -201445,30 +201448,131 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_kill",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_kill",
+            "sourceReview": "Read complete wizcmds.c:243–352 and reconcile every branch in source order: preserved cursor and original level by value, saved verbose/autodescribe, first/next prompt, forced getpos and negative/x<1 guards, mounted ynq default q with addcmdq, Samurai seppuku or suicide with paranoid yes and original-gender uhis/KILLED_BY/DIED, swallowed next2u(distu<=2)/ustuck versus m_at, unmap_invisible before naming, tame/unseen articles/adjectives and suppression flags, hero xkilled(XKILL_NOMSG) versus m-prefix monkilled(NULL,AD_PHYS) inside mon_moving, utotype/on_level termination, unconditional dmonsfree and ECMD_OK. Existing death owners receive the full canonical RNG family so start_corpse_timeout retains the rnz wrapper log. The generic unsupported doextcmd fallback is replaced for this row; its error class remains in use by other command rows. Consumed-return helpers getpos, yn_function/ynq, paranoid_query, on_level, m_at, canspotmon, nonliving and x_monnam/mon_nam have canonical implementations; macro next2u is the source dist2<=2 expression and uhis reads flags.female. Audited existing getpos.js, cmd.js confirmation, display.js visibility/unmapping, mondata.js nonliving, do_name.js names, dungeon.js on_level, mon.js xkilled/monkilled/m_detach, makemon_create.js dmonsfree, end.js done. No whole-helper or cmd completion credit. Existing discarded-void downstream gaps remain explicit: mounted death through mon.c:m_detach2800–2801 cannot run steed.c:dismount_steed(DISMOUNT_GENERIC); swallowed fog-cloud setup records light.c:snuff_lit; gas-spore explosion records sounds.c:SoundAchievement. The blocked mounted-death recipe is excluded from passing recordings.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:493–517 invokes extcmdlist wizkill1967–1969 with its CMD_M_PREFIX/WIZMODECMD flags; JS now awaits runKillCommand -> wiz_kill."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:3727 and3810–3825 invoke the configured extcmd function and consume ECMD results. JS ADMITTED_COMMANDS now includes wizkill; counted no-time dispatch and m-prefix preserve normal reset_cmd_vars result behavior through runKillCommand."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizcmds.test.mjs",
+              "scripts/cmd-span.test.mjs",
+              "scripts/extended-command-prompt.test.mjs",
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-kill-hero.session.json",
+              "recordings/wizcmds.c/wizard-kill-monster.session.json",
+              "recordings/wizcmds.c/wizard-kill-bound.session.json",
+              "recordings/wizcmds.c/wizard-kill-suicide.session.json",
+              "recordings/wizcmds.c/wizard-kill-mount.session.json",
+              "recordings/wizcmds.c/wizard-kill-swallowed.session.json",
+              "recordings/wizcmds.c/wizard-kill-multiple.session.json",
+              "recordings/wizcmds.c/wizard-kill-gas.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-quantum-mechanic-box",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 47,
+                "source": "cmd.c:doextcmd493–517 -> extcmdlist wizkill1967–1969 -> wizcmds.c:wiz_kill243–352. getpos selects the peaceful quantum mechanic; xkilled receives XKILL_NOMSG, builds corpse/timer and awards experience; the second target loop cancels and dmonsfree runs with ECMD_OK."
+              }
+            ],
+            "checkedAt": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008"
+          }
+        ],
+        "entryPointReview": "Whole source search finds wiz_kill only in cmd.c extcmdlist wizkill1967–1969. Active caller routes are typed doextcmd and configured-key rhack; both preserve WIZMODECMD and CMD_M_PREFIX from the existing row. Independent records cover typed normal hero credit, typed m-prefix nonliving destruction, configured counted Samurai suicide refusal/empty target, configured counted m-prefix gas-spore collateral death, repeated targets and immediate purge, ordinary female suicide/wizard recovery, mounted q/n dialogue, and swallowed target/release. No new source helpers are claimed. Level-changing trap termination and named/unseen-pet wording are source-reconciled with existing canonical helpers; the records do not claim those rare branches executed. Mounted kill remains blocked specifically on the existing discarded-void dismount helper, with a committed independent recipe; the wiz_kill mounted dialogue/target-selection branch itself has matching runtime evidence.",
+        "entryPoints": [
+          {
+            "name": "typed wizkill extended command, normal and m-prefix",
+            "functions": [
+              "wiz_kill"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-kill-hero.session.json",
+              "recordings/wizcmds.c/wizard-kill-monster.session.json",
+              "recordings/wizcmds.c/wizard-kill-suicide.session.json",
+              "recordings/wizcmds.c/wizard-kill-mount.session.json",
+              "recordings/wizcmds.c/wizard-kill-swallowed.session.json",
+              "recordings/wizcmds.c/wizard-kill-multiple.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-quantum-mechanic-box",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 47,
+                "source": "cmd.c:doextcmd493–517 -> extcmdlist wizkill1967–1969 -> wizcmds.c:wiz_kill243–352. getpos selects the peaceful quantum mechanic; xkilled receives XKILL_NOMSG, builds corpse/timer and awards experience; the second target loop cancels and dmonsfree runs with ECMD_OK."
+              }
+            ]
+          },
+          {
+            "name": "configured wizkill key with count, normal and m-prefix",
+            "functions": [
+              "wiz_kill"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizard-kill-bound.session.json",
+              "recordings/wizcmds.c/wizard-kill-gas.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-ball-ballfall-v28-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port punishment ball impacts during shaft and pit falls",
       "cFile": "ball.c",
       "sessions": [
         "synthetic/v28/v28-buried-ball-unearth"
       ],
-      "selectionReason": "Continue the accepted C142 buried-ball seed: whole ball.c:ballfall is skipped by goto_level and trapeffect_pit. Accepted checkpoint 1cf15831 leaves 8 of 85 screens unmatched; investigation investigations/synthetic/v28/v28-buried-ball-unearth.json traces the first remaining RNG mismatch to ball.c:ballfall.",
+      "selectionReason": "C143 is the next dependency-ready received delivery. Its complete ball.c:ballfall implementation and both live callers target the current v28 buried-ball-unearth mismatch and preserve the accepted A146 baseline.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "c9955e3b333f7029087e869872a9b06debbd31ff",
+      "openStanding": {
+        "sha": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2becf24bebd527647f267e1f6cd7507291e3df46",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "ballfall",
           "line": 43,
           "endLine": 119,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -201488,12 +201592,311 @@
           "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json",
           "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939"
         }
+      },
+      "activeStanding": {
+        "sha": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-buried-ball-unearth",
+          "session": "synthetic/v28/v28-buried-ball-unearth",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+          "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+          "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+          "recipe": "challenges/cases/v28/v28-buried-ball-unearth.recipe.session.json",
+          "recipeSha256": "505cf79f34642043283b2ed784ae9fc90eca1e54902450267841adc49b5b417a",
+          "replayInputSha256": "a6160bd443409f7fa7efa932f6735e85dbcfb34e33851cfe7395cf5d48a91c28",
+          "evaluationPath": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json",
+          "evaluationCommit": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+          "evaluationArtifact": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json",
+          "evaluationUtc": "2026-10-08T06:09:18.406Z",
+          "remainingScreens": 8,
+          "recordedSteps": 85,
+          "previousScreensMatched": 77,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 77,
+              "total": 85
+            },
+            "rng": {
+              "matched": 7200,
+              "total": 7218
+            },
+            "cursors": {
+              "matched": 80,
+              "total": 85
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 77,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 77,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 7177,
+              "cEntry": "rn2(5)=1",
+              "cCaller": "ballfall(ball.c:51)",
+              "jsEntry": "d(1,6)=5",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 76,
+                "key": ">"
+              },
+              "stepIndex": 76
+            },
+            "cursor": {
+              "index": 77,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 77,
+                "key": " "
+              },
+              "cCursor": [
+                41,
+                0,
+                1
+              ],
+              "jsCursor": [
+                49,
+                3,
+                1
+              ]
+            }
+          },
+          "step": 76,
+          "kind": "rng",
+          "sourceFile": "ball.c",
+          "function": "ballfall",
+          "message": null,
+          "cFile": "ball.c",
+          "luaFile": null,
+          "line": 51,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-buried-ball-unearth.json",
+            "result": {
+              "session": "synthetic/v28/v28-buried-ball-unearth",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-buried-ball-unearth",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+              "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+              "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json",
+              "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+              "evaluationUtc": "2026-10-08T05:21:34.693Z",
+              "remainingScreens": 8,
+              "recordedSteps": 85,
+              "metrics": {
+                "screens": {
+                  "matched": 77,
+                  "total": 85
+                },
+                "rng": {
+                  "matched": 7200,
+                  "total": 7218
+                },
+                "cursors": {
+                  "matched": 80,
+                  "total": 85
+                }
+              },
+              "passed": false,
+              "step": 76,
+              "kind": "refusal",
+              "message": "burial requires buried_ball_to_punishment for otyp 477",
+              "status": "complete",
+              "commit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+              "mismatch": {
+                "session": "synthetic/v28/v28-buried-ball-unearth",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-buried-ball-unearth",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recordingPath": "challenges/cases/v28/v28-buried-ball-unearth.session.json",
+                "recordingSha256": "1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54",
+                "evaluationPath": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json",
+                "evaluationCommit": "1cf15831c237fc4d910c6a10ae138e75c4ab5939",
+                "evaluationUtc": "2026-10-08T05:21:34.693Z",
+                "remainingScreens": 8,
+                "recordedSteps": 85,
+                "metrics": {
+                  "screens": {
+                    "matched": 77,
+                    "total": 85
+                  },
+                  "rng": {
+                    "matched": 7200,
+                    "total": 7218
+                  },
+                  "cursors": {
+                    "matched": 80,
+                    "total": 85
+                  }
+                },
+                "passed": false,
+                "step": 76,
+                "kind": "rng",
+                "message": "Missing ball.c:ballfall at do.c:goto_level shaft arrival",
+                "workerReplayCommit": "7827213d98ccd1315957fadeef0a3434fcbc31cd",
+                "workerReplayDiagnostic": ".cache/C143-buried-ball-unearth-scan.json",
+                "evaluationArtifact": "challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json"
+              },
+              "goalKind": "file-port",
+              "summary": "The restored buried punishment reaches a shaft arrival that still skips whole ball.c:ballfall. Port its guard, hit-chance and damage order and await both source callers: goto_level shaft arrival and trapeffect_pit after unplacebc. The C142 delivery exposes this next source owner; its accepted baseline evaluation still records nine remaining screens pending integration.",
+              "source": {
+                "file": "ball.c",
+                "branch": "A punished hero falls through a hole/trapdoor and the ball is not welded, or a punished uncarried ball follows a hero into a pit. Differing ball/hero coordinates permit rn2(5) only when the ball is not wielded; a hit releases any carried ball before rn1(7,25), anatomy/helmet feedback and half-physical damage.",
+                "functions": [
+                  "ballfall"
+                ],
+                "callers": [
+                  "do.c:goto_level1807, inside falling random-arrival branch before selftouch/placebc; JS do.js2902 keeps note_unported",
+                  "trap.c:trapeffect_pit1957, Punished&&!carried after unplacebc and before placebc; JS trap_effects.js1607 keeps note_unported"
+                ],
+                "dependencies": [
+                  "Existing ball.c:ballrelease23-39 is source-equivalent: carried&&!welded, optional awaited startled message, canonical primary/swap/quiver setters, freeinv and encumber_msg. Reuse it; no duplicate release implementation or ballrelease credit.",
+                  "Consumed predicates carried(obj.h332), welded(wield.c1050-1058), hard_helmet(do_wear.c568-574) and body_part(polyself.c) have canonical implementations. Reuse hard_helmet from do_wear.js and HEAD anatomy from polyself.js.",
+                  "Yname2(objnam.c2376-2383), hack.c:losehp4255-4292 and existing Half_physical_damage intrinsic/extrinsic macro expansion are reusable. Preserve existing awaited death/debug-revival behavior; no owner expansion required.",
+                  "Pit callers can participate in planned monster actions; use existing silent message/random/losehp environment conventions and clone contracts. Do not add RNG or mutate live state during planning. Both production callers are already async.",
+                  "Existing selftouch, set_bc and other unrelated ball/chain limitations remain named gaps outside ballfall."
+                ]
+              },
+              "evidence": [
+                "Worker-local replay at immutable C142 7827213d98ccd1315957fadeef0a3434fcbc31cd: .cache/C143-buried-ball-unearth-scan.json and .cache/C143-ballfall-replay.json. All85 boundaries are emitted,77screens/cursors together match,8remain. First RNG mismatch step76/index7177 is C rn2(5)=1 @ballfall(ball.c51) against JS d(1,6)=5. First screen/cursor mismatch step77: C The iron ball falls on your head.--More--, JS object-list display.",
+                "Exact C trace then draws rn2(7)=3 at ballfall54, representing rn1(7,25)=28; C emits You die at78, debug Die?79, refusal-to-die feedback80, shaft d(1,6)=6 at81 and survival82. JS omits the hit/damage/input waits and advances directly to shaft damage. The mismatch is missing source behavior, not a terminal rendering difference.",
+                "Whole ball.c43-67: null/welded-carried early return; compute gets_hit before release with both coordinate and wield short circuits; ballrelease(TRUE) before damage draw; rn1(7,25) before head message; hard helmet overrides damage to3 after draw and emits feedback regardless verbose; soft helmet message only verbose; Maybe_Half_Phys rounds up before losehp with exact killer and NO_KILLER_PREFIX. Do not add post-losehp branches absent from C.",
+                "Source search rg \\bballfall\\b nethack-c/upstream/src finds exactly two direct active caller functions, do.c goto_level1807 and trap.c trapeffect_pit1957. Both JS sites currently preserve named gaps. Wire awaited ballfall in those exact source positions. Preserve caller guards, unplacebc/placebc ordering and unrelated selftouch gaps; no whole caller credit.",
+                "Owner review: js/ball.js ballrelease207-218 already follows ball.c23-39, js/wield.js welded368 follows C1050-1058, js/do_wear.js hard_helmet861 follows C568-574, js/obj.js carried1236 follows obj.h332, js/objnam.js Yname21733 follows C2376-2383, js/polyself.js body_part2001 uses canonical anatomy and js/hack.js losehp1280 owns live/planned HP and death. Existing worn.js swap/quiver wrappers remain synchronous on these non-artifact slots.",
+                "Immutable admitted provenance remains manifest challenges/manifests/v28.json, corpusDigest 394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039, recording challenges/cases/v28/v28-buried-ball-unearth.session.json sha256 1dda47d59f32ba0143bdae6e6311d26abd96595aec74a4c7e031a56eb86f8b54; saved accepted evaluation challenges/evaluations/accepted-1cf15831c237fc4d910c6a10ae138e75c4ab5939-v28.json names 1cf15831c237fc4d910c6a10ae138e75c4ab5939 with8remaining. This report uses worker-local8remaining only; do not use it as a replacement accepted evaluation. Recheck against C142 accepted checkpoint before central queueing. Replay input sha256 6bedd27e9056fc741f9d0426f7b65f735283c0be4ef34a4301e5473166638940, diagnosticToolSha256 01cb5004cc11a812f50a8e119ea49eb9700d913dc19487543ad6f877b06e6a82.",
+                "Independent evidence plan: legal punishment then shaft fall and legal punishment then pit/spiked pit, with role/helmet/material variations. Source-pinned tests cover null ball, welded-carried guard, colocated and wielded short circuits, zero/positive rn2(5), release-before-rn1 order, damage25..31, hard helmet3, soft verbose/noverbose, half-physical ceil and anatomy. Use production replay state assertions for ball inventory/slot release; no C recording or game edit during this investigation.",
+                "No existing verified ballfall unit was found in GOALS.json. Ledger status .cache/C143-ledger-status.json shows only pending C142 reservations; none overlaps ball.c:ballfall or punishment-ball-fall. C142 remains the required pending ancestor. Portal/invocation frontiers retained in C142 packet are separate active helper callers; this ballfall task does not close them."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "ballfall",
+            "implementation": "js/ball.js",
+            "symbol": "ballfall",
+            "sourceReview": "Read generated ball.c43-119 range, including complete body43-67 and following ball/chain comments. Preserve null and carried-welded guard, welded knowledge side effect, coordinate and wield short circuits before rn2(5), gets_hit capture before awaited canonical ballrelease(TRUE), rn1(7,25) before anatomy message, canonical hard_helmet predicate and damage3 override, soft-helmet Yname2 feedback guarded by verbose, Maybe_Half_Phys ceil after override, exact losehp killer/format and ordinary awaited death input. Reuse existing ballrelease, body_part, hard_helmet, naming, inventory/equipment and losehp owners without injected substitutes or owner credit. Remove both owned ballfall gap sites and the obsolete pit comment. Pit caller passes its existing environment for source RNG/message/planning conventions; its uncarried guard makes ballrelease a no-op while planning. Preserve other unrelated selftouch/set_bc/ball-and-chain restrictions. Impure: RNG, messages, HP and optional ball inventory/slot release.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c1807 falling random-arrival arm: guarded Punished&&!welded, after u_on_rndspot and before selftouch/placebc and later shaft damage. Existing downward wand production route reaches it."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_pit",
+                "source": "trap.c1957 hero arm: Punished&&!carried after trap damage, unplacebc -> ballfall -> placebc before selftouch, vision and exercise. Existing ordinary/spiked pit movement dispatcher reaches it."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/ball-fall.test.mjs"
+            ],
+            "recordings": [
+              "recordings/ball.c/ballfall-shaft.session.json",
+              "recordings/ball.c/ballfall-shaft-hard-helmet.session.json",
+              "recordings/ball.c/ballfall-pit.session.json",
+              "recordings/ball.c/ballfall-pit-soft-helmet.session.json",
+              "recordings/ball.c/ballfall-shaft-carried.session.json"
+            ],
+            "sourceFile": "ball.c",
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-buried-ball-unearth",
+                "segment": 0,
+                "fromStep": 76,
+                "throughStep": 84,
+                "source": "zap_dig/dighole/digactualhole -> goto_level shaft arrival -> ball.c ballfall after random position and before selftouch/placebc/shaft damage. Includes hit, lethal HP loss, debug refusal of death and subsequent survival."
+              }
+            ],
+            "checkedAt": "2becf24bebd527647f267e1f6cd7507291e3df46"
+          }
+        ],
+        "entryPointReview": "Source search rg \\bballfall\\b nethack-c/upstream/src establishes exactly two active direct caller functions: do.c goto_level and trap.c trapeffect_pit. Both existing JavaScript owners are async and now await ballfall at the source position. No compile-time excluded caller and no missing consumed-return dependency were found. Production evidence covers shaft fall through downward wand plus ordinary/spiked pit entry, with helmet material and carried-ball state variations. No whole goto_level, trapeffect_pit, ballrelease, anatomy, naming, inventory, equipment or damage credit. Source selftouch/set_bc and accepted C142 portal/invocation frontiers remain outside this unit.",
+        "entryPoints": [
+          {
+            "name": "shaft fall arrival invokes ballfall",
+            "functions": [
+              "ballfall"
+            ],
+            "recordings": [
+              "recordings/ball.c/ballfall-shaft.session.json",
+              "recordings/ball.c/ballfall-shaft-hard-helmet.session.json",
+              "recordings/ball.c/ballfall-shaft-carried.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-buried-ball-unearth",
+                "segment": 0,
+                "fromStep": 76,
+                "throughStep": 84,
+                "source": "zap_dig/dighole/digactualhole -> goto_level shaft arrival -> ball.c ballfall after random position and before selftouch/placebc/shaft damage. Includes hit, lethal HP loss, debug refusal of death and subsequent survival."
+              }
+            ]
+          },
+          {
+            "name": "pit and spiked-pit entry invokes ballfall",
+            "functions": [
+              "ballfall"
+            ],
+            "recordings": [
+              "recordings/ball.c/ballfall-pit.session.json",
+              "recordings/ball.c/ballfall-pit-soft-helmet.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2becf24bebd527647f267e1f6cd7507291e3df46",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-detect-reveal-terrain-v29-20261008",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete terrain projection subsets and restore the ordinary map",
       "cFile": "detect.c",
       "sessions": [
@@ -201501,31 +201904,38 @@
       ],
       "selectionReason": "Continue from accepted B147 using an independent v29 case with 7 of 39 screens unmatched. Complete the source projection pair rather than patching only the object flag; bounded cmd.c:doterrain choices 1-4 provide the production caller while wizard choices remain separate owners.",
       "detail": "The accepted be1d7b43 evaluation still refuses terrain menu choice 3 before detect.c projection. C passes TER_MAP|TER_TRP|TER_OBJ, preserves remembered objects and known traps while removing monsters, browses, and restores the ordinary map without spending time.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "52701fe145bb24238c3a64f02c044c4b168bccbf",
+      "openStanding": {
+        "sha": "2becf24bebd527647f267e1f6cd7507291e3df46",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "a75591960ab239110110cb1ef93bfa06ac3a07e4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "reveal_terrain_getglyph",
           "line": 2167,
           "endLine": 2293,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dump_map",
           "line": 2294,
           "endLine": 2355,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "reveal_terrain",
           "line": 2356,
           "endLine": 2419,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -201544,6 +201954,815 @@
           "recordingSha256": "0c1c7929ab931001134d5b68730fbf76cfabd78cad10477b6d47118a68dfa08d",
           "evaluationPath": "challenges/evaluations/accepted-be1d7b43058b9973167448f8562c136850501400-v29.json",
           "evaluationCommit": "be1d7b43058b9973167448f8562c136850501400"
+        }
+      },
+      "activeStanding": {
+        "sha": "2becf24bebd527647f267e1f6cd7507291e3df46",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-terrain-projection-objects",
+          "session": "synthetic/v29/v29-terrain-projection-objects",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recording": "challenges/cases/v29/v29-terrain-projection-objects.session.json",
+          "recordingPath": "challenges/cases/v29/v29-terrain-projection-objects.session.json",
+          "recordingSha256": "0c1c7929ab931001134d5b68730fbf76cfabd78cad10477b6d47118a68dfa08d",
+          "recipe": "challenges/cases/v29/v29-terrain-projection-objects.recipe.session.json",
+          "recipeSha256": "ce0e0a0f4f26c53c48d133f7b690370409bc5d7e26d2885e8daa5caabf7d16e8",
+          "replayInputSha256": "897840dcd317270242a4bcbf97468bf99ca2cc677a0adac84c7543b906ace99a",
+          "evaluationPath": "challenges/evaluations/accepted-2becf24bebd527647f267e1f6cd7507291e3df46-v29.json",
+          "evaluationCommit": "2becf24bebd527647f267e1f6cd7507291e3df46",
+          "evaluationArtifact": "challenges/evaluations/accepted-2becf24bebd527647f267e1f6cd7507291e3df46-v29.json",
+          "evaluationUtc": "2026-10-08T06:58:10.776Z",
+          "remainingScreens": 7,
+          "recordedSteps": 39,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2872,
+              "total": 2876
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: terrain menu choice 3 is not ported",
+            "step": 32
+          },
+          "step": 32,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: terrain menu choice 3 is not ported",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v29/v29-terrain-projection-objects.json",
+            "result": {
+              "session": "synthetic/v29/v29-terrain-projection-objects",
+              "corpus": "synthetic",
+              "batch": "v29",
+              "caseId": "v29-terrain-projection-objects",
+              "manifestPath": "challenges/manifests/v29.json",
+              "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+              "recordingSha256": "0c1c7929ab931001134d5b68730fbf76cfabd78cad10477b6d47118a68dfa08d",
+              "evaluationPath": "challenges/evaluations/accepted-be1d7b43058b9973167448f8562c136850501400-v29.json",
+              "evaluationCommit": "be1d7b43058b9973167448f8562c136850501400",
+              "remainingScreens": 7,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "be1d7b43058b9973167448f8562c136850501400",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v29",
+                "caseId": "v29-terrain-projection-objects",
+                "session": "synthetic/v29/v29-terrain-projection-objects",
+                "manifestPath": "challenges/manifests/v29.json",
+                "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+                "recordingPath": "challenges/cases/v29/v29-terrain-projection-objects.session.json",
+                "recordingSha256": "0c1c7929ab931001134d5b68730fbf76cfabd78cad10477b6d47118a68dfa08d",
+                "evaluationPath": "challenges/evaluations/accepted-be1d7b43058b9973167448f8562c136850501400-v29.json",
+                "evaluationCommit": "be1d7b43058b9973167448f8562c136850501400",
+                "remainingScreens": 7,
+                "recordedSteps": 39,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2872,
+                    "total": 2876
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 39
+                  }
+                },
+                "step": 32,
+                "kind": "unsupported",
+                "message": "unsupported hero command: an unported branch of this command: terrain menu choice 3 is not ported",
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "c"
+                    },
+                    "kind": "js-missing"
+                  },
+                  "rng": {
+                    "index": 2872,
+                    "cEntry": "rn2(12)=6",
+                    "cCaller": "mcalcmove(mon.c:1164)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": "."
+                    }
+                  },
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "c"
+                    },
+                    "cCursor": [
+                      57,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "evaluationUtc": "2026-10-08T05:39:22.671Z"
+              },
+              "summary": "The terrain menu refuses its known-map-with-objects selection before detect.c projection. C choice3 passes TER_MAP|TER_TRP|TER_OBJ, preserves remembered objects and known traps while removing monsters, then browses and restores the map without consuming time. Both JS projection functions refuse every subset except TER_MAP. Complete the whole detect.c projection pair and reconcile the bounded menu caller; wizard internal-code and legend owners remain separate.",
+              "goalKind": "file-port",
+              "source": {
+                "file": "detect.c",
+                "branch": "cmd.c:doterrain selects menu choice3 in the admitted case; it must pass TER_MAP|TER_TRP|TER_OBJ to reveal_terrain. Whole selected helpers cover all subset bits (TRP,OBJ,MON,FULL), temporary swallowed/water/buried constraints, disoriented non-full refusal, full-map temporary seenv restoration, visible-region/trap precedence, mimic remembered topology and wall_info restoration, and room/corridor normalization. TER_MON is also consumed by the compiled DUMPLOG dump_map caller but is excluded from the minimal recorder because config.h669 leaves DUMPLOG undefined.",
+                "functions": [
+                  "reveal_terrain_getglyph",
+                  "reveal_terrain"
+                ],
+                "callers": [
+                  "cmd.c:doterrain1098–1189 cases1–4 calls reveal_terrain with exact TER_MAP/TRP/OBJ/FULL flags; JS cmd.js3161–3211 handles the menu but throws for choices2–6. Reconcile choices1–4 only; retain separate wizard choices5/6 owners without whole doterrain completion credit.",
+                  "detect.c:reveal_terrain2378–2383 calls reveal_terrain_getglyph for every map square; keep x outer/y inner source iteration order.",
+                  "detect.c:dump_map2323 invokes reveal_terrain_getglyph with TER_MAP|TER_TRP|TER_OBJ|TER_MON under DUMPLOG; the minimal recorder keeps DUMPLOG disabled (config.h669 and linux-minimal has no DUMPLOG override), so no active JS dump caller is required."
+                ],
+                "dependencies": [
+                  "Existing consumed detect.c:unconstrain_map69–81 and display glyph producer returns (back_to_glyph,cmap_to_glyph,glyph_at,trap_to_glyph,mon_to_glyph), vision cansee/covers_traps, region visible_region_at, and monster lookup m_at must be source-verified.",
+                  "Existing discard-result xy_set_wall_state, browse_map/getpos, map_redisplay/docrt and flush_screen support the source temporary projection; no broader display/vision/getpos completion credit.",
+                  "Wizard menu choices5/6 dispatch void-return wizcmds.c:wiz_map_levltyp693–836 and wiz_levltyp_legend841–895, absent in JS. Retain these as named outside-limit owners rather than claiming their completion."
+                ]
+              },
+              "evidence": [
+                "Source read in full: detect.c2167–2288 reveal_terrain_getglyph and2356–2413 reveal_terrain; cmd.c1098–1189 menu choices and return. The getglyph helper is impure: full and remembered-topology branches temporarily mutate levl state; swallowed keep-monster arm can use display RNG.",
+                "Focused replay run-oXRWfn at8ffcb93f reproduces refusal atsegment0step32,keyc: UnsupportedHeroCommandBoundaryError terrain menu choice3 is not ported. C39steps,JS32screens/cursors,C2876RNG,JS2872. Local .cache/v29-terrain-projection-objects/replay.log andterrain.comparison.json preserve this worker observation; it does not replace the saved main evaluation.",
+                "Cstep32 prints Showing known terrain, traps, and objects only...; step33 first-use getpos tip; step34 cursor browsing; step35 Done; steps36–37 restore ordinary map; step38 wait. Immutable input .l,wish/drop diamond,#terrain,c supplies independent object-preserving projection witness.",
+                "JS detect.js309–397 retains only TER_MAP glyph filtering and throws before other subsets. Missing source arms include keep_traps/object/monster/full masks, region/trap precedence and swallowed keep-monster display; detect.js1574–1616 also throws rather than displaying C disorientation message and lacks C subset description construction.",
+                "Existing helper calls inspected: unconstrain_map saves and clears three constraint fields; browse_map supplies terrainmode/autodescribe and calls getpos; map_redisplay reconstrains before vision/docrt redraw. Reveal currently calls async docrt without await on the constrained arm, which source caller reconciliation must correct.",
+                "Next independent evidence should cover known trap-only choice2, object-preserving choice3 with cheap object-class variation, full-map choice4, disoriented rejection and constrained-map restoration; preserve wizard choices5/6 blocked recipes if menu caller limits remain.",
+                "DUMPLOG build audit: upstream config.h669 leaves its definition commented; linux-minimal hint has no override and patched recorder config.h retains the same commented line. dump_map2292–2350 caller is compile-time inactive; pin TER_MON branch results/state in focused source tests without inventing a startup/shutdown entry."
+              ],
+              "evaluationUtc": "2026-10-08T05:39:22.671Z",
+              "metrics": {
+                "screens": {
+                  "matched": 32,
+                  "total": 39
+                },
+                "rng": {
+                  "matched": 2872,
+                  "total": 2876
+                },
+                "cursors": {
+                  "matched": 32,
+                  "total": 39
+                }
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "reveal_terrain_getglyph",
+            "implementation": "js/detect.js",
+            "symbol": "reveal_terrain_getglyph",
+            "sourceReview": "Read complete detect.c2167-2288 and source display.h glyph predicates/producers and covers_traps. Port every TER_FULL/TER_TRP/TER_OBJ/TER_MON arm: hero_memory/cansee visibility, full temporary seenv restore, displayed vs remembered glyph, swallowed hero species with display RNG, monster/warning/swallow stripping, covered-water/lava trap substitution, gas-region/trap/unexplored precedence, remembered topology and furniture mimics, copied-cell wall state recalculation/restore, and darkroom/litcorr normalization. Source condition and call order retained. Impure: C temporarily writes level cells and swallowed/hallucinated monster presentation may draw display RNG. Every consumed callee already has a canonical implementation: back_to_glyph, visible_region_at, glyph_at, mon_to_glyph, trap_to_glyph, m_at, xy_set_wall_state and glyph predicate macros; inspected these owners and used their source-shaped state/return representation rather than inventing values. No new dependency owner or incomplete consumed result. Removed subset refusal.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "reveal_terrain",
+                "source": "detect.c2381, all active cmd.c:doterrain choices1-4 through rhack/doextcmd."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "dump_map",
+                "source": "detect.c2323 inactive DUMPLOG loop; end.c584 is excluded by the minimal recorder config. No active caller wiring is invented."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/terrain-projection.test.mjs",
+              "scripts/terrain-command.test.mjs",
+              "scripts/detect.test.mjs",
+              "scripts/cmd-span.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/getpos-show-valid.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/terrain-objects-emerald.session.json",
+              "recordings/detect.c/terrain-objects-ruby.session.json",
+              "recordings/detect.c/terrain-known-traps.session.json",
+              "recordings/detect.c/terrain-full-map.session.json",
+              "recordings/detect.c/terrain-known-map.session.json",
+              "recordings/detect.c/terrain-full-map-stunned.session.json"
+            ],
+            "sourceFile": "detect.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-terrain-projection-objects",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 38,
+                "source": "cmd.c:doterrain1176 -> detect.c:reveal_terrain2356-2413 -> reveal_terrain_getglyph2167-2288; #terrain choice3 shows traps and objects, then browse_map/getpos returns and map_redisplay restores the live map. The complete39-screen recording is exact, including the prefix and final wait."
+              }
+            ],
+            "checkedAt": "c47103d03b4b03a9eb63321cca93fc5a402aa7fc"
+          },
+          {
+            "name": "dump_map",
+            "implementation": "js/detect.js",
+            "symbol": "dump_map",
+            "sourceReview": "Read complete detect.c2294-2349 in definition order between the selected helpers. Preserve mask TER_MAP|TER_TRP|TER_OBJ|TER_MON, arboreal default snapshot, y-outer/x-inner traversal, reveal_terrain_getglyph then map_glyphinfo, ttychar row buffer, last nonblank trimming, leading blank suppression, internal blank-row loop and single trailing blank. C putstr return is discarded at each output site; inactive windows.c:putstr is recorded with note_unported and no replacement output. Canonical map_glyphinfo.ch corresponds to glyphinfo.ttychar. No source end.c or shutdown completion credit.",
+            "callers": [],
+            "pure": false,
+            "tests": [
+              "scripts/terrain-projection.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "detect.c",
+            "inactiveReason": "detect.c2292 #ifdef DUMPLOG and end.c546-584 dump_everything caller are compile-time inactive. upstream/include/config.h669 comments out #define DUMPLOG; sys/unix/hints/linux-minimal does not enable it, and the patched recorder include/config.h also leaves it disabled. The independent private recorder uses this minimal build. DUMPLOG_CORE support for message history does not activate DUMPLOG. The source-pinned focused test verifies exclusion and complete traversal/blank-row markers. No active end.c caller or recording is required.",
+            "checkedAt": "c47103d03b4b03a9eb63321cca93fc5a402aa7fc"
+          },
+          {
+            "name": "reveal_terrain",
+            "implementation": "js/detect.js",
+            "symbol": "reveal_terrain",
+            "sourceReview": "Read whole detect.c2356-2413, unconstrain_map69-81, browse_map94-106, map_redisplay87-92, and cmd.c:doterrain1098-1189. Match full impairment override and exact youprop.h intrinsic-only Stunned/Confusion/Hallucination plus intrinsic/extrinsic hallucination resistance. Snapshot swallowed/default_sym before unconstrain; await docrt only when constrained, compute default glyph afterward; project x-outer/y-inner, flush cursor, construct every source descriptor combination, pline before browse_map with TER_MAP OR, then map_redisplay. Restore pending More/getpos and transient display contracts through canonical owners; no injected substitute and no removed-boundary swallow. Whole selected units only; cmd.c choices1-4 are bounded caller reconciliation, no whole doterrain credit. Existing map_redisplay retains display.c:under_ground as a discarded-result limitation; ordinary under_water and docrt owners stay canonical.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doterrain",
+                "source": "cmd.c1170/1173/1176/1179 choices1-4 supply TER_MAP, MAP|TRP, MAP|TRP|OBJ, MAP|FULL in source order. Existing rhack terrain arm and extended #terrain dispatch reach awaited runTerrainCommand -> doterrain. ECMD_OK spends no turn."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/terrain-projection.test.mjs",
+              "scripts/terrain-command.test.mjs",
+              "scripts/detect.test.mjs",
+              "scripts/cmd-span.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/getpos-cycle.test.mjs",
+              "scripts/getpos-show-valid.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/terrain-objects-emerald.session.json",
+              "recordings/detect.c/terrain-objects-ruby.session.json",
+              "recordings/detect.c/terrain-known-traps.session.json",
+              "recordings/detect.c/terrain-full-map.session.json",
+              "recordings/detect.c/terrain-known-map.session.json",
+              "recordings/detect.c/terrain-disoriented.session.json",
+              "recordings/detect.c/terrain-full-map-stunned.session.json"
+            ],
+            "sourceFile": "detect.c",
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-terrain-projection-objects",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 38,
+                "source": "cmd.c:doterrain1176 -> detect.c:reveal_terrain2356-2413 -> reveal_terrain_getglyph2167-2288; #terrain choice3 shows traps and objects, then browse_map/getpos returns and map_redisplay restores the live map. The complete39-screen recording is exact, including the prefix and final wait."
+              }
+            ],
+            "checkedAt": "c47103d03b4b03a9eb63321cca93fc5a402aa7fc"
+          }
+        ],
+        "entryPointReview": "The sole active command family is cmd.c:doterrain choices1-4, reached by DEL and extended #terrain. Independent C-first recipes cover known map, known traps with a revealed pit, known objects with two gem colors, full map, Stunned rejection and full-map Stunned override. Admitted extended #terrain choice3 independently supplies source-traced step32-38 evidence. DUMPLOG is excluded in both helper and end.c caller; its impure output sites are explicitly discarded gaps and its source behavior is pinned in tests. This selected range adds no monster/action/startup entry. TER_MON/swallowed monster selection only has the inactive dump caller in this build; its complete helper branch is translated with the canonical mon_to_glyph display RNG. No source completion credit for unrelated wizard choices5/6, docrt, browse_map, unconstrain_map, map_redisplay or doterrain.",
+        "entryPoints": [
+          {
+            "name": "terrain command choices1-4",
+            "functions": [
+              "reveal_terrain_getglyph",
+              "reveal_terrain"
+            ],
+            "recordings": [
+              "recordings/detect.c/terrain-objects-emerald.session.json",
+              "recordings/detect.c/terrain-objects-ruby.session.json",
+              "recordings/detect.c/terrain-known-traps.session.json",
+              "recordings/detect.c/terrain-full-map.session.json",
+              "recordings/detect.c/terrain-known-map.session.json",
+              "recordings/detect.c/terrain-disoriented.session.json",
+              "recordings/detect.c/terrain-full-map-stunned.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v29",
+                "caseId": "v29-terrain-projection-objects",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 38,
+                "source": "cmd.c:doterrain1176 -> detect.c:reveal_terrain2356-2413 -> reveal_terrain_getglyph2167-2288; #terrain choice3 shows traps and objects, then browse_map/getpos returns and map_redisplay restores the live map. The complete39-screen recording is exact, including the prefix and final wait."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a75591960ab239110110cb1ef93bfa06ac3a07e4",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-apply-use-mirror-medusa-v28-20261008",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Wire canonical reflected Medusa petrification from use_mirror",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "Integrate the ready A149 Medusa mirror divergence fix selected from the queued v28 mismatch after B148 acceptance.",
+      "detail": "investigations/synthetic/v28/v28-mirror-medusa.json records the current manifest and recording digests, exact step-45 RNG divergence, source call chain, canonical killed/xkilled/monstone reuse, bounded caller scope, and independent validation plan.",
+      "openedAt": "08df8612ba1779afe38ee150c76300174427f167",
+      "openStanding": {
+        "sha": "a75591960ab239110110cb1ef93bfa06ac3a07e4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_mirror",
+      "session": "synthetic/v28/v28-mirror-medusa",
+      "step": 45,
+      "syntheticProvenance": {
+        "synthetic/v28/v28-mirror-medusa": {
+          "session": "synthetic/v28/v28-mirror-medusa",
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-mirror-medusa",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recordingPath": "challenges/cases/v28/v28-mirror-medusa.session.json",
+          "recordingSha256": "76e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a",
+          "evaluationPath": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json",
+          "evaluationCommit": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008"
+        }
+      },
+      "activeStanding": {
+        "sha": "a75591960ab239110110cb1ef93bfa06ac3a07e4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v28",
+          "caseId": "v28-mirror-medusa",
+          "session": "synthetic/v28/v28-mirror-medusa",
+          "manifestPath": "challenges/manifests/v28.json",
+          "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+          "recording": "challenges/cases/v28/v28-mirror-medusa.session.json",
+          "recordingPath": "challenges/cases/v28/v28-mirror-medusa.session.json",
+          "recordingSha256": "76e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a",
+          "recipe": "challenges/cases/v28/v28-mirror-medusa.recipe.session.json",
+          "recipeSha256": "1171d745ac9bb6705a29a4cb2d982ee27bab2eeb09e8735126108297f61242cd",
+          "replayInputSha256": "b704c2d8174d645cf7be4d5b3352042e697693b9d340af9b16b0e23ede224b82",
+          "evaluationPath": "challenges/evaluations/accepted-a75591960ab239110110cb1ef93bfa06ac3a07e4-v28.json",
+          "evaluationCommit": "a75591960ab239110110cb1ef93bfa06ac3a07e4",
+          "evaluationArtifact": "challenges/evaluations/accepted-a75591960ab239110110cb1ef93bfa06ac3a07e4-v28.json",
+          "evaluationUtc": "2026-10-08T07:19:09.703Z",
+          "remainingScreens": 7,
+          "recordedSteps": 52,
+          "previousScreensMatched": 45,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 45,
+              "total": 52
+            },
+            "rng": {
+              "matched": 2875,
+              "total": 2917
+            },
+            "cursors": {
+              "matched": 50,
+              "total": 52
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 45,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "j"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 28,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2875,
+              "cEntry": "rn2(100)=80",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "j"
+              },
+              "stepIndex": 45
+            },
+            "cursor": {
+              "index": 45,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "j"
+              },
+              "cCursor": [
+                52,
+                0,
+                1
+              ],
+              "jsCursor": [
+                7,
+                3,
+                1
+              ]
+            }
+          },
+          "step": 45,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v28/v28-mirror-medusa.json",
+            "result": {
+              "session": "synthetic/v28/v28-mirror-medusa",
+              "corpus": "synthetic",
+              "batch": "v28",
+              "caseId": "v28-mirror-medusa",
+              "manifestPath": "challenges/manifests/v28.json",
+              "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+              "recordingPath": "challenges/cases/v28/v28-mirror-medusa.session.json",
+              "recordingSha256": "76e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a",
+              "recipe": "challenges/cases/v28/v28-mirror-medusa.recipe.session.json",
+              "recipeSha256": "1171d745ac9bb6705a29a4cb2d982ee27bab2eeb09e8735126108297f61242cd",
+              "evaluationPath": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json",
+              "evaluationCommit": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+              "evaluationUtc": "2026-10-08T06:09:18.406Z",
+              "remainingScreens": 7,
+              "recordedSteps": 52,
+              "metrics": {
+                "screens": {
+                  "matched": 45,
+                  "total": 52
+                },
+                "rng": {
+                  "matched": 2875,
+                  "total": 2917
+                },
+                "cursors": {
+                  "matched": 50,
+                  "total": 52
+                }
+              },
+              "passed": false,
+              "error": null,
+              "step": 45,
+              "kind": "rng",
+              "sourceFile": "apply.c",
+              "function": "use_mirror",
+              "message": "Medusa reflected-gaze branch sets gs.stoned but skips the canonical killed caller.",
+              "firstMismatch": {
+                "index": 2875,
+                "cEntry": "rn2(100)=80",
+                "cCaller": "obj_resists(zap.c:1469)",
+                "jsEntry": "rn2(5)=0",
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 45,
+                  "key": "j"
+                }
+              },
+              "status": "complete",
+              "commit": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+              "mismatch": {
+                "session": "synthetic/v28/v28-mirror-medusa",
+                "corpus": "synthetic",
+                "batch": "v28",
+                "caseId": "v28-mirror-medusa",
+                "manifestPath": "challenges/manifests/v28.json",
+                "manifestSha256": "394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039",
+                "recordingPath": "challenges/cases/v28/v28-mirror-medusa.session.json",
+                "recordingSha256": "76e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a",
+                "recipe": "challenges/cases/v28/v28-mirror-medusa.recipe.session.json",
+                "recipeSha256": "1171d745ac9bb6705a29a4cb2d982ee27bab2eeb09e8735126108297f61242cd",
+                "evaluationPath": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json",
+                "evaluationCommit": "1d7f8aa4d04aac0a6714ea5a495187dfab2ca008",
+                "evaluationUtc": "2026-10-08T06:09:18.406Z",
+                "remainingScreens": 7,
+                "recordedSteps": 52,
+                "metrics": {
+                  "screens": {
+                    "matched": 45,
+                    "total": 52
+                  },
+                  "rng": {
+                    "matched": 2875,
+                    "total": 2917
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 52
+                  }
+                },
+                "passed": false,
+                "error": null,
+                "step": 45,
+                "kind": "rng",
+                "sourceFile": "apply.c",
+                "function": "use_mirror",
+                "message": "Medusa reflected-gaze branch sets gs.stoned but skips the canonical killed caller.",
+                "firstMismatch": {
+                  "index": 2875,
+                  "cEntry": "rn2(100)=80",
+                  "cCaller": "obj_resists(zap.c:1469)",
+                  "jsEntry": "rn2(5)=0",
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 45,
+                    "key": "j"
+                  }
+                },
+                "evaluationArtifact": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json"
+              },
+              "goalKind": "divergence-fix",
+              "summary": "apply.c:use_mirror skips killed() after reflected Medusa petrification. JavaScript leaves Medusa alive and gs.stoned set, omits the kill/statue/experience effects, and reaches monster movement before C’s obj_resists draw at step45. Wire the existing canonical killed -> xkilled -> monstone path at this source caller; broader death ownership remains separate.",
+              "source": {
+                "file": "apply.c",
+                "branch": "A visible awake sighted uncancelled Medusa perceives an ordinary mirror, and mon_reflects returns false. Print the stoning message, set gs.stoned then call killed before the common ECMD_TIME return.",
+                "functions": [
+                  "use_mirror"
+                ],
+                "callers": [
+                  "cmd.c apply command -> apply.c:doapply MIRROR4330–4331 -> use_mirror1018–1199; JScmd runApplyCommand -> JSapply doapply -> awaited use_mirror4944.",
+                  "apply.c:use_mirror1138–1139 -> mon.c:killed3469–3473 -> xkilled3476–3740 -> monstone3287–3374 when gs.stoned."
+                ],
+                "dependencies": [
+                  "Reuse source-audited canonical killed/xkilled/monstone in js/mon.js5789/5825/5610; wire only the caller in js/apply.js4132–4137 and preserve state/random/environment and await order.",
+                  "Consumed mon_reflects remains canonical and its early ECMD_TIME return must precede stoned/kill. Existing bhit(INVIS_BEAM) target/notonhead walk and visibility/monability gates remain unchanged.",
+                  "Canonical monstone consumes vamp_stone, obj_resists and flooreffects, then mkcorpstat, container transfer, weight, stackobj and mondead. xkilled clears stoned and skips corpse/treasure before ordinary luck/experience/alignment cleanup. Verify those reused owners through focused/fresh evidence; do not invent cleanup or new RNG.",
+                  "Canonical lifesaved_monster and unrelated special monster death branches retain explicit refusals; require a named blocked recipe if an independent variation reaches one. No whole mon.c or zap.c completion claim and no unrelated owner edits before a scope event."
+                ]
+              },
+              "evidence": [
+                "Current saved accepted C141 evaluation challenges/evaluations/accepted-e0d0dcd2de84273a7db3e7676a895db314cb98d2-v28.json ate0d0dcd2de84273a7db3e7676a895db314cb98d2 records45/52 screens,2875/2917 RNG,50/52 cursors:7 remaining. Manifest SHA256394f0c751ff7c5f04b72088bf703e7977e91f373f14cf510bfe0a0b819b2b039; recording SHA25676e09d2b3c02154705367de2cb6b00458b59d378f8567d9f82128b0ab33c0b9a.",
+                "At accepted-A145 history-preserving worker HEAD e2250db5009cbc173d8283e1460218f2960e4356, bounded single-case run-MmevZR and .cache/v28-mirror-medusa/replay.log/diagnostic.json reproduce segment0 step45(keyj). No refusal,52 screens/cursors and no animation frames. First RNG index2875 is C obj_resists rn2(100)=80 while JS moves on to distfleeck rn2(5)=0. First screen/cursor difference is also45: C Medusa is turned to stone! You kill Medusa!--More--; JS omits the second line and returns to the map.",
+                "The shared precondition already matches: source and JS both select a Medusa after the wizard creates peaceful medusa and apply mirror e in directionj. JS emits the same stoning line and sets gs.stoned=true. Diagnostic final state still has peaceful Medusa HP89 with one unworn inventory object329, hero killer conduct0 and experience level1, and unported contains only mon.c killed. C removes Medusa, makes a statue containing inventory, consumes object-resistance/statue RNG, and awards level2 at step46. The first cause is a discarded caller, not a new zap.c obj_resists or random monster movement defect.",
+                "C apply.c:use_mirror1132–1139 first calls mon_reflects, returns ECMD_TIME if reflected, emits the visible stoning message, sets gs.stoned=TRUE then killed(mtmp). JSapply.js4125–4137 matches the gates but intentionally calls note_unported instead, justified by a stale comment about unrelated xkilled refusals. Replace that exact discarded placeholder with awaited canonical killed using source state and complete random/planning/message environment; preserve the existing source order and common ECMD_TIME return.",
+                "Historical closed goal port-apply-use-mirror-synthetic-v8-20260927 records whole beautiful/use_mirror caller/source evidence, with this permitted mon.c:killed void gap explicitly named. This is a bounded caller reconciliation, not a new whole use_mirror port or whole kill/statue credit. Existing JSmon.js:killed5789 awaits xkilled with XKILL_GIVEMSG. xkilled sets HP0/conduct, emits kill line, calls monstone when stoned, clears stoned and skips corpse/treasure, then handles peaceful-kill rn2(2), experience/newexplevel and alignment. It defaults an unsupported callback only for actual incomplete source branches, so absence of env.unsupported does not refuse the selected ordinary Medusa path.",
+                "Read mon.c:monstone3287–3374 and JSmon.js5610–5720: canonical vamp_stone gate, lifesaving check, inventory extraction before statue construction; object resistance, floor/drop or contained object decisions; historic unique-statue and gender flags; ordered container insertion and weight; stack/unmap/redraw, then mondead. Medusa is neither shifted vampire nor tiny creature, so the statue branch skips the tiny-monster random choice. Selected C RNG starts with obj_resists for her inventory, then statue initialization and ordinary xkilled cleanup. Existing scripts/mon-stone-migration.test.mjs covers statue/detach and scripts/mon-kill.test.mjs covers kill cleanup; they support owner reuse but cannot certify the missing production mirror caller.",
+                "Proposed task scope: reservation source:apply.c:use_mirror and contract:reflected-gaze-petrification. Allowed js/apply.js, scripts/apply.test.mjs, affected scripts/mon-kill.test.mjs/scripts/mon-stone-migration.test.mjs only if needed, a source-named mirror fresh runner, recipes/apply.c/, recordings/apply.c/, and task cache. No existing active B145 impact-drop or C142 buried-ball source/contract overlap. Recheck the ledger before claiming and request any newly required external owner changes.",
+                "Independent validation plan: new unsearched seed/clock and source-valid wizard-created ordinary Medusa plus mirror, choose direction from C-only geometry; retained Medusa inventory tests statue containment and cleanup. Cheap role/seed/peaceful-versus-hostile variation covers luck/experience order. Source-pin reflection/cancellation/no-eyes gates, stoned reset, conduct/statue ownership, historical flag, full RNG/messages/cursors, and no duplicated corpse/treasure. Replay admitted v28 steps45–51 and prior v8 mirror regression. Record outside-limit reflected or suppressed petrification behavior if source requires no kill; retain blocked recipes for canonical monster lifesaving/other owner frontiers rather than claim those complete. No C runs or game edits were made during this investigation.",
+                "Post-A146 read-only refresh at immutable637a11849049c114f1b704e5dac69b57463e9d6b: .cache/v28-mirror-medusa/replay-A146.log and diagnostic-A146.json reproduce the same first step45 RNG2875 C obj_resists rn2(100)=80 versus JSrn2(5)=0, Medusa alive89HP, gs.stoned true, conduct0/experience0. Latest reviewed accepted C1421cf15831 v28 evaluation still reports45/52 screens (7 remaining). Read git show1cf15831:js/apply.js confirms use_mirror retains the same skipped killed call; C142 is accepted/published2e0f5529 and its former apply coordination blocker is released. Worker observation is tied to637a1184; merge accepted C142 descendant before implementation. No game edits or C runs made during refresh."
+              ],
+              "evaluationArtifact": "challenges/evaluations/accepted-1d7f8aa4d04aac0a6714ea5a495187dfab2ca008-v28.json"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "port-artifact-invoke-untrap-family-v29-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Restore Master Key untrapping through the complete untrap/disarm family and door-mimic return path",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v29/v29-key-invoke-untrap"
+      ],
+      "selectionReason": "synthetic/v29/v29-key-invoke-untrap, investigations/synthetic/v29/v29-key-invoke-untrap.json: missing artifact invoke_untrap dispatch consumes the incomplete trap untrap return family, so include whole trap.c:dountrap..untrap and lock.c:stumble_on_door_mimic rather than closing a wrapper-only task.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "invoke_untrap",
+          "line": 1838,
+          "endLine": 1847,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1838,
+        "to": 1847
+      },
+      "requiredFunctions": [
+        {
+          "name": "dountrap",
+          "line": 5248,
+          "endLine": 5257,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "could_untrap",
+          "line": 5258,
+          "endLine": 5288,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "untrap_prob",
+          "line": 5289,
+          "endLine": 5340,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "cnv_trap_obj",
+          "line": 5341,
+          "endLine": 5374,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "into_vs_onto",
+          "line": 5375,
+          "endLine": 5392,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "move_into_trap",
+          "line": 5393,
+          "endLine": 5440,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "try_disarm",
+          "line": 5441,
+          "endLine": 5529,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "reward_untrap",
+          "line": 5530,
+          "endLine": 5552,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "disarm_holdingtrap",
+          "line": 5553,
+          "endLine": 5593,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "disarm_landmine",
+          "line": 5594,
+          "endLine": 5606,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "unsqueak_ok",
+          "line": 5607,
+          "endLine": 5629,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "disarm_squeaky_board",
+          "line": 5630,
+          "endLine": 5663,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "disarm_shooting_trap",
+          "line": 5664,
+          "endLine": 5676,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "try_lift",
+          "line": 5677,
+          "endLine": 5699,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "help_monster_out",
+          "line": 5700,
+          "endLine": 5793,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "disarm_box",
+          "line": 5794,
+          "endLine": 5820,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "untrap_box",
+          "line": 5821,
+          "endLine": 5847,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "untrap",
+          "line": 5848,
+          "endLine": 6100,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "stumble_on_door_mimic",
+          "line": 759,
+          "endLine": 772,
+          "declared": true,
+          "sourceFile": "lock.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v29/v29-key-invoke-untrap": {
+          "session": "synthetic/v29/v29-key-invoke-untrap",
+          "corpus": "synthetic",
+          "batch": "v29",
+          "caseId": "v29-key-invoke-untrap",
+          "manifestPath": "challenges/manifests/v29.json",
+          "manifestSha256": "bb2fc0ae0cd0ce5f9d9aedbe2fc6cebd986148cc062181abb1d65feddedd014e",
+          "recordingPath": "challenges/cases/v29/v29-key-invoke-untrap.session.json",
+          "recordingSha256": "989017009bc0da16807b96e50a1d738c20d5906d80ae52ecbadb724b5723a067",
+          "evaluationPath": "challenges/evaluations/accepted-2becf24bebd527647f267e1f6cd7507291e3df46-v29.json",
+          "evaluationCommit": "2becf24bebd527647f267e1f6cd7507291e3df46"
         }
       }
     }

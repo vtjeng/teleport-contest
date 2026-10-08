@@ -368,6 +368,28 @@ test('poisoned() with thrown_weapon=true and i>5 deals rnd(6) HP damage',
         assert.equal(hpLosses[0].n, 3);
     });
 
+test('poisoned() stops its tail after injected HP damage finalizes death',
+    async () => {
+        const state = await heroState();
+        const calls = [];
+        const env = {
+            // fatal=10 and thrown_weapon=true make rn2(30)=15 select the
+            // ordinary HP-damage arm; rnd(6)=3 supplies that arm's loss.
+            random: { rn2: () => 15, d: () => 1, rnd: () => 3 },
+            message: async () => {},
+            losehp: async () => {
+                calls.push('losehp');
+                state.u.uhp = 0;
+                state.program_state.gameover = true;
+            },
+            done: async () => calls.push('done'),
+            encumberMessage: async () => calls.push('encumber'),
+        };
+
+        await poisoned('dart', A_CON, 'little dart', 10, true, state, env);
+        assert.deepEqual(calls, ['losehp']);
+    });
+
 // ── poisontell tests ──
 
 test('poisontell A_CON produces "You feel very sick!"', async () => {

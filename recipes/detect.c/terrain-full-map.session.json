@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Explore/wizard full projection includes unseen terrain. Independent unsearched seed and ordinary menu dispatch.",
+  "segments": [
+    {
+      "seed": 1482904,
+      "datetime": "20520809111213",
+      "nethackrc": "OPTIONS=name:TerrainWitness,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "   d    \u001b."
+    }
+  ]
+}

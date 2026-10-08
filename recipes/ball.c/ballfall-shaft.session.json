@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-first ballfall recipe; unsearched seed chosen before C observation or JavaScript comparison. Unhelmeted shaft fall: wish an ordinary punishment scroll, then dig down with a wand. do.c goto_level calls ballfall after choosing the arrival square, before placebc and shaft damage. C-only setup correction: a leading space acknowledges the tty startup More prompt; a leading period did not, so the first intended wish was never entered.",
+  "segments": [
+    {
+      "seed": 1432801,
+      "datetime": "20551204112213",
+      "nethackrc": "OPTIONS=name:Ball1432801,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017uncursed scroll of punishment\nre    \u0017uncursed wand of digging\nzf>          ."
+    }
+  ]
+}

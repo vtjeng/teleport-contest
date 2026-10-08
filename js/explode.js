@@ -729,6 +729,7 @@ export async function explode(
                     throw death;
                 }
                 await done(how, state, env);
+                if (state.program_state?.gameover) return;
             }
         }
         await exercise(A_STR, false, state, random, {
@@ -794,6 +795,7 @@ export async function mon_explodes(mon, mattk, state = game, rawEnv = {}) {
     state.killer.format = KILLED_BY_AN;
     await explode(mon.mx, mon.my, type, damage, MON_EXPLODE,
         adtyp_to_expltype(mattk.adtyp), state, env);
+    if (state.program_state?.gameover) return;
     state.killer.name = '';
 }
 
