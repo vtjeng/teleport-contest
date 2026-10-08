@@ -1,0 +1,81 @@
+{
+  "session": "synthetic/v31/v31-telekinesis-selector-unfinished",
+  "corpus": "synthetic",
+  "batch": "v31",
+  "caseId": "v31-telekinesis-selector-unfinished",
+  "manifestPath": "challenges/manifests/v31.json",
+  "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+  "recordingSha256": "baa93bfa25142d15abce4807b8b0d663247e661df2308bd586f6493e9bc742aa",
+  "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+  "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+  "remainingScreens": 11,
+  "recordedSteps": 43,
+  "status": "complete",
+  "commit": "cf19e6829331d552ce6fdecdca839b236f24ebef",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v31",
+    "caseId": "v31-telekinesis-selector-unfinished",
+    "session": "synthetic/v31/v31-telekinesis-selector-unfinished",
+    "manifestPath": "challenges/manifests/v31.json",
+    "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+    "recordingPath": "challenges/cases/v31/v31-telekinesis-selector-unfinished.session.json",
+    "recording": "challenges/cases/v31/v31-telekinesis-selector-unfinished.session.json",
+    "recordingSha256": "baa93bfa25142d15abce4807b8b0d663247e661df2308bd586f6493e9bc742aa",
+    "recipe": "challenges/cases/v31/v31-telekinesis-selector-unfinished.recipe.session.json",
+    "recipeSha256": "e32118e6002278045d1e0f1691c66575d450c42307c74c3d6f46dabf3c934f8b",
+    "evaluationPath": "challenges/evaluations/accepted-0416a19e0f298cad0e49e8a4f650e7746cfea96b-v31.json",
+    "evaluationCommit": "0416a19e0f298cad0e49e8a4f650e7746cfea96b",
+    "evaluationUtc": "2026-10-08T20:27:01.083Z",
+    "remainingScreens": 11,
+    "recordedSteps": 43,
+    "passed": false,
+    "metrics": {
+      "screens": {
+        "matched": 32,
+        "total": 43
+      },
+      "rng": {
+        "matched": 2494,
+        "total": 2494
+      },
+      "cursors": {
+        "matched": 32,
+        "total": 43
+      }
+    },
+    "error": null,
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 32,
+      "message": "unsupported hero command: wiz_telekinesis() is not ported"
+    },
+    "step": 32,
+    "kind": "stop",
+    "sourceFile": "wizcmds.c",
+    "function": "wiz_telekinesis"
+  },
+  "summary": "Unfinished wizard telekinesis selector stops at step 32 before the announcement. It shares whole wiz_telekinesis494–528 with the completed monster witness; canonical target-loop wiring restores all 43 recorded boundaries, including hero selection and pending input without inventing a direction.",
+  "goalKind": "file-port",
+  "source": {
+    "file": "wizcmds.c",
+    "branch": "Debug wizard target loop accepts visible monsters or hero square, consumes direction, hurtles six squares, then refreshes selection coordinates only when the target is alive/visible; continues until deferred utotype level change or cancellation.",
+    "functions": [
+      "wiz_telekinesis"
+    ],
+    "callers": [
+      "cmd.c1996–1997 extcmdlist wiztelekinesis -> doextcmd/rhack"
+    ],
+    "dependencies": [
+      "Existing getpos.c:getpos and cmd.c:getdir canonical return owners; ordinary keyboard selection/direction/cancellation implemented, inherited unsupported mouse/redraw boundaries remain independent owners.",
+      "Existing m_at/canspotmon/u_at and DEADMONSTER pure predicates; use live target identity and hp.",
+      "Source-discarded dothrow.c:mhurtle and hurtle are existing canonical implementations with monster-step/trap/liquid and hero-step handlers; preserve their awaited side effects, no completion credit for these owners."
+    ]
+  },
+  "evidence": [
+    "Accepted evaluation preserves 11 unmatched screens (32/43); current owned replay .cache/A170/selector.log matches all 43 screens/cursors without a refusal after the whole helper and dispatcher were wired. The recorded input ends during a getpos/getdir boundary; it is evidence for selection, not successful hurtle or command completion.",
+    "Read whole wizcmds.c494–528 (closing brace528; following RESTORE_WARNING begins530). Initialize cc to hero, announce once, do-while getpos(force TRUE, a monster), cancel for answer<0 or x<1. Assign m_at before canspotmon, but hero-square acceptance does not erase a captured mount/monster pointer. getdir false cancels. Monster void mhurtle(...,6) precedes alive/canspotmon recentering; otherwise void hurtle(...,6,FALSE) precedes hero recentering. UTOTYPE_NONE comparison ends loop only on deferred level change, returning ECMD_OK; no turn or custom RNG.",
+    "Source required return audit opens canonical getpos/getdir implementations and existing visible/coordinate predicates. Monster movement and hero movement calls are discarded by C and already source-backed owners. Retain their known downstream frontiers explicitly; no new injected movement stub, RNG or output stands in for them.",
+    "Independent C-first role/seed/date variations should create a visible peaceful creature, select/direction/cancel and verify actual coordinates/stun/movement, plus hero self selection, invalid empty square and direction cancellation. Normal-play refusal is outside wizard boundary. Related selector-unfinished case is the same function and can be reserved/replayed after implementation transition. Exclude whole cmd/getpos/dothrow/trap/movement ownership."
+  ]
+}
