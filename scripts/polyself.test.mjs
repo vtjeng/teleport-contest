@@ -239,7 +239,7 @@ test('break_armor consumes a worn shirt through the inventory lifecycle',
 test('polymon releases punishment in the source slippery-form branch', () => {
     // C polyself.c:991-999 runs after the pool/lava and Passes_walls checks;
     // preserve the form predicates, message-before-unpunish order, and the
-    // alternative buried-ball message before its discarded void callee.
+    // alternative buried-ball message before its awaited release helper.
     assert.ok(C_POLYMON_START >= 0 && C_POLYMON_END > C_POLYMON_START);
     assert.ok(JS_POLYMON_START >= 0 && JS_POLYMON_END > JS_POLYMON_START);
     const cSlip = C_POLYMON_FUNCTION.indexOf(
@@ -261,7 +261,7 @@ test('polymon releases punishment in the source slippery-form branch', () => {
     assert.match(C_POLYMON_FUNCTION,
         /else if \(u\.utrap && u\.utraptype == TT_BURIEDBALL\)[\s\S]*You\("slip free of the buried ball and chain\."\);[\s\S]*buried_ball_to_freedom\(\);/u);
     assert.match(JS_POLYMON_FUNCTION,
-        /else if \(u\.utrap && u\.utraptype === TT_BURIEDBALL\)[\s\S]*await message\('You slip free of the buried ball and chain\.'[\s\S]*note_unported\('dig\.c buried_ball_to_freedom'\);/u);
+        /else if \(u\.utrap && u\.utraptype === TT_BURIEDBALL\)[\s\S]*await message\('You slip free of the buried ball and chain\.'[\s\S]*await buried_ball_to_freedom\(state, env\);/u);
 });
 
 test('polymon uses makemon golemhp without a random HP roll', async () => {

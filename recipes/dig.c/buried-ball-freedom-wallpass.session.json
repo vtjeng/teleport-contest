@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dig.c:buried_ball_to_freedom witness; seed, clock and action family chosen before comparing JS. Wizard-controlled xorn form enters polymon wall-pass buried-ball release before its common reset.",
+  "segments": [
+    {
+      "seed": 1430804,
+      "datetime": "20531118094713",
+      "nethackrc": "OPTIONS=name:FreeBall1430804,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "  \u0017uncursed scroll of punishment\nre    #wizbury\n  #polyself\nxorn\n          "
+    }
+  ]
+}
