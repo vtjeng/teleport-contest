@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v30.json",
   "manifestSha256": "bf4331d871906d8f9aa09d3516c07af870f534c0f69518d814dd4927ecfa3007",
   "recordingSha256": "c84c4f58b2ffb07cf63a090457c77362d99bd4b948a97650c83bb469de7b7f23",
-  "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
-  "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
+  "evaluationPath": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+  "evaluationCommit": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
   "remainingScreens": 5,
   "recordedSteps": 19,
   "status": "complete",
-  "commit": "b1f12683d5c3a5c516d22778eeef0c2e1fac1779",
+  "commit": "9fe6073151cf4d05573ca4a6a3e199e6ce3fc618",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v30",
@@ -25,9 +25,9 @@
     "recipe": "challenges/cases/v30/v30-object-probabilities.recipe.session.json",
     "recipeSha256": "cfa4fb3930dd26d5409f8d392849d20077806236b4823718b364295babf697ef",
     "replayInputSha256": "3a33859d70e62e2259dcc9ec622523f177668a256f4ec14881f712db3663e655",
-    "evaluationPath": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
-    "evaluationCommit": "5d732fba68778b565d95c0f11dfe245afa3d89af",
-    "evaluationArtifact": "challenges/evaluations/accepted-5d732fba68778b565d95c0f11dfe245afa3d89af-v30.json",
+    "evaluationPath": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
+    "evaluationCommit": "8a1c6bca0b99c51a199a18424976a9182a40d67f",
+    "evaluationArtifact": "challenges/evaluations/accepted-8a1c6bca0b99c51a199a18424976a9182a40d67f-v30.json",
     "evaluationUtc": "2026-10-08T16:21:35.676Z",
     "remainingScreens": 5,
     "recordedSteps": 19,
@@ -88,6 +88,7 @@
     "All production caller search results are the source definition, extern.h3890, cmd.c1978 and generated extcmdlist_data.js170. DEBUG/NH_DEVEL_STATUS build condition is active in the recorder; scripts/extended-command-prompt.test.mjs295–299 pins the command registry. Add only bounded cmd.js:doextcmd import/branch plus whole wiz_objprobs in js/wizcmds.js.",
     "No unported consumed-return callee found: existing OBJ_NAME directly reads state.obj_descr[oc_name_idx].oc_name; FIRST_OBJECT/NUM_OBJECTS/MAXOCLASSES are generated canonical constants; existing text wrapper represents window-ID lifecycle. Read state.objects directly so current depth-dependent gem probabilities and initialized zero-probability classes are used, with no duplicate probability table or state mutation.",
     "Complete task scope is whole wiz_objprobs1832–1868, bounded doextcmd caller and contract:wizard-object-probability-text-window. Expected writes js/wizcmds.js/js/cmd.js, source-pinned probability tests/fresh runner, recipes/wizcmds.c and recordings/wizcmds.c. Older queued B162 has dispatcher priority; this report remains available for later implementation after that boundary.",
-    "Tests should pin class sums including unnamed placeholders, row-name skip/order and class-change blank lines, integer field widths, float32 multiply/divide and C printf two-decimal rounding, canonical live tables and awaited return. Independent C-first witnesses should page through the whole455-line table to dismissal and repeat, plus a cheap role or supported depth/gem-probability variation. The selected case stops inside page5, so its matching range alone will not establish final map restoration or later object-class rows. No implementation, fresh C game, whole doextcmd/rhack, object-init or text-window credit is claimed."
+    "Tests should pin class sums including unnamed placeholders, row-name skip/order and class-change blank lines, integer field widths, float32 multiply/divide and C printf two-decimal rounding, canonical live tables and awaited return. Independent C-first witnesses should page through the whole455-line table to dismissal and repeat, plus a cheap role or supported depth/gem-probability variation. The selected case stops inside page5, so its matching range alone will not establish final map restoration or later object-class rows. No implementation, fresh C game, whole doextcmd/rhack, object-init or text-window credit is claimed.",
+    "A166 handoff at 9fe60731 preserves original A163 diagnosis 4972dc9a. Accepted A164 statistics clears the previous dispatcher priority; current accepted-8a1c6bca v30 retains exactly five unmatched screens and the same step14 owner, recording and manifest identity. Whole source1832-1868 and existing consumed dependencies reread; A165 wall-mode delivery changes only its distinct dispatcher arm and cannot alter canonical object probabilities. B163 make_corpse and C152 migration are independent. No new game recording or implementation edits during this refreshed investigation."
   ]
 }
