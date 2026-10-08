@@ -211907,7 +211907,7 @@
     {
       "id": "port-insight-doborn-v30-20261008",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Display source monster birth and death statistics through #wizborn",
       "cFile": "insight.c",
       "sessions": [
@@ -211921,8 +211921,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3a956a911cc52a3104f718e1eb4d76d2c854af32",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "doborn",
@@ -212162,6 +212165,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3a956a911cc52a3104f718e1eb4d76d2c854af32",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
