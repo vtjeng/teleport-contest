@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Representative source boundary variation chosen independently before C/JS comparison: mon.c:mm_2way_aggression admits human/zombie ordinary aggression. C observed the created human is unarmed, so canonical mattackm AT_WEAP falls through to physical attack and the entire route matches. Retain as a passing variation beyond the baby-worm bite setup; do not claim armed-weapon or zombie timeout completion. Seed15530042 and next-day clock differ from primary inputs.",
+  "segments": [
+    {
+      "seed": 15530042,
+      "datetime": "20460818122432",
+      "nethackrc": "OPTIONS=name:ArmedAggression,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\npeaceful human\n   #wizgenesis\npeaceful human zombie\n   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   "
+    }
+  ]
+}
