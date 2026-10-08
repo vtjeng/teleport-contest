@@ -215172,6 +215172,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-mon-diff-v31-20261008",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the wizard monster difficulty diagnostic",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v31/v31-monster-difficulty"
+      ],
+      "selectionReason": "The admitted v31 monster-difficulty case retains 17 unmatched screens at the missing wizard diagnostic; its whole wiz_mon_diff function and bounded dispatcher are independent of the accepted tinning-kit work.",
+      "detail": "Port wizcmds.c wiz_mon_diff lines 1790-1828 and its cmd.c doextcmd wizmondiff arm. Reuse the already verified mondata.c mstrength implementation without additional source credit; preserve canonical table traversal, signed formatting, level cap, text dismissal, and ECMD_OK.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_mon_diff",
+          "line": 1790,
+          "endLine": 1831,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1790,
+        "to": 1831
+      },
+      "syntheticProvenance": {
+        "synthetic/v31/v31-monster-difficulty": {
+          "session": "synthetic/v31/v31-monster-difficulty",
+          "corpus": "synthetic",
+          "batch": "v31",
+          "caseId": "v31-monster-difficulty",
+          "manifestPath": "challenges/manifests/v31.json",
+          "manifestSha256": "feb4e72289bc02af734fbb26d66ef63d2bae1fc4e6ddab62ac56b386a0edcf57",
+          "recordingPath": "challenges/cases/v31/v31-monster-difficulty.session.json",
+          "recordingSha256": "2fce722aa186af7f49d37629a69915e7ec917264049d5b2c44939b3c91e93ca3",
+          "evaluationPath": "challenges/evaluations/accepted-4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d-v31.json",
+          "evaluationCommit": "4f7e4d0dbc72c09cb778ba7dd6ee01c26ca4ff8d"
+        }
+      }
     }
   ]
 }
