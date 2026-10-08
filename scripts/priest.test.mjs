@@ -127,7 +127,9 @@ test('pri_move preserves altar draws then awaits its adjacent hostile attack', a
         data: {}, mextra: { epri: { shroom: ROOMOFFSET,
             shrpos: { x: 9, y: 8 }, shrlevel: { dnum: 0, dlevel: 4 } } } };
     const order = [];
-    assert.equal(await pri_move(priest, { state,
+    let finishAttack;
+    const attackPending = new Promise(resolve => { finishAttack = resolve; });
+    const result = pri_move(priest, { state,
         random: { rn1: (range, base) => {
             order.push(`rn1(${range},${base})`);
             return base;
@@ -135,10 +137,18 @@ test('pri_move preserves altar draws then awaits its adjacent hostile attack', a
         attackHero: async (subject, env) => {
             assert.equal(subject, priest);
             assert.equal(env.state, state);
-            await Promise.resolve();
+            await attackPending;
             order.push('attack');
             return 1; // C discards the result here and returns zero.
         },
-    }), 0);
+    });
+    let settled = false;
+    result.then(() => { settled = true; });
+    assert.deepEqual(order, ['rn1(3,-1)', 'rn1(3,-1)']);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(settled, false, 'pri_move waits while mattacku is pending');
+    finishAttack();
+    assert.equal(await result, 0);
+    assert.equal(settled, true);
     assert.deepEqual(order, ['rn1(3,-1)', 'rn1(3,-1)', 'attack']);
 });
