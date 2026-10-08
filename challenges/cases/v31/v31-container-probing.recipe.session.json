@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: zap.c:bhito2222-2274/invent.c:display_cinventory. Drop nonempty chest and probe down. Required C observation: Contents displayed or independently observed empty chest target miss. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631010,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631010,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed wand of probing\n\u0017unlocked chest\ndfze>              "
+    }
+  ]
+}

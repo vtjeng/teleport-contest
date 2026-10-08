@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: read.c:seffect_punishment/punish. Read two cursed punishment scrolls consecutively. Required C observation: Existing iron ball becomes heavier on second punishment. Seed and clock fixed before any JavaScript comparison; no seed search. C-only correction of inventory letters/pager acknowledgments or off-stair location from the initial C trace, before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 15631014,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631014,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u00172 cursed scrolls of punishment\nrf      rf             :    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: wizcmds.c:wiz_display_macros1705-1774. Validate all glyph conversion macro ranges. Required C observation: No display macro issues or complete diagnostics text. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631000,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631000,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".#wizdispmacros\n       "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B156 C-first candidate: apply.c:use_camera79-118. Create peaceful eyed newt then flash camera toward it. Required C observation: Flash beam blinds/angers visible creature or C direction target miss. Seed and clock fixed before any JavaScript comparison; no seed search.",
+  "segments": [
+    {
+      "seed": 15631020,
+      "datetime": "20340621113542",
+      "nethackrc": "OPTIONS=name:Probe15631020,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": ".\u0017uncursed expensive camera\n\u0007peaceful newt\naehlj\u001b        "
+    }
+  ]
+}
